@@ -7,11 +7,17 @@
 
 import UIKit
 
-class SignUpViewController: UIViewController {
+class SignUpViewController: UIViewController, UITextFieldDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Sign Up"
         view.backgroundColor = .blue
+        
     }
+    
+ 
+    
 }
+
+
