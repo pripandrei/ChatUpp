@@ -9,7 +9,9 @@ import UIKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
     
-    private let signUp = UIButton()
+    private let signUpLable = "Don't have an account?"
+    
+    private let logIn = UIButton()
     
     private let stackView = UIStackView()
     
@@ -29,14 +31,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     {
         super.viewDidLoad()
         
-        setUpNextButton()
-        setUpMailTextField()
-        setUpPasswordTextField()
+        setupLogInButton()
+        setupMailTextField()
+        setupPasswordTextField()
         configureStackView()
-        setStackViewConstraints()
         
         view.backgroundColor = .white
-        title = "Sign in"
+        title = "Log in"
         
         navigationController?.navigationBar.prefersLargeTitles = true
     }
@@ -56,6 +57,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         stackView.addArrangedSubview(mailLogInField)
         stackView.addArrangedSubview(passwordLogInField)
+        
+        setStackViewConstraints()
     }
     
     private func setStackViewConstraints() {
@@ -63,40 +66,53 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.bottomAnchor.constraint(equalTo: signUp.topAnchor, constant: -250),
+            stackView.bottomAnchor.constraint(equalTo: logIn.topAnchor, constant: -250),
             stackView.widthAnchor.constraint(equalToConstant: 300),
-            stackView.heightAnchor.constraint(equalToConstant: 100)
+            stackView.heightAnchor.constraint(equalToConstant: 120)
         ])
     }
     
-    private func setUpNextButton()
+    private func setupLogInButton()
     {
-        view.addSubview(signUp)
+        view.addSubview(logIn)
         
-        signUp.configuration = .filled()
-        signUp.configuration?.title = "Sign up"
-        signUp.configuration?.baseBackgroundColor = .systemPink
-        signUp.translatesAutoresizingMaskIntoConstraints = false
-        signUp.addTarget(self, action: #selector(segueToSignUpVC), for: .touchUpInside)
+        logIn.configuration = .filled()
+        logIn.configuration?.title = "Log in"
+        logIn.configuration?.baseBackgroundColor = .systemPink
+        logIn.addTarget(self, action: #selector(pushSignUpVC), for: .touchUpInside)
         
+        setLogInConstraints()
+    }
+    
+    private func setLogInConstraints() {
+        logIn.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            signUp.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
-            signUp.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            signUp.widthAnchor.constraint(equalToConstant: 200),
-            signUp.heightAnchor.constraint(equalToConstant: 50)
+            logIn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
+            logIn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logIn.widthAnchor.constraint(equalToConstant: 200),
+            logIn.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
-    private func setUpMailTextField() {
+    private func configureRegistrationLable()
+    {
+        
+    }
+    
+    private func setupSignUpButton()
+    {
+        
+    }
+    
+    private func setupMailTextField() {
         view.addSubview(mailLogInField)
 
         mailLogInField.text = "Enter mail here"
         mailLogInField.borderStyle = .roundedRect
         mailLogInField.translatesAutoresizingMaskIntoConstraints = false
-
     }
 
-    private func setUpPasswordTextField()
+    private func setupPasswordTextField()
     {
         view.addSubview(passwordLogInField)
 
@@ -105,7 +121,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         passwordLogInField.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    @objc func segueToSignUpVC() {
+    @objc func pushSignUpVC() {
         let signUpVC = SignUpViewController()
         navigationController?.pushViewController(signUpVC, animated: true)
     }
