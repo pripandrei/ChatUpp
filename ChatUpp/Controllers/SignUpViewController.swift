@@ -20,6 +20,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         configureStackView()
         setStackViewConstraints()
         setSignUpButton()
+        let ad = ObservableObject(value: 4)
+        print(ad.value)
     }
     
     lazy var textFields: [UITextField] =
@@ -32,11 +34,12 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
             let textField = CustomTextField()
             textField.tag = number
             textField.delegate = self
-            textField.text = textFieldTitles[number - 1]
+            textField.placeholder = textFieldTitles[number - 1]
             fields.append(textField)
         }
         return fields
     }()
+    
     
     private func configureStackView() {
         view.addSubview(stackView)
@@ -97,5 +100,29 @@ class CustomTextField: UITextField {
     private func setUpTextField() {
         borderStyle = .roundedRect
         translatesAutoresizingMaskIntoConstraints = false
+        
+    }
+}
+
+struct Asd {
+    
+}
+
+final class ObservableObject<T> {
+    var value: T {
+        didSet {
+            listiner?(value)
+        }
+    }
+    
+    var listiner: ((T) -> Void)?
+    
+    init(value: T) {
+        self.value = value
+    }
+    
+    func bind(_ listiner: @escaping((T) -> Void)) {
+        self.listiner = listiner
+        listiner(value)
     }
 }

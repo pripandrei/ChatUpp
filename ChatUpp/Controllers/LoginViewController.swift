@@ -9,7 +9,13 @@ import UIKit
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
     
-    private let signUpLable = "Don't have an account?"
+    // Try elements idea with all the signUpss
+    
+    private let signUpText = "Don't have an account?"
+    
+    private let signUpLable: UILabel = UILabel()
+    
+    private let signUpButton = UIButton()
     
     private let logIn = UIButton()
     
@@ -32,6 +38,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         
         setupLogInButton()
+        setupSignUpLable()
+        setupSignUpButton()
         setupMailTextField()
         setupPasswordTextField()
         configureStackView()
@@ -46,6 +54,30 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         if let text = textField.text {
             print(text)
         }
+    }
+    
+    private func setupSignUpLable() {
+        view.addSubview(signUpLable)
+    
+        signUpLable.text = signUpText
+        signUpLable.font = UIFont(name: "MalayalamSangamMN", size: 14.0)
+        
+        
+        setSignUpLableConstraints()
+    }
+    
+    private func setSignUpLableConstraints() {
+        signUpLable.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            signUpLable.centerXAnchor.constraint(equalTo: logIn.centerXAnchor),
+            signUpLable.topAnchor.constraint(equalTo: logIn.bottomAnchor, constant: 10),
+            signUpLable.leadingAnchor.constraint(equalTo: logIn.leadingAnchor)
+        ])
+    }
+    
+    private func setSingUpButton() {
+        
     }
     
     private func configureStackView() {
@@ -101,13 +133,30 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     private func setupSignUpButton()
     {
+        view.addSubview(signUpButton)
         
+        signUpButton.configuration = .plain()
+        signUpButton.configuration?.title = "SignUp"
+        signUpButton.configuration?.baseBackgroundColor = .blue
+        signUpButton.addTarget(self, action: #selector(pushSignUpVC), for: .touchUpInside)
+        signUpButton.configuration?.buttonSize = .small
+        
+        setSignUpButtonConstraints()
+    }
+    
+    private func setSignUpButtonConstraints() {
+        signUpButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            signUpButton.leadingAnchor.constraint(equalTo: signUpLable.trailingAnchor, constant: -65),
+            signUpButton.topAnchor.constraint(equalTo: logIn.bottomAnchor, constant: 2)
+        ])
     }
     
     private func setupMailTextField() {
         view.addSubview(mailLogInField)
 
-        mailLogInField.text = "Enter mail here"
+        mailLogInField.placeholder = "Enter mail here"
         mailLogInField.borderStyle = .roundedRect
         mailLogInField.translatesAutoresizingMaskIntoConstraints = false
     }
@@ -116,7 +165,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     {
         view.addSubview(passwordLogInField)
 
-        passwordLogInField.text = "Enter password here"
+        passwordLogInField.placeholder = "Enter password here"
         passwordLogInField.borderStyle = .roundedRect
         passwordLogInField.translatesAutoresizingMaskIntoConstraints = false
     }
