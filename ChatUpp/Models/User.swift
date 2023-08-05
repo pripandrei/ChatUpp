@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct User
+struct UserCustom
 {
     private static let identifireFactory: Int = 0
     private let id: Int
@@ -21,14 +21,14 @@ struct User
     }
     
     init(phoneNumber: Int) {
-        self.id = User.getUniqueIdentifire()
+        self.id = UserCustom.getUniqueIdentifire()
         self.phoneNumber = phoneNumber
     }
 }
 
 struct Chat {
     var messages: [Message] = []
-    let sender: User
+    let sender: UserCustom
 }
 
 struct Message {

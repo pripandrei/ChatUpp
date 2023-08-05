@@ -10,7 +10,7 @@ import FirebaseAuth
 
 class SignUpViewController: UIViewController, UITextFieldDelegate {
     
-    private var signUpViewModel = SignUpViewModel()
+    private var signUpViewModel = SignUpEmailViewModel()
     
     private let stackView = UIStackView()
     private let signUpButton = UIButton()
@@ -81,36 +81,11 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         ])
     }
     
-    @objc func finishRegistration() {
+    @objc func finishRegistration()
+    {
+        signUpViewModel.validateTextFields(using: textFields)
         
-        let textFieldsContainText = textFields.allSatisfy { textField in
-            guard let text = textField.text, !text.isEmpty else {
-                return false
-            }
-            
-            guard let textField = RegistrationTextfields(rawValue: textField.tag) else {
-                return false
-            }
-            
-            switch textField {
-            case .email: signUpViewModel.email = text
-            case .password:
-                if text.count < 6 { return false }
-                signUpViewModel.password = text
-            default: break
-            }
-            
-//            switch textField.tag {
-//            case 3: email = text
-//            case 4:
-//                if text.count < 6 { return false }
-//                password = text
-//            default: break
-//            }
-            return true
-        }
-        
-        if let navigationController = navigationController, textFieldsContainText  {
+        if let navigationController = navigationController  {
             signUpViewModel.signUp()
             navigationController.popViewController(animated: true)
         }
@@ -126,22 +101,47 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     }
 }
 
-final class SignUpViewModel {
+final class SignUpEmailViewModel {
     var email: String = ""
     var password: String = ""
-    var textField = UITextField()
+    
+    func validateTextFields(using textFields: [UITextField]) {
+        for textField in textFields {
+            guard let text = textField.text, !text.isEmpty else {
+                print("\(RegistrationTextfields.allCases[textField.tag]) field is empty!")
+                return
+            }
+            
+            guard let textField = RegistrationTextfields(rawValue: textField.tag) else {
+                return
+            }
+            
+            switch textField {
+            case .email: email = text
+            case .password:
+                if text.count < 6 {
+                    print("password must contain > 6 character")
+                    return
+                }
+                password = text
+            default: break
+            }
+        }
+    }
     
     func signUp() {
-        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-            guard let result = authResult, error == nil else {
-                fatalError("There was an error creating a user")
+        AuthenticationManager.shared.createUser(email: email, password: password) { authDataResult in
+            guard let authDataResult else {
+                print("No authDataResult == nil")
+                return
             }
-            print(result.user)
+            print("Success!")
+            print(authDataResult)
         }
     }
 }
 
-enum RegistrationTextfields: Int {
+enum RegistrationTextfields: Int, CaseIterable {
     case name = 1, familyName, email, password
 }
 
