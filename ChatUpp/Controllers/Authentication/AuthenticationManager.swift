@@ -35,6 +35,5 @@ final class AuthenticationManager {
             let authDataResultModel = authDataResultModel(user: result.user)
             complition(authDataResultModel)
         }
-        
     }
 }
