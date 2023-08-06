@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		756525BF2A7AF4C6005DC594 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */; };
 		756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C12A7E8240005DC594 /* AuthenticationManager.swift */; };
+		756525C72A7FE49E005DC594 /* ConversationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C62A7FE49E005DC594 /* ConversationsViewController.swift */; };
 		75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */; };
 		75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */; };
 		75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */; };
@@ -23,6 +24,7 @@
 		16945F0E08FAF16CF02D57E2 /* Pods_ChatUpp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ChatUpp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		756525C12A7E8240005DC594 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
+		756525C62A7FE49E005DC594 /* ConversationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsViewController.swift; sourceTree = "<group>"; };
 		75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatUpp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -48,21 +50,30 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		756525BD2A7AF09A005DC594 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ViewModels;
-			sourceTree = "<group>";
-		};
 		756525C02A7E821C005DC594 /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
-				75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */,
-				75C7B29E2A4DBF8000C41E69 /* SignUpViewController.swift */,
+				756525C42A7FDB1F005DC594 /* SingUp */,
+				756525C32A7FDAEA005DC594 /* LogIn */,
 				756525C12A7E8240005DC594 /* AuthenticationManager.swift */,
 			);
 			path = Authentication;
+			sourceTree = "<group>";
+		};
+		756525C32A7FDAEA005DC594 /* LogIn */ = {
+			isa = PBXGroup;
+			children = (
+				75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */,
+			);
+			path = LogIn;
+			sourceTree = "<group>";
+		};
+		756525C42A7FDB1F005DC594 /* SingUp */ = {
+			isa = PBXGroup;
+			children = (
+				75C7B29E2A4DBF8000C41E69 /* SignUpViewController.swift */,
+			);
+			path = SingUp;
 			sourceTree = "<group>";
 		};
 		75B5C4AD2A49AB0A00F63A5A = {
@@ -87,12 +98,11 @@
 			isa = PBXGroup;
 			children = (
 				756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */,
-				756525BD2A7AF09A005DC594 /* ViewModels */,
-				75B5C4D22A4B155E00F63A5A /* Views */,
-				75B5C4D12A4B155500F63A5A /* Controllers */,
+				756525C02A7E821C005DC594 /* Authentication */,
 				75B5C4D02A4B153D00F63A5A /* Models */,
 				75B5C4CD2A49AB1500F63A5A /* Supporting files */,
 				75B5C4C72A49AB0B00F63A5A /* Info.plist */,
+				756525C62A7FE49E005DC594 /* ConversationsViewController.swift */,
 			);
 			path = ChatUpp;
 			sourceTree = "<group>";
@@ -114,21 +124,6 @@
 				75B5C4CE2A49B3D300F63A5A /* User.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		75B5C4D12A4B155500F63A5A /* Controllers */ = {
-			isa = PBXGroup;
-			children = (
-				756525C02A7E821C005DC594 /* Authentication */,
-			);
-			path = Controllers;
-			sourceTree = "<group>";
-		};
-		75B5C4D22A4B155E00F63A5A /* Views */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 		9A774AFF592AD23FC132B5EB /* Frameworks */ = {
@@ -265,6 +260,7 @@
 			files = (
 				75B5C4CF2A49B3D300F63A5A /* User.swift in Sources */,
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
+				756525C72A7FE49E005DC594 /* ConversationsViewController.swift in Sources */,
 				75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
 				75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */,

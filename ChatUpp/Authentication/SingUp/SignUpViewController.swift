@@ -22,8 +22,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         configureStackView()
         setStackViewConstraints()
         setSignUpButton()
-        let ad = ObservableObject(value: 4)
-        print(ad.value)
     }
     
     lazy var textFields: [UITextField] =
@@ -86,20 +84,32 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         signUpViewModel.validateTextFields(using: textFields)
         
         if let navigationController = navigationController  {
-            signUpViewModel.signUp()
-            navigationController.popViewController(animated: true)
+            signUpViewModel.signUp() { registrationComplition in
+                if registrationComplition == .success {
+                    navigationController.popViewController(animated: true)
+                    navigationController.dismiss(animated: true)
+                }
+            }
+            
         }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
     }
-    
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        print("Letter Entered")
-        return true
-    }
+//
+//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+//        print("Letter Entered")
+//        return true
+//    }
 }
+
+enum UserRegistrationStatus {
+    case success
+    case failure
+}
+
+// MARK: - SignUpEmailViewModel
 
 final class SignUpEmailViewModel {
     var email: String = ""
@@ -129,21 +139,24 @@ final class SignUpEmailViewModel {
         }
     }
     
-    func signUp() {
+    func signUp(complition: @escaping (UserRegistrationStatus) -> Void) {
         AuthenticationManager.shared.createUser(email: email, password: password) { authDataResult in
             guard let authDataResult else {
                 print("No authDataResult == nil")
+                complition(.failure)
                 return
             }
+            
+            complition(.success)
             print("Success!")
             print(authDataResult)
         }
     }
 }
 
-enum RegistrationTextfields: Int, CaseIterable {
-    case name = 1, familyName, email, password
-}
+typealias complition = () -> Void
+
+// MARK: -
 
 class CustomTextField: UITextField {
     
@@ -163,21 +176,7 @@ class CustomTextField: UITextField {
     }
 }
 
-final class ObservableObject<T> {
-    var value: T {
-        didSet {
-            listiner?(value)
-        }
-    }
-    
-    var listiner: ((T) -> Void)?
-    
-    init(value: T) {
-        self.value = value
-    }
-    
-    func bind(_ listiner: @escaping((T) -> Void)) {
-        self.listiner = listiner
-        listiner(value)
-    }
+
+enum RegistrationTextfields: Int, CaseIterable {
+    case name = 1, familyName, email, password
 }
