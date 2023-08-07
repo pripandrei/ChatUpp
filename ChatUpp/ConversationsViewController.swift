@@ -8,13 +8,45 @@
 import UIKit
 import FirebaseAuth
 
+protocol ConversationViewModelDelegate: AnyObject {
+    func presentLogInForm()
+}
+
 class ConversationsViewController: UIViewController {
+    
+    var conversationsViewModel = ConversationsViewModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .blue
-//        signOut()
-        validateUserAuthentication()
+//        conversationsViewModel.signOut()
+        conversationsViewModel.delegate = self
+        conversationsViewModel.validateUserAuthentication()
+    }
+}
+
+extension ConversationsViewController:ConversationViewModelDelegate
+{
+    func presentLogInForm() {
+        let nav = UINavigationController(rootViewController: LoginViewController())
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    }
+}
+
+final class ConversationsViewModel {
+    
+    weak var delegate: ConversationViewModelDelegate?
+    
+    func validateUserAuthentication() {
+        
+        let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
+        
+        guard let user = authUser else {
+            delegate?.presentLogInForm()
+            return
+        }
+        print("User:", user)
     }
     
     func signOut() {
@@ -24,15 +56,4 @@ class ConversationsViewController: UIViewController {
             print("Error signing out")
         }
     }
-    
-    private func validateUserAuthentication() {
-        guard let user = Auth.auth().currentUser else {
-            let nav = UINavigationController(rootViewController: LoginViewController())
-            nav.modalPresentationStyle = .fullScreen
-            present(nav, animated: true)
-            return
-        }
-        print("User:", user)
-    }
-    
 }

@@ -19,13 +19,21 @@ struct authDataResultModel {
     }
 }
 
+
 final class AuthenticationManager {
     
     static var shared = AuthenticationManager()
     
     private init() {}
     
-    func createUser(email: String, password: String, complition: @escaping ((authDataResultModel?) -> Void))   {
+    func getAuthenticatedUser() throws -> authDataResultModel {
+        if let user = Auth.auth().currentUser {
+            return authDataResultModel(user: user)
+        }
+        throw URLError(.badServerResponse)
+    }
+    
+    func createUser(email: String, password: String, complition: @escaping ((authDataResultModel?) -> Void))  {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
                 print("There was an error creating a user")

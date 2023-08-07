@@ -146,7 +146,7 @@ final class SignUpEmailViewModel {
                 complition(.failure)
                 return
             }
-            
+        
             complition(.success)
             print("Success!")
             print(authDataResult)
