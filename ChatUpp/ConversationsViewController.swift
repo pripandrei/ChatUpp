@@ -16,15 +16,16 @@ class ConversationsViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .blue
 //        conversationsViewModel.signOut()
-        conversationsViewModel.showSignInForm.bind { [weak self] value in
-            if value == true {
+        setupBinding()
+        conversationsViewModel.validateUserAuthentication()
+    }
+    
+    private func setupBinding() {
+        conversationsViewModel.showSignInForm.bind { [weak self] showForm in
+            if showForm == true {
                 self?.presentLogInForm()
             }
         }
-//        conversationsViewModel.logInFormHandler = { [weak self] in
-//            self?.presentLogInForm()
-//        }
-        conversationsViewModel.validateUserAuthentication()
     }
 }
 
@@ -41,14 +42,11 @@ final class ConversationsViewModel {
     
     var showSignInForm: ObservableObject<Bool> = ObservableObject(value: false)
     
-    var logInFormHandler: (() -> Void)?
-    
     func validateUserAuthentication() {
         
         let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
         
         guard let user = authUser else {
-//            logInFormHandler?()
             showSignInForm.value = true
             return
         }

@@ -36,21 +36,3 @@ struct Message {
     var date: Date
 }
 
-final class ObservableObject<T> {
-    var value: T {
-        didSet {
-            listiner?(value)
-        }
-    }
-
-    var listiner: ((T) -> Void)?
-
-    init(value: T) {
-        self.value = value
-    }
-
-    func bind(_ listiner: @escaping((T) -> Void)) {
-        self.listiner = listiner
-        listiner(value)
-    }
-}

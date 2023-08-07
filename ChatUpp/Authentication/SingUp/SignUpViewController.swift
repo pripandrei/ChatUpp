@@ -154,9 +154,7 @@ final class SignUpEmailViewModel {
     }
 }
 
-typealias complition = () -> Void
-
-// MARK: -
+// MARK: - TextField initial setup
 
 class CustomTextField: UITextField {
     
