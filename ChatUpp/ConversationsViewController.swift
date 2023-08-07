@@ -8,24 +8,27 @@
 import UIKit
 import FirebaseAuth
 
-protocol ConversationViewModelDelegate: AnyObject {
-    func presentLogInForm()
-}
-
 class ConversationsViewController: UIViewController {
     
     var conversationsViewModel = ConversationsViewModel()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .blue
 //        conversationsViewModel.signOut()
-        conversationsViewModel.delegate = self
+        conversationsViewModel.showSignInForm.bind { [weak self] value in
+            if value == true {
+                self?.presentLogInForm()
+            }
+        }
+//        conversationsViewModel.logInFormHandler = { [weak self] in
+//            self?.presentLogInForm()
+//        }
         conversationsViewModel.validateUserAuthentication()
     }
 }
 
-extension ConversationsViewController:ConversationViewModelDelegate
+extension ConversationsViewController
 {
     func presentLogInForm() {
         let nav = UINavigationController(rootViewController: LoginViewController())
@@ -36,14 +39,17 @@ extension ConversationsViewController:ConversationViewModelDelegate
 
 final class ConversationsViewModel {
     
-    weak var delegate: ConversationViewModelDelegate?
+    var showSignInForm: ObservableObject<Bool> = ObservableObject(value: false)
+    
+    var logInFormHandler: (() -> Void)?
     
     func validateUserAuthentication() {
         
         let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
         
         guard let user = authUser else {
-            delegate?.presentLogInForm()
+//            logInFormHandler?()
+            showSignInForm.value = true
             return
         }
         print("User:", user)
