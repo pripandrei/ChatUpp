@@ -40,7 +40,7 @@ extension ConversationsViewController
 
 final class ConversationsViewModel {
     
-    var showSignInForm: ObservableObject<Bool> = ObservableObject(value: false)
+    var showSignInForm: ObservableObject<Bool> = ObservableObject(false)
     
     func validateUserAuthentication() {
         

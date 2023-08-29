@@ -16,7 +16,7 @@ final class ObservableObject<T> {
 
     var listiner: ((T) -> Void)?
 
-    init(value: T) {
+    init(_ value: T) {
         self.value = value
     }
 
