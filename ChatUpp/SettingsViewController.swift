@@ -14,16 +14,16 @@ class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setUpSignOutBtn()
         settingsViewModel.showSignInForm.bind { [weak self] showForm in
-            if showForm {
-                self?.presentLogInForm()
+            if showForm == true {
                 self?.tabBarController?.selectedIndex = 0
+                self?.presentLogInForm()
             }
-            
         }
+        setUpSignOutBtn()
         view.backgroundColor = .darkGray
     }
+
     
     let signOutBtn = UIButton()
     
@@ -32,7 +32,7 @@ class SettingsViewController: UIViewController {
         
         signOutBtn.configuration = .filled()
         signOutBtn.configuration?.title = "Sign Out"
-        signOutBtn.addTarget(self, action: #selector(settingsViewModel.signOut), for: .touchUpInside)
+        signOutBtn.addTarget(settingsViewModel, action: #selector(settingsViewModel.signOut), for: .touchUpInside)
         signOutBtn.configuration?.buttonSize = .large
         
         setSignOutBtnConstraints()
@@ -49,8 +49,6 @@ class SettingsViewController: UIViewController {
     }
     
     func presentLogInForm() {
-        // uncomment to show login instead of settings view
-//        let nav = UINavigationController(rootViewController: LoginViewController())
         let nav = UINavigationController(rootViewController: LoginViewController())
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
@@ -66,7 +64,6 @@ final class SettingsViewModel {
         do {
             try Auth.auth().signOut()
             showSignInForm.value = true
-            
         } catch {
             print("Error signing out")
         }

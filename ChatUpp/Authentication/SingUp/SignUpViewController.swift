@@ -174,7 +174,6 @@ class CustomTextField: UITextField {
     }
 }
 
-
 enum RegistrationTextfields: Int, CaseIterable {
     case name = 1, familyName, email, password
 }
