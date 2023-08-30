@@ -127,8 +127,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         view.addSubview(signUpButton)
         
         signUpButton.configuration = .plain()
-        signUpButton.configuration?.title = "SignUp"
-        signUpButton.configuration?.baseBackgroundColor = .blue
+        signUpButton.configuration?.title = "Sign Up"
+//        signUpButton.configuration?.baseBackgroundColor = .blue
         signUpButton.addTarget(self, action: #selector(pushSignUpVC), for: .touchUpInside)
         signUpButton.configuration?.buttonSize = .small
         
