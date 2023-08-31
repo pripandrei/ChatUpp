@@ -17,11 +17,10 @@ class ConversationsViewController: UIViewController {
         view.backgroundColor = .white
 //        conversationsViewModel.signOut()
         setupBinding()
-//        conversationsViewModel.validateUserAuthentication()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         conversationsViewModel.validateUserAuthentication()
     }
     
@@ -55,25 +54,7 @@ final class ConversationsViewModel {
             showSignInForm.value = true
             return
         }
+        showSignInForm.value = false
         print("User:", user)
     }
-}
-
-public class TabBarViewController: UITabBarController {
-    public override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        setupTabBarController()
-    }
-    
-    func setupTabBarController() {
-        let firstVC = ConversationsViewController()
-        firstVC.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
-        
-        let secondVC = SettingsViewController()
-        secondVC.tabBarItem = UITabBarItem(title: "Settings", image: nil, tag: 2)
-        
-        viewControllers = [firstVC,secondVC]
-    }
-    
 }

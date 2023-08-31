@@ -33,6 +33,21 @@ final class AuthenticationManager {
         throw URLError(.badServerResponse)
     }
     
+    
+    
+    func signIn(email: String, password: String, complition: @escaping (authDataResultModel?) -> Void)  {
+        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+            guard let result = authResult, error == nil else {
+                print("Could not log you in")
+                complition(nil)
+                return
+            }
+            let authDataResultModel = authDataResultModel(user: result.user)
+            complition(authDataResultModel)
+            print(result)
+        }
+    }
+    
     func createUser(email: String, password: String, complition: @escaping ((authDataResultModel?) -> Void))  {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {

@@ -12,6 +12,7 @@
 		756525C72A7FE49E005DC594 /* ConversationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C62A7FE49E005DC594 /* ConversationsViewController.swift */; };
 		756525CA2A8127F5005DC594 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C92A8127F5005DC594 /* Observable.swift */; };
 		756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */; };
+		756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525CD2A9F96AB005DC594 /* TabBarViewController.swift */; };
 		75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */; };
 		75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */; };
 		75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */; };
@@ -29,6 +30,7 @@
 		756525C62A7FE49E005DC594 /* ConversationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsViewController.swift; sourceTree = "<group>"; };
 		756525C92A8127F5005DC594 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		756525CD2A9F96AB005DC594 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatUpp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				756525C82A8127CC005DC594 /* Utilities */,
 				75B5C4C72A49AB0B00F63A5A /* Info.plist */,
 				756525C62A7FE49E005DC594 /* ConversationsViewController.swift */,
+				756525CD2A9F96AB005DC594 /* TabBarViewController.swift */,
 				756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */,
 			);
 			path = ChatUpp;
@@ -275,6 +278,7 @@
 				756525CA2A8127F5005DC594 /* Observable.swift in Sources */,
 				75B5C4CF2A49B3D300F63A5A /* User.swift in Sources */,
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
+				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
 				756525C72A7FE49E005DC594 /* ConversationsViewController.swift in Sources */,
 				75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,

@@ -14,16 +14,20 @@ class SettingsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        settingsViewModel.showSignInForm.bind { [weak self] showForm in
-            if showForm == true {
-                self?.tabBarController?.selectedIndex = 0
-                self?.presentLogInForm()
-            }
-        }
+        setupBinder()
         setUpSignOutBtn()
-        view.backgroundColor = .darkGray
+        view.backgroundColor = .white
     }
 
+    
+    func setupBinder() {
+        settingsViewModel.showSignInForm.bind { [weak self] showForm in
+            if showForm == true {
+                self?.presentLogInForm()
+                self?.tabBarController?.selectedIndex = 0
+            }
+        }
+    }
     
     let signOutBtn = UIButton()
     

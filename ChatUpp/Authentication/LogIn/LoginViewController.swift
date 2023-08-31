@@ -12,6 +12,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     // Try elements idea with all the signUpss
     
+    let loginViewModel = LoginViewModel()
+    
     private let signUpText = "Don't have an account?"
     
     private let signUpLable: UILabel = UILabel()
@@ -50,12 +52,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         navigationController?.navigationBar.prefersLargeTitles = true
     }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        if let text = textField.text {
-            print(text)
-        }
-    }
+
     
     private func setupSignUpLable() {
         view.addSubview(signUpLable)
@@ -167,31 +164,81 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     @objc func logInButtonTap() {
-        
-        guard let email = mailLogInField.text,
-              let password = passwordLogInField.text,
-                !email.isEmpty,
-                !password.isEmpty else {
-            print("Some fields are empty")
-            return
-        }
-        
-        
-        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            guard let result = authResult, error == nil else {
-                print("Could not log you in")
-                return
+//        let validationResult = loginViewModel.validateCredentials()
+//        if validationResult == .valid {
+//            loginViewModel.signIn()
+////            navigationController?.dismiss(animated: true)
+//            self.dismiss(animated: true)
+//        }
+        do {
+            try loginViewModel.validateCredentialss()
+            loginViewModel.signIn() {  [weak self] status in
+                if status == .loggedIn {
+                    self?.navigationController?.dismiss(animated: true)
+                }
             }
-            
-            print(result)
+        } catch {
+            print(error)
         }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+        return textField.resignFirstResponder()
+    }
+    
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        if let text = textField.text {
+            print(text)
+            switch textField {
+            case mailLogInField: loginViewModel.email = textField.text!
+            case passwordLogInField: loginViewModel.password = textField.text!
+            default: break
+            }
+        }
+        return true
     }
 }
 
+final class LoginViewModel {
+    
+    var email: String = ""
+    var password: String = ""
+    
+//    func validateCredentials() -> ValidationStatus {
+//        guard !email.isEmpty,
+//              !password.isEmpty else {
+//            print("Some fields are empty")
+//            return .invalid
+//        }
+//        return .valid
+//    }
+    
+    func validateCredentialss() throws {
+        guard !email.isEmpty,
+              !password.isEmpty else {
+            print("Some fields are empty")
+            throw ValidationStatus.invalid
+        }
+    }
+    
+    func signIn(complition: @escaping (LoginStatus) -> Void) {
+        AuthenticationManager.shared.signIn(email: email, password: password) { authRestult in
+            guard let _ = authRestult else {
+                complition(.loggedOut)
+                return
+            }
+            complition(.loggedIn)
+        }
+    }
+}
 
+enum LoginStatus {
+    case loggedIn
+    case loggedOut
+}
 
+enum ValidationStatus: Error {
+    case valid
+    case invalid
+}
 
