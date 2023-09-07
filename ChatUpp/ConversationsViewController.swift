@@ -10,6 +10,10 @@ import FirebaseAuth
 
 class ConversationsViewController: UIViewController {
     
+    struct Cells {
+        static let conversationCell = "ConversationCell"
+    }
+    
     let tableView = UITableView()
     
     var conversationsViewModel = ConversationsViewModel()
@@ -19,6 +23,7 @@ class ConversationsViewController: UIViewController {
         view.backgroundColor = .white
 //        conversationsViewModel.signOut()
         setupBinding()
+        tableView.register(ConversationCell.self, forCellReuseIdentifier: Cells.conversationCell)
         configureTableView()
     }
     
@@ -44,19 +49,28 @@ class ConversationsViewController: UIViewController {
     
     func setTableViewDelegates() {
         tableView.dataSource = self
-        tableView.delegate = self
+//        tableView.delegate = self
     }
 }
 
-extension ConversationsViewController: UITableViewDelegate, UITableViewDataSource {
+
+// MARK: - TableView DataSource
+
+extension ConversationsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         10
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return UITableViewCell()
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cells.conversationCell, for: indexPath) as? ConversationCell else {
+            fatalError("Unable to dequeu reusable cell")
+        }
+        
+        return cell
     }
 }
+
+// MARK: - Navigation
 
 extension ConversationsViewController
 {
@@ -66,6 +80,8 @@ extension ConversationsViewController
         present(nav, animated: true)
     }
 }
+
+// MARK: - Conversations ViewModel
 
 final class ConversationsViewModel {
     
