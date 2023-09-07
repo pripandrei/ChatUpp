@@ -53,6 +53,8 @@ final class AuthenticationManager {
                 complition(nil)
                 return
             }
+            
+            print("=====", result.user)
             let authDataResultModel = authDataResultModel(user: result.user)
             complition(authDataResultModel)
         }

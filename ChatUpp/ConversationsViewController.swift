@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 
+
 class ConversationsViewController: UIViewController {
     
     struct Cells {
@@ -58,7 +59,7 @@ class ConversationsViewController: UIViewController {
 
 extension ConversationsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
+        20
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -68,6 +69,7 @@ extension ConversationsViewController: UITableViewDataSource {
         
         return cell
     }
+    
 }
 
 // MARK: - Navigation
