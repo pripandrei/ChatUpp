@@ -90,18 +90,12 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                     navigationController.dismiss(animated: true)
                 }
             }
-            
         }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
     }
-//
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        print("Letter Entered")
-//        return true
-//    }
 }
 
 enum UserRegistrationStatus {

@@ -15,7 +15,7 @@ class TabBarViewController: UITabBarController {
     }
     
     func setupTabBarController() {
-        let firstVC = ConversationsViewController()
+        let firstVC = UINavigationController(rootViewController: ConversationsViewController())
         firstVC.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
         
         let secondVC = SettingsViewController()

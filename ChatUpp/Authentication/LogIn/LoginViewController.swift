@@ -10,8 +10,6 @@ import FirebaseAuth
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
     
-    // Try elements idea with all the signUpss
-    
     let loginViewModel = LoginViewModel()
     
     private let signUpText = "Don't have an account?"
@@ -52,8 +50,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         navigationController?.navigationBar.prefersLargeTitles = true
     }
-
     
+    // MARK: - setup viewController
+
     private func setupSignUpLable() {
         view.addSubview(signUpLable)
     
@@ -158,21 +157,25 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         passwordLogInField.translatesAutoresizingMaskIntoConstraints = false
     }
     
+    // MARK: - Navigation
+    
     @objc func pushSignUpVC() {
         let signUpVC = SignUpViewController()
         navigationController?.pushViewController(signUpVC, animated: true)
     }
     
+    // MARK: - Login handler
+    
     @objc func logInButtonTap() {
-//        let validationResult = loginViewModel.validateCredentials()
+//        let validationResult = loginViewModel.validateCredentialss()
 //        if validationResult == .valid {
 //            loginViewModel.signIn()
 ////            navigationController?.dismiss(animated: true)
 //            self.dismiss(animated: true)
 //        }
         do {
-            try loginViewModel.validateCredentialss()
-            loginViewModel.signIn() {  [weak self] status in
+            try loginViewModel.validateCredentials()
+            loginViewModel.signIn() { [weak self] status in
                 if status == .loggedIn {
                     self?.navigationController?.dismiss(animated: true)
                 }
@@ -182,6 +185,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // MARK: - TextFields delegate
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         return textField.resignFirstResponder()
     }
@@ -190,8 +195,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         if let text = textField.text {
             print(text)
             switch textField {
-            case mailLogInField: loginViewModel.email = textField.text!
-            case passwordLogInField: loginViewModel.password = textField.text!
+            case mailLogInField: loginViewModel.email = text
+            case passwordLogInField: loginViewModel.password = text
             default: break
             }
         }
@@ -199,12 +204,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
 }
 
+// MARK: - LoginViewModel
+
 final class LoginViewModel {
     
     var email: String = ""
     var password: String = ""
     
-//    func validateCredentials() -> ValidationStatus {
+//    func validateCredentialss() -> ValidationStatus {
 //        guard !email.isEmpty,
 //              !password.isEmpty else {
 //            print("Some fields are empty")
@@ -213,7 +220,7 @@ final class LoginViewModel {
 //        return .valid
 //    }
     
-    func validateCredentialss() throws {
+    func validateCredentials() throws {
         guard !email.isEmpty,
               !password.isEmpty else {
             print("Some fields are empty")

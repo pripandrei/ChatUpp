@@ -10,6 +10,8 @@ import FirebaseAuth
 
 class ConversationsViewController: UIViewController {
     
+    let tableView = UITableView()
+    
     var conversationsViewModel = ConversationsViewModel()
     
     override func viewDidLoad() {
@@ -17,6 +19,7 @@ class ConversationsViewController: UIViewController {
         view.backgroundColor = .white
 //        conversationsViewModel.signOut()
         setupBinding()
+        configureTableView()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -30,6 +33,28 @@ class ConversationsViewController: UIViewController {
                 self?.presentLogInForm()
             }
         }
+    }
+    
+    func configureTableView() {
+        view.addSubview(tableView)
+        setTableViewDelegates()
+        tableView.pin(to: view)
+        tableView.rowHeight = 50
+    }
+    
+    func setTableViewDelegates() {
+        tableView.dataSource = self
+        tableView.delegate = self
+    }
+}
+
+extension ConversationsViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        10
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        return UITableViewCell()
     }
 }
 
@@ -56,5 +81,16 @@ final class ConversationsViewModel {
         }
         showSignInForm.value = false
         print("User:", user)
+    }
+}
+
+
+extension UIView {
+    func pin(to superView: UIView) {
+        translatesAutoresizingMaskIntoConstraints                             = false
+        topAnchor.constraint(equalTo: superView.topAnchor).isActive           = true
+        bottomAnchor.constraint(equalTo: superView.bottomAnchor).isActive     = true
+        leadingAnchor.constraint(equalTo: superView.leadingAnchor).isActive   = true
+        trailingAnchor.constraint(equalTo: superView.trailingAnchor).isActive = true
     }
 }

@@ -33,8 +33,6 @@ final class AuthenticationManager {
         throw URLError(.badServerResponse)
     }
     
-    
-    
     func signIn(email: String, password: String, complition: @escaping (authDataResultModel?) -> Void)  {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
