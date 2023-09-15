@@ -11,11 +11,12 @@ import FirebaseAuth
 struct authDataResultModel {
     let uid: String
     let email: String?
-//    let photoURL: String?
+    let photoURL: String?
     
     init(user: User) {
         self.uid = user.uid
         self.email = user.email
+        self.photoURL = user.photoURL?.absoluteString
     }
 }
 
@@ -41,19 +42,16 @@ final class AuthenticationManager {
             }
             let authDataResultModel = authDataResultModel(user: result.user)
             complition(authDataResultModel)
-            print(result)
         }
     }
     
-    func createUser(email: String, password: String, complition: @escaping ((authDataResultModel?) -> Void))  {
+    func signUpUser(email: String, password: String, complition: @escaping ((authDataResultModel?) -> Void))  {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
-                print("There was an error creating a user")
+                print("There was an error during user registration: \(error?.localizedDescription)")
                 complition(nil)
                 return
             }
-            
-            print("=====", result.user)
             let authDataResultModel = authDataResultModel(user: result.user)
             complition(authDataResultModel)
         }

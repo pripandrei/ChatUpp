@@ -86,6 +86,8 @@ extension ConversationsViewController
 
 final class ConversationsViewModel {
     
+//    var userProfile: authDataResultModel?
+    
     var showSignInForm: ObservableObject<Bool> = ObservableObject(false)
     
     func validateUserAuthentication() {

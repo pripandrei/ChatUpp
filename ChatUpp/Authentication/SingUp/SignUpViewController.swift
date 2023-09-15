@@ -25,7 +25,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     }
   
     func textFieldDidBeginEditing(_ textField: UITextField) {
-//        setStackViewConstraints(false, true)
         stackView.translatesAutoresizingMaskIntoConstraints = true
             animateViewMoving(true, moveValue: 80)
     }
@@ -153,16 +152,20 @@ final class SignUpEmailViewModel {
     }
     
     func signUp(complition: @escaping (UserRegistrationStatus) -> Void) {
-        AuthenticationManager.shared.createUser(email: email, password: password) { authDataResult in
+        AuthenticationManager.shared.signUpUser(email: email, password: password) { authDataResult in
             guard let authDataResult else {
                 print("No authDataResult == nil")
                 complition(.failure)
                 return
             }
-        
+            UserManager.shared.createNewUser(with: authDataResult) { isCreated in
+                if isCreated {
+                   print("User was created!")
+                } else {
+                    print("Error creating user")
+                }
+            }
             complition(.success)
-            print("Success!")
-            print(authDataResult)
         }
     }
 }
@@ -180,6 +183,7 @@ class CustomTextField: UITextField {
         super.init(coder: coder)
         setUpTextField()
     }
+    
 
     private func setUpTextField() {
         borderStyle = .roundedRect

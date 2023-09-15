@@ -15,6 +15,7 @@
 		756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525CD2A9F96AB005DC594 /* TabBarViewController.swift */; };
 		756525D02AA9F0AF005DC594 /* UserChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525CF2AA9F0AF005DC594 /* UserChat.swift */; };
 		756525D22AAA147A005DC594 /* ConversationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D12AAA147A005DC594 /* ConversationCell.swift */; };
+		756525D52AB50079005DC594 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D42AB50079005DC594 /* UserManager.swift */; };
 		75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */; };
 		75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */; };
 		75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */; };
@@ -35,6 +36,7 @@
 		756525CD2A9F96AB005DC594 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		756525CF2AA9F0AF005DC594 /* UserChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserChat.swift; sourceTree = "<group>"; };
 		756525D12AAA147A005DC594 /* ConversationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCell.swift; sourceTree = "<group>"; };
+		756525D42AB50079005DC594 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatUpp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -94,6 +96,14 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		756525D32AB50035005DC594 /* Firestore */ = {
+			isa = PBXGroup;
+			children = (
+				756525D42AB50079005DC594 /* UserManager.swift */,
+			);
+			path = Firestore;
+			sourceTree = "<group>";
+		};
 		75B5C4AD2A49AB0A00F63A5A = {
 			isa = PBXGroup;
 			children = (
@@ -115,6 +125,7 @@
 		75B5C4B82A49AB0A00F63A5A /* ChatUpp */ = {
 			isa = PBXGroup;
 			children = (
+				756525D32AB50035005DC594 /* Firestore */,
 				756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */,
 				756525C02A7E821C005DC594 /* Authentication */,
 				75B5C4D02A4B153D00F63A5A /* Models */,
@@ -284,6 +295,7 @@
 				756525CA2A8127F5005DC594 /* Observable.swift in Sources */,
 				75B5C4CF2A49B3D300F63A5A /* User.swift in Sources */,
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
+				756525D52AB50079005DC594 /* UserManager.swift in Sources */,
 				756525D02AA9F0AF005DC594 /* UserChat.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
 				756525C72A7FE49E005DC594 /* ConversationsViewController.swift in Sources */,

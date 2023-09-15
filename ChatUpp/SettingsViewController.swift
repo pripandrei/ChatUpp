@@ -11,6 +11,7 @@ import FirebaseAuth
 class SettingsViewController: UIViewController {
     
     let settingsViewModel = SettingsViewModel()
+    let signOutBtn = UIButton()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,7 +19,6 @@ class SettingsViewController: UIViewController {
         setUpSignOutBtn()
         view.backgroundColor = .white
     }
-
     
     func setupBinder() {
         settingsViewModel.showSignInForm.bind { [weak self] showForm in
@@ -28,8 +28,6 @@ class SettingsViewController: UIViewController {
             }
         }
     }
-    
-    let signOutBtn = UIButton()
     
     func setUpSignOutBtn() {
         view.addSubview(signOutBtn)
@@ -58,7 +56,6 @@ class SettingsViewController: UIViewController {
         present(nav, animated: true)
     }
 }
-
 
 final class SettingsViewModel {
     
