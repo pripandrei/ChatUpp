@@ -19,7 +19,6 @@ struct authDataResultModel {
     }
 }
 
-
 final class AuthenticationManager {
     
     static var shared = AuthenticationManager()
@@ -36,7 +35,7 @@ final class AuthenticationManager {
     func signIn(email: String, password: String, complition: @escaping (authDataResultModel?) -> Void)  {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
-                print("Could not log you in")
+                print("Could not log you in. Error: \(String(describing: error))")
                 complition(nil)
                 return
             }

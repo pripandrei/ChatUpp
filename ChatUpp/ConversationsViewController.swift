@@ -8,7 +8,6 @@
 import UIKit
 import FirebaseAuth
 
-
 class ConversationsViewController: UIViewController {
     
     struct Cells {
@@ -102,6 +101,7 @@ final class ConversationsViewModel {
     }
 }
 
+// MARK: - Create separate file extansion for this
 
 extension UIView {
     func pin(to superView: UIView) {
