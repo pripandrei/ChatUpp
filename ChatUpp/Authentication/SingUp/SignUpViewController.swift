@@ -25,18 +25,21 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     }
   
     func textFieldDidBeginEditing(_ textField: UITextField) {
+//        setStackViewConstraints(false, true)
+        stackView.translatesAutoresizingMaskIntoConstraints = true
             animateViewMoving(true, moveValue: 80)
     }
 
     func textFieldDidEndEditing(_ textField: UITextField) {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
             animateViewMoving(false, moveValue: 80)
     }
 
     func animateViewMoving(_ up: Bool, moveValue: CGFloat){
-        let movement: CGFloat = ( up ? -moveValue : moveValue)
+        let movement: CGFloat = (up ? -moveValue : moveValue)
 
         UIView.animate(withDuration: 0.3, delay: 0.0, animations: {
-            self.view.frame = CGRectOffset(self.view.frame, 0, movement)
+            self.stackView.frame = CGRectOffset(self.stackView.frame, 0, movement)
         })
     }
     
