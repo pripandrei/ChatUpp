@@ -60,9 +60,9 @@ final class UserManager {
             let email = snapshot["email"] as? String
             let photoURL = snapshot["photo_url"] as? String
             
-            let db = DBUser(uid: uid, date: date, email: email, photoURL: photoURL)
+            let databaseUser = DBUser(uid: uid, date: date, email: email, photoURL: photoURL)
             
-            complition(db)
+            complition(databaseUser)
         }
     }
     

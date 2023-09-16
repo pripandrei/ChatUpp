@@ -158,7 +158,7 @@ final class SignUpEmailViewModel {
                 complition(.failure)
                 return
             }
-            
+//            print("==== Get Auth User", try? AuthenticationManager.shared.getAuthenticatedUser())
             UserManager.shared.createNewUser(with: authDataResult) { isCreated in
                 if isCreated {
                    print("User was created!")

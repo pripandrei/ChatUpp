@@ -28,6 +28,7 @@ final class AuthenticationManager {
     
     func getAuthenticatedUser() throws -> authDataResultModel {
         if let user = Auth.auth().currentUser {
+//            print("=======Curent USer:", user.displayName)
             return authDataResultModel(user: user)
         }
         throw URLError(.badServerResponse)
