@@ -30,10 +30,42 @@
             filePath = "ChatUpp/Authentication/SingUp/SignUpViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "161"
-            endingLineNumber = "161"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
             landmarkName = "signUp(complition:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "635CAF14-5CD3-47EE-9F1A-C2AD72BF3060 - ab1ee13f1a65149"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Optional&lt;ChatUpp.authDataResultModel&gt;) -&gt; () in ChatUpp.SignUpEmailViewModel.signUp(complition: (ChatUpp.UserRegistrationStatus) -&gt; ()) -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Authentication/SingUp/SignUpViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "165"
+                  endingLineNumber = "165"
+                  offsetFromSymbolStart = "336">
+               </Location>
+               <Location
+                  uuid = "635CAF14-5CD3-47EE-9F1A-C2AD72BF3060 - 2898e07703f6275f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.Bool) -&gt; () in closure #1 (Swift.Optional&lt;ChatUpp.authDataResultModel&gt;) -&gt; () in ChatUpp.SignUpEmailViewModel.signUp(complition: (ChatUpp.UserRegistrationStatus) -&gt; ()) -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Authentication/SingUp/SignUpViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "166"
+                  endingLineNumber = "166"
+                  offsetFromSymbolStart = "44">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

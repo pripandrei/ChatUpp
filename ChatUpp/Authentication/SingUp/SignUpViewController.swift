@@ -104,8 +104,11 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         if let navigationController = navigationController  {
             signUpViewModel.signUp() { registrationStatus in
                 if registrationStatus == .success {
-                    navigationController.popViewController(animated: true)
-                    navigationController.dismiss(animated: true)
+                    
+                    let usernameRegistrationVC = UsernameRegistrationViewController()
+                    navigationController.pushViewController(usernameRegistrationVC, animated: true)
+//                    navigationController.popViewController(animated: true)
+//                    navigationController.dismiss(animated: true)
                 }
             }
         }
