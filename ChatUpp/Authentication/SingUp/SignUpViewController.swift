@@ -158,6 +158,7 @@ final class SignUpEmailViewModel {
                 complition(.failure)
                 return
             }
+            
             UserManager.shared.createNewUser(with: authDataResult) { isCreated in
                 if isCreated {
                    print("User was created!")

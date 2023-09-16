@@ -48,7 +48,7 @@ final class AuthenticationManager {
     func signUpUser(email: String, password: String, complition: @escaping ((authDataResultModel?) -> Void))  {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
-                print("There was an error during user registration: \(error?.localizedDescription)")
+                print("There was an error during user registration: \(String(describing: error))")
                 complition(nil)
                 return
             }
