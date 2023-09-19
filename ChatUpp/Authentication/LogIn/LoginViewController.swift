@@ -179,11 +179,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @objc func logInButtonTap() {
         do {
             try loginViewModel.validateCredentials()
-//            loginViewModel.signIn() { [weak self] status in
-//                if status == .loggedIn {
-//                    self?.navigationController?.dismiss(animated: true)
-//                }
-//            }
             loginViewModel.signIn()
         } catch {
             print(error)
@@ -234,25 +229,6 @@ final class LoginViewModel {
             self?.loginStatus.value = .loggedIn
         }
     }
-    
-    //    func validateCredentialss() -> ValidationStatus {
-    //        guard !email.isEmpty,
-    //              !password.isEmpty else {
-    //            print("Some fields are empty")
-    //            return .invalid
-    //        }
-    //        return .valid
-    //    }
-    
-//    func signIn(complition: @escaping (LoginStatus) -> Void) {
-//        AuthenticationManager.shared.signIn(email: email, password: password) { authRestult in
-//            guard let _ = authRestult else {
-//                complition(.loggedOut)
-//                return
-//            }
-//            complition(.loggedIn)
-//        }
-//    }
 }
 
 enum LoginStatus {
