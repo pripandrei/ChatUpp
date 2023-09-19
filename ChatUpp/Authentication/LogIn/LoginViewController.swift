@@ -241,3 +241,9 @@ enum ValidationStatus: Error {
     case invalid
 }
 
+enum ResposneStatus {
+    case success
+    case failed
+}
+
+

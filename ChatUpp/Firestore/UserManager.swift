@@ -23,12 +23,17 @@ final class UserManager {
     
     private init() {}
     
-    func updateUser(with userID: String, usingName name: String) {
+    func updateUser(with userID: String, usingName name: String, complition: @escaping (ResposneStatus) -> Void) {
         let userData: [String: Any] = [
             "name" : name
         ]
         Firestore.firestore().collection("users").document(userID).setData(userData, merge: true) { error in
-            
+            if let error = error {
+                print("There was an error updating username: ", error.localizedDescription)
+                complition(.failed)
+                return
+            }
+            complition(.success)
         }
     }
     

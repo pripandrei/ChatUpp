@@ -15,6 +15,8 @@ final class UsernameRegistrationViewModel {
     
 //    var userPhoto: UIImage?
     
+    let finishRegistration: ObservableObject<Bool?> = ObservableObject(nil)
+    
     func validateUsernameTextField(_ textField: UITextField) -> ValidationStatus {
         guard let username = textField.text, !username.isEmpty else {
             print("Username should not be empty!")
@@ -27,7 +29,11 @@ final class UsernameRegistrationViewModel {
     func updateUser() {
         let userID = try! AuthenticationManager.shared.getAuthenticatedUser().uid
         
-        UserManager.shared.updateUser(with: userID, usingName: username)
+        UserManager.shared.updateUser(with: userID, usingName: username) { [weak self] status in
+            if status == .success {
+                self?.finishRegistration.value = true
+            }
+        }
     }
 }
 
@@ -44,6 +50,15 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         view.backgroundColor = .white
         configureUsernameTextField()
         configureContinueButton()
+        configureBinding()
+    }
+    
+    private func configureBinding() {
+        usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
+            if let finish = finishRegistration, finish == true {
+                self.navigationController?.dismiss(animated: true)
+            }
+        }
     }
     
     private func configureContinueButton() {
