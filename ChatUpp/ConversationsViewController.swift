@@ -25,10 +25,6 @@ class ConversationsViewController: UIViewController {
         setupBinding()
         tableView.register(ConversationCell.self, forCellReuseIdentifier: Cells.conversationCell)
         configureTableView()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         conversationsViewModel.validateUserAuthentication()
     }
     

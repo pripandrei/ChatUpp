@@ -20,6 +20,10 @@ class SettingsViewController: UIViewController {
         view.backgroundColor = .white
     }
     
+    deinit {
+        print("Settings ============ deinit")
+    }
+    
 // MARK: - Binder
     
     func setupBinder() {

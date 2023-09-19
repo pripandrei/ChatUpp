@@ -21,8 +21,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     private let logIn = UIButton()
     
     private let stackView = UIStackView()
-    
-    lazy private var mailLogInField: UITextField = {
+
+    lazy private var mailLogInField: UITextField = { 
         let mailTextField = UITextField()
         mailTextField.delegate = self
         return mailTextField
