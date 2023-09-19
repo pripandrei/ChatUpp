@@ -68,7 +68,6 @@ extension ConversationsViewController: UITableViewDataSource {
         
         return cell
     }
-    
 }
 
 // MARK: - Navigation
@@ -94,12 +93,11 @@ final class ConversationsViewModel {
         
         let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
         
-        guard let user = authUser else {
+        guard authUser != nil else {
             showSignInForm.value = true
             return
         }
         showSignInForm.value = false
-        print("User:", user)
     }
 }
 
