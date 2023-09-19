@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        window?.windowScene = windowScene
 //        let tabbar = UITabBarController()
 //        tabbar.viewControllers = [ConversationsViewController(), SettingsViewController()]
-        window?.rootViewController = UsernameRegistrationViewController()
+        window?.rootViewController = TabBarViewController()
         window?.makeKeyAndVisible()
     }
 

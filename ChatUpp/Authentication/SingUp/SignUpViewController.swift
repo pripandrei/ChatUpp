@@ -23,6 +23,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         setStackViewConstraints()
         setSignUpButton()
     }
+    
+    // TODO: - Remove this block after poping name textfields
   
     func textFieldDidBeginEditing(_ textField: UITextField) {
         stackView.translatesAutoresizingMaskIntoConstraints = true
@@ -97,18 +99,18 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         ])
     }
     
-    @objc func finishRegistration()
+    @objc private func finishRegistration()
     {
-        signUpViewModel.validateTextFields(using: textFields)
+        let validationResult = signUpViewModel.validateTextFields(using: textFields)
+        if validationResult == .invalid {
+            return
+        }
         
         if let navigationController = navigationController  {
             signUpViewModel.signUp() { registrationStatus in
-                if registrationStatus == .success {
-                    
+                if registrationStatus == .success{
                     let usernameRegistrationVC = UsernameRegistrationViewController()
                     navigationController.pushViewController(usernameRegistrationVC, animated: true)
-//                    navigationController.popViewController(animated: true)
-//                    navigationController.dismiss(animated: true)
                 }
             }
         }
@@ -130,15 +132,15 @@ final class SignUpEmailViewModel {
     var email: String = ""
     var password: String = ""
     
-    func validateTextFields(using textFields: [UITextField]) {
+    func validateTextFields(using textFields: [UITextField]) -> ValidationStatus {
         for textField in textFields {
             guard let text = textField.text, !text.isEmpty else {
                 print("\(RegistrationTextfields.allCases[textField.tag]) field is empty!")
-                return
+                return .invalid
             }
             
             guard let textField = RegistrationTextfields(rawValue: textField.tag) else {
-                return
+                return .invalid
             }
             
             switch textField {
@@ -146,12 +148,13 @@ final class SignUpEmailViewModel {
             case .password:
                 if text.count < 6 {
                     print("password must contain > 6 character")
-                    return
+                    return .invalid
                 }
                 password = text
             default: break
             }
         }
+        return .valid
     }
     
     func signUp(complition: @escaping (UserRegistrationStatus) -> Void) {
@@ -161,7 +164,6 @@ final class SignUpEmailViewModel {
                 complition(.failure)
                 return
             }
-//            print("==== Get Auth User", try? AuthenticationManager.shared.getAuthenticatedUser())
             UserManager.shared.createNewUser(with: authDataResult) { isCreated in
                 if isCreated {
                    print("User was created!")

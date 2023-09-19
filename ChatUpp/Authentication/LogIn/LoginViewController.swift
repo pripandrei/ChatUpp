@@ -10,7 +10,7 @@ import FirebaseAuth
 
 class LoginViewController: UIViewController, UITextFieldDelegate {
     
-    let loginViewModel = LoginViewModel()
+    private let loginViewModel = LoginViewModel()
     
     private let signUpText = "Don't have an account?"
     
@@ -44,11 +44,22 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         setupMailTextField()
         setupPasswordTextField()
         configureStackView()
+        setupBinder()
         
         view.backgroundColor = .white
         title = "Log in"
         
         navigationController?.navigationBar.prefersLargeTitles = true
+    }
+    
+    //MARK: - Binder
+    
+    private func setupBinder() {
+        loginViewModel.loginStatus.bind { [weak self] status in
+            if status == .loggedIn {
+                self?.navigationController?.dismiss(animated: true)
+            }
+        }
     }
     
     // MARK: - setup viewController
@@ -124,7 +135,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         signUpButton.configuration = .plain()
         signUpButton.configuration?.title = "Sign Up"
-//        signUpButton.configuration?.baseBackgroundColor = .blue
         signUpButton.addTarget(self, action: #selector(pushSignUpVC), for: .touchUpInside)
         signUpButton.configuration?.buttonSize = .small
         
@@ -167,25 +177,20 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     // MARK: - Login handler
     
     @objc func logInButtonTap() {
-//        let validationResult = loginViewModel.validateCredentialss()
-//        if validationResult == .valid {
-//            loginViewModel.signIn()
-////            navigationController?.dismiss(animated: true)
-//            self.dismiss(animated: true)
-//        }
         do {
             try loginViewModel.validateCredentials()
-            loginViewModel.signIn() { [weak self] status in
-                if status == .loggedIn {
-                    self?.navigationController?.dismiss(animated: true)
-                }
-            }
+//            loginViewModel.signIn() { [weak self] status in
+//                if status == .loggedIn {
+//                    self?.navigationController?.dismiss(animated: true)
+//                }
+//            }
+            loginViewModel.signIn()
         } catch {
             print(error)
         }
     }
     
-    // MARK: - TextFields delegate
+// MARK: - TextFields delegate
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         return textField.resignFirstResponder()
@@ -211,14 +216,7 @@ final class LoginViewModel {
     var email: String = ""
     var password: String = ""
     
-//    func validateCredentialss() -> ValidationStatus {
-//        guard !email.isEmpty,
-//              !password.isEmpty else {
-//            print("Some fields are empty")
-//            return .invalid
-//        }
-//        return .valid
-//    }
+    var loginStatus: ObservableObject<LoginStatus?> = ObservableObject(nil)
     
     func validateCredentials() throws {
         guard !email.isEmpty,
@@ -228,15 +226,33 @@ final class LoginViewModel {
         }
     }
     
-    func signIn(complition: @escaping (LoginStatus) -> Void) {
-        AuthenticationManager.shared.signIn(email: email, password: password) { authRestult in
+    func signIn() {
+        AuthenticationManager.shared.signIn(email: email, password: password) { [weak self] authRestult in
             guard let _ = authRestult else {
-                complition(.loggedOut)
                 return
             }
-            complition(.loggedIn)
+            self?.loginStatus.value = .loggedIn
         }
     }
+    
+    //    func validateCredentialss() -> ValidationStatus {
+    //        guard !email.isEmpty,
+    //              !password.isEmpty else {
+    //            print("Some fields are empty")
+    //            return .invalid
+    //        }
+    //        return .valid
+    //    }
+    
+//    func signIn(complition: @escaping (LoginStatus) -> Void) {
+//        AuthenticationManager.shared.signIn(email: email, password: password) { authRestult in
+//            guard let _ = authRestult else {
+//                complition(.loggedOut)
+//                return
+//            }
+//            complition(.loggedIn)
+//        }
+//    }
 }
 
 enum LoginStatus {

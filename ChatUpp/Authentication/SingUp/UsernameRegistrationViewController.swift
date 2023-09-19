@@ -7,7 +7,33 @@
 
 import UIKit
 
+//MARK: - Username Registration View Model
+
+final class UsernameRegistrationViewModel {
+    
+    var username: String!
+    
+//    var userPhoto: UIImage?
+    
+    func validateUsernameTextField(_ textField: UITextField) -> ValidationStatus {
+        guard let username = textField.text, !username.isEmpty else {
+            print("Username should not be empty!")
+            return .invalid
+        }
+        self.username = username
+        return .valid
+    }
+    
+    func updateUser() {
+        let userID = try! AuthenticationManager.shared.getAuthenticatedUser().uid
+        
+        UserManager.shared.updateUser(with: userID, usingName: username)
+    }
+}
+
 class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate {
+    
+    private let usernameRegistrationViewModel = UsernameRegistrationViewModel()
     
     private let usernameTextField: UITextField = UITextField()
     
@@ -26,8 +52,16 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         continueButton.configuration = .filled()
         continueButton.configuration?.title = "Continue"
         continueButton.configuration?.baseBackgroundColor = .systemPink
+        continueButton.addTarget(self, action: #selector(manageContinueButtonTap), for: .touchUpInside)
         
         setContinueButtonConstraints()
+    }
+    
+    @objc private func manageContinueButtonTap() {
+        
+        if usernameRegistrationViewModel.validateUsernameTextField(usernameTextField) == .valid {
+            usernameRegistrationViewModel.updateUser()
+        }
     }
     
     private func setContinueButtonConstraints() {
@@ -62,6 +96,7 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         ])
     }
 }
+
 
 extension UsernameRegistrationViewController {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

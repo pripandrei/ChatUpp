@@ -20,6 +20,8 @@ class SettingsViewController: UIViewController {
         view.backgroundColor = .white
     }
     
+// MARK: - Binder
+    
     func setupBinder() {
         settingsViewModel.showSignInForm.bind { [weak self] showForm in
             if showForm == true {
@@ -28,6 +30,8 @@ class SettingsViewController: UIViewController {
             }
         }
     }
+    
+// MARK: - setup ViewController
     
     func setUpSignOutBtn() {
         view.addSubview(signOutBtn)
@@ -50,12 +54,16 @@ class SettingsViewController: UIViewController {
         ])
     }
     
+// MARK: - Navigation
+    
     func presentLogInForm() {
         let nav = UINavigationController(rootViewController: LoginViewController())
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
     }
 }
+
+// MARK: - Settings View Model
 
 final class SettingsViewModel {
     

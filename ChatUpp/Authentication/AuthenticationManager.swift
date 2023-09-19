@@ -12,11 +12,13 @@ struct authDataResultModel {
     let uid: String
     let email: String?
     let photoURL: String?
+//    var name: String?
     
     init(user: User) {
         self.uid = user.uid
         self.email = user.email
         self.photoURL = user.photoURL?.absoluteString
+//        self.name = nil
     }
 }
 
@@ -41,6 +43,7 @@ final class AuthenticationManager {
                 complition(nil)
                 return
             }
+            
             let authDataResultModel = authDataResultModel(user: result.user)
             complition(authDataResultModel)
         }
@@ -53,6 +56,7 @@ final class AuthenticationManager {
                 complition(nil)
                 return
             }
+            DispatchQueue.global().async {}
             let authDataResultModel = authDataResultModel(user: result.user)
             complition(authDataResultModel)
         }

@@ -7,9 +7,11 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseFirestoreSwift
 
 struct DBUser {
     let uid: String
+//    let name: String
     let date: Date?
     let email: String?
     let photoURL: String?
@@ -20,6 +22,15 @@ final class UserManager {
     static let shared = UserManager()
     
     private init() {}
+    
+    func updateUser(with userID: String, usingName name: String) {
+        let userData: [String: Any] = [
+            "name" : name
+        ]
+        Firestore.firestore().collection("users").document(userID).setData(userData, merge: true) { error in
+            
+        }
+    }
     
     func createNewUser(with authData: authDataResultModel, _ complition: @escaping (Bool) -> Void) {
         
