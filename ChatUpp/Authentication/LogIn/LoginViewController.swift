@@ -186,8 +186,10 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             loginViewModel.signIn()
         } catch CredentialsError.emptyMail {
             print("Mail is empty")
+            mailLogInField.becomeFirstResponder()
         } catch CredentialsError.empyPassword {
             print("Password is empty")
+            passwordLogInField.becomeFirstResponder()
         } catch CredentialsError.shortPassword  {
             print("Password must not be shorter than 6 character")
         } catch {
@@ -202,17 +204,32 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         return textField.resignFirstResponder()
     }
     
-    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        print("changed!")
         if let text = textField.text {
-            print(text)
             switch textField {
             case mailLogInField: loginViewModel.email = text
             case passwordLogInField: loginViewModel.password = text
             default: break
             }
         }
-        return true
     }
+    
+//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+//        print("character!")
+//        return true
+//    }
+    
+//    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+//        if let text = textField.text {
+//            switch textField {
+//            case mailLogInField: loginViewModel.email = text
+//            case passwordLogInField: loginViewModel.password = text
+//            default: break
+//            }
+//        }
+//        return true
+//    }
 }
 
 // MARK: - LoginViewModel
