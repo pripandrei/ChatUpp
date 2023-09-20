@@ -185,27 +185,41 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             try loginViewModel.validateCredentialss()
             loginViewModel.signIn()
         } catch CredentialsError.emptyMail {
-            print("Mail is empty")
             mailLogInField.becomeFirstResponder()
+            print("Mail is empty")
         } catch CredentialsError.empyPassword {
-            print("Password is empty")
             passwordLogInField.becomeFirstResponder()
+            print("Password is empty")
         } catch CredentialsError.shortPassword  {
             print("Password must not be shorter than 6 character")
         } catch {
             print("Something went wrong validating credentials")
         }
-        
     }
     
 // MARK: - TextFields delegate
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        return toggleTextFieldFocus(basedOn: textField)
+    }
+    
+    private func toggleTextFieldFocus(basedOn textField: UITextField) -> Bool {
+        if textField == mailLogInField, let mailText = textField.text, !mailText.isEmpty,
+           let passwordText = passwordLogInField.text, passwordText.isEmpty {
+            return passwordLogInField.becomeFirstResponder()
+        }
         return textField.resignFirstResponder()
     }
     
+//    private func switchTextFieldSelection(basedOn textField: UITextField) -> Bool {
+//        if textField == mailLogInField, let mailText = textField.text, !mailText.isEmpty,
+//           let passwordText = passwordLogInField.text, passwordText.isEmpty {
+//            return passwordLogInField.becomeFirstResponder()
+//        }
+//        return textField.resignFirstResponder()
+//    }
+    
     func textFieldDidChangeSelection(_ textField: UITextField) {
-        print("changed!")
         if let text = textField.text {
             switch textField {
             case mailLogInField: loginViewModel.email = text
@@ -214,22 +228,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             }
         }
     }
-    
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        print("character!")
-//        return true
-//    }
-    
-//    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-//        if let text = textField.text {
-//            switch textField {
-//            case mailLogInField: loginViewModel.email = text
-//            case passwordLogInField: loginViewModel.password = text
-//            default: break
-//            }
-//        }
-//        return true
-//    }
 }
 
 // MARK: - LoginViewModel
