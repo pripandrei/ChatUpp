@@ -48,7 +48,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         view.backgroundColor = .white
         title = "Log in"
-        
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
@@ -176,13 +175,26 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - Login handler
     
-    @objc func logInButtonTap() {
+    @objc func logInButtonTap()
+    {
+//        let validationResult = loginViewModel.validateCredentials()
+//        if validationResult == .valid {
+//            loginViewModel.signIn()
+//        }
+        
         do {
-            try loginViewModel.validateCredentials()
+            try loginViewModel.validateCredentialss()
             loginViewModel.signIn()
+        } catch CredentialsError.emptyMail {
+            print("Mail is empty")
+        } catch CredentialsError.empyPassword {
+            print("Password is empty")
+        } catch CredentialsError.shortPassword  {
+            print("Password must not be shorter than 6 character")
         } catch {
-            print(error)
+            print("Something went wrong validating credentials")
         }
+        
     }
     
 // MARK: - TextFields delegate
@@ -212,12 +224,27 @@ final class LoginViewModel {
     var password: String = ""
     
     var loginStatus: ObservableObject<LoginStatus?> = ObservableObject(nil)
+
+//    func validateCredentials() -> ValidationStatus {
+//        guard !email.isEmpty,
+//              !password.isEmpty else {
+//            print("Some fields are empty")
+//            return .invalid
+//        }
+//        return .valid
+//    }
     
-    func validateCredentials() throws {
-        guard !email.isEmpty,
-              !password.isEmpty else {
-            print("Some fields are empty")
-            throw ValidationStatus.invalid
+//    96rjjtswpg8z5aoolidmokoe6
+    
+    func validateCredentialss() throws {
+        guard !email.isEmpty else {
+            throw CredentialsError.emptyMail
+        }
+        guard !password.isEmpty else {
+            throw CredentialsError.empyPassword
+        }
+        guard password.count > 6 else {
+            throw CredentialsError.shortPassword
         }
     }
     
@@ -236,7 +263,7 @@ enum LoginStatus {
     case loggedOut
 }
 
-enum ValidationStatus: Error {
+enum ValidationStatus {
     case valid
     case invalid
 }
@@ -247,3 +274,8 @@ enum ResposneStatus {
 }
 
 
+enum CredentialsError: Error {
+    case emptyMail
+    case empyPassword
+    case shortPassword
+}

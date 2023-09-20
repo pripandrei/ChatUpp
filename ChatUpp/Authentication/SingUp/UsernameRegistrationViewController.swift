@@ -112,7 +112,6 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     }
 }
 
-
 extension UsernameRegistrationViewController {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         usernameTextField.resignFirstResponder()

@@ -135,7 +135,7 @@ final class SignUpEmailViewModel {
     func validateTextFields(using textFields: [UITextField]) -> ValidationStatus {
         for textField in textFields {
             guard let text = textField.text, !text.isEmpty else {
-                print("\(RegistrationTextfields.allCases[textField.tag]) field is empty!")
+                print("\(RegistrationTextfields.allCases[textField.tag - 1]) field is empty!")
                 return .invalid
             }
             
