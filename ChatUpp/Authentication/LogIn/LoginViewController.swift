@@ -38,12 +38,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     {
         super.viewDidLoad()
         
-        setupLogInButton()
-        setupSignUpLable()
-        setupSignUpButton()
         setupMailTextField()
         setupPasswordTextField()
         configureStackView()
+        setupLogInButton()
+        setupSignUpLable()
+        setupSignUpButton()
         setupBinder()
         
         view.backgroundColor = .white
@@ -99,9 +99,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stackView.widthAnchor.constraint(equalToConstant: 300),
-            stackView.heightAnchor.constraint(equalToConstant: 120)
+            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 230),
+//            stackView.widthAnchor.constraint(equalToConstant: 300),
+            stackView.heightAnchor.constraint(equalToConstant: 120),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
     }
     
@@ -121,11 +123,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     {
         logIn.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            logIn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
             logIn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            //            logIn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
+            logIn.topAnchor.constraint(equalTo: passwordLogInField.topAnchor, constant: 90.0),
             logIn.widthAnchor.constraint(equalToConstant: 200),
             logIn.heightAnchor.constraint(equalToConstant: 50)
         ])
+       
     }
     
     private func setupSignUpButton()
@@ -177,11 +181,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     @objc func logInButtonTap()
     {
-//        let validationResult = loginViewModel.validateCredentials()
-//        if validationResult == .valid {
-//            loginViewModel.signIn()
-//        }
-        
         do {
             try loginViewModel.validateCredentialss()
             loginViewModel.signIn()
@@ -224,17 +223,6 @@ final class LoginViewModel {
     var password: String = ""
     
     var loginStatus: ObservableObject<LoginStatus?> = ObservableObject(nil)
-
-//    func validateCredentials() -> ValidationStatus {
-//        guard !email.isEmpty,
-//              !password.isEmpty else {
-//            print("Some fields are empty")
-//            return .invalid
-//        }
-//        return .valid
-//    }
-    
-//    96rjjtswpg8z5aoolidmokoe6
     
     func validateCredentialss() throws {
         guard !email.isEmpty else {
