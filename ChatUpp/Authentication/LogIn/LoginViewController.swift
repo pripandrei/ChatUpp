@@ -8,57 +8,38 @@
 import UIKit
 import FirebaseAuth
 
-class LoginViewController: UIViewController, UITextFieldDelegate {
+class LoginViewController: UIViewController {
     
     private let loginViewModel = LoginViewModel()
-    
     private let signUpText = "Don't have an account?"
-    
     private let signUpLable: UILabel = UILabel()
-    
     private let signUpButton = UIButton()
-    
     private let logIn = UIButton()
-    
     private let stackView = UIStackView()
-
-    lazy private var textFieldValidator = TextFieldValidator(viewModel: loginViewModel)
-    
-    private func setupTextFieldValidator() {
-        textFieldValidator.mail = mailLogInField
-        textFieldValidator.pass = passwordLogInField
-//        textFieldValidator.viewModel = loginViewModel
-    }
-    
-    lazy private var mailLogInField: UITextField = {
-        let mailTextField = UITextField()
-        mailTextField.delegate = textFieldValidator
-        return mailTextField
-    }()
-
-    lazy private var passwordLogInField: UITextField = {
-        let passwordTextfield = UITextField()
-        passwordTextfield.delegate = textFieldValidator
-        return passwordTextfield
-    }()
-  
+    private var mailLogInField = UITextField()
+    private var passwordLogInField = UITextField()
+    lazy private var textFieldValidator = EmailCredentialsValidator(mailField: mailLogInField,
+                                                                    passwordField: passwordLogInField,
+                                                                    viewModel: loginViewModel)
     override func viewDidLoad()
     {
         super.viewDidLoad()
         
+        controllerMainSetup()
+        
+        view.backgroundColor = .white
+        title = "Log in"
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
+    
+    private func controllerMainSetup() {
         setupMailTextField()
         setupPasswordTextField()
-        setupTextFieldValidator()
         configureStackView()
         setupLogInButton()
         setupSignUpLable()
         setupSignUpButton()
         setupBinder()
-        
-        
-        view.backgroundColor = .white
-        title = "Log in"
-        navigationController?.navigationBar.prefersLargeTitles = true
     }
     
     //MARK: - Binder
@@ -139,7 +120,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             logIn.widthAnchor.constraint(equalToConstant: 200),
             logIn.heightAnchor.constraint(equalToConstant: 50)
         ])
-       
     }
     
     private func setupSignUpButton()
@@ -165,7 +145,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     private func setupMailTextField() {
         view.addSubview(mailLogInField)
-
+        
+        mailLogInField.delegate = textFieldValidator
         mailLogInField.placeholder = "Enter mail here"
         mailLogInField.borderStyle = .roundedRect
         mailLogInField.translatesAutoresizingMaskIntoConstraints = false
@@ -175,6 +156,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     {
         view.addSubview(passwordLogInField)
 
+        passwordLogInField.delegate = textFieldValidator
         passwordLogInField.placeholder = "Enter password here"
         passwordLogInField.borderStyle = .roundedRect
         passwordLogInField.translatesAutoresizingMaskIntoConstraints = false
@@ -195,45 +177,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         if isValide {
             loginViewModel.signIn()
         }
-//        do {
-//            try loginViewModel.validateCredentials()
-//            loginViewModel.signIn()
-//        } catch CredentialsError.emptyMail {
-//            mailLogInField.becomeFirstResponder()
-//            print("Mail is empty")
-//        } catch CredentialsError.empyPassword {
-//            passwordLogInField.becomeFirstResponder()
-//            print("Password is empty")
-//        } catch CredentialsError.shortPassword  {
-//            print("Password must not be shorter than 6 character")
-//        } catch {
-//            print("Something went wrong validating credentials")
-//        }
     }
-    
-// MARK: - TextFields delegate
-    
-//    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-//        return textFieldShouldSwitchSelection(textField)
-//    }
-//
-//    func textFieldDidChangeSelection(_ textField: UITextField) {
-//        if let text = textField.text {
-//            switch textField {
-//            case mailLogInField: loginViewModel.email = text
-//            case passwordLogInField: loginViewModel.password = text
-//            default: break
-//            }
-//        }
-//    }
-//    
-//    private func textFieldShouldSwitchSelection(_ textField: UITextField) -> Bool {
-//        if textField == mailLogInField, let mailText = textField.text, !mailText.isEmpty,
-//           let passwordText = passwordLogInField.text, passwordText.isEmpty {
-//            return passwordLogInField.becomeFirstResponder()
-//        }
-//        return textField.resignFirstResponder()
-//    }
 }
 
 // MARK: - LoginViewModel

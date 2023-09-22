@@ -5,7 +5,7 @@
 //  Created by Andrei Pripa on 9/22/23.
 //
 
-import Foundation
+//import Foundation
 import UIKit
 
 
@@ -16,21 +16,23 @@ protocol EmailValidator
     func validateCredentials() throws
 }
 
-final class TextFieldValidator: NSObject {
+final class EmailCredentialsValidator: NSObject {
     
-    var mail: UITextField!
-    var pass: UITextField!
+    var mail: UITextField
+    var pass: UITextField
     
-    var viewModel: EmailValidator!
+    var viewModel: EmailValidator
     
-    init(viewModel: EmailValidator) {
+    init(mailField: UITextField, passwordField: UITextField, viewModel: EmailValidator) {
         self.viewModel = viewModel
+        self.mail = mailField
+        self.pass = passwordField
     }
 }
 
 // MARK: - Text Field Delegate
 
-extension TextFieldValidator: UITextFieldDelegate {
+extension EmailCredentialsValidator: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         return textFieldShouldSwitchSelection(textField)
@@ -58,7 +60,7 @@ extension TextFieldValidator: UITextFieldDelegate {
 
 // MARK: - Validation
 
-extension TextFieldValidator
+extension EmailCredentialsValidator
 {
     func validate() -> Bool {
         do {
