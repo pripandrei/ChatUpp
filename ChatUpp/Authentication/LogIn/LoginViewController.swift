@@ -200,25 +200,9 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
 // MARK: - TextFields delegate
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        return toggleTextFieldFocus(basedOn: textField)
+        return textFieldShouldSwitchSelection(textField)
     }
-    
-    private func toggleTextFieldFocus(basedOn textField: UITextField) -> Bool {
-        if textField == mailLogInField, let mailText = textField.text, !mailText.isEmpty,
-           let passwordText = passwordLogInField.text, passwordText.isEmpty {
-            return passwordLogInField.becomeFirstResponder()
-        }
-        return textField.resignFirstResponder()
-    }
-    
-//    private func switchTextFieldSelection(basedOn textField: UITextField) -> Bool {
-//        if textField == mailLogInField, let mailText = textField.text, !mailText.isEmpty,
-//           let passwordText = passwordLogInField.text, passwordText.isEmpty {
-//            return passwordLogInField.becomeFirstResponder()
-//        }
-//        return textField.resignFirstResponder()
-//    }
-    
+
     func textFieldDidChangeSelection(_ textField: UITextField) {
         if let text = textField.text {
             switch textField {
@@ -227,6 +211,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             default: break
             }
         }
+    }
+    
+    private func textFieldShouldSwitchSelection(_ textField: UITextField) -> Bool {
+        if textField == mailLogInField, let mailText = textField.text, !mailText.isEmpty,
+           let passwordText = passwordLogInField.text, passwordText.isEmpty {
+            return passwordLogInField.becomeFirstResponder()
+        }
+        return textField.resignFirstResponder()
     }
 }
 
