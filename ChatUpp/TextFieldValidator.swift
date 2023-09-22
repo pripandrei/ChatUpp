@@ -16,7 +16,7 @@ protocol EmailValidator
     func validateCredentials() throws
 }
 
-final class TextFieldValidator: NSObject, UITextFieldDelegate {
+final class TextFieldValidator: NSObject {
     
     var mail: UITextField!
     var pass: UITextField!
@@ -26,11 +26,16 @@ final class TextFieldValidator: NSObject, UITextFieldDelegate {
     init(viewModel: EmailValidator) {
         self.viewModel = viewModel
     }
+}
+
+// MARK: - Text Field Delegate
+
+extension TextFieldValidator: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         return textFieldShouldSwitchSelection(textField)
     }
-
+    
     func textFieldDidChangeSelection(_ textField: UITextField) {
         if let text = textField.text {
             switch textField {
@@ -40,7 +45,8 @@ final class TextFieldValidator: NSObject, UITextFieldDelegate {
             }
         }
     }
-
+    
+    // Custom function
     private func textFieldShouldSwitchSelection(_ textField: UITextField) -> Bool {
         if textField == mail, let mailText = textField.text, !mailText.isEmpty,
            let passwordText = pass.text, passwordText.isEmpty {
@@ -48,8 +54,12 @@ final class TextFieldValidator: NSObject, UITextFieldDelegate {
         }
         return textField.resignFirstResponder()
     }
-    
-    
+}
+
+// MARK: - Validation
+
+extension TextFieldValidator
+{
     func validate() -> Bool {
         do {
             try viewModel.validateCredentials()
@@ -70,5 +80,4 @@ final class TextFieldValidator: NSObject, UITextFieldDelegate {
             return false
         }
     }
-
 }
