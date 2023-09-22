@@ -22,15 +22,23 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     private let stackView = UIStackView()
 
-    lazy private var mailLogInField: UITextField = { 
+    private var textFieldValidator = TextFieldValidator()
+    
+    private func setupTextFieldValidator() {
+        textFieldValidator.mail = mailLogInField
+        textFieldValidator.pass = passwordLogInField
+        textFieldValidator.viewModel = loginViewModel
+    }
+    
+    lazy private var mailLogInField: UITextField = {
         let mailTextField = UITextField()
-        mailTextField.delegate = self
+        mailTextField.delegate = textFieldValidator
         return mailTextField
     }()
 
-    lazy var passwordLogInField: UITextField = {
+    lazy private var passwordLogInField: UITextField = {
         let passwordTextfield = UITextField()
-        passwordTextfield.delegate = self
+        passwordTextfield.delegate = textFieldValidator
         return passwordTextfield
     }()
   
@@ -40,11 +48,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         setupMailTextField()
         setupPasswordTextField()
+        setupTextFieldValidator()
         configureStackView()
         setupLogInButton()
         setupSignUpLable()
         setupSignUpButton()
         setupBinder()
+        
         
         view.backgroundColor = .white
         title = "Log in"
@@ -182,13 +192,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @objc func logInButtonTap()
     {
         do {
-            try loginViewModel.validateCredentialss()
+            try loginViewModel.validateCredentials()
             loginViewModel.signIn()
         } catch CredentialsError.emptyMail {
-            mailLogInField.becomeFirstResponder()
+//            mailLogInField.becomeFirstResponder()
             print("Mail is empty")
         } catch CredentialsError.empyPassword {
-            passwordLogInField.becomeFirstResponder()
+//            passwordLogInField.becomeFirstResponder()
             print("Password is empty")
         } catch CredentialsError.shortPassword  {
             print("Password must not be shorter than 6 character")
@@ -199,39 +209,39 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
 // MARK: - TextFields delegate
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        return textFieldShouldSwitchSelection(textField)
-    }
-
-    func textFieldDidChangeSelection(_ textField: UITextField) {
-        if let text = textField.text {
-            switch textField {
-            case mailLogInField: loginViewModel.email = text
-            case passwordLogInField: loginViewModel.password = text
-            default: break
-            }
-        }
-    }
-    
-    private func textFieldShouldSwitchSelection(_ textField: UITextField) -> Bool {
-        if textField == mailLogInField, let mailText = textField.text, !mailText.isEmpty,
-           let passwordText = passwordLogInField.text, passwordText.isEmpty {
-            return passwordLogInField.becomeFirstResponder()
-        }
-        return textField.resignFirstResponder()
-    }
+//    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+//        return textFieldShouldSwitchSelection(textField)
+//    }
+//
+//    func textFieldDidChangeSelection(_ textField: UITextField) {
+//        if let text = textField.text {
+//            switch textField {
+//            case mailLogInField: loginViewModel.email = text
+//            case passwordLogInField: loginViewModel.password = text
+//            default: break
+//            }
+//        }
+//    }
+//    
+//    private func textFieldShouldSwitchSelection(_ textField: UITextField) -> Bool {
+//        if textField == mailLogInField, let mailText = textField.text, !mailText.isEmpty,
+//           let passwordText = passwordLogInField.text, passwordText.isEmpty {
+//            return passwordLogInField.becomeFirstResponder()
+//        }
+//        return textField.resignFirstResponder()
+//    }
 }
 
 // MARK: - LoginViewModel
 
-final class LoginViewModel {
+final class LoginViewModel: ViewModelFieldsValidator {
     
     var email: String = ""
     var password: String = ""
     
     var loginStatus: ObservableObject<LoginStatus?> = ObservableObject(nil)
     
-    func validateCredentialss() throws {
+    func validateCredentials() throws {
         guard !email.isEmpty else {
             throw CredentialsError.emptyMail
         }
@@ -267,7 +277,6 @@ enum ResposneStatus {
     case success
     case failed
 }
-
 
 enum CredentialsError: Error {
     case emptyMail
