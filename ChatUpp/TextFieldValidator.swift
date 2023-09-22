@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 
-protocol ViewModelFieldsValidator
+protocol EmailValidator
 {
     var email: String { get set }
     var password: String { get set }
@@ -21,15 +21,14 @@ final class TextFieldValidator: NSObject, UITextFieldDelegate {
     var mail: UITextField!
     var pass: UITextField!
     
-    var viewModel: ViewModelFieldsValidator!
+    var viewModel: EmailValidator!
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("return")
-        return textFieldShouldSwitchSelection(textField)
+    init(viewModel: EmailValidator) {
+        self.viewModel = viewModel
     }
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        print("begin")
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        return textFieldShouldSwitchSelection(textField)
     }
 
     func textFieldDidChangeSelection(_ textField: UITextField) {
@@ -49,4 +48,27 @@ final class TextFieldValidator: NSObject, UITextFieldDelegate {
         }
         return textField.resignFirstResponder()
     }
+    
+    
+    func validate() -> Bool {
+        do {
+            try viewModel.validateCredentials()
+            return true
+        } catch CredentialsError.emptyMail {
+            mail.becomeFirstResponder()
+            print("Mail is empty")
+            return false
+        } catch CredentialsError.empyPassword {
+            pass.becomeFirstResponder()
+            print("Password is empty")
+            return false
+        } catch CredentialsError.shortPassword  {
+            print("Password must not be shorter than 6 character")
+            return false
+        } catch {
+            print("Something went wrong validating credentials")
+            return false
+        }
+    }
+
 }

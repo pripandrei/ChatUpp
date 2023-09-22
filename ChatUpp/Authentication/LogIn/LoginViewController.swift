@@ -22,12 +22,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     private let stackView = UIStackView()
 
-    private var textFieldValidator = TextFieldValidator()
+    lazy private var textFieldValidator = TextFieldValidator(viewModel: loginViewModel)
     
     private func setupTextFieldValidator() {
         textFieldValidator.mail = mailLogInField
         textFieldValidator.pass = passwordLogInField
-        textFieldValidator.viewModel = loginViewModel
+//        textFieldValidator.viewModel = loginViewModel
     }
     
     lazy private var mailLogInField: UITextField = {
@@ -191,20 +191,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     @objc func logInButtonTap()
     {
-        do {
-            try loginViewModel.validateCredentials()
+        let isValide = textFieldValidator.validate()
+        if isValide {
             loginViewModel.signIn()
-        } catch CredentialsError.emptyMail {
-//            mailLogInField.becomeFirstResponder()
-            print("Mail is empty")
-        } catch CredentialsError.empyPassword {
-//            passwordLogInField.becomeFirstResponder()
-            print("Password is empty")
-        } catch CredentialsError.shortPassword  {
-            print("Password must not be shorter than 6 character")
-        } catch {
-            print("Something went wrong validating credentials")
         }
+//        do {
+//            try loginViewModel.validateCredentials()
+//            loginViewModel.signIn()
+//        } catch CredentialsError.emptyMail {
+//            mailLogInField.becomeFirstResponder()
+//            print("Mail is empty")
+//        } catch CredentialsError.empyPassword {
+//            passwordLogInField.becomeFirstResponder()
+//            print("Password is empty")
+//        } catch CredentialsError.shortPassword  {
+//            print("Password must not be shorter than 6 character")
+//        } catch {
+//            print("Something went wrong validating credentials")
+//        }
     }
     
 // MARK: - TextFields delegate
@@ -234,7 +238,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
 
 // MARK: - LoginViewModel
 
-final class LoginViewModel: ViewModelFieldsValidator {
+final class LoginViewModel: EmailValidator {
     
     var email: String = ""
     var password: String = ""
