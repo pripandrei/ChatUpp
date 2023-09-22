@@ -129,6 +129,7 @@ enum UserRegistrationStatus {
 // MARK: - SignUpEmailViewModel
 
 final class SignUpEmailViewModel {
+    
     var email: String = ""
     var password: String = ""
     
