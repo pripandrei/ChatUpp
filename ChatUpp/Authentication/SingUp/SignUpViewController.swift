@@ -25,6 +25,8 @@ class SignUpViewController: UIViewController {
         controllerMainConfiguration()
     }
     
+//MARK: - UI Configuration
+    
     private func controllerMainConfiguration() {
         setEmailSignupField()
         setPasswordSignupField()
@@ -38,7 +40,6 @@ class SignUpViewController: UIViewController {
         emailSignupField.placeholder = "Provide an email"
         emailSignupField.borderStyle = .roundedRect
         emailSignupField.translatesAutoresizingMaskIntoConstraints = false
-        
     }
     
     private func setPasswordSignupField()
@@ -49,28 +50,9 @@ class SignUpViewController: UIViewController {
         passwordSignupField.translatesAutoresizingMaskIntoConstraints = false
     }
     
-//    lazy var textFields: [UITextField] =
-//    {
-//        let numberOfTextFields = 4
-//        var fields = [UITextField]()
-//        let textFieldTitles = ["Your firstName", "Your lastName", "Your mail", "Your password"]
-//
-//        for number in 1...numberOfTextFields {
-//            let textField = CustomTextField()
-//            textField.tag = number
-//            textField.delegate = self
-//            textField.placeholder = textFieldTitles[number - 1]
-//            fields.append(textField)
-//        }
-//        return fields
-//    }()
-    
     private func configureStackView() {
         view.addSubview(stackView)
         
-//        textFields.forEach { field in
-//            stackView.addArrangedSubview(field)
-//        }
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
         stackView.spacing = 20
@@ -111,18 +93,18 @@ class SignUpViewController: UIViewController {
         ])
     }
     
+//MARK: - Validate & Signup
+    
     @objc private func finishRegistration()
     {
-//        let validationResult = signUpViewModel.validateTextFields(using: textFields)
-//        if validationResult == .invalid {
-//            return
-//        }
-        
-        if let navigationController = navigationController  {
-            signUpViewModel.signUp() { registrationStatus in
-                if registrationStatus == .success{
-                    let usernameRegistrationVC = UsernameRegistrationViewController()
-                    navigationController.pushViewController(usernameRegistrationVC, animated: true)
+        let isValid = textFieldValidator.validate()
+        if isValid {
+            if let navigationController = navigationController  {
+                signUpViewModel.signUp() { registrationStatus in
+                    if registrationStatus == .success{
+                        let usernameRegistrationVC = UsernameRegistrationViewController()
+                        navigationController.pushViewController(usernameRegistrationVC, animated: true)
+                    }
                 }
             }
         }
@@ -137,32 +119,15 @@ final class SignUpEmailViewModel: EmailValidator {
     var password: String = ""
     
     func validateCredentials() throws {
-        
-    }
-    
-    func validateTextFields(using textFields: [UITextField]) -> ValidationStatus {
-        for textField in textFields {
-            guard let text = textField.text, !text.isEmpty else {
-                print("\(RegistrationTextfields.allCases[textField.tag - 1]) field is empty!")
-                return .invalid
-            }
-            
-            guard let textField = RegistrationTextfields(rawValue: textField.tag) else {
-                return .invalid
-            }
-            
-            switch textField {
-            case .email: email = text
-            case .password:
-                if text.count < 6 {
-                    print("password must contain > 6 character")
-                    return .invalid
-                }
-                password = text
-            default: break
-            }
+        guard !email.isEmpty else {
+            throw CredentialsError.emptyMail
         }
-        return .valid
+        guard !password.isEmpty else {
+            throw CredentialsError.empyPassword
+        }
+        guard password.count > 6 else {
+            throw CredentialsError.shortPassword
+        }
     }
     
     func signUp(complition: @escaping (UserRegistrationStatus) -> Void) {
@@ -181,27 +146,6 @@ final class SignUpEmailViewModel: EmailValidator {
             }
             complition(.success)
         }
-    }
-}
-
-// MARK: - TextField initial setup
-
-class CustomTextField: UITextField {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setUpTextField()
-    }
-
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setUpTextField()
-    }
-    
-
-    private func setUpTextField() {
-        borderStyle = .roundedRect
-        translatesAutoresizingMaskIntoConstraints = false
     }
 }
 
