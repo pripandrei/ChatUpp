@@ -144,7 +144,7 @@ class LoginViewController: UIViewController {
     }
     
     private func setupMailTextField() {
-        view.addSubview(mailLogInField)
+//        view.addSubview(mailLogInField)
         
         mailLogInField.delegate = textFieldValidator
         mailLogInField.placeholder = "Enter mail here"
@@ -154,7 +154,7 @@ class LoginViewController: UIViewController {
 
     private func setupPasswordTextField()
     {
-        view.addSubview(passwordLogInField)
+//        view.addSubview(passwordLogInField)
 
         passwordLogInField.delegate = textFieldValidator
         passwordLogInField.placeholder = "Enter password here"

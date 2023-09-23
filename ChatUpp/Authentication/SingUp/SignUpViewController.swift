@@ -8,67 +8,77 @@
 import UIKit
 import FirebaseAuth
 
-class SignUpViewController: UIViewController, UITextFieldDelegate {
+class SignUpViewController: UIViewController {
     
     private var signUpViewModel = SignUpEmailViewModel()
-    
     private let stackView = UIStackView()
     private let signUpButton = UIButton()
-
+    private var emailSignupField = UITextField()
+    private var passwordSignupField = UITextField()
+    lazy private var textFieldValidator = EmailCredentialsValidator(mailField: emailSignupField,
+                                                                    passwordField: passwordSignupField,
+                                                                    viewModel: signUpViewModel)
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Sign Up"
         view.backgroundColor = .white
+        controllerMainConfiguration()
+    }
+    
+    private func controllerMainConfiguration() {
+        setEmailSignupField()
+        setPasswordSignupField()
         configureStackView()
-        setStackViewConstraints()
         setSignUpButton()
     }
     
-    // TODO: - Remove this block after poping name textfields
-  
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        stackView.translatesAutoresizingMaskIntoConstraints = true
-            animateViewMoving(true, moveValue: 80)
-    }
-
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-            animateViewMoving(false, moveValue: 80)
-    }
-
-    func animateViewMoving(_ up: Bool, moveValue: CGFloat){
-        let movement: CGFloat = (up ? -moveValue : moveValue)
-
-        UIView.animate(withDuration: 0.3, delay: 0.0, animations: {
-            self.stackView.frame = CGRectOffset(self.stackView.frame, 0, movement)
-        })
+    private func setEmailSignupField()
+    {
+        emailSignupField.delegate = textFieldValidator
+        emailSignupField.placeholder = "Provide an email"
+        emailSignupField.borderStyle = .roundedRect
+        emailSignupField.translatesAutoresizingMaskIntoConstraints = false
+        
     }
     
-    lazy var textFields: [UITextField] =
+    private func setPasswordSignupField()
     {
-        let numberOfTextFields = 4
-        var fields = [UITextField]()
-        let textFieldTitles = ["Your firstName", "Your lastName", "Your mail", "Your password"]
-        
-        for number in 1...numberOfTextFields {
-            let textField = CustomTextField()
-            textField.tag = number
-            textField.delegate = self
-            textField.placeholder = textFieldTitles[number - 1]
-            fields.append(textField)
-        }
-        return fields
-    }()
+        passwordSignupField.delegate = textFieldValidator
+        passwordSignupField.placeholder = "Provide a password"
+        passwordSignupField.borderStyle = .roundedRect
+        passwordSignupField.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+//    lazy var textFields: [UITextField] =
+//    {
+//        let numberOfTextFields = 4
+//        var fields = [UITextField]()
+//        let textFieldTitles = ["Your firstName", "Your lastName", "Your mail", "Your password"]
+//
+//        for number in 1...numberOfTextFields {
+//            let textField = CustomTextField()
+//            textField.tag = number
+//            textField.delegate = self
+//            textField.placeholder = textFieldTitles[number - 1]
+//            fields.append(textField)
+//        }
+//        return fields
+//    }()
     
     private func configureStackView() {
         view.addSubview(stackView)
         
-        textFields.forEach { field in
-            stackView.addArrangedSubview(field)
-        }
+//        textFields.forEach { field in
+//            stackView.addArrangedSubview(field)
+//        }
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
         stackView.spacing = 20
+        
+        stackView.addArrangedSubview(emailSignupField)
+        stackView.addArrangedSubview(passwordSignupField)
+        
+        setStackViewConstraints()
     }
     
     private func setStackViewConstraints() {
@@ -76,9 +86,11 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
 
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stackView.widthAnchor.constraint(equalToConstant: 300),
-            stackView.heightAnchor.constraint(equalToConstant: 260)
+            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 230),
+//            stackView.widthAnchor.constraint(equalToConstant: 300),
+            stackView.heightAnchor.constraint(equalToConstant: 120),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
     }
     
@@ -101,10 +113,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     
     @objc private func finishRegistration()
     {
-        let validationResult = signUpViewModel.validateTextFields(using: textFields)
-        if validationResult == .invalid {
-            return
-        }
+//        let validationResult = signUpViewModel.validateTextFields(using: textFields)
+//        if validationResult == .invalid {
+//            return
+//        }
         
         if let navigationController = navigationController  {
             signUpViewModel.signUp() { registrationStatus in
@@ -115,23 +127,18 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
             }
         }
     }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-    }
-}
-
-enum UserRegistrationStatus {
-    case success
-    case failure
 }
 
 // MARK: - SignUpEmailViewModel
 
-final class SignUpEmailViewModel {
-    
+final class SignUpEmailViewModel: EmailValidator {
+
     var email: String = ""
     var password: String = ""
+    
+    func validateCredentials() throws {
+        
+    }
     
     func validateTextFields(using textFields: [UITextField]) -> ValidationStatus {
         for textField in textFields {
@@ -201,3 +208,29 @@ class CustomTextField: UITextField {
 enum RegistrationTextfields: Int, CaseIterable {
     case name = 1, familyName, email, password
 }
+
+enum UserRegistrationStatus {
+    case success
+    case failure
+}
+
+
+// TODO: - Remove this block after poping name textfields
+
+//    func textFieldDidBeginEditing(_ textField: UITextField) {
+//        stackView.translatesAutoresizingMaskIntoConstraints = true
+//            animateViewMoving(true, moveValue: 80)
+//    }
+//
+//    func textFieldDidEndEditing(_ textField: UITextField) {
+//        stackView.translatesAutoresizingMaskIntoConstraints = false
+//            animateViewMoving(false, moveValue: 80)
+//    }
+//
+//    func animateViewMoving(_ up: Bool, moveValue: CGFloat){
+//        let movement: CGFloat = (up ? -moveValue : moveValue)
+//
+//        UIView.animate(withDuration: 0.3, delay: 0.0, animations: {
+//            self.stackView.frame = CGRectOffset(self.stackView.frame, 0, movement)
+//        })
+//    }
