@@ -11,20 +11,18 @@ import UIKit
 
 final class UsernameRegistrationViewModel {
     
-    var username: String!
+    var username: String = ""
     
 //    var userPhoto: UIImage?
     
-    let finishRegistration: ObservableObject<Bool?> = ObservableObject(nil)
-    
-    func validateUsernameTextField(_ textField: UITextField) -> ValidationStatus {
-        guard let username = textField.text, !username.isEmpty else {
-            print("Username should not be empty!")
-            return .invalid
+    func validateName() -> ValidationStatus {
+        if !self.username.isEmpty {
+            return .valid
         }
-        self.username = username
-        return .valid
+        return .invalid
     }
+    
+    let finishRegistration: ObservableObject<Bool?> = ObservableObject(nil)
     
     func updateUser() {
         let userID = try! AuthenticationManager.shared.getAuthenticatedUser().uid
@@ -74,9 +72,12 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     
     @objc private func manageContinueButtonTap() {
         
-        if usernameRegistrationViewModel.validateUsernameTextField(usernameTextField) == .valid {
+        if usernameRegistrationViewModel.validateName() == .valid {
             usernameRegistrationViewModel.updateUser()
         }
+//        if usernameRegistrationViewModel.validateUsernameTextField(usernameTextField) == .valid {
+//            usernameRegistrationViewModel.updateUser()
+//        }
     }
     
     private func setContinueButtonConstraints() {
@@ -112,8 +113,15 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     }
 }
 
+//MARK: - TextFieldDelegate
+
 extension UsernameRegistrationViewController {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         usernameTextField.resignFirstResponder()
+    }
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        if let text = textField.text {
+            usernameRegistrationViewModel.username = text
+        }
     }
 }

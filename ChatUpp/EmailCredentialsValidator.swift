@@ -48,10 +48,6 @@ extension EmailCredentialsValidator: UITextFieldDelegate {
         }
     }
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        print("Begin")
-    }
-    
     // Custom function
     private func textFieldShouldSwitchSelection(_ textField: UITextField) -> Bool {
         if textField == mail, let mailText = textField.text, !mailText.isEmpty,
