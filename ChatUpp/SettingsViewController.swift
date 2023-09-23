@@ -27,7 +27,7 @@ class SettingsViewController: UIViewController {
 // MARK: - Binder
     
     func setupBinder() {
-        settingsViewModel.showSignInForm.bind { [weak self] showForm in
+        settingsViewModel.userIsSignedOut.bind { [weak self] showForm in
             if showForm == true {
                 self?.presentLogInForm()
                 self?.tabBarController?.selectedIndex = 0
@@ -71,12 +71,13 @@ class SettingsViewController: UIViewController {
 
 final class SettingsViewModel {
     
-    var showSignInForm: ObservableObject<Bool> = ObservableObject(false)
+//    var showSignInForm: ObservableObject<Bool> = ObservableObject(false)
+    var userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
     
     @objc func signOut() {
         do {
             try Auth.auth().signOut()
-            showSignInForm.value = true
+            userIsSignedOut.value = true
         } catch {
             print("Error signing out")
         }
