@@ -75,9 +75,6 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         if usernameRegistrationViewModel.validateName() == .valid {
             usernameRegistrationViewModel.updateUser()
         }
-//        if usernameRegistrationViewModel.validateUsernameTextField(usernameTextField) == .valid {
-//            usernameRegistrationViewModel.updateUser()
-//        }
     }
     
     private func setContinueButtonConstraints() {
