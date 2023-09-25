@@ -10,7 +10,7 @@ import FirebaseAuth
 
 class ConversationsViewController: UIViewController {
     
-    struct Cells {
+    struct Cell {
         static let conversationCell = "ConversationCell"
     }
     
@@ -23,14 +23,14 @@ class ConversationsViewController: UIViewController {
         view.backgroundColor = .white
 //        conversationsViewModel.signOut()
         setupBinding()
-        tableView.register(ConversationCell.self, forCellReuseIdentifier: Cells.conversationCell)
+        tableView.register(ConversationCell.self, forCellReuseIdentifier: Cell.conversationCell)
         configureTableView()
         conversationsViewModel.validateUserAuthentication()
     }
     
     private func setupBinding() {
-        conversationsViewModel.showSignInForm.bind { [weak self] showForm in
-            if showForm == true {
+        conversationsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
+            if isSignedOut == true {
                 self?.presentLogInForm()
             }
         }
@@ -58,7 +58,7 @@ extension ConversationsViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cells.conversationCell, for: indexPath) as? ConversationCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.conversationCell, for: indexPath) as? ConversationCell else {
             fatalError("Unable to dequeu reusable cell")
         }
         
@@ -83,17 +83,17 @@ final class ConversationsViewModel {
     
 //    var userProfile: authDataResultModel?
     
-    var showSignInForm: ObservableObject<Bool> = ObservableObject(false)
+    var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
     
     func validateUserAuthentication() {
         
         let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
         
         guard authUser != nil else {
-            showSignInForm.value = true
+            isUserSignedOut.value = true
             return
         }
-        showSignInForm.value = false
+        isUserSignedOut.value = false
     }
 }
 
