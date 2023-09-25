@@ -37,7 +37,7 @@ final class UserManager {
         }
     }
     
-    func createNewUser(with authData: authDataResultModel, _ complition: @escaping (Bool) -> Void) {
+    func createNewUser(with authData: AuthDataResultModel, _ complition: @escaping (Bool) -> Void) {
         
         var userData: [String: Any] = [
             "user_id" : authData.uid,

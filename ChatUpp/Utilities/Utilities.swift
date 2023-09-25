@@ -15,7 +15,9 @@ struct Utilities {
         if let tabBarController = rootViewController as? UITabBarController,
            let navController = (tabBarController.children.first) as? UINavigationController,
            let conversationsVC = navController.topViewController as? ConversationsViewController,
-           let loginVC = conversationsVC.presentedViewController as? LoginViewController {
+           let loginNavController = conversationsVC.presentedViewController as? UINavigationController,
+           let loginVC = loginNavController.topViewController as? LoginViewController
+        {
             return loginVC
         }
         return nil

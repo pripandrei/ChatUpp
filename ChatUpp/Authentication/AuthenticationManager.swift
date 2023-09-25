@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseAuth
 
-struct authDataResultModel {
+struct AuthDataResultModel {
     let uid: String
     let email: String?
     let photoURL: String?
@@ -22,46 +22,84 @@ struct authDataResultModel {
     }
 }
 
-final class AuthenticationManager {
-    
+final class AuthenticationManager
+{
     static var shared = AuthenticationManager()
     
     private init() {}
     
-    func getAuthenticatedUser() throws -> authDataResultModel {
+    func getAuthenticatedUser() throws -> AuthDataResultModel {
         if let user = Auth.auth().currentUser {
-            return authDataResultModel(user: user)
+            return AuthDataResultModel(user: user)
         }
         throw URLError(.badServerResponse)
     }
     
-    func signIn(email: String, password: String, complition: @escaping (authDataResultModel?) -> Void)  {
+    func signOut() throws  {
+        try Auth.auth().signOut()
+    }
+}
+
+//MARK: - Sign in with Email
+
+extension AuthenticationManager {
+    func signIn(email: String, password: String, complition: @escaping (AuthDataResultModel?) -> Void)  {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
                 print("Could not log you in. Error: \(String(describing: error))")
                 complition(nil)
                 return
             }
-            
-            let authDataResultModel = authDataResultModel(user: result.user)
+            let authDataResultModel = AuthDataResultModel(user: result.user)
             complition(authDataResultModel)
         }
     }
     
-    func signUpUser(email: String, password: String, complition: @escaping ((authDataResultModel?) -> Void))  {
+    func signUpUser(email: String, password: String, complition: @escaping ((AuthDataResultModel?) -> Void))  {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
                 print("There was an error during user registration: \(String(describing: error))")
                 complition(nil)
                 return
             }
-            DispatchQueue.global().async {}
-            let authDataResultModel = authDataResultModel(user: result.user)
+            let authDataResultModel = AuthDataResultModel(user: result.user)
             complition(authDataResultModel)
         }
     }
+}
+
+//MARK: - SSO google
+
+extension AuthenticationManager {
     
-    func signOut() throws  {
-        try Auth.auth().signOut()
+    func signInWithGoogle(usingTokens tokens: GoogleSignInResultModel, complition: @escaping (AuthDataResultModel?) -> Void) 
+    {
+        let credentials = GoogleAuthProvider.credential(withIDToken: tokens.idToken, accessToken: tokens.accessToken)
+        
+        signIn(credentials: credentials) { authResultModel in
+            guard let authModel = authResultModel else {
+                complition(nil)
+                return
+            }
+            complition(authModel)
+        }
     }
+    
+    func signIn(credentials: AuthCredential, complition: @escaping (AuthDataResultModel?) -> Void)
+    {
+        Auth.auth().signIn(with: credentials) { authResult, error in
+            guard let result = authResult, error == nil else {
+                print("SSO error: \(error!.localizedDescription)")
+                complition(nil)
+                return
+            }
+            let authDataModel = AuthDataResultModel(user: result.user)
+            complition(authDataModel)
+        }
+    }
+}
+
+struct GoogleSignInResultModel {
+    let idToken :String
+    let accessToken :String
 }

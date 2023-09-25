@@ -6,8 +6,6 @@
 //
 
 import UIKit
-import SwiftUI
-import FirebaseAuth
 import GoogleSignIn
 import GoogleSignInSwift
 
@@ -45,11 +43,6 @@ class LoginViewController: UIViewController {
         setupSignUpButton()
         configureSignInGoogleButton()
         setupBinder()
-        let tabBarr = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
-//        tabBarr?.tabBarController?.children
-        let nav = (tabBarr as? UITabBarController)?.children.first
-        let vc = ((nav as? UINavigationController)?.topViewController) as? ConversationsViewController
-        print("===Vc", vc?.presentedViewController?.children)
     }
     
     //MARK: - Binder
@@ -87,7 +80,7 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func handleSignInWithGoogle() {
-        
+        loginViewModel.googleSignIn()
     }
 
     private func setupSignUpLable() {
@@ -218,9 +211,9 @@ class LoginViewController: UIViewController {
 
 // MARK: - LoginViewModel
 
-final class LoginViewModel {
+final class LoginViewModel: EmailValidator {
     
-    //MARK: - Sign in through email
+    //MARK: - Sign in with email
     
     var email: String = ""
     var password: String = ""
@@ -248,41 +241,36 @@ final class LoginViewModel {
         }
     }
     
-    //MARK: - Sign in through google
+    //MARK: - Sign in with google
     
-    func googleSignIn() throws {
+    func googleSignIn() {
         
         guard let loginVC = Utilities.findLoginViewControllerInHierarchy() else {
-            throw URLError(.cannotFindHost)
+            print("Could not find loginVC in hierarcy")
+            return
         }
         
         GIDSignIn.sharedInstance.signIn(withPresenting: loginVC) { GIDSignInResult, error in
+            guard error == nil else {
+                print(error!.localizedDescription)
+                return
+            }
+            guard let result = GIDSignInResult , let idToken = result.user.idToken?.tokenString else {
+                print("Error getting user token")
+                return
+            }
+            let accessToken = result.user.accessToken.tokenString
+            let tokens = GoogleSignInResultModel(idToken: idToken, accessToken: accessToken)
             
+            AuthenticationManager.shared.signInWithGoogle(usingTokens: tokens) { [weak self] authResultModel in
+                if authResultModel != nil {
+                    self?.loginStatus.value = .loggedIn
+                }
+            }
         }
     }
 }
 
-extension LoginViewModel: EmailValidator {}
 
-enum LoginStatus {
-    case loggedIn
-    case loggedOut
-}
-
-enum ValidationStatus {
-    case valid
-    case invalid
-}
-
-enum ResposneStatus {
-    case success
-    case failed
-}
-
-enum CredentialsError: Error {
-    case emptyMail
-    case empyPassword
-    case shortPassword
-}
 
 
