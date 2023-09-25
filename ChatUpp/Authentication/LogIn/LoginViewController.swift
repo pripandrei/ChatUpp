@@ -6,12 +6,14 @@
 //
 
 import UIKit
+import SwiftUI
 import FirebaseAuth
 import GoogleSignIn
 import GoogleSignInSwift
 
 class LoginViewController: UIViewController {
     
+    private var googleSignInButton = GIDSignInButton()
     private let loginViewModel = LoginViewModel()
     private let signUpText = "Don't have an account?"
     private let signUpLable: UILabel = UILabel()
@@ -41,7 +43,9 @@ class LoginViewController: UIViewController {
         setupLogInButton()
         setupSignUpLable()
         setupSignUpButton()
+        configureSignInGoogleButton()
         setupBinder()
+        
     }
     
     //MARK: - Binder
@@ -55,10 +59,31 @@ class LoginViewController: UIViewController {
     }
     
     // MARK: - setup viewController
+    
+    private func configureSignInGoogleButton() {
+        view.addSubview(googleSignInButton)
+        
+        googleSignInButton.colorScheme = .dark
+        googleSignInButton.style = .wide
+        
+        setSignInGoogleButtonConstraints()
+    }
+    
+    private func setSignInGoogleButtonConstraints() {
+        googleSignInButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            googleSignInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            googleSignInButton.topAnchor.constraint(equalTo: signUpLable.bottomAnchor, constant: 60),
+            googleSignInButton.heightAnchor.constraint(equalToConstant: 50),
+            googleSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
+        ])
+    }
 
     private func setupSignUpLable() {
         view.addSubview(signUpLable)
-    
+        
         signUpLable.text = signUpText
         signUpLable.font = UIFont(name: "MalayalamSangamMN", size: 14.0)
         setSignUpLableConstraints()
@@ -118,7 +143,7 @@ class LoginViewController: UIViewController {
         NSLayoutConstraint.activate([
             logIn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             //            logIn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
-            logIn.topAnchor.constraint(equalTo: passwordLogInField.topAnchor, constant: 90.0),
+            logIn.topAnchor.constraint(equalTo: passwordLogInField.bottomAnchor, constant: 40.0),
             logIn.widthAnchor.constraint(equalToConstant: 200),
             logIn.heightAnchor.constraint(equalToConstant: 50)
         ])
