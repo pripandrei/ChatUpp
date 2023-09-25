@@ -75,7 +75,7 @@ final class SettingsViewModel {
     
     @objc func signOut() {
         do {
-            try Auth.auth().signOut()
+            try AuthenticationManager.shared.signOut()
             userIsSignedOut.value = true
         } catch {
             print("Error signing out")

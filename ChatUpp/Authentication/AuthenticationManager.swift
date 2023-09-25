@@ -60,4 +60,8 @@ final class AuthenticationManager {
             complition(authDataResultModel)
         }
     }
+    
+    func signOut() throws  {
+        try Auth.auth().signOut()
+    }
 }
