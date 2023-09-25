@@ -45,7 +45,11 @@ class LoginViewController: UIViewController {
         setupSignUpButton()
         configureSignInGoogleButton()
         setupBinder()
-        
+        let tabBarr = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
+//        tabBarr?.tabBarController?.children
+        let nav = (tabBarr as? UITabBarController)?.children.first
+        let vc = ((nav as? UINavigationController)?.topViewController) as? ConversationsViewController
+        print("===Vc", vc?.presentedViewController?.children)
     }
     
     //MARK: - Binder
@@ -65,6 +69,7 @@ class LoginViewController: UIViewController {
         
         googleSignInButton.colorScheme = .dark
         googleSignInButton.style = .wide
+        googleSignInButton.addTarget(self, action: #selector(handleSignInWithGoogle), for: .touchUpInside)
         
         setSignInGoogleButtonConstraints()
     }
@@ -79,6 +84,10 @@ class LoginViewController: UIViewController {
             googleSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
+    }
+    
+    @objc private func handleSignInWithGoogle() {
+        
     }
 
     private func setupSignUpLable() {
@@ -202,21 +211,23 @@ class LoginViewController: UIViewController {
     {
         let isValide = textFieldValidator.validate()
         if isValide {
-            loginViewModel.signIn()
+            loginViewModel.signInWithEmail()
         }
     }
 }
 
 // MARK: - LoginViewModel
 
-final class LoginViewModel: EmailValidator {
+final class LoginViewModel {
+    
+    //MARK: - Sign in through email
     
     var email: String = ""
     var password: String = ""
     
     var loginStatus: ObservableObject<LoginStatus?> = ObservableObject(nil)
     
-    func validateCredentials() throws {
+    func validateEmailCredentials() throws {
         guard !email.isEmpty else {
             throw CredentialsError.emptyMail
         }
@@ -228,7 +239,7 @@ final class LoginViewModel: EmailValidator {
         }
     }
     
-    func signIn() {
+    func signInWithEmail() {
         AuthenticationManager.shared.signIn(email: email, password: password) { [weak self] authRestult in
             guard let _ = authRestult else {
                 return
@@ -236,7 +247,22 @@ final class LoginViewModel: EmailValidator {
             self?.loginStatus.value = .loggedIn
         }
     }
+    
+    //MARK: - Sign in through google
+    
+    func googleSignIn() throws {
+        
+        guard let loginVC = Utilities.findLoginViewControllerInHierarchy() else {
+            throw URLError(.cannotFindHost)
+        }
+        
+        GIDSignIn.sharedInstance.signIn(withPresenting: loginVC) { GIDSignInResult, error in
+            
+        }
+    }
 }
+
+extension LoginViewModel: EmailValidator {}
 
 enum LoginStatus {
     case loggedIn
@@ -258,3 +284,5 @@ enum CredentialsError: Error {
     case empyPassword
     case shortPassword
 }
+
+

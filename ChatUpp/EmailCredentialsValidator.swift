@@ -13,7 +13,7 @@ protocol EmailValidator
 {
     var email: String { get set }
     var password: String { get set }
-    func validateCredentials() throws
+    func validateEmailCredentials() throws
 }
 
 final class EmailCredentialsValidator: NSObject {
@@ -64,7 +64,7 @@ extension EmailCredentialsValidator
 {
     func validate() -> Bool {
         do {
-            try viewModel.validateCredentials()
+            try viewModel.validateEmailCredentials()
             return true
         } catch CredentialsError.emptyMail {
             mail.becomeFirstResponder()

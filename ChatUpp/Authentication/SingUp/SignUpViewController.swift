@@ -118,7 +118,7 @@ final class SignUpEmailViewModel: EmailValidator {
     var email: String = ""
     var password: String = ""
     
-    func validateCredentials() throws {
+    func validateEmailCredentials() throws {
         guard !email.isEmpty else {
             throw CredentialsError.emptyMail
         }
