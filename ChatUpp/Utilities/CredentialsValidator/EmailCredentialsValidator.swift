@@ -6,7 +6,14 @@
 //
 
 //import Foundation
+
 import UIKit
+
+enum CredentialsError: Error {
+    case emptyMail
+    case empyPassword
+    case shortPassword
+}
 
 protocol EmailValidator
 {
@@ -82,3 +89,5 @@ extension EmailCredentialsValidator
         }
     }
 }
+
+

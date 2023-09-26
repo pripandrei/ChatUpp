@@ -10,18 +10,20 @@ import FirebaseAuth
 
 class ChatsViewController: UIViewController {
     
+    let tableView = UITableView()
+    var conversationsViewModel = ChatsViewModel()
+    
+    // MARK: - CELL IDENTIFIER
+    
     struct Cell {
         static let conversationCell = "ConversationCell"
     }
     
-    let tableView = UITableView()
-    
-    var conversationsViewModel = ChatsViewModel()
-    
+    // MARK: - UI SETUP
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-//        conversationsViewModel.signOut()
         setupBinding()
         tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.conversationCell)
         configureTableView()

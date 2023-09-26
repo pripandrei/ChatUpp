@@ -14,6 +14,8 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     private let usernameTextField: UITextField = UITextField()
     
     private let continueButton: UIButton = UIButton()
+    
+    // MARK: VC LIFE CYCLE
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,6 +25,8 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         configureBinding()
     }
     
+    // MARK: - BINDING
+    
     private func configureBinding() {
         usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
             if let finish = finishRegistration, finish == true {
@@ -30,6 +34,8 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
             }
         }
     }
+    
+    // MARK: - UI SETUP
     
     private func configureContinueButton() {
         view.addSubview(continueButton)

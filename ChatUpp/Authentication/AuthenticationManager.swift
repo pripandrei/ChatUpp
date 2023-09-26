@@ -8,6 +8,15 @@
 import Foundation
 import FirebaseAuth
 
+
+
+enum LoginStatus {
+    case loggedIn
+    case loggedOut
+}
+
+//MARK: - Authentication result model
+
 struct AuthDataResultModel {
     let uid: String
     let email: String?
@@ -21,6 +30,8 @@ struct AuthDataResultModel {
 //        self.name = nil
     }
 }
+
+//MARK: - Auth Manager
 
 final class AuthenticationManager
 {
@@ -97,9 +108,4 @@ extension AuthenticationManager {
             complition(authDataModel)
         }
     }
-}
-
-struct GoogleSignInResultModel {
-    let idToken :String
-    let accessToken :String
 }

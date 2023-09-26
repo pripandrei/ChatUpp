@@ -7,14 +7,17 @@
 
 import Foundation
 
-final class LoginViewModel: EmailValidator {
-    
-    //MARK: - Sign in with email
+final class LoginViewModel {
     
     var email: String = ""
     var password: String = ""
     
     var loginStatus: ObservableObject<LoginStatus?> = ObservableObject(nil)
+}
+
+//MARK: - Sign in with email
+
+extension LoginViewModel: EmailValidator {
     
     func validateEmailCredentials() throws {
         guard !email.isEmpty else {
@@ -36,9 +39,11 @@ final class LoginViewModel: EmailValidator {
             self?.loginStatus.value = .loggedIn
         }
     }
+}
+
+//MARK: - Sign in with google
     
-    //MARK: - Sign in with google
-    
+extension LoginViewModel {
     func googleSignIn() {
         let helper = SignInGoogleHelper()
         helper.signIn { signInResult in

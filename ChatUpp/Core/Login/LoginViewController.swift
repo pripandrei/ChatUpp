@@ -22,6 +22,8 @@ class LoginViewController: UIViewController {
     lazy private var textFieldValidator = EmailCredentialsValidator(mailField: mailLogInField,
                                                                     passwordField: passwordLogInField,
                                                                     viewModel: loginViewModel)
+    
+    // MARK: - VC LIFEC YCLE
     override func viewDidLoad()
     {
         super.viewDidLoad()
@@ -54,7 +56,7 @@ class LoginViewController: UIViewController {
         }
     }
     
-    // MARK: - setup viewController
+    // MARK: - Setup viewController
     
     private func configureSignInGoogleButton() {
         view.addSubview(googleSignInButton)

@@ -7,6 +7,13 @@
 
 import Foundation
 
+enum ValidationStatus {
+    case valid
+    case invalid
+}
+
+//MARK: - Username registration View Model
+ 
 final class UsernameRegistrationViewModel {
     
     var username: String = ""

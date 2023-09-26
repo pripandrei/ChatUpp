@@ -7,7 +7,14 @@
 
 import Foundation
 
-final class EmailSignUpEmailViewModel: EmailValidator {
+enum UserRegistrationStatus {
+    case success
+    case failure
+}
+
+//MARK: - Email Signup view model
+
+final class EmailSignupViewModel: EmailValidator {
 
     var email: String = ""
     var password: String = ""

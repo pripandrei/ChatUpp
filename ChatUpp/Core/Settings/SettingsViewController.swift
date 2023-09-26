@@ -66,6 +66,3 @@ class SettingsViewController: UIViewController {
         present(nav, animated: true)
     }
 }
-
-// MARK: - Settings View Model
-

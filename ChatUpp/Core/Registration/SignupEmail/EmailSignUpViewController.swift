@@ -10,7 +10,7 @@ import FirebaseAuth
 
 class EmailSignUpViewController: UIViewController {
     
-    private var signUpViewModel = EmailSignUpEmailViewModel()
+    private var signUpViewModel = EmailSignupViewModel()
     private let stackView = UIStackView()
     private let signUpButton = UIButton()
     private var emailSignupField = UITextField()
@@ -109,13 +109,4 @@ class EmailSignUpViewController: UIViewController {
             }
         }
     }
-}
-
-enum RegistrationTextfields: Int, CaseIterable {
-    case name = 1, familyName, email, password
-}
-
-enum UserRegistrationStatus {
-    case success
-    case failure
 }

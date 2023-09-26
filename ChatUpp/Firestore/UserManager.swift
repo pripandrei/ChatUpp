@@ -7,7 +7,14 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseFirestoreSwift
+
+
+enum ResposneStatus {
+    case success
+    case failed
+}
+
+//MARK: - Firestore DB User
 
 struct DBUser {
     let uid: String
@@ -17,25 +24,15 @@ struct DBUser {
     let photoURL: String?
 }
 
+//MARK: - USER MANAGER
+
 final class UserManager {
     
     static let shared = UserManager()
     
     private init() {}
     
-    func updateUser(with userID: String, usingName name: String, complition: @escaping (ResposneStatus) -> Void) {
-        let userData: [String: Any] = [
-            "name" : name
-        ]
-        Firestore.firestore().collection("users").document(userID).setData(userData, merge: true) { error in
-            if let error = error {
-                print("There was an error updating username: ", error.localizedDescription)
-                complition(.failed)
-                return
-            }
-            complition(.success)
-        }
-    }
+    // MARK: - CREATE NEW USER
     
     func createNewUser(with authData: AuthDataResultModel, _ complition: @escaping (Bool) -> Void) {
         
@@ -60,6 +57,25 @@ final class UserManager {
         }
     }
     
+    
+    // MARK: - UPDATE USER
+    
+    func updateUser(with userID: String, usingName name: String, complition: @escaping (ResposneStatus) -> Void) {
+        let userData: [String: Any] = [
+            "name" : name
+        ]
+        Firestore.firestore().collection("users").document(userID).setData(userData, merge: true) { error in
+            if let error = error {
+                print("There was an error updating username: ", error.localizedDescription)
+                complition(.failed)
+                return
+            }
+            complition(.success)
+        }
+    }
+    
+    // MARK: - GET USER FROM DM
+    
     func getUserFromDB(with userID: String, complition: @escaping (DBUser) -> Void)
     {
         Firestore.firestore().collection("users").document(userID).getDocument { docSnapshot, error in
@@ -81,6 +97,4 @@ final class UserManager {
             complition(databaseUser)
         }
     }
-    
-    
 }

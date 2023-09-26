@@ -18,24 +18,3 @@ class ChatsCell: UITableViewCell {
     }
 }
 
-
-enum LoginStatus {
-    case loggedIn
-    case loggedOut
-}
-
-enum ValidationStatus {
-    case valid
-    case invalid
-}
-
-enum ResposneStatus {
-    case success
-    case failed
-}
-
-enum CredentialsError: Error {
-    case emptyMail
-    case empyPassword
-    case shortPassword
-}
