@@ -8,6 +8,9 @@
 import UIKit
 
 class UserChat: UIViewController {
+    
+    
+    // MARK: - VC LIFE CYCLE
 
     override func viewDidLoad() {
         super.viewDidLoad()
