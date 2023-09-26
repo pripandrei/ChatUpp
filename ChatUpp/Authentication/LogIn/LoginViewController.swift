@@ -7,7 +7,6 @@
 
 import UIKit
 import GoogleSignIn
-import GoogleSignInSwift
 
 class LoginViewController: UIViewController {
     
@@ -62,6 +61,7 @@ class LoginViewController: UIViewController {
         
         googleSignInButton.colorScheme = .dark
         googleSignInButton.style = .wide
+        googleSignInButton.layer.cornerRadius = 10
         googleSignInButton.addTarget(self, action: #selector(handleSignInWithGoogle), for: .touchUpInside)
         
         setSignInGoogleButtonConstraints()
@@ -72,8 +72,8 @@ class LoginViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             googleSignInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            googleSignInButton.topAnchor.constraint(equalTo: signUpLable.bottomAnchor, constant: 60),
-            googleSignInButton.heightAnchor.constraint(equalToConstant: 50),
+            googleSignInButton.topAnchor.constraint(equalTo: signUpLable.bottomAnchor, constant: 100),
+//            googleSignInButton.heightAnchor.constraint(equalToConstant: 110),
             googleSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
@@ -244,24 +244,8 @@ final class LoginViewModel: EmailValidator {
     //MARK: - Sign in with google
     
     func googleSignIn() {
-        
-        guard let loginVC = Utilities.findLoginViewControllerInHierarchy() else {
-            print("Could not find loginVC in hierarcy")
-            return
-        }
-        
-        GIDSignIn.sharedInstance.signIn(withPresenting: loginVC) { GIDSignInResult, error in
-            guard error == nil else {
-                print(error!.localizedDescription)
-                return
-            }
-            guard let result = GIDSignInResult , let idToken = result.user.idToken?.tokenString else {
-                print("Error getting user token")
-                return
-            }
-            let accessToken = result.user.accessToken.tokenString
-            let tokens = GoogleSignInResultModel(idToken: idToken, accessToken: accessToken)
-            
+        let helper = SignInGoogleHelper()
+        helper.signIn { tokens in
             AuthenticationManager.shared.signInWithGoogle(usingTokens: tokens) { [weak self] authResultModel in
                 if authResultModel != nil {
                     self?.loginStatus.value = .loggedIn
