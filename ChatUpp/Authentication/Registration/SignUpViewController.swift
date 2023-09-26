@@ -111,44 +111,6 @@ class SignUpViewController: UIViewController {
     }
 }
 
-// MARK: - SignUpEmailViewModel
-
-final class SignUpEmailViewModel: EmailValidator {
-
-    var email: String = ""
-    var password: String = ""
-    
-    func validateEmailCredentials() throws {
-        guard !email.isEmpty else {
-            throw CredentialsError.emptyMail
-        }
-        guard !password.isEmpty else {
-            throw CredentialsError.empyPassword
-        }
-        guard password.count > 6 else {
-            throw CredentialsError.shortPassword
-        }
-    }
-    
-    func signUp(complition: @escaping (UserRegistrationStatus) -> Void) {
-        AuthenticationManager.shared.signUpUser(email: email, password: password) { authDataResult in
-            guard let authDataResult else {
-                print("No authDataResult == nil")
-                complition(.failure)
-                return
-            }
-            UserManager.shared.createNewUser(with: authDataResult) { isCreated in
-                if isCreated {
-                   print("User was created!")
-                } else {
-                    print("Error creating user")
-                }
-            }
-            complition(.success)
-        }
-    }
-}
-
 enum RegistrationTextfields: Int, CaseIterable {
     case name = 1, familyName, email, password
 }

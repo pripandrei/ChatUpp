@@ -77,35 +77,3 @@ extension ConversationsViewController
     }
 }
 
-// MARK: - Conversations ViewModel
-
-final class ConversationsViewModel {
-    
-//    var userProfile: authDataResultModel?
-    
-    var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
-    
-    func validateUserAuthentication() {
-        
-        let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
-        
-        guard authUser != nil else {
-            isUserSignedOut.value = true
-            return
-        }
-        isUserSignedOut.value = false
-    }
-}
-
-// MARK: - Create separate file extansion for this
-
-extension UIView {
-    func pin(to superView: UIView) {
-        translatesAutoresizingMaskIntoConstraints                             = false
-        topAnchor.constraint(equalTo: superView.topAnchor).isActive           = true
-        bottomAnchor.constraint(equalTo: superView.bottomAnchor).isActive     = true
-        leadingAnchor.constraint(equalTo: superView.leadingAnchor).isActive   = true
-        trailingAnchor.constraint(equalTo: superView.trailingAnchor).isActive = true
-    }
-}
-

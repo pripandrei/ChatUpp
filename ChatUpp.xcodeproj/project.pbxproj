@@ -27,6 +27,12 @@
 		75B5C4CF2A49B3D300F63A5A /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4CE2A49B3D300F63A5A /* User.swift */; };
 		75C7B29F2A4DBF8000C41E69 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* SignUpViewController.swift */; };
 		75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */; };
+		75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F12AC3106700C2743A /* LoginViewModel.swift */; };
+		75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */; };
+		75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F52AC3113700C2743A /* UsernameRegistrationViewModel.swift */; };
+		75FB78F82AC311D000C2743A /* ConversationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F72AC311D000C2743A /* ConversationsViewModel.swift */; };
+		75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */; };
+		75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB79002AC318D600C2743A /* UIView+Extensions.swift */; };
 		89BEC3795EFF6A86906D1AEF /* Pods_ChatUpp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16945F0E08FAF16CF02D57E2 /* Pods_ChatUpp.framework */; };
 /* End PBXBuildFile section */
 
@@ -54,6 +60,12 @@
 		75B5C4CE2A49B3D300F63A5A /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
+		75FB78F12AC3106700C2743A /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewModel.swift; sourceTree = "<group>"; };
+		75FB78F52AC3113700C2743A /* UsernameRegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameRegistrationViewModel.swift; sourceTree = "<group>"; };
+		75FB78F72AC311D000C2743A /* ConversationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsViewModel.swift; sourceTree = "<group>"; };
+		75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		75FB79002AC318D600C2743A /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 		8BA62625DE3B3CFDCB76E448 /* Pods-ChatUpp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatUpp.release.xcconfig"; path = "Target Support Files/Pods-ChatUpp/Pods-ChatUpp.release.xcconfig"; sourceTree = "<group>"; };
 		C6F8C25C96AC6DC3F23E228B /* Pods-ChatUpp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatUpp.debug.xcconfig"; path = "Target Support Files/Pods-ChatUpp/Pods-ChatUpp.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -73,29 +85,32 @@
 		756525C02A7E821C005DC594 /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
-				756525C42A7FDB1F005DC594 /* SingUp */,
-				756525C32A7FDAEA005DC594 /* LogIn */,
+				756525C42A7FDB1F005DC594 /* Registration */,
+				756525C32A7FDAEA005DC594 /* Login */,
 				756525C12A7E8240005DC594 /* AuthenticationManager.swift */,
 				75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */,
 			);
 			path = Authentication;
 			sourceTree = "<group>";
 		};
-		756525C32A7FDAEA005DC594 /* LogIn */ = {
+		756525C32A7FDAEA005DC594 /* Login */ = {
 			isa = PBXGroup;
 			children = (
 				75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */,
+				75FB78F12AC3106700C2743A /* LoginViewModel.swift */,
 			);
-			path = LogIn;
+			path = Login;
 			sourceTree = "<group>";
 		};
-		756525C42A7FDB1F005DC594 /* SingUp */ = {
+		756525C42A7FDB1F005DC594 /* Registration */ = {
 			isa = PBXGroup;
 			children = (
 				75C7B29E2A4DBF8000C41E69 /* SignUpViewController.swift */,
 				756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */,
+				75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */,
+				75FB78F52AC3113700C2743A /* UsernameRegistrationViewModel.swift */,
 			);
-			path = SingUp;
+			path = Registration;
 			sourceTree = "<group>";
 		};
 		756525C82A8127CC005DC594 /* Utilities */ = {
@@ -136,6 +151,7 @@
 		75B5C4B82A49AB0A00F63A5A /* ChatUpp */ = {
 			isa = PBXGroup;
 			children = (
+				75FB78FF2AC3188C00C2743A /* Extensions */,
 				756525D32AB50035005DC594 /* Firestore */,
 				756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */,
 				756525C02A7E821C005DC594 /* Authentication */,
@@ -143,11 +159,10 @@
 				75B5C4CD2A49AB1500F63A5A /* Supporting files */,
 				756525C82A8127CC005DC594 /* Utilities */,
 				75B5C4C72A49AB0B00F63A5A /* Info.plist */,
-				756525C62A7FE49E005DC594 /* ConversationsViewController.swift */,
-				756525D12AAA147A005DC594 /* ConversationCell.swift */,
+				75FB78FE2AC3169100C2743A /* Conversation */,
 				756525CF2AA9F0AF005DC594 /* UserChat.swift */,
-				756525CD2A9F96AB005DC594 /* TabBarViewController.swift */,
-				756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */,
+				75FB78F92AC315D200C2743A /* Tabbar */,
+				75FB78FD2AC3165F00C2743A /* Settings */,
 				7541615B2ABDDABC007CF0FA /* EmailCredentialsValidator.swift */,
 			);
 			path = ChatUpp;
@@ -170,6 +185,41 @@
 				75B5C4CE2A49B3D300F63A5A /* User.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		75FB78F92AC315D200C2743A /* Tabbar */ = {
+			isa = PBXGroup;
+			children = (
+				756525CD2A9F96AB005DC594 /* TabBarViewController.swift */,
+			);
+			path = Tabbar;
+			sourceTree = "<group>";
+		};
+		75FB78FD2AC3165F00C2743A /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */,
+				75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		75FB78FE2AC3169100C2743A /* Conversation */ = {
+			isa = PBXGroup;
+			children = (
+				756525D12AAA147A005DC594 /* ConversationCell.swift */,
+				756525C62A7FE49E005DC594 /* ConversationsViewController.swift */,
+				75FB78F72AC311D000C2743A /* ConversationsViewModel.swift */,
+			);
+			path = Conversation;
+			sourceTree = "<group>";
+		};
+		75FB78FF2AC3188C00C2743A /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				75FB79002AC318D600C2743A /* UIView+Extensions.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 		9A774AFF592AD23FC132B5EB /* Frameworks */ = {
@@ -309,16 +359,22 @@
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
 				756525D52AB50079005DC594 /* UserManager.swift in Sources */,
 				756525D02AA9F0AF005DC594 /* UserChat.swift in Sources */,
+				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
 				753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */,
 				756525C72A7FE49E005DC594 /* ConversationsViewController.swift in Sources */,
+				75FB78F82AC311D000C2743A /* ConversationsViewModel.swift in Sources */,
+				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
 				75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
+				75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */,
 				75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */,
+				75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */,
 				756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */,
 				7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */,
 				756525D22AAA147A005DC594 /* ConversationCell.swift in Sources */,
 				75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */,
+				75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */,
 				75C7B29F2A4DBF8000C41E69 /* SignUpViewController.swift in Sources */,
 				756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */,
 			);

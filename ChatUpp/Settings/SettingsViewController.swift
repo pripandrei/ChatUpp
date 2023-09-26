@@ -69,16 +69,3 @@ class SettingsViewController: UIViewController {
 
 // MARK: - Settings View Model
 
-final class SettingsViewModel {
-
-    var userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
-    
-    @objc func signOut() {
-        do {
-            try AuthenticationManager.shared.signOut()
-            userIsSignedOut.value = true
-        } catch {
-            print("Error signing out")
-        }
-    }
-}
