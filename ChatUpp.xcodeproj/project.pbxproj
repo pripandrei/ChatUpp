@@ -216,10 +216,10 @@
 		75FB78FE2AC3169100C2743A /* Chats */ = {
 			isa = PBXGroup;
 			children = (
-				758680792AC3214F009C16D3 /* Conversation */,
 				756525D12AAA147A005DC594 /* ChatsCell.swift */,
 				756525C62A7FE49E005DC594 /* ChatsViewController.swift */,
 				75FB78F72AC311D000C2743A /* ChatsViewModel.swift */,
+				758680792AC3214F009C16D3 /* Conversation */,
 			);
 			path = Chats;
 			sourceTree = "<group>";

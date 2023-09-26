@@ -16,7 +16,7 @@ class ChatsViewController: UIViewController {
     // MARK: - CELL IDENTIFIER
     
     struct Cell {
-        static let conversationCell = "ConversationCell"
+        static let chatCell = "ChatCell"
     }
     
     // MARK: - UI SETUP
@@ -25,7 +25,7 @@ class ChatsViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupBinding()
-        tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.conversationCell)
+        tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.chatCell)
         configureTableView()
         conversationsViewModel.validateUserAuthentication()
     }
@@ -42,7 +42,7 @@ class ChatsViewController: UIViewController {
         view.addSubview(tableView)
         setTableViewDelegates()
         tableView.pin(to: view)
-        tableView.rowHeight = 50
+        tableView.rowHeight = 70
     }
     
     func setTableViewDelegates() {
@@ -60,10 +60,12 @@ extension ChatsViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.conversationCell, for: indexPath) as? ChatsCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.chatCell, for: indexPath) as? ChatsCell else {
             fatalError("Unable to dequeu reusable cell")
         }
         
+        cell.textLabel?.text = "+HOHO"
+    
         return cell
     }
 }
