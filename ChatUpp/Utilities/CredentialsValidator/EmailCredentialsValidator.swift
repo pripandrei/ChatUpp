@@ -8,7 +8,6 @@
 //import Foundation
 import UIKit
 
-
 protocol EmailValidator
 {
     var email: String { get set }

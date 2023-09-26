@@ -8,9 +8,9 @@
 import UIKit
 import FirebaseAuth
 
-class SignUpViewController: UIViewController {
+class EmailSignUpViewController: UIViewController {
     
-    private var signUpViewModel = SignUpEmailViewModel()
+    private var signUpViewModel = EmailSignUpEmailViewModel()
     private let stackView = UIStackView()
     private let signUpButton = UIButton()
     private var emailSignupField = UITextField()

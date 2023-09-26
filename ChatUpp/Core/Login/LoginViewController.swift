@@ -194,7 +194,7 @@ class LoginViewController: UIViewController {
     // MARK: - Navigation
     
     @objc func pushSignUpVC() {
-        let signUpVC = SignUpViewController()
+        let signUpVC = EmailSignUpViewController()
         navigationController?.pushViewController(signUpVC, animated: true)
     }
     

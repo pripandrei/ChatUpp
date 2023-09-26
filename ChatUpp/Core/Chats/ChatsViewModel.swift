@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class ConversationsViewModel {
+final class ChatsViewModel {
     
 //    var userProfile: authDataResultModel?
     

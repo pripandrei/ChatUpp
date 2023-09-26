@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class SignUpEmailViewModel: EmailValidator {
+final class EmailSignUpEmailViewModel: EmailValidator {
 
     var email: String = ""
     var password: String = ""

@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseAuth
 
-class ConversationsViewController: UIViewController {
+class ChatsViewController: UIViewController {
     
     struct Cell {
         static let conversationCell = "ConversationCell"
@@ -16,14 +16,14 @@ class ConversationsViewController: UIViewController {
     
     let tableView = UITableView()
     
-    var conversationsViewModel = ConversationsViewModel()
+    var conversationsViewModel = ChatsViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
 //        conversationsViewModel.signOut()
         setupBinding()
-        tableView.register(ConversationCell.self, forCellReuseIdentifier: Cell.conversationCell)
+        tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.conversationCell)
         configureTableView()
         conversationsViewModel.validateUserAuthentication()
     }
@@ -52,13 +52,13 @@ class ConversationsViewController: UIViewController {
 
 // MARK: - TableView DataSource
 
-extension ConversationsViewController: UITableViewDataSource {
+extension ChatsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         20
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.conversationCell, for: indexPath) as? ConversationCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.conversationCell, for: indexPath) as? ChatsCell else {
             fatalError("Unable to dequeu reusable cell")
         }
         
@@ -68,7 +68,7 @@ extension ConversationsViewController: UITableViewDataSource {
 
 // MARK: - Navigation
 
-extension ConversationsViewController
+extension ChatsViewController
 {
     func presentLogInForm() {
         let nav = UINavigationController(rootViewController: LoginViewController())
