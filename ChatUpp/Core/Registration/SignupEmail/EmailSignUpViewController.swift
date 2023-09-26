@@ -101,7 +101,7 @@ class EmailSignUpViewController: UIViewController {
         if isValid {
             if let navigationController = navigationController  {
                 signUpViewModel.signUp() { registrationStatus in
-                    if registrationStatus == .success{
+                    if registrationStatus == .success {
                         let usernameRegistrationVC = UsernameRegistrationViewController()
                         navigationController.pushViewController(usernameRegistrationVC, animated: true)
                     }
