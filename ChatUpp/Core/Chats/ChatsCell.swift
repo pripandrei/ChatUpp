@@ -16,9 +16,9 @@ class ChatsCell: UITableViewCell {
 //    var messageBadge: Int
     
     var messageLable = UILabel()
+    var nameLabel = UILabel()
     var profileImage = UIImageView()
     var dateLable = UILabel()
-    var nameLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
