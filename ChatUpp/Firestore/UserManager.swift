@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseFirestoreSwift
 
 
 enum ResposneStatus {
@@ -16,10 +17,10 @@ enum ResposneStatus {
 
 //MARK: - Firestore DB User
 
-struct DBUser {
-    let uid: String
+struct DBUser: Codable {
+    let userID: String
 //    let name: String
-    let date: Date?
+    let dateCreated: Date?
     let email: String?
     let photoURL: String?
 }
@@ -32,30 +33,44 @@ final class UserManager {
     
     private init() {}
     
+    private let userCollection = Firestore.firestore().collection("users")
+    
+    private func userDocument(userID: String) -> DocumentReference {
+        userCollection.document(userID)
+    }
+
     // MARK: - CREATE NEW USER
     
-    func createNewUser(with authData: AuthDataResultModel, _ complition: @escaping (Bool) -> Void) {
+    func createNewUser(user: DBUser, _ complition: @escaping (Bool) -> Void) {
         
-        var userData: [String: Any] = [
-            "user_id" : authData.uid,
-            "date_created" : Timestamp(),
-        ]
-        
-        if let email = authData.email {
-            userData["email"] = email
-        }
-        if let photoURL = authData.photoURL {
-            userData["photo_url"] = photoURL
-        }
-        
-        Firestore.firestore().collection("users").document(authData.uid).setData(userData) { error in
-            if let error = error {
-                print("Error creating user document: \(error.localizedDescription)")
-                complition(false)
+        // Same document should not be updated if it already exists in db (creation of new user updates it)
+        userDocument(userID: user.userID).checkDocumentExistence(completion: { exists in
+            if !exists {
+                try? self.userDocument(userID: user.userID).setData(from: user, merge: false) { error in
+                    if error != nil {
+                        print("Error creating user document: \(error!.localizedDescription)")
+                        complition(false)
+                    }
+                    complition(true)
+                }
+            } else {
+                complition(true)
             }
-            complition(true)
-        }
+        })
     }
+    
+//    func checkDocumentExistence(user: DBUser, complition: @escaping (Bool) -> Void) {
+//        userDocument(userID: user.userID).getDocument { docSnapshot, error in
+//            guard let snapshot = docSnapshot else {
+//                return
+//            }
+//            if snapshot.exists {
+//                complition(true)
+//            } else {
+//                complition(false)
+//            }
+//        }
+//    }
     
     
     // MARK: - UPDATE USER
@@ -64,7 +79,7 @@ final class UserManager {
         let userData: [String: Any] = [
             "name" : name
         ]
-        Firestore.firestore().collection("users").document(userID).setData(userData, merge: true) { error in
+        userDocument(userID: userID).setData(userData, merge: true) { error in
             if let error = error {
                 print("There was an error updating username: ", error.localizedDescription)
                 complition(.failed)
@@ -78,7 +93,7 @@ final class UserManager {
     
     func getUserFromDB(with userID: String, complition: @escaping (DBUser) -> Void)
     {
-        Firestore.firestore().collection("users").document(userID).getDocument { docSnapshot, error in
+        userDocument(userID: userID).getDocument { docSnapshot, error in
             if let error = error {
                 print("Error getting user from DB:", error.localizedDescription)
                 return
@@ -92,9 +107,44 @@ final class UserManager {
             let email = snapshot["email"] as? String
             let photoURL = snapshot["photo_url"] as? String
             
-            let databaseUser = DBUser(uid: uid, date: date, email: email, photoURL: photoURL)
+            let databaseUser = DBUser(userID: uid, dateCreated: date, email: email, photoURL: photoURL)
             
             complition(databaseUser)
         }
     }
+}
+//
+//extension DocumentReference {
+//    func checkDocumentExistence() async -> Bool {
+//        let docSnapshot = try? await self.getDocument()
+//        guard let snapshot = docSnapshot else {
+//            return false
+//        }
+//        if snapshot.exists {
+//           return true
+//        } else {
+//            return false
+//        }
+//    }
+//}
+
+extension DocumentReference {
+    
+    func checkDocumentExistence(completion: @escaping (Bool) -> Void) {
+            self.getDocument { (docSnapshot, error) in
+                if let error = error {
+                    // Handle the error here if necessary
+                    print("Error fetching document: \(error)")
+                    completion(false)
+                    return
+                }
+                
+                guard let snapshot = docSnapshot else {
+                    completion(false)
+                    return
+                }
+                
+                completion(snapshot.exists)
+            }
+        }
 }
