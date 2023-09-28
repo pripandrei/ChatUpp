@@ -45,15 +45,34 @@ extension LoginViewModel: EmailValidator {
     
 extension LoginViewModel {
     func googleSignIn() {
+        
         let helper = SignInGoogleHelper()
+        
         helper.signIn { signInResult in
-            if let tokens = signInResult {
-                AuthenticationManager.shared.signInWithGoogle(usingTokens: tokens) { [weak self] authResultModel in
-                    if authResultModel != nil {
-                        self?.loginStatus.value = .loggedIn
-                    }
+            guard let tokens = signInResult else {
+                return
+            }
+            AuthenticationManager.shared.signInWithGoogle(usingTokens: tokens) { [weak self] authResultModel in
+                guard let authResultModel = authResultModel else {
+                    return
                 }
+                let dbUser = DBUser(userID: authResultModel.uid, dateCreated: Date(), email: authResultModel.email, photoURL: authResultModel.photoURL)
+                
+                UserManager.shared.createNewUser(user: dbUser) { created in
+                   created ? (self?.loginStatus.value = .loggedIn) : nil
+                }
+//                // Same document should not be updated if it already exists in db (creation of new user updates it)
+//                UserManager.shared.checkDocumentExistence(user: dbUser) { exists in
+//                    if !exists {
+//                        UserManager.shared.createNewUser(user: dbUser) { created in
+//                           created ? (self?.loginStatus.value = .loggedIn) : nil
+//                        }
+//                    } else {
+//                        self?.loginStatus.value = .loggedIn                        
+//                    }
+//                }
             }
         }
     }
 }
+

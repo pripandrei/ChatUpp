@@ -38,7 +38,9 @@ final class EmailSignupViewModel: EmailValidator {
                 complition(.failure)
                 return
             }
-            UserManager.shared.createNewUser(with: authDataResult) { isCreated in
+            let dbUser = DBUser(userID: authDataResult.uid, dateCreated: Date(), email: authDataResult.email, photoURL: authDataResult.photoURL)
+            
+            UserManager.shared.createNewUser(user: dbUser) { isCreated in
                 if isCreated {
                    print("User was created!")
                 } else {
