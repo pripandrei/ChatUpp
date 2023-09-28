@@ -8,8 +8,6 @@
 import Foundation
 import FirebaseAuth
 
-
-
 enum LoginStatus {
     case loggedIn
     case loggedOut

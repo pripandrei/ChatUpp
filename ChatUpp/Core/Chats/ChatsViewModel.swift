@@ -9,18 +9,12 @@ import Foundation
 
 final class ChatsViewModel {
     
-//    var userProfile: authDataResultModel?
+    //    var userProfile: authDataResultModel?
     
     var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
     
     func validateUserAuthentication() {
-        
         let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
-        
-        guard authUser != nil else {
-            isUserSignedOut.value = true
-            return
-        }
-        isUserSignedOut.value = false
+        isUserSignedOut.value = authUser == nil
     }
 }
