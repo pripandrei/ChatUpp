@@ -15,13 +15,12 @@ enum LoginStatus {
 
 //MARK: - Authentication result model
 
-
 //ADD DATE CREATED!!
 struct AuthDataResultModel {
     let uid: String
     let email: String?
     let photoURL: String?
-    var name: String?
+    let name: String?
 //    let phoneNumber: String?
     
     init(user: User) {
@@ -29,6 +28,7 @@ struct AuthDataResultModel {
         self.email = user.email
         self.photoURL = user.photoURL?.absoluteString
         self.name = user.displayName
+        
     }
 }
 

@@ -63,10 +63,13 @@ final class UserManager {
     
     func createNewUser(user: DBUser, _ complition: @escaping (Bool) -> Void) {
         
-        // Same document should not be updated if it already exists in db (creation of new user updates it)
-        userDocument(userID: user.userId).checkDocumentExistence(completion: { [weak self] exists in
+//         Same document should not be updated if it already exists in db (creation of new user updates it)
+        userDocument(userID: user.userId).getDocument { [weak self] (documentSnapshot, error) in
+            
+            guard error == nil else { print(error!) ; return }
             guard let self = self else {return}
-            if !exists {
+            
+            if let document = documentSnapshot, !document.exists {
                 try? self.userDocument(userID: user.userId).setData(from: user, merge: false, encoder: self.encoder) { error in
                     if error != nil {
                         print("Error creating user document: \(error!.localizedDescription)")
@@ -77,7 +80,7 @@ final class UserManager {
             } else {
                 complition(true)
             }
-        })
+        }
     }
     
     // MARK: - UPDATE USER
@@ -108,10 +111,6 @@ final class UserManager {
             }
         }
     }
-}
-
-enum DocumentCreationStatus {
-    case isCreated, alreadyExists, errorCreating
 }
 
 extension DocumentReference {

@@ -18,18 +18,15 @@ struct SignInGoogleHelper {
         }
         GIDSignIn.sharedInstance.signIn(withPresenting: loginVC) { GIDSignInResult, error in
             guard error == nil else {
-                complition(nil)
                 print(error!.localizedDescription)
-                return
-            }
-            
-            print("NAME:", GIDSignInResult?.user.profile?.name)
-            guard let result = GIDSignInResult , let idToken = result.user.idToken?.tokenString else {
                 complition(nil)
-                print("Error getting user token")
                 return
             }
-            
+            guard let result = GIDSignInResult , let idToken = result.user.idToken?.tokenString else {
+                print("Error getting user token")
+                complition(nil)
+                return
+            }
             let accessToken = result.user.accessToken.tokenString
             let tokens = GoogleSignInResultModel(idToken: idToken, accessToken: accessToken)
             complition(tokens)
