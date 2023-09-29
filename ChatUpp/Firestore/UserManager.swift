@@ -17,7 +17,8 @@ enum ResposneStatus {
 
 //MARK: - Firestore DB User
 
-struct DBUser: Codable {
+struct DBUser: Codable
+{
     let userId: String
     let name: String? 
     let dateCreated: Date?
@@ -31,6 +32,32 @@ struct DBUser: Codable {
         self.email = auth.email
         self.photoUrl = auth.photoURL
     }
+    
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case name = "name"
+        case dateCreated = "date_created"
+        case email = "email"
+        case photoUrl = "photo_url"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.userId = try container.decode(String.self, forKey: .userId)
+        self.name = try container.decodeIfPresent(String.self, forKey: .name)
+        self.dateCreated = try container.decodeIfPresent(Date.self, forKey: .dateCreated)
+        self.email = try container.decodeIfPresent(String.self, forKey: .email)
+        self.photoUrl = try container.decodeIfPresent(String.self, forKey: .photoUrl)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.userId, forKey: .userId)
+        try container.encodeIfPresent(self.name, forKey: .name)
+        try container.encodeIfPresent(self.dateCreated, forKey: .dateCreated)
+        try container.encodeIfPresent(self.email, forKey: .email)
+        try container.encodeIfPresent(self.photoUrl, forKey: .photoUrl)
+    }
 }
 
 //MARK: - USER MANAGER
@@ -42,18 +69,6 @@ final class UserManager {
     private init() {}
     
     private let userCollection = Firestore.firestore().collection("users")
-    
-    private var encoder: Firestore.Encoder = {
-        let encoder = Firestore.Encoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
-        return encoder
-    }()
-    
-    private var decoder: Firestore.Decoder = {
-        let decoder = Firestore.Decoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
-    }()
     
     private func userDocument(userID: String) -> DocumentReference {
         userCollection.document(userID)
@@ -70,7 +85,7 @@ final class UserManager {
             guard let self = self else {return}
             
             if let document = documentSnapshot, !document.exists {
-                try? self.userDocument(userID: user.userId).setData(from: user, merge: false, encoder: self.encoder) { error in
+                try? self.userDocument(userID: user.userId).setData(from: user, merge: false) { error in
                     if error != nil {
                         print("Error creating user document: \(error!.localizedDescription)")
                         complition(false)
@@ -87,7 +102,7 @@ final class UserManager {
     
     func updateUser(with userID: String, usingName name: String, complition: @escaping (ResposneStatus) -> Void) {
         let userData: [String: Any] = [
-            "name" : name
+            DBUser.CodingKeys.name.rawValue : name
         ]
         userDocument(userID: userID).setData(userData, merge: true) { error in
             if let error = error {
@@ -102,7 +117,7 @@ final class UserManager {
     // MARK: - GET USER FROM DB
     
     func getUserFromDB(userID: String, complition: @escaping (DBUser) -> Void) {
-        userDocument(userID: userID).getDocument(as: DBUser.self, decoder: decoder) { result in
+        userDocument(userID: userID).getDocument(as: DBUser.self) { result in
             do {
                 let user = try result.get()
                 complition(user)
@@ -113,19 +128,23 @@ final class UserManager {
     }
 }
 
-extension DocumentReference {
-    public func checkDocumentExistence(completion: @escaping (Bool) -> Void) {
-        self.getDocument { (docSnapshot, error) in
-            if let error = error {
-                print("Error getting document: \(error)")
-                completion(false)
-                return
-            }
-            guard let snapshot = docSnapshot else {
-                completion(false)
-                return
-            }
-            completion(snapshot.exists)
-        }
-    }
-}
+
+
+
+
+//extension DocumentReference {
+//    public func checkDocumentExistence(completion: @escaping (Bool) -> Void) {
+//        self.getDocument { (docSnapshot, error) in
+//            if let error = error {
+//                print("Error getting document: \(error)")
+//                completion(false)
+//                return
+//            }
+//            guard let snapshot = docSnapshot else {
+//                completion(false)
+//                return
+//            }
+//            completion(snapshot.exists)
+//        }
+//    }
+//}
