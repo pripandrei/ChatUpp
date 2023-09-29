@@ -24,17 +24,11 @@ final class SettingsViewModel {
     
     func integrateName() {
         let authResult = try! AuthenticationManager.shared.getAuthenticatedUser()
-        let dbUser = DBUser(userId: authResult.uid, dateCreated: Date(), email: authResult.email, photoUrl: authResult.photoURL)
+        let dbUser = DBUser(auth: authResult)
         UserManager.shared.getUserFromDB(userID: dbUser.userId) { [weak self] user in
             DispatchQueue.main.async {
                 self?.setProfileName?(user.userId)
             }
         }
-//        UserManager.shared.getUserFromDB(with: dbUser.userID) { [weak self] dbUser in
-//            print("Enterrr")
-//            DispatchQueue.main.async {
-//                self?.setProfileName?(dbUser.userID)
-//            }
-//        }
     }
 }

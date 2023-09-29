@@ -19,10 +19,18 @@ enum ResposneStatus {
 
 struct DBUser: Codable {
     let userId: String
-    var name: String? 
+    let name: String? 
     let dateCreated: Date?
     let email: String?
     let photoUrl: String?
+    
+    init(auth: AuthDataResultModel) {
+        self.userId = auth.uid
+        self.name = auth.name
+        self.dateCreated = Date()
+        self.email = auth.email
+        self.photoUrl = auth.photoURL
+    }
 }
 
 //MARK: - USER MANAGER
@@ -35,21 +43,21 @@ final class UserManager {
     
     private let userCollection = Firestore.firestore().collection("users")
     
-    private func userDocument(userID: String) -> DocumentReference {
-        userCollection.document(userID)
-    }
-
-    var encoder: Firestore.Encoder = {
+    private var encoder: Firestore.Encoder = {
         let encoder = Firestore.Encoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
     }()
     
-    var decoder: Firestore.Decoder = {
+    private var decoder: Firestore.Decoder = {
         let decoder = Firestore.Decoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }()
+    
+    private func userDocument(userID: String) -> DocumentReference {
+        userCollection.document(userID)
+    }
     
     // MARK: - CREATE NEW USER
     
@@ -88,7 +96,7 @@ final class UserManager {
         }
     }
     
-    // MARK: - GET USER FROM DM
+    // MARK: - GET USER FROM DB
     
     func getUserFromDB(userID: String, complition: @escaping (DBUser) -> Void) {
         userDocument(userID: userID).getDocument(as: DBUser.self, decoder: decoder) { result in
@@ -100,29 +108,6 @@ final class UserManager {
             }
         }
     }
-    
-//    func getUserFromDB(with userID: String, complition: @escaping (DBUser) -> Void)
-//    {
-//        userDocument(userID: userID).getDocument { docSnapshot, error in
-//            if let error = error {
-//                print("Error getting user from DB:", error.localizedDescription)
-//                return
-//            }
-//            guard let snapshot = docSnapshot?.data(),
-//                  let uid = snapshot["user_id"] as? String else {
-//                return
-//            }
-//            
-////            let uid = snapshot["user_id"] as? String
-//            let date = snapshot["date_created"] as? Date
-//            let email = snapshot["email"] as? String
-//            let photoURL = snapshot["photo_url"] as? String
-//            
-//            let databaseUser = DBUser(userId: uid, dateCreated: date, email: email, photoUrl: photoURL)
-//            
-//            complition(databaseUser)
-//        }
-//    }
 }
 
 enum DocumentCreationStatus {
