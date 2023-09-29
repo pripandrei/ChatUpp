@@ -18,11 +18,11 @@ enum ResposneStatus {
 //MARK: - Firestore DB User
 
 struct DBUser: Codable {
-    let userID: String
+    let userId: String
 //    let name: String
     let dateCreated: Date?
     let email: String?
-    let photoURL: String?
+    let photoUrl: String?
 }
 
 //MARK: - USER MANAGER
@@ -45,15 +45,21 @@ final class UserManager {
         return encoder
     }()
     
+    var decoder: Firestore.Decoder = {
+        let decoder = Firestore.Decoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
+    
     // MARK: - CREATE NEW USER
     
     func createNewUser(user: DBUser, _ complition: @escaping (Bool) -> Void) {
         
         // Same document should not be updated if it already exists in db (creation of new user updates it)
-        userDocument(userID: user.userID).checkDocumentExistence(completion: { [weak self] exists in
+        userDocument(userID: user.userId).checkDocumentExistence(completion: { [weak self] exists in
             guard let self = self else {return}
             if !exists {
-                try? self.userDocument(userID: user.userID).setData(from: user, merge: false, encoder: self.encoder) { error in
+                try? self.userDocument(userID: user.userId).setData(from: user, merge: false, encoder: self.encoder) { error in
                     if error != nil {
                         print("Error creating user document: \(error!.localizedDescription)")
                         complition(false)
@@ -84,6 +90,17 @@ final class UserManager {
     
     // MARK: - GET USER FROM DM
     
+    func getUserFromDB(userID: String, complition: @escaping (DBUser) -> Void) {
+        userDocument(userID: userID).getDocument(as: DBUser.self, decoder: decoder) { result in
+            do {
+                let user = try result.get()
+                complition(user)
+            } catch let e {
+                print("Error decoding user from DB \(e)")
+            }
+        }
+    }
+    
     func getUserFromDB(with userID: String, complition: @escaping (DBUser) -> Void)
     {
         userDocument(userID: userID).getDocument { docSnapshot, error in
@@ -91,7 +108,8 @@ final class UserManager {
                 print("Error getting user from DB:", error.localizedDescription)
                 return
             }
-            guard let snapshot = docSnapshot?.data(), let uid = snapshot["user_id"] as? String else {
+            guard let snapshot = docSnapshot?.data(),
+                  let uid = snapshot["user_id"] as? String else {
                 return
             }
             
@@ -100,7 +118,7 @@ final class UserManager {
             let email = snapshot["email"] as? String
             let photoURL = snapshot["photo_url"] as? String
             
-            let databaseUser = DBUser(userID: uid, dateCreated: date, email: email, photoURL: photoURL)
+            let databaseUser = DBUser(userId: uid, dateCreated: date, email: email, photoUrl: photoURL)
             
             complition(databaseUser)
         }

@@ -15,6 +15,8 @@ enum LoginStatus {
 
 //MARK: - Authentication result model
 
+
+//ADD DATE CREATED!!
 struct AuthDataResultModel {
     let uid: String
     let email: String?

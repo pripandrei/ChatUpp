@@ -12,12 +12,40 @@ class SettingsViewController: UIViewController {
     
     let settingsViewModel = SettingsViewModel()
     let signOutBtn = UIButton()
+    
+    let tempLabelName: UILabel = UILabel()
 
+    private func configureTempLabelName() {
+        view.addSubview(tempLabelName)
+        
+        configureTempLabelNameConstraints()
+    }
+    
+    private func configureTempLabelNameConstraints() {
+        tempLabelName.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            tempLabelName.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            tempLabelName.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -150),
+            tempLabelName.heightAnchor.constraint(equalToConstant: 30),
+            tempLabelName.widthAnchor.constraint(equalToConstant: 280)
+        ])
+    }
+    func binding() {
+        settingsViewModel.setProfileName = { [weak self] name in
+            self?.tempLabelName.text = name
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBinder()
         setUpSignOutBtn()
+        configureTempLabelName()
+        binding()
+        settingsViewModel.integrateName()
         view.backgroundColor = .white
+        
     }
     
     deinit {
