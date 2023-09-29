@@ -106,3 +106,4 @@ class ChatsCell: UITableViewCell {
     }
     
 }
+
