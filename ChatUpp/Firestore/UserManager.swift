@@ -19,7 +19,7 @@ enum ResposneStatus {
 
 struct DBUser: Codable {
     let userId: String
-//    let name: String
+    var name: String? 
     let dateCreated: Date?
     let email: String?
     let photoUrl: String?
@@ -101,28 +101,32 @@ final class UserManager {
         }
     }
     
-    func getUserFromDB(with userID: String, complition: @escaping (DBUser) -> Void)
-    {
-        userDocument(userID: userID).getDocument { docSnapshot, error in
-            if let error = error {
-                print("Error getting user from DB:", error.localizedDescription)
-                return
-            }
-            guard let snapshot = docSnapshot?.data(),
-                  let uid = snapshot["user_id"] as? String else {
-                return
-            }
-            
-//            let uid = snapshot["user_id"] as? String
-            let date = snapshot["date_created"] as? Date
-            let email = snapshot["email"] as? String
-            let photoURL = snapshot["photo_url"] as? String
-            
-            let databaseUser = DBUser(userId: uid, dateCreated: date, email: email, photoUrl: photoURL)
-            
-            complition(databaseUser)
-        }
-    }
+//    func getUserFromDB(with userID: String, complition: @escaping (DBUser) -> Void)
+//    {
+//        userDocument(userID: userID).getDocument { docSnapshot, error in
+//            if let error = error {
+//                print("Error getting user from DB:", error.localizedDescription)
+//                return
+//            }
+//            guard let snapshot = docSnapshot?.data(),
+//                  let uid = snapshot["user_id"] as? String else {
+//                return
+//            }
+//            
+////            let uid = snapshot["user_id"] as? String
+//            let date = snapshot["date_created"] as? Date
+//            let email = snapshot["email"] as? String
+//            let photoURL = snapshot["photo_url"] as? String
+//            
+//            let databaseUser = DBUser(userId: uid, dateCreated: date, email: email, photoUrl: photoURL)
+//            
+//            complition(databaseUser)
+//        }
+//    }
+}
+
+enum DocumentCreationStatus {
+    case isCreated, alreadyExists, errorCreating
 }
 
 extension DocumentReference {

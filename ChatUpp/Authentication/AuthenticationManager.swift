@@ -21,13 +21,14 @@ struct AuthDataResultModel {
     let uid: String
     let email: String?
     let photoURL: String?
-//    var name: String?
+    var name: String?
+//    let phoneNumber: String?
     
     init(user: User) {
         self.uid = user.uid
         self.email = user.email
         self.photoURL = user.photoURL?.absoluteString
-//        self.name = nil
+        self.name = user.displayName
     }
 }
 
@@ -104,6 +105,7 @@ extension AuthenticationManager {
                 complition(nil)
                 return
             }
+//            result.user.
             let authDataModel = AuthDataResultModel(user: result.user)
             complition(authDataModel)
         }

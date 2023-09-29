@@ -44,7 +44,7 @@ final class EmailSignupViewModel: EmailValidator {
                 if isCreated {
                    print("User was created!")
                 } else {
-                    print("Error creating user")
+                    print("Error creating user during sign up")
                 }
             }
             complition(.success)

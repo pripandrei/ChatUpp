@@ -56,10 +56,10 @@ extension LoginViewModel {
                 guard let authResultModel = authResultModel else {
                     return
                 }
-                let dbUser = DBUser(userId: authResultModel.uid, dateCreated: Date(), email: authResultModel.email, photoUrl: authResultModel.photoURL)
+                let dbUser = DBUser(userId: authResultModel.uid,name: authResultModel.name, dateCreated: Date(), email: authResultModel.email, photoUrl: authResultModel.photoURL)
                 
-                UserManager.shared.createNewUser(user: dbUser) { created in
-                   created ? (self?.loginStatus.value = .loggedIn) : nil
+                UserManager.shared.createNewUser(user: dbUser) { isCreated in
+                   isCreated ? (self?.loginStatus.value = .loggedIn) : nil
                 }
             }
         }

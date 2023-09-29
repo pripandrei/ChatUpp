@@ -22,6 +22,8 @@ struct SignInGoogleHelper {
                 print(error!.localizedDescription)
                 return
             }
+            
+            print("NAME:", GIDSignInResult?.user.profile?.name)
             guard let result = GIDSignInResult , let idToken = result.user.idToken?.tokenString else {
                 complition(nil)
                 print("Error getting user token")
