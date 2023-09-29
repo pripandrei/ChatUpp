@@ -39,14 +39,21 @@ final class UserManager {
         userCollection.document(userID)
     }
 
+    var encoder: Firestore.Encoder = {
+        let encoder = Firestore.Encoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }()
+    
     // MARK: - CREATE NEW USER
     
     func createNewUser(user: DBUser, _ complition: @escaping (Bool) -> Void) {
         
         // Same document should not be updated if it already exists in db (creation of new user updates it)
-        userDocument(userID: user.userID).checkDocumentExistence(completion: { exists in
+        userDocument(userID: user.userID).checkDocumentExistence(completion: { [weak self] exists in
+            guard let self = self else {return}
             if !exists {
-                try? self.userDocument(userID: user.userID).setData(from: user, merge: false) { error in
+                try? self.userDocument(userID: user.userID).setData(from: user, merge: false, encoder: self.encoder) { error in
                     if error != nil {
                         print("Error creating user document: \(error!.localizedDescription)")
                         complition(false)
@@ -58,20 +65,6 @@ final class UserManager {
             }
         })
     }
-    
-//    func checkDocumentExistence(user: DBUser, complition: @escaping (Bool) -> Void) {
-//        userDocument(userID: user.userID).getDocument { docSnapshot, error in
-//            guard let snapshot = docSnapshot else {
-//                return
-//            }
-//            if snapshot.exists {
-//                complition(true)
-//            } else {
-//                complition(false)
-//            }
-//        }
-//    }
-    
     
     // MARK: - UPDATE USER
     
@@ -113,38 +106,20 @@ final class UserManager {
         }
     }
 }
-//
-//extension DocumentReference {
-//    func checkDocumentExistence() async -> Bool {
-//        let docSnapshot = try? await self.getDocument()
-//        guard let snapshot = docSnapshot else {
-//            return false
-//        }
-//        if snapshot.exists {
-//           return true
-//        } else {
-//            return false
-//        }
-//    }
-//}
 
 extension DocumentReference {
-    
-    func checkDocumentExistence(completion: @escaping (Bool) -> Void) {
-            self.getDocument { (docSnapshot, error) in
-                if let error = error {
-                    // Handle the error here if necessary
-                    print("Error fetching document: \(error)")
-                    completion(false)
-                    return
-                }
-                
-                guard let snapshot = docSnapshot else {
-                    completion(false)
-                    return
-                }
-                
-                completion(snapshot.exists)
+    public func checkDocumentExistence(completion: @escaping (Bool) -> Void) {
+        self.getDocument { (docSnapshot, error) in
+            if let error = error {
+                print("Error getting document: \(error)")
+                completion(false)
+                return
             }
+            guard let snapshot = docSnapshot else {
+                completion(false)
+                return
+            }
+            completion(snapshot.exists)
         }
+    }
 }
