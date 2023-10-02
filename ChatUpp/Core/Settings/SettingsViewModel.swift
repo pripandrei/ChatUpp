@@ -31,4 +31,14 @@ final class SettingsViewModel {
             }
         }
     }
+    
+    func createDocID() {
+        let uid = UUID()
+        let chat = Chat(id: uid.uuidString, members: ["eh34h34","iu3583j22"], lastMessage: nil, messages: nil)
+        
+        ChatsManager.shared.createNewDocument(chat: chat) { created in
+            print("doc was created")
+        }
+//        print(doc)
+    }
 }

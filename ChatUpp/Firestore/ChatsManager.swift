@@ -27,7 +27,7 @@ struct Message: Codable {
 
 final class ChatsManager {
     
-    let shared = ChatsManager()
+    static let shared = ChatsManager()
     
     private init() {}
     
@@ -37,28 +37,43 @@ final class ChatsManager {
         return chatsCollection.document(chatID)
     }
     
+    func createDocumentReference() -> DocumentReference {
+        return chatsCollection.document()
+    }
+
+    
     //MARK: - CREATE NEW DOC
     
     func createNewDocument(chat: Chat, complition: @escaping (Bool) -> Void) {
-        
-        chatDocument(chatID: chat.id).getDocument { [weak self] docSnapshot, error in
-            
-            guard error == nil else { print(error!.localizedDescription) ; return }
-            
-            guard let docSnapshot = docSnapshot, docSnapshot.exists else {
-                complition(true)
-                return
-            }
-            
-            try? self?.chatDocument(chatID: chat.id).setData(from: chat, merge: false) { error in
-                guard error == nil else {
-                    print(error!.localizedDescription)
+            try? chatDocument(chatID: chat.id).setData(from: chat, merge: false) { error in
+                if let error = error {
+                    print(error.localizedDescription)
+                    complition(false)
                     return
                 }
                 complition(true)
             }
-            
-        }
     }
     
+    
+//    func createNewDocument(chat: Chat, complition: @escaping (Bool) -> Void) {
+//
+//        chatDocument(chatID: chat.id).getDocument { [weak self] docSnapshot, error in
+//
+//            guard error == nil else { print(error!.localizedDescription) ; return }
+//
+//            guard let docSnapshot = docSnapshot, docSnapshot.exists else {
+//                complition(true)
+//                return
+//            }
+//
+//            try? self?.chatDocument(chatID: chat.id).setData(from: chat, merge: false) { error in
+//                guard error == nil else {
+//                    print(error!.localizedDescription)
+//                    return
+//                }
+//                complition(true)
+//            }
+//        }
+//    }
 }

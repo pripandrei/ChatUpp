@@ -12,8 +12,36 @@ class SettingsViewController: UIViewController {
     
     let settingsViewModel = SettingsViewModel()
     let signOutBtn = UIButton()
-    
     let tempLabelName: UILabel = UILabel()
+    
+    let tempCreateChatDocId: UIButton = UIButton()
+    
+    private func configureTempCreateChatDocId() {
+        view.addSubview(tempCreateChatDocId)
+        
+        tempCreateChatDocId.configuration = .filled()
+        tempCreateChatDocId.configuration?.title = "CreateChatDocID"
+        tempCreateChatDocId.addTarget(self, action: #selector(tempCreateChatDocIdTapped), for: .touchUpInside)
+        tempCreateChatDocId.configuration?.buttonSize = .large
+        
+        configureTempCreateChatDocIdConstraints()
+    }
+    
+    @objc func tempCreateChatDocIdTapped() {
+        print("asd")
+        settingsViewModel.createDocID()
+    }
+    
+    private func configureTempCreateChatDocIdConstraints() {
+        tempCreateChatDocId.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            tempCreateChatDocId.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            tempCreateChatDocId.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -250),
+            tempCreateChatDocId.heightAnchor.constraint(equalToConstant: 30),
+            tempCreateChatDocId.widthAnchor.constraint(equalToConstant: 280)
+        ])
+    }
 
     private func configureTempLabelName() {
         view.addSubview(tempLabelName)
@@ -31,6 +59,7 @@ class SettingsViewController: UIViewController {
             tempLabelName.widthAnchor.constraint(equalToConstant: 280)
         ])
     }
+    
     func binding() {
         settingsViewModel.setProfileName = { [weak self] name in
             self?.tempLabelName.text = name
@@ -44,6 +73,7 @@ class SettingsViewController: UIViewController {
         configureTempLabelName()
         binding()
         settingsViewModel.integrateName()
+        configureTempCreateChatDocId()
         view.backgroundColor = .white
         
     }
