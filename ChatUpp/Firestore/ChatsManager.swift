@@ -38,6 +38,12 @@ final class ChatsManager {
         try getMessageReference(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
     
+    //MARK: - GET RECENT MESSAGE
+    
+//    func getRecentMessages(chatID: String) async throws {
+//        let message = try await chatDocument(documentPath: chatID).getDocument(as: Message.self)
+//    }
+    
     //MARK: - GET CHAT DOCUMENT
     
     func getChatDocumentFromDB(chatID: String) async throws -> Chat {

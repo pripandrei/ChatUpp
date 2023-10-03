@@ -45,14 +45,14 @@ final class SettingsViewModel {
         }
     }
     
-    func createDocID() async {
-        let uid = UUID()
-        let chat = Chat(id: uid.uuidString, members: ["eh34h34","iu3583j22"], lastMessage: nil)
-        
-        do {
-            try await ChatsManager.shared.createNewChat(chat: chat)
-        } catch let e {
-            print(e)
-        }
-    }
+//    func createDocID() async {
+//        let uid = UUID()
+//        let chat = Chat(id: uid.uuidString, members: ["eh34h34","iu3583j22"], lastMessage: nil)
+//        
+//        do {
+//            try await ChatsManager.shared.createNewChat(chat: chat)
+//        } catch let e {
+//            print(e)
+//        }
+//    }
 }

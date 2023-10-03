@@ -28,6 +28,9 @@ class ChatsViewController: UIViewController {
         tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.chatCell)
         configureTableView()
         conversationsViewModel.validateUserAuthentication()
+        Task {
+            await conversationsViewModel.getMessages()
+        }
     }
     
     private func setupBinding() {
@@ -47,7 +50,6 @@ class ChatsViewController: UIViewController {
     
     func setTableViewDelegates() {
         tableView.dataSource = self
-        
 //        tableView.delegate = self
     }
 }

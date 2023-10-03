@@ -28,10 +28,9 @@ class SettingsViewController: UIViewController {
     }
     
     @objc func tempCreateChatDocIdTapped()  {
-        Task {
-            await settingsViewModel.createDocID()
-        }
-//        await settingsViewModel.createDocID()
+//        Task {
+//            await settingsViewModel.createDocID()
+//        }
     }
     
     private func configureTempCreateChatDocIdConstraints() {
