@@ -97,6 +97,7 @@ final class ChatsManager {
     
     //MARK: - GET MESSAGE DOCUMENT
     
+    
 //    func getMessageDocumentFromDB(_ document: DocumentReference, complition: @escaping (Message?) -> Void) {
 //        document.getDocument(as: Message.self) { result in
 //            do {
