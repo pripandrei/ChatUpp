@@ -22,7 +22,7 @@ final class SettingsViewModel {
     
     var setProfileName: ((String) -> Void)?
     
-    func integrateName() {
+    func integrateName() async {
 //        let authResult = try! AuthenticationManager.shared.getAuthenticatedUser()
 //        let dbUser = DBUser(auth: authResult)
 //        UserManager.shared.getUserFromDB(userID: dbUser.userId) { [weak self] user in
@@ -31,29 +31,42 @@ final class SettingsViewModel {
 //            }
 //        }
         
-        let messageDoc2 = ChatsManager.shared.getMessage(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
-        let messag = Message(id: "£424", messageBody: "IEW98980R", senderId: "WER", imageUrl: "WER", timestamp: "WER")
-//        let messageDocument = ChatsManager.shared.getMessage(messageID: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
-//        let messagesCollection = ChatsManager.shared.getMessagesCollection(fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
-//        let messageDoc = ChatsManager.shared.getMessagePath("BucXHvVBzgPDax5BYOyE", from: messagesCollection)
-        ChatsManager.shared.createNewMessage(message: messag, onChatPath: "KmAGbYwUTrwWAqfbbGo9") { created in
-            
-        }
-        ChatsManager.shared.getMessageDocumentFromDB(messageDoc2) { [weak self] message in
-            if let message = message {
-                DispatchQueue.main.async {
-                    self?.setProfileName?(message.messageBody)
-                }
+        let messageReference = ChatsManager.shared.getMessageReference(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
+        let messageData = Message(id: "£424", messageBody: "IEW98980R", senderId: "WER", imageUrl: "WER", timestamp: "WER")
+
+        do {
+            try await ChatsManager.shared.createNewMessage(message: messageData, atChatPath: "KmAGbYwUTrwWAqfbbGo9")
+            let message = try await ChatsManager.shared.getMessageDocumentFromDB(messageReference)
+            DispatchQueue.main.async {
+                self.setProfileName?(message.messageBody)
             }
+        } catch let e {
+            print(e.localizedDescription)
         }
+        
+//        do {
+//            let message = try await ChatsManager.shared.getMessageDocumentFromDB(messageReference)
+//            setProfileName?(message.messageBody)
+//        } catch let e {
+//            print(e.localizedDescription)
+//        }
+//        ChatsManager.shared.getMessageDocumentFromDB(messageReference) { [weak self] message in
+//            if let message = message {
+//                DispatchQueue.main.async {
+////                    self?.setProfileName?(message.messageBody)
+//                }
+//            }
+//        }
     }
     
-    func createDocID() {
+    func createDocID() async {
         let uid = UUID()
         let chat = Chat(id: uid.uuidString, members: ["eh34h34","iu3583j22"], lastMessage: nil, messages: nil)
         
-        ChatsManager.shared.createNewChat(chat: chat) { created in
-            print("doc was created")
+        do {
+            try await ChatsManager.shared.createNewChat(chat: chat)
+        } catch let e {
+            print(e)
         }
     }
 }

@@ -34,7 +34,7 @@ final class ChatsManager {
 //        return messageCollection.document(messagePath)
 //    }
     
-    func getMessage(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
+    func getMessageReference(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
         chatDocument(documentPath: documentPath).collection("messages").document(messagePath)
     }
     
@@ -45,56 +45,72 @@ final class ChatsManager {
     
     //MARK: - CREATE NEW DOC
     
-    func createNewChat(chat: Chat, complition: @escaping (Bool) -> Void) {
-            try? chatDocument(documentPath: chat.id).setData(from: chat, merge: false) { error in
-                if let error = error {
-                    print(error.localizedDescription)
-                    complition(false)
-                    return
-                }
-                complition(true)
-            }
+//    func createNewChat(chat: Chat, complition: @escaping (Bool) -> Void) {
+//            try? chatDocument(documentPath: chat.id).setData(from: chat, merge: false) { error in
+//                if let error = error {
+//                    print(error.localizedDescription)
+//                    complition(false)
+//                    return
+//                }
+//                complition(true)
+//            }
+//    }
+    
+    func createNewChat(chat: Chat) async throws {
+        try chatDocument(documentPath: chat.id).setData(from: chat, merge: false)
     }
     
     //MARK: - CREATE NEW MESSAGE
     
-    func createNewMessage(message: Message, onChatPath path: String, complition: @escaping (Bool) -> Void) {
-        try? getMessage(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false) { error in
-            if let error = error {
-                print("error creating new message: ",error.localizedDescription)
-                complition(false)
-                return
-            }
-            complition(true)
-        }
+//    func createNewMessage(message: Message, atChatPath path: String, complition: @escaping (Bool) -> Void) {
+//        try? getMessageReference(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false) { error in
+//            if let error = error {
+//                print("error creating new message: ",error.localizedDescription)
+//                complition(false)
+//                return
+//            }
+//            complition(true)
+//        }
+//    }
+    
+    func createNewMessage(message: Message, atChatPath path: String) async throws {
+        try getMessageReference(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
-
+    
     
     //MARK: - GET CHAT DOCUMENT
     
-    func getChatDocumentFromDB(chatID: String, complition: @escaping (Chat) -> Void) {
-        chatDocument(documentPath: chatID).getDocument(as: Chat.self) { (result) in
-            do {
-                let chat = try result.get()
-                complition(chat)
-            } catch let e {
-                print("error getting chat document: \(e)")
-            }
-        }
+//    func getChatDocumentFromDB(chatID: String, complition: @escaping (Chat) -> Void) {
+//        chatDocument(documentPath: chatID).getDocument(as: Chat.self) { (result) in
+//            do {
+//                let chat = try result.get()
+//                complition(chat)
+//            } catch let e {
+//                print("error getting chat document: \(e)")
+//            }
+//        }
+//    }
+    
+    func getChatDocumentFromDB(chatID: String) async throws -> Chat {
+        return try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
     }
     
     //MARK: - GET MESSAGE DOCUMENT
     
-    func getMessageDocumentFromDB(_ document: DocumentReference, complition: @escaping (Message?) -> Void) {
-        document.getDocument(as: Message.self) { result in
-            do {
-               let message = try result.get()
-                complition(message)
-            } catch let e {
-                print("error getting message from doc: \(e)")
-                complition(nil)
-            }
-        }
+//    func getMessageDocumentFromDB(_ document: DocumentReference, complition: @escaping (Message?) -> Void) {
+//        document.getDocument(as: Message.self) { result in
+//            do {
+//               let message = try result.get()
+//                complition(message)
+//            } catch let e {
+//                print("error getting message from doc: \(e)")
+//                complition(nil)
+//            }
+//        }
+//    }
+    
+    func getMessageDocumentFromDB(_ document: DocumentReference) async throws -> Message {
+            return try await document.getDocument(as: Message.self)
     }
 }
 
@@ -132,7 +148,8 @@ struct Chat: Codable {
     init(id: String,
          members: [String],
          lastMessage: String?,
-         messages: [Message]?) {
+         messages: [Message]?)
+    {
         self.id = id
         self.members = members
         self.lastMessage = lastMessage
@@ -177,7 +194,8 @@ struct Message: Codable {
          messageBody: String,
          senderId: String,
          imageUrl: String?,
-         timestamp: String) {
+         timestamp: String)
+    {
         self.id = id
         self.messageBody = messageBody
         self.senderId = senderId

@@ -27,9 +27,11 @@ class SettingsViewController: UIViewController {
         configureTempCreateChatDocIdConstraints()
     }
     
-    @objc func tempCreateChatDocIdTapped() {
-        print("asd")
-        settingsViewModel.createDocID()
+    @objc func tempCreateChatDocIdTapped()  {
+        Task {
+            await settingsViewModel.createDocID()
+        }
+//        await settingsViewModel.createDocID()
     }
     
     private func configureTempCreateChatDocIdConstraints() {
@@ -72,7 +74,9 @@ class SettingsViewController: UIViewController {
         setUpSignOutBtn()
         configureTempLabelName()
         binding()
-        settingsViewModel.integrateName()
+        Task {
+            await settingsViewModel.integrateName()
+        }
         configureTempCreateChatDocId()
         view.backgroundColor = .white
         

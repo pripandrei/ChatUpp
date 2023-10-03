@@ -71,7 +71,6 @@ final class UserManager {
     private let userCollection = Firestore.firestore().collection("users")
     
     private func userDocument(userID: String) -> DocumentReference {
-//        userCollection.
         userCollection.document(userID)
     }
     
