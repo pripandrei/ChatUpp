@@ -56,7 +56,7 @@ class SettingsViewController: UIViewController {
             tempLabelName.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             tempLabelName.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -150),
             tempLabelName.heightAnchor.constraint(equalToConstant: 30),
-            tempLabelName.widthAnchor.constraint(equalToConstant: 280)
+            tempLabelName.widthAnchor.constraint(equalToConstant: 320)
         ])
     }
     

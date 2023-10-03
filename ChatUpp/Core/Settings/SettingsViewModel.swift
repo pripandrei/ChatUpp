@@ -23,11 +23,21 @@ final class SettingsViewModel {
     var setProfileName: ((String) -> Void)?
     
     func integrateName() {
-        let authResult = try! AuthenticationManager.shared.getAuthenticatedUser()
-        let dbUser = DBUser(auth: authResult)
-        UserManager.shared.getUserFromDB(userID: dbUser.userId) { [weak self] user in
-            DispatchQueue.main.async {
-                self?.setProfileName?(user.userId)
+//        let authResult = try! AuthenticationManager.shared.getAuthenticatedUser()
+//        let dbUser = DBUser(auth: authResult)
+//        UserManager.shared.getUserFromDB(userID: dbUser.userId) { [weak self] user in
+//            DispatchQueue.main.async {
+////                self?.setProfileName?(user.userId)
+//            }
+//        }
+        let messageDocument = ChatsManager.shared.getMessage(messageID: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
+//        let messagesCollection = ChatsManager.shared.getMessagesCollection(fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
+//        let messageDoc = ChatsManager.shared.getMessagePath("BucXHvVBzgPDax5BYOyE", from: messagesCollection)
+        ChatsManager.shared.getMessageDocument(messageDocument) { [weak self] message in
+            if let message = message {
+                DispatchQueue.main.async {
+                    self?.setProfileName?(message.messageBody)
+                }
             }
         }
     }
