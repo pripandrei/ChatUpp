@@ -43,25 +43,11 @@ final class SettingsViewModel {
         } catch let e {
             print(e.localizedDescription)
         }
-        
-//        do {
-//            let message = try await ChatsManager.shared.getMessageDocumentFromDB(messageReference)
-//            setProfileName?(message.messageBody)
-//        } catch let e {
-//            print(e.localizedDescription)
-//        }
-//        ChatsManager.shared.getMessageDocumentFromDB(messageReference) { [weak self] message in
-//            if let message = message {
-//                DispatchQueue.main.async {
-////                    self?.setProfileName?(message.messageBody)
-//                }
-//            }
-//        }
     }
     
     func createDocID() async {
         let uid = UUID()
-        let chat = Chat(id: uid.uuidString, members: ["eh34h34","iu3583j22"], lastMessage: nil, messages: nil)
+        let chat = Chat(id: uid.uuidString, members: ["eh34h34","iu3583j22"], lastMessage: nil)
         
         do {
             try await ChatsManager.shared.createNewChat(chat: chat)

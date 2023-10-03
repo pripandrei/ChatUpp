@@ -10,6 +10,9 @@
 		753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753D0B682AC1FA6100C22AC4 /* Utilities.swift */; };
 		7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7541615B2ABDDABC007CF0FA /* EmailCredentialsValidator.swift */; };
 		7543BE2A2ACB0EDA003001BF /* ChatsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE292ACB0EDA003001BF /* ChatsManager.swift */; };
+		7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2B2ACC864A003001BF /* UserModel.swift */; };
+		7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2D2ACC868B003001BF /* ChatModel.swift */; };
+		7543BE302ACC86AE003001BF /* MessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2F2ACC86AE003001BF /* MessageModel.swift */; };
 		756525BF2A7AF4C6005DC594 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */; };
 		756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C12A7E8240005DC594 /* AuthenticationManager.swift */; };
 		756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C62A7FE49E005DC594 /* ChatsViewController.swift */; };
@@ -42,6 +45,9 @@
 		753D0B682AC1FA6100C22AC4 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		7541615B2ABDDABC007CF0FA /* EmailCredentialsValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailCredentialsValidator.swift; sourceTree = "<group>"; };
 		7543BE292ACB0EDA003001BF /* ChatsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsManager.swift; sourceTree = "<group>"; };
+		7543BE2B2ACC864A003001BF /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
+		7543BE2D2ACC868B003001BF /* ChatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModel.swift; sourceTree = "<group>"; };
+		7543BE2F2ACC86AE003001BF /* MessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageModel.swift; sourceTree = "<group>"; };
 		756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		756525C12A7E8240005DC594 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		756525C62A7FE49E005DC594 /* ChatsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsViewController.swift; sourceTree = "<group>"; };
@@ -126,6 +132,9 @@
 			children = (
 				756525D42AB50079005DC594 /* UserManager.swift */,
 				7543BE292ACB0EDA003001BF /* ChatsManager.swift */,
+				7543BE2B2ACC864A003001BF /* UserModel.swift */,
+				7543BE2D2ACC868B003001BF /* ChatModel.swift */,
+				7543BE2F2ACC86AE003001BF /* MessageModel.swift */,
 			);
 			path = Firestore;
 			sourceTree = "<group>";
@@ -405,12 +414,15 @@
 				756525D02AA9F0AF005DC594 /* Conversation.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
+				7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */,
 				753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */,
 				756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */,
+				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
 				75FB78F82AC311D000C2743A /* ChatsViewModel.swift in Sources */,
 				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
 				75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
+				7543BE302ACC86AE003001BF /* MessageModel.swift in Sources */,
 				75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */,
 				75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */,
 				75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */,
