@@ -30,10 +30,16 @@ final class SettingsViewModel {
 ////                self?.setProfileName?(user.userId)
 //            }
 //        }
-        let messageDocument = ChatsManager.shared.getMessage(messageID: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
+        
+        let messageDoc2 = ChatsManager.shared.getMessage(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
+        let messag = Message(id: "£424", messageBody: "IEW98980R", senderId: "WER", imageUrl: "WER", timestamp: "WER")
+//        let messageDocument = ChatsManager.shared.getMessage(messageID: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
 //        let messagesCollection = ChatsManager.shared.getMessagesCollection(fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
 //        let messageDoc = ChatsManager.shared.getMessagePath("BucXHvVBzgPDax5BYOyE", from: messagesCollection)
-        ChatsManager.shared.getMessageDocument(messageDocument) { [weak self] message in
+        ChatsManager.shared.createNewMessage(message: messag, onChatPath: "KmAGbYwUTrwWAqfbbGo9") { created in
+            
+        }
+        ChatsManager.shared.getMessageDocumentFromDB(messageDoc2) { [weak self] message in
             if let message = message {
                 DispatchQueue.main.async {
                     self?.setProfileName?(message.messageBody)
@@ -46,9 +52,8 @@ final class SettingsViewModel {
         let uid = UUID()
         let chat = Chat(id: uid.uuidString, members: ["eh34h34","iu3583j22"], lastMessage: nil, messages: nil)
         
-        ChatsManager.shared.createNewDocument(chat: chat) { created in
+        ChatsManager.shared.createNewChat(chat: chat) { created in
             print("doc was created")
         }
-//        print(doc)
     }
 }

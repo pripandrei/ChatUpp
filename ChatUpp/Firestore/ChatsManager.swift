@@ -18,10 +18,10 @@ final class ChatsManager {
     
     let chatsCollection = Firestore.firestore().collection("chats")
     
-    private func chatDocument(chatID: String) -> DocumentReference {
-        return chatsCollection.document(chatID)
+    private func chatDocument(documentPath: String) -> DocumentReference {
+        return chatsCollection.document(documentPath)
     }
-//
+
 //    func messagesCollection(chatDocRef: DocumentReference) -> CollectionReference {
 //        return chatDocRef.collection("message")
 //    }
@@ -34,15 +34,19 @@ final class ChatsManager {
 //        return messageCollection.document(messagePath)
 //    }
     
-    func getMessage(messageID: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
-        chatDocument(chatID: documentPath).collection("messages").document(messageID)
+    func getMessage(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
+        chatDocument(documentPath: documentPath).collection("messages").document(messagePath)
     }
+    
+//    func getMessage2(messageID :String, fromChatID chatID :String) -> DocumentReference {
+//        return chatsCollection.document("chats/\(fromChatID)/messages/\(messageID))")
+//    }
 
     
     //MARK: - CREATE NEW DOC
     
-    func createNewDocument(chat: Chat, complition: @escaping (Bool) -> Void) {
-            try? chatDocument(chatID: chat.id).setData(from: chat, merge: false) { error in
+    func createNewChat(chat: Chat, complition: @escaping (Bool) -> Void) {
+            try? chatDocument(documentPath: chat.id).setData(from: chat, merge: false) { error in
                 if let error = error {
                     print(error.localizedDescription)
                     complition(false)
@@ -52,10 +56,24 @@ final class ChatsManager {
             }
     }
     
+    //MARK: - CREATE NEW MESSAGE
+    
+    func createNewMessage(message: Message, onChatPath path: String, complition: @escaping (Bool) -> Void) {
+        try? getMessage(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false) { error in
+            if let error = error {
+                print("error creating new message: ",error.localizedDescription)
+                complition(false)
+                return
+            }
+            complition(true)
+        }
+    }
+
+    
     //MARK: - GET CHAT DOCUMENT
     
-    func getChatFromDB(chatID: String, complition: @escaping (Chat) -> Void) {
-        chatDocument(chatID: chatID).getDocument(as: Chat.self) { (result) in
+    func getChatDocumentFromDB(chatID: String, complition: @escaping (Chat) -> Void) {
+        chatDocument(documentPath: chatID).getDocument(as: Chat.self) { (result) in
             do {
                 let chat = try result.get()
                 complition(chat)
@@ -65,13 +83,9 @@ final class ChatsManager {
         }
     }
     
-    func getMessagesFromDB(messagesID: String, fromCollectionRef collectionReference: CollectionReference) -> DocumentReference {
-        return collectionReference.document(messagesID)
-    }
-    
     //MARK: - GET MESSAGE DOCUMENT
     
-    func getMessageDocument(_ document: DocumentReference, complition: @escaping (Message?) -> Void) {
+    func getMessageDocumentFromDB(_ document: DocumentReference, complition: @escaping (Message?) -> Void) {
         document.getDocument(as: Message.self) { result in
             do {
                let message = try result.get()
@@ -82,55 +96,8 @@ final class ChatsManager {
             }
         }
     }
-    
 }
 
-
-
-
-
-
-
-
-
-
-
-//    func createNewDocument(chat: Chat, complition: @escaping (Bool) -> Void) {
-//
-//        chatDocument(chatID: chat.id).getDocument { [weak self] docSnapshot, error in
-//
-//            guard error == nil else { print(error!.localizedDescription) ; return }
-//
-//            guard let docSnapshot = docSnapshot, docSnapshot.exists else {
-//                complition(true)
-//                return
-//            }
-//
-//            try? self?.chatDocument(chatID: chat.id).setData(from: chat, merge: false) { error in
-//                guard error == nil else {
-//                    print(error!.localizedDescription)
-//                    return
-//                }
-//                complition(true)
-//            }
-//        }
-//    }
-
-
-
-struct Chast: Codable {
-    let id: String
-    let lastMessage: String?
-    let members: [String]
-    
-    // Custom Codable property to represent the subcollection path
-    let messagesSubcollectionPath: String
-
-    // Computed property to get a reference to the subcollection
-    var messagesCollectionRef: CollectionReference {
-        return Firestore.firestore().collection(messagesSubcollectionPath)
-    }
-}
 
 struct Chat: Codable {
     let id: String
@@ -205,4 +172,46 @@ struct Message: Codable {
         try container.encodeIfPresent(self.imageUrl, forKey: .imageUrl)
         try container.encode(self.timestamp, forKey: .timestamp)
     }
+    
+    init(id: String,
+         messageBody: String,
+         senderId: String,
+         imageUrl: String?,
+         timestamp: String) {
+        self.id = id
+        self.messageBody = messageBody
+        self.senderId = senderId
+        self.imageUrl = imageUrl
+        self.timestamp = timestamp
+    }
 }
+
+
+
+//private var chatDocument: DocumentReference!
+//private var messageDocument: DocumentReference!
+//
+//var chatPath: String = "" {
+//    didSet {
+//        chatDocument = chatsCollection.document(chatPath)
+//    }
+//}
+//
+//var messagePath: String? {
+//    didSet {
+//        messageDocument = chatDocument.collection("messages").document(messagePath!)
+//        messagePath = nil
+//    }
+//}
+
+//    func getMessageFromDB(complition: @escaping (Message?) -> Void) {
+//        messageDocument.getDocument(as: Message.self) { result in
+//            do {
+//               let message = try result.get()
+//                complition(message)
+//            } catch let e {
+//                print("error getting message from doc: \(e)")
+//                complition(nil)
+//            }
+//        }
+//    }
