@@ -23,7 +23,7 @@ final class ChatsManager {
     }
     
     func getMessageReference(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
-        chatDocument(documentPath: documentPath).collection("messages").document(messagePath)
+        return chatDocument(documentPath: documentPath).collection("messages").document(messagePath)
     }
     
     //MARK: - CREATE NEW DOC
@@ -55,4 +55,43 @@ final class ChatsManager {
     func getMessageDocumentFromDB(_ document: DocumentReference) async throws -> Message {
             return try await document.getDocument(as: Message.self)
     }
+//    getChatDocumentsFromUser
+    func getUserChats(_ userID: String) async throws -> [Chat] {
+        var chats = [Chat]()
+        do {
+            let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
+            
+            for documentSnapshot in  querySnapshot.documents {
+                let document = try documentSnapshot.data(as: Chat.self)
+                chats.append(document)
+            }
+            return chats
+        } catch {
+            print("error getting chats: \(error.localizedDescription)")
+            throw URLError(.badServerResponse)
+        }
+    }
+    
+    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
+        var messages = [Message]()
+        for chat in chats {
+            let messageReference = getMessageReference(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id)
+            do {
+                let message = try await messageReference.getDocument(as: Message.self)
+                messages.append(message)
+            } catch {
+                print("error getting messages: \(error.localizedDescription)")
+                throw URLError(.badServerResponse)
+            }
+        }
+        return messages
+    }
+    
+//    func testMess() async {
+//        let messRef = getMessageReference(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
+//        let message = try? await messRef.getDocument(as: Message.self)
+//        if let message = message {
+//            print("message Body: \(message.messageBody)")
+//        }
+//    }
 }

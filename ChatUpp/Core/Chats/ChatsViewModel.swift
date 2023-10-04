@@ -23,16 +23,30 @@ final class ChatsViewModel {
     }
     
     func getMessages() async {
-        guard let user = authenticatedUser else {
-            return
-        }
+        guard let id = authenticatedUser?.uid else { return }
         do {
-            let chat = try await ChatsManager.shared.getChatDocumentFromDB(chatID: "KmAGbYwUTrwWAqfbbGo9")
-            let messages = chat.recentMessage
-            print("Recent Messages: \(messages)")
-        } catch let e {
-            print("error getting messages: ", e.localizedDescription)
+            let chats = try await ChatsManager.shared.getUserChats(id)
+            print(chats.count)
+            let messages = try await ChatsManager.shared.getRecentMessageFromChats(chats)
+            for message in messages {
+                print(message.messageBody)
+            }
+        } catch {
+            
         }
     }
+    
+//    func getMessages() async {
+//        guard let user = authenticatedUser else {
+//            return
+//        }
+//        do {
+//            let chat = try await ChatsManager.shared.getChatDocumentFromDB(chatID: "KmAGbYwUTrwWAqfbbGo9")
+//            let messages = chat.recentMessage
+//            print("Recent Messages: \(messages)")
+//        } catch let e {
+//            print("error getting messages: ", e.localizedDescription)
+//        }
+//    }
     
 }
