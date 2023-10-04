@@ -56,7 +56,12 @@ final class ChatsManager {
             return try await document.getDocument(as: Message.self)
     }
 //    getChatDocumentsFromUser
-    func getUserChats(_ userID: String) async throws -> [Chat] {
+    
+    //MARK: - GET USER RELATED CHATS DOCUMENT
+    
+//    var otherUsersFromChat = [String]()
+    
+    func getUserChatsFromDB(_ userID: String) async throws -> [Chat] {
         var chats = [Chat]()
         do {
             let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
@@ -64,6 +69,7 @@ final class ChatsManager {
             for documentSnapshot in  querySnapshot.documents {
                 let document = try documentSnapshot.data(as: Chat.self)
                 chats.append(document)
+//                otherUsersFromChat.append(document.members.first { $0 != userID }!)
             }
             return chats
         } catch {
@@ -72,20 +78,52 @@ final class ChatsManager {
         }
     }
     
+    //MARK: - GET RECENT MESSAGE FROM CHATS
+    
     func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
         var messages = [Message]()
         for chat in chats {
-            let messageReference = getMessageReference(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id)
-            do {
-                let message = try await messageReference.getDocument(as: Message.self)
-                messages.append(message)
-            } catch {
-                print("error getting messages: \(error.localizedDescription)")
-                throw URLError(.badServerResponse)
-            }
+            let message = try await getMessageReference(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
+            messages.append(message)
         }
         return messages
     }
+    
+    
+    
+    func getOtherMembersFromChats(withUser userID: String) async throws -> [String] {
+        var otherMebmers = [String]()
+//        do {
+            let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
+            for documentSnapshot in  querySnapshot.documents {
+                let document = try documentSnapshot.data(as: Chat.self)
+                otherMebmers.append(document.members.first { $0 != userID }!)
+            }
+            return otherMebmers
+//        } catch {
+//            print("error getting chats: \(error.localizedDescription)")
+//            throw URLError(.badServerResponse)
+//        }
+    }
+    
+    
+    
+    //    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
+    //        var messages = [Message]()
+    //        for chat in chats {
+    //            let messageReference = getMessageReference(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id)
+    //            do {
+    //                let message = try await messageReference.getDocument(as: Message.self)
+    //                messages.append(message)
+    //            } catch {
+    //                print("error getting messages: \(error.localizedDescription)")
+    //                throw URLError(.badServerResponse)
+    //            }
+    //        }
+    //        return messages
+    //    }
+    
+    
     
 //    func testMess() async {
 //        let messRef = getMessageReference(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")

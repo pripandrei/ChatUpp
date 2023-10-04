@@ -13,26 +13,29 @@ final class ChatsViewModel {
     
     var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
     
-    var authenticatedUser: AuthDataResultModel?  {
-        return try? AuthenticationManager.shared.getAuthenticatedUser()
-    }
+//    var authenticatedUser: AuthDataResultModel?  {
+//        return try? AuthenticationManager.shared.getAuthenticatedUser()
+//    }
     
     func validateUserAuthentication() {
-//        let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
-        isUserSignedOut.value = authenticatedUser == nil
+        let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
+        isUserSignedOut.value = authUser == nil
+    }
+    
+    func getChats() async throws -> [Chat] {
+        let id = try AuthenticationManager.shared.getAuthenticatedUser().uid
+        return try await ChatsManager.shared.getUserChatsFromDB(id)
     }
     
     func getMessages() async {
-        guard let id = authenticatedUser?.uid else { return }
         do {
-            let chats = try await ChatsManager.shared.getUserChats(id)
-            print(chats.count)
+            let chats = try await getChats()
             let messages = try await ChatsManager.shared.getRecentMessageFromChats(chats)
             for message in messages {
                 print(message.messageBody)
             }
         } catch {
-            
+            print(error.localizedDescription)
         }
     }
     

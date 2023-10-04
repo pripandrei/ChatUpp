@@ -77,7 +77,7 @@ final class UserManager {
                 let user = try result.get()
                 complition(user)
             } catch let e {
-                print("Error decoding user from DB \(e)")
+                print("Error decoding user from DB \(e.localizedDescription)")
             }
         }
     }
