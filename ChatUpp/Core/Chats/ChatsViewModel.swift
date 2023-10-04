@@ -17,14 +17,25 @@ final class ChatsViewModel {
 //        return try? AuthenticationManager.shared.getAuthenticatedUser()
 //    }
     
+    func DBUser() async throws -> DBUser {
+        let authenticatedUser = AuthenticationManager.shared.getAuthenticatedUser()
+        guard let authUser = authenticatedUser else { throw URLError(.cannotOpenFile) }
+        
+        return try await UserManager.shared.getUserFromDB(userID: authUser.uid)
+    }
+    
     func validateUserAuthentication() {
-        let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
+        let authUser = AuthenticationManager.shared.getAuthenticatedUser()
         isUserSignedOut.value = authUser == nil
     }
     
     func getChats() async throws -> [Chat] {
-        let id = try AuthenticationManager.shared.getAuthenticatedUser().uid
-        return try await ChatsManager.shared.getUserChatsFromDB(id)
+//        if let authUser = AuthenticationManager.shared.getAuthenticatedUser() {
+//            let user = try await DBUser().userId
+            return try await ChatsManager.shared.getUserChatsFromDB(DBUser().userId)
+//        }
+//        throw URLError(.badServerResponse)
+//        let id = AuthenticationManager.shared.getAuthenticatedUser().uid
     }
     
     func getMessages() async {

@@ -40,11 +40,11 @@ final class AuthenticationManager
     
     private init() {}
     
-    func getAuthenticatedUser() throws -> AuthDataResultModel {
+    func getAuthenticatedUser() -> AuthDataResultModel? {
         if let user = Auth.auth().currentUser {
             return AuthDataResultModel(user: user)
         }
-        throw URLError(.badServerResponse)
+        return nil
     }
     
     func signOut() throws  {

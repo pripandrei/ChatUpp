@@ -106,6 +106,17 @@ final class ChatsManager {
 //        }
     }
     
+    func getOtherMembersFromChatss(_ chats: [Chat]) async throws -> [String] {
+        var otherMebmers = [String]()
+
+        for chat in chats {
+            
+//            chat.members.first { $0 != }
+            
+        }
+        return otherMebmers
+    }
+    
     
     
     //    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {

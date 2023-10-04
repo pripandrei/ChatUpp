@@ -71,14 +71,22 @@ final class UserManager {
     
     // MARK: - GET USER FROM DB
     
-    func getUserFromDB(userID: String, complition: @escaping (DBUser) -> Void) {
-        userDocument(userID: userID).getDocument(as: DBUser.self) { result in
-            do {
-                let user = try result.get()
-                complition(user)
-            } catch let e {
-                print("Error decoding user from DB \(e.localizedDescription)")
-            }
+//    func getUserFromDB(userID: String, complition: @escaping (DBUser) -> Void) {
+//        userDocument(userID: userID).getDocument(as: DBUser.self) { result in
+//            do {
+//                let user = try result.get()
+//                complition(user)
+//            } catch let e {
+//                print("Error decoding user from DB \(e.localizedDescription)")
+//            }
+//        }
+//    }
+    
+    func getUserFromDB(userID: String) async throws -> DBUser {
+        do {
+            return try await userDocument(userID: userID).getDocument(as: DBUser.self)
+        } catch {
+            throw URLError(.badServerResponse)
         }
     }
 }
