@@ -55,6 +55,8 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         }
     }
     
+
+    
     private func setContinueButtonConstraints() {
         continueButton.translatesAutoresizingMaskIntoConstraints = false
         

@@ -12,7 +12,7 @@ final class LoginViewModel {
     var email: String = ""
     var password: String = ""
     
-    var loginStatus: ObservableObject<LoginStatus?> = ObservableObject(nil)
+    var loginStatus: ObservableObject<AuthenticationStatus?> = ObservableObject(nil)
 }
 
 //MARK: - Sign in with email
@@ -36,7 +36,7 @@ extension LoginViewModel: EmailValidator {
             guard let _ = authRestult else {
                 return
             }
-            self?.loginStatus.value = .loggedIn
+            self?.loginStatus.value = .userIsAuthenticated
         }
     }
 }
@@ -59,7 +59,7 @@ extension LoginViewModel {
                 
                 let dbUser = DBUser(auth: authResultModel)
                 UserManager.shared.createNewUser(user: dbUser) { isCreated in
-                   isCreated ? (self?.loginStatus.value = .loggedIn) : nil
+                   isCreated ? (self?.loginStatus.value = .userIsAuthenticated) : nil
                 }
             }
         }

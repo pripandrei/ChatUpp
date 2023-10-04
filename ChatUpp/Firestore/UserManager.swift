@@ -85,8 +85,8 @@ final class UserManager {
     func getUserFromDB(userID: String) async throws -> DBUser {
         do {
             return try await userDocument(userID: userID).getDocument(as: DBUser.self)
-        } catch {
-            throw URLError(.badServerResponse)
+        } catch let error {
+            throw error
         }
     }
 }

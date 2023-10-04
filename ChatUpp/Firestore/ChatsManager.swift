@@ -55,15 +55,12 @@ final class ChatsManager {
     func getMessageDocumentFromDB(_ document: DocumentReference) async throws -> Message {
             return try await document.getDocument(as: Message.self)
     }
-//    getChatDocumentsFromUser
     
     //MARK: - GET USER RELATED CHATS DOCUMENT
     
-//    var otherUsersFromChat = [String]()
-    
     func getUserChatsFromDB(_ userID: String) async throws -> [Chat] {
         var chats = [Chat]()
-        do {
+//        do {
             let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
             
             for documentSnapshot in  querySnapshot.documents {
@@ -72,10 +69,9 @@ final class ChatsManager {
 //                otherUsersFromChat.append(document.members.first { $0 != userID }!)
             }
             return chats
-        } catch {
-            print("error getting chats: \(error.localizedDescription)")
-            throw URLError(.badServerResponse)
-        }
+//        } catch let error {
+//            throw error
+//        }
     }
     
     //MARK: - GET RECENT MESSAGE FROM CHATS
