@@ -11,7 +11,7 @@ import FirebaseAuth
 class ChatsViewController: UIViewController {
     
     let tableView = UITableView()
-    var conversationsViewModel = ChatsViewModel()
+    var chatsViewModel = ChatsViewModel()
     
     // MARK: - CELL IDENTIFIER
     
@@ -27,16 +27,25 @@ class ChatsViewController: UIViewController {
         setupBinding()
         tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.chatCell)
         configureTableView()
-        conversationsViewModel.validateUserAuthentication()
+        chatsViewModel.validateUserAuthentication()
         Task {
-            await conversationsViewModel.getMessages()
+            await chatsViewModel.getRecentMessages()
         }
     }
     
     private func setupBinding() {
-        conversationsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
+        chatsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
                 self?.presentLogInForm()
+            }
+        }
+        
+        chatsViewModel.recentMessages.bind { [weak self] messages in
+            guard let self = self else { return }
+            if let _ = messages {
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             }
         }
     }
@@ -46,6 +55,7 @@ class ChatsViewController: UIViewController {
         setTableViewDelegates()
         tableView.pin(to: view)
         tableView.rowHeight = 70
+        
     }
     
     func setTableViewDelegates() {
@@ -59,15 +69,19 @@ class ChatsViewController: UIViewController {
 
 extension ChatsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        20
+        guard let messageCount = chatsViewModel.recentMessages.value?.count else { return 0}
+        return messageCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.chatCell, for: indexPath) as? ChatsCell else {
             fatalError("Unable to dequeu reusable cell")
         }
-        
-        cell.textLabel?.text = "+HO"
+    
+        if chatsViewModel.recentMessages.value != nil {
+            cell.messageLable.text = self.chatsViewModel.recentMessages.value![indexPath.item].messageBody
+            cell.dateLable.text = self.chatsViewModel.recentMessages.value![indexPath.item].timestamp
+        }
     
         return cell
     }

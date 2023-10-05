@@ -69,9 +69,6 @@ final class ChatsManager {
 //                otherUsersFromChat.append(document.members.first { $0 != userID }!)
             }
             return chats
-//        } catch let error {
-//            throw error
-//        }
     }
     
     //MARK: - GET RECENT MESSAGE FROM CHATS
@@ -86,33 +83,25 @@ final class ChatsManager {
     }
     
     
-    
     func getOtherMembersFromChats(withUser userID: String) async throws -> [String] {
         var otherMebmers = [String]()
-//        do {
             let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
             for documentSnapshot in  querySnapshot.documents {
                 let document = try documentSnapshot.data(as: Chat.self)
                 otherMebmers.append(document.members.first { $0 != userID }!)
             }
             return otherMebmers
-//        } catch {
-//            print("error getting chats: \(error.localizedDescription)")
-//            throw URLError(.badServerResponse)
-//        }
     }
     
-    func getOtherMembersFromChatss(_ chats: [Chat]) async throws -> [String] {
+    func getOtherMembersFromChatss(_ chats: [Chat],_ authUserId: String) async throws -> [String] {
         var otherMebmers = [String]()
-
         for chat in chats {
-            
-//            chat.members.first { $0 != }
-            
+            if let otherUser = chat.members.first(where: { $0 != authUserId }) {
+                otherMebmers.append(otherUser)
+            }
         }
         return otherMebmers
     }
-    
     
     
     //    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
