@@ -22,4 +22,25 @@ struct Utilities {
         }
         return nil
     }
+    
+    static func findChatsViewControllerInHierarchy() -> UIViewController? {
+        let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
+        
+        if let tabBarController = rootViewController as? UITabBarController,
+           let navController = (tabBarController.children.first) as? UINavigationController,
+           let chatsVC = navController.topViewController as? ChatsViewController {
+            return chatsVC
+        }
+        return nil
+    }
+    
+    static func findNavVCInHierarchy() -> UINavigationController? {
+        let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
+        
+        if let tabBarController = rootViewController as? UITabBarController,
+           let navController = (tabBarController.children.first) as? UINavigationController {
+            return navController
+        }
+        return nil
+    }
 }

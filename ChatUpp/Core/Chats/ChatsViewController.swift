@@ -27,7 +27,13 @@ class ChatsViewController: UIViewController {
         view.backgroundColor = .white
         setupBinding()
         setupTableView()
+        
 //        chatsViewModel.validateUserAuthentication()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("Appeared")
     }
     
     private func setupTableView() {
@@ -38,7 +44,7 @@ class ChatsViewController: UIViewController {
     private func setupBinding() {
         chatsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true { self?.presentLogInForm() }
-            
+        
             else {
                 self?.chatsViewModel.onDataFetched = {
                     DispatchQueue.main.async {
@@ -61,10 +67,17 @@ class ChatsViewController: UIViewController {
 
 // MARK: - Navigation
 
-extension ChatsViewController
+extension ChatsViewController: LoginDelegate
 {
+    func didLoggedSuccessefully() {
+        chatsViewModel.validateUserAuthentication()
+    }
+    
     func presentLogInForm() {
-        let nav = UINavigationController(rootViewController: LoginViewController())
+        let loginVC = LoginViewController()
+        loginVC.delegate = self
+        
+        let nav = UINavigationController(rootViewController: loginVC)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
     }
