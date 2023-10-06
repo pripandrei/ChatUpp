@@ -12,6 +12,7 @@ class ChatsViewController: UIViewController {
     
     let tableView = UITableView()
     var chatsViewModel = ChatsViewModel()
+    var tableViewDataSource: UITableViewDataSource!
     
     // MARK: - CELL IDENTIFIER
     
@@ -25,63 +26,36 @@ class ChatsViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupBinding()
+        setupTableView()
+//        chatsViewModel.validateUserAuthentication()
+    }
+    
+    private func setupTableView() {
         tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.chatCell)
         configureTableView()
-        chatsViewModel.validateUserAuthentication()
     }
     
     private func setupBinding() {
         chatsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
-            if isSignedOut == true {
-                self?.presentLogInForm()
+            if isSignedOut == true { self?.presentLogInForm() }
+            
+            else {
+                self?.chatsViewModel.onDataFetched = {
+                    DispatchQueue.main.async {
+                        self?.tableView.reloadData()
+                    }
+                }
+                self?.chatsViewModel.reloadChatsCellData()
             }
         }
-
-        chatsViewModel.onCellUpdate = {
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
-        }
-        
     }
     
     func configureTableView() {
         view.addSubview(tableView)
-        setTableViewDelegates()
+        tableViewDataSource = ChatsTableViewDataSource(viewModel: chatsViewModel)
+        tableView.dataSource = tableViewDataSource
         tableView.pin(to: view)
         tableView.rowHeight = 70
-        
-    }
-    
-    func setTableViewDelegates() {
-        tableView.dataSource = self
-//        tableView.delegate = self
-    }
-}
-
-
-// MARK: - TableView DataSource
-
-extension ChatsViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        guard let messageCount = chatsViewModel.recentMessages.value?.count else { return 0}
-        return chatsViewModel.dbUsers.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.chatCell, for: indexPath) as? ChatsCell else {
-            fatalError("Unable to dequeu reusable cell")
-        }
-    
-//        if chatsViewModel.recentMessages.value != nil {
-        cell.messageLable.text = self.chatsViewModel.recentMessages[indexPath.item].messageBody
-        cell.dateLable.text = self.chatsViewModel.recentMessages[indexPath.item].timestamp
-        cell.nameLabel.text = self.chatsViewModel.dbUsers[indexPath.item].name
-//        cell.profileImage = self.chatsViewModel.dbUsers[indexPath.item].photoUrl
-//            cell.nameLabel.text = self.chatsViewModel.recentMessages.value![indexPath.item].
-//        }
-    
-        return cell
     }
 }
 
@@ -95,4 +69,3 @@ extension ChatsViewController
         present(nav, animated: true)
     }
 }
-

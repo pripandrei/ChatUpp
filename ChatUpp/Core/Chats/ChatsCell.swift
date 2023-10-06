@@ -8,13 +8,7 @@
 import UIKit
 
 class ChatsCell: UITableViewCell {
-    
-    var userName: String?
-    var profilePhoto: String?
-    var date: Date?
-    var lastMessage: String?
-//    var messageBadge: Int
-    
+
     var messageLable = UILabel()
     var nameLabel = UILabel()
     var profileImage = UIImageView()
@@ -30,6 +24,13 @@ class ChatsCell: UITableViewCell {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(viewModel: ChatCellViewModel) {
+        messageLable.text = viewModel.message
+        nameLabel.text = viewModel.userMame
+//        profileImage.image = viewModel.profileImage
+        dateLable.text = viewModel.timestamp
     }
     
     private func setMessageLable() {
@@ -104,6 +105,4 @@ class ChatsCell: UITableViewCell {
             dateLable.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6)
         ])
     }
-    
 }
-
