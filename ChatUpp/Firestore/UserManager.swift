@@ -83,11 +83,12 @@ final class UserManager {
 //    }
     
     func getUserFromDB(userID: String) async throws -> DBUser {
-        do {
+//        do {
             return try await userDocument(userID: userID).getDocument(as: DBUser.self)
-        } catch let error {
-            throw error
-        }
+//        } catch let error {
+//            print("WTF", error.localizedDescription)
+//            throw URLError(.badServerResponse)
+//        }
     }
 }
 

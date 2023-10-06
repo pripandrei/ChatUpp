@@ -28,9 +28,6 @@ class ChatsViewController: UIViewController {
         tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.chatCell)
         configureTableView()
         chatsViewModel.validateUserAuthentication()
-        Task {
-            await chatsViewModel.getRecentMessages()
-        }
     }
     
     private func setupBinding() {
@@ -39,15 +36,13 @@ class ChatsViewController: UIViewController {
                 self?.presentLogInForm()
             }
         }
-        
-        chatsViewModel.recentMessages.bind { [weak self] messages in
-            guard let self = self else { return }
-            if let _ = messages {
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
+
+        chatsViewModel.onCellUpdate = {
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
             }
         }
+        
     }
     
     func configureTableView() {
@@ -69,8 +64,8 @@ class ChatsViewController: UIViewController {
 
 extension ChatsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let messageCount = chatsViewModel.recentMessages.value?.count else { return 0}
-        return messageCount
+//        guard let messageCount = chatsViewModel.recentMessages.value?.count else { return 0}
+        return chatsViewModel.dbUsers.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -78,10 +73,13 @@ extension ChatsViewController: UITableViewDataSource {
             fatalError("Unable to dequeu reusable cell")
         }
     
-        if chatsViewModel.recentMessages.value != nil {
-            cell.messageLable.text = self.chatsViewModel.recentMessages.value![indexPath.item].messageBody
-            cell.dateLable.text = self.chatsViewModel.recentMessages.value![indexPath.item].timestamp
-        }
+//        if chatsViewModel.recentMessages.value != nil {
+        cell.messageLable.text = self.chatsViewModel.recentMessages[indexPath.item].messageBody
+        cell.dateLable.text = self.chatsViewModel.recentMessages[indexPath.item].timestamp
+        cell.nameLabel.text = self.chatsViewModel.dbUsers[indexPath.item].name
+//        cell.profileImage = self.chatsViewModel.dbUsers[indexPath.item].photoUrl
+//            cell.nameLabel.text = self.chatsViewModel.recentMessages.value![indexPath.item].
+//        }
     
         return cell
     }
