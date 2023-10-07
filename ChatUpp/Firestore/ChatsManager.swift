@@ -40,9 +40,9 @@ final class ChatsManager {
     
     //MARK: - GET RECENT MESSAGE
     
-//    func getRecentMessages(chatID: String) async throws {
-//        let message = try await chatDocument(documentPath: chatID).getDocument(as: Message.self)
-//    }
+    //    func getRecentMessages(chatID: String) async throws {
+    //        let message = try await chatDocument(documentPath: chatID).getDocument(as: Message.self)
+    //    }
     
     //MARK: - GET CHAT DOCUMENT
     
@@ -53,22 +53,22 @@ final class ChatsManager {
     //MARK: - GET MESSAGE DOCUMENT
     
     func getMessageDocumentFromDB(_ document: DocumentReference) async throws -> Message {
-            return try await document.getDocument(as: Message.self)
+        return try await document.getDocument(as: Message.self)
     }
     
     //MARK: - GET USER RELATED CHATS DOCUMENT
     
     func getUserChatsFromDB(_ userID: String) async throws -> [Chat] {
         var chats = [Chat]()
-//        do {
-            let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
-            
-            for documentSnapshot in  querySnapshot.documents {
-                let document = try documentSnapshot.data(as: Chat.self)
-                chats.append(document)
-//                otherUsersFromChat.append(document.members.first { $0 != userID }!)
-            }
-            return chats
+        //        do {
+        let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
+        
+        for documentSnapshot in  querySnapshot.documents {
+            let document = try documentSnapshot.data(as: Chat.self)
+            chats.append(document)
+            //                otherUsersFromChat.append(document.members.first { $0 != userID }!)
+        }
+        return chats
     }
     
     //MARK: - GET RECENT MESSAGE FROM CHATS
@@ -85,12 +85,12 @@ final class ChatsManager {
     
     func getOtherMembersFromChats(withUser userID: String) async throws -> [String] {
         var otherMebmers = [String]()
-            let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
-            for documentSnapshot in  querySnapshot.documents {
-                let document = try documentSnapshot.data(as: Chat.self)
-                otherMebmers.append(document.members.first { $0 != userID }!)
-            }
-            return otherMebmers
+        let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
+        for documentSnapshot in  querySnapshot.documents {
+            let document = try documentSnapshot.data(as: Chat.self)
+            otherMebmers.append(document.members.first { $0 != userID }!)
+        }
+        return otherMebmers
     }
     
     func getOtherMembersFromChatss(_ chats: [Chat],_ authUserId: String) async throws -> [String] {
@@ -102,30 +102,4 @@ final class ChatsManager {
         }
         return otherMebmers
     }
-    
-    
-    //    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
-    //        var messages = [Message]()
-    //        for chat in chats {
-    //            let messageReference = getMessageReference(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id)
-    //            do {
-    //                let message = try await messageReference.getDocument(as: Message.self)
-    //                messages.append(message)
-    //            } catch {
-    //                print("error getting messages: \(error.localizedDescription)")
-    //                throw URLError(.badServerResponse)
-    //            }
-    //        }
-    //        return messages
-    //    }
-    
-    
-    
-//    func testMess() async {
-//        let messRef = getMessageReference(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
-//        let message = try? await messRef.getDocument(as: Message.self)
-//        if let message = message {
-//            print("message Body: \(message.messageBody)")
-//        }
-//    }
 }
