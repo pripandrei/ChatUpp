@@ -29,10 +29,12 @@ final class UsernameRegistrationViewModel {
     
     let finishRegistration: ObservableObject<Bool?> = ObservableObject(nil)
     
-    func updateUser() {
-        let userID = try! AuthenticationManager.shared.getAuthenticatedUser().uid
-        
-        UserManager.shared.updateUser(with: userID, usingName: username) { [weak self] status in
+    func updateUser()  {
+        guard let id = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {
+            print("error updading user: authUser is nil")
+            return
+        }
+        UserManager.shared.updateUser(with: id, usingName: username) { [weak self] status in
             if status == .success {
                 self?.finishRegistration.value = true
             }

@@ -15,6 +15,8 @@
 		7543BE302ACC86AE003001BF /* MessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2F2ACC86AE003001BF /* MessageModel.swift */; };
 		7543BE332ACC87CA003001BF /* ConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE322ACC87CA003001BF /* ConversationViewController.swift */; };
 		7543BE352ACC87E1003001BF /* ConversationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE342ACC87E1003001BF /* ConversationViewModel.swift */; };
+		755A3F7B2AD0689500739861 /* ChatsTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */; };
+		755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */; };
 		756525BF2A7AF4C6005DC594 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */; };
 		756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C12A7E8240005DC594 /* AuthenticationManager.swift */; };
 		756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C62A7FE49E005DC594 /* ChatsViewController.swift */; };
@@ -51,6 +53,8 @@
 		7543BE2F2ACC86AE003001BF /* MessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageModel.swift; sourceTree = "<group>"; };
 		7543BE322ACC87CA003001BF /* ConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewController.swift; sourceTree = "<group>"; };
 		7543BE342ACC87E1003001BF /* ConversationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewModel.swift; sourceTree = "<group>"; };
+		755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsTableViewDataSource.swift; sourceTree = "<group>"; };
+		755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCellViewModel.swift; sourceTree = "<group>"; };
 		756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		756525C12A7E8240005DC594 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		756525C62A7FE49E005DC594 /* ChatsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsViewController.swift; sourceTree = "<group>"; };
@@ -235,6 +239,8 @@
 				756525C62A7FE49E005DC594 /* ChatsViewController.swift */,
 				75FB78F72AC311D000C2743A /* ChatsViewModel.swift */,
 				7543BE312ACC879D003001BF /* Conversation */,
+				755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */,
+				755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */,
 			);
 			path = Chats;
 			sourceTree = "<group>";
@@ -413,6 +419,7 @@
 				756525CA2A8127F5005DC594 /* Observable.swift in Sources */,
 				75B5C4CF2A49B3D300F63A5A /* -User.swift in Sources */,
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
+				755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */,
 				7543BE2A2ACB0EDA003001BF /* ChatsManager.swift in Sources */,
 				756525D52AB50079005DC594 /* UserManager.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
@@ -422,6 +429,7 @@
 				756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */,
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
 				75FB78F82AC311D000C2743A /* ChatsViewModel.swift in Sources */,
+				755A3F7B2AD0689500739861 /* ChatsTableViewDataSource.swift in Sources */,
 				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
 				7543BE332ACC87CA003001BF /* ConversationViewController.swift in Sources */,
 				75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */,

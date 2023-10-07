@@ -8,9 +8,10 @@
 import Foundation
 import FirebaseAuth
 
-enum LoginStatus {
-    case loggedIn
-    case loggedOut
+
+enum AuthenticationStatus: Error {
+    case userIsAuthenticated
+    case userIsNotAuthenticated
 }
 
 //MARK: - Authentication result model
@@ -28,7 +29,6 @@ struct AuthDataResultModel {
         self.email = user.email
         self.photoURL = user.photoURL?.absoluteString
         self.name = user.displayName
-        
     }
 }
 
@@ -40,11 +40,17 @@ final class AuthenticationManager
     
     private init() {}
     
+//    func getAuthenticatedUser() -> AuthDataResultModel? {
+//        if let user = Auth.auth().currentUser {
+//            return AuthDataResultModel(user: user)
+//        }
+//        return nil
+//    }
     func getAuthenticatedUser() throws -> AuthDataResultModel {
         if let user = Auth.auth().currentUser {
             return AuthDataResultModel(user: user)
         }
-        throw URLError(.badServerResponse)
+        throw AuthenticationStatus.userIsNotAuthenticated
     }
     
     func signOut() throws  {

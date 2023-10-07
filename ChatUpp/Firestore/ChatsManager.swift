@@ -23,7 +23,7 @@ final class ChatsManager {
     }
     
     func getMessageReference(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
-        chatDocument(documentPath: documentPath).collection("messages").document(messagePath)
+        return chatDocument(documentPath: documentPath).collection("messages").document(messagePath)
     }
     
     //MARK: - CREATE NEW DOC
@@ -55,4 +55,77 @@ final class ChatsManager {
     func getMessageDocumentFromDB(_ document: DocumentReference) async throws -> Message {
             return try await document.getDocument(as: Message.self)
     }
+    
+    //MARK: - GET USER RELATED CHATS DOCUMENT
+    
+    func getUserChatsFromDB(_ userID: String) async throws -> [Chat] {
+        var chats = [Chat]()
+//        do {
+            let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
+            
+            for documentSnapshot in  querySnapshot.documents {
+                let document = try documentSnapshot.data(as: Chat.self)
+                chats.append(document)
+//                otherUsersFromChat.append(document.members.first { $0 != userID }!)
+            }
+            return chats
+    }
+    
+    //MARK: - GET RECENT MESSAGE FROM CHATS
+    
+    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
+        var messages = [Message]()
+        for chat in chats {
+            let message = try await getMessageReference(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
+            messages.append(message)
+        }
+        return messages
+    }
+    
+    
+    func getOtherMembersFromChats(withUser userID: String) async throws -> [String] {
+        var otherMebmers = [String]()
+            let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
+            for documentSnapshot in  querySnapshot.documents {
+                let document = try documentSnapshot.data(as: Chat.self)
+                otherMebmers.append(document.members.first { $0 != userID }!)
+            }
+            return otherMebmers
+    }
+    
+    func getOtherMembersFromChatss(_ chats: [Chat],_ authUserId: String) async throws -> [String] {
+        var otherMebmers = [String]()
+        for chat in chats {
+            if let otherUser = chat.members.first(where: { $0 != authUserId }) {
+                otherMebmers.append(otherUser)
+            }
+        }
+        return otherMebmers
+    }
+    
+    
+    //    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
+    //        var messages = [Message]()
+    //        for chat in chats {
+    //            let messageReference = getMessageReference(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id)
+    //            do {
+    //                let message = try await messageReference.getDocument(as: Message.self)
+    //                messages.append(message)
+    //            } catch {
+    //                print("error getting messages: \(error.localizedDescription)")
+    //                throw URLError(.badServerResponse)
+    //            }
+    //        }
+    //        return messages
+    //    }
+    
+    
+    
+//    func testMess() async {
+//        let messRef = getMessageReference(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
+//        let message = try? await messRef.getDocument(as: Message.self)
+//        if let message = message {
+//            print("message Body: \(message.messageBody)")
+//        }
+//    }
 }

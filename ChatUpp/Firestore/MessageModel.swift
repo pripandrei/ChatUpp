@@ -14,6 +14,8 @@ struct Message: Codable {
     let senderId: String
     let imageUrl: String?
     let timestamp: String
+    let messageSeen: Bool
+    let receivedBy: String
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
@@ -21,6 +23,8 @@ struct Message: Codable {
         case senderId = "sent_by"
         case imageUrl = "image_url"
         case timestamp = "timestamp"
+        case messageSeen = "message_seen"
+        case receivedBy = "received_by"
     }
     
     init(from decoder: Decoder) throws {
@@ -30,6 +34,8 @@ struct Message: Codable {
         self.senderId = try container.decode(String.self, forKey: .senderId)
         self.imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl)
         self.timestamp = try container.decode(String.self, forKey: .timestamp)
+        self.messageSeen = try container.decode(Bool.self, forKey: .messageSeen)
+        self.receivedBy = try container.decode(String.self, forKey: .receivedBy)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -39,19 +45,26 @@ struct Message: Codable {
         try container.encode(self.senderId, forKey: .senderId)
         try container.encodeIfPresent(self.imageUrl, forKey: .imageUrl)
         try container.encode(self.timestamp, forKey: .timestamp)
+        try container.encode(self.messageSeen, forKey: .messageSeen)
+        try container.encode(self.receivedBy, forKey: .receivedBy)
     }
     
     init(id: String,
          messageBody: String,
          senderId: String,
          imageUrl: String?,
-         timestamp: String)
+         timestamp: String,
+         messageSeen: Bool,
+         receivedBy: String
+    )
     {
         self.id = id
         self.messageBody = messageBody
         self.senderId = senderId
         self.imageUrl = imageUrl
         self.timestamp = timestamp
+        self.messageSeen = messageSeen
+        self.receivedBy = receivedBy
     }
 }
 
