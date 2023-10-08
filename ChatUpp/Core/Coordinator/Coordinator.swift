@@ -8,23 +8,42 @@
 import Foundation
 import UIKit
 
-protocol Coordinator {
-    var navigationController: UINavigationController {get set}
+protocol Coordinator: AnyObject {
+    
+    var tabBar: UITabBarController { get set }
+//    var navigationController: UINavigationController {get set}
     
     func start()
 }
 
 class MainCoordinator: Coordinator {
     
-    var navigationController: UINavigationController
+    var tabBar: UITabBarController
+//    var navigationController: UINavigationController
     
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+//    init(navigationController: UINavigationController) {
+//        self.navigationController = navigationController
+//    }
+    
+    init(tabBar: UITabBarController) {
+        self.tabBar = tabBar
     }
     
     func start() {
-        let vc = ChatsViewController()
-        navigationController.pushViewController(vc, animated: true)
+        
+        guard let chatsViewController = tabBar.navigationController?.viewControllers.first as? ChatsViewController else {
+            return
+        }
+        chatsViewController.coordinatorDelegate = self
+        
+        guard let settingsViewController = tabBar.viewControllers?.first(where: { $0 is SettingsViewController }) as? SettingsViewController else {
+            return
+        }
+        settingsViewController.coordinatorDelegate = self
+        
+//        let chatsVC = ChatsViewController()
+//        chatsVC.coordinatorDelegate = self
+//        navigationController.pushViewController(chatsVC, animated: true)
     }
     
 }

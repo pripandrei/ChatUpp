@@ -10,6 +10,8 @@ import FirebaseAuth
 
 class SettingsViewController: UIViewController {
     
+    weak var coordinatorDelegate: MainCoordinator?
+    
     let settingsViewModel = SettingsViewModel()
     let signOutBtn = UIButton()
     let tempLabelName: UILabel = UILabel()

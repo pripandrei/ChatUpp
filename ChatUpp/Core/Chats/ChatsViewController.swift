@@ -8,7 +8,10 @@
 import UIKit
 import FirebaseAuth
 
+
 class ChatsViewController: UIViewController {
+    
+    weak var coordinatorDelegate: Coordinator?
     
     let tableView = UITableView()
     var chatsViewModel = ChatsViewModel()
@@ -78,4 +81,9 @@ extension ChatsViewController
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)
     }
+}
+
+extension ChatsViewController {
+
+    
 }
