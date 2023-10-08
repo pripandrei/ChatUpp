@@ -92,7 +92,8 @@ class SettingsViewController: UIViewController {
     func setupBinder() {
         settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
-                self?.presentLogInForm()
+                self?.coordinatorDelegate?.resetTabBarItemNavigationController()
+                self?.coordinatorDelegate?.presentLogInForm()
                 self?.tabBarController?.selectedIndex = 0
             }
         }
@@ -119,13 +120,5 @@ class SettingsViewController: UIViewController {
             signOutBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signOutBtn.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-    }
-    
-// MARK: - Navigation
-    
-    func presentLogInForm() {
-        let nav = UINavigationController(rootViewController: LoginViewController())
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
     }
 }

@@ -12,7 +12,7 @@ struct Utilities {
     static func findLoginViewControllerInHierarchy() -> UIViewController? {
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
 
-        if let tabBarController = rootViewController as? UITabBarController,
+        if let tabBarController = rootViewController as? TabBarViewController,
            let navController = (tabBarController.children.first) as? UINavigationController,
            let conversationsVC = navController.topViewController as? ChatsViewController,
            let loginNavController = conversationsVC.presentedViewController as? UINavigationController,

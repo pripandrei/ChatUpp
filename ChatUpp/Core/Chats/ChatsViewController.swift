@@ -31,10 +31,13 @@ class ChatsViewController: UIViewController {
         setupTableView()
 //        chatsViewModel.validateUserAuthentication()
     }
-    
+    deinit {
+        print(" DEINITED!==")
+    }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         chatsViewModel.validateUserAuthentication()
+//        self.removeFromParent()
     }
     
     private func setupTableView() {
@@ -43,9 +46,9 @@ class ChatsViewController: UIViewController {
     }
     
     private func setupBinding() {
-        chatsViewModel.onDataFetched = {
+        chatsViewModel.onDataFetched = { [weak self] in
                 DispatchQueue.main.async {
-                    self.tableView.reloadData()
+                    self?.tableView.reloadData()
                 }
         }
         chatsViewModel.isUserLoggedOut.bind { [weak self] isSignedOut in

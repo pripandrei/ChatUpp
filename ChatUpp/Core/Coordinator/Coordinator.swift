@@ -9,26 +9,21 @@ import Foundation
 import UIKit
 
 protocol Coordinator: AnyObject {
-    var tabBar: UITabBarController { get set }
+    var tabBar: TabBarViewController { get set }
     func start()
     func presentLogInForm()
 }
 
 class MainCoordinator: Coordinator {
     
-    var tabBar: UITabBarController
-//    var navigationController: UINavigationController
-    
-//    init(navigationController: UINavigationController) {
-//        self.navigationController = navigationController
-//    }
-    
-    init(tabBar: UITabBarController) {
+    var tabBar: TabBarViewController
+
+    init(tabBar: TabBarViewController) {
         self.tabBar = tabBar
     }
     
-    func start() {
 
+    func start() {
         guard let navController = tabBar.viewControllers?.first as? UINavigationController,
         let chatsViewController = navController.viewControllers.first as? ChatsViewController else {
             return
@@ -39,10 +34,7 @@ class MainCoordinator: Coordinator {
             return
         }
         settingsViewController.coordinatorDelegate = self
-        
-//        let chatsVC = ChatsViewController()
-//        chatsVC.coordinatorDelegate = self
-//        navigationController.pushViewController(chatsVC, animated: true)
+ 
     }
     
     func presentLogInForm() {
@@ -55,4 +47,10 @@ class MainCoordinator: Coordinator {
         tabBar.present(navController, animated: true)
     }
     
+    func resetTabBarItemNavigationController() {
+        let navControllerForTabBar = UINavigationController(rootViewController: ChatsViewController())
+        navControllerForTabBar.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
+        tabBar.viewControllers?[0] = navControllerForTabBar
+        
+    }
 }
