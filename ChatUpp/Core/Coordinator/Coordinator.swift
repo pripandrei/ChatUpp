@@ -9,11 +9,9 @@ import Foundation
 import UIKit
 
 protocol Coordinator: AnyObject {
-    
     var tabBar: UITabBarController { get set }
-//    var navigationController: UINavigationController {get set}
-    
     func start()
+    func presentLogInForm()
 }
 
 class MainCoordinator: Coordinator {
@@ -30,8 +28,9 @@ class MainCoordinator: Coordinator {
     }
     
     func start() {
-        
-        guard let chatsViewController = tabBar.navigationController?.viewControllers.first as? ChatsViewController else {
+
+        guard let navController = tabBar.viewControllers?.first as? UINavigationController,
+        let chatsViewController = navController.viewControllers.first as? ChatsViewController else {
             return
         }
         chatsViewController.coordinatorDelegate = self
@@ -44,6 +43,16 @@ class MainCoordinator: Coordinator {
 //        let chatsVC = ChatsViewController()
 //        chatsVC.coordinatorDelegate = self
 //        navigationController.pushViewController(chatsVC, animated: true)
+    }
+    
+    func presentLogInForm() {
+        let loginVC = LoginViewController()
+        loginVC.coordinatorDelegate = self
+        
+        let navController = UINavigationController(rootViewController: loginVC)
+        
+        navController.modalPresentationStyle = .fullScreen
+        tabBar.present(navController, animated: true)
     }
     
 }

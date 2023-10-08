@@ -8,20 +8,19 @@
 import UIKit
 import FirebaseAuth
 
+// MARK: - CELL IDENTIFIER
+
+struct Cell {
+    static let chatCell = "ChatCell"
+}
 
 class ChatsViewController: UIViewController {
     
-    weak var coordinatorDelegate: Coordinator?
+    weak var coordinatorDelegate: MainCoordinator?
     
     let tableView = UITableView()
     var chatsViewModel = ChatsViewModel()
     var tableViewDataSource: UITableViewDataSource!
-    
-    // MARK: - CELL IDENTIFIER
-    
-    struct Cell {
-        static let chatCell = "ChatCell"
-    }
     
     // MARK: - UI SETUP
 
@@ -30,6 +29,7 @@ class ChatsViewController: UIViewController {
         view.backgroundColor = .white
         setupBinding()
         setupTableView()
+//        chatsViewModel.validateUserAuthentication()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -48,8 +48,10 @@ class ChatsViewController: UIViewController {
                     self.tableView.reloadData()
                 }
         }
-        chatsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
-            if isSignedOut == true { self?.presentLogInForm() }
+        chatsViewModel.isUserLoggedOut.bind { [weak self] isSignedOut in
+            if isSignedOut == true {
+                self?.coordinatorDelegate?.presentLogInForm()
+            }
             else {
                 self?.chatsViewModel.reloadChatsCellData()
             }
@@ -65,19 +67,3 @@ class ChatsViewController: UIViewController {
     }
 }
 
-// MARK: - Navigation
-
-extension ChatsViewController
-{
-    func presentLogInForm() {
-        let loginVC = LoginViewController()
-        let nav = UINavigationController(rootViewController: loginVC)
-        nav.modalPresentationStyle = .fullScreen
-        self.tabBarController?.present(nav, animated: true)
-    }
-}
-
-extension ChatsViewController {
-
-    
-}

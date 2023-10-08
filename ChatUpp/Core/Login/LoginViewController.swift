@@ -11,6 +11,8 @@ import GoogleSignIn
 
 class LoginViewController: UIViewController {
     
+    weak var coordinatorDelegate: Coordinator?
+    
     private var googleSignInButton = GIDSignInButton()
     private let loginViewModel = LoginViewModel()
     private let signUpText = "Don't have an account?"

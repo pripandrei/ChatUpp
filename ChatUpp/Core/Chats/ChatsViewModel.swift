@@ -10,7 +10,7 @@ import Foundation
 
 final class ChatsViewModel {
     
-    var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
+    var isUserLoggedOut: ObservableObject<Bool> = ObservableObject(false)
     var chats = [Chat]()
     var dbUsers = [DBUser]()
     var recentMessages = [Message]()
@@ -52,7 +52,7 @@ final class ChatsViewModel {
     
     func validateUserAuthentication() {
         let authUser = try? AuthenticationManager.shared.getAuthenticatedUser()
-        isUserSignedOut.value = authUser == nil
+        isUserLoggedOut.value = authUser == nil
     }
 
     private func loadChats() async throws {

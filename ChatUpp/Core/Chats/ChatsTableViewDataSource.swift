@@ -20,7 +20,7 @@ class ChatsTableViewDataSource: NSObject, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChatsViewController.Cell.chatCell, for: indexPath) as? ChatsCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: Cell.chatCell, for: indexPath) as? ChatsCell else {
             fatalError("Unable to dequeu reusable cell")
         }
         cell.configure(viewModel: chatsViewModel.cellViewModels[indexPath.row])
