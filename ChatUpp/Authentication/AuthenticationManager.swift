@@ -40,12 +40,6 @@ final class AuthenticationManager
     
     private init() {}
     
-//    func getAuthenticatedUser() -> AuthDataResultModel? {
-//        if let user = Auth.auth().currentUser {
-//            return AuthDataResultModel(user: user)
-//        }
-//        return nil
-//    }
     func getAuthenticatedUser() throws -> AuthDataResultModel {
         if let user = Auth.auth().currentUser {
             return AuthDataResultModel(user: user)

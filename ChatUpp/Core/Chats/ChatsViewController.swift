@@ -70,16 +70,10 @@ class ChatsViewController: UIViewController {
 
 // MARK: - Navigation
 
-extension ChatsViewController: LoginDelegate
+extension ChatsViewController
 {
-    func didLoggedSuccessefully() {
-        chatsViewModel.validateUserAuthentication()
-    }
-    
     func presentLogInForm() {
         let loginVC = LoginViewController()
-        loginVC.delegate = self
-        
         let nav = UINavigationController(rootViewController: loginVC)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true)

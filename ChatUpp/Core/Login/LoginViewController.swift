@@ -8,13 +8,9 @@
 import UIKit
 import GoogleSignIn
 
-protocol LoginDelegate: AnyObject {
-    func didLoggedSuccessefully()
-}
 
 class LoginViewController: UIViewController {
     
-    weak var delegate: LoginDelegate?
     private var googleSignInButton = GIDSignInButton()
     private let loginViewModel = LoginViewModel()
     private let signUpText = "Don't have an account?"
@@ -61,7 +57,6 @@ class LoginViewController: UIViewController {
         loginViewModel.loginStatus.bind { [weak self] status in
             if status == .userIsAuthenticated {
                 self?.navigationController?.dismiss(animated: true)
-                self?.delegate?.didLoggedSuccessefully()
 //                self?.reloadTableViewData()
             }
         }

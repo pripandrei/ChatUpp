@@ -19,7 +19,6 @@ final class ChatsViewModel {
     var onDataFetched: (() -> Void)?
 
     init() {
-//        fetchChatData()
         validateUserAuthentication()
     }
     
