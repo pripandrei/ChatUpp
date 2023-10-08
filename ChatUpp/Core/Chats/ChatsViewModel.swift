@@ -19,7 +19,7 @@ final class ChatsViewModel {
     var onDataFetched: (() -> Void)?
 
     init() {
-        validateUserAuthentication()
+//        validateUserAuthentication()
     }
     
     private func fetchChatData() async  {

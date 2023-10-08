@@ -30,33 +30,27 @@ class ChatsViewController: UIViewController {
         view.backgroundColor = .white
         setupBinding()
         setupTableView()
-        
-//        chatsViewModel.validateUserAuthentication()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        print("Appeared")
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        chatsViewModel.validateUserAuthentication()
     }
     
     private func setupTableView() {
         tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.chatCell)
         configureTableView()
-
-//        chatsViewModel.validateUserAuthentication()
-
     }
     
     private func setupBinding() {
+        chatsViewModel.onDataFetched = {
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+        }
         chatsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true { self?.presentLogInForm() }
-        
             else {
-                self?.chatsViewModel.onDataFetched = {
-                    DispatchQueue.main.async {
-                        self?.tableView.reloadData()
-                    }
-                }
                 self?.chatsViewModel.reloadChatsCellData()
             }
         }
@@ -79,7 +73,7 @@ extension ChatsViewController
         let loginVC = LoginViewController()
         let nav = UINavigationController(rootViewController: loginVC)
         nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
+        self.tabBarController?.present(nav, animated: true)
     }
 }
 
