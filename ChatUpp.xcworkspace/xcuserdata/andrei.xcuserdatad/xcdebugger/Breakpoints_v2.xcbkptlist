@@ -37,32 +37,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "FDB06A3D-CEC0-495E-98EB-BDEFDA990D13"
-            shouldBeEnabled = "Yes"
+            uuid = "6EEF648F-B5C1-47BE-8F99-B4BC51691953"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
+            filePath = "ChatUpp/Core/Settings/SettingsViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "42"
-            endingLineNumber = "42"
-            landmarkName = "setupTableView()"
+            startingLineNumber = "95"
+            endingLineNumber = "95"
+            landmarkName = "setupBinder()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "BDDFEE03-F7DB-4F71-A542-148F28015B96"
+            uuid = "4D475E6E-7C1A-4486-856B-05CD98EB475C"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Login/LoginViewController.swift"
+            filePath = "ChatUpp/Core/Coordinator/Coordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "65"
-            endingLineNumber = "65"
-            landmarkName = "setupBinder()"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
+            landmarkName = "resetWindowRoot()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
