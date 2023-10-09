@@ -93,7 +93,6 @@ class SettingsViewController: UIViewController {
         settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
                 self?.coordinatorDelegate?.handleSignOut()
-                self?.coordinatorDelegate?.presentLogInForm()
             }
         }
     }

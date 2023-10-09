@@ -23,11 +23,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = TabBarViewController()
         
         coordinator = MainCoordinator(tabBar: tabBarController)
-//        coordinator?.start()
-        window?.backgroundColor = .white
+        coordinator?.start()
+        
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
-        coordinator?.checkStatus()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

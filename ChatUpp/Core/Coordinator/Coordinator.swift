@@ -11,10 +11,9 @@ import UIKit
 protocol Coordinator: AnyObject {
     var tabBar: TabBarViewController { get set }
     
-//    func start()
+    func start()
     func presentLogInForm()
     func handleSignOut()
-    func initiateTabBarSetup()
 }
 
 class MainCoordinator: Coordinator {
@@ -25,21 +24,7 @@ class MainCoordinator: Coordinator {
         self.tabBar = tabBar
     }
     
-    func checkStatus() {
-        do {
-            try AuthenticationManager.shared.getAuthenticatedUser()
-            initiateTabBarSetup()
-        } catch {
-            presentLogInForm()
-        }
-    }
-    
-    func initiateTabBarSetup() {
-        tabBar.setupTabBarController()
-        start()
-    }
-    
-    private func start() {
+    func start() {
         guard let navController = tabBar.customNavigationController,
         let chatsViewController = navController.viewControllers.first as? ChatsViewController else {
             return
@@ -62,16 +47,12 @@ class MainCoordinator: Coordinator {
     }
     
     func handleSignOut() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.tabBar.selectedIndex = 0
-        }
         resetWindowRoot()
-//        start()
+        start()
     }
     
     private func resetWindowRoot() {
-//        self.tabBar = TabBarViewController()
-//        Utilities.windowRoot = tabBar
-        tabBar.setupTabBarController()
+        self.tabBar = TabBarViewController()
+        Utilities.windowRoot = tabBar
     }
 }
