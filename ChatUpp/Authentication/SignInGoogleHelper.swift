@@ -16,6 +16,7 @@ struct SignInGoogleHelper {
             print("Could not find loginVC in hierarcy")
             return
         }
+        
         GIDSignIn.sharedInstance.signIn(withPresenting: loginVC) { GIDSignInResult, error in
             guard error == nil else {
                 print(error!.localizedDescription)
