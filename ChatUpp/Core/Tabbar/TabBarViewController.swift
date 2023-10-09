@@ -14,7 +14,7 @@ class TabBarViewController: UITabBarController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupTabBarController()
+//        setupTabBarController()
     }
     
     func setupTabBarController() {
@@ -27,4 +27,6 @@ class TabBarViewController: UITabBarController {
         
         viewControllers = [navController,secondVC]
     }
+    
+    
 }

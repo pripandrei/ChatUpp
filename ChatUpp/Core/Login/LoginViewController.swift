@@ -59,7 +59,7 @@ class LoginViewController: UIViewController {
         loginViewModel.loginStatus.bind { [weak self] status in
             if status == .userIsAuthenticated {
                 self?.navigationController?.dismiss(animated: true)
-//                self?.reloadTableViewData()
+                self?.coordinatorDelegate?.initiateTabBarSetup()
             }
         }
     }

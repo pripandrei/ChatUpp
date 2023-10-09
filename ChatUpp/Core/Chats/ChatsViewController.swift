@@ -29,14 +29,14 @@ class ChatsViewController: UIViewController {
         view.backgroundColor = .white
         setupBinding()
         setupTableView()
-//        chatsViewModel.validateUserAuthentication()
+        chatsViewModel.validateUserAuthentication()
     }
     deinit {
         print("ChatsVC was DEINITED!==")
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        chatsViewModel.validateUserAuthentication()
+//        chatsViewModel.validateUserAuthentication()
 //        self.removeFromParent()
     }
     
