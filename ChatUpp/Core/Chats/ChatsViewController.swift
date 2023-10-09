@@ -8,17 +8,19 @@
 import UIKit
 import FirebaseAuth
 
+// MARK: - CELL IDENTIFIER
+
+struct Cell {
+    static let chatCell = "ChatCell"
+}
+
 class ChatsViewController: UIViewController {
+    
+    weak var coordinatorDelegate: Coordinator?
     
     let tableView = UITableView()
     var chatsViewModel = ChatsViewModel()
     var tableViewDataSource: UITableViewDataSource!
-    
-    // MARK: - CELL IDENTIFIER
-    
-    struct Cell {
-        static let chatCell = "ChatCell"
-    }
     
     // MARK: - UI SETUP
 
@@ -27,33 +29,33 @@ class ChatsViewController: UIViewController {
         view.backgroundColor = .white
         setupBinding()
         setupTableView()
-        
 //        chatsViewModel.validateUserAuthentication()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        print("Appeared")
+    deinit {
+        print("ChatsVC was DEINITED!==")
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        chatsViewModel.validateUserAuthentication()
+//        self.removeFromParent()
     }
     
     private func setupTableView() {
         tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.chatCell)
         configureTableView()
-
-//        chatsViewModel.validateUserAuthentication()
-
     }
     
     private func setupBinding() {
-        chatsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
-            if isSignedOut == true { self?.presentLogInForm() }
-        
-            else {
-                self?.chatsViewModel.onDataFetched = {
-                    DispatchQueue.main.async {
-                        self?.tableView.reloadData()
-                    }
+        chatsViewModel.onDataFetched = { [weak self] in
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
                 }
+        }
+        chatsViewModel.isUserLoggedOut.bind { [weak self] isSignedOut in
+            if isSignedOut == true {
+                self?.coordinatorDelegate?.presentLogInForm()
+            }
+            else {
                 self?.chatsViewModel.reloadChatsCellData()
             }
         }
@@ -68,20 +70,3 @@ class ChatsViewController: UIViewController {
     }
 }
 
-// MARK: - Navigation
-
-extension ChatsViewController: LoginDelegate
-{
-    func didLoggedSuccessefully() {
-        chatsViewModel.validateUserAuthentication()
-    }
-    
-    func presentLogInForm() {
-        let loginVC = LoginViewController()
-        loginVC.delegate = self
-        
-        let nav = UINavigationController(rootViewController: loginVC)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
-    }
-}

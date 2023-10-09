@@ -10,6 +10,8 @@ import FirebaseAuth
 
 class SettingsViewController: UIViewController {
     
+    weak var coordinatorDelegate: Coordinator?
+    
     let settingsViewModel = SettingsViewModel()
     let signOutBtn = UIButton()
     let tempLabelName: UILabel = UILabel()
@@ -90,8 +92,7 @@ class SettingsViewController: UIViewController {
     func setupBinder() {
         settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
-                self?.presentLogInForm()
-                self?.tabBarController?.selectedIndex = 0
+                self?.coordinatorDelegate?.handleSignOut()
             }
         }
     }
@@ -117,13 +118,5 @@ class SettingsViewController: UIViewController {
             signOutBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signOutBtn.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-    }
-    
-// MARK: - Navigation
-    
-    func presentLogInForm() {
-        let nav = UINavigationController(rootViewController: LoginViewController())
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
     }
 }

@@ -9,13 +9,25 @@ import UIKit
 
 struct Utilities {
     
+//    static func findLoginViewControllerInHierarchy() -> UIViewController? {
+//        let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
+//
+//        if let tabBarController = rootViewController as? TabBarViewController,
+//           let navController = (tabBarController.children.first) as? UINavigationController,
+//           let conversationsVC = navController.topViewController as? ChatsViewController,
+//           let loginNavController = conversationsVC.presentedViewController as? UINavigationController,
+//           let loginVC = loginNavController.topViewController as? LoginViewController
+//        {
+//            return loginVC
+//        }
+//        return nil
+//    }
+    
     static func findLoginViewControllerInHierarchy() -> UIViewController? {
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
 
-        if let tabBarController = rootViewController as? UITabBarController,
-           let navController = (tabBarController.children.first) as? UINavigationController,
-           let conversationsVC = navController.topViewController as? ChatsViewController,
-           let loginNavController = conversationsVC.presentedViewController as? UINavigationController,
+        if let tabBarController = rootViewController as? TabBarViewController,
+           let loginNavController = tabBarController.presentedViewController as? UINavigationController,
            let loginVC = loginNavController.topViewController as? LoginViewController
         {
             return loginVC
@@ -42,5 +54,15 @@ struct Utilities {
             return navController
         }
         return nil
+    }
+    
+    static var windowRoot: TabBarViewController? {
+        get {
+            return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController as? TabBarViewController
+        }
+        set {
+            guard let newValue = newValue else {return}
+            (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = newValue
+        }
     }
 }

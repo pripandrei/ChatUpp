@@ -8,13 +8,11 @@
 import UIKit
 import GoogleSignIn
 
-protocol LoginDelegate: AnyObject {
-    func didLoggedSuccessefully()
-}
 
 class LoginViewController: UIViewController {
     
-    weak var delegate: LoginDelegate?
+    weak var coordinatorDelegate: Coordinator?
+    
     private var googleSignInButton = GIDSignInButton()
     private let loginViewModel = LoginViewModel()
     private let signUpText = "Don't have an account?"
@@ -41,7 +39,7 @@ class LoginViewController: UIViewController {
     }
     
     deinit {
-        print("WAS DEINIT +++")
+        print("Login WAS DEINIT +++")
     }
     
     private func controllerMainSetup() {
@@ -61,7 +59,6 @@ class LoginViewController: UIViewController {
         loginViewModel.loginStatus.bind { [weak self] status in
             if status == .userIsAuthenticated {
                 self?.navigationController?.dismiss(animated: true)
-                self?.delegate?.didLoggedSuccessefully()
 //                self?.reloadTableViewData()
             }
         }
