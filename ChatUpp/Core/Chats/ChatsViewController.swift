@@ -21,7 +21,8 @@ class ChatsViewController: UIViewController {
     let tableView = UITableView()
     var chatsViewModel = ChatsViewModel()
     var tableViewDataSource: UITableViewDataSource!
-    var shouldVerifyValidationOfUser: Bool = true
+
+    var shouldValidateUserAuthentication: Bool = true
     
     // MARK: - UI SETUP
 
@@ -30,14 +31,17 @@ class ChatsViewController: UIViewController {
         view.backgroundColor = .white
         setupBinding()
         setupTableView()
-//        chatsViewModel.validateUserAuthentication()
     }
+    
     deinit {
         print("ChatsVC was DEINITED!==")
     }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        chatsViewModel.validateUserAuthentication()
+        if shouldValidateUserAuthentication {
+            chatsViewModel.validateUserAuthentication()
+        }
     }
     
     private func setupTableView() {
@@ -57,6 +61,7 @@ class ChatsViewController: UIViewController {
             }
             else {
                 self?.chatsViewModel.reloadChatsCellData()
+                self?.shouldValidateUserAuthentication = false
             }
         }
     }

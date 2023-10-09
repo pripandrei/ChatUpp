@@ -40,6 +40,7 @@ final class AuthenticationManager
     
     private init() {}
     
+    @discardableResult
     func getAuthenticatedUser() throws -> AuthDataResultModel {
         if let user = Auth.auth().currentUser {
             return AuthDataResultModel(user: user)
