@@ -10,7 +10,7 @@ import FirebaseAuth
 
 class SettingsViewController: UIViewController {
     
-    weak var coordinatorDelegate: MainCoordinator?
+    weak var coordinatorDelegate: Coordinator?
     
     let settingsViewModel = SettingsViewModel()
     let signOutBtn = UIButton()
@@ -92,9 +92,7 @@ class SettingsViewController: UIViewController {
     func setupBinder() {
         settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
-                self?.coordinatorDelegate?.resetTabBarItemNavigationController()
-                self?.coordinatorDelegate?.presentLogInForm()
-                self?.tabBarController?.selectedIndex = 0
+                self?.coordinatorDelegate?.handleSignOut()
             }
         }
     }

@@ -10,8 +10,10 @@ import UIKit
 
 protocol Coordinator: AnyObject {
     var tabBar: TabBarViewController { get set }
+    
     func start()
     func presentLogInForm()
+    func handleSignOut()
 }
 
 class MainCoordinator: Coordinator {
@@ -23,7 +25,7 @@ class MainCoordinator: Coordinator {
     }
     
     func start() {
-        guard let navController = tabBar.viewControllers?.first as? UINavigationController,
+        guard let navController = tabBar.customNavigationController,
         let chatsViewController = navController.viewControllers.first as? ChatsViewController else {
             return
         }
@@ -44,17 +46,14 @@ class MainCoordinator: Coordinator {
         tabBar.present(navController, animated: true)
     }
     
-    func resetTabBarItemNavigationController() {
-//        let navControllerForTabBar = UINavigationController(rootViewController: ChatsViewController())
-//        navControllerForTabBar.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
-//        tabBar.viewControllers?[0] = navControllerForTabBar
-        
-//        chatsViewController?.removeFromParent()
-//        chatsViewController = ChatsViewController()
-//        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController?.removeFromParent()
-        self.tabBar = TabBarViewController()
+    func handleSignOut() {
+        resetWindowRoot()
         start()
-//        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = tabBar
+        presentLogInForm()
+    }
+    
+    private func resetWindowRoot() {
+        self.tabBar = TabBarViewController()
         Utilities.windowRoot = tabBar
     }
 }

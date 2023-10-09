@@ -16,7 +16,7 @@ struct Cell {
 
 class ChatsViewController: UIViewController {
     
-    weak var coordinatorDelegate: MainCoordinator?
+    weak var coordinatorDelegate: Coordinator?
     
     let tableView = UITableView()
     var chatsViewModel = ChatsViewModel()
