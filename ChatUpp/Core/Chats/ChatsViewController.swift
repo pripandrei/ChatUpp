@@ -21,6 +21,7 @@ class ChatsViewController: UIViewController {
     let tableView = UITableView()
     var chatsViewModel = ChatsViewModel()
     var tableViewDataSource: UITableViewDataSource!
+    var shouldVerifyValidationOfUser: Bool = true
     
     // MARK: - UI SETUP
 
@@ -37,7 +38,6 @@ class ChatsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         chatsViewModel.validateUserAuthentication()
-//        self.removeFromParent()
     }
     
     private func setupTableView() {

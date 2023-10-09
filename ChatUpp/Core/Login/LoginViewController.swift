@@ -60,6 +60,7 @@ class LoginViewController: UIViewController {
             if status == .userIsAuthenticated {
                 self?.navigationController?.dismiss(animated: true)
 //                self?.reloadTableViewData()
+                self?.coordinatorDelegate?.handleSignOut()
             }
         }
     }

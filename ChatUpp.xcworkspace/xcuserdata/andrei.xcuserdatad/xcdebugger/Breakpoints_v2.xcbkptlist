@@ -37,17 +37,97 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "4D475E6E-7C1A-4486-856B-05CD98EB475C"
-            shouldBeEnabled = "Yes"
+            uuid = "CE8CAE65-F028-45C0-8A83-336CDC26A102"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Coordinator/Coordinator.swift"
+            filePath = "ChatUpp/Utilities/Utilities.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
-            landmarkName = "resetWindowRoot()"
+            startingLineNumber = "52"
+            endingLineNumber = "52"
+            landmarkName = "findNavVCInHierarchy()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "CE8CAE65-F028-45C0-8A83-336CDC26A102 - 65a600f4f4e50f6c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "static ChatUpp.Utilities.findNavVCInHierarchy() -&gt; Swift.Optional&lt;__C.UIViewController&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Utilities/Utilities.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52"
+                  offsetFromSymbolStart = "632">
+               </Location>
+               <Location
+                  uuid = "CE8CAE65-F028-45C0-8A83-336CDC26A102 - 65a600f4f4e50f6c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "static ChatUpp.Utilities.findNavVCInHierarchy() -&gt; Swift.Optional&lt;__C.UIViewController&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Utilities/Utilities.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "52"
+                  endingLineNumber = "52"
+                  offsetFromSymbolStart = "788">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "311616E1-7E0B-425C-A8F1-90317B84742E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Utilities/Utilities.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "53"
+            endingLineNumber = "53"
+            landmarkName = "findNavVCInHierarchy()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "311616E1-7E0B-425C-A8F1-90317B84742E - 65a600f4f4e50f4d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "static ChatUpp.Utilities.findNavVCInHierarchy() -&gt; Swift.Optional&lt;__C.UIViewController&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Utilities/Utilities.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "53"
+                  endingLineNumber = "53"
+                  offsetFromSymbolStart = "804">
+               </Location>
+               <Location
+                  uuid = "311616E1-7E0B-425C-A8F1-90317B84742E - 65a600f4f4e50f4d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "static ChatUpp.Utilities.findNavVCInHierarchy() -&gt; Swift.Optional&lt;__C.UIViewController&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Utilities/Utilities.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "53"
+                  endingLineNumber = "53"
+                  offsetFromSymbolStart = "1112">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
