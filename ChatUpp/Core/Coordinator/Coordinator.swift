@@ -49,7 +49,6 @@ class MainCoordinator: Coordinator {
     func handleSignOut() {
         resetWindowRoot()
         start()
-        presentLogInForm()
     }
     
     private func resetWindowRoot() {
@@ -57,28 +56,3 @@ class MainCoordinator: Coordinator {
         Utilities.windowRoot = tabBar
     }
 }
-
-
-
-
-//
-//var navigationControllerFromFirstTabBarItem: UINavigationController? {
-//    guard let navController = tabBar?.viewControllers?.first as? UINavigationController else {
-//        return nil
-//    }
-//    return navController
-//}
-//
-//var chatsViewController: ChatsViewController? {
-//    guard let chatsViewController = navigationControllerFromFirstTabBarItem?.viewControllers.first as? ChatsViewController else {
-//        return nil
-//    }
-//    return chatsViewController
-//}
-//
-//var settingsViewController: SettingsViewController? {
-//    guard let settingsViewController = tabBar?.viewControllers?.first(where: { $0 is SettingsViewController }) as? SettingsViewController else {
-//        return nil
-//    }
-//    return settingsViewController
-//}

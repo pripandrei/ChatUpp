@@ -32,7 +32,7 @@ class ChatsViewController: UIViewController {
 //        chatsViewModel.validateUserAuthentication()
     }
     deinit {
-        print(" DEINITED!==")
+        print("ChatsVC was DEINITED!==")
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)

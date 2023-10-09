@@ -39,7 +39,7 @@ class LoginViewController: UIViewController {
     }
     
     deinit {
-        print("WAS DEINIT +++")
+        print("Login WAS DEINIT +++")
     }
     
     private func controllerMainSetup() {
