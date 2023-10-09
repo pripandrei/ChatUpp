@@ -26,4 +26,7 @@ class TabBarViewController: UITabBarController {
         
         viewControllers = [firstVC,secondVC]
     }
+    deinit {
+        print("TAB BAR DEINIT ====")
+    }
 }

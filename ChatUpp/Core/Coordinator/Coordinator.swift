@@ -9,51 +9,29 @@ import Foundation
 import UIKit
 
 protocol Coordinator: AnyObject {
-    var tabBar: TabBarViewController? { get set }
+    var tabBar: TabBarViewController { get set }
     func start()
     func presentLogInForm()
 }
 
 class MainCoordinator: Coordinator {
     
-    var tabBar: TabBarViewController?
+    var tabBar: TabBarViewController
 
     init(tabBar: TabBarViewController) {
         self.tabBar = tabBar
     }
     
-    var navigationControllerFromFirstTabBarItem: UINavigationController? {
-        guard let navController = tabBar?.viewControllers?.first as? UINavigationController else {
-            return nil
-        }
-        return navController
-    }
-    
-    var chatsViewController: ChatsViewController? {
-        guard let chatsViewController = navigationControllerFromFirstTabBarItem?.viewControllers.first as? ChatsViewController else {
-            return nil
-        }
-        return chatsViewController
-    }
-    
-    var settingsViewController: SettingsViewController? {
-        guard let settingsViewController = tabBar?.viewControllers?.first(where: { $0 is SettingsViewController }) as? SettingsViewController else {
-            return nil
-        }
-        return settingsViewController
-    }
-    
     func start() {
-//        guard let navController = tabBar.viewControllers?.first as? UINavigationController,
-//        let chatsViewController = navController.viewControllers.first as? ChatsViewController else {
-//            return
-//        }
-        self.chatsViewController?.coordinatorDelegate = self
-        
-//        guard let settingsViewController = tabBar.viewControllers?.first(where: { $0 is SettingsViewController }) as? SettingsViewController else {
-//            return
-//        }
-        self.settingsViewController?.coordinatorDelegate = self
+        guard let navController = tabBar.viewControllers?.first as? UINavigationController,
+        let chatsViewController = navController.viewControllers.first as? ChatsViewController else {
+            return
+        }
+        guard let settingsViewController = tabBar.viewControllers?.first(where: { $0 is SettingsViewController }) as? SettingsViewController else {
+            return
+        }
+        chatsViewController.coordinatorDelegate = self
+        settingsViewController.coordinatorDelegate = self
     }
     
     func presentLogInForm() {
@@ -63,7 +41,7 @@ class MainCoordinator: Coordinator {
         let navController = UINavigationController(rootViewController: loginVC)
         
         navController.modalPresentationStyle = .fullScreen
-        tabBar?.present(navController, animated: true)
+        tabBar.present(navController, animated: true)
     }
     
     func resetTabBarItemNavigationController() {
@@ -73,9 +51,35 @@ class MainCoordinator: Coordinator {
         
 //        chatsViewController?.removeFromParent()
 //        chatsViewController = ChatsViewController()
-        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController?.removeFromParent()
+//        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController?.removeFromParent()
         self.tabBar = TabBarViewController()
         start()
-        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = tabBar
+//        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = tabBar
+        Utilities.windowRoot = tabBar
     }
 }
+
+
+
+
+//
+//var navigationControllerFromFirstTabBarItem: UINavigationController? {
+//    guard let navController = tabBar?.viewControllers?.first as? UINavigationController else {
+//        return nil
+//    }
+//    return navController
+//}
+//
+//var chatsViewController: ChatsViewController? {
+//    guard let chatsViewController = navigationControllerFromFirstTabBarItem?.viewControllers.first as? ChatsViewController else {
+//        return nil
+//    }
+//    return chatsViewController
+//}
+//
+//var settingsViewController: SettingsViewController? {
+//    guard let settingsViewController = tabBar?.viewControllers?.first(where: { $0 is SettingsViewController }) as? SettingsViewController else {
+//        return nil
+//    }
+//    return settingsViewController
+//}

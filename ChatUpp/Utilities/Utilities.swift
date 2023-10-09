@@ -55,4 +55,14 @@ struct Utilities {
         }
         return nil
     }
+    
+    static var windowRoot: TabBarViewController? {
+        get {
+            return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController as? TabBarViewController
+        }
+        set {
+            guard let newValue = newValue else {return}
+            (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = newValue
+        }
+    }
 }
