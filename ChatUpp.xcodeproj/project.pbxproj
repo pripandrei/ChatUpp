@@ -225,6 +225,23 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		75D7C5722AD5C15000F6D4B9 /* ChatCell */ = {
+			isa = PBXGroup;
+			children = (
+				756525D12AAA147A005DC594 /* ChatsCell.swift */,
+				755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */,
+			);
+			path = ChatCell;
+			sourceTree = "<group>";
+		};
+		75D7C5732AD5C1A300F6D4B9 /* TableDataSource */ = {
+			isa = PBXGroup;
+			children = (
+				755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */,
+			);
+			path = TableDataSource;
+			sourceTree = "<group>";
+		};
 		75FB78F92AC315D200C2743A /* Tabbar */ = {
 			isa = PBXGroup;
 			children = (
@@ -245,12 +262,11 @@
 		75FB78FE2AC3169100C2743A /* Chats */ = {
 			isa = PBXGroup;
 			children = (
-				756525D12AAA147A005DC594 /* ChatsCell.swift */,
 				756525C62A7FE49E005DC594 /* ChatsViewController.swift */,
 				75FB78F72AC311D000C2743A /* ChatsViewModel.swift */,
+				75D7C5722AD5C15000F6D4B9 /* ChatCell */,
 				7543BE312ACC879D003001BF /* Conversation */,
-				755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */,
-				755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */,
+				75D7C5732AD5C1A300F6D4B9 /* TableDataSource */,
 			);
 			path = Chats;
 			sourceTree = "<group>";
