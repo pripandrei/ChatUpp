@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Firebase
 
 class ChatCellViewModel {
     var user: DBUser
@@ -21,8 +22,10 @@ class ChatCellViewModel {
     }
     
     var timestamp: String {
-        return recentMessages.timestamp
+        let hoursAndMinutes = recentMessages.timestamp.formatToHoursAndMinutes()
+        return hoursAndMinutes
     }
+
     
     var userMame: String {
         user.name != nil ? user.name! : "name is missing"
@@ -33,5 +36,15 @@ class ChatCellViewModel {
         get async {
             return await UserManager.shared.getProfileImageData(urlPath: user.photoUrl)
         }
+    }
+}
+
+
+extension Date {
+    func formatToHoursAndMinutes() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat  = "hh:m"
+        let time = formatter.string(from: self)
+        return time
     }
 }

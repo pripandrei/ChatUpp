@@ -32,7 +32,7 @@ final class SettingsViewModel {
 //        }
         
         let messageReference = ChatsManager.shared.getMessageReference(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
-        let messageData = Message(id: "£424", messageBody: "IEW98980R", senderId: "WER", imageUrl: "WER", timestamp: "WER", messageSeen: false, receivedBy: "wueiyriuwr3")
+        let messageData = Message(id: "£424", messageBody: "IEW98980R", senderId: "WER", imageUrl: "WER", timestamp: Date(), messageSeen: false, receivedBy: "wueiyriuwr3")
 
         do {
             try await ChatsManager.shared.createNewMessage(message: messageData, atChatPath: "KmAGbYwUTrwWAqfbbGo9")

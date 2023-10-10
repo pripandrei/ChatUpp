@@ -13,7 +13,7 @@ struct Message: Codable {
     let messageBody: String
     let senderId: String
     let imageUrl: String?
-    let timestamp: String
+    let timestamp: Date
     let messageSeen: Bool
     let receivedBy: String
     
@@ -33,7 +33,7 @@ struct Message: Codable {
         self.messageBody = try container.decode(String.self, forKey: .messageBody)
         self.senderId = try container.decode(String.self, forKey: .senderId)
         self.imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl)
-        self.timestamp = try container.decode(String.self, forKey: .timestamp)
+        self.timestamp = try container.decode(Date.self, forKey: .timestamp)
         self.messageSeen = try container.decode(Bool.self, forKey: .messageSeen)
         self.receivedBy = try container.decode(String.self, forKey: .receivedBy)
     }
@@ -53,7 +53,7 @@ struct Message: Codable {
          messageBody: String,
          senderId: String,
          imageUrl: String?,
-         timestamp: String,
+         timestamp: Date,
          messageSeen: Bool,
          receivedBy: String
     )
