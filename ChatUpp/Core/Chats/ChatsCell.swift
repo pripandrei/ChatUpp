@@ -29,7 +29,13 @@ class ChatsCell: UITableViewCell {
     func configure(viewModel: ChatCellViewModel) {
         messageLable.text = viewModel.message
         nameLabel.text = viewModel.userMame
-//        profileImage.image = viewModel.profileImage
+        
+        Task {
+            guard let imageData = await viewModel.imageData else {return}
+            let image = UIImage(data: imageData)
+            profileImage.image = image
+        }
+        
         dateLable.text = viewModel.timestamp
     }
     

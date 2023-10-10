@@ -7,9 +7,14 @@
 
 import Foundation
 
-struct ChatCellViewModel {
+class ChatCellViewModel {
     var user: DBUser
     var recentMessages: Message
+    
+    init(user: DBUser, recentMessages: Message) {
+        self.user = user
+        self.recentMessages = recentMessages
+    }
     
     var message: String {
         return recentMessages.messageBody
@@ -22,7 +27,11 @@ struct ChatCellViewModel {
     var userMame: String {
         user.name != nil ? user.name! : "name is missing"
     }
-    var profileImageUrl: String? {
-        return user.photoUrl
+    
+    var imageData: Data?
+    {
+        get async {
+            return await UserManager.shared.getProfileImageData(urlPath: user.photoUrl)
+        }
     }
 }

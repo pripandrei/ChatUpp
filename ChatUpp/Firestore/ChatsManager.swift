@@ -82,18 +82,7 @@ final class ChatsManager {
         return messages
     }
     
-    
-    func getOtherMembersFromChats(withUser userID: String) async throws -> [String] {
-        var otherMebmers = [String]()
-        let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
-        for documentSnapshot in  querySnapshot.documents {
-            let document = try documentSnapshot.data(as: Chat.self)
-            otherMebmers.append(document.members.first { $0 != userID }!)
-        }
-        return otherMebmers
-    }
-    
-    func getOtherMembersFromChatss(_ chats: [Chat],_ authUserId: String) async throws -> [String] {
+    func getOtherMembersFromChats(_ chats: [Chat],_ authUserId: String) async throws -> [String] {
         var otherMebmers = [String]()
         for chat in chats {
             if let otherUser = chat.members.first(where: { $0 != authUserId }) {
@@ -102,4 +91,14 @@ final class ChatsManager {
         }
         return otherMebmers
     }
+    
+//    func getOtherMembersFromChats(withUser userID: String) async throws -> [String] {
+   //        var otherMebmers = [String]()
+   //        let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
+   //        for documentSnapshot in  querySnapshot.documents {
+   //            let document = try documentSnapshot.data(as: Chat.self)
+   //            otherMebmers.append(document.members.first { $0 != userID }!)
+   //        }
+   //        return otherMebmers
+   //    }
 }

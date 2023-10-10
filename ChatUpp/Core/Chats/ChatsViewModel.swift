@@ -67,7 +67,7 @@ final class ChatsViewModel {
     
     private func loadOtherMembersOfChats() async throws {
         let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
-        let memberIDs = try await ChatsManager.shared.getOtherMembersFromChatss(chats, authUser.uid)
+        let memberIDs = try await ChatsManager.shared.getOtherMembersFromChats(chats, authUser.uid)
 
         for id in memberIDs {
             let dbUser = try await UserManager.shared.getUserFromDB(userID: id)

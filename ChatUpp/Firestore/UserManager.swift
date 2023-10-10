@@ -83,32 +83,21 @@ final class UserManager {
 //    }
     
     func getUserFromDB(userID: String) async throws -> DBUser {
-//        do {
-            return try await userDocument(userID: userID).getDocument(as: DBUser.self)
-//        } catch let error {
-//            print("WTF", error.localizedDescription)
-//            throw URLError(.badServerResponse)
-//        }
+        return try await userDocument(userID: userID).getDocument(as: DBUser.self)
+    }
+    
+    // MARK: - GET USER PROFILE IMAGE
+    
+    func getProfileImageData(urlPath: String?) async -> Data? {
+        guard let urlPath = urlPath,
+              let url = URL(string: urlPath) else { return nil }
+        
+        do {
+            let (imgData,_) = try await URLSession.shared.data(from: url)
+            return imgData
+        } catch {
+            print("Could not get the image from url", error.localizedDescription)
+            return nil
+        }
     }
 }
-
-
-
-
-
-//extension DocumentReference {
-//    public func checkDocumentExistence(completion: @escaping (Bool) -> Void) {
-//        self.getDocument { (docSnapshot, error) in
-//            if let error = error {
-//                print("Error getting document: \(error)")
-//                completion(false)
-//                return
-//            }
-//            guard let snapshot = docSnapshot else {
-//                completion(false)
-//                return
-//            }
-//            completion(snapshot.exists)
-//        }
-//    }
-//}

@@ -27,4 +27,8 @@ class TabBarViewController: UITabBarController {
         
         viewControllers = [navController,secondVC]
     }
+    
+    deinit {
+        print("TABBAR Deninit")
+    }
 }

@@ -28,9 +28,9 @@
             filePath = "ChatUpp/Firestore/ChatsManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "103"
-            endingLineNumber = "103"
-            landmarkName = "getOtherMembersFromChatss(_:_:)"
+            startingLineNumber = "92"
+            endingLineNumber = "92"
+            landmarkName = "getOtherMembersFromChats(_:_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
