@@ -25,7 +25,6 @@ class ChatCellViewModel {
         let hoursAndMinutes = recentMessages.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
     }
-
     
     var userMame: String {
         user.name != nil ? user.name! : "name is missing"
