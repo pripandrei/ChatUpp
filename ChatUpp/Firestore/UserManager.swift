@@ -96,7 +96,7 @@ final class UserManager {
             let (imgData,_) = try await URLSession.shared.data(from: url)
             return imgData
         } catch {
-            print("Could not get the image from url", error.localizedDescription)
+            print("Could not get the image from url: ", error.localizedDescription)
             return nil
         }
     }

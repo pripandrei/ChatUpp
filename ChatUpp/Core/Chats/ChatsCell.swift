@@ -35,7 +35,7 @@ class ChatsCell: UITableViewCell {
             let image = UIImage(data: imageData)
             profileImage.image = image
         }
-        
+        dateLable.adjustsFontSizeToFitWidth = true
         dateLable.text = viewModel.timestamp
     }
     
