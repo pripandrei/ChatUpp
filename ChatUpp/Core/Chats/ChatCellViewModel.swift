@@ -38,7 +38,6 @@ class ChatCellViewModel {
     }
 }
 
-
 extension Date {
     func formatToHoursAndMinutes() -> String {
         let formatter = DateFormatter()
