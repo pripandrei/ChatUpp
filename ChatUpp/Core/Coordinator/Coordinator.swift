@@ -14,6 +14,7 @@ protocol Coordinator: AnyObject {
     func start()
     func presentLogInForm()
     func handleSignOut()
+    func openConversationVC()
 }
 
 class MainCoordinator: Coordinator {
@@ -54,5 +55,11 @@ class MainCoordinator: Coordinator {
     private func resetWindowRoot() {
         self.tabBar = TabBarViewController()
         Utilities.windowRoot = tabBar
+    }
+    
+    func openConversationVC() {
+        let conversationVC = ConversationViewController()
+        conversationVC.coordinatorDelegate = self
+        tabBar.customNavigationController?.pushViewController(conversationVC, animated: true)
     }
 }
