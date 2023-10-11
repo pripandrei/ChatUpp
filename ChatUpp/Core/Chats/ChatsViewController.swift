@@ -12,6 +12,7 @@ import FirebaseAuth
 
 struct Cell {
     static let chatCell = "ChatCell"
+    static let CustomCollectionViewCell = "CustomCollectionViewCell"
 }
 
 class ChatsViewController: UIViewController {
@@ -68,10 +69,20 @@ class ChatsViewController: UIViewController {
     
     func configureTableView() {
         view.addSubview(tableView)
+        tableView.delegate = self
         tableViewDataSource = ChatsTableViewDataSource(viewModel: chatsViewModel)
         tableView.dataSource = tableViewDataSource
         tableView.pin(to: view)
         tableView.rowHeight = 70
+    }
+}
+
+
+extension ChatsViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        coordinatorDelegate?.openConversationVC()
     }
 }
 
