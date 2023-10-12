@@ -59,6 +59,7 @@ class MainCoordinator: Coordinator {
     
     func openConversationVC() {
         let conversationVC = ConversationViewController()
+        conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
         tabBar.customNavigationController?.pushViewController(conversationVC, animated: true)
     }

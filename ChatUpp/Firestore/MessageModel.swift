@@ -91,7 +91,6 @@ struct RecentMessage: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(messageBody, forKey: .messageBody)
         try container.encode(sentBy, forKey: .sentBy)
-        try container.encode(timestamp, forKey: .timestamp)
-        
+        try container.encode(timestamp, forKey: .timestamp)    
     }
 }
