@@ -21,7 +21,7 @@ class TabBarViewController: UITabBarController {
         let navController = UINavigationController(rootViewController: ChatsViewController())
         navController.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
         self.customNavigationController = navController
-        
+    
         let secondVC = SettingsViewController()
         secondVC.tabBarItem = UITabBarItem(title: "Settings", image: nil, tag: 2)
         
