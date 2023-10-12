@@ -7,8 +7,6 @@
 
 import UIKit
 
-
-
 class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
@@ -28,6 +26,8 @@ class ConversationViewController: UIViewController {
         collectionVC.dataSource = self
         return collectionVC
     }()
+    
+    private var holderViewBottomConstraint: NSLayoutConstraint!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,11 +35,24 @@ class ConversationViewController: UIViewController {
         setupCoollectionView()
         setupHolderView()
         setupMessageTextField()
-    }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardFrameWillChange(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        }
+
+        @objc func keyboardFrameWillChange(_ notification: Notification) {
+            if let userInfo = notification.userInfo,
+                let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+                
+                let keyboardOrigin = keyboardFrame.origin
+                
+                holderViewBottomConstraint.constant = keyboardOrigin.y < UIScreen.main.bounds.height ? -keyboardFrame.height : 0
+                
+                holderView.frame.origin = CGPoint(x: 0.0, y: keyboardOrigin.y - holderView.frame.height)
+            }
+        }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        print(holderView.bounds)
     }
     
     private func setupHolderView() {
@@ -54,6 +67,9 @@ class ConversationViewController: UIViewController {
         holderView.translatesAutoresizingMaskIntoConstraints = false
         holderView.bounds.size.height = 80
         
+        self.holderViewBottomConstraint = holderView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        self.holderViewBottomConstraint.isActive = true
+        
         NSLayoutConstraint.activate([
             holderView.heightAnchor.constraint(equalToConstant: 80),
             holderView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -65,6 +81,7 @@ class ConversationViewController: UIViewController {
     private func setupMessageTextField() {
         holderView.addSubview(messageTextField)
         
+        messageTextField.delegate = self
         messageTextField.backgroundColor = .systemBlue
         messageTextField.borderStyle = .roundedRect
         messageTextField.placeholder = "Type Message"
@@ -101,6 +118,19 @@ class ConversationViewController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
+    }
+}
+
+extension ConversationViewController: UITextFieldDelegate {
+    
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+//        holderView.translatesAutoresizingMaskIntoConstraints = true
+        return true
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+//        holderView.translatesAutoresizingMaskIntoConstraints = false
+        return textField.resignFirstResponder()
     }
 }
 
