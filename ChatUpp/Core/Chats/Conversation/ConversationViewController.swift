@@ -12,7 +12,6 @@ class ConversationViewController: UIViewController {
     weak var coordinatorDelegate: Coordinator?
     private let conversationViewModel = ConversationViewModel()
     
-    
     private let holderView = UIView()
     private let messageTextField = UITextField()
     
@@ -35,24 +34,39 @@ class ConversationViewController: UIViewController {
         setupCoollectionView()
         setupHolderView()
         setupMessageTextField()
-
+        setTepGesture()
+        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardFrameWillChange(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-        }
-
-        @objc func keyboardFrameWillChange(_ notification: Notification) {
-            if let userInfo = notification.userInfo,
-                let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-                
-                let keyboardOrigin = keyboardFrame.origin
-                
-                holderViewBottomConstraint.constant = keyboardOrigin.y < UIScreen.main.bounds.height ? -keyboardFrame.height : 0
-                
-                holderView.frame.origin = CGPoint(x: 0.0, y: keyboardOrigin.y - holderView.frame.height)
-            }
-        }
+    }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    private func setTepGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
+        collectionView.addGestureRecognizer(tap)
+    }
+    
+    @objc func resignKeyboard() {
+        if messageTextField.isFirstResponder {
+            messageTextField.resignFirstResponder()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc func keyboardFrameWillChange(_ notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            let keyboardOrigin = keyboardFrame.origin
+            
+            self.holderViewBottomConstraint.constant = keyboardOrigin.y < UIScreen.main.bounds.height ? -keyboardFrame.height : 0
+            
+            UIView.animate(withDuration: 0.5) {
+                self.view.layoutIfNeeded()
+            }
+//            holderViewBottomConstraint.constant = keyboardOrigin.y < UIScreen.main.bounds.height ? -keyboardFrame.height : 0
+//            holderView.frame.origin = CGPoint(x: 0.0, y: keyboardOrigin.y - holderView.frame.height)
+        }
     }
     
     private func setupHolderView() {
@@ -72,7 +86,7 @@ class ConversationViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             holderView.heightAnchor.constraint(equalToConstant: 80),
-            holderView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+//            holderView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             holderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             holderView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
@@ -126,6 +140,12 @@ extension ConversationViewController: UITextFieldDelegate {
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
 //        holderView.translatesAutoresizingMaskIntoConstraints = true
         return true
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        print("Asd")
+        view.endEditing(true)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
