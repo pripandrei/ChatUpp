@@ -15,6 +15,8 @@ class ConversationViewController: UIViewController {
     private let holderView = UIView()
     private let messageTextField = UITextField()
     
+    private var holderViewBottomConstraint: NSLayoutConstraint!
+    private var collectionViewBottomConstraint: NSLayoutConstraint!
     
     private lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -25,10 +27,6 @@ class ConversationViewController: UIViewController {
         collectionVC.dataSource = self
         return collectionVC
     }()
-    
-    private var holderViewBottomConstraint: NSLayoutConstraint!
-    private var collectionViewBottomConstraint: NSLayoutConstraint!
-    private var shoulOffSetCollectionViewContent = true
     
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -41,7 +39,10 @@ class ConversationViewController: UIViewController {
         setupHolderView()
         setupMessageTextField()
 //        setTepGesture()
-        
+        addKeyboardNotificationObservers()
+    }
+    
+    private func addKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -172,7 +173,9 @@ extension ConversationViewController: UICollectionViewDataSource {
         return 25
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
+    {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Cell.CustomCollectionViewCell, for: indexPath) as? CustomCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         cell.label.text = String(indexPath.row)
         
@@ -183,8 +186,11 @@ extension ConversationViewController: UICollectionViewDataSource {
 //MARK: - COLLECTION VIEW LAYOUT
 
 extension ConversationViewController: UICollectionViewDelegateFlowLayout {
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize
+    {
         return CGSize(width: view.bounds.width, height: 80)
     }
 }
