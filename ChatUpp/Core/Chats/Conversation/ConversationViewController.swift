@@ -207,7 +207,7 @@ extension ConversationViewController {
         self.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
 
         let currentOffSet = collectionView.contentOffset
-        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight.inverseValue() + currentOffSet.y)
+        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight.invertValue() + currentOffSet.y)
         collectionView.setContentOffset(offSet, animated: false)
         
         let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: customCollectionViewInset, right: 0)

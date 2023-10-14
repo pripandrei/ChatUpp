@@ -27,6 +27,7 @@ final class ChatsViewModel {
                 try await loadChats()
                 try await loadRecentMessages()
                 try await loadOtherMembersOfChats()
+//                print("chats ===",chats)
             } catch {
                 print(error.localizedDescription)
             }
@@ -74,7 +75,6 @@ final class ChatsViewModel {
             dbUsers.append(dbUser)
         }
     }
-
 }
 
 

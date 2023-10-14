@@ -8,7 +8,7 @@
 import UIKit
 
 extension CGFloat {
-    func inverseValue() -> CGFloat {
+    func invertValue() -> CGFloat {
         if self < 0 {
             return abs(self)
         } else if self > 0 {
