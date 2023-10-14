@@ -45,49 +45,75 @@ class ConversationViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-    
-    
+     
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-                if holderView.frame.origin.y > 760 {
-//                    holderView.frame.origin.y -= keyboardSize.height
-                    self.holderViewBottomConstraint.constant = -keyboardSize.height
-                    let currentOffSet = collectionView.contentOffset
-                    let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + keyboardSize.height)
-                    collectionView.setContentOffset(offSet, animated: false)
-                    
-                    let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
-                    collectionView.contentInset = contentInset
-                    collectionView.scrollIndicatorInsets = contentInset
-
-                    UIView.animate(withDuration: 0.5, delay: 0.0) {
-                        self.view.layoutIfNeeded()
-                    }
-                }
+            
+            if holderView.frame.origin.y > 760 {
+                handleCollectionViewOffSet(withKeyboardSize: keyboardSize)                
             }
+            
+            
+//            if holderView.frame.origin.y > 760 {
+
+//                self.holderViewBottomConstraint.constant = -keyboardSize.height
+//                let currentOffSet = collectionView.contentOffset
+//                let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + keyboardSize.height)
+//                collectionView.setContentOffset(offSet, animated: false)
+//
+//                let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+//                collectionView.contentInset = contentInset
+//                collectionView.scrollIndicatorInsets = contentInset
+//
+//                UIView.animate(withDuration: 0.5, delay: 0.0) {
+//                    self.view.layoutIfNeeded()
+//                }
+//            }
+        }
+    }
+    
+    private func handleCollectionViewOffSet(withKeyboardSize keyboardSize: CGRect) {
+        
+        let keyboardHeight = holderView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
+        let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
+        
+        self.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+
+        let currentOffSet = collectionView.contentOffset
+        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight.inverseValue() + currentOffSet.y)
+        collectionView.setContentOffset(offSet, animated: false)
+        
+        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: customCollectionViewInset, right: 0)
+        collectionView.contentInset = contentInset
+        collectionView.scrollIndicatorInsets = contentInset
+        
+        UIView.animate(withDuration: 0.5, delay: 0.0) {
+            self.view.layoutIfNeeded()
+        }
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-                if holderView.frame.origin.y < 760 {
-//                    holderView.frame.origin.y = holderView.frame.origin.y + keyboardSize.height
-                    self.holderViewBottomConstraint.constant = 0
-                    let currentOffSet = collectionView.contentOffset
-                    let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y - keyboardSize.height)
-                    collectionView.setContentOffset(offSet, animated: false)
-                    
-//                    let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
-                    collectionView.contentInset = UIEdgeInsets()
-                    collectionView.scrollIndicatorInsets = UIEdgeInsets()
-                    
-                    UIView.animate(withDuration: 0.5, delay: 0.0) {
-                        self.view.layoutIfNeeded()
-                    }
-                }
-            }
+            
+            handleCollectionViewOffSet(withKeyboardSize: keyboardSize)
+            
+//            if holderView.frame.origin.y < 760 {
+//                //                    holderView.frame.origin.y = holderView.frame.origin.y + keyboardSize.height
+//                self.holderViewBottomConstraint.constant = 0
+//                let currentOffSet = collectionView.contentOffset
+//                let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y - keyboardSize.height)
+//                collectionView.setContentOffset(offSet, animated: false)
+//
+//                //                    let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+//                collectionView.contentInset = UIEdgeInsets()
+//                collectionView.scrollIndicatorInsets = UIEdgeInsets()
+//
+//                UIView.animate(withDuration: 0.5, delay: 0.0) {
+//                    self.view.layoutIfNeeded()
+//                }
+//            }
+        }
     }
-    
-
 
     private func setupHolderView() {
         view.addSubview(holderView)
@@ -204,32 +230,7 @@ extension ConversationViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Cell.CustomCollectionViewCell, for: indexPath) as? CustomCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         cell.label.text = String(indexPath.row)
         
-//        if let lastCell = self.collectionView.visibleCells.last,
-//           let indexPath = self.collectionView.indexPath(for: lastCell) {
-//            print(indexPath.row)
-////            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
-//        }
-        
         return cell
-    }
-    
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        var biggest: Int = 0
-        for visible in collectionView.visibleCells {
-            let index = collectionView.indexPath(for: visible)
-            if index!.row > biggest {
-                biggest = index!.row
-            }
-        }
-        print(biggest)
-//        if let lastCell = self.collectionView.visibleCells.last,
-//           let indexPath = self.collectionView.indexPath(for: lastCell) {
-//            print(indexPath.row)
-//
-//            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
-//        }
     }
 }
 
@@ -242,52 +243,16 @@ extension ConversationViewController:  UICollectionViewDelegateFlowLayout {
     }
 }
 
-//MARK: - KEYBOARD UP-DOWN PUSH HANDLER
 
-    // This is pure ugliness but i don't find other ways to preserve collection's view content so that it could be shown/scrolled behind keyboard (you can observe cells content as they go behind the keyboard)
-
-//extension ConversationViewController {
-//    @objc func keyboardFrameWillChange(_ notification: Notification) {
-//         if let userInfo = notification.userInfo,
-//            let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-//             if shoulOffSetCollectionViewContent {
-//                 handleCollcetionContentOffset(keyboardFrame: keyboardFrame)
-//                 shoulOffSetCollectionViewContent = false
-//             }
-//         }
-//     }
-//
-//    @objc func keyboardDidHide(_ notification: Notification) {
-//        shoulOffSetCollectionViewContent = true
-//
-//        if let userInfo = notification.userInfo,
-//           let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-////            handleCollcetionContentOffset(keyboardFrame: keyboardFrame)
-//        }
-//    }
-//
-//    func handleCollcetionContentOffset(keyboardFrame: CGRect) {
-//        let keyboardOrigin = keyboardFrame.origin
-//        let pushDirection = keyboardOrigin.y < UIScreen.main.bounds.height ? 0 : -keyboardFrame.height
-//        holderViewBottomConstraint.constant = pushDirection
-//        print("KeyboardDirection", pushDirection)
-//        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: pushDirection, right: 0)
-////        collectionViewContentInset = contentInset
-//        collectionView.contentInset = contentInset
-//        collectionView.scrollIndicatorInsets = contentInset
-//        // Calculate the current content offset
-//        let currentContentOffset = collectionView.contentOffset
-//        var yOffset = CGFloat()
-//        if keyboardOrigin.y < UIScreen.main.bounds.height {
-//            yOffset = currentContentOffset.y + keyboardFrame.height
-//        } else {
-//            yOffset = currentContentOffset.y - keyboardFrame.height
-//        }
-//
-//        collectionView.setContentOffset(CGPoint(x: currentContentOffset.x, y: yOffset), animated: true)
-//
-//        UIView.animate(withDuration: 0.5) {
-//            self.view.layoutIfNeeded()
-//        }
-//    }
-//}
+extension CGFloat {
+    
+    func inverseValue() -> CGFloat {
+        if self < 0 {
+            return abs(self)
+        } else if self > 0 {
+            return -self
+        }
+        return 0.0
+    }
+    
+}
