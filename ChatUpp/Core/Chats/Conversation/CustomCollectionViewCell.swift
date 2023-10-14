@@ -9,6 +9,8 @@ import UIKit
 
 class CustomCollectionViewCell: UICollectionViewCell {
     
+    let label = UILabel()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .cyan
@@ -18,8 +20,6 @@ class CustomCollectionViewCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    let label = UILabel()
     
     func setupLabel() {
         addSubview(label)

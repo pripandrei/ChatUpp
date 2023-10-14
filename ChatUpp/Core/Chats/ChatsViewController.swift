@@ -82,7 +82,8 @@ extension ChatsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        coordinatorDelegate?.openConversationVC()
+        
+        coordinatorDelegate?.openConversationVC(conversationID: chatsViewModel.chats[indexPath.item].id)
     }
 }
 

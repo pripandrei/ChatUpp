@@ -14,7 +14,7 @@ protocol Coordinator: AnyObject {
     func start()
     func presentLogInForm()
     func handleSignOut()
-    func openConversationVC()
+    func openConversationVC(conversationID: String)
 }
 
 class MainCoordinator: Coordinator {
@@ -57,8 +57,8 @@ class MainCoordinator: Coordinator {
         Utilities.windowRoot = tabBar
     }
     
-    func openConversationVC() {
-        let conversationVC = ConversationViewController()
+    func openConversationVC(conversationID: String) {
+        let conversationVC = ConversationViewController(conversationID: conversationID)
         conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
         tabBar.customNavigationController?.pushViewController(conversationVC, animated: true)

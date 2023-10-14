@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ConversationViewController: UIViewController {
+final class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
     private let conversationViewModel = ConversationViewModel()
@@ -18,6 +18,8 @@ class ConversationViewController: UIViewController {
     private var holderViewBottomConstraint: NSLayoutConstraint!
     private var collectionViewBottomConstraint: NSLayoutConstraint!
     
+    private var conversationID: String!
+    
     private lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
         let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: flowLayout)
@@ -27,6 +29,13 @@ class ConversationViewController: UIViewController {
         collectionVC.dataSource = self
         return collectionVC
     }()
+    
+//MARK: - LIFECYCLE
+    
+    convenience init(conversationID: String) {
+        self.init()
+        self.conversationID = conversationID
+    }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -41,6 +50,8 @@ class ConversationViewController: UIViewController {
 //        setTepGesture()
         addKeyboardNotificationObservers()
     }
+    
+//MARK: - VC SETUP
     
     private func addKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
