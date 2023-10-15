@@ -10,9 +10,9 @@ import FirebaseAuth
 
 // MARK: - CELL IDENTIFIER
 
-struct Cell {
-    static let chatCell = "ChatCell"
-    static let CustomCollectionViewCell = "CustomCollectionViewCell"
+struct CellIdentifire {
+    static let chatCell = "ChatTableViewCell"
+    static let conversationMessageCell = "ConversationCollectionViewCell"
 }
 
 class ChatsViewController: UIViewController {
@@ -29,10 +29,12 @@ class ChatsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .orange
         setupBinding()
         setupTableView()
     }
+    
+    
     
     deinit {
         print("ChatsVC was DEINITED!==")
@@ -46,7 +48,7 @@ class ChatsViewController: UIViewController {
     }
     
     private func setupTableView() {
-        tableView.register(ChatsCell.self, forCellReuseIdentifier: Cell.chatCell)
+        tableView.register(ChatsCell.self, forCellReuseIdentifier: CellIdentifire.chatCell)
         configureTableView()
     }
     
@@ -74,6 +76,7 @@ class ChatsViewController: UIViewController {
         tableView.dataSource = tableViewDataSource
         tableView.pin(to: view)
         tableView.rowHeight = 70
+        tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     }
 }
 
@@ -82,6 +85,7 @@ extension ChatsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        guard let cell = tableView.cellForRow(at: indexPath) as? ChatsCell else {return}
         
         coordinatorDelegate?.openConversationVC(conversationID: chatsViewModel.chats[indexPath.item].id)
     }

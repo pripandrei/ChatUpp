@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CustomCollectionViewCell: UICollectionViewCell {
+class ConversationCollectionViewCell: UICollectionViewCell {
     
     let label = UILabel()
     

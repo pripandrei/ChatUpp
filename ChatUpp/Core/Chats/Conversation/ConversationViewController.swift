@@ -24,7 +24,7 @@ final class ConversationViewController: UIViewController {
         let flowLayout = UICollectionViewFlowLayout()
         let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: flowLayout)
         flowLayout.scrollDirection = .vertical
-        collectionVC.register(CustomCollectionViewCell.self, forCellWithReuseIdentifier: Cell.CustomCollectionViewCell)
+        collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
         collectionVC.delegate = self
         collectionVC.dataSource = self
         return collectionVC
@@ -49,6 +49,7 @@ final class ConversationViewController: UIViewController {
         setupMessageTextField()
 //        setTepGesture()
         addKeyboardNotificationObservers()
+        
     }
     
 //MARK: - VC SETUP
@@ -123,7 +124,8 @@ final class ConversationViewController: UIViewController {
     private func setupCoollectionView() {
         view.addSubview(collectionView)
         
-        collectionView.backgroundColor = .systemPink
+        collectionView.backgroundColor = .link
+        
 
         setCollectionViewConstraints()
     }
@@ -187,7 +189,7 @@ extension ConversationViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Cell.CustomCollectionViewCell, for: indexPath) as? CustomCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         cell.label.text = String(indexPath.row)
         
         return cell

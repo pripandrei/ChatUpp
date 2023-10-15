@@ -79,7 +79,7 @@ class ChatsCell: UITableViewCell {
     
     private func setProfileImage() {
         self.addSubview(profileImage)
-        profileImage.backgroundColor = .blue
+//        profileImage.backgroundColor = .blue
         setProfileImageConstraints()
     }
     
