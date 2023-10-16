@@ -74,6 +74,8 @@ struct Utilities {
             appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
             appearance.shadowColor = .white.withAlphaComponent(0.5)
             
+            appearance.titleTextAttributes = [.foregroundColor: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), .font: UIFont(name: "HelveticaNeue-bold", size: 17)!]
+            
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().compactAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance

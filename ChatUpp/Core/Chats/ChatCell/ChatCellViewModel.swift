@@ -16,8 +16,6 @@ class ChatCellViewModel {
     init(user: DBUser, recentMessages: Message) {
         self.user = user
         self.recentMessages = recentMessages
-//        getImageData()
-//        Task { await fetchImageData() }
     }
     
     var message: String {
@@ -40,20 +38,5 @@ class ChatCellViewModel {
             }
         }
     }
-    
-    //    var imageData: Data?
-    //    {
-    //        get async {
-    //            return await UserManager.shared.getProfileImageData(urlPath: user.photoUrl)
-    //        }
-    //    }
 }
 
-extension Date {
-    func formatToHoursAndMinutes() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat  = "hh:m"
-        let time = formatter.string(from: self)
-        return time
-    }
-}

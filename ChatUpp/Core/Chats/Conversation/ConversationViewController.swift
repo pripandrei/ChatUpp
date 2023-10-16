@@ -49,10 +49,11 @@ final class ConversationViewController: UIViewController {
         setupMessageTextField()
 //        setTepGesture()
         addKeyboardNotificationObservers()
+        title = "Name"
         
     }
     
-//MARK: - VC SETUP
+//MARK: - VIEW CONTROLLER SETUP
     
     private func addKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)

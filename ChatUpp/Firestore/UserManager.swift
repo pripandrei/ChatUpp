@@ -109,7 +109,7 @@ final class UserManager {
         
         session.dataTask(with: url) { data, _, error in
             if let error = error {
-                print("error is \(error.localizedDescription)")
+                print("Could not get profile image: \(error.localizedDescription)")
                 completion(nil)
                 return
             }

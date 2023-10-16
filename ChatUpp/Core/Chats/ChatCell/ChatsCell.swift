@@ -14,6 +14,9 @@ class ChatsCell: UITableViewCell {
     var profileImage = UIImageView()
     var dateLable = UILabel()
     
+    
+//MARK: - LIFECYCLE
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setMessageLable()
@@ -26,6 +29,8 @@ class ChatsCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+//MARK: - CELL CONFIGURATION
+    
     func configure(viewModel: ChatCellViewModel) {
         viewModel.fetchImageData()
         setupBinding(viewModel: viewModel)
@@ -36,6 +41,9 @@ class ChatsCell: UITableViewCell {
         dateLable.text = viewModel.timestamp
     }
     
+    
+//MARK: - BINDING
+    
     private func setupBinding(viewModel: ChatCellViewModel) {
         viewModel.imgData.bind { [weak self] data in
             if let imageData = data {
@@ -44,6 +52,8 @@ class ChatsCell: UITableViewCell {
             }
         }
     }
+    
+//MARK: - UI SETUP
     
     private func setMessageLable() {
         self.addSubview(messageLable)
