@@ -92,7 +92,7 @@ final class ConversationViewController: UIViewController {
             
             let titleLabel = UILabel()
             titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
-            titleLabel.text = "Mira was here teererrearerk rkwe lrwrwerwer"
+            titleLabel.text = "Mira"
             titleLabel.textColor = UIColor.white
             titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
 //            titleLabel.sizeToFit()
