@@ -10,7 +10,7 @@ import UIKit
 final class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
-    private let conversationViewModel = ConversationViewModel()
+    private var conversationViewModel: ConversationViewModel!
     
     private let holderView = UIView()
     private let messageTextField = UITextField()
@@ -18,7 +18,7 @@ final class ConversationViewController: UIViewController {
     private var holderViewBottomConstraint: NSLayoutConstraint!
     private var collectionViewBottomConstraint: NSLayoutConstraint!
     
-    private var conversationID: String!
+//    private var conversationID: String!
     
     private lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -32,9 +32,9 @@ final class ConversationViewController: UIViewController {
     
 //MARK: - LIFECYCLE
     
-    convenience init(conversationID: String) {
+    convenience init(conversationViewModel: ConversationViewModel) {
         self.init()
-        self.conversationID = conversationID
+        self.conversationViewModel = conversationViewModel
     }
     
     deinit {

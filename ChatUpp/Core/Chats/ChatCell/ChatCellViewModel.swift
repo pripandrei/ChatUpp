@@ -11,10 +11,13 @@ import Firebase
 class ChatCellViewModel {
     var user: DBUser
     var recentMessages: Message
+    var imgData: ObservableObject<Data?> = ObservableObject(nil)
     
     init(user: DBUser, recentMessages: Message) {
         self.user = user
         self.recentMessages = recentMessages
+//        getImageData()
+//        Task { await fetchImageData() }
     }
     
     var message: String {
@@ -29,13 +32,21 @@ class ChatCellViewModel {
     var userMame: String {
         user.name != nil ? user.name! : "name is missing"
     }
-    
-    var imageData: Data?
-    {
-        get async {
-            return await UserManager.shared.getProfileImageData(urlPath: user.photoUrl)
+
+    func fetchImageData() {
+        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { data in
+            if let data = data {
+                self.imgData.value = data
+            }
         }
     }
+    
+    //    var imageData: Data?
+    //    {
+    //        get async {
+    //            return await UserManager.shared.getProfileImageData(urlPath: user.photoUrl)
+    //        }
+    //    }
 }
 
 extension Date {

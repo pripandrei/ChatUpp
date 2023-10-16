@@ -8,7 +8,7 @@
 import UIKit
 
 class ChatsCell: UITableViewCell {
-
+    
     var messageLable = UILabel()
     var nameLabel = UILabel()
     var profileImage = UIImageView()
@@ -27,16 +27,22 @@ class ChatsCell: UITableViewCell {
     }
     
     func configure(viewModel: ChatCellViewModel) {
+        viewModel.fetchImageData()
+        setupBinding(viewModel: viewModel)
+        
         messageLable.text = viewModel.message
         nameLabel.text = viewModel.userMame
-        
-        Task {
-            guard let imageData = await viewModel.imageData else {return}
-            let image = UIImage(data: imageData)
-            profileImage.image = image
-        }
         dateLable.adjustsFontSizeToFitWidth = true
         dateLable.text = viewModel.timestamp
+    }
+    
+    private func setupBinding(viewModel: ChatCellViewModel) {
+        viewModel.imgData.bind { [weak self] data in
+            if let imageData = data {
+                let image = UIImage(data: imageData)
+                DispatchQueue.main.async { self?.profileImage.image = image }
+            }
+        }
     }
     
     private func setMessageLable() {

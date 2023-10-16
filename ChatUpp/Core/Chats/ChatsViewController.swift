@@ -34,8 +34,6 @@ class ChatsViewController: UIViewController {
         setupTableView()
     }
     
-    
-    
     deinit {
         print("ChatsVC was DEINITED!==")
     }
@@ -85,9 +83,14 @@ extension ChatsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard let cell = tableView.cellForRow(at: indexPath) as? ChatsCell else {return}
         
-        coordinatorDelegate?.openConversationVC(conversationID: chatsViewModel.chats[indexPath.item].id)
+        let conversationID = chatsViewModel.chats[indexPath.item].id
+        let memberName = chatsViewModel.cellViewModels[indexPath.item].userMame
+        let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].imgData.value
+        
+        let conversationViewModel = ConversationViewModel(memberName: memberName, conversationID: conversationID, imageData: memberPhoto)
+        
+        coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
 }
 

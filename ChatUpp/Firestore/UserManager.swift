@@ -88,16 +88,34 @@ final class UserManager {
     
     // MARK: - GET USER PROFILE IMAGE
     
-    func getProfileImageData(urlPath: String?) async -> Data? {
+//    func getProfileImageData(urlPath: String?) async -> Data? {
+//        guard let urlPath = urlPath,
+//              let url = URL(string: urlPath) else { return nil }
+//
+//        do {
+//            let (imgData,_) = try await URLSession.shared.data(from: url)
+//            return imgData
+//        } catch {
+//            print("Could not get the image from url: ", error.localizedDescription)
+//            return nil
+//        }
+//    }
+    
+    func getProfileImageData(urlPath: String?, completion: @escaping (Data?) -> Void) {
         guard let urlPath = urlPath,
-              let url = URL(string: urlPath) else { return nil }
+              let url = URL(string: urlPath) else { return }
         
-        do {
-            let (imgData,_) = try await URLSession.shared.data(from: url)
-            return imgData
-        } catch {
-            print("Could not get the image from url: ", error.localizedDescription)
-            return nil
-        }
+        let session = URLSession(configuration: .default)
+        
+        session.dataTask(with: url) { data, _, error in
+            if let error = error {
+                print("error is \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            guard let data = data else { completion(nil); return }
+            
+            completion(data)
+        }.resume()
     }
 }
