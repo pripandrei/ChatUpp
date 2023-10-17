@@ -84,11 +84,11 @@ extension ChatsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let conversationID = chatsViewModel.chats[indexPath.item].id
+        let chat = chatsViewModel.chats[indexPath.item]
         let memberName = chatsViewModel.cellViewModels[indexPath.item].userMame
         let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].imgData.value
         
-        let conversationViewModel = ConversationViewModel(memberName: memberName, conversationID: conversationID, imageData: memberPhoto)
+        let conversationViewModel = ConversationViewModel(memberName: memberName, conversation: chat, imageData: memberPhoto)
         
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }

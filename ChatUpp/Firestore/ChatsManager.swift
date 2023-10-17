@@ -29,6 +29,7 @@ final class ChatsManager {
     //MARK: - CREATE NEW DOC
     
     func createNewChat(chat: Chat) async throws {
+        
         try chatDocument(documentPath: chat.id).setData(from: chat, merge: false)
     }
     

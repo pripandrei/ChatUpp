@@ -30,29 +30,5 @@ final class SettingsViewModel {
 ////                self?.setProfileName?(user.userId)
 //            }
 //        }
-        
-        let messageReference = ChatsManager.shared.getMessageReference(messagePath: "BucXHvVBzgPDax5BYOyE", fromChatDocumentPath: "KmAGbYwUTrwWAqfbbGo9")
-        let messageData = Message(id: "£424", messageBody: "IEW98980R", senderId: "WER", imageUrl: "WER", timestamp: Date(), messageSeen: false, receivedBy: "wueiyriuwr3")
-
-        do {
-            try await ChatsManager.shared.createNewMessage(message: messageData, atChatPath: "KmAGbYwUTrwWAqfbbGo9")
-            let message = try await ChatsManager.shared.getMessageDocumentFromDB(messageReference)
-            DispatchQueue.main.async {
-                self.setProfileName?(message.messageBody)
-            }
-        } catch let e {
-            print(e.localizedDescription)
-        }
     }
-    
-//    func createDocID() async {
-//        let uid = UUID()
-//        let chat = Chat(id: uid.uuidString, members: ["eh34h34","iu3583j22"], lastMessage: nil)
-//        
-//        do {
-//            try await ChatsManager.shared.createNewChat(chat: chat)
-//        } catch let e {
-//            print(e)
-//        }
-//    }
 }
