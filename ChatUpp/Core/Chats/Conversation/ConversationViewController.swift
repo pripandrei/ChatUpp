@@ -17,8 +17,7 @@ final class ConversationViewController: UIViewController {
     
     private var holderViewBottomConstraint: NSLayoutConstraint!
     private var collectionViewBottomConstraint: NSLayoutConstraint!
-    
-//    private var conversationID: String!
+
     
     private lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -49,32 +48,8 @@ final class ConversationViewController: UIViewController {
         setupMessageTextField()
 //        setTepGesture()
         addKeyboardNotificationObservers()
-
         setNavigationBarItem()
     }
-    
-//    
-//    private func setNavigationBarItem2() {
-//        navigationItem.title = "Mira"
-//
-//        guard let imageData = conversationViewModel.imageData, let image = UIImage(data: imageData) else {
-//            return
-//        }
-//
-//        let customView = UIView()
-//
-//        let imageView = UIImageView(image: image)
-//        imageView.frame = CGRect(x: -50, y: -20, width: 40, height: 40) // Adjust the position and size as needed
-////        imageView.contentMode = .scaleAspectFit
-//        imageView.layer.cornerRadius = 20
-//        imageView.clipsToBounds = true
-//        customView.addSubview(imageView)
-////        customView.addSubview(titleLabel)
-//
-//        let imageBarButtonItem = UIBarButtonItem(customView: customView)
-//
-//        navigationItem.rightBarButtonItem = imageBarButtonItem
-//    }
     
     private func setNavigationBarItem() {
         guard let imageData = conversationViewModel.imageData else {return}
@@ -92,7 +67,8 @@ final class ConversationViewController: UIViewController {
             
             let titleLabel = UILabel()
             titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
-            titleLabel.text = "Mira was here teererrearerk rkwe lrwrwerwer"
+            titleLabel.text = conversationViewModel.memberName
+            titleLabel.textAlignment = .center
             titleLabel.textColor = UIColor.white
             titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
 //            titleLabel.sizeToFit()
@@ -223,7 +199,12 @@ extension ConversationViewController: UITextFieldDelegate {
     
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.text?.removeAll()
+        if let bodyMessage = textField.text, !bodyMessage.isEmpty {
+            textField.text?.removeAll()
+            Task {
+                await conversationViewModel.createMessage(messageBody: bodyMessage)                
+            }
+        }
         return textField.resignFirstResponder()
     }
 }

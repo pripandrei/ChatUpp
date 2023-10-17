@@ -12,7 +12,7 @@ final class ChatsViewModel {
     
     var isUserLoggedOut: ObservableObject<Bool> = ObservableObject(false)
     var chats = [Chat]()
-    var membersOfChats = [DBUser]()
+    var otherMembers = [DBUser]()
     var recentMessages = [Message]()
     var cellViewModels = [ChatCellViewModel]()
     
@@ -43,7 +43,7 @@ final class ChatsViewModel {
     private func createCellViewModelFromData() -> [ChatCellViewModel] {
         var cellsViewModel = [ChatCellViewModel]()
         
-        for (user,message) in zip(membersOfChats, recentMessages) {
+        for (user,message) in zip(otherMembers, recentMessages) {
             let cellViewModel = ChatCellViewModel(user: user, recentMessages: message)
             cellsViewModel.append(cellViewModel)
         }
@@ -71,7 +71,7 @@ final class ChatsViewModel {
 
         for id in memberIDs {
             let dbUser = try await UserManager.shared.getUserFromDB(userID: id)
-            membersOfChats.append(dbUser)
+            otherMembers.append(dbUser)
         }
     }
 }
