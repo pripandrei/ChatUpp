@@ -111,8 +111,7 @@
 			children = (
 				7543BE322ACC87CA003001BF /* ConversationViewController.swift */,
 				7543BE342ACC87E1003001BF /* ConversationViewModel.swift */,
-				75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */,
-				7563F87B2ADE25E6006FA374 /* ConversationViewDataSource.swift */,
+				7563F87D2ADE2C1A006FA374 /* ConversationCollectionView */,
 			);
 			path = Conversation;
 			sourceTree = "<group>";
@@ -123,6 +122,15 @@
 				755A3F9F2AD2F2C100739861 /* Coordinator.swift */,
 			);
 			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		7563F87D2ADE2C1A006FA374 /* ConversationCollectionView */ = {
+			isa = PBXGroup;
+			children = (
+				75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */,
+				7563F87B2ADE25E6006FA374 /* ConversationViewDataSource.swift */,
+			);
+			path = ConversationCollectionView;
 			sourceTree = "<group>";
 		};
 		756525C02A7E821C005DC594 /* Authentication */ = {
@@ -244,12 +252,13 @@
 			path = ChatCell;
 			sourceTree = "<group>";
 		};
-		75D7C5732AD5C1A300F6D4B9 /* TableDataSource */ = {
+		75D7C5732AD5C1A300F6D4B9 /* ChatTableView */ = {
 			isa = PBXGroup;
 			children = (
 				755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */,
+				75D7C5722AD5C15000F6D4B9 /* ChatCell */,
 			);
-			path = TableDataSource;
+			path = ChatTableView;
 			sourceTree = "<group>";
 		};
 		75FB78F92AC315D200C2743A /* Tabbar */ = {
@@ -274,9 +283,8 @@
 			children = (
 				756525C62A7FE49E005DC594 /* ChatsViewController.swift */,
 				75FB78F72AC311D000C2743A /* ChatsViewModel.swift */,
-				75D7C5722AD5C15000F6D4B9 /* ChatCell */,
+				75D7C5732AD5C1A300F6D4B9 /* ChatTableView */,
 				7543BE312ACC879D003001BF /* Conversation */,
-				75D7C5732AD5C1A300F6D4B9 /* TableDataSource */,
 			);
 			path = Chats;
 			sourceTree = "<group>";
@@ -296,8 +304,8 @@
 			children = (
 				755A3F9E2AD2F2A700739861 /* Coordinator */,
 				75FB78FE2AC3169100C2743A /* Chats */,
-				756525C42A7FDB1F005DC594 /* Registration */,
 				756525C32A7FDAEA005DC594 /* Login */,
+				756525C42A7FDB1F005DC594 /* Registration */,
 				75FB78F92AC315D200C2743A /* Tabbar */,
 				75FB78FD2AC3165F00C2743A /* Settings */,
 			);

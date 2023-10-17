@@ -49,36 +49,9 @@ final class ConversationViewController: UIViewController {
         setupMessageTextField()
 //        setTepGesture()
         addKeyboardNotificationObservers()
-        setNavigationBarItem()
+        setNavigationBarItems()
     }
-    
-    private func setNavigationBarItem() {
-        guard let imageData = conversationViewModel.imageData else {return}
-        let customTitleView = UIView()
-        
-        if let image = UIImage(data: imageData) {
-            let imageView = UIImageView(image: image)
-            imageView.contentMode = .scaleAspectFit
-            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-            imageView.layer.cornerRadius = 20
-            imageView.clipsToBounds = true
-            imageView.center = imageView.convert(CGPoint(x: ((navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0), from: view)
-            
-            customTitleView.addSubview(imageView)
-            
-            let titleLabel = UILabel()
-            titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
-            titleLabel.text = conversationViewModel.memberName
-            titleLabel.textAlignment = .center
-            titleLabel.textColor = UIColor.white
-            titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
-//            titleLabel.sizeToFit()
-            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: view)
-            customTitleView.addSubview(titleLabel)
 
-            navigationItem.titleView = customTitleView
-        }
-    }
     
 //MARK: - VIEW CONTROLLER SETUP
     
@@ -106,7 +79,6 @@ final class ConversationViewController: UIViewController {
         view.addSubview(holderView)
         
         holderView.backgroundColor = .systemIndigo
-        
         setHolderViewConstraints()
     }
     
@@ -197,7 +169,6 @@ extension ConversationViewController: UITextFieldDelegate {
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         return true
     }
-    
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if let bodyMessage = textField.text, !bodyMessage.isEmpty {
@@ -209,25 +180,6 @@ extension ConversationViewController: UITextFieldDelegate {
         return textField.resignFirstResponder()
     }
 }
-
-
-//MARK: - COLLECTION VIEW DATASOURCE
-
-//extension ConversationViewController: UICollectionViewDataSource {
-//
-//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        return 25
-//    }
-//
-//    func collectionView(_ collectionView: UICollectionView,
-//                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
-//    {
-//        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
-//        cell.label.text = String(indexPath.row)
-//
-//        return cell
-//    }
-//}
 
 //MARK: - COLLECTION VIEW LAYOUT
 
@@ -262,6 +214,39 @@ extension ConversationViewController {
         
         UIView.animate(withDuration: 0.5, delay: 0.0) {
             self.view.layoutIfNeeded()
+        }
+    }
+}
+
+//MARK: - SETUP NAVIGATION BAR ITEMS
+
+extension ConversationViewController
+{
+    private func setNavigationBarItems() {
+        guard let imageData = conversationViewModel.imageData else {return}
+        let customTitleView = UIView()
+        
+        if let image = UIImage(data: imageData) {
+            let imageView = UIImageView(image: image)
+            imageView.contentMode = .scaleAspectFit
+            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+            imageView.layer.cornerRadius = 20
+            imageView.clipsToBounds = true
+            imageView.center = imageView.convert(CGPoint(x: ((navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0), from: view)
+            
+            customTitleView.addSubview(imageView)
+            
+            let titleLabel = UILabel()
+            titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
+            titleLabel.text = conversationViewModel.memberName
+            titleLabel.textAlignment = .center
+            titleLabel.textColor = UIColor.white
+            titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
+//            titleLabel.sizeToFit()
+            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: view)
+            customTitleView.addSubview(titleLabel)
+
+            navigationItem.titleView = customTitleView
         }
     }
 }
