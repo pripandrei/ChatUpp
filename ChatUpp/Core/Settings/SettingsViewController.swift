@@ -18,6 +18,21 @@ class SettingsViewController: UIViewController {
     
     let tempCreateChatDocId: UIButton = UIButton()
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupBinder()
+        setUpSignOutBtn()
+        configureTempLabelName()
+        binding()
+        configureTempCreateChatDocId()
+        view.backgroundColor = .white
+        
+    }
+    
+    deinit {
+        print("Settings ============ deinit")
+    }
+    
     private func configureTempCreateChatDocId() {
         view.addSubview(tempCreateChatDocId)
         
@@ -67,24 +82,6 @@ class SettingsViewController: UIViewController {
         settingsViewModel.setProfileName = { [weak self] name in
             self?.tempLabelName.text = name
         }
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupBinder()
-        setUpSignOutBtn()
-        configureTempLabelName()
-        binding()
-        Task {
-            await settingsViewModel.integrateName()
-        }
-        configureTempCreateChatDocId()
-        view.backgroundColor = .white
-        
-    }
-    
-    deinit {
-        print("Settings ============ deinit")
     }
     
 // MARK: - Binder

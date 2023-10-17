@@ -11,13 +11,13 @@ final class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
     private var conversationViewModel: ConversationViewModel!
+    private var collectionViewDataSource: UICollectionViewDataSource!
     
     private let holderView = UIView()
     private let messageTextField = UITextField()
     
     private var holderViewBottomConstraint: NSLayoutConstraint!
     private var collectionViewBottomConstraint: NSLayoutConstraint!
-
     
     private lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -25,7 +25,8 @@ final class ConversationViewController: UIViewController {
         flowLayout.scrollDirection = .vertical
         collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
         collectionVC.delegate = self
-        collectionVC.dataSource = self
+        collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
+        collectionVC.dataSource = collectionViewDataSource
         return collectionVC
     }()
     
@@ -212,21 +213,21 @@ extension ConversationViewController: UITextFieldDelegate {
 
 //MARK: - COLLECTION VIEW DATASOURCE
 
-extension ConversationViewController: UICollectionViewDataSource {
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 25
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
-                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
-    {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
-        cell.label.text = String(indexPath.row)
-        
-        return cell
-    }
-}
+//extension ConversationViewController: UICollectionViewDataSource {
+//
+//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+//        return 25
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView,
+//                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
+//    {
+//        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
+//        cell.label.text = String(indexPath.row)
+//
+//        return cell
+//    }
+//}
 
 //MARK: - COLLECTION VIEW LAYOUT
 
