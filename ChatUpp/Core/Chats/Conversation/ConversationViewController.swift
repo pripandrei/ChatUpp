@@ -14,7 +14,8 @@ final class ConversationViewController: UIViewController {
     private var collectionViewDataSource: UICollectionViewDataSource!
     
     private let holderView = UIView()
-    private let messageTextField = UITextField()
+    private let messageTextView = UITextView()
+    private let sendMessageButton = UIButton()
     
     private var holderViewBottomConstraint: NSLayoutConstraint!
     private var collectionViewBottomConstraint: NSLayoutConstraint!
@@ -46,7 +47,8 @@ final class ConversationViewController: UIViewController {
         view.backgroundColor = .white
         setupCoollectionView()
         setupHolderView()
-        setupMessageTextField()
+        setupMessageTextView()
+        setupSendMessageBtn()
 //        setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
@@ -97,28 +99,61 @@ final class ConversationViewController: UIViewController {
         ])
     }
     
-    private func setupMessageTextField() {
-        holderView.addSubview(messageTextField)
+    private func setupMessageTextView() {
+        holderView.addSubview(messageTextView)
 //        messageTextField.keyboardType = UIKeyboardType.asciiCapableNumberPad
         
-        messageTextField.delegate = self
-        messageTextField.backgroundColor = .systemBlue
-        messageTextField.borderStyle = .roundedRect
-        messageTextField.placeholder = "Type Message"
+        messageTextView.delegate = self
+        messageTextView.backgroundColor = .systemBlue
+        messageTextView.layer.cornerRadius = 15
+//        messageTextView.placeholder = "Type Message"
         
-        setMessageTextfieldConstraints()
+        setMessageTextViewConstraints()
 
     }
     
-    private func setMessageTextfieldConstraints() {
-        messageTextField.translatesAutoresizingMaskIntoConstraints = false
+    private func setMessageTextViewConstraints() {
+        messageTextView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            messageTextField.heightAnchor.constraint(equalToConstant: holderView.bounds.height * 0.4),
-            messageTextField.topAnchor.constraint(equalTo: holderView.topAnchor, constant: 10),
-            messageTextField.trailingAnchor.constraint(equalTo: holderView.trailingAnchor, constant: -25),
-            messageTextField.leadingAnchor.constraint(equalTo: holderView.leadingAnchor, constant: 25)
+            messageTextView.heightAnchor.constraint(equalToConstant: holderView.bounds.height * 0.4),
+            messageTextView.topAnchor.constraint(equalTo: holderView.topAnchor, constant: 10),
+            messageTextView.trailingAnchor.constraint(equalTo: holderView.trailingAnchor, constant: -55),
+            messageTextView.leadingAnchor.constraint(equalTo: holderView.leadingAnchor, constant: 35)
         ])
+    }
+    
+    private func setupSendMessageBtn() {
+        holderView.addSubview(sendMessageButton)
+        // size is used only for radius calculation
+        sendMessageButton.frame.size = CGSize(width: 35, height: 35)
+        
+        sendMessageButton.configuration = .filled()
+        sendMessageButton.configuration?.baseBackgroundColor = UIColor.purple
+        sendMessageButton.layer.cornerRadius = sendMessageButton.frame.size.width / 2.0
+        sendMessageButton.configuration?.image = UIImage(systemName: "paperplane.fill")
+        sendMessageButton.clipsToBounds =  true
+        
+        sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
+
+        setupSendMessageBtnConstraints()
+    }
+    
+    @objc func sendMessageBtnWasTapped() {
+        messageTextView.resignFirstResponder()
+    }
+    
+    private func setupSendMessageBtnConstraints() {
+        
+        sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            sendMessageButton.heightAnchor.constraint(equalToConstant: 35),
+            sendMessageButton.widthAnchor.constraint(equalToConstant: 35),
+            sendMessageButton.topAnchor.constraint(equalTo: holderView.topAnchor, constant: 8),
+            sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
+        ])
+        
     }
 
     private func setupCoollectionView() {
@@ -156,28 +191,32 @@ extension ConversationViewController {
     }
     
     @objc func resignKeyboard() {
-        if messageTextField.isFirstResponder {
-            messageTextField.resignFirstResponder()
+        if messageTextView.isFirstResponder {
+            messageTextView.resignFirstResponder()
         }
     }
 }
 
 //MARK: - TEXTFIELD DELEGATE
 
-extension ConversationViewController: UITextFieldDelegate {
+extension ConversationViewController:  UITextViewDelegate {
     
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        return true
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        print("Begin")
     }
-
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if let bodyMessage = textField.text, !bodyMessage.isEmpty {
-            textField.text?.removeAll()
+    
+    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+        if let bodyMessage = textView.text, !bodyMessage.isEmpty {
+            textView.text?.removeAll()
             Task {
-                await conversationViewModel.createMessage(messageBody: bodyMessage)                
+                await conversationViewModel.createMessage(messageBody: bodyMessage)
             }
         }
-        return textField.resignFirstResponder()
+        return true
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        print("Ended")
     }
 }
 
