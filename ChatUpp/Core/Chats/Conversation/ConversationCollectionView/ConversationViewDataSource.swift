@@ -10,13 +10,26 @@ import UIKit
 class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
     var conversationViewModel: ConversationViewModel!
+    weak var collectionView: UICollectionView!
     
-    init(conversationViewModel: ConversationViewModel!) {
+    init(conversationViewModel: ConversationViewModel) {
         self.conversationViewModel = conversationViewModel
+        super.init()
+        self.setupBinding()
+    }
+    
+    private func setupBinding() {
+        conversationViewModel.messages.bind { [weak self] messages in
+            if !messages.isEmpty {
+                DispatchQueue.main.async {
+                    self?.collectionView.reloadData()
+                }
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 25
+        return conversationViewModel.messages.value.count
     }
 
     func collectionView(_ collectionView: UICollectionView,

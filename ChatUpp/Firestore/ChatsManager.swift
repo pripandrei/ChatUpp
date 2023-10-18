@@ -26,10 +26,25 @@ final class ChatsManager {
         return chatDocument(documentPath: documentPath).collection("messages").document(messagePath)
     }
     
+//    func getAllMessagesReference(fromChatDocumentPath documentID: String) -> CollectionReference {
+//        return chatDocument(documentPath: documentID).collection("messages")
+//    }
+//
+    func getAllMessages(fromChatDocumentPath documentID: String) async throws -> [Message] {
+        let messagesReference = chatDocument(documentPath: documentID).collection("messages")
+        var messages = [Message]()
+        
+        let querySnapshot = try await messagesReference.getDocuments()
+        for documentSnapshot in querySnapshot.documents {
+            let message = try documentSnapshot.data(as: Message.self)
+            messages.append(message)
+        }
+        return messages
+    }
+    
     //MARK: - CREATE NEW DOC
     
     func createNewChat(chat: Chat) async throws {
-        
         try chatDocument(documentPath: chat.id).setData(from: chat, merge: false)
     }
     
@@ -38,12 +53,6 @@ final class ChatsManager {
     func createNewMessage(message: Message, atChatPath path: String) async throws {
         try getMessageReference(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
-    
-    //MARK: - GET RECENT MESSAGE
-    
-    //    func getRecentMessages(chatID: String) async throws {
-    //        let message = try await chatDocument(documentPath: chatID).getDocument(as: Message.self)
-    //    }
     
     //MARK: - GET CHAT DOCUMENT
     
@@ -64,7 +73,7 @@ final class ChatsManager {
         //        do {
         let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
         
-        for documentSnapshot in  querySnapshot.documents {
+        for documentSnapshot in querySnapshot.documents {
             let document = try documentSnapshot.data(as: Chat.self)
             chats.append(document)
             //                otherUsersFromChat.append(document.members.first { $0 != userID }!)

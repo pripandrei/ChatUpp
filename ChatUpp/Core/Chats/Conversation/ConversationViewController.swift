@@ -11,7 +11,7 @@ final class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
     private var conversationViewModel: ConversationViewModel!
-    private var collectionViewDataSource: UICollectionViewDataSource!
+    private var collectionViewDataSource: ConversationViewDataSource!
     
     private let holderView = UIView()
     private let messageTextView = UITextView()
@@ -21,13 +21,17 @@ final class ConversationViewController: UIViewController {
     private var collectionViewBottomConstraint: NSLayoutConstraint!
     
     private lazy var collectionView: UICollectionView = {
-        let flowLayout = UICollectionViewFlowLayout()
-        let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: flowLayout)
-        flowLayout.scrollDirection = .vertical
+        let collectionViewFlowLayout = UICollectionViewFlowLayout()
+        collectionViewFlowLayout.scrollDirection = .vertical
+        
+        let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
         collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
         collectionVC.delegate = self
+        
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
+        collectionViewDataSource.collectionView = collectionVC
         collectionVC.dataSource = collectionViewDataSource
+        
         return collectionVC
     }()
     
@@ -102,10 +106,14 @@ final class ConversationViewController: UIViewController {
     private func setupMessageTextView() {
         holderView.addSubview(messageTextView)
 //        messageTextField.keyboardType = UIKeyboardType.asciiCapableNumberPad
-        
+        let height = holderView.bounds.height * 0.4
         messageTextView.delegate = self
         messageTextView.backgroundColor = .systemBlue
         messageTextView.layer.cornerRadius = 15
+        messageTextView.font = .systemFont(ofSize: 18)
+        messageTextView.textContainerInset = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
+        messageTextView.textColor = .white
+        
 //        messageTextView.placeholder = "Type Message"
         
         setMessageTextViewConstraints()
@@ -145,6 +153,7 @@ final class ConversationViewController: UIViewController {
     
     private func setupSendMessageBtnConstraints() {
         
+        
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -161,7 +170,6 @@ final class ConversationViewController: UIViewController {
         
         collectionView.backgroundColor = .link
         
-
         setCollectionViewConstraints()
     }
     
@@ -199,11 +207,7 @@ extension ConversationViewController {
 
 //MARK: - TEXTFIELD DELEGATE
 
-extension ConversationViewController:  UITextViewDelegate {
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        print("Begin")
-    }
+extension ConversationViewController: UITextViewDelegate {
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         if let bodyMessage = textView.text, !bodyMessage.isEmpty {
@@ -213,10 +217,6 @@ extension ConversationViewController:  UITextViewDelegate {
             }
         }
         return true
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        print("Ended")
     }
 }
 
