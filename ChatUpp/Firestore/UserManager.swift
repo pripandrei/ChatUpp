@@ -23,7 +23,7 @@ final class UserManager {
     
     private init() {}
     
-    private let userCollection = Firestore.firestore().collection("users")
+    private let userCollection = Firestore.firestore().collection(FirestoreCollection.users.rawValue)
     
     private func userDocument(userID: String) -> DocumentReference {
         userCollection.document(userID)

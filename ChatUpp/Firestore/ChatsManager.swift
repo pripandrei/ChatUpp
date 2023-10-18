@@ -16,32 +16,16 @@ final class ChatsManager {
     
     private init() {}
     
-    let chatsCollection = Firestore.firestore().collection("chats")
+    let chatsCollection = Firestore.firestore().collection(FirestoreCollection.chats.rawValue)
     
     private func chatDocument(documentPath: String) -> DocumentReference {
         return chatsCollection.document(documentPath)
     }
     
-    func getMessageReference(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
-        return chatDocument(documentPath: documentPath).collection("messages").document(messagePath)
+    func getMessageDocument(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
+        return chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).document(messagePath)
     }
-    
-//    func getAllMessagesReference(fromChatDocumentPath documentID: String) -> CollectionReference {
-//        return chatDocument(documentPath: documentID).collection("messages")
-//    }
-//
-    func getAllMessages(fromChatDocumentPath documentID: String) async throws -> [Message] {
-        let messagesReference = chatDocument(documentPath: documentID).collection("messages")
-        var messages = [Message]()
-        
-        let querySnapshot = try await messagesReference.getDocuments()
-        for documentSnapshot in querySnapshot.documents {
-            let message = try documentSnapshot.data(as: Message.self)
-            messages.append(message)
-        }
-        return messages
-    }
-    
+
     //MARK: - CREATE NEW DOC
     
     func createNewChat(chat: Chat) async throws {
@@ -51,16 +35,16 @@ final class ChatsManager {
     //MARK: - CREATE NEW MESSAGE
     
     func createNewMessage(message: Message, atChatPath path: String) async throws {
-        try getMessageReference(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
+        try getMessageDocument(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
     
-    //MARK: - GET CHAT DOCUMENT
+    //MARK: - GET CHAT DOCUMENT (currently not in use)
     
     func getChatDocumentFromDB(chatID: String) async throws -> Chat {
         return try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
     }
     
-    //MARK: - GET MESSAGE DOCUMENT
+    //MARK: - GET MESSAGE DOCUMENT (currently not in use)
     
     func getMessageDocumentFromDB(_ document: DocumentReference) async throws -> Message {
         return try await document.getDocument(as: Message.self)
@@ -70,13 +54,11 @@ final class ChatsManager {
     
     func getUserChatsFromDB(_ userID: String) async throws -> [Chat] {
         var chats = [Chat]()
-        //        do {
-        let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
+        let querySnapshot = try await chatsCollection.whereField(FirestoreCollection.members.rawValue, arrayContainsAny: [userID]).getDocuments()
         
         for documentSnapshot in querySnapshot.documents {
             let document = try documentSnapshot.data(as: Chat.self)
             chats.append(document)
-            //                otherUsersFromChat.append(document.members.first { $0 != userID }!)
         }
         return chats
     }
@@ -86,11 +68,13 @@ final class ChatsManager {
     func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
         var messages = [Message]()
         for chat in chats {
-            let message = try await getMessageReference(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
+            let message = try await getMessageDocument(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             messages.append(message)
         }
         return messages
     }
+    
+    //MARK: - GET OTHER MEMBERS FROM CHATS
     
     func getOtherMembersFromChats(_ chats: [Chat],_ authUserId: String) async throws -> [String] {
         var otherMebmers = [String]()
@@ -102,13 +86,18 @@ final class ChatsManager {
         return otherMebmers
     }
     
-//    func getOtherMembersFromChats(withUser userID: String) async throws -> [String] {
-   //        var otherMebmers = [String]()
-   //        let querySnapshot = try await chatsCollection.whereField("members", arrayContainsAny: [userID]).getDocuments()
-   //        for documentSnapshot in  querySnapshot.documents {
-   //            let document = try documentSnapshot.data(as: Chat.self)
-   //            otherMebmers.append(document.members.first { $0 != userID }!)
-   //        }
-   //        return otherMebmers
-   //    }
+    //MARK: - GET ALL MESSAGES FROM CHAT
+    
+    func getAllMessages(fromChatDocumentPath documentID: String) async throws -> [Message] {
+        let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
+        var messages = [Message]()
+        
+        let querySnapshot = try await messagesReference.getDocuments()
+        for documentSnapshot in querySnapshot.documents {
+            let message = try documentSnapshot.data(as: Message.self)
+            messages.append(message)
+        }
+        return messages
+    }
+    
 }

@@ -97,7 +97,6 @@ final class ConversationViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             holderView.heightAnchor.constraint(equalToConstant: 80),
-//            holderView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             holderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             holderView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
@@ -105,7 +104,7 @@ final class ConversationViewController: UIViewController {
     
     private func setupMessageTextView() {
         holderView.addSubview(messageTextView)
-//        messageTextField.keyboardType = UIKeyboardType.asciiCapableNumberPad
+        
         let height = holderView.bounds.height * 0.4
         messageTextView.delegate = self
         messageTextView.backgroundColor = .systemBlue
@@ -113,9 +112,7 @@ final class ConversationViewController: UIViewController {
         messageTextView.font = .systemFont(ofSize: 18)
         messageTextView.textContainerInset = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
         messageTextView.textColor = .white
-        
-//        messageTextView.placeholder = "Type Message"
-        
+
         setMessageTextViewConstraints()
 
     }
@@ -153,7 +150,6 @@ final class ConversationViewController: UIViewController {
     
     private func setupSendMessageBtnConstraints() {
         
-        
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -162,7 +158,6 @@ final class ConversationViewController: UIViewController {
             sendMessageButton.topAnchor.constraint(equalTo: holderView.topAnchor, constant: 8),
             sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
         ])
-        
     }
 
     private func setupCoollectionView() {
