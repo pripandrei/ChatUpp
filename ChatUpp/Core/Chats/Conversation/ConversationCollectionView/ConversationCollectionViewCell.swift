@@ -10,13 +10,14 @@ import UIKit
 class ConversationCollectionViewCell: UICollectionViewCell {
     
     var messageMaxWidthConstraint: NSLayoutConstraint!
+    
     let messageBody = UILabel()
     let leadingEdgeSpacing: CGFloat = 70.0
 //    let label = UIButton()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .lightGray
+//        backgroundColor = .lightGray
         setupContentViewConstraints()
         setupMessageUI()
     }
@@ -27,9 +28,13 @@ class ConversationCollectionViewCell: UICollectionViewCell {
     
     func setupMessageUI() {
         contentView.addSubview(messageBody)
-        messageBody.backgroundColor = .systemCyan
+        
+        messageBody.backgroundColor = #colorLiteral(red: 0.6470323801, green: 0.3927372098, blue: 0.3783177137, alpha: 1)
         messageBody.textAlignment = .left
-        messageBody.backgroundColor = #colorLiteral(red: 0.4779014587, green: 0.4183443785, blue: 0.4153498709, alpha: 1)
+        messageBody.textColor = .white
+        messageBody.font = UIFont(name: "HelveticaNeue", size: 19)
+        messageBody.layer.cornerRadius = 15
+//        messageBody.clipsToBounds = true
 //        label.contentEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
 //        label.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14)
 //        label.adjustsFontSizeToFitWidth = true
