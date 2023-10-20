@@ -52,20 +52,11 @@ class ConversationCollectionViewCell: UICollectionViewCell {
            ])
     }
     
-//    func setMaxWidthConstraint() {
-//        maxWidthConstraint = label.widthAnchor.constraint(lessThanOrEqualToConstant: 330)
-//        maxWidthConstraint.isActive = true
-////        maxWidthConstraint.constant = 320
-////        setupLabel()
-//        UIApplication.shared.keyWindow?.frame.width
-//    }
-    
     var messageMaxWidth: CGFloat? {
         didSet {
             guard let maxWidth = messageMaxWidth else {return }
             messageMaxWidthConstraint = messageBody.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - leadingEdgeSpacing)
             messageMaxWidthConstraint.isActive = true
-//            maxWidthConstraint.constant = maxWidth - 70
         }
     }
     
