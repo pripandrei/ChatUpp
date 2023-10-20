@@ -46,10 +46,23 @@ final class ConversationViewModel {
         do {
             try await ChatsManager.shared.createNewMessage(message: message, atChatPath: conversation.id)
         } catch {
-            print("error while trying to create message: ", error.localizedDescription)
+            print("error occur while trying to create message: ", error.localizedDescription)
         }
     }
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

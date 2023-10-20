@@ -45,7 +45,7 @@ class ChatsCell: UITableViewCell {
 //MARK: - BINDING
     
     private func setupBinding(viewModel: ChatCellViewModel) {
-        viewModel.imgData.bind { [weak self] data in
+        viewModel.otherUserProfileImage.bind { [weak self] data in
             if let imageData = data {
                 let image = UIImage(data: imageData)
                 DispatchQueue.main.async { self?.profileImage.image = image }
