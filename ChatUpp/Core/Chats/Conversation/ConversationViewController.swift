@@ -23,6 +23,7 @@ final class ConversationViewController: UIViewController {
     private lazy var collectionView: UICollectionView = {
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
         collectionViewFlowLayout.scrollDirection = .vertical
+        collectionViewFlowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         
         let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
         collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
@@ -114,7 +115,6 @@ final class ConversationViewController: UIViewController {
         messageTextView.textColor = .white
 
         setMessageTextViewConstraints()
-
     }
     
     private func setMessageTextViewConstraints() {
@@ -223,8 +223,10 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize
     {
-        return CGSize(width: view.bounds.width, height: 80)
+        return CGSize(width: view.bounds.width, height: 0)        
     }
+    
+    
 }
 
 //MARK: - COLLETION VIEW OFFSET HANDLER

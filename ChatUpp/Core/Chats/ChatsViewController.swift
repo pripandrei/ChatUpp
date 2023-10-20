@@ -86,7 +86,7 @@ extension ChatsViewController: UITableViewDelegate {
         
         let chat = chatsViewModel.chats[indexPath.item]
         let memberName = chatsViewModel.cellViewModels[indexPath.item].userMame
-        let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].imgData.value
+        let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].otherUserProfileImage.value
         
         let conversationViewModel = ConversationViewModel(memberName: memberName, conversation: chat, imageData: memberPhoto)
         

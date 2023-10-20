@@ -11,7 +11,7 @@ import Firebase
 class ChatCellViewModel {
     var user: DBUser
     var recentMessages: Message
-    var imgData: ObservableObject<Data?> = ObservableObject(nil)
+    var otherUserProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     
     init(user: DBUser, recentMessages: Message) {
         self.user = user
@@ -34,7 +34,7 @@ class ChatCellViewModel {
     func fetchImageData() {
         UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { data in
             if let data = data {
-                self.imgData.value = data
+                self.otherUserProfileImage.value = data
             }
         }
     }
