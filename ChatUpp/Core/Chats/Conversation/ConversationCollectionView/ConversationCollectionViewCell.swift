@@ -15,16 +15,40 @@ class ConversationCollectionViewCell: UICollectionViewCell {
     let leadingEdgeSpacing: CGFloat = 70.0
 //    let label = UIButton()
     let customLabel = UILabel()
+    let timeStamp = UILabel()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
 //        backgroundColor = .lightGray
         setupContentViewConstraints()
         setupMessageUI()
+        setupTimestampLabel()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setupTimestampLabel() {
+        customLabel.addSubview(timeStamp)
+        
+//        timeStamp.backgroundColor = #colorLiteral(red: 0.397593677, green: 0.2409784794, blue: 0.2313092649, alpha: 1)
+        timeStamp.text = "21:45"
+        timeStamp.textColor = #colorLiteral(red: 0.3529850841, green: 0.2052503526, blue: 0.187323451, alpha: 1)
+        timeStamp.adjustsFontSizeToFitWidth = true
+        setupTimestampConstraints()
+    }
+    
+    func setupTimestampConstraints() {
+        timeStamp.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            timeStamp.heightAnchor.constraint(equalToConstant: 20),
+            timeStamp.widthAnchor.constraint(equalToConstant: 40),
+            timeStamp.bottomAnchor.constraint(equalTo: customLabel.bottomAnchor),
+            timeStamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+//            timeStamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+        ])
     }
     
     func setupMessageUI() {
@@ -51,6 +75,7 @@ class ConversationCollectionViewCell: UICollectionViewCell {
 //        setMaxWidthConstraint()
         setupMessageConstraints()
     }
+    
     
     func setupCustomViewConstraints() {
         customLabel.translatesAutoresizingMaskIntoConstraints = false
