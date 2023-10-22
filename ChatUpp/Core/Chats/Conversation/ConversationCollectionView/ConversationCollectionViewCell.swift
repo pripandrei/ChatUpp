@@ -76,4 +76,3 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         ])
     }
 }
-
