@@ -14,7 +14,7 @@ class ConversationCollectionViewCell: UICollectionViewCell {
     let messageBody = UILabel()
     let leadingEdgeSpacing: CGFloat = 70.0
 //    let label = UIButton()
-    let customLabel = UILabel()
+    let customLabel = UIView()
     let timeStamp = UILabel()
     
     override init(frame: CGRect) {
@@ -22,7 +22,7 @@ class ConversationCollectionViewCell: UICollectionViewCell {
 //        backgroundColor = .lightGray
         setupContentViewConstraints()
         setupMessageUI()
-        setupTimestampLabel()
+//        setupTimestampLabel()
     }
     
     required init?(coder: NSCoder) {
@@ -50,7 +50,7 @@ class ConversationCollectionViewCell: UICollectionViewCell {
 //            timeStamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
         ])
     }
-    
+
     func setupMessageUI() {
         customLabel.addSubview(messageBody)
         contentView.addSubview(customLabel)
@@ -64,6 +64,7 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         messageBody.textColor = .white
         messageBody.font = UIFont(name: "HelveticaNeue", size: 19)
         messageBody.layer.cornerRadius = 15
+//        messageBody.lineBreakMode = .byWordWrapping
 //        messageBody.clipsToBounds = true
 //        label.contentEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
 //        label.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14)
@@ -71,7 +72,7 @@ class ConversationCollectionViewCell: UICollectionViewCell {
 //        label.minimumScaleFactor = 0.5
         messageBody.numberOfLines = 0
 //        label.sizeToFit()
-
+        
 //        setMaxWidthConstraint()
         setupMessageConstraints()
     }
@@ -104,9 +105,15 @@ class ConversationCollectionViewCell: UICollectionViewCell {
             guard let maxWidth = messageMaxWidth else {return }
             messageMaxWidthConstraint = customLabel.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - leadingEdgeSpacing)
             messageMaxWidthConstraint.isActive = true
+//            calculateWidthOfLastLine(text: messageBody.text!)
+//            print("===", messageBody.maxNumberOfLines)
+            
+            let attributedText = NSAttributedString(string: messageBody.text!, attributes: [.font: messageBody.font!])
+            let lastLineMax3X = lastLineMaxX(message: attributedText, labelWidth: maxWidth - leadingEdgeSpacing)
+            print(lastLineMax3X)
         }
     }
-    
+
     func setupContentViewConstraints() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -117,5 +124,41 @@ class ConversationCollectionViewCell: UICollectionViewCell {
             contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
+    
+    // MARK: - MESSAGE LAST LINE WIDTH
+    
+    func lastLineMaxX(message: NSAttributedString, labelWidth: CGFloat) -> CGFloat {
+        // Create instances of NSLayoutManager, NSTextContainer and NSTextStorage
+        self.layoutIfNeeded()
+        let labelSize = CGSize(width: labelWidth, height: .infinity)
+        let layoutManager = NSLayoutManager()
+        let textContainer = NSTextContainer(size: labelSize)
+        let textStorage = NSTextStorage(attributedString: message)
+        
+        // Configure layoutManager and textStorage
+        layoutManager.addTextContainer(textContainer)
+        textStorage.addLayoutManager(layoutManager)
+        
+        // Configure textContainer
+        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineBreakMode = .byWordWrapping
+        textContainer.maximumNumberOfLines = 0
+        
+        let lastGlyphIndex = layoutManager.glyphIndexForCharacter(at: message.length - 1)
+        let lastLineFragmentRect = layoutManager.lineFragmentUsedRect(forGlyphAt: lastGlyphIndex,
+                                                                      effectiveRange: nil)
+        return lastLineFragmentRect.maxX
+    }
 }
 
+
+extension UILabel {
+    var maxNumberOfLines: Int {
+        self.layoutIfNeeded()
+        let maxSize = CGSize(width: frame.size.width, height: CGFloat(MAXFLOAT))
+        let text = (self.text ?? "") as NSString
+        let textHeight = text.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [.font: font!], context: nil).height
+        let lineHeight = font.lineHeight
+        return Int(ceil(textHeight / lineHeight))
+    }
+}

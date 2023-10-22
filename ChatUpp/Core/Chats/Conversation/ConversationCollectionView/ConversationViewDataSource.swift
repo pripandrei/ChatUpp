@@ -37,7 +37,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
 //        cell.label.setTitle(conversationViewModel.messages.value[indexPath.item].messageBody, for: .normal)
-        cell.messageBody.text = conversationViewModel.messages.value[indexPath.item].messageBody
+        cell.messageBody.text = conversationViewModel.messages.value[indexPath.item].messageBody.replacingOccurrences(of: "\n", with: "\n")
         cell.messageMaxWidth = collectionView.bounds.width 
         return cell
     }

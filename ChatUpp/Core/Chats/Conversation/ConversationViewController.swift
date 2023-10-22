@@ -205,6 +205,8 @@ extension ConversationViewController {
 extension ConversationViewController: UITextViewDelegate {
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+
+        
         if let bodyMessage = textView.text, !bodyMessage.isEmpty {
             textView.text?.removeAll()
             Task {
