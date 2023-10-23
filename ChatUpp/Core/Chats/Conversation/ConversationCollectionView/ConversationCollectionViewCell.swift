@@ -10,7 +10,7 @@ import UIKit
 class ConversationCollectionViewCell: UICollectionViewCell {
     
     var messageMaxWidthConstraint: NSLayoutConstraint!
-    
+    var messageTrailingConstraint: NSLayoutConstraint!
     let messageBody = UILabel()
     let leadingEdgeSpacing: CGFloat = 70.0
 //    let label = UIButton()
@@ -21,8 +21,10 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
 //        backgroundColor = .lightGray
         setupContentViewConstraints()
+        contentView.addSubview(customLabel)
+        setupCustomViewConstraints()
         setupMessageUI()
-//        setupTimestampLabel()
+        setupTimestampLabel()
     }
     
     required init?(coder: NSCoder) {
@@ -32,19 +34,27 @@ class ConversationCollectionViewCell: UICollectionViewCell {
     func setupTimestampLabel() {
         customLabel.addSubview(timeStamp)
         
+//        timeStamp.bounds.size = CGSize(width: 25, height: 10)
+//        timeStamp.frame.origin = CGPoint(x: -timeStamp.bounds.width, y: -timeStamp.bounds.height)
+//        timeStamp.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
+        
+        
 //        timeStamp.backgroundColor = #colorLiteral(red: 0.397593677, green: 0.2409784794, blue: 0.2313092649, alpha: 1)
         timeStamp.text = "21:45"
         timeStamp.textColor = #colorLiteral(red: 0.3529850841, green: 0.2052503526, blue: 0.187323451, alpha: 1)
-        timeStamp.adjustsFontSizeToFitWidth = true
-        setupTimestampConstraints()
+        timeStamp.font = UIFont(name: "Helvetica", size: 14)
+        timeStamp.sizeToFit()
+        
+//        timeStamp.adjustsFontSizeToFitWidth = true
+//        setupTimestampConstraints()
     }
     
     func setupTimestampConstraints() {
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            timeStamp.heightAnchor.constraint(equalToConstant: 20),
-            timeStamp.widthAnchor.constraint(equalToConstant: 40),
+//            timeStamp.heightAnchor.constraint(equalToConstant: 20),
+//            timeStamp.widthAnchor.constraint(equalToConstant: 40),
             timeStamp.bottomAnchor.constraint(equalTo: customLabel.bottomAnchor),
             timeStamp.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
 //            timeStamp.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
@@ -53,11 +63,8 @@ class ConversationCollectionViewCell: UICollectionViewCell {
 
     func setupMessageUI() {
         customLabel.addSubview(messageBody)
-        contentView.addSubview(customLabel)
         
         customLabel.backgroundColor = .green
-        
-        setupCustomViewConstraints()
         
         messageBody.backgroundColor = #colorLiteral(red: 0.6470323801, green: 0.3927372098, blue: 0.3783177137, alpha: 1)
         messageBody.textAlignment = .left
@@ -80,22 +87,24 @@ class ConversationCollectionViewCell: UICollectionViewCell {
     
     func setupCustomViewConstraints() {
         customLabel.translatesAutoresizingMaskIntoConstraints = false
-        
+//        customTrailin = customLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10)
         NSLayoutConstraint.activate([
             customLabel.topAnchor.constraint(equalTo: topAnchor),
             customLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
             customLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+//            customTrailin
 //            customLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
         ])
     }
   
     func setupMessageConstraints() {
         messageBody.translatesAutoresizingMaskIntoConstraints = false
- 
+        messageTrailingConstraint = messageBody.trailingAnchor.constraint(equalTo: customLabel.trailingAnchor)
         NSLayoutConstraint.activate([
             messageBody.topAnchor.constraint(equalTo: customLabel.topAnchor),
             messageBody.bottomAnchor.constraint(equalTo: customLabel.bottomAnchor),
-            messageBody.trailingAnchor.constraint(equalTo: customLabel.trailingAnchor),
+//            messageBody.trailingAnchor.constraint(equalTo: customLabel.trailingAnchor),
+//            customTrailin,
             messageBody.leadingAnchor.constraint(equalTo: customLabel.leadingAnchor),
            ])
     }
@@ -105,13 +114,22 @@ class ConversationCollectionViewCell: UICollectionViewCell {
             guard let maxWidth = messageMaxWidth else {return }
             messageMaxWidthConstraint = customLabel.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - leadingEdgeSpacing)
             messageMaxWidthConstraint.isActive = true
-//            calculateWidthOfLastLine(text: messageBody.text!)
-//            print("===", messageBody.maxNumberOfLines)
+            messageTrailingConstraint.isActive = true
+            messageTrailingConstraint.constant = -timeStamp.bounds.width
+            self.layoutIfNeeded()
             
-            let attributedText = NSAttributedString(string: messageBody.text!, attributes: [.font: messageBody.font!])
-            let lastLineMax3X = lastLineMaxX(message: attributedText, labelWidth: maxWidth - leadingEdgeSpacing)
-            print(lastLineMax3X)
+            let lastLineWidth = lastLineMaxX(message: NSAttributedString(string: messageBody.text!), labelWidth: customLabel.frame.width)
+            
+            if (customLabel.frame.width > (lastLineWidth + timeStamp.bounds.width)) && messageBody.maxNumberOfLines == 1 {
+                timeStamp.frame.origin = CGPoint(x: messageBody.textBoundingRect.width, y: messageBody.textBoundingRect.height - timeStamp.bounds.height)
+            } else {
+                timeStamp.frame.origin = CGPoint(x: messageBody.textBoundingRect.width - timeStamp.bounds.width, y: messageBody.textBoundingRect.height - timeStamp.bounds.height)
+            }
         }
+    }
+    
+    func handleTimeStampConstraints() {
+        
     }
 
     func setupContentViewConstraints() {
@@ -144,6 +162,10 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         textContainer.lineBreakMode = .byWordWrapping
         textContainer.maximumNumberOfLines = 0
         
+        layoutManager.glyphRange(for: textContainer)
+        let sizeHight = layoutManager.usedRect(for: textContainer)
+        print("form func:", sizeHight.size.width)
+        
         let lastGlyphIndex = layoutManager.glyphIndexForCharacter(at: message.length - 1)
         let lastLineFragmentRect = layoutManager.lineFragmentUsedRect(forGlyphAt: lastGlyphIndex,
                                                                       effectiveRange: nil)
@@ -153,11 +175,16 @@ class ConversationCollectionViewCell: UICollectionViewCell {
 
 
 extension UILabel {
-    var maxNumberOfLines: Int {
-        self.layoutIfNeeded()
+    
+    var textBoundingRect: CGRect {
         let maxSize = CGSize(width: frame.size.width, height: CGFloat(MAXFLOAT))
         let text = (self.text ?? "") as NSString
-        let textHeight = text.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [.font: font!], context: nil).height
+        let rect = text.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [.font: font!], context: nil)
+        return rect
+    }
+    
+    var maxNumberOfLines: Int {
+        let textHeight = self.textBoundingRect.height
         let lineHeight = font.lineHeight
         return Int(ceil(textHeight / lineHeight))
     }

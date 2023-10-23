@@ -37,9 +37,17 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
 //        cell.label.setTitle(conversationViewModel.messages.value[indexPath.item].messageBody, for: .normal)
-        cell.messageBody.text = conversationViewModel.messages.value[indexPath.item].messageBody.replacingOccurrences(of: "\n", with: "\n")
-        cell.messageMaxWidth = collectionView.bounds.width 
+        cell.messageBody.text = conversationViewModel.messages.value[indexPath.item].messageBody
+        cell.messageMaxWidth = collectionView.bounds.width
+        
+//        let targetSize = CGSize(width: collectionView.bounds.width, height: UIView.layoutFittingCompressedSize.height)
+//        let size = cell.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+
+        // The `size` variable now contains the calculated height of the cell
+//        let cellHeight = size.height
+//        print("cellHight",cellHeight)
         return cell
     }
+    
     
 }
