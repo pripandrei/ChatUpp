@@ -7,15 +7,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "56426A70-E6F3-4BF9-B516-93C509D84878"
-            shouldBeEnabled = "No"
+            uuid = "5620D9A9-372A-42EF-9F8B-AFFF198D8ABF"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "123"
-            endingLineNumber = "123"
+            startingLineNumber = "133"
+            endingLineNumber = "133"
             landmarkName = "messageMaxWidth"
             landmarkType = "24">
          </BreakpointContent>
@@ -23,32 +23,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "D2DD8AD8-7A78-43BB-A5F6-DC63792BD8C9"
+            uuid = "032002EA-A325-4BE4-9296-E570EE98888E"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "187"
-            endingLineNumber = "187"
-            landmarkName = "maxNumberOfLines"
+            startingLineNumber = "121"
+            endingLineNumber = "121"
+            landmarkName = "messageMaxWidth"
             landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5B87E21E-38E9-4020-8197-FD07BC767035"
+            uuid = "AD95B6A5-3DB1-47E4-832A-0BF905B88159"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "180"
-            endingLineNumber = "180"
-            landmarkName = "textBoundingRect"
+            startingLineNumber = "120"
+            endingLineNumber = "120"
+            landmarkName = "messageMaxWidth"
             landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>

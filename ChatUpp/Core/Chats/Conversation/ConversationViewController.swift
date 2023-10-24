@@ -206,11 +206,11 @@ extension ConversationViewController: UITextViewDelegate {
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
 
-        
         if let bodyMessage = textView.text, !bodyMessage.isEmpty {
+            let trimmedString = bodyMessage.trimmingCharacters(in: .whitespaces)
             textView.text?.removeAll()
             Task {
-                await conversationViewModel.createMessage(messageBody: bodyMessage)
+                await conversationViewModel.createMessage(messageBody: trimmedString)
             }
         }
         return true
