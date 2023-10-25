@@ -20,6 +20,8 @@
 		755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F9F2AD2F2C100739861 /* Coordinator.swift */; };
 		7563F87C2ADE25E6006FA374 /* ConversationViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F87B2ADE25E6006FA374 /* ConversationViewDataSource.swift */; };
 		7563F8802ADF6E31006FA374 /* FirestoreCollectionName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */; };
+		7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */; };
+		7563F8C42AE8D2D1006FA374 /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F8C32AE8D2D1006FA374 /* String+Extensions.swift */; };
 		756525BF2A7AF4C6005DC594 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */; };
 		756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C12A7E8240005DC594 /* AuthenticationManager.swift */; };
 		756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C62A7FE49E005DC594 /* ChatsViewController.swift */; };
@@ -64,6 +66,8 @@
 		755A3F9F2AD2F2C100739861 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		7563F87B2ADE25E6006FA374 /* ConversationViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewDataSource.swift; sourceTree = "<group>"; };
 		7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreCollectionName.swift; sourceTree = "<group>"; };
+		7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extensions.swift"; sourceTree = "<group>"; };
+		7563F8C32AE8D2D1006FA374 /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
 		756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		756525C12A7E8240005DC594 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
 		756525C62A7FE49E005DC594 /* ChatsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsViewController.swift; sourceTree = "<group>"; };
@@ -298,6 +302,8 @@
 				75FB79002AC318D600C2743A /* UIView+Extensions.swift */,
 				75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */,
 				75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */,
+				7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */,
+				7563F8C32AE8D2D1006FA374 /* String+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -493,9 +499,11 @@
 				756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
+				7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */,
 				7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */,
 				756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */,
 				75D7C5952AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift in Sources */,
+				7563F8C42AE8D2D1006FA374 /* String+Extensions.swift in Sources */,
 				75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */,
 				75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */,
 				75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */,

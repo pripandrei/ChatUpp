@@ -205,10 +205,12 @@ extension ConversationViewController {
 extension ConversationViewController: UITextViewDelegate {
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+
         if let bodyMessage = textView.text, !bodyMessage.isEmpty {
+            let trimmedString = bodyMessage.trimmingCharacters(in: .whitespaces)
             textView.text?.removeAll()
             Task {
-                await conversationViewModel.createMessage(messageBody: bodyMessage)
+                await conversationViewModel.createMessage(messageBody: trimmedString)
             }
         }
         return true
@@ -223,10 +225,8 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize
     {
-        return CGSize(width: view.bounds.width, height: 0)        
+        return CGSize(width: view.bounds.width, height: 0)
     }
-    
-    
 }
 
 //MARK: - COLLETION VIEW OFFSET HANDLER
