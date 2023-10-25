@@ -164,7 +164,7 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         newConstraint.isActive = false
         if lastLineWithTimestempWidth > messageContainerWidth {
 //            let spaceForTimeStemp = timeStamp.bounds.width
-            if lastLineWithTimestempWidth < customViewMaxWidthConstraint.constant - 4 {
+            if lastLineWithTimestempWidth.rounded(.up) < customViewMaxWidthConstraint.constant  {
                                 
 //                messageBody.textcont = 100
 //                messageTrailingConstraint.constant = -spaceForTimeStemp
