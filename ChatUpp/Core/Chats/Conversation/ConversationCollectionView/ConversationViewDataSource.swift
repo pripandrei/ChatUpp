@@ -38,7 +38,15 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
 //        cell.label.setTitle(conversationViewModel.messages.value[indexPath.item].messageBody, for: .normal)
         cell.messageBody.text = conversationViewModel.messages.value[indexPath.item].messageBody
-        cell.messageMaxWidth = collectionView.bounds.width
+        
+//        if cell.messageBody.text! == "Test message to be written, as I want to see the width of it" {
+//            print("out", cell.messageBody.textBoundingRect.size)
+//
+//        }
+//
+        cell.customViewMaxWidth = collectionView.bounds.width
+        cell.handlePositioning()
+        
         
 //        let targetSize = CGSize(width: collectionView.bounds.width, height: UIView.layoutFittingCompressedSize.height)
 //        let size = cell.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)

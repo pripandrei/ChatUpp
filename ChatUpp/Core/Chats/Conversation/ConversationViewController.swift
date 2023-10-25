@@ -225,7 +225,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize
     {
-        return CGSize(width: view.bounds.width, height: 0)        
+        return CGSize(width: view.bounds.width, height: 0)
     }
     
     
