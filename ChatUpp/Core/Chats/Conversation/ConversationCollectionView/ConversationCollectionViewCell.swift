@@ -9,16 +9,29 @@ import UIKit
 
 class ConversationCollectionViewCell: UICollectionViewCell {
     
-    var customViewMaxWidthConstraint: NSLayoutConstraint!
-    
-    var messageTrailingConstraint: NSLayoutConstraint!
-    var messageBottomConstraint: NSLayoutConstraint!
-    
     let messageBody = UILabel()
     let leadingEdgeSpacing: CGFloat = 90.0
     let customView = UIView()
     let timeStamp = UILabel()
     
+    var customViewMaxWidthConstraint: NSLayoutConstraint!
+    var messageTrailingConstraint: NSLayoutConstraint!
+    var messageBottomConstraint: NSLayoutConstraint!
+    lazy var messageBodyTrailingToTimestampConstraint = NSLayoutConstraint(item: messageBody,
+                                                                           attribute: .trailing,
+                                                                           relatedBy: .equal,
+                                                                           toItem: timeStamp,
+                                                                           attribute: .leading,
+                                                                           multiplier: 1.0,
+                                                                           constant: 0.0)
+    
+    var customViewMaxWidth: CGFloat? {
+        didSet {
+            guard let maxWidth = customViewMaxWidth else {return }
+            customViewMaxWidthConstraint = customView.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - leadingEdgeSpacing)
+            customViewMaxWidthConstraint.isActive = true
+        }
+    }
     override init(frame: CGRect) {
         super.init(frame: frame)
         //        backgroundColor = .lightGray
@@ -36,17 +49,12 @@ class ConversationCollectionViewCell: UICollectionViewCell {
     func setupTimestampLabel() {
         customView.addSubview(timeStamp)
         
-        //        timeStamp.bounds.size = CGSize(width: 25, height: 10)
-        //        timeStamp.frame.origin = CGPoint(x: -timeStamp.bounds.width, y: -timeStamp.bounds.height)
-        //        timeStamp.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin]
-        
         timeStamp.text = "21:45"
         timeStamp.textColor = #colorLiteral(red: 0.3529850841, green: 0.2052503526, blue: 0.187323451, alpha: 1)
         timeStamp.backgroundColor = .orange
         timeStamp.font = UIFont(name: "Helvetica", size: 13)
         timeStamp.sizeToFit()
         
-        //        timeStamp.adjustsFontSizeToFitWidth = true
         setupTimestampConstraints()
     }
     
@@ -54,11 +62,8 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            //            timeStamp.heightAnchor.constraint(equalToConstant: 20),
-            //            timeStamp.widthAnchor.constraint(equalToConstant: 40),
             timeStamp.bottomAnchor.constraint(equalTo: customView.bottomAnchor),
             timeStamp.trailingAnchor.constraint(equalTo: customView.trailingAnchor),
-//            timeStamp.leadingAnchor.constraint(equalTo: customView.leadingAnchor)
         ])
     }
     
@@ -82,7 +87,6 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         //        label.minimumScaleFactor = 0.5
         messageBody.numberOfLines = 0
 //        messageBody.sizeToFit()
-        
         setupMessageConstraints()
     }
     
@@ -112,78 +116,28 @@ class ConversationCollectionViewCell: UICollectionViewCell {
             messageBody.leadingAnchor.constraint(equalTo: customView.leadingAnchor),
         ])
     }
-    
-    lazy var newConstraint  = NSLayoutConstraint(item: messageBody,
-                                                   attribute: .trailing,
-                                                   relatedBy: .equal,
-                                                   toItem: timeStamp,
-                                                   attribute: .leading,
-                                                   multiplier: 1.0,
-                                                   constant: 0.0)
-    
-    var customViewMaxWidth: CGFloat? {
-        didSet {
-            guard let maxWidth = customViewMaxWidth else {return }
-            customViewMaxWidthConstraint = customView.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - leadingEdgeSpacing)
-            customViewMaxWidthConstraint.isActive = true
-            if messageBody.text == "Protect your Cloud Firestore resources from abuse, such as billing fraud or phishing Protect your Cloud Firestore resources from abuse, such as billing fraud or phishing Protect your Cloud Firestore resources from abuse, such as billing fraud or phishing" {
-                print("Aha: message Frame ", messageBody.bounds)
-                print("Aha: messageBody.textBoundingRect ", messageBody.textBoundingRect)
-                print("Aha: messageBody.intrinsicContentSize ", messageBody.intrinsicContentSize)
-                print("=============================")
-                print("Aha: customView Frame ", customView.frame)
-                print("Aha: customView.intrinsicContentSize ", messageBody.intrinsicContentSize)
-            }
-        }
-    }
 
     func handlePositioning() {
-//        if messageBody.text! == "*Protect your Cloud Firestore resources from abuse" {
-//            print("when normal", messageBody.textBoundingRect.size)
-//        }
-        //            messageTrailingConstraint.constant = -timeStamp.bounds.width
-        
-//        customViewMaxWidthConstraint.constant = customViewMaxWidthConstraint.constant + 20
-//        messageTrailingConstraint.isActive = false
         self.layoutIfNeeded()
-//        self.layoutSubviews()
-//        messageTrailingConstraint.constant = 0
-//        messageBody.transform = CGAffineTransform(translationX: 0, y: 0)
-        let spaceForTimeStemp = timeStamp.bounds.width
 
         let lastLineString = getMessageLastLine(for: messageBody.text!, in: messageBody)
         let lastLineWidth = lastLineString.getSize().width
         let lastLineWithTimestempWidth = lastLineWidth + timeStamp.bounds.width
         let messageContainerWidth = messageBody.textBoundingRect.width
-        
-        if messageBody.text == "Protect your Cloud Firestone uyuy o" {
-            print("r")
-        }
-        
+
         messageTrailingConstraint.isActive = true
-        newConstraint.isActive = false
+        messageBodyTrailingToTimestampConstraint.isActive = false
+        
         if lastLineWithTimestempWidth > messageContainerWidth {
-//            let spaceForTimeStemp = timeStamp.bounds.width
             if lastLineWithTimestempWidth.rounded(.up) < customViewMaxWidthConstraint.constant  {
-                                
-//                messageBody.textcont = 100
-//                messageTrailingConstraint.constant = -spaceForTimeStemp
-                
                 messageTrailingConstraint.isActive = false
-               
-                newConstraint.isActive = true
+                messageBodyTrailingToTimestampConstraint.isActive = true
 //                layoutIfNeeded()
             } else {
                 let textWithNewLine = messageBody.text! + "\n"
                 messageBody.text = textWithNewLine
             }
         }
-        
-        //            if (customLabel.frame.width > (lastLineWidth + timeStamp.bounds.width)) && messageBody.maxNumberOfLines == 1 {
-        //                timeStamp.frame.origin = CGPoint(x: messageBody.textBoundingRect.width, y: messageBody.textBoundingRect.height - timeStamp.bounds.height)
-        //            } else {
-        //                timeStamp.frame.origin = CGPoint(x: messageBody.textBoundingRect.width - timeStamp.bounds.width, y: messageBody.textBoundingRect.height - timeStamp.bounds.height)
-        //            }
     }
     
     
@@ -207,13 +161,6 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         let end = text.index(start, offsetBy: range.length)
         let lineText = String(text[start..<end])
         
-//        if lineText == "resources from abuse, such as billing" {
-//            print("")
-//        }
-        
-//        if text == "*Protect your Cloud Firestore resources from abuse" {
-//            print(lineText)
-//        }
         return lineText
     }
     
