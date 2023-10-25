@@ -169,31 +169,3 @@ class ConversationCollectionViewCell: UICollectionViewCell {
     }
 }
 
-
-// MARK: - MESSAGE LAST LINE WIDTH
-
-//    func textRectMeasuremets(message: NSAttributedString, labelWidth: CGFloat) -> (CGFloat, CGRect) {
-//        // Create instances of NSLayoutManager, NSTextContainer and NSTextStorage
-//        self.layoutIfNeeded()
-//        let labelSize = CGSize(width: labelWidth, height: .infinity)
-//        let layoutManager = NSLayoutManager()
-//        let textContainer = NSTextContainer(size: labelSize)
-//        let textStorage = NSTextStorage(attributedString: message)
-//
-//        // Configure layoutManager and textStorage
-//        layoutManager.addTextContainer(textContainer)
-//        textStorage.addLayoutManager(layoutManager)
-//
-//        // Configure textContainer
-//        textContainer.lineFragmentPadding = 0.0
-//        textContainer.lineBreakMode = .byWordWrapping
-//        textContainer.maximumNumberOfLines = 0
-//
-//        layoutManager.glyphRange(for: textContainer)
-//        let sizeHight = layoutManager.usedRect(for: textContainer)
-//
-//        let lastGlyphIndex = layoutManager.glyphIndexForCharacter(at: message.length - 1)
-//        let lastLineFragmentRect = layoutManager.lineFragmentUsedRect(forGlyphAt: lastGlyphIndex,
-//                                                                      effectiveRange: nil)
-//        return (lastLineFragmentRect.maxX, sizeHight)
-//    }
