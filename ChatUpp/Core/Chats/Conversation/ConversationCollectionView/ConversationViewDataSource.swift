@@ -39,7 +39,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         
         cell.messageBody.text = conversationViewModel.messages.value[indexPath.item].messageBody
         cell.customViewMaxWidth = collectionView.bounds.width
-        cell.handlePositioning()
+        cell.handleMessageBubbleLayout()
         
         return cell
     }

@@ -10,14 +10,13 @@ import UIKit
 class ConversationCollectionViewCell: UICollectionViewCell {
     
     let messageBody = UILabel()
-    let leadingEdgeSpacing: CGFloat = 90.0
-    let customView = UIView()
-    let timeStamp = UILabel()
+    private let leadingEdgeSpacing: CGFloat = 90.0
+    private let cellContainerView = UIView()
+    private let timeStamp = UILabel()
     
-    var customViewMaxWidthConstraint: NSLayoutConstraint!
-    var messageTrailingConstraint: NSLayoutConstraint!
-    var messageBottomConstraint: NSLayoutConstraint!
-    lazy var messageBodyTrailingToTimestampConstraint = NSLayoutConstraint(item: messageBody,
+    private var cellContainerMaxWidthConstraint: NSLayoutConstraint!
+    private var messageTrailingConstraint: NSLayoutConstraint!
+    private lazy var messageTrailingToTimestampConstraint = NSLayoutConstraint(item: messageBody,
                                                                            attribute: .trailing,
                                                                            relatedBy: .equal,
                                                                            toItem: timeStamp,
@@ -28,17 +27,19 @@ class ConversationCollectionViewCell: UICollectionViewCell {
     var customViewMaxWidth: CGFloat? {
         didSet {
             guard let maxWidth = customViewMaxWidth else {return }
-            customViewMaxWidthConstraint = customView.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - leadingEdgeSpacing)
-            customViewMaxWidthConstraint.isActive = true
+            cellContainerMaxWidthConstraint = cellContainerView.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - leadingEdgeSpacing)
+            cellContainerMaxWidthConstraint.isActive = true
         }
     }
+    
+    //MARK: - LIFECYCLE
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         //        backgroundColor = .lightGray
         setupContentViewConstraints()
-        contentView.addSubview(customView)
-        setupCustomViewConstraints()
+        contentView.addSubview(cellContainerView)
+        setupCellContainerViewConstraints()
         setupMessageUI()
         setupTimestampLabel()
     }
@@ -47,31 +48,24 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupTimestampLabel() {
-        customView.addSubview(timeStamp)
+    //MARK: - SETUP UI
+    
+    private func setupTimestampLabel() {
+        cellContainerView.addSubview(timeStamp)
         
         timeStamp.text = "21:45"
         timeStamp.textColor = #colorLiteral(red: 0.3529850841, green: 0.2052503526, blue: 0.187323451, alpha: 1)
-        timeStamp.backgroundColor = .orange
+//        timeStamp.backgroundColor = .orange
         timeStamp.font = UIFont(name: "Helvetica", size: 13)
         timeStamp.sizeToFit()
         
         setupTimestampConstraints()
     }
     
-    func setupTimestampConstraints() {
-        timeStamp.translatesAutoresizingMaskIntoConstraints = false
+    private func setupMessageUI() {
+        cellContainerView.addSubview(messageBody)
         
-        NSLayoutConstraint.activate([
-            timeStamp.bottomAnchor.constraint(equalTo: customView.bottomAnchor),
-            timeStamp.trailingAnchor.constraint(equalTo: customView.trailingAnchor),
-        ])
-    }
-    
-    func setupMessageUI() {
-        customView.addSubview(messageBody)
-        
-        customView.backgroundColor = .green
+        cellContainerView.backgroundColor = .green
         
         messageBody.backgroundColor = #colorLiteral(red: 0.6470323801, green: 0.3927372098, blue: 0.3783177137, alpha: 1)
         messageBody.textAlignment = .left
@@ -84,48 +78,65 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         setupMessageConstraints()
     }
     
-    var customViewHeightConstraint: NSLayoutConstraint!
-    
-    func setupCustomViewConstraints() {
-        customView.translatesAutoresizingMaskIntoConstraints = false
-        customView.setContentCompressionResistancePriority(.required, for: .vertical)
-        customViewHeightConstraint = customView.heightAnchor.constraint(equalTo: heightAnchor)
-        customViewHeightConstraint.isActive = true
-    
+    private func setupTimestampConstraints() {
+        timeStamp.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
-            customView.topAnchor.constraint(equalTo: topAnchor),
-            customView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            customView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            timeStamp.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor),
+            timeStamp.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor),
         ])
     }
     
-    func setupMessageConstraints() {
+    private func setupCellContainerViewConstraints() {
+        cellContainerView.translatesAutoresizingMaskIntoConstraints = false
+    
+        NSLayoutConstraint.activate([
+            cellContainerView.topAnchor.constraint(equalTo: topAnchor),
+            cellContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            cellContainerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+        ])
+    }
+    
+    private func setupMessageConstraints() {
         messageBody.translatesAutoresizingMaskIntoConstraints = false
-                messageTrailingConstraint = messageBody.trailingAnchor.constraint(equalTo: customView.trailingAnchor)
-                messageBottomConstraint = messageBody.bottomAnchor.constraint(equalTo: customView.bottomAnchor)
-                messageBottomConstraint.isActive = true
-                messageTrailingConstraint.isActive = true
+        
+        messageTrailingConstraint = messageBody.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor)
+        messageTrailingConstraint.isActive = true
         NSLayoutConstraint.activate([
-            messageBody.topAnchor.constraint(equalTo: customView.topAnchor),
-            messageBody.leadingAnchor.constraint(equalTo: customView.leadingAnchor),
+            messageBody.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor),
+            messageBody.topAnchor.constraint(equalTo: cellContainerView.topAnchor),
+            messageBody.leadingAnchor.constraint(equalTo: cellContainerView.leadingAnchor),
         ])
     }
+    
+    private func setupContentViewConstraints() {
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            contentView.topAnchor.constraint(equalTo: topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+    }
+    
+    //MARK: - Message layout
 
-    func handlePositioning() {
+    func handleMessageBubbleLayout() {
         self.layoutIfNeeded()
 
         let lastLineString = getMessageLastLine(for: messageBody.text!, in: messageBody)
         let lastLineWidth = lastLineString.getSize().width
         let lastLineWithTimestempWidth = lastLineWidth + timeStamp.bounds.width
-        let messageContainerWidth = messageBody.textBoundingRect.width
+        let messageRectWidth = messageBody.textBoundingRect.width
 
         messageTrailingConstraint.isActive = true
-        messageBodyTrailingToTimestampConstraint.isActive = false
+        messageTrailingToTimestampConstraint.isActive = false
         
-        if lastLineWithTimestempWidth > messageContainerWidth {
-            if lastLineWithTimestempWidth.rounded(.up) < customViewMaxWidthConstraint.constant  {
+        if lastLineWithTimestempWidth > messageRectWidth {
+            if lastLineWithTimestempWidth.rounded(.up) < cellContainerMaxWidthConstraint.constant  {
                 messageTrailingConstraint.isActive = false
-                messageBodyTrailingToTimestampConstraint.isActive = true
+                messageTrailingToTimestampConstraint.isActive = true
 //                layoutIfNeeded()
             } else {
                 let textWithNewLine = messageBody.text! + "\n"
@@ -134,11 +145,10 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func getMessageLastLine(for text: String, in label: UILabel) -> String {
+    private func getMessageLastLine(for text: String, in label: UILabel) -> String {
         let adjustedLabelSize = CGRect(x: 0, y: 0, width: label.textBoundingRect.width, height: label.textBoundingRect.height + 10)
         
         let attributedText = NSAttributedString(string: text, attributes: [.font: label.font!])
-        
         let framesetter = CTFramesetterCreateWithAttributedString(attributedText)
         
         let path = CGMutablePath()
@@ -155,17 +165,6 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         let lineText = String(text[start..<end])
         
         return lineText
-    }
-    
-    func setupContentViewConstraints() {
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
     }
 }
 
