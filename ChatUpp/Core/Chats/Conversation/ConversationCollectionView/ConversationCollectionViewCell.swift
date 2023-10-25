@@ -32,6 +32,7 @@ class ConversationCollectionViewCell: UICollectionViewCell {
             customViewMaxWidthConstraint.isActive = true
         }
     }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         //        backgroundColor = .lightGray
@@ -78,13 +79,6 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         messageBody.font = UIFont(name: "HelveticaNeue", size: 18)
         messageBody.layer.cornerRadius = 15
         messageBody.setContentCompressionResistancePriority(.required, for: .vertical)
-
-        //        messageBody.lineBreakMode = .byWordWrapping
-        //        messageBody.clipsToBounds = true
-        //        label.contentEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-        //        label.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 14, bottom: 14, trailing: 14)
-        //        label.adjustsFontSizeToFitWidth = true
-        //        label.minimumScaleFactor = 0.5
         messageBody.numberOfLines = 0
 //        messageBody.sizeToFit()
         setupMessageConstraints()
@@ -140,7 +134,6 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    
     func getMessageLastLine(for text: String, in label: UILabel) -> String {
         let adjustedLabelSize = CGRect(x: 0, y: 0, width: label.textBoundingRect.width, height: label.textBoundingRect.height + 10)
         
@@ -164,7 +157,6 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         return lineText
     }
     
-    
     func setupContentViewConstraints() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -176,35 +168,6 @@ class ConversationCollectionViewCell: UICollectionViewCell {
         ])
     }
 }
-
-
-extension String {
-    func getSize() -> CGSize {
-        guard let font = UIFont(name: "HelveticaNeue", size: 18) else { return CGSize.zero }
-        let attributes = [NSAttributedString.Key.font: font]
-        return self.size(withAttributes: attributes)
-    }
-}
-
-
-extension UILabel {
-    
-    var textBoundingRect: CGRect {
-        let maxSize = CGSize(width: frame.size.width, height: CGFloat(MAXFLOAT))
-        let text = (self.text ?? "") as NSString
-        let rect = text.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [.font: font!], context: nil)
-        
-        return rect
-    }
-    
-    var maxNumberOfLines: Int {
-        let textHeight = self.textBoundingRect.height
-        let lineHeight = font.lineHeight
-        return Int(ceil(textHeight / lineHeight))
-    }
-}
-
-
 
 
 // MARK: - MESSAGE LAST LINE WIDTH

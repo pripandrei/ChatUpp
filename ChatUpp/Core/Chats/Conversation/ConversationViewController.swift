@@ -227,8 +227,6 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
     {
         return CGSize(width: view.bounds.width, height: 0)
     }
-    
-    
 }
 
 //MARK: - COLLETION VIEW OFFSET HANDLER
