@@ -27,7 +27,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     func handleMessageBubbleLayout() {
 //        let sizeContainter = containerView.sizeThatFits(CGSize(width: customViewMaxWidth ?? 0, height: .greatestFiniteMagnitude))
-        messageContainer.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         messageContainer.invalidateIntrinsicContentSize()
         layoutIfNeeded()
 
@@ -38,9 +38,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 
         if lastLineWithTimestempWidth > messageRectWidth {
             if lastLineWithTimestempWidth.rounded(.up) < cellContainerMaxWidthConstraint.constant  {
-                messageContainer.textContainerInset.right += 30
+                messageContainer.textContainerInset.right = timeStamp.bounds.width
             } else {
-                messageContainer.textContainerInset.bottom += 15
+                messageContainer.textContainerInset.bottom += 10
             }
         }
         messageContainer.invalidateIntrinsicContentSize()
@@ -96,7 +96,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageContainer.isScrollEnabled = false // Disable scrolling
         messageContainer.textContainer.maximumNumberOfLines = 0 // Allow multiple lines
 //        messageContainer.textContainer.lineFragmentPadding = 15
-        messageContainer.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         messageContainer.sizeToFit()
         messageContainer.translatesAutoresizingMaskIntoConstraints = false
         
@@ -126,8 +126,7 @@ extension ConversationCollectionViewCell {
         let selectedRangee = textView.selectedRange
         let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
         
-        let glyphIndex = glyphRange.lowerBound == textView.layoutManager.numberOfGlyphs ?
-        glyphRange.lowerBound - 1 : glyphRange.lowerBound
+        let glyphIndex = glyphRange.lowerBound == textView.layoutManager.numberOfGlyphs ? glyphRange.lowerBound - 1 : glyphRange.lowerBound
         
         var effectiveGlyphRange = NSRange(location: 0, length: 0)
         
