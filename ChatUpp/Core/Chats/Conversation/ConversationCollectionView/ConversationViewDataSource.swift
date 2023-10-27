@@ -38,8 +38,15 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
         cell.messageContainer.text = conversationViewModel.messages.value[indexPath.item].messageBody
-        cell.customViewMaxWidth = collectionView.bounds.width
+        cell.mainCellContainerMaxWidth = collectionView.bounds.width
+        let authUser = (try? AuthenticationManager.shared.getAuthenticatedUser())!.uid
+        if conversationViewModel.messages.value[indexPath.item].senderId == authUser {
+            cell.adjustMessageSide(.right)
+        } else {
+            cell.adjustMessageSide(.left)
+        }
         cell.handleMessageBubbleLayout()
+        
         
         return cell
     }

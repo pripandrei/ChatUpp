@@ -9,62 +9,78 @@ import UIKit
 
 final class ConversationCollectionViewCell: UICollectionViewCell {
     
-    var cellContainerMaxWidthConstraint: NSLayoutConstraint!
+    var mainCellContainerMaxWidthConstraint: NSLayoutConstraint!
     
-    var topView = UIView()
+    var mainCellContainer = UIView()
     var messageContainer = UITextView(usingTextLayoutManager: false)
     var timeStamp = UILabel()
-    
-    let label = UILabel()
-    
-    var customViewMaxWidth: CGFloat? {
+ 
+    var mainCellContainerMaxWidth: CGFloat? {
         didSet {
-            guard let maxWidth = customViewMaxWidth else {return }
-            cellContainerMaxWidthConstraint = topView.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - 70)
-            cellContainerMaxWidthConstraint.isActive = true
+            guard let maxWidth = mainCellContainerMaxWidth else {return }
+            mainCellContainerMaxWidthConstraint = messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - 70)
+            mainCellContainerMaxWidthConstraint.isActive = true
         }
     }
     
+    enum MessagePadding {
+        case initial
+        case spaceRight
+        case spaceBottom
+        
+        func adjust(_ message: UITextView) {
+            switch self {
+            case .initial:  message.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+            case .spaceRight: message.textContainerInset.right = 37
+            case .spaceBottom:  message.textContainerInset.bottom += 10
+            }
+            message.invalidateIntrinsicContentSize()
+        }
+    }
+    
+    enum MessageSide {
+        case left
+        case right
+    }
+    
     func handleMessageBubbleLayout() {
-//        let sizeContainter = containerView.sizeThatFits(CGSize(width: customViewMaxWidth ?? 0, height: .greatestFiniteMagnitude))
-        messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-        messageContainer.invalidateIntrinsicContentSize()
+        MessagePadding.initial.adjust(messageContainer)
+        
         layoutIfNeeded()
-
+        
         let lastLineString = getStringFromLastLine(usingTextView: messageContainer)
         let lastLineStringWidth = lastLineString.getSize().width
         let lastLineWithTimestempWidth = lastLineStringWidth + timeStamp.bounds.width
         let messageRectWidth = messageContainer.bounds.width
 
         if lastLineWithTimestempWidth > messageRectWidth {
-            if lastLineWithTimestempWidth.rounded(.up) < cellContainerMaxWidthConstraint.constant  {
-                messageContainer.textContainerInset.right = timeStamp.bounds.width
+            if lastLineWithTimestempWidth.rounded(.up) < mainCellContainerMaxWidthConstraint.constant  {
+                MessagePadding.spaceRight.adjust(messageContainer)
             } else {
-                messageContainer.textContainerInset.bottom += 10
+                MessagePadding.spaceBottom.adjust(messageContainer)
             }
         }
-        messageContainer.invalidateIntrinsicContentSize()
     }
     
-    func setupTopView() {
-        contentView.addSubview(topView)
+    func setupMainCellContainer() {
+        contentView.addSubview(mainCellContainer)
         
-        topView.backgroundColor = .magenta
-        topView.translatesAutoresizingMaskIntoConstraints = false
+        mainCellContainer.backgroundColor = .magenta
+        mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            topView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor),
-            topView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
-            topView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            topView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            mainCellContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            mainCellContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            mainCellContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
+            mainCellContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
   
     override init(frame: CGRect) {
         super.init(frame: frame)
-        intialConstraints()
-        setupTopView()
-        setCotainer()
+        setupContentViewConstraints()
+        setupMainCellContainer()
+        setupMessageTextView()
         setupTimestamp()
     }
     
@@ -73,7 +89,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     }
     
     func setupTimestamp() {
-        topView.addSubview(timeStamp)
+        mainCellContainer.addSubview(timeStamp)
         
         timeStamp.text = "20:42"
         timeStamp.font = UIFont(name: "HelveticaNeue", size: 15)
@@ -87,8 +103,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    func setCotainer() {
-        topView.addSubview(messageContainer)
+    func setupMessageTextView() {
+        mainCellContainer.addSubview(messageContainer)
         
         messageContainer.backgroundColor = .cyan
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
@@ -101,14 +117,44 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageContainer.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            messageContainer.leadingAnchor.constraint(greaterThanOrEqualTo: topView.leadingAnchor),
-            messageContainer.trailingAnchor.constraint(equalTo: topView.trailingAnchor),
-            messageContainer.topAnchor.constraint(equalTo: topView.topAnchor),
-            messageContainer.bottomAnchor.constraint(equalTo: topView.bottomAnchor)
+//            messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 15),
+//            messageContainer.trailingAnchor.constraint(lessThanOrEqualTo: mainCellContainer.trailingAnchor),
+            messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
+            messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor)
         ])
     }
     
-    func intialConstraints() {
+    var messageContainerLeadingConstraint: NSLayoutConstraint!
+    var messageContainerTrailingConstraint: NSLayoutConstraint!
+    
+    func adjustMessageSide(_ side: MessageSide) {
+        if messageContainerLeadingConstraint != nil { messageContainerLeadingConstraint.isActive = false }
+        if messageContainerTrailingConstraint != nil { messageContainerTrailingConstraint.isActive = false }
+
+        switch side {
+        case .right:
+            messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(greaterThanOrEqualTo: mainCellContainer.leadingAnchor)
+            messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor, constant: -15)
+            messageContainerLeadingConstraint.isActive = true
+            messageContainerTrailingConstraint.isActive = true
+        case .left:
+            messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 15)
+            messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(lessThanOrEqualTo: mainCellContainer.trailingAnchor)
+            messageContainerLeadingConstraint.isActive = true
+            messageContainerTrailingConstraint.isActive = true
+        }
+    }
+    
+//    var side: MessageSide {
+//        didSet {
+//            switch side {
+//            case .right:
+//            case .left:
+//            }
+//        }
+//    }
+    
+    func setupContentViewConstraints() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -119,6 +165,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         ])
     }
 }
+
+// MARK: - GET LAST LINE MESSAGE STRING
 
 extension ConversationCollectionViewCell {
     
@@ -136,36 +184,10 @@ extension ConversationCollectionViewCell {
         let rangeStart = effectiveCharRange.location
         let rangeLength = effectiveCharRange.length
         
-        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: textView.text!) else { print("Invalid range"); return "" }
+        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: textView.text!)
+        else { print("Invalid range"); return "" }
         
         let substring = textView.text![validRange]
-        print(substring)
         return String(substring)
     }
 }
-
-final class PaddingLabel: UILabel {
-    
-    var padding = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10) {didSet { invalidateIntrinsicContentSize() }}
-    
-    override var intrinsicContentSize: CGSize {
-        var contentSize = super.intrinsicContentSize
-        contentSize.width += padding.left + padding.right
-        contentSize.height += padding.top + padding.bottom
-        return contentSize
-    }
-    
-    override func drawText(in rect: CGRect) {
-        let paddedRect = rect.inset(by: padding)
-        super.drawText(in: paddedRect)
-    }
-    
-    override func textRect(forBounds bounds:CGRect,
-                           limitedToNumberOfLines n:Int) -> CGRect
-    {
-        let bounds = bounds.inset(by: padding)
-        let textRect = super.textRect(forBounds: bounds, limitedToNumberOfLines: 0)
-        return textRect
-    }
-}
-

@@ -32,6 +32,7 @@ final class ConversationViewModel {
         }
     }
     
+    
     func createMessage(messageBody: String) async  {
         let authUser = (try? AuthenticationManager.shared.getAuthenticatedUser())!
         let messageID = UUID().uuidString
