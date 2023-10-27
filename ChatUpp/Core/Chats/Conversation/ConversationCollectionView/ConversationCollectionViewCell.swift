@@ -28,17 +28,18 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     func handleMessageBubbleLayout() {
 //        let sizeContainter = containerView.sizeThatFits(CGSize(width: customViewMaxWidth ?? 0, height: .greatestFiniteMagnitude))
         messageContainer.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        messageContainer.invalidateIntrinsicContentSize()
         layoutIfNeeded()
 
         let lastLineString = getStringFromLastLine(usingTextView: messageContainer)
         let lastLineStringWidth = lastLineString.getSize().width
-        let lastLineWithTimestempWidth = lastLineStringWidth + 30
+        let lastLineWithTimestempWidth = lastLineStringWidth + timeStamp.bounds.width
         let messageRectWidth = messageContainer.bounds.width
-        
+
         if lastLineWithTimestempWidth > messageRectWidth {
             if lastLineWithTimestempWidth.rounded(.up) < cellContainerMaxWidthConstraint.constant  {
                 messageContainer.textContainerInset.right += 30
-            } else if lastLineWithTimestempWidth.rounded(.up) > cellContainerMaxWidthConstraint.constant {
+            } else {
                 messageContainer.textContainerInset.bottom += 15
             }
         }
