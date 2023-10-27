@@ -28,7 +28,7 @@ final class ChatsViewModel {
                 try await loadRecentMessages()
                 try await loadOtherMembersOfChats()
             } catch {
-                print(error.localizedDescription)
+                print("Could not fetch ChatsViewModel Data: ", error.localizedDescription)
             }
     }
     

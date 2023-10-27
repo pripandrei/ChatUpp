@@ -19,6 +19,7 @@ extension UILabel
     var maxNumberOfLines: Int {
         let textHeight = self.textBoundingRect.height
         let lineHeight = font.lineHeight
+        
         return Int(ceil(textHeight / lineHeight))
     }
 }

@@ -29,6 +29,7 @@ final class ConversationViewController: UIViewController {
         collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
         collectionVC.delegate = self
         
+        
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
         collectionViewDataSource.collectionView = collectionVC
         collectionVC.dataSource = collectionViewDataSource
