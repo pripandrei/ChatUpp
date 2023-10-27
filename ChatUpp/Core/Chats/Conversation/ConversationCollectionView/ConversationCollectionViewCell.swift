@@ -13,17 +13,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private let leadingEdgeSpacing: CGFloat = 90.0
     private let cellContainerView = UIView()
     private let timeStamp = UILabel()
-    
     private var cellContainerMaxWidthConstraint: NSLayoutConstraint!
-//    private var messageTrailingConstraint: NSLayoutConstraint!
-    private lazy var messageTrailingToTimestampConstraint = NSLayoutConstraint(item: messageBody,
-                                                                           attribute: .trailing,
-                                                                           relatedBy: .equal,
-                                                                           toItem: timeStamp,
-                                                                           attribute: .leading,
-                                                                           multiplier: 1.0,
-                                                                           constant: 0.0)
-    
+
     var customViewMaxWidth: CGFloat? {
         didSet {
             guard let maxWidth = customViewMaxWidth else {return }
@@ -61,14 +52,12 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         setupTimestampConstraints()
     }
 
-    
     private func setupcellContainerView() {
         contentView.addSubview(cellContainerView)
         
         cellContainerView.backgroundColor = .green
 //        cellContainerView.layer.cornerRadius = 15
 //        cellContainerView.clipsToBounds = true
-        
         setupCellContainerViewConstraints()
     }
     
@@ -79,8 +68,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageBody.textAlignment = .left
         messageBody.textColor = .white
         messageBody.font = UIFont(name: "TimesNewRoman", size: 18)
-//        messageBody.setContentCompressionResistancePriority(.required, for: .vertical)
-
         messageBody.numberOfLines = 0
 //        messageBody.adjustsFontSizeToFitWidth = true
 //        messageBody.lineBreakMode = .byWordWrapping
@@ -107,16 +94,13 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             cellContainerView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             cellContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            cellContainerView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor),
+//            cellContainerView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor),
         ])
     }
     
     private func setupMessageConstraints() {
         messageBody.translatesAutoresizingMaskIntoConstraints = false
         
-//        messageTrailingConstraint = messageBody.trailingAnchor.constraint(equalTo: timeStamp.trailingAnchor)
-//        messageTrailingConstraint = messageBody.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor)
-//        messageTrailingConstraint.isActive = true
         NSLayoutConstraint.activate([
             messageBody.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor),
             messageBody.topAnchor.constraint(equalTo: cellContainerView.topAnchor),
@@ -178,14 +162,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         let end = text.index(start, offsetBy: range.length)
         let lineText = String(text[start..<end])
         
-        
-//        if text == "resources from abuse, such as billing" {
-//            print(lineText)
-//        }
         return lineText
     }
 }
-
 
 final class PaddingLabel: UILabel {
     
@@ -204,7 +183,8 @@ final class PaddingLabel: UILabel {
     }
     
     override func textRect(forBounds bounds:CGRect,
-                           limitedToNumberOfLines n:Int) -> CGRect {
+                           limitedToNumberOfLines n:Int) -> CGRect
+    {
         let bounds = bounds.inset(by: padding)
         let textRect = super.textRect(forBounds: bounds, limitedToNumberOfLines: 0)
         return textRect
