@@ -27,7 +27,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        //        backgroundColor = .lightGray
         setupContentViewConstraints()
         setupcellContainerView()
         setupMessageUI()
