@@ -9,6 +9,11 @@ import UIKit
 
 final class ConversationCollectionViewCell: UICollectionViewCell {
     
+    enum MessageSide {
+        case left
+        case right
+    }
+    
     var mainCellContainerMaxWidthConstraint: NSLayoutConstraint!
     var messageContainerLeadingConstraint: NSLayoutConstraint!
     var messageContainerTrailingConstraint: NSLayoutConstraint!
@@ -30,19 +35,23 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         case spaceRight
         case spaceBottom
         
-        func adjust(_ message: UITextView) {
-            switch self {
-            case .initial: message.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-            case .spaceRight: message.textContainerInset.right = 41
-            case .spaceBottom: message.textContainerInset.bottom += 15
-            }
-            message.invalidateIntrinsicContentSize()
-        }
+//        func adjust(_ message: UITextView) {
+//            switch self {
+//            case .initial: message.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+//            case .spaceRight: message.textContainerInset.right = 41
+//            case .spaceBottom: message.textContainerInset.bottom += 15
+//            }
+//            message.invalidateIntrinsicContentSize()
+//        }
     }
     
-    enum MessageSide {
-        case left
-        case right
+    private func adjustMessagePadding(_ messagePadding: MessagePadding) {
+        switch messagePadding {
+        case .initial: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        case .spaceRight: messageContainer.textContainerInset.right = 41
+        case .spaceBottom: messageContainer.textContainerInset.bottom += 15
+        }
+        messageContainer.invalidateIntrinsicContentSize()
     }
     
     func setupMainCellContainer() {
@@ -146,7 +155,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     }
     
     func handleMessageBubbleLayout() {
-        MessagePadding.initial.adjust(messageContainer)
+//        MessagePadding.initial.adjust(messageContainer)
+        adjustMessagePadding(.initial)
         
         layoutIfNeeded()
         
@@ -158,9 +168,11 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 
         if lastLineWithTimestempWidth > messageRectWidth {
             if lastLineWithTimestempWidth.rounded(.up) < mainCellContainerMaxWidthConstraint.constant  {
-                MessagePadding.spaceRight.adjust(messageContainer)
+//                MessagePadding.spaceRight.adjust(messageContainer)
+                adjustMessagePadding(.spaceRight)
             } else {
-                MessagePadding.spaceBottom.adjust(messageContainer)
+//                MessagePadding.spaceBottom.adjust(messageContainer)
+                adjustMessagePadding(.spaceBottom)
             }
         }
     }
