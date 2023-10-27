@@ -9,159 +9,138 @@ import UIKit
 
 final class ConversationCollectionViewCell: UICollectionViewCell {
     
-    let messageBody = PaddingLabel()
-    private let leadingEdgeSpacing: CGFloat = 90.0
-    private let cellContainerView = UIView()
-    private let timeStamp = UILabel()
-    private var cellContainerMaxWidthConstraint: NSLayoutConstraint!
-
+    var cellContainerMaxWidthConstraint: NSLayoutConstraint!
+    
+    var topView = UIView()
+    var messageContainer = UITextView(usingTextLayoutManager: false)
+    var timeStamp = UILabel()
+    
+    let label = UILabel()
+    
     var customViewMaxWidth: CGFloat? {
         didSet {
             guard let maxWidth = customViewMaxWidth else {return }
-            cellContainerMaxWidthConstraint = cellContainerView.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - leadingEdgeSpacing)
+            cellContainerMaxWidthConstraint = topView.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - 70)
             cellContainerMaxWidthConstraint.isActive = true
         }
     }
     
-    //MARK: - LIFECYCLE
+    func handleMessageBubbleLayout() {
+//        let sizeContainter = containerView.sizeThatFits(CGSize(width: customViewMaxWidth ?? 0, height: .greatestFiniteMagnitude))
+        messageContainer.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        layoutIfNeeded()
+
+        let lastLineString = getStringFromLastLine(usingTextView: messageContainer)
+        let lastLineStringWidth = lastLineString.getSize().width
+        let lastLineWithTimestempWidth = lastLineStringWidth + 30
+        let messageRectWidth = messageContainer.bounds.width
+        
+        if lastLineWithTimestempWidth > messageRectWidth {
+            if lastLineWithTimestempWidth.rounded(.up) < cellContainerMaxWidthConstraint.constant  {
+                messageContainer.textContainerInset.right += 30
+            } else if lastLineWithTimestempWidth.rounded(.up) > cellContainerMaxWidthConstraint.constant {
+                messageContainer.textContainerInset.bottom += 15
+            }
+        }
+        messageContainer.invalidateIntrinsicContentSize()
+    }
     
+    func setupTopView() {
+        contentView.addSubview(topView)
+        
+        topView.backgroundColor = .magenta
+        topView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            topView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor),
+            topView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
+            topView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            topView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+    }
+  
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupContentViewConstraints()
-        setupcellContainerView()
-        setupMessageUI()
-        setupTimestampLabel()
+        intialConstraints()
+        setupTopView()
+        setCotainer()
+        setupTimestamp()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: - SETUP UI
-    
-    private func setupTimestampLabel() {
-        cellContainerView.addSubview(timeStamp)
+    func setupTimestamp() {
+        topView.addSubview(timeStamp)
         
-        timeStamp.text = "21:45"
-        timeStamp.textColor = #colorLiteral(red: 0.3529850841, green: 0.2052503526, blue: 0.187323451, alpha: 1)
-        timeStamp.backgroundColor = .orange
-        timeStamp.font = UIFont(name: "Helvetica", size: 13)
-        timeStamp.sizeToFit()
-        
-        setupTimestampConstraints()
-    }
-
-    private func setupcellContainerView() {
-        contentView.addSubview(cellContainerView)
-        
-        cellContainerView.backgroundColor = .green
-//        cellContainerView.layer.cornerRadius = 15
-//        cellContainerView.clipsToBounds = true
-        setupCellContainerViewConstraints()
-    }
-    
-    private func setupMessageUI() {
-        cellContainerView.addSubview(messageBody)
-        
-        messageBody.backgroundColor = #colorLiteral(red: 0.6470323801, green: 0.3927372098, blue: 0.3783177137, alpha: 1)
-        messageBody.textAlignment = .left
-        messageBody.textColor = .white
-        messageBody.font = UIFont(name: "TimesNewRoman", size: 18)
-        messageBody.numberOfLines = 0
-//        messageBody.adjustsFontSizeToFitWidth = true
-//        messageBody.lineBreakMode = .byWordWrapping
-        messageBody.sizeToFit()
-//        messageBody.contentMode = .left
-        setupMessageConstraints()
-    }
-    
-    private func setupTimestampConstraints() {
+        timeStamp.text = "20:42"
+        timeStamp.font = UIFont(name: "HelveticaNeue", size: 15)
+        timeStamp.textColor = .white
+        timeStamp.backgroundColor = .green
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-//            timeStamp.heightAnchor.constraint(equalToConstant: 20),
-//            timeStamp.widthAnchor.constraint(equalToConstant: 35),
-            timeStamp.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor),
-            timeStamp.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor),
+            timeStamp.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor),
+            timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor)
         ])
     }
     
-    private func setupCellContainerViewConstraints() {
-        cellContainerView.translatesAutoresizingMaskIntoConstraints = false
-    
-        NSLayoutConstraint.activate([
-            cellContainerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            cellContainerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            cellContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-//            cellContainerView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor),
-        ])
-    }
-    
-    private func setupMessageConstraints() {
-        messageBody.translatesAutoresizingMaskIntoConstraints = false
+    func setCotainer() {
+        topView.addSubview(messageContainer)
+        
+        messageContainer.backgroundColor = .cyan
+        messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
+        messageContainer.isEditable = false // Make it non-editable
+        messageContainer.isScrollEnabled = false // Disable scrolling
+        messageContainer.textContainer.maximumNumberOfLines = 0 // Allow multiple lines
+//        messageContainer.textContainer.lineFragmentPadding = 15
+        messageContainer.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        messageContainer.sizeToFit()
+        messageContainer.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            messageBody.trailingAnchor.constraint(equalTo: cellContainerView.trailingAnchor),
-            messageBody.topAnchor.constraint(equalTo: cellContainerView.topAnchor),
-            messageBody.bottomAnchor.constraint(equalTo: cellContainerView.bottomAnchor),
-            messageBody.leadingAnchor.constraint(greaterThanOrEqualTo: cellContainerView.leadingAnchor),
+            messageContainer.leadingAnchor.constraint(greaterThanOrEqualTo: topView.leadingAnchor),
+            messageContainer.trailingAnchor.constraint(equalTo: topView.trailingAnchor),
+            messageContainer.topAnchor.constraint(equalTo: topView.topAnchor),
+            messageContainer.bottomAnchor.constraint(equalTo: topView.bottomAnchor)
         ])
     }
     
-    private func setupContentViewConstraints() {
+    func intialConstraints() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
+           contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
+           contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+           contentView.topAnchor.constraint(equalTo: topAnchor),
+           contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
-    
-    //MARK: - Message layout
+}
 
-    func handleMessageBubbleLayout() {
-//
-        messageBody.padding.right = 10
-        messageBody.padding.bottom = 10
-        self.layoutIfNeeded()
-
-        let lastLineString = getMessageLastLine(for: messageBody.text!, in: messageBody)
-        let lastLineWidth = lastLineString.getSize().width
-        let lastLineWithTimestempWidth = lastLineWidth + timeStamp.bounds.width
-        let messageRectWidth = messageBody.textBoundingRect.width
-        
-        if lastLineWithTimestempWidth > messageRectWidth {
-            if lastLineWithTimestempWidth.rounded(.up) < cellContainerMaxWidthConstraint.constant  {
-                messageBody.padding.right = timeStamp.bounds.width + 5
-               
-            } else if lastLineWithTimestempWidth.rounded(.up) > cellContainerMaxWidthConstraint.constant {
-                self.messageBody.padding.bottom = 20
-            }
-        }
-    }
+extension ConversationCollectionViewCell {
     
-    private func getMessageLastLine(for text: String, in label: UILabel) -> String {
-        let adjustedLabelSize = CGRect(x: 0, y: 0, width: label.intrinsicContentSize.width, height: label.intrinsicContentSize.height + 10)
+    func getStringFromLastLine(usingTextView textView: UITextView) -> String {
+        let selectedRangee = textView.selectedRange
+        let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
         
-        let attributedText = NSAttributedString(string: text, attributes: [.font: label.font!])
-        let framesetter = CTFramesetterCreateWithAttributedString(attributedText)
+        let glyphIndex = glyphRange.lowerBound == textView.layoutManager.numberOfGlyphs ?
+        glyphRange.lowerBound - 1 : glyphRange.lowerBound
         
-        let path = CGMutablePath()
-        path.addRect(adjustedLabelSize)
+        var effectiveGlyphRange = NSRange(location: 0, length: 0)
         
-        let frame = CTFramesetterCreateFrame(framesetter, CFRange(location: 0, length: 0), path, nil)
-        let lines = CTFrameGetLines(frame) as! [CTLine]
+        textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex , effectiveRange: &effectiveGlyphRange)
+        let effectiveCharRange = textView.layoutManager.characterRange(forGlyphRange: effectiveGlyphRange, actualGlyphRange: nil)
         
-        guard let lastLine = lines.last else {return ""}
+        let rangeStart = effectiveCharRange.location
+        let rangeLength = effectiveCharRange.length
         
-        let range = CTLineGetStringRange(lastLine)
-        let start = text.index(text.startIndex, offsetBy: range.location)
-        let end = text.index(start, offsetBy: range.length)
-        let lineText = String(text[start..<end])
+        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: textView.text!) else { print("Invalid range"); return "" }
         
-        return lineText
+        let substring = textView.text![validRange]
+        print(substring)
+        return String(substring)
     }
 }
 

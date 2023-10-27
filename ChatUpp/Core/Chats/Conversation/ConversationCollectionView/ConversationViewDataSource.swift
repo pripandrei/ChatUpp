@@ -37,7 +37,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
-        cell.messageBody.text = conversationViewModel.messages.value[indexPath.item].messageBody
+        cell.messageContainer.text = conversationViewModel.messages.value[indexPath.item].messageBody
         cell.customViewMaxWidth = collectionView.bounds.width
         cell.handleMessageBubbleLayout()
         
