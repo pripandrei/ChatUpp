@@ -14,13 +14,19 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         case right
     }
     
-    var mainCellContainerMaxWidthConstraint: NSLayoutConstraint!
-    var messageContainerLeadingConstraint: NSLayoutConstraint!
-    var messageContainerTrailingConstraint: NSLayoutConstraint!
+    private enum MessagePadding {
+        case initial
+        case spaceRight
+        case spaceBottom
+    }
     
-    var mainCellContainer = UIView()
+    private var mainCellContainerMaxWidthConstraint: NSLayoutConstraint!
+    private var messageContainerLeadingConstraint: NSLayoutConstraint!
+    private var messageContainerTrailingConstraint: NSLayoutConstraint!
+    
+    private var mainCellContainer = UIView()
     var messageContainer = UITextView(usingTextLayoutManager: false)
-    var timeStamp = UILabel()
+    private var timeStamp = UILabel()
  
     var mainCellContainerMaxWidth: CGFloat? {
         didSet {
@@ -30,43 +36,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    enum MessagePadding {
-        case initial
-        case spaceRight
-        case spaceBottom
-        
-//        func adjust(_ message: UITextView) {
-//            switch self {
-//            case .initial: message.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-//            case .spaceRight: message.textContainerInset.right = 41
-//            case .spaceBottom: message.textContainerInset.bottom += 15
-//            }
-//            message.invalidateIntrinsicContentSize()
-//        }
-    }
-    
-    private func adjustMessagePadding(_ messagePadding: MessagePadding) {
-        switch messagePadding {
-        case .initial: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-        case .spaceRight: messageContainer.textContainerInset.right = 41
-        case .spaceBottom: messageContainer.textContainerInset.bottom += 15
-        }
-        messageContainer.invalidateIntrinsicContentSize()
-    }
-    
-    func setupMainCellContainer() {
-        contentView.addSubview(mainCellContainer)
-        
-//        mainCellContainer.backgroundColor = .magenta
-        mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            mainCellContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            mainCellContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            mainCellContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
-            mainCellContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-        ])
-    }
+    //MARK: - LIFECYCLE
   
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -80,26 +50,26 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupTimestamp() {
-        mainCellContainer.addSubview(timeStamp)
+// MARK: - UI INITIAL STEUP
+    
+    private func setupMainCellContainer() {
+        contentView.addSubview(mainCellContainer)
         
-        timeStamp.text = "20:42"
-        timeStamp.font = UIFont(name: "HelveticaNeue", size: 12)
-        timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
-//        timeStamp.backgroundColor = .green
-        timeStamp.translatesAutoresizingMaskIntoConstraints = false
+//        mainCellContainer.backgroundColor = .magenta
+        mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            timeStamp.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
-            timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
+            mainCellContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            mainCellContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            mainCellContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
+            mainCellContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
     
-    func setupMessageTextView() {
+    private func setupMessageTextView() {
         mainCellContainer.addSubview(messageContainer)
         
-//        messageContainer.backgroundColor = #colorLiteral(red: 0.5966709256, green: 0.3349125683, blue: 0.6765266657, alpha: 1)
-        messageContainer.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        messageContainer.textColor = .white
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
         messageContainer.isEditable = false // Make it non-editable
         messageContainer.isScrollEnabled = false // Disable scrolling
@@ -119,7 +89,22 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    func setupContentViewConstraints() {
+    private func setupTimestamp() {
+        mainCellContainer.addSubview(timeStamp)
+        
+        timeStamp.text = "20:42"
+        timeStamp.font = UIFont(name: "HelveticaNeue", size: 12)
+        timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
+//        timeStamp.backgroundColor = .green
+        timeStamp.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            timeStamp.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
+            timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
+        ])
+    }
+    
+    private func setupContentViewConstraints() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -154,8 +139,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         }
     }
     
+    // MARK: - MESSAGE BUBBLE LAYOUT HANDLER
+    
     func handleMessageBubbleLayout() {
-//        MessagePadding.initial.adjust(messageContainer)
         adjustMessagePadding(.initial)
         
         layoutIfNeeded()
@@ -168,21 +154,28 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 
         if lastLineWithTimestempWidth > messageRectWidth {
             if lastLineWithTimestempWidth.rounded(.up) < mainCellContainerMaxWidthConstraint.constant  {
-//                MessagePadding.spaceRight.adjust(messageContainer)
                 adjustMessagePadding(.spaceRight)
             } else {
-//                MessagePadding.spaceBottom.adjust(messageContainer)
                 adjustMessagePadding(.spaceBottom)
             }
         }
     }
+    
+    private func adjustMessagePadding(_ messagePadding: MessagePadding) {
+        switch messagePadding {
+        case .initial: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        case .spaceRight: messageContainer.textContainerInset.right = 41
+        case .spaceBottom: messageContainer.textContainerInset.bottom += 15
+        }
+        messageContainer.invalidateIntrinsicContentSize()
+    }
 }
 
-// MARK: - GET LAST LINE MESSAGE STRING
+// MARK: - LAST LINE MESSAGE STRING
 
 extension ConversationCollectionViewCell {
     
-    func getStringFromLastLine(usingTextView textView: UITextView) -> String {
+    private func getStringFromLastLine(usingTextView textView: UITextView) -> String {
         let selectedRangee = textView.selectedRange
         let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
         
