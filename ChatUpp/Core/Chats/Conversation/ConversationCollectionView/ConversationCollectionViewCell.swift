@@ -32,8 +32,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         func adjust(_ message: UITextView) {
             switch self {
-            case .initial: message.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-            case .spaceRight: message.textContainerInset.right = 37
+            case .initial: message.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+            case .spaceRight: message.textContainerInset.right = 41
             case .spaceBottom: message.textContainerInset.bottom += 15
             }
             message.invalidateIntrinsicContentSize()
@@ -75,22 +75,22 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         mainCellContainer.addSubview(timeStamp)
         
         timeStamp.text = "20:42"
-        timeStamp.font = UIFont(name: "HelveticaNeue", size: 13)
+        timeStamp.font = UIFont(name: "HelveticaNeue", size: 12)
         timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
 //        timeStamp.backgroundColor = .green
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            timeStamp.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -5),
-            timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -3)
+            timeStamp.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
+            timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
         ])
     }
     
     func setupMessageTextView() {
         mainCellContainer.addSubview(messageContainer)
         
-        messageContainer.backgroundColor = #colorLiteral(red: 0.5966709256, green: 0.3349125683, blue: 0.6765266657, alpha: 1)
-        messageContainer.textColor = .white
+//        messageContainer.backgroundColor = #colorLiteral(red: 0.5966709256, green: 0.3349125683, blue: 0.6765266657, alpha: 1)
+        messageContainer.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
         messageContainer.isEditable = false // Make it non-editable
         messageContainer.isScrollEnabled = false // Disable scrolling
@@ -99,7 +99,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         messageContainer.sizeToFit()
         messageContainer.translatesAutoresizingMaskIntoConstraints = false
-        messageContainer.layer.cornerRadius = 10
+        messageContainer.layer.cornerRadius = 15
         messageContainer.clipsToBounds = true
         
         NSLayoutConstraint.activate([
@@ -128,14 +128,20 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         switch side {
         case .right:
             messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(greaterThanOrEqualTo: mainCellContainer.leadingAnchor)
-            messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor, constant: -18)
+            messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor, constant: -10)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
+//            messageContainer.backgroundColor = #colorLiteral(red: 0.3709801435, green: 0.3060381413, blue: 0.6801858544, alpha: 1)
+            messageContainer.backgroundColor = #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
         case .left:
-            messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 18)
+            messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 10)
             messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(lessThanOrEqualTo: mainCellContainer.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
+            
+//            messageContainer.backgroundColor = #colorLiteral(red: 0.6038621068, green: 0.3715925217, blue: 0.5945875049, alpha: 1)
+//            messageContainer.backgroundColor = #colorLiteral(red: 0.6996396184, green: 0.3022745848, blue: 0.5303084254, alpha: 1)
+            messageContainer.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
         }
     }
     
@@ -144,9 +150,10 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         layoutIfNeeded()
         
+        let padding :CGFloat = 12
         let lastLineString = getStringFromLastLine(usingTextView: messageContainer)
         let lastLineStringWidth = lastLineString.getSize().width
-        let lastLineWithTimestempWidth = lastLineStringWidth + timeStamp.bounds.width
+        let lastLineWithTimestempWidth = (lastLineStringWidth + timeStamp.bounds.width) + padding
         let messageRectWidth = messageContainer.bounds.width
 
         if lastLineWithTimestempWidth > messageRectWidth {
