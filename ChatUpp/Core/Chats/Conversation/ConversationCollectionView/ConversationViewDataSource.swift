@@ -39,15 +39,15 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         
         cell.messageContainer.text = conversationViewModel.messages.value[indexPath.item].messageBody
         cell.mainCellContainerMaxWidth = collectionView.bounds.width
-        let authUser = (try? AuthenticationManager.shared.getAuthenticatedUser())!.uid
-        if conversationViewModel.messages.value[indexPath.item].senderId == authUser {
+        
+        let authUserID = conversationViewModel.authenticatedUserID
+        if conversationViewModel.messages.value[indexPath.item].senderId == authUserID {
             cell.adjustMessageSide(.right)
         } else {
             cell.adjustMessageSide(.left)
         }
         cell.handleMessageBubbleLayout()
-        
-        
+    
         return cell
     }
 }

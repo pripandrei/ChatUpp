@@ -15,6 +15,8 @@ final class ConversationViewModel {
     var imageData: Data?
     var messages: ObservableObject<[Message]> = ObservableObject([])
     
+    let authenticatedUserID: String = (try? AuthenticationManager.shared.getAuthenticatedUser())!.uid
+    
     init(memberName: String, conversation: Chat, imageData: Data?) {
         self.memberName = memberName
         self.conversation = conversation
@@ -34,12 +36,12 @@ final class ConversationViewModel {
     
     
     func createMessage(messageBody: String) async  {
-        let authUser = (try? AuthenticationManager.shared.getAuthenticatedUser())!
+//        let authUser = (try? AuthenticationManager.shared.getAuthenticatedUser())!
         let messageID = UUID().uuidString
         
         let message = Message(id: messageID,
                               messageBody: messageBody,
-                              senderId: authUser.uid,
+                              senderId: authenticatedUserID,
                               imageUrl: nil,
                               timestamp: Date(),
                               messageSeen: false,
