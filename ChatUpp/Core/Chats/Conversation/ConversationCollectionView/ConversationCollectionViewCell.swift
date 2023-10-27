@@ -115,6 +115,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         messageContainer.sizeToFit()
         messageContainer.translatesAutoresizingMaskIntoConstraints = false
+        messageContainer.layer.cornerRadius = 10
+        messageContainer.clipsToBounds = true
         
         NSLayoutConstraint.activate([
 //            messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 15),
@@ -144,15 +146,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             messageContainerTrailingConstraint.isActive = true
         }
     }
-    
-//    var side: MessageSide {
-//        didSet {
-//            switch side {
-//            case .right:
-//            case .left:
-//            }
-//        }
-//    }
     
     func setupContentViewConstraints() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
