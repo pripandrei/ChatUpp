@@ -125,7 +125,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor, constant: -10)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
-//            messageContainer.backgroundColor = #colorLiteral(red: 0.3709801435, green: 0.3060381413, blue: 0.6801858544, alpha: 1)
             messageContainer.backgroundColor = #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
         case .left:
             messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 10)
@@ -133,8 +132,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
             
-//            messageContainer.backgroundColor = #colorLiteral(red: 0.6038621068, green: 0.3715925217, blue: 0.5945875049, alpha: 1)
-//            messageContainer.backgroundColor = #colorLiteral(red: 0.6996396184, green: 0.3022745848, blue: 0.5303084254, alpha: 1)
             messageContainer.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
         }
     }
