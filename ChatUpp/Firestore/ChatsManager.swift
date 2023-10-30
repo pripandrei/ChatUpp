@@ -55,7 +55,7 @@ final class ChatsManager {
     func getUserChatsFromDB(_ userID: String) async throws -> [Chat] {
         var chats = [Chat]()
         let querySnapshot = try await chatsCollection.whereField(FirestoreCollection.members.rawValue, arrayContainsAny: [userID]).getDocuments()
-        
+    
         for documentSnapshot in querySnapshot.documents {
             let document = try documentSnapshot.data(as: Chat.self)
             chats.append(document)
@@ -90,14 +90,21 @@ final class ChatsManager {
     
     func getAllMessages(fromChatDocumentPath documentID: String) async throws -> [Message] {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
-        var messages = [Message]()
         
-        let querySnapshot = try await messagesReference.getDocuments()
-        for documentSnapshot in querySnapshot.documents {
-            let message = try documentSnapshot.data(as: Message.self)
-            messages.append(message)
+        return try await messagesReference.getDocuments(as: Message.self)
+    }
+}
+
+
+
+
+extension Query {
+    func getDocuments<T>(as type: T.Type) async throws -> [T] where T: Decodable  {
+        let referenceType = try await self.getDocuments()
+        return try referenceType.documents.map { document in
+            try document.data(as: type.self)
         }
-        return messages
     }
     
 }
+
