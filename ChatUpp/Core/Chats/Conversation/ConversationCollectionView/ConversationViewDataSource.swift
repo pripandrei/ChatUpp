@@ -20,9 +20,12 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
     private func setupBinding() {
         conversationViewModel.messages.bind { [weak self] messages in
+            guard let self = self else {return}
             if !messages.isEmpty {
                 DispatchQueue.main.async {
-                    self?.collectionView.reloadData()
+                    self.collectionView.reloadData()
+                    let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
+                    self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
                 }
             }
         }
