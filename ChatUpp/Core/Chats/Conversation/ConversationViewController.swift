@@ -205,9 +205,8 @@ extension ConversationViewController {
 extension ConversationViewController: UITextViewDelegate {
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
-
-        if let bodyMessage = textView.text, !bodyMessage.isEmpty {
-            let trimmedString = bodyMessage.trimmingCharacters(in: .whitespaces)
+        let trimmedString = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedString.isEmpty {
             textView.text?.removeAll()
             Task {
                 await conversationViewModel.createMessage(messageBody: trimmedString)

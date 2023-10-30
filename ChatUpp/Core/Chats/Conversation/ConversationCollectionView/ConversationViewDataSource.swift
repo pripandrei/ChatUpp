@@ -26,6 +26,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
                     self.collectionView.reloadData()
                     let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
                     self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
+
                 }
             }
         }
