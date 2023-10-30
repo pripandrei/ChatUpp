@@ -39,34 +39,29 @@ final class ChatsManager {
     }
     
     //MARK: - GET CHAT DOCUMENT (currently not in use)
-    
-    func getChatDocumentFromDB(chatID: String) async throws -> Chat {
-        return try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
-    }
-    
+//
+//    func getChatDocumentFromDB(chatID: String) async throws -> Chat {
+//        return try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
+//    }
+//
     //MARK: - GET MESSAGE DOCUMENT (currently not in use)
     
-    func getMessageDocumentFromDB(_ document: DocumentReference) async throws -> Message {
-        return try await document.getDocument(as: Message.self)
-    }
+//    func getMessageDocumentFromDB(_ document: DocumentReference) async throws -> Message {
+//        return try await document.getDocument(as: Message.self)
+//    }
     
     //MARK: - GET USER RELATED CHATS DOCUMENT
     
     func getUserChatsFromDB(_ userID: String) async throws -> [Chat] {
-        var chats = [Chat]()
-        let querySnapshot = try await chatsCollection.whereField(FirestoreCollection.members.rawValue, arrayContainsAny: [userID]).getDocuments()
-    
-        for documentSnapshot in querySnapshot.documents {
-            let document = try documentSnapshot.data(as: Chat.self)
-            chats.append(document)
-        }
-        return chats
+        let chatsQuery = chatsCollection.whereField(FirestoreCollection.members.rawValue, arrayContainsAny: [userID])
+        return try await chatsQuery.getDocuments(as: Chat.self)
     }
     
     //MARK: - GET RECENT MESSAGE FROM CHATS
     
     func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
         var messages = [Message]()
+        
         for chat in chats {
             let message = try await getMessageDocument(messagePath: chat.recentMessage, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             messages.append(message)
@@ -76,21 +71,17 @@ final class ChatsManager {
     
     //MARK: - GET OTHER MEMBERS FROM CHATS
     
-    func getOtherMembersFromChats(_ chats: [Chat],_ authUserId: String) async throws -> [String] {
-        var otherMebmers = [String]()
-        for chat in chats {
-            if let otherUser = chat.members.first(where: { $0 != authUserId }) {
-                otherMebmers.append(otherUser)
-            }
+    func getOtherMembersFromChats(_ chats: [Chat],_ authUserId: String) -> [String] {
+        return chats.map { chat in
+            guard let memberId = chat.members.first(where: { $0 != authUserId} ) else {fatalError("member is missing")}
+            return memberId
         }
-        return otherMebmers
     }
     
     //MARK: - GET ALL MESSAGES FROM CHAT
     
     func getAllMessages(fromChatDocumentPath documentID: String) async throws -> [Message] {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
-        
         return try await messagesReference.getDocuments(as: Message.self)
     }
 }
@@ -108,3 +99,14 @@ extension Query {
     
 }
 
+//extension Sequence {
+//    func asyncMap<T>(_ transform: (Element) async throws -> T) async rethrows -> [T] {
+//        var values = [T]()
+//        
+//        for element in self {
+//            try await values.append(transform(element))
+//        }
+//
+//        return values
+//    }
+//}
