@@ -18,7 +18,7 @@ final class ConversationViewController: UIViewController {
     private let sendMessageButton = UIButton()
     
     private var holderViewBottomConstraint: NSLayoutConstraint!
-    private var collectionViewBottomConstraint: NSLayoutConstraint!
+//    private var collectionViewBottomConstraint: NSLayoutConstraint!
     
     private lazy var collectionView: UICollectionView = {
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -58,10 +58,9 @@ final class ConversationViewController: UIViewController {
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
+        setupBinding()
     }
     
-
- 
 //MARK: - VIEW CONTROLLER SETUP
     
     private func addKeyboardNotificationObservers() {
@@ -149,7 +148,6 @@ final class ConversationViewController: UIViewController {
     
     @objc func sendMessageBtnWasTapped() {
         //        messageTextView.resignFirstResponder()
-        
         let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
             messageTextView.text.removeAll()
@@ -157,10 +155,29 @@ final class ConversationViewController: UIViewController {
                 await conversationViewModel.createMessage(messageBody: trimmedString)
             }
         }
-        DispatchQueue.main.async {
+//        DispatchQueue.main.async {
             let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
             self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+//        }
+    }
+    
+    private func setupBinding() {
+        conversationViewModel.messages.bind { [weak self] messages in
+            guard let self = self else {return}
+            if !messages.isEmpty {
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                    self.scrollToBottom()
+                }
+            }
         }
+    }
+
+     func scrollToBottom() {
+        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
+        self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
+//        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
+//        self.collectionView.contentInset = contentInset
     }
     
     private func setupSendMessageBtnConstraints() {
@@ -178,6 +195,7 @@ final class ConversationViewController: UIViewController {
     private func setupCoollectionView() {
         view.addSubview(collectionView)
         
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
         collectionView.backgroundColor = .link
         
         setCollectionViewConstraints()
@@ -187,12 +205,12 @@ final class ConversationViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
 //        collectionViewBottomConstraint = collectionView.bottomAnchor.constraint(equalTo: holderView.topAnchor)
-        collectionViewBottomConstraint = collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -80)
-        collectionViewBottomConstraint.isActive = true
+//        collectionViewBottomConstraint = collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+//        collectionViewBottomConstraint.isActive = true
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
-//            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
@@ -221,6 +239,7 @@ extension ConversationViewController: UITextViewDelegate {
 
 }
 
+
 //MARK: - COLLECTION VIEW LAYOUT
 
 extension ConversationViewController: UICollectionViewDelegateFlowLayout {
@@ -237,8 +256,6 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
 
 extension ConversationViewController {
     
-    
-    
     private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         
         let keyboardHeight = holderView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
@@ -249,17 +266,16 @@ extension ConversationViewController {
         let currentOffSet = collectionView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight.invertValue() + currentOffSet.y)
         
-        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: customCollectionViewInset, right: 0)
         collectionView.setContentOffset(offSet, animated: false)
-        collectionView.contentInset = contentInset
-        collectionView.scrollIndicatorInsets = contentInset
+        collectionView.contentInset.bottom = customCollectionViewInset + 60
+        collectionView.scrollIndicatorInsets.bottom = customCollectionViewInset + 60
         
         // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
         // Exaplanation:
 //           1.initiate keyboard
 //           2.scroll up
 //           3.dismiss keyboard
-//           Result: cell from top will animate resizing
+//           Result: cells from top will animate while resizing
         
         if keyboardHeight > 0 {
             view.layoutSubviews()
