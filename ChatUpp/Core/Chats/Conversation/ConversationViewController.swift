@@ -18,7 +18,6 @@ final class ConversationViewController: UIViewController {
     private let sendMessageButton = UIButton()
     
     private var holderViewBottomConstraint: NSLayoutConstraint!
-//    private var collectionViewBottomConstraint: NSLayoutConstraint!
     
     private lazy var collectionView: UICollectionView = {
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
@@ -28,7 +27,6 @@ final class ConversationViewController: UIViewController {
         let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
         collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
         collectionVC.delegate = self
-        
         
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
         collectionViewDataSource.collectionView = collectionVC
@@ -72,7 +70,6 @@ final class ConversationViewController: UIViewController {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             
             if holderView.frame.origin.y > 760 {
-                
                 handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
             }
         }
@@ -112,7 +109,7 @@ final class ConversationViewController: UIViewController {
         messageTextView.delegate = self
         messageTextView.backgroundColor = .systemBlue
         messageTextView.layer.cornerRadius = 15
-        messageTextView.font = .systemFont(ofSize: 18)
+        messageTextView.font = UIFont(name: "HelveticaNeue", size: 17)
         messageTextView.textContainerInset = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
         messageTextView.textColor = .white
 
@@ -147,7 +144,6 @@ final class ConversationViewController: UIViewController {
     }
     
     @objc func sendMessageBtnWasTapped() {
-        //        messageTextView.resignFirstResponder()
         let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
             messageTextView.text.removeAll()
@@ -156,8 +152,7 @@ final class ConversationViewController: UIViewController {
             }
         }
 //        DispatchQueue.main.async {
-            let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
-            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+        self.scrollToBottom(withAnimation: true)
 //        }
     }
     
@@ -167,17 +162,43 @@ final class ConversationViewController: UIViewController {
             if !messages.isEmpty {
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
-                    self.scrollToBottom()
+                    self.scrollToBottom(withAnimation: false)
                 }
             }
         }
     }
 
-     func scrollToBottom() {
+    private func scrollToBottom(withAnimation: Bool) {
+        collectionView.layoutIfNeeded()
         let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
-        self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
-//        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
-//        self.collectionView.contentInset = contentInset
+        self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: withAnimation)
+//        if collectionView.contentSize.height > collectionView.bounds.height - holderView.bounds.height - (navigationController?.navigationBar.bounds.height ?? 00) {
+//            DispatchQueue.main.async {
+//                if let cell = self.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell {
+//                    let currentOffset = self.collectionView.contentOffset
+//                    self.collectionView.setContentOffset(CGPoint(x: currentOffset.x, y: currentOffset.y + cell.bounds.height), animated: false)
+//                }
+//            }
+//        }
+       
+    }
+    
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+       
+        
+//        let contentHeight = collectionView.contentSize.height
+//
+//        // Calculate the height of the collection view's frame (visible area).
+//        let visibleHeight = collectionView.bounds.size.height
+//
+//        // Check if the content is taller than what's currently visible.
+//        if contentHeight > visibleHeight {
+//            // Scroll to the bottom of the content.
+//            collectionView.setContentOffset(CGPoint(x: 0, y: -50), animated: true)
+//        }
     }
     
     private func setupSendMessageBtnConstraints() {
@@ -203,10 +224,6 @@ final class ConversationViewController: UIViewController {
     
     private func setCollectionViewConstraints() {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-//        collectionViewBottomConstraint = collectionView.bottomAnchor.constraint(equalTo: holderView.topAnchor)
-//        collectionViewBottomConstraint = collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
-//        collectionViewBottomConstraint.isActive = true
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -248,7 +265,19 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize
     {
+        
+//        let message = conversationViewModel.messages.value[indexPath.item].messageBody
+//        let cellWidth = collectionView.bounds.width // You may adjust this as needed
+//        let height = calculateCellHeight(for: message, cellWidth: cellWidth)
+//        return CGSize(width: cellWidth, height: height)
         return CGSize(width: view.bounds.width, height: 0)
+    }
+    func calculateCellHeight(for message: String, cellWidth: CGFloat) -> CGFloat {
+        // Implement your height calculation logic here, based on the message content and cellWidth.
+        // For example, you can use NSString's boundingRect or other measurement methods to determine the height.
+        let textAttributes = [NSAttributedString.Key.font: UIFont(name: "HelveticaNeue", size: 17)!] // Adjust font and other attributes as needed
+        let boundingRect = (message as NSString).boundingRect(with: CGSize(width: cellWidth, height: .greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: textAttributes, context: nil)
+        return boundingRect.height  // You can add padding or adjust as needed.
     }
 }
 
@@ -268,10 +297,11 @@ extension ConversationViewController {
         
         collectionView.setContentOffset(offSet, animated: false)
         collectionView.contentInset.bottom = customCollectionViewInset + 60
-        collectionView.scrollIndicatorInsets.bottom = customCollectionViewInset + 60
+        collectionView.verticalScrollIndicatorInsets.bottom = customCollectionViewInset + 60
         
         // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
         // Exaplanation:
+        // use only view.layoutIfNeeded()  for any cases
 //           1.initiate keyboard
 //           2.scroll up
 //           3.dismiss keyboard

@@ -15,28 +15,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource, UICollec
     init(conversationViewModel: ConversationViewModel) {
         self.conversationViewModel = conversationViewModel
         super.init()
-//        self.setupBinding()
     }
-    
-//    private func setupBinding() {
-//        conversationViewModel.messages.bind { [weak self] messages in
-//            guard let self = self else {return}
-//            if !messages.isEmpty {
-//                DispatchQueue.main.async {
-//                    self.collectionView.reloadData()
-//                    self.scrollToBottom()
-//                }
-//            }
-//        }
-//    }
-//
-//     func scrollToBottom() {
-//        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
-//        self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
-//        let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
-//        self.collectionView.contentInset = contentInset
-//    }
-
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return conversationViewModel.messages.value.count

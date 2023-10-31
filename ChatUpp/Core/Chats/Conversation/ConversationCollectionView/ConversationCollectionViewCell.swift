@@ -28,9 +28,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     var messageContainer = UITextView(usingTextLayoutManager: false)
     private var timeStamp = UILabel()
  
-    var mainCellContainerMaxWidth: CGFloat? {
+    var mainCellContainerMaxWidth :CGFloat? {
         didSet {
-            guard let maxWidth = mainCellContainerMaxWidth else {return }
+            guard let maxWidth = mainCellContainerMaxWidth else { return }
             mainCellContainerMaxWidthConstraint = messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - 70)
             mainCellContainerMaxWidthConstraint.isActive = true
         }
@@ -40,6 +40,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
   
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupContentViewConstraints()
         setupMainCellContainer()
         setupMessageTextView()
@@ -168,7 +169,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     }
 }
 
-// MARK: - LAST LINE MESSAGE STRING
+// MARK: - GET LAST LINE MESSAGE STRING
 
 extension ConversationCollectionViewCell {
     
