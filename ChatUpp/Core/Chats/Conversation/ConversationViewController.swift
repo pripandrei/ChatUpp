@@ -29,6 +29,7 @@ final class ConversationViewController: UIViewController {
         collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
         collectionVC.delegate = self
         
+        
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
         collectionViewDataSource.collectionView = collectionVC
         collectionVC.dataSource = collectionViewDataSource
@@ -54,12 +55,13 @@ final class ConversationViewController: UIViewController {
         setupHolderView()
         setupMessageTextView()
         setupSendMessageBtn()
-//        setTepGesture()
+        setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
     }
-
     
+
+ 
 //MARK: - VIEW CONTROLLER SETUP
     
     private func addKeyboardNotificationObservers() {
@@ -71,6 +73,7 @@ final class ConversationViewController: UIViewController {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             
             if holderView.frame.origin.y > 760 {
+                
                 handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
             }
         }
@@ -145,7 +148,19 @@ final class ConversationViewController: UIViewController {
     }
     
     @objc func sendMessageBtnWasTapped() {
-        messageTextView.resignFirstResponder()
+        //        messageTextView.resignFirstResponder()
+        
+        let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedString.isEmpty {
+            messageTextView.text.removeAll()
+            Task {
+                await conversationViewModel.createMessage(messageBody: trimmedString)
+            }
+        }
+        DispatchQueue.main.async {
+            let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
+            self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: true)
+        }
     }
     
     private func setupSendMessageBtnConstraints() {
@@ -203,17 +218,7 @@ extension ConversationViewController {
 //MARK: - TEXTFIELD DELEGATE
 
 extension ConversationViewController: UITextViewDelegate {
-    
-    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
-        let trimmedString = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedString.isEmpty {
-            textView.text?.removeAll()
-            Task {
-                await conversationViewModel.createMessage(messageBody: trimmedString)
-            }
-        }
-        return true
-    }
+
 }
 
 //MARK: - COLLECTION VIEW LAYOUT
@@ -232,23 +237,34 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
 
 extension ConversationViewController {
     
+    
+    
     private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         
         let keyboardHeight = holderView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
         let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
         
         self.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-
+        
         let currentOffSet = collectionView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight.invertValue() + currentOffSet.y)
-        collectionView.setContentOffset(offSet, animated: false)
         
         let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: customCollectionViewInset, right: 0)
+        collectionView.setContentOffset(offSet, animated: false)
         collectionView.contentInset = contentInset
         collectionView.scrollIndicatorInsets = contentInset
         
-        UIView.animate(withDuration: 0.5, delay: 0.0) {
-            self.view.layoutIfNeeded()
+        // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
+        // Exaplanation:
+//           1.initiate keyboard
+//           2.scroll up
+//           3.dismiss keyboard
+//           Result: cell from top will animate resizing
+        
+        if keyboardHeight > 0 {
+            view.layoutSubviews()
+        } else {
+            view.layoutIfNeeded()
         }
     }
 }

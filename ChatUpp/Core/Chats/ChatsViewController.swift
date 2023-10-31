@@ -82,7 +82,7 @@ class ChatsViewController: UIViewController {
 extension ChatsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: false)
         
         let chat = chatsViewModel.chats[indexPath.item]
         let memberName = chatsViewModel.cellViewModels[indexPath.item].userMame

@@ -26,11 +26,22 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
                     self.collectionView.reloadData()
                     let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
                     self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: false)
-
+                    let contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
+                    self.collectionView.contentInset = contentInset
                 }
             }
         }
     }
+    
+    
+    
+    func scrollToBottom() {
+        if collectionView.contentSize.height > collectionView.frame.size.height {
+            let offset = CGPoint(x: 0, y: collectionView.contentSize.height + collectionView.frame.size.height)
+            collectionView.setContentOffset(offset, animated: false)
+        }
+    }
+
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return conversationViewModel.messages.value.count
@@ -54,4 +65,6 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
         return cell
     }
+    
+    
 }
