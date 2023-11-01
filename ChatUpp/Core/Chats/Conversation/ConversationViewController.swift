@@ -3,7 +3,10 @@
 //  ChatUpp
 //
 //  Created by Andrei Pripa on 10/3/23.
-//
+
+// IMPORTANT: COLLECTION VIEW FLOW LAYOUT IS REVERSED,
+// THEREFORE, SOME PROPERTIES AND ADJUSTMENTS ARE SET AS BOTTOM -> TOP.
+// KEEP THIS IN MIND WHENVER YOU WISH TO ADJUST COLLECTION VIEW FLOW
 
 import UIKit
 
@@ -11,10 +14,9 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
     
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         let attributes = super.layoutAttributesForItem(at: indexPath)
-        attributes?.transform = CGAffineTransform(translationX: 1, y: -1)
+        attributes?.transform = CGAffineTransform(scaleX: 1, y: -1)
         return attributes
     }
-    
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let attributesList = super.layoutAttributesForElements(in: rect)
@@ -25,8 +27,6 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
         }
         return attributesList
     }
-    
-    
 }
 
 final class ConversationViewController: UIViewController {
@@ -192,17 +192,16 @@ final class ConversationViewController: UIViewController {
     }
     
     func testRevertCollection() {
-        collectionView.layoutIfNeeded()
         collectionView.transform = CGAffineTransform(scaleX: 1, y: -1)
+        collectionView.layoutIfNeeded()
     }
 
     private func scrollToBottom(withAnimation: Bool) {
-        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
-        self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: withAnimation)
+        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.startIndex, section: 0)
+        self.collectionView.scrollToItem(at: indexPath, at: .top, animated: withAnimation)
         collectionView.layoutIfNeeded()
     }
   
-    
     private func setupSendMessageBtnConstraints() {
         
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
@@ -296,11 +295,11 @@ extension ConversationViewController {
         self.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         
         let currentOffSet = collectionView.contentOffset
-        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight.invertValue() + currentOffSet.y)
+        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
         collectionView.setContentOffset(offSet, animated: false)
-        collectionView.contentInset.bottom = customCollectionViewInset + 60
-        collectionView.verticalScrollIndicatorInsets.bottom = customCollectionViewInset + 60
+        collectionView.contentInset.top = customCollectionViewInset
+        collectionView.verticalScrollIndicatorInsets.top = customCollectionViewInset
         
         // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
         // Exaplanation:
