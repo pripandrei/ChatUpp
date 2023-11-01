@@ -169,37 +169,11 @@ final class ConversationViewController: UIViewController {
     }
 
     private func scrollToBottom(withAnimation: Bool) {
-        collectionView.layoutIfNeeded()
         let indexPath = IndexPath(item: self.conversationViewModel.messages.value.count - 1, section: 0)
         self.collectionView.scrollToItem(at: indexPath, at: .bottom, animated: withAnimation)
-//        if collectionView.contentSize.height > collectionView.bounds.height - holderView.bounds.height - (navigationController?.navigationBar.bounds.height ?? 00) {
-//            DispatchQueue.main.async {
-//                if let cell = self.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell {
-//                    let currentOffset = self.collectionView.contentOffset
-//                    self.collectionView.setContentOffset(CGPoint(x: currentOffset.x, y: currentOffset.y + cell.bounds.height), animated: false)
-//                }
-//            }
-//        }
-       
+        collectionView.layoutIfNeeded()
     }
-    
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-       
-        
-//        let contentHeight = collectionView.contentSize.height
-//
-//        // Calculate the height of the collection view's frame (visible area).
-//        let visibleHeight = collectionView.bounds.size.height
-//
-//        // Check if the content is taller than what's currently visible.
-//        if contentHeight > visibleHeight {
-//            // Scroll to the bottom of the content.
-//            collectionView.setContentOffset(CGPoint(x: 0, y: -50), animated: true)
-//        }
-    }
+  
     
     private func setupSendMessageBtnConstraints() {
         
@@ -272,6 +246,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
 //        return CGSize(width: cellWidth, height: height)
         return CGSize(width: view.bounds.width, height: 0)
     }
+    
     func calculateCellHeight(for message: String, cellWidth: CGFloat) -> CGFloat {
         // Implement your height calculation logic here, based on the message content and cellWidth.
         // For example, you can use NSString's boundingRect or other measurement methods to determine the height.

@@ -36,9 +36,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource, UICollec
             cell.adjustMessageSide(.left)
         }
         cell.handleMessageBubbleLayout()
-    
+
         return cell
     }
-    
-    
 }
