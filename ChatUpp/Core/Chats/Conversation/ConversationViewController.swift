@@ -4,11 +4,13 @@
 //
 //  Created by Andrei Pripa on 10/3/23.
 
-// IMPORTANT: COLLECTION VIEW FLOW LAYOUT IS REVERSED,
-// THEREFORE, SOME PROPERTIES AND ADJUSTMENTS ARE SET AS BOTTOM -> TOP.
-// KEEP THIS IN MIND WHENVER YOU WISH TO ADJUST COLLECTION VIEW FLOW
+// IMPORTANT: COLLECTION VIEW FLOW LAYOUT IS INVERTED (BOTTOM => TOP),
+// THEREFORE, SOME PROPERTIES AND ADJUSTMENTS ARE SET AS BOTTOM => TOP.
+// KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST COLLECTION VIEW FLOW
 
 import UIKit
+
+//MARK: - INVERTED COLLECTION FLOW LAYOUT
 
 final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
     
@@ -81,7 +83,7 @@ final class ConversationViewController: UIViewController {
         setupBinding()
     }
     
-//MARK: - VIEW CONTROLLER SETUP
+//MARK: - KEYBOARD NOTIFICATION OBSERVERS
     
     private func addKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -102,6 +104,8 @@ final class ConversationViewController: UIViewController {
             handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
         }
     }
+    
+//MARK: - UI SETUP
 
     private func setupHolderView() {
         view.addSubview(holderView)
@@ -165,43 +169,6 @@ final class ConversationViewController: UIViewController {
         setupSendMessageBtnConstraints()
     }
     
-    @objc func sendMessageBtnWasTapped() {
-        let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedString.isEmpty {
-            messageTextView.text.removeAll()
-            Task {
-                await conversationViewModel.createMessage(messageBody: trimmedString)
-            }
-        }
-//        DispatchQueue.main.async {
-        self.scrollToBottom(withAnimation: true)
-//        }
-    }
-    
-    private func setupBinding() {
-        conversationViewModel.messages.bind { [weak self] messages in
-            guard let self = self else {return}
-            if !messages.isEmpty {
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                    self.testRevertCollection()
-//                    self.scrollToBottom(withAnimation: false)
-                }
-            }
-        }
-    }
-    
-    func testRevertCollection() {
-        collectionView.transform = CGAffineTransform(scaleX: 1, y: -1)
-        collectionView.layoutIfNeeded()
-    }
-
-    private func scrollToBottom(withAnimation: Bool) {
-        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.startIndex, section: 0)
-        self.collectionView.scrollToItem(at: indexPath, at: .top, animated: withAnimation)
-        collectionView.layoutIfNeeded()
-    }
-  
     private func setupSendMessageBtnConstraints() {
         
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
@@ -233,6 +200,40 @@ final class ConversationViewController: UIViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
     }
+    
+    @objc func sendMessageBtnWasTapped() {
+        let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedString.isEmpty {
+            messageTextView.text.removeAll()
+            Task {
+                await conversationViewModel.createMessage(messageBody: trimmedString)
+            }
+        }
+        self.scrollToBottom(withAnimation: true)
+    }
+    
+    private func setupBinding() {
+        conversationViewModel.messages.bind { [weak self] messages in
+            guard let self = self else {return}
+            if !messages.isEmpty {
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                    self.revertCollectionflowLayout()
+                }
+            }
+        }
+    }
+    
+    private func revertCollectionflowLayout() {
+        collectionView.transform = CGAffineTransform(scaleX: 1, y: -1)
+        collectionView.layoutIfNeeded()
+    }
+
+    private func scrollToBottom(withAnimation: Bool) {
+        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.startIndex, section: 0)
+        self.collectionView.scrollToItem(at: indexPath, at: .top, animated: withAnimation)
+        collectionView.layoutIfNeeded()
+    }
 }
 
 //MARK: - GESTURES
@@ -253,10 +254,7 @@ extension ConversationViewController {
 
 //MARK: - TEXTFIELD DELEGATE
 
-extension ConversationViewController: UITextViewDelegate {
-
-}
-
+extension ConversationViewController: UITextViewDelegate {}
 
 //MARK: - COLLECTION VIEW LAYOUT
 
@@ -266,20 +264,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize
     {
-        
-//        let message = conversationViewModel.messages.value[indexPath.item].messageBody
-//        let cellWidth = collectionView.bounds.width // You may adjust this as needed
-//        let height = calculateCellHeight(for: message, cellWidth: cellWidth)
-//        return CGSize(width: cellWidth, height: height)
         return CGSize(width: view.bounds.width, height: 0)
-    }
-    
-    func calculateCellHeight(for message: String, cellWidth: CGFloat) -> CGFloat {
-        // Implement your height calculation logic here, based on the message content and cellWidth.
-        // For example, you can use NSString's boundingRect or other measurement methods to determine the height.
-        let textAttributes = [NSAttributedString.Key.font: UIFont(name: "HelveticaNeue", size: 17)!] // Adjust font and other attributes as needed
-        let boundingRect = (message as NSString).boundingRect(with: CGSize(width: cellWidth, height: .greatestFiniteMagnitude), options: .usesLineFragmentOrigin, attributes: textAttributes, context: nil)
-        return boundingRect.height  // You can add padding or adjust as needed.
     }
 }
 
