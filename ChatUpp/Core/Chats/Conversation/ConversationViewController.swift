@@ -7,6 +7,28 @@
 
 import UIKit
 
+final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
+    
+    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        let attributes = super.layoutAttributesForItem(at: indexPath)
+        attributes?.transform = CGAffineTransform(translationX: 1, y: -1)
+        return attributes
+    }
+    
+    
+    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        let attributesList = super.layoutAttributesForElements(in: rect)
+        if let list = attributesList {
+            for attribute in list {
+                attribute.transform = CGAffineTransform(scaleX: 1, y: -1)
+            }
+        }
+        return attributesList
+    }
+    
+    
+}
+
 final class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
@@ -20,9 +42,9 @@ final class ConversationViewController: UIViewController {
     private var holderViewBottomConstraint: NSLayoutConstraint!
     
     private lazy var collectionView: UICollectionView = {
-        let collectionViewFlowLayout = UICollectionViewFlowLayout()
+        let collectionViewFlowLayout = InvertedCollectionViewFlowLayout()
         collectionViewFlowLayout.scrollDirection = .vertical
-        collectionViewFlowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        collectionViewFlowLayout.estimatedItemSize = InvertedCollectionViewFlowLayout.automaticSize
         
         let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
         collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
@@ -162,10 +184,16 @@ final class ConversationViewController: UIViewController {
             if !messages.isEmpty {
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
-                    self.scrollToBottom(withAnimation: false)
+                    self.testRevertCollection()
+//                    self.scrollToBottom(withAnimation: false)
                 }
             }
         }
+    }
+    
+    func testRevertCollection() {
+        collectionView.layoutIfNeeded()
+        collectionView.transform = CGAffineTransform(scaleX: 1, y: -1)
     }
 
     private func scrollToBottom(withAnimation: Bool) {
