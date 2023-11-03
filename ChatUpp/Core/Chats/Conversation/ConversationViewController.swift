@@ -366,4 +366,3 @@ extension ConversationViewController
         }
     }
 }
-
