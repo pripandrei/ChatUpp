@@ -29,10 +29,8 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
         }
         return attributesList
     }
-
-    
-   
 }
+
 
 final class ConversationViewController: UIViewController, UICollectionViewDelegate {
     
@@ -85,6 +83,18 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         setNavigationBarItems()
         setupBinding()
         self.revertCollectionflowLayout()
+    }
+    
+    //MARK: - Binding
+    
+    private func setupBinding() {
+        conversationViewModel.messages.bind { [weak self] messages in
+            if !messages.isEmpty {
+                DispatchQueue.main.async {
+                    self?.collectionView.reloadData()
+                }
+            }
+        }
     }
     
 //MARK: - KEYBOARD NOTIFICATION OBSERVERS
@@ -209,36 +219,35 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
             messageTextView.text.removeAll()
-            //            Task {
             
             let indexPath = IndexPath(item: 0, section: 0)
             let message = conversationViewModel.createNewMessage(trimmedString)
-
+            
             self.conversationViewModel.messages.value.insert(message, at: 0)
             handleContentMessageOffset(with: indexPath)
+            
+            Task {
+                await conversationViewModel.createMessageDB(message)
+            }
         }
     }
     
     private func handleContentMessageOffset(with indexPath: IndexPath)
     {
-        // We disable insertion animation because we need to animate
-        // insertion of message and scrolling to bottom at the same time.
+        // We disable insertion animation because we need to both animate
+        // insertion of message and scroll to bottom at the same time.
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
-        
         UIView.performWithoutAnimation {
             self.collectionView.insertItems(at: [indexPath])
         }
         
         // Schedules scrolling execution in order for proper animation scrolling
-        DispatchQueue.main.async {
-            self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
-        }
+        DispatchQueue.main.async { self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true) }
         
         // Offset collection view conntent by cells (message) height contentSize
         // withouth animation, so that cell appears under the textView
         guard let cell = collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
-//            cell.frame = cell.frame.offsetBy(dx: 0, dy: -50)
         
         let currentOffSet = collectionView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.messageContainer.contentSize.height + 10)
@@ -247,51 +256,6 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         // Animate collection content back so that cell (message) will go up
         UIView.animate(withDuration: 0.3) {
             self.collectionView.setContentOffset(offSet, animated: false)
-//                cell.frame = cell.frame.offsetBy(dx: 0, dy: 50)
-        }
-    }
-
-    private func scrollToBottom(withAnimation: Bool) {
-        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.startIndex, section: 0)
-        self.collectionView.scrollToItem(at: indexPath, at: .top, animated: withAnimation)
-        
-    }
-    
-    @objc func sendMessadgeBtnWasTapped() {
-        let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedString.isEmpty {
-            messageTextView.text.removeAll()
-            Task {
-                let message = conversationViewModel.createNewMessage(trimmedString)
-                self.addNewMessage(message)
-                await conversationViewModel.createMessageDB(message)
-            }
-        }
-        self.scrollToBottom(withAnimation: true)
-    }
-    
-    @MainActor
-    private func addNewMessage(_ message: Message) {
-        let indexPath = IndexPath(item: conversationViewModel.messages.value.count, section: 0)
-        conversationViewModel.messages.value.insert(message, at: 0)
-        collectionView.performBatchUpdates {
-            collectionView.insertItems(at: [indexPath])
-        }
-    }
-    
-    var counter = 0
-    
-    private func setupBinding() {
-        conversationViewModel.messages.bind { [weak self] messages in
-            guard let self = self else {return}
-            if !messages.isEmpty {
-                if self.counter < 1 {
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
-                }
-                self.counter += 1
-            }
         }
     }
     
@@ -299,8 +263,6 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         collectionView.transform = CGAffineTransform(scaleX: 1, y: -1)
         collectionView.layoutIfNeeded()
     }
-
-   
 }
 
 //MARK: - GESTURES
