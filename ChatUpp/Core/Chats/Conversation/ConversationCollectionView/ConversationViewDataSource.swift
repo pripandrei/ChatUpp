@@ -37,13 +37,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
             cell.adjustMessageSide(.left)
         }
         cell.handleMessageBubbleLayout()
-        
-//        if indexPath.item == 0 {
-//            UIView.animate(withDuration: 1.0) {
-//                cell.frame = cell.frame.offsetBy(dx: 0, dy: 100)
-//            }
-//        }
-//        print(cell.messageContainer.text, indexPath.item)
+    
         return cell
     }
     

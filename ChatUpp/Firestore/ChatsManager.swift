@@ -91,8 +91,6 @@ final class ChatsManager {
 }
 
 
-
-
 extension Query {
     func getDocuments<T>(as type: T.Type) async throws -> [T] where T: Decodable  {
         let referenceType = try await self.getDocuments()

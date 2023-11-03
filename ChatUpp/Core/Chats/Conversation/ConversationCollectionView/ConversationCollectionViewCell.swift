@@ -83,8 +83,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageContainer.clipsToBounds = true
         
         NSLayoutConstraint.activate([
-//            messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 15),
-//            messageContainer.trailingAnchor.constraint(lessThanOrEqualTo: mainCellContainer.trailingAnchor),
             messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
             messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor)
         ])
@@ -96,7 +94,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         timeStamp.text = "20:42"
         timeStamp.font = UIFont(name: "HelveticaNeue", size: 12)
         timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
-//        timeStamp.backgroundColor = .green
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -169,7 +166,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         }
         messageContainer.invalidateIntrinsicContentSize()
     }
-    
 }
 
 // MARK: - GET LAST LINE MESSAGE STRING
