@@ -34,9 +34,7 @@ final class ConversationViewModel {
         }
     }
     
-    
-    func createMessage(messageBody: String) async  {
-//        let authUser = (try? AuthenticationManager.shared.getAuthenticatedUser())!
+    func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
         
         let message = Message(id: messageID,
@@ -46,6 +44,13 @@ final class ConversationViewModel {
                               timestamp: Date(),
                               messageSeen: false,
                               receivedBy: nil)
+        return message
+    }
+    
+    func createMessageDB(_ message: Message) async  {
+//        let authUser = (try? AuthenticationManager.shared.getAuthenticatedUser())!
+
+//        let message = createNewMessage(messageBody)
         do {
             try await ChatsManager.shared.createNewMessage(message: message, atChatPath: conversation.id)
         } catch {

@@ -5,7 +5,7 @@
 //  Created by Andrei Pripa on 10/3/23.
 
 // IMPORTANT: COLLECTION VIEW FLOW LAYOUT IS INVERTED (BOTTOM => TOP),
-// THEREFORE, SOME PROPERTIES AND ADJUSTMENTS ARE SET AS BOTTOM => TOP.
+// THEREFORE, SOME PROPERTIES AND ADJUSTMENTS WERE MADE AND SET AS BOTTOM => TOP.
 // KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST COLLECTION VIEW FLOW
 
 import UIKit
@@ -29,6 +29,8 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
         }
         return attributesList
     }
+    
+   
 }
 
 final class ConversationViewController: UIViewController {
@@ -81,6 +83,7 @@ final class ConversationViewController: UIViewController {
         addKeyboardNotificationObservers()
         setNavigationBarItems()
         setupBinding()
+        self.revertCollectionflowLayout()
     }
     
 //MARK: - KEYBOARD NOTIFICATION OBSERVERS
@@ -205,21 +208,59 @@ final class ConversationViewController: UIViewController {
         let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
             messageTextView.text.removeAll()
+            //            Task {
+            let indexPath = IndexPath(item: 0, section: 0)
+            let message = conversationViewModel.createNewMessage(trimmedString)
+            collectionView.performBatchUpdates {
+                conversationViewModel.messages.value.insert(message, at: 0)
+                collectionView.insertItems(at: [indexPath])
+            }
+        }
+        self.scrollToBottom(withAnimation: false)
+//
+    }
+    
+    private func scrollToBottom(withAnimation: Bool) {
+//        collectionView.reloadSections(IndexSet(integer: 0))
+        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.startIndex, section: 0)
+        self.collectionView.scrollToItem(at: indexPath, at: .top, animated: withAnimation)
+//        collectionView.layoutIfNeeded()
+    }
+    
+    @objc func sendMessadgeBtnWasTapped() {
+        let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedString.isEmpty {
+            messageTextView.text.removeAll()
             Task {
-                await conversationViewModel.createMessage(messageBody: trimmedString)
+                let message = conversationViewModel.createNewMessage(trimmedString)
+                await self.addNewMessage(message)
+                await conversationViewModel.createMessageDB(message)
             }
         }
         self.scrollToBottom(withAnimation: true)
     }
     
+    @MainActor
+    private func addNewMessage(_ message: Message) {
+        let indexPath = IndexPath(item: conversationViewModel.messages.value.count, section: 0)
+        conversationViewModel.messages.value.insert(message, at: 0)
+        collectionView.performBatchUpdates {
+            collectionView.insertItems(at: [indexPath])
+        }
+    }
+    
+    var counter = 0
+    
     private func setupBinding() {
         conversationViewModel.messages.bind { [weak self] messages in
             guard let self = self else {return}
             if !messages.isEmpty {
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                    self.revertCollectionflowLayout()
+                if self.counter < 1 {
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
                 }
+//                self.counter += 1
             }
         }
     }
@@ -229,11 +270,7 @@ final class ConversationViewController: UIViewController {
         collectionView.layoutIfNeeded()
     }
 
-    private func scrollToBottom(withAnimation: Bool) {
-        let indexPath = IndexPath(item: self.conversationViewModel.messages.value.startIndex, section: 0)
-        self.collectionView.scrollToItem(at: indexPath, at: .top, animated: withAnimation)
-        collectionView.layoutIfNeeded()
-    }
+   
 }
 
 //MARK: - GESTURES
@@ -288,11 +325,13 @@ extension ConversationViewController {
         
         // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
         // Exaplanation:
-        // use only view.layoutIfNeeded()  for any cases
-//           1.initiate keyboard
-//           2.scroll up
-//           3.dismiss keyboard
-//           Result: cells from top will animate while resizing
+        // while trying to use only view.layoutIfNeeded(),
+        // cells from top will resize while animate
+        // Steps:
+        // 1.initiate keyboard
+        // 2.scroll up
+        // 3.dismiss keyboard
+        // Result: cells from top will animate while resizing
         
         if keyboardHeight > 0 {
             view.layoutSubviews()

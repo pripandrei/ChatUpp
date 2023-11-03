@@ -38,6 +38,10 @@ final class ChatsManager {
         try getMessageDocument(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
     
+//    func createNewMessage(message: Message, atChatPath path: String, complition: () -> Void) {
+//        
+//    }
+    
     //MARK: - GET CHAT DOCUMENT (currently not in use)
 //
 //    func getChatDocumentFromDB(chatID: String) async throws -> Chat {
