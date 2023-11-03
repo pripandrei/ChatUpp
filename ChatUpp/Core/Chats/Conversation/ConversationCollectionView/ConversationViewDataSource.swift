@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ConversationViewDataSource: NSObject, UICollectionViewDataSource, UICollectionViewDelegate {
+class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
     var conversationViewModel: ConversationViewModel!
     weak var collectionView: UICollectionView!
@@ -26,6 +26,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource, UICollec
     {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
+        
         cell.messageContainer.text = conversationViewModel.messages.value[indexPath.item].messageBody
         cell.mainCellContainerMaxWidth = collectionView.bounds.width
         
@@ -36,7 +37,15 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource, UICollec
             cell.adjustMessageSide(.left)
         }
         cell.handleMessageBubbleLayout()
-
+        
+//        if indexPath.item == 0 {
+//            UIView.animate(withDuration: 1.0) {
+//                cell.frame = cell.frame.offsetBy(dx: 0, dy: 100)
+//            }
+//        }
+//        print(cell.messageContainer.text, indexPath.item)
         return cell
     }
+    
+    
 }

@@ -158,7 +158,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             }
         }
     }
-    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+    }
     private func adjustMessagePadding(_ messagePadding: MessagePadding) {
         switch messagePadding {
         case .initial: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
@@ -167,6 +169,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         }
         messageContainer.invalidateIntrinsicContentSize()
     }
+    
 }
 
 // MARK: - GET LAST LINE MESSAGE STRING

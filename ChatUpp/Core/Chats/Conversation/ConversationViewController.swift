@@ -29,11 +29,12 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
         }
         return attributesList
     }
+
     
    
 }
 
-final class ConversationViewController: UIViewController {
+final class ConversationViewController: UIViewController, UICollectionViewDelegate {
     
     weak var coordinatorDelegate: Coordinator?
     private var conversationViewModel: ConversationViewModel!
@@ -209,22 +210,51 @@ final class ConversationViewController: UIViewController {
         if !trimmedString.isEmpty {
             messageTextView.text.removeAll()
             //            Task {
+            
             let indexPath = IndexPath(item: 0, section: 0)
             let message = conversationViewModel.createNewMessage(trimmedString)
-            collectionView.performBatchUpdates {
-                conversationViewModel.messages.value.insert(message, at: 0)
-                collectionView.insertItems(at: [indexPath])
-            }
+
+            self.conversationViewModel.messages.value.insert(message, at: 0)
+            handleContentMessageOffset(with: indexPath)
         }
-        self.scrollToBottom(withAnimation: false)
-//
     }
     
+    private func handleContentMessageOffset(with indexPath: IndexPath)
+    {
+        // We disable insertion animation because we need to animate
+        // insertion of message and scrolling to bottom at the same time.
+        // If we dont do this, conflict occurs and results in glitches
+        // Instead we will animate contentOffset
+        
+        UIView.performWithoutAnimation {
+            self.collectionView.insertItems(at: [indexPath])
+        }
+        
+        // Schedules scrolling execution in order for proper animation scrolling
+        DispatchQueue.main.async {
+            self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+        }
+        
+        // Offset collection view conntent by cells (message) height contentSize
+        // withouth animation, so that cell appears under the textView
+        guard let cell = collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
+//            cell.frame = cell.frame.offsetBy(dx: 0, dy: -50)
+        
+        let currentOffSet = collectionView.contentOffset
+        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.messageContainer.contentSize.height + 10)
+        collectionView.setContentOffset(offSet, animated: false)
+        
+        // Animate collection content back so that cell (message) will go up
+        UIView.animate(withDuration: 0.3) {
+            self.collectionView.setContentOffset(offSet, animated: false)
+//                cell.frame = cell.frame.offsetBy(dx: 0, dy: 50)
+        }
+    }
+
     private func scrollToBottom(withAnimation: Bool) {
-//        collectionView.reloadSections(IndexSet(integer: 0))
         let indexPath = IndexPath(item: self.conversationViewModel.messages.value.startIndex, section: 0)
         self.collectionView.scrollToItem(at: indexPath, at: .top, animated: withAnimation)
-//        collectionView.layoutIfNeeded()
+        
     }
     
     @objc func sendMessadgeBtnWasTapped() {
@@ -233,7 +263,7 @@ final class ConversationViewController: UIViewController {
             messageTextView.text.removeAll()
             Task {
                 let message = conversationViewModel.createNewMessage(trimmedString)
-                await self.addNewMessage(message)
+                self.addNewMessage(message)
                 await conversationViewModel.createMessageDB(message)
             }
         }
@@ -260,7 +290,7 @@ final class ConversationViewController: UIViewController {
                         self.collectionView.reloadData()
                     }
                 }
-//                self.counter += 1
+                self.counter += 1
             }
         }
     }
@@ -332,12 +362,13 @@ extension ConversationViewController {
         // 2.scroll up
         // 3.dismiss keyboard
         // Result: cells from top will animate while resizing
-        
+
         if keyboardHeight > 0 {
             view.layoutSubviews()
         } else {
             view.layoutIfNeeded()
         }
+
     }
 }
 
