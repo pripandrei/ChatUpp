@@ -34,7 +34,7 @@ final class ConversationViewModel {
         }
     }
     
-    func createNewMessage(_ messageBody: String) -> Message {
+    private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
         
         let message = Message(id: messageID,
@@ -47,14 +47,21 @@ final class ConversationViewModel {
         return message
     }
     
-    func createMessageDB(_ message: Message) async  {
+    private func addMessageToDB(_ message: Message) async  {
         do {
-            try await ChatsManager.shared.createNewMessage(message: message, atChatPath: conversation.id)
+            try await ChatsManager.shared.createNewMessageInDataBase(message: message, atChatPath: conversation.id)
         } catch {
             print("error occur while trying to create message: ", error.localizedDescription)
         }
     }
     
+    func addNewCreatedMessage(_ messageBody: String) {
+        let message = createNewMessage(messageBody)
+        messages.value.insert(message, at: 0)
+        Task {
+            await addMessageToDB(message)
+        }
+    }
 }
 
 

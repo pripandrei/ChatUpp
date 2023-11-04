@@ -34,7 +34,7 @@ final class ChatsManager {
     
     //MARK: - CREATE NEW MESSAGE
     
-    func createNewMessage(message: Message, atChatPath path: String) async throws {
+    func createNewMessageInDataBase(message: Message, atChatPath path: String) async throws {
         try getMessageDocument(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
     

@@ -31,7 +31,6 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
     }
 }
 
-
 final class ConversationViewController: UIViewController, UICollectionViewDelegate {
     
     weak var coordinatorDelegate: Coordinator?
@@ -82,7 +81,8 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         addKeyboardNotificationObservers()
         setNavigationBarItems()
         setupBinding()
-        self.revertCollectionflowLayout()
+        revertCollectionflowLayout()
+        
     }
     
     //MARK: - Binding
@@ -221,17 +221,11 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
             messageTextView.text.removeAll()
             
             let indexPath = IndexPath(item: 0, section: 0)
-            let message = conversationViewModel.createNewMessage(trimmedString)
-            
-            self.conversationViewModel.messages.value.insert(message, at: 0)
+            conversationViewModel.addNewCreatedMessage(trimmedString)
             handleContentMessageOffset(with: indexPath)
-            
-            Task {
-                await conversationViewModel.createMessageDB(message)
-            }
         }
     }
-    
+
     private func handleContentMessageOffset(with indexPath: IndexPath)
     {
         // We disable insertion animation because we need to both animate
@@ -330,7 +324,6 @@ extension ConversationViewController {
         } else {
             view.layoutIfNeeded()
         }
-
     }
 }
 
