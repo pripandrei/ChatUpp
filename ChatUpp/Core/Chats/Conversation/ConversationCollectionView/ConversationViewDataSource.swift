@@ -10,7 +10,6 @@ import UIKit
 class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
     var conversationViewModel: ConversationViewModel!
-    weak var collectionView: UICollectionView!
     
     init(conversationViewModel: ConversationViewModel) {
         self.conversationViewModel = conversationViewModel

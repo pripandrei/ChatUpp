@@ -10,8 +10,8 @@ import Foundation
 
 final class ConversationViewModel {
     
+    private var conversation: Chat
     var memberName: String
-    var conversation: Chat
     var imageData: Data?
     var messages: ObservableObject<[Message]> = ObservableObject([])
     
@@ -24,7 +24,7 @@ final class ConversationViewModel {
         fetchConversationMessages()
     }
     
-    func fetchConversationMessages() {
+    private func fetchConversationMessages() {
         Task {
             do {
                 self.messages.value = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)

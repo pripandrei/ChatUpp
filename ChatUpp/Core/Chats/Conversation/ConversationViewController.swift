@@ -10,54 +10,13 @@
 
 import UIKit
 
-//MARK: - INVERTED COLLECTION FLOW LAYOUT
-
-final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
-    
-    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        let attributes = super.layoutAttributesForItem(at: indexPath)
-        attributes?.transform = CGAffineTransform(scaleX: 1, y: -1)
-        return attributes
-    }
-    
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        let attributesList = super.layoutAttributesForElements(in: rect)
-        if let list = attributesList {
-            for attribute in list {
-                attribute.transform = CGAffineTransform(scaleX: 1, y: -1)
-            }
-        }
-        return attributesList
-    }
-}
-
 final class ConversationViewController: UIViewController, UICollectionViewDelegate {
     
     weak var coordinatorDelegate: Coordinator?
     private var conversationViewModel: ConversationViewModel!
     private var collectionViewDataSource: ConversationViewDataSource!
-    
-    private let holderView = UIView()
-    private let messageTextView = UITextView()
-    private let sendMessageButton = UIButton()
-    
-    private var holderViewBottomConstraint: NSLayoutConstraint!
-    
-    private lazy var collectionView: UICollectionView = {
-        let collectionViewFlowLayout = InvertedCollectionViewFlowLayout()
-        collectionViewFlowLayout.scrollDirection = .vertical
-        collectionViewFlowLayout.estimatedItemSize = InvertedCollectionViewFlowLayout.automaticSize
-        
-        let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
-        collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
-        collectionVC.delegate = self
-        
-        collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
-        collectionViewDataSource.collectionView = collectionVC
-        collectionVC.dataSource = collectionViewDataSource
-        
-        return collectionVC
-    }()
+    lazy private var conversationViewControllerUI = ConversationViewControllerUI(viewController: self)
+
     
 //MARK: - LIFECYCLE
     
@@ -72,17 +31,23 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        setupCoollectionView()
-        setupHolderView()
-        setupMessageTextView()
-        setupSendMessageBtn()
+        
+        setupBinding()
+        conversationViewControllerUI.setupLayout(for: view)
+        setupCollectionViewDataSource()
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
-        setupBinding()
-        revertCollectionflowLayout()
-        
+        addTargetToSendMessageBtn()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+    }
+    
+    private func setupCollectionViewDataSource() {
+        collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
+        conversationViewControllerUI.collectionView.dataSource = collectionViewDataSource
     }
     
     //MARK: - Binding
@@ -91,7 +56,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         conversationViewModel.messages.bind { [weak self] messages in
             if !messages.isEmpty {
                 DispatchQueue.main.async {
-                    self?.collectionView.reloadData()
+                    self?.conversationViewControllerUI.collectionView.reloadData()
                 }
             }
         }
@@ -107,7 +72,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             
-            if holderView.frame.origin.y > 760 {
+            if conversationViewControllerUI.holderView.frame.origin.y > 760 {
                 handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
             }
         }
@@ -119,106 +84,15 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         }
     }
     
-//MARK: - UI SETUP
-
-    private func setupHolderView() {
-        view.addSubview(holderView)
-        
-        holderView.backgroundColor = .systemIndigo
-        setHolderViewConstraints()
-    }
     
-    private func setHolderViewConstraints() {
-        holderView.translatesAutoresizingMaskIntoConstraints = false
-        holderView.bounds.size.height = 80
-        
-        self.holderViewBottomConstraint = holderView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        self.holderViewBottomConstraint.isActive = true
-        
-        NSLayoutConstraint.activate([
-            holderView.heightAnchor.constraint(equalToConstant: 80),
-            holderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            holderView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
-        ])
-    }
-    
-    private func setupMessageTextView() {
-        holderView.addSubview(messageTextView)
-        
-        let height = holderView.bounds.height * 0.4
-        messageTextView.delegate = self
-        messageTextView.backgroundColor = .systemBlue
-        messageTextView.layer.cornerRadius = 15
-        messageTextView.font = UIFont(name: "HelveticaNeue", size: 17)
-        messageTextView.textContainerInset = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
-        messageTextView.textColor = .white
-
-        setMessageTextViewConstraints()
-    }
-    
-    private func setMessageTextViewConstraints() {
-        messageTextView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            messageTextView.heightAnchor.constraint(equalToConstant: holderView.bounds.height * 0.4),
-            messageTextView.topAnchor.constraint(equalTo: holderView.topAnchor, constant: 10),
-            messageTextView.trailingAnchor.constraint(equalTo: holderView.trailingAnchor, constant: -55),
-            messageTextView.leadingAnchor.constraint(equalTo: holderView.leadingAnchor, constant: 35)
-        ])
-    }
-    
-    private func setupSendMessageBtn() {
-        holderView.addSubview(sendMessageButton)
-        // size is used only for radius calculation
-        sendMessageButton.frame.size = CGSize(width: 35, height: 35)
-        
-        sendMessageButton.configuration = .filled()
-        sendMessageButton.configuration?.baseBackgroundColor = UIColor.purple
-        sendMessageButton.layer.cornerRadius = sendMessageButton.frame.size.width / 2.0
-        sendMessageButton.configuration?.image = UIImage(systemName: "paperplane.fill")
-        sendMessageButton.clipsToBounds =  true
-        
-        sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
-
-        setupSendMessageBtnConstraints()
-    }
-    
-    private func setupSendMessageBtnConstraints() {
-        
-        sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            sendMessageButton.heightAnchor.constraint(equalToConstant: 35),
-            sendMessageButton.widthAnchor.constraint(equalToConstant: 35),
-            sendMessageButton.topAnchor.constraint(equalTo: holderView.topAnchor, constant: 8),
-            sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
-        ])
-    }
-
-    private func setupCoollectionView() {
-        view.addSubview(collectionView)
-        
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
-        collectionView.backgroundColor = .link
-        
-        setCollectionViewConstraints()
-    }
-    
-    private func setCollectionViewConstraints() {
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
-        ])
+    private func addTargetToSendMessageBtn() {
+        conversationViewControllerUI.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
     
     @objc func sendMessageBtnWasTapped() {
-        let trimmedString = messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedString = conversationViewControllerUI.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
-            messageTextView.text.removeAll()
+            conversationViewControllerUI.messageTextView.text.removeAll()
             
             let indexPath = IndexPath(item: 0, section: 0)
             conversationViewModel.addNewCreatedMessage(trimmedString)
@@ -233,29 +107,24 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
         UIView.performWithoutAnimation {
-            self.collectionView.insertItems(at: [indexPath])
+            self.conversationViewControllerUI.collectionView.insertItems(at: [indexPath])
         }
         
         // Schedules scrolling execution in order for proper animation scrolling
-        DispatchQueue.main.async { self.collectionView.scrollToItem(at: indexPath, at: .top, animated: true) }
+        DispatchQueue.main.async { self.conversationViewControllerUI.collectionView.scrollToItem(at: indexPath, at: .top, animated: true) }
         
         // Offset collection view conntent by cells (message) height contentSize
-        // withouth animation, so that cell appears under the textView
-        guard let cell = collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
+        // without animation, so that cell appears under the textView
+        guard let cell = conversationViewControllerUI.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
         
-        let currentOffSet = collectionView.contentOffset
+        let currentOffSet = conversationViewControllerUI.collectionView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.messageContainer.contentSize.height + 10)
-        collectionView.setContentOffset(offSet, animated: false)
+        conversationViewControllerUI.collectionView.setContentOffset(offSet, animated: false)
         
         // Animate collection content back so that cell (message) will go up
         UIView.animate(withDuration: 0.3) {
-            self.collectionView.setContentOffset(offSet, animated: false)
+            self.conversationViewControllerUI.collectionView.setContentOffset(offSet, animated: false)
         }
-    }
-    
-    private func revertCollectionflowLayout() {
-        collectionView.transform = CGAffineTransform(scaleX: 1, y: -1)
-        collectionView.layoutIfNeeded()
     }
 }
 
@@ -265,19 +134,15 @@ extension ConversationViewController {
     
     private func setTepGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
-        collectionView.addGestureRecognizer(tap)
+        conversationViewControllerUI.collectionView.addGestureRecognizer(tap)
     }
     
     @objc func resignKeyboard() {
-        if messageTextView.isFirstResponder {
-            messageTextView.resignFirstResponder()
+        if conversationViewControllerUI.messageTextView.isFirstResponder {
+            conversationViewControllerUI.messageTextView.resignFirstResponder()
         }
     }
 }
-
-//MARK: - TEXTFIELD DELEGATE
-
-extension ConversationViewController: UITextViewDelegate {}
 
 //MARK: - COLLECTION VIEW LAYOUT
 
@@ -289,6 +154,7 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
     {
         return CGSize(width: view.bounds.width, height: 0)
     }
+    
 }
 
 //MARK: - COLLETION VIEW OFFSET HANDLER
@@ -297,17 +163,18 @@ extension ConversationViewController {
     
     private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         
-        let keyboardHeight = holderView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
+        let keyboardHeight = conversationViewControllerUI.holderView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
         let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
         
-        self.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+
+        self.conversationViewControllerUI.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         
-        let currentOffSet = collectionView.contentOffset
+        let currentOffSet = conversationViewControllerUI.collectionView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
-        collectionView.setContentOffset(offSet, animated: false)
-        collectionView.contentInset.top = customCollectionViewInset
-        collectionView.verticalScrollIndicatorInsets.top = customCollectionViewInset
+        conversationViewControllerUI.collectionView.setContentOffset(offSet, animated: false)
+        conversationViewControllerUI.collectionView.contentInset.top = customCollectionViewInset
+        conversationViewControllerUI.collectionView.verticalScrollIndicatorInsets.top = customCollectionViewInset
         
         // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
         // Exaplanation:
