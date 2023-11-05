@@ -12,11 +12,11 @@ import UIKit
 
 final class ConversationViewController: UIViewController, UICollectionViewDelegate {
     
-    weak var coordinatorDelegate: Coordinator?
-    private var conversationViewModel: ConversationViewModel!
-    private var collectionViewDataSource: ConversationViewDataSource!
-    lazy private var conversationViewControllerUI = ConversationViewControllerUI(viewController: self)
-//    private var customNavigationBar: ConversationCustomNavigationBar!
+    weak var coordinatorDelegate :Coordinator?
+    private var conversationViewModel :ConversationViewModel!
+    private var collectionViewDataSource :ConversationViewDataSource!
+    private var customNavigationBar :ConversationCustomNavigationBar!
+    private var rootView = ConversationViewControllerUI()
 
     
 //MARK: - LIFECYCLE
@@ -31,7 +31,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
     
     override func loadView() {
-        view = conversationViewControllerUI
+        view = rootView
     }
 
     override func viewDidLoad() {
@@ -39,17 +39,20 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         setupBinding()
         addTargetToSendMessageBtn()
-//        conversationViewControllerUI.setupLayout()
         configureCollectionView()
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
     }
     
+//    private var rootView: ConversationViewControllerUI {
+//        view as! ConversationViewControllerUI
+//    }
+
     private func configureCollectionView() {
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
-        conversationViewControllerUI.collectionView.dataSource = collectionViewDataSource
-        conversationViewControllerUI.collectionView.delegate = self
+        rootView.collectionView.dataSource = collectionViewDataSource
+        rootView.collectionView.delegate = self
     }
     
     //MARK: - Binding
@@ -58,7 +61,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         conversationViewModel.messages.bind { [weak self] messages in
             if !messages.isEmpty {
                 DispatchQueue.main.async {
-                    self?.conversationViewControllerUI.collectionView.reloadData()
+                    self?.rootView.collectionView.reloadData()
                 }
             }
         }
@@ -74,7 +77,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             
-            if conversationViewControllerUI.holderView.frame.origin.y > 760 {
+            if rootView.holderView.frame.origin.y > 760 {
                 handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
             }
         }
@@ -87,13 +90,13 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
     
     private func addTargetToSendMessageBtn() {
-        conversationViewControllerUI.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
+        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
     
     @objc func sendMessageBtnWasTapped() {
-        let trimmedString = conversationViewControllerUI.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
-            conversationViewControllerUI.messageTextView.text.removeAll()
+            rootView.messageTextView.text.removeAll()
             
             let indexPath = IndexPath(item: 0, section: 0)
             conversationViewModel.addNewCreatedMessage(trimmedString)
@@ -108,23 +111,23 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
         UIView.performWithoutAnimation {
-            self.conversationViewControllerUI.collectionView.insertItems(at: [indexPath])
+            self.rootView.collectionView.insertItems(at: [indexPath])
         }
         
         // Schedules scrolling execution in order for proper animation scrolling
-        DispatchQueue.main.async { self.conversationViewControllerUI.collectionView.scrollToItem(at: indexPath, at: .top, animated: true) }
+        DispatchQueue.main.async { self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true) }
         
         // Offset collection view conntent by cells (message) height contentSize
         // without animation, so that cell appears under the textView
-        guard let cell = conversationViewControllerUI.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
+        guard let cell = rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
         
-        let currentOffSet = conversationViewControllerUI.collectionView.contentOffset
+        let currentOffSet = rootView.collectionView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.messageContainer.contentSize.height + 10)
-        conversationViewControllerUI.collectionView.setContentOffset(offSet, animated: false)
+        rootView.collectionView.setContentOffset(offSet, animated: false)
         
         // Animate collection content back so that cell (message) will go up
         UIView.animate(withDuration: 0.3) {
-            self.conversationViewControllerUI.collectionView.setContentOffset(offSet, animated: false)
+            self.rootView.collectionView.setContentOffset(offSet, animated: false)
         }
     }
 }
@@ -135,12 +138,12 @@ extension ConversationViewController {
     
     private func setTepGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
-        conversationViewControllerUI.collectionView.addGestureRecognizer(tap)
+        rootView.collectionView.addGestureRecognizer(tap)
     }
     
     @objc func resignKeyboard() {
-        if conversationViewControllerUI.messageTextView.isFirstResponder {
-            conversationViewControllerUI.messageTextView.resignFirstResponder()
+        if rootView.messageTextView.isFirstResponder {
+            rootView.messageTextView.resignFirstResponder()
         }
     }
 }
@@ -164,18 +167,18 @@ extension ConversationViewController {
     
     private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         
-        let keyboardHeight = conversationViewControllerUI.holderView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
+        let keyboardHeight = rootView.holderView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
         let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
         
 
-        self.conversationViewControllerUI.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+        self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         
-        let currentOffSet = conversationViewControllerUI.collectionView.contentOffset
+        let currentOffSet = rootView.collectionView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
-        conversationViewControllerUI.collectionView.setContentOffset(offSet, animated: false)
-        conversationViewControllerUI.collectionView.contentInset.top = customCollectionViewInset
-        conversationViewControllerUI.collectionView.verticalScrollIndicatorInsets.top = customCollectionViewInset
+        rootView.collectionView.setContentOffset(offSet, animated: false)
+        rootView.collectionView.contentInset.top = customCollectionViewInset
+        rootView.collectionView.verticalScrollIndicatorInsets.top = customCollectionViewInset
         
         // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
         // Exaplanation:
@@ -199,18 +202,19 @@ extension ConversationViewController {
 
 extension ConversationViewController
 {
-//    private func setNavigationBarItems2() {
-//        guard let imageData = conversationViewModel.imageData else {return}
-//        let memberName = conversationViewModel.memberName
-//
-//        customNavigationBar = ConversationCustomNavigationBar(viewController: self)
-//        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName, using: view)
-//    }
+    
     private func setNavigationBarItems() {
         guard let imageData = conversationViewModel.imageData else {return}
         let memberName = conversationViewModel.memberName
-
-//        customNavigationBar = ConversationCustomNavigationBar(viewController: self)
-        conversationViewControllerUI.setNavigationBarItems(with: imageData, memberName: memberName)
+        
+        customNavigationBar = ConversationCustomNavigationBar(viewController: self)
+        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName)
     }
+    
+//    private func setNavigationBarItems() {
+//        guard let imageData = conversationViewModel.imageData else {return}
+//        let memberName = conversationViewModel.memberName
+//
+//        rootView.setNavigationBarItems(with: imageData, memberName: memberName)
+//    }
 }
