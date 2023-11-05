@@ -8,12 +8,11 @@
 import Foundation
 import UIKit
 
-final class ConversationViewControllerUI {
+final class ConversationViewControllerUI: UIView {
 
     let holderView = UIView()
     let messageTextView = UITextView()
     let sendMessageButton = UIButton()
-    var topView: UIView!
     
     var viewController: UIViewController!
     
@@ -30,36 +29,60 @@ final class ConversationViewControllerUI {
         return collectionVC
     }()
     
-    init(viewController: UIViewController) {
+    convenience init(viewController: UIViewController) {
+        self.init(frame: .zero)
         self.viewController = viewController
+        setupLayout()
     }
-
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     
     // MARK: - VIEW LAYOUT SETUP
     
-    func setupLayout(for view: UIView) {
-        topView = view
-        setupCollectionView(in: view)
-        setupHolderView(in: view)
+    func setupLayout() {
+//        topView = view
+        revertCollectionflowLayout()
+        setupCollectionView()
+        setupHolderView()
         setupMessageTextView()
         setupSendMessageBtn()
-        revertCollectionflowLayout()
     }
     
-    private func setupHolderView(in view: UIView) {
-        view.addSubviews(holderView)
+    private func setupCollectionView() {
+        self.addSubview(collectionView)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
+        collectionView.backgroundColor = .link
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: self.topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor)
+        ])
+    }
+    
+    private func setupHolderView() {
+        self.addSubviews(holderView)
         
         holderView.backgroundColor = .systemIndigo
         holderView.translatesAutoresizingMaskIntoConstraints = false
         holderView.bounds.size.height = 80
         
-        self.holderViewBottomConstraint = holderView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        self.holderViewBottomConstraint = holderView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         self.holderViewBottomConstraint.isActive = true
         
         NSLayoutConstraint.activate([
             holderView.heightAnchor.constraint(equalToConstant: 80),
-            holderView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            holderView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+            holderView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            holderView.leadingAnchor.constraint(equalTo: self.leadingAnchor)
         ])
     }
     
@@ -100,20 +123,6 @@ final class ConversationViewControllerUI {
             sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
         ])
     }
-
-    private func setupCollectionView(in view: UIView) {
-        view.addSubview(collectionView)
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
-        collectionView.backgroundColor = .link
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
-        ])
-    }
     
     private func revertCollectionflowLayout() {
         collectionView.transform = CGAffineTransform(scaleX: 1, y: -1)
@@ -133,7 +142,7 @@ extension ConversationViewControllerUI {
             imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
             imageView.layer.cornerRadius = 20
             imageView.clipsToBounds = true
-            imageView.center = imageView.convert(CGPoint(x: ((viewController.navigationController!.navigationBar.frame.width) / 2) - 40, y: 0), from: self.topView)
+            imageView.center = imageView.convert(CGPoint(x: ((viewController.navigationController!.navigationBar.frame.width) / 2) - 40, y: 0), from: self)
             
             customTitleView.addSubview(imageView)
             
@@ -144,7 +153,7 @@ extension ConversationViewControllerUI {
             titleLabel.textColor = UIColor.white
             titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
             //            titleLabel.sizeToFit()
-            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: topView)
+            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: self)
             customTitleView.addSubview(titleLabel)
             
             viewController.navigationItem.titleView = customTitleView
@@ -172,38 +181,38 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
     }
 }
 
-final class ConversationCustomNavigationBar {
-    
-    let viewController: UIViewController!
-    
-    init(viewController: UIViewController) {
-        self.viewController = viewController
-    }
-    
-    func setupNavigationBarItems(with imageData: Data, memberName: String, using view: UIView) {
-        let customTitleView = UIView()
-        
-        if let image = UIImage(data: imageData) {
-            let imageView = UIImageView(image: image)
-            imageView.contentMode = .scaleAspectFit
-            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-            imageView.layer.cornerRadius = 20
-            imageView.clipsToBounds = true
-            imageView.center = imageView.convert(CGPoint(x: ((viewController.navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0), from: view)
-            
-            customTitleView.addSubview(imageView)
-            
-            let titleLabel = UILabel()
-            titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
-            titleLabel.text = memberName
-            titleLabel.textAlignment = .center
-            titleLabel.textColor = UIColor.white
-            titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
-            //            titleLabel.sizeToFit()
-            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: view)
-            customTitleView.addSubview(titleLabel)
-            
-            viewController.navigationItem.titleView = customTitleView
-        }
-    }
-}
+//final class ConversationCustomNavigationBar {
+//
+//    let viewController: UIViewController!
+//
+//    init(viewController: UIViewController) {
+//        self.viewController = viewController
+//    }
+//
+//    func setupNavigationBarItems(with imageData: Data, memberName: String, using view: UIView) {
+//        let customTitleView = UIView()
+//
+//        if let image = UIImage(data: imageData) {
+//            let imageView = UIImageView(image: image)
+//            imageView.contentMode = .scaleAspectFit
+//            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+//            imageView.layer.cornerRadius = 20
+//            imageView.clipsToBounds = true
+//            imageView.center = imageView.convert(CGPoint(x: ((viewController.navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0), from: view)
+//
+//            customTitleView.addSubview(imageView)
+//
+//            let titleLabel = UILabel()
+//            titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
+//            titleLabel.text = memberName
+//            titleLabel.textAlignment = .center
+//            titleLabel.textColor = UIColor.white
+//            titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
+//            //            titleLabel.sizeToFit()
+//            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: view)
+//            customTitleView.addSubview(titleLabel)
+//
+//            viewController.navigationItem.titleView = customTitleView
+//        }
+//    }
+//}

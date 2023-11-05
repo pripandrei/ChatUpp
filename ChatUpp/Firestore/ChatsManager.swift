@@ -98,8 +98,11 @@ extension Query {
             try document.data(as: type.self)
         }
     }
-    
 }
+
+
+class GenericViewController<T: UIView>: UIViewController { }
+
 
 //extension Sequence {
 //    func asyncMap<T>(_ transform: (Element) async throws -> T) async rethrows -> [T] {

@@ -16,7 +16,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     private var conversationViewModel: ConversationViewModel!
     private var collectionViewDataSource: ConversationViewDataSource!
     lazy private var conversationViewControllerUI = ConversationViewControllerUI(viewController: self)
-    private var customNavigationBar: ConversationCustomNavigationBar!
+//    private var customNavigationBar: ConversationCustomNavigationBar!
 
     
 //MARK: - LIFECYCLE
@@ -29,17 +29,21 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    override func loadView() {
+        view = conversationViewControllerUI
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupBinding()
         addTargetToSendMessageBtn()
-        conversationViewControllerUI.setupLayout(for: view)
+//        conversationViewControllerUI.setupLayout()
         configureCollectionView()
         setTepGesture()
         addKeyboardNotificationObservers()
-        setNavigationBarItems2()
+        setNavigationBarItems()
     }
     
     private func configureCollectionView() {
@@ -202,7 +206,7 @@ extension ConversationViewController
 //        customNavigationBar = ConversationCustomNavigationBar(viewController: self)
 //        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName, using: view)
 //    }
-    private func setNavigationBarItems2() {
+    private func setNavigationBarItems() {
         guard let imageData = conversationViewModel.imageData else {return}
         let memberName = conversationViewModel.memberName
 
