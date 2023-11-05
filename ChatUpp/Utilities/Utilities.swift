@@ -56,16 +56,6 @@ struct Utilities {
         return nil
     }
     
-    static var windowRoot: TabBarViewController? {
-        get {
-            return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController as? TabBarViewController
-        }
-        set {
-            guard let newValue = newValue else {return}
-            (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = newValue
-        }
-    }
-    
     static public func setupNavigationBarAppearance() {
         if #available(iOS 13.0, *) {
             let appearance = UINavigationBarAppearance()
@@ -81,6 +71,16 @@ struct Utilities {
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
         } else {
             UINavigationBar.appearance().barTintColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.8)
+        }
+    }
+
+    static var windowRoot: TabBarViewController? {
+        get {
+            return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController as? TabBarViewController
+        }
+        set {
+            guard let newValue = newValue else {return}
+            (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = newValue
         }
     }
 }

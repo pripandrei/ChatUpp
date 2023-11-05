@@ -13,6 +13,9 @@ final class ConversationViewControllerUI {
     let holderView = UIView()
     let messageTextView = UITextView()
     let sendMessageButton = UIButton()
+    var topView: UIView!
+    
+    var viewController: UIViewController!
     
     var holderViewBottomConstraint: NSLayoutConstraint!
     
@@ -28,12 +31,14 @@ final class ConversationViewControllerUI {
     }()
     
     init(viewController: UIViewController) {
-        self.collectionView.delegate = viewController as? UICollectionViewDelegate
+        self.viewController = viewController
     }
+
     
     // MARK: - VIEW LAYOUT SETUP
     
     func setupLayout(for view: UIView) {
+        topView = view
         setupCollectionView(in: view)
         setupHolderView(in: view)
         setupMessageTextView()
@@ -116,8 +121,38 @@ final class ConversationViewControllerUI {
     }
 }
 
-//MARK: - INVERTED COLLECTION FLOW
+// MARK: - SETUP NAVIGATION BAR ITEMS
 
+extension ConversationViewControllerUI {
+    func setNavigationBarItems(with imageData: Data, memberName: String) {
+        let customTitleView = UIView()
+        
+        if let image = UIImage(data: imageData) {
+            let imageView = UIImageView(image: image)
+            imageView.contentMode = .scaleAspectFit
+            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+            imageView.layer.cornerRadius = 20
+            imageView.clipsToBounds = true
+            imageView.center = imageView.convert(CGPoint(x: ((viewController.navigationController!.navigationBar.frame.width) / 2) - 40, y: 0), from: self.topView)
+            
+            customTitleView.addSubview(imageView)
+            
+            let titleLabel = UILabel()
+            titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
+            titleLabel.text = memberName
+            titleLabel.textAlignment = .center
+            titleLabel.textColor = UIColor.white
+            titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
+            //            titleLabel.sizeToFit()
+            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: topView)
+            customTitleView.addSubview(titleLabel)
+            
+            viewController.navigationItem.titleView = customTitleView
+        }
+    }
+}
+
+//MARK: - INVERTED COLLECTION FLOW
 final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
     
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
@@ -134,5 +169,41 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
             }
         }
         return attributesList
+    }
+}
+
+final class ConversationCustomNavigationBar {
+    
+    let viewController: UIViewController!
+    
+    init(viewController: UIViewController) {
+        self.viewController = viewController
+    }
+    
+    func setupNavigationBarItems(with imageData: Data, memberName: String, using view: UIView) {
+        let customTitleView = UIView()
+        
+        if let image = UIImage(data: imageData) {
+            let imageView = UIImageView(image: image)
+            imageView.contentMode = .scaleAspectFit
+            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+            imageView.layer.cornerRadius = 20
+            imageView.clipsToBounds = true
+            imageView.center = imageView.convert(CGPoint(x: ((viewController.navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0), from: view)
+            
+            customTitleView.addSubview(imageView)
+            
+            let titleLabel = UILabel()
+            titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
+            titleLabel.text = memberName
+            titleLabel.textAlignment = .center
+            titleLabel.textColor = UIColor.white
+            titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
+            //            titleLabel.sizeToFit()
+            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: view)
+            customTitleView.addSubview(titleLabel)
+            
+            viewController.navigationItem.titleView = customTitleView
+        }
     }
 }

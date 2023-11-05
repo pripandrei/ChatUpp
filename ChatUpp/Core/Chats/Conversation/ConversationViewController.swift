@@ -16,6 +16,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     private var conversationViewModel: ConversationViewModel!
     private var collectionViewDataSource: ConversationViewDataSource!
     lazy private var conversationViewControllerUI = ConversationViewControllerUI(viewController: self)
+    private var customNavigationBar: ConversationCustomNavigationBar!
 
     
 //MARK: - LIFECYCLE
@@ -33,21 +34,18 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         super.viewDidLoad()
         
         setupBinding()
+        addTargetToSendMessageBtn()
         conversationViewControllerUI.setupLayout(for: view)
-        setupCollectionViewDataSource()
+        configureCollectionView()
         setTepGesture()
         addKeyboardNotificationObservers()
-        setNavigationBarItems()
-        addTargetToSendMessageBtn()
+        setNavigationBarItems2()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-    }
-    
-    private func setupCollectionViewDataSource() {
+    private func configureCollectionView() {
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
         conversationViewControllerUI.collectionView.dataSource = collectionViewDataSource
+        conversationViewControllerUI.collectionView.delegate = self
     }
     
     //MARK: - Binding
@@ -83,7 +81,6 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
             handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
         }
     }
-    
     
     private func addTargetToSendMessageBtn() {
         conversationViewControllerUI.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
@@ -198,31 +195,18 @@ extension ConversationViewController {
 
 extension ConversationViewController
 {
-    private func setNavigationBarItems() {
+//    private func setNavigationBarItems2() {
+//        guard let imageData = conversationViewModel.imageData else {return}
+//        let memberName = conversationViewModel.memberName
+//
+//        customNavigationBar = ConversationCustomNavigationBar(viewController: self)
+//        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName, using: view)
+//    }
+    private func setNavigationBarItems2() {
         guard let imageData = conversationViewModel.imageData else {return}
-        let customTitleView = UIView()
-        
-        if let image = UIImage(data: imageData) {
-            let imageView = UIImageView(image: image)
-            imageView.contentMode = .scaleAspectFit
-            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-            imageView.layer.cornerRadius = 20
-            imageView.clipsToBounds = true
-            imageView.center = imageView.convert(CGPoint(x: ((navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0), from: view)
-            
-            customTitleView.addSubview(imageView)
-            
-            let titleLabel = UILabel()
-            titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
-            titleLabel.text = conversationViewModel.memberName
-            titleLabel.textAlignment = .center
-            titleLabel.textColor = UIColor.white
-            titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
-//            titleLabel.sizeToFit()
-            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: view)
-            customTitleView.addSubview(titleLabel)
+        let memberName = conversationViewModel.memberName
 
-            navigationItem.titleView = customTitleView
-        }
+//        customNavigationBar = ConversationCustomNavigationBar(viewController: self)
+        conversationViewControllerUI.setNavigationBarItems(with: imageData, memberName: memberName)
     }
 }
