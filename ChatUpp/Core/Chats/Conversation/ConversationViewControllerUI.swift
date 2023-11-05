@@ -10,11 +10,9 @@ import UIKit
 
 final class ConversationViewControllerUI: UIView {
 
-    let holderView = UIView()
+    let containerView = UIView()
     let messageTextView = UITextView()
     let sendMessageButton = UIButton()
-    
-    var viewController: UIViewController!
     
     var holderViewBottomConstraint: NSLayoutConstraint!
     
@@ -31,7 +29,6 @@ final class ConversationViewControllerUI: UIView {
     
     convenience init() {
         self.init(frame: .zero)
-//        self.viewController = viewController
         setupLayout()
     }
     
@@ -47,7 +44,6 @@ final class ConversationViewControllerUI: UIView {
     // MARK: - VIEW LAYOUT SETUP
     
     func setupLayout() {
-//        topView = view
         revertCollectionflowLayout()
         setupCollectionView()
         setupHolderView()
@@ -70,26 +66,26 @@ final class ConversationViewControllerUI: UIView {
     }
     
     private func setupHolderView() {
-        self.addSubviews(holderView)
+        self.addSubviews(containerView)
         
-        holderView.backgroundColor = .systemIndigo
-        holderView.translatesAutoresizingMaskIntoConstraints = false
-        holderView.bounds.size.height = 80
+        containerView.backgroundColor = .systemIndigo
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.bounds.size.height = 80
         
-        self.holderViewBottomConstraint = holderView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+        self.holderViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         self.holderViewBottomConstraint.isActive = true
         
         NSLayoutConstraint.activate([
-            holderView.heightAnchor.constraint(equalToConstant: 80),
-            holderView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            holderView.leadingAnchor.constraint(equalTo: self.leadingAnchor)
+            containerView.heightAnchor.constraint(equalToConstant: 80),
+            containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            containerView.leadingAnchor.constraint(equalTo: self.leadingAnchor)
         ])
     }
     
     private func setupMessageTextView() {
-        holderView.addSubview(messageTextView)
+        containerView.addSubview(messageTextView)
         
-        let height = holderView.bounds.height * 0.4
+        let height = containerView.bounds.height * 0.4
         messageTextView.backgroundColor = .systemBlue
         messageTextView.layer.cornerRadius = 15
         messageTextView.font = UIFont(name: "HelveticaNeue", size: 17)
@@ -98,15 +94,15 @@ final class ConversationViewControllerUI: UIView {
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            messageTextView.heightAnchor.constraint(equalToConstant: holderView.bounds.height * 0.4),
-            messageTextView.topAnchor.constraint(equalTo: holderView.topAnchor, constant: 10),
-            messageTextView.trailingAnchor.constraint(equalTo: holderView.trailingAnchor, constant: -55),
-            messageTextView.leadingAnchor.constraint(equalTo: holderView.leadingAnchor, constant: 35)
+            messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4),
+            messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+            messageTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -55),
+            messageTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 35)
         ])
     }
     
     private func setupSendMessageBtn() {
-        holderView.addSubview(sendMessageButton)
+        containerView.addSubview(sendMessageButton)
         // size is used only for radius calculation
         sendMessageButton.frame.size = CGSize(width: 35, height: 35)
         sendMessageButton.configuration = .filled()
@@ -119,7 +115,7 @@ final class ConversationViewControllerUI: UIView {
         NSLayoutConstraint.activate([
             sendMessageButton.heightAnchor.constraint(equalToConstant: 35),
             sendMessageButton.widthAnchor.constraint(equalToConstant: 35),
-            sendMessageButton.topAnchor.constraint(equalTo: holderView.topAnchor, constant: 8),
+            sendMessageButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
             sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
         ])
     }
@@ -129,37 +125,6 @@ final class ConversationViewControllerUI: UIView {
         collectionView.layoutIfNeeded()
     }
 }
-
-// MARK: - SETUP NAVIGATION BAR ITEMS
-
-//extension ConversationViewControllerUI {
-//    func setNavigationBarItems(with imageData: Data, memberName: String) {
-//        let customTitleView = UIView()
-//        
-//        if let image = UIImage(data: imageData) {
-//            let imageView = UIImageView(image: image)
-//            imageView.contentMode = .scaleAspectFit
-//            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-//            imageView.layer.cornerRadius = 20
-//            imageView.clipsToBounds = true
-//            imageView.center = imageView.convert(CGPoint(x: ((viewController.navigationController!.navigationBar.frame.width) / 2) - 40, y: 0), from: self)
-//            
-//            customTitleView.addSubview(imageView)
-//            
-//            let titleLabel = UILabel()
-//            titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
-//            titleLabel.text = memberName
-//            titleLabel.textAlignment = .center
-//            titleLabel.textColor = UIColor.white
-//            titleLabel.font =  UIFont(name:"HelveticaNeue-Bold", size: 17)
-//            //            titleLabel.sizeToFit()
-//            titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: self)
-//            customTitleView.addSubview(titleLabel)
-//            
-//            viewController.navigationItem.titleView = customTitleView
-//        }
-//    }
-//}
 
 //MARK: - INVERTED COLLECTION FLOW
 final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
@@ -181,6 +146,7 @@ final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
     }
 }
 
+// MARK: - SETUP NAVIGATION BAR ITEMS
 final class ConversationCustomNavigationBar {
 
     private let viewController: UIViewController!

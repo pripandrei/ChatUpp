@@ -44,10 +44,6 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         addKeyboardNotificationObservers()
         setNavigationBarItems()
     }
-    
-//    private var rootView: ConversationViewControllerUI {
-//        view as! ConversationViewControllerUI
-//    }
 
     private func configureCollectionView() {
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
@@ -202,7 +198,6 @@ extension ConversationViewController {
 
 extension ConversationViewController
 {
-    
     private func setNavigationBarItems() {
         guard let imageData = conversationViewModel.imageData else {return}
         let memberName = conversationViewModel.memberName
@@ -210,11 +205,4 @@ extension ConversationViewController
         customNavigationBar = ConversationCustomNavigationBar(viewController: self)
         customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName)
     }
-    
-//    private func setNavigationBarItems() {
-//        guard let imageData = conversationViewModel.imageData else {return}
-//        let memberName = conversationViewModel.memberName
-//
-//        rootView.setNavigationBarItems(with: imageData, memberName: memberName)
-//    }
 }
