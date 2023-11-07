@@ -22,6 +22,6 @@ final class ObservableObject<T> {
 
     func bind(_ listiner: @escaping((T) -> Void)) {
         self.listiner = listiner
-//        listiner(value)
+        listiner(value)
     }
 }

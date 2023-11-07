@@ -73,7 +73,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             
-            if rootView.holderView.frame.origin.y > 760 {
+            if rootView.containerView.frame.origin.y > 760 {
                 handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
             }
         }
@@ -163,7 +163,7 @@ extension ConversationViewController {
     
     private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         
-        let keyboardHeight = rootView.holderView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
+        let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
         let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
         
 

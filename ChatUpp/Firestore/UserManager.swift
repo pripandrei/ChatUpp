@@ -106,13 +106,14 @@ final class UserManager {
               let url = URL(string: urlPath) else { return }
         
         let session = URLSession(configuration: .default)
-        
+       
         session.dataTask(with: url) { data, _, error in
             if let error = error {
                 print("Could not get profile image: \(error.localizedDescription)")
                 completion(nil)
                 return
             }
+//            print("request")
             guard let data = data else { completion(nil); return }
             
             completion(data)

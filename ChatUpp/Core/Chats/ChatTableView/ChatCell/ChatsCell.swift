@@ -13,6 +13,7 @@ class ChatsCell: UITableViewCell {
     var nameLabel = UILabel()
     var profileImage = UIImageView()
     var dateLable = UILabel()
+    var cellViewModel: ChatCellViewModel!
     
     
 //MARK: - LIFECYCLE
@@ -28,27 +29,39 @@ class ChatsCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+    var count = 0
 //MARK: - CELL CONFIGURATION
     
     func configure(viewModel: ChatCellViewModel) {
-        viewModel.fetchImageData()
-        setupBinding(viewModel: viewModel)
+        self.cellViewModel = viewModel
         
+        handleImageSetup()
         messageLable.text = viewModel.message
         nameLabel.text = viewModel.userMame
         dateLable.adjustsFontSizeToFitWidth = true
         dateLable.text = viewModel.timestamp
     }
     
+    private func handleImageSetup()
+    {
+        guard let imageData = cellViewModel.otherUserProfileImage.value else {
+            cellViewModel.fetchImageData()
+            setupBinding()
+            return
+        }
+        let image = UIImage(data: imageData)
+        self.profileImage.image = image
+    }
     
 //MARK: - BINDING
     
-    private func setupBinding(viewModel: ChatCellViewModel) {
-        viewModel.otherUserProfileImage.bind { [weak self] data in
+    private func setupBinding() {
+        cellViewModel.otherUserProfileImage.bind { [weak self] data in
             if let imageData = data {
                 let image = UIImage(data: imageData)
-                DispatchQueue.main.async { self?.profileImage.image = image }
+                DispatchQueue.main.async {
+                    self?.profileImage.image = image
+                }
             }
         }
     }

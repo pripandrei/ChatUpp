@@ -16,6 +16,7 @@ class ChatCellViewModel {
     init(user: DBUser, recentMessages: Message) {
         self.user = user
         self.recentMessages = recentMessages
+//        fetchImageData()
     }
     
     var message: String {
@@ -33,8 +34,10 @@ class ChatCellViewModel {
 
     func fetchImageData() {
         UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { data in
+//            print("request")
             if let data = data {
                 self.otherUserProfileImage.value = data
+                print(self.otherUserProfileImage.value)
             }
         }
     }

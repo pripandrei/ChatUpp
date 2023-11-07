@@ -11,7 +11,7 @@ import FirebaseAuth
 // MARK: - CELL IDENTIFIER
 
 struct CellIdentifire {
-    static let chatCell = "ChatTableViewCell"
+    static let chatCell = "ChatTableVwCell"
     static let conversationMessageCell = "ConversationCollectionViewCell"
 }
 
@@ -32,6 +32,7 @@ class ChatsViewController: UIViewController {
         view.backgroundColor = .orange
         setupBinding()
         setupTableView()
+        setupSearchController()
     }
     
     deinit {
@@ -76,6 +77,39 @@ class ChatsViewController: UIViewController {
         tableView.rowHeight = 70
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     }
+    
+    let searchController = UISearchController(searchResultsController: nil)
+    
+    var filteredChats: [ChatCellViewModel] = []
+    
+    var isSearchBarEmpty: Bool {
+        searchController.searchBar.text?.isEmpty ?? true
+    }
+    
+    func filterContentForSearchText(_ searchText: String) {
+        filteredChats = chatsViewModel.cellViewModels.filter({ chat -> Bool in
+            chat.userMame.lowercased().contains(searchText.lowercased())
+        })
+        tableView.reloadData()
+    }
+    
+    func setupSearchController() {
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
+        navigationItem.hidesSearchBarWhenScrolling = true
+    }
+}
+
+extension ChatsViewController: UISearchResultsUpdating {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        let searchBar = searchController.searchBar
+        filterContentForSearchText(searchBar.text!)
+    }
+    
 }
 
 
@@ -93,4 +127,6 @@ extension ChatsViewController: UITableViewDelegate {
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
 }
+
+
 
