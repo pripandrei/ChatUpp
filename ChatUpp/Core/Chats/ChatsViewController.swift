@@ -131,7 +131,7 @@ extension ChatsViewController: UISearchResultsUpdating {
         let filteredResults = filterContentForSearchText(searchBar.text!)
         
         if let resultsTableVC = searchController.searchResultsController as? ResultsTableController {
-            resultsTableVC.filteredChats = filteredResults
+            resultsTableVC.filteredLocalChats = filteredResults
             resultsTableVC.tableView.reloadData()
         }
     }
