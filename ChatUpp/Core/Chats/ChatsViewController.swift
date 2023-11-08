@@ -19,11 +19,11 @@ class ChatsViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
     
-    let tableView = UITableView()
-    var chatsViewModel = ChatsViewModel()
-    var tableViewDataSource: UITableViewDataSource!
+    private let tableView = UITableView()
+    private var chatsViewModel = ChatsViewModel()
+    private var tableViewDataSource: UITableViewDataSource!
 
-    var shouldValidateUserAuthentication: Bool = true
+    private var shouldValidateUserAuthentication: Bool = true
     
     // MARK: - UI SETUP
 
@@ -31,7 +31,7 @@ class ChatsViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .orange
         setupBinding()
-        setupTableView()
+        configureTableView()
         setupSearchController()
     }
     
@@ -46,9 +46,15 @@ class ChatsViewController: UIViewController {
         }
     }
     
-    private func setupTableView() {
+    private func configureTableView() {
         tableView.register(ChatsCell.self, forCellReuseIdentifier: CellIdentifire.chatCell)
-        configureTableView()
+        view.addSubview(tableView)
+        tableView.delegate = self
+        tableViewDataSource = ChatsTableViewDataSource(viewModel: chatsViewModel)
+        tableView.dataSource = tableViewDataSource
+        tableView.pin(to: view)
+        tableView.rowHeight = 70
+        tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     }
     
     private func setupBinding() {
@@ -68,34 +74,42 @@ class ChatsViewController: UIViewController {
         }
     }
     
-    func configureTableView() {
-        view.addSubview(tableView)
-        tableView.delegate = self
-        tableViewDataSource = ChatsTableViewDataSource(viewModel: chatsViewModel)
-        tableView.dataSource = tableViewDataSource
-        tableView.pin(to: view)
-        tableView.rowHeight = 70
-        tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-    }
-    
-    let resultsTableController = ResultsTableController()
-    var searchController: UISearchController!
-    
-//    var filteredChats: [ChatCellViewModel] = []
-    
-//    var isSearchBarEmpty: Bool {
-//        searchController.searchBar.text?.isEmpty ?? true
-//    }
-//
-//    var isFiltering: Bool {
-//        searchController.isActive && !isSearchBarEmpty
-//    }
+    private let resultsTableController = ResultsTableController()
+    private var searchController: UISearchController!
     
     func filterContentForSearchText(_ searchText: String) -> [ChatCellViewModel] {
         return chatsViewModel.cellViewModels.filter({ chat -> Bool in
-            chat.userMame.lowercased().contains(searchText.lowercased())
+            
+            let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
+            
+            let searchTextComponents = searchText.components(separatedBy: delimiters)
+            let filteredSearchText = searchTextComponents.joined(separator: " ")
+            let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
+            
+            let nameSubstrings = chat.userMame.lowercased().components(separatedBy: delimiters)
+            
+            for substring in nameSubstrings {
+                if substring.hasPrefix(trimmedSearchText) {
+                    return true
+                }
+            }
+            if chat.userMame.lowercased().hasPrefix(trimmedSearchText) {
+                return true
+            }
+            return false
         })
-//        tableView.reloadData()
+    }
+    
+    func removeExcessiveSpaces(from input: String) -> String {
+        do {
+            let regex = try NSRegularExpression(pattern: "\\s+", options: .caseInsensitive)
+            let range = NSRange(location: 0, length: input.utf16.count)
+            let result = regex.stringByReplacingMatches(in: input, options: [], range: range, withTemplate: " ")
+            return result.trimmingCharacters(in: .whitespacesAndNewlines)
+        } catch {
+            print("Error creating regular expression: \(error)")
+            return input
+        }
     }
     
     func setupSearchController() {

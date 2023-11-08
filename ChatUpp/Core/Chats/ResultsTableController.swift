@@ -19,11 +19,9 @@ class ResultsTableController: UITableViewController {
     }
     
     func setupTableViewConstraints() {
-//        tableView.pin(to: view)
         tableView.rowHeight = 70
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     }
-    
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         filteredChats.count
