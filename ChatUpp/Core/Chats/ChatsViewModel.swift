@@ -9,7 +9,7 @@ import Foundation
 
 
 final class ChatsViewModel {
-    
+
     var isUserLoggedOut: ObservableObject<Bool> = ObservableObject(false)
     var chats = [Chat]()
     var otherMembers = [DBUser]()
@@ -18,9 +18,9 @@ final class ChatsViewModel {
     
     var onDataFetched: (() -> Void)?
 
-    init() {
-//        validateUserAuthentication()
-    }
+//    init() {
+////        validateUserAuthentication()
+//    }
     
     private func fetchChatData() async  {
             do {

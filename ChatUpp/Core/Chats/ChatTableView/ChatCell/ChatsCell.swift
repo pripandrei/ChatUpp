@@ -9,12 +9,11 @@ import UIKit
 
 class ChatsCell: UITableViewCell {
     
-    var messageLable = UILabel()
-    var nameLabel = UILabel()
-    var profileImage = UIImageView()
-    var dateLable = UILabel()
-    var cellViewModel: ChatCellViewModel!
-    
+    private var messageLable = UILabel()
+    private var nameLabel = UILabel()
+    private var profileImage = UIImageView()
+    private var dateLable = UILabel()
+    private var cellViewModel: ChatCellViewModel!
     
 //MARK: - LIFECYCLE
     
@@ -29,13 +28,14 @@ class ChatsCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    var count = 0
+
 //MARK: - CELL CONFIGURATION
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
-        
+        setupBinding()
         handleImageSetup()
+        
         messageLable.text = viewModel.message
         nameLabel.text = viewModel.userMame
         dateLable.adjustsFontSizeToFitWidth = true
@@ -46,7 +46,6 @@ class ChatsCell: UITableViewCell {
     {
         guard let imageData = cellViewModel.otherUserProfileImage.value else {
             cellViewModel.fetchImageData()
-            setupBinding()
             return
         }
         let image = UIImage(data: imageData)
