@@ -14,7 +14,7 @@ class ChatsTableViewDataSource: NSObject, UITableViewDataSource {
     init(viewModel: ChatsViewModel) {
         self.chatsViewModel = viewModel
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return chatsViewModel.cellViewModels.count
     }
