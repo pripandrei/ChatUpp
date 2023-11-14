@@ -161,6 +161,8 @@ class ChatsViewController: UIViewController {
             return input
         }
     }
+    private var lastSearchedText: String?
+    private var searchTimer: Timer?
 }
 
 extension ChatsViewController: UISearchResultsUpdating {
@@ -168,24 +170,62 @@ extension ChatsViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let searchBar = searchController.searchBar
 //        let filteredResults = filterContentForSearchText(searchBar.text!)
-        let searchResultData = AlgoliaSearchManager.shared.performSearch(searchBar.text!)
-        
-        let filteredUsers = searchResultData.compactMap { resultData in
-            ResultsCellViewModel(user: resultData.name, userProfileImageLink: resultData.profileImageLink)
+        guard let text = searchBar.text,
+              !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else
+        {
+            resultsTableController.filteredUsers = []
+            resultsTableController.tableView.reloadData()
+            return
         }
-        if let resultsTableVC = searchController.searchResultsController as? ResultsTableController {
-////            if !filteredResults.isEmpty {
-////                resultsTableVC.filteredUsers = filteredResults
-////                resultsTableVC.userSearch = .local
-////                resultsTableVC.tableView.reloadData()
-////            } else {
-//                performGlobalSearch(searchBar.text!)
-            resultsTableVC.filteredUsers = filteredUsers
-            resultsTableVC.tableView.reloadData()
-////            }
+        
+        lastSearchedText = text
+        
+        searchTimer?.invalidate()
+        
+        searchTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
+            self.performSearch(text)
+        })
+        
+        
+//        if let resultsTableVC = searchController.searchResultsController as? ResultsTableController {
+//            Task {
+//                let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
+//                if text == lastText {
+//                    let filteredUsers = searchResultData.compactMap { resultData in
+//                        ResultsCellViewModel(user: resultData.name, userProfileImageLink: resultData.profileImageLink)
+//                    }
+//                    ////            if !filteredResults.isEmpty {
+//                    ////                resultsTableVC.filteredUsers = filteredResults
+//                    ////                resultsTableVC.userSearch = .local
+//                    ////                resultsTableVC.tableView.reloadData()
+//                    ////            } else {
+//                    //                performGlobalSearch(searchBar.text!)
+//                    DispatchQueue.main.async {
+//                        resultsTableVC.filteredUsers = filteredUsers
+//                        resultsTableVC.tableView.reloadData()
+//                    }
+//                }
+//            }
+//        }
+    }
+    
+    private func performSearch(_ text: String) {
+        Task {
+            let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
+            if text == lastSearchedText {
+                let filteredUsers = searchResultData.compactMap { resultData in
+                    ResultsCellViewModel(user: resultData.name, userProfileImageLink: resultData.profileImageLink)
+                }
+                await MainActor.run {
+                    self.resultsTableController.filteredUsers = filteredUsers
+                    self.resultsTableController.tableView.reloadData()
+                }
+            }
         }
     }
 }
+
+
 
 
 extension ChatsViewController: UITableViewDelegate {
@@ -215,33 +255,20 @@ final class AlgoliaSearchManager {
     
     private init() {}
     
-    func performSearch(_ searchText: String) -> [AlgoliaResultData] {
-//        let settings = Settings().set(\.searchableAttributes, to: ["name"])
-        
+    func performSearch(_ searchText: String) async -> [AlgoliaResultData] {
         let text = Query(searchText)
-        
-//        var query = Query("s")
-//        text.attributesToRetrieve = ["name"]
         do {
-//            try index.setSettings(settings)
+           
             let result = try index.search(query: text)
-//            let hits = result.hits
             
             return result.hits.compactMap { hitJson in
                 if let name = hitJson.object["name"]?.object() as? String,
                     let profileImage = hitJson.object["photo_url"]?.object() as? String
                 {
-                    print(name)
                     return AlgoliaResultData(name: name, profileImageLink: profileImage)
                 }
                 return nil
             }
-            
-//            for hit in hits {
-//                if let name = hit.object["name"] {
-//                    print(name)
-//                }
-//            }
         } catch {
             print("Error while searching for index field: ", error)
         }
@@ -254,4 +281,124 @@ struct AlgoliaResultData {
     let profileImageLink: String
 }
 
+//let result = try index.search(query: text, completion: { result in
+//    if case .success(let response) = result {
+//        response.hits.compactMap { hitJson in
+//            if let name = hitJson.object["name"]?.object() as? String,
+//               let profileImage = hitJson.object["photo_url"]?.object() as? String
+//            {
+//                print(name)
+//                return AlgoliaResultData(name: name, profileImageLink: profileImage)
+//            }
+//            return nil
+//        }
+//    }
+////                return result.hits.compactMap { hitJson in
+////                    if let name = hitJson.object["name"]?.object() as? String,
+////                        let profileImage = hitJson.object["photo_url"]?.object() as? String
+////                    {
+////                        print(name)
+////                        return AlgoliaResultData(name: name, profileImageLink: profileImage)
+////                    }
+////                    return nil
+////                }
+//}
 
+
+
+//
+//
+//extension ChatsViewController: UISearchResultsUpdating {
+//
+//    func updateSearchResults(for searchController: UISearchController) {
+//        let searchBar = searchController.searchBar
+////        let filteredResults = filterContentForSearchText(searchBar.text!)
+//        guard let text = searchBar.text,
+//              !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+//        else { return }
+//        Task {
+//
+//            let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
+//            let filteredUsers = searchResultData.compactMap { resultData in
+//                ResultsCellViewModel(user: resultData.name, userProfileImageLink: resultData.profileImageLink)
+//            }
+//            if let resultsTableVC = searchController.searchResultsController as? ResultsTableController {
+//                ////            if !filteredResults.isEmpty {
+//                ////                resultsTableVC.filteredUsers = filteredResults
+//                ////                resultsTableVC.userSearch = .local
+//                ////                resultsTableVC.tableView.reloadData()
+//                ////            } else {
+//                //                performGlobalSearch(searchBar.text!)
+//                resultsTableVC.filteredUsers = filteredUsers
+//                resultsTableVC.tableView.reloadData()
+//                ////            }
+//            }
+//        }
+//
+//    }
+//}
+//
+//
+//extension ChatsViewController: UITableViewDelegate {
+//
+//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        tableView.deselectRow(at: indexPath, animated: false)
+//
+//        let chat = chatsViewModel.chats[indexPath.item]
+//        let memberName = chatsViewModel.cellViewModels[indexPath.item].userMame
+//        let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].otherUserProfileImage.value
+//
+//        let conversationViewModel = ConversationViewModel(memberName: memberName, conversation: chat, imageData: memberPhoto)
+//
+//        coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
+//    }
+//}
+//
+//
+//
+//
+//final class AlgoliaSearchManager {
+//
+//    static let shared = AlgoliaSearchManager()
+//
+//    private let client = SearchClient(appID: "TRVTKK4YUR", apiKey: "5ba2aee5ee2c0879fcd16f112a66e821")
+//    private lazy var index = client.index(withName: "Users")
+//
+//    private init() {}
+//
+//
+//    func performSearch(_ searchText: String) async -> [AlgoliaResultData] {
+//        let text = Query(searchText)
+//
+//        do {
+//            let result = try await withUnsafeThrowingContinuation { (continuation: UnsafeContinuation<[AlgoliaResultData], Error>) in
+//                _Concurrency.Task {
+//                    do {
+//                        let result = try await index.search(query: text)
+//                        let searchData = result.hits.compactMap { hitJson in
+//                            if let name = hitJson.object["name"]?.object() as? String,
+//                                let profileImage = hitJson.object["photo_url"]?.object() as? String
+//                            {
+//                                print(name)
+//                                return AlgoliaResultData(name: name, profileImageLink: profileImage)
+//                            }
+//                            return nil
+//                        }
+//                        continuation.resume(returning: searchData)
+//                    } catch {
+//                        print("Error while searching for index field: ", error)
+//                        continuation.resume(throwing: error)
+//                    }
+//                }
+//            }
+//            return result
+//        } catch {
+//            print("Error in performSearch: ", error)
+//            return []
+//        }
+//    }
+//
+//    // Usage
+//
+//
+//}

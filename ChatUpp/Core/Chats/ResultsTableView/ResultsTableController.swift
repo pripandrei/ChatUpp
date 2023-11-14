@@ -13,7 +13,7 @@ class ResultsTableController: UITableViewController {
         case global
         case local
     }
-    
+
     var filteredUsers: [ResultsCellViewModel] = []
 //    var filteredGlobalUsers: [DBUser] = []
     private var noUserWasFoundLabel = UILabel()
@@ -21,7 +21,7 @@ class ResultsTableController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         tableView.delegate = self
         tableView.register(ResultsTableCell.self, forCellReuseIdentifier: CellIdentifire.resultsTableCell)
         setupTableViewConstraints()
@@ -82,6 +82,12 @@ extension ResultsTableController {
         
         return cell
     }
+    
+//    override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        if let cell = cell as? ResultsTableCell {
+//            cell.resetImg()
+//        }
+//    }
 }
 
 //MARK: - TABLE DELEGATE

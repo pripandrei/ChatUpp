@@ -25,22 +25,22 @@ final class ResultsTableCell: UITableViewCell {
     
     func configure(viewModel: ResultsCellViewModel) {
         self.cellViewModel = viewModel
+//        cellViewModel.fetchImageData()
         setupBinding()
         
         userNameLabel.text = cellViewModel.userName
         
         guard let imageData = cellViewModel.userImageData.value else {
-            cellViewModel.fetchImageData()
+//            cellViewModel.fetchImageData()
             return
         }
         let image = UIImage(data: imageData)
         self.userImage.image = image
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-
-    }
+//    func resetImg() {
+//        self.userImage.image = nil
+//    }
     
     private func setupBinding() {
         cellViewModel.userImageData.bind { [weak self] data in
@@ -90,6 +90,7 @@ final class ResultsCellViewModel {
     init(user: String, userProfileImageLink: String) {
         self.userName = user
         self.userProfileImageLink = userProfileImageLink
+        fetchImageData()
     }
     
     func fetchImageData() {
