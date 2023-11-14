@@ -86,6 +86,14 @@ final class UserManager {
         return try await userDocument(userID: userID).getDocument(as: DBUser.self)
     }
     
+    func getUsersFromDB(where searchName: String) async throws -> [DBUser] {
+        let usersQuery = userCollection
+            .whereField(FirestoreField.name.rawValue, isGreaterThanOrEqualTo: searchName)
+            .whereField(FirestoreField.name.rawValue, isLessThanOrEqualTo: "\(searchName)\u{f7ff}")
+//        let usersQuery = userCollection.whereField(FirestoreField.name.rawValue, isEqualTo: searchName)
+        return try await usersQuery.getDocuments(as: DBUser.self)
+    }
+    
     // MARK: - GET USER PROFILE IMAGE
     
 //    func getProfileImageData(urlPath: String?) async -> Data? {

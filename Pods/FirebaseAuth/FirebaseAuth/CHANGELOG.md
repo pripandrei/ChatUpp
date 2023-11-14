@@ -1,3 +1,9 @@
+# 10.16.0
+- [added] Added custom auth domain support in recaptcha v2 authentication flows. (#7553)
+
+# 10.14.0
+- [added] Added reCAPTCHA verification support in email authentication flows. (#11231)
+
 # 10.13.0
 - [fixed] Fixed a compilation error regression introduced in 10.12.0 building iOS App Extensions. (#11537)
 

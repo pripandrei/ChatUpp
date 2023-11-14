@@ -74,6 +74,15 @@ final class ChatsViewModel {
             otherMembers.append(dbUser)
         }
     }
+    
+    func findUsersFromDB(where searchName: String) async -> [DBUser] {
+        do {
+            return try await UserManager.shared.getUsersFromDB(where: searchName)
+        } catch {
+            print("error finding user from DB :", error)
+        }
+        return []
+    }
 }
 
 

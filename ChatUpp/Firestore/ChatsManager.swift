@@ -57,7 +57,7 @@ final class ChatsManager {
     //MARK: - GET USER RELATED CHATS DOCUMENT
     
     func getUserChatsFromDB(_ userID: String) async throws -> [Chat] {
-        let chatsQuery = chatsCollection.whereField(FirestoreCollection.members.rawValue, arrayContainsAny: [userID])
+        let chatsQuery = chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID])
         return try await chatsQuery.getDocuments(as: Chat.self)
     }
     

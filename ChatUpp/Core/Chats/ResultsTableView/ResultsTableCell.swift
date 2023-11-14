@@ -1,0 +1,123 @@
+//
+//  ResultsTableCell.swift
+//  ChatUpp
+//
+//  Created by Andrei Pripa on 11/9/23.
+//
+
+import UIKit
+
+final class ResultsTableCell: UITableViewCell {
+    
+    var userNameLabel = UILabel()
+    var userImage = UIImageView()
+    private var cellViewModel: ResultsCellViewModel!
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUserImage()
+        setupUserName()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(viewModel: ResultsCellViewModel) {
+        self.cellViewModel = viewModel
+        setupBinding()
+        
+        userNameLabel.text = cellViewModel.userName
+        
+        guard let imageData = cellViewModel.userImageData.value else {
+            cellViewModel.fetchImageData()
+            return
+        }
+        let image = UIImage(data: imageData)
+        self.userImage.image = image
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+    }
+    
+    private func setupBinding() {
+        cellViewModel.userImageData.bind { [weak self] data in
+            if let imageData = data {
+                let image = UIImage(data: imageData)
+                DispatchQueue.main.async {
+                    self?.userImage.image = image
+                }
+            }
+        }
+    }
+    
+    private func setupUserImage() {
+        addSubview(userImage)
+        
+        userImage.backgroundColor = .magenta
+        
+        userImage.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            userImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            userImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            userImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
+            userImage.widthAnchor.constraint(equalToConstant: 60)
+        ])
+    }
+    
+    private func setupUserName() {
+        addSubview(userNameLabel)
+        
+        userNameLabel.backgroundColor = .green
+        userNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            userNameLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            userNameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10)
+        ])
+    }
+}
+
+final class ResultsCellViewModel {
+    
+    let userName: String
+    let userProfileImageLink: String
+    var userImageData: ObservableObject<Data?> = ObservableObject(nil)
+    
+    init(user: String, userProfileImageLink: String) {
+        self.userName = user
+        self.userProfileImageLink = userProfileImageLink
+    }
+    
+    func fetchImageData() {
+        UserManager.shared.getProfileImageData(urlPath: userProfileImageLink) { [weak self] data in
+            if let data = data {
+                self?.userImageData.value = data
+            }
+        }
+    }
+}
+
+
+//final class ResultsCellViewModel {
+//
+//    var userName: String!
+//    var userImageData: Data!
+//
+//    init(userName: String, userImageData: Data) {
+//        self.userName = userName
+//        self.userImageData = userImageData
+//    }
+//
+//    func fetchImageData() {
+//        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { data in
+//            if let data = data {
+//                self.otherUserProfileImage.value = data
+//            }
+//        }
+//    }
+//}
+

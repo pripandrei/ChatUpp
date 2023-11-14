@@ -10,6 +10,10 @@ import Foundation
 enum FirestoreCollection: String {
     case chats
     case messages
-    case members
     case users
+}
+
+enum FirestoreField: String {
+    case members
+    case name
 }
