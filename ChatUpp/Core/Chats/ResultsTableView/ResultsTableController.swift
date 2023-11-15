@@ -22,7 +22,8 @@ class ResultsTableController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        tableView.contentInset.top = -15
+//        tableView.contentInsetAdjustmentBehavior = .never
+//        tableView.contentInset.top = 80
         setupTableView()
         configureTextLabel()
     }
@@ -47,9 +48,10 @@ class ResultsTableController: UITableViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(ResultsTableCell.self, forCellReuseIdentifier: CellIdentifire.resultsTableCell)
-        
+        tableView.sectionHeaderTopPadding = 0
         tableView.rowHeight = 70
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        
         
         tableView.isSkeletonable = true
 //        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .amethyst, secondaryColor: .clouds), animated: true, delay: 0.0, transition: .crossDissolve(.leastNonzeroMagnitude))
@@ -67,9 +69,9 @@ class ResultsTableController: UITableViewController {
 
 extension ResultsTableController: SkeletonTableViewDataSource {
     
-    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 20
-    }
+//    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return 20
+//    }
 //
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
        return CellIdentifire.resultsTableCell
@@ -119,6 +121,7 @@ extension ResultsTableController {
         var configuration = UIListContentConfiguration.subtitleCell()
         
         if userSearch == .local {
+//        if section == 0 {
             configuration.text = "Chats".uppercased()
         } else {
             configuration.text = "Global search".uppercased()
