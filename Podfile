@@ -17,5 +17,6 @@ pod 'FirebaseFirestoreSwift'
 pod 'GoogleSignIn'
 pod 'GoogleSignInSwift'
 pod 'AlgoliaSearchClient', '~> 8.0'
+pod 'SkeletonView'
 
 end

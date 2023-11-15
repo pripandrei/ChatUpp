@@ -93,7 +93,7 @@ class ChatsViewController: UIViewController {
     }
     
     func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
-        var resultsCell: [ResultsCellViewModel] = []
+        let resultsCell: [ResultsCellViewModel] = []
         
         let chatsViewModels = chatsViewModel.cellViewModels.filter({ chat -> Bool in
            
@@ -144,6 +144,7 @@ extension ChatsViewController: UISearchResultsUpdating {
         guard let text = searchBar.text,
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else
         {
+            lastSearchedText = nil
             resultsTableController.filteredUsers = []
             resultsTableController.tableView.reloadData()
             return

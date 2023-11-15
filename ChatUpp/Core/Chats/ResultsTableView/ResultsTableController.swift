@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 class ResultsTableController: UITableViewController {
     
@@ -13,7 +14,7 @@ class ResultsTableController: UITableViewController {
         case global
         case local
     }
-
+    
     var filteredUsers: [ResultsCellViewModel] = []
 //    var filteredGlobalUsers: [DBUser] = []
     private var noUserWasFoundLabel = UILabel()
@@ -21,13 +22,11 @@ class ResultsTableController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        tableView.delegate = self
-        tableView.register(ResultsTableCell.self, forCellReuseIdentifier: CellIdentifire.resultsTableCell)
-        setupTableViewConstraints()
+//        tableView.contentInset.top = -15
+        setupTableView()
         configureTextLabel()
     }
-    
+   
     private func configureTextLabel() {
         tableView.addSubview(noUserWasFoundLabel)
         
@@ -44,9 +43,36 @@ class ResultsTableController: UITableViewController {
         ])
     }
     
-    private func setupTableViewConstraints() {
+    private func setupTableView() {
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(ResultsTableCell.self, forCellReuseIdentifier: CellIdentifire.resultsTableCell)
+        
         tableView.rowHeight = 70
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        
+        tableView.isSkeletonable = true
+//        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .amethyst, secondaryColor: .clouds), animated: true, delay: 0.0, transition: .crossDissolve(.leastNonzeroMagnitude))
+//        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .belizeHole) ,animated: true, delay: 0.0, transition: .none)
+//        tableView.showAnimatedSkeleton(usingColor: .belizeHole, animation: { layer in
+//            layer.pulse
+//        }, transition: .none)
+        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
+        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), animation: .none, transition: .none)
+    }
+}
+
+//MARK: - SKELETON TABLE VIEW DATA SOURCE
+
+extension ResultsTableController: SkeletonTableViewDataSource {
+    
+    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 20
+    }
+//
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+       return CellIdentifire.resultsTableCell
     }
 }
 
@@ -82,16 +108,11 @@ extension ResultsTableController {
         
         return cell
     }
-    
-//    override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        if let cell = cell as? ResultsTableCell {
-//            cell.resetImg()
-//        }
-//    }
 }
 
 //MARK: - TABLE DELEGATE
 extension ResultsTableController {
+    
     
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let tableViewHeaderFooterView = UITableViewHeaderFooterView()
@@ -102,6 +123,7 @@ extension ResultsTableController {
         } else {
             configuration.text = "Global search".uppercased()
         }
+        
         
         configuration.textProperties.color = .white
         configuration.textProperties.font = UIFont(name: "HelveticaNeue", size: 14)!

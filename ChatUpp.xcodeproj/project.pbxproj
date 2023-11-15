@@ -236,10 +236,10 @@
 		75B5C4B82A49AB0A00F63A5A /* ChatUpp */ = {
 			isa = PBXGroup;
 			children = (
-				75E054262B0428E200828B9D /* AlgoliaSearch */,
 				75FB79022AC31AEA00C2743A /* Core */,
 				75FB78FF2AC3188C00C2743A /* Extensions */,
 				756525D32AB50035005DC594 /* Firestore */,
+				75E054262B0428E200828B9D /* AlgoliaSearch */,
 				756525C02A7E821C005DC594 /* Authentication */,
 				756525C82A8127CC005DC594 /* Utilities */,
 				75B5C4CD2A49AB1500F63A5A /* Supporting files */,

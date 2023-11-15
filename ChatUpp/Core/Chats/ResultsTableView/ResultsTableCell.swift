@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 final class ResultsTableCell: UITableViewCell {
     
@@ -15,6 +16,10 @@ final class ResultsTableCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        self.isSkeletonable = true
+        contentView.isSkeletonable = true
+        contentView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupUserImage()
         setupUserName()
     }
@@ -54,10 +59,9 @@ final class ResultsTableCell: UITableViewCell {
     }
     
     private func setupUserImage() {
-        addSubview(userImage)
+        contentView.addSubview(userImage)
         
-        userImage.backgroundColor = .magenta
-        
+        userImage.isSkeletonable = true
         userImage.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -69,14 +73,27 @@ final class ResultsTableCell: UITableViewCell {
     }
     
     private func setupUserName() {
-        addSubview(userNameLabel)
+        contentView.addSubview(userNameLabel)
         
+        userNameLabel.isSkeletonable = true
+        userNameLabel.skeletonTextLineHeight = .fixed(10)
+        userNameLabel.skeletonTextNumberOfLines = .custom(3)
+        userNameLabel.linesCornerRadius = 4
+        userNameLabel.lastLineFillPercent = 30
+//        userNameLabel.skeletonPaddingInsets
         userNameLabel.backgroundColor = .green
         userNameLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             userNameLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            userNameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10)
+            userNameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10),
+            userNameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
+//            userNameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+//            userNameLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5)
+//            userNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+//            userNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+//            userNameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 5),
+//            userNameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10)
         ])
     }
 }
