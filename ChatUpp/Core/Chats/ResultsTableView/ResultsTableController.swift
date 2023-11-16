@@ -8,6 +8,11 @@
 import UIKit
 import SkeletonView
 
+enum Skeletonanimation {
+    case initiate
+    case terminate
+}
+
 class ResultsTableController: UITableViewController {
     
 //    enum UsersSearch {
@@ -25,7 +30,7 @@ class ResultsTableController: UITableViewController {
 //        }
 //    }
 //    var filteredGlobalUsers: [DBUser] = []
-    private var noUserWasFoundLabel = UILabel()
+    var noUserWasFoundLabel = UILabel()
 //    var userSearch: UsersSearch!
     
     override func viewDidLoad() {
@@ -48,6 +53,14 @@ class ResultsTableController: UITableViewController {
             noUserWasFoundLabel.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
             noUserWasFoundLabel.centerYAnchor.constraint(equalTo: tableView.centerYAnchor, constant: -100),
         ])
+    }
+    
+    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
+        if value == .initiate {
+            initiateSkeletonAnimation()
+        } else {
+            terminateSkeletonAnimation()
+        }
     }
 
     func initiateSkeletonAnimation() {

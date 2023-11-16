@@ -93,9 +93,31 @@ class ChatsViewController: UIViewController {
     }
     
     func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
-        let resultsCell: [ResultsCellViewModel] = []
+//        let resultCells: [ResultsCellViewModel] = []
         
-        let chatsViewModels = chatsViewModel.cellViewModels.filter({ chat -> Bool in
+//        let chatsViewModels = chatsViewModel.cellViewModels.filter({ chat -> Bool in
+//
+//            let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
+//
+//            let searchTextComponents = searchText.components(separatedBy: delimiters)
+//            let filteredSearchText = searchTextComponents.joined(separator: " ")
+//            let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
+//
+//            let nameSubstrings = chat.userMame.lowercased().components(separatedBy: delimiters)
+//
+//            for substring in nameSubstrings {
+//                if substring.hasPrefix(trimmedSearchText) {
+//                    return true
+//                }
+//            }
+//            if chat.userMame.lowercased().hasPrefix(trimmedSearchText) {
+//                return true
+//            }
+//            return false
+//        })
+        
+        
+        return chatsViewModel.cellViewModels.compactMap ({ chat in
            
             let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
             
@@ -107,20 +129,21 @@ class ChatsViewController: UIViewController {
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    return true
+                    return ResultsCellViewModel(user: chat.userMame, userProfileImageLink: chat.user.photoUrl!)
+//                    return true
                 }
             }
             if chat.userMame.lowercased().hasPrefix(trimmedSearchText) {
-                return true
+                return ResultsCellViewModel(user: chat.userMame, userProfileImageLink: chat.user.photoUrl!)
             }
-            return false
+            return nil
         })
         
 //        for chatVM in chatsViewModels {
 //            let resultsCellVM = ResultsCellViewModel(userName: chatVM.userMame, userImageData: chatVM.otherUserProfileImage.value!)
 //            resultsCell.append(resultsCellVM)
 //        }
-        return resultsCell
+//        return resultCells
     }
     
     func removeExcessiveSpaces(from input: String) -> String {
@@ -140,20 +163,31 @@ extension ChatsViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         let searchBar = searchController.searchBar
-//        let filteredResults = filterContentForSearchText(searchBar.text!)
+        
         guard let text = searchBar.text,
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else
         {
             lastSearchedText = nil
-            resultsTableController.filteredUsers = []
-            resultsTableController.tableView.reloadData()
+            updateTableView(withResults: [], toggleSkeletonAnimation: .terminate)
+//            resultsTableController.filteredUsers = []
+//            resultsTableController.toggleSkeletonanimation(false)
+//            resultsTableController.tableView.reloadData()
             return
         }
         
+        let filteredResults = filterContentForSearchText(searchBar.text!)
+        guard filteredResults.isEmpty else {
+            updateTableView(withResults: filteredResults, toggleSkeletonAnimation: .terminate)
+//            resultsTableController.filteredUsers = filteredResults
+//            resultsTableController.tableView.reloadData()
+            return
+        }
+
         lastSearchedText = text
         
         if resultsTableController.filteredUsers.isEmpty {
-            resultsTableController.initiateSkeletonAnimation()            
+//            resultsTableController.initiateSkeletonAnimation()
+            resultsTableController.toggleSkeletonAnimation(.initiate)
         }
         
         searchTimer?.invalidate()
@@ -162,18 +196,27 @@ extension ChatsViewController: UISearchResultsUpdating {
         })
     }
     
+    func updateTableView(withResults filteredResults: [ResultsCellViewModel], toggleSkeletonAnimation value: Skeletonanimation) {
+        resultsTableController.filteredUsers = filteredResults
+        resultsTableController.tableView.reloadData()
+        resultsTableController.toggleSkeletonAnimation(value)
+    }
+    
+   
+    
     // Transfer to viewModel
     private func performSearch(_ text: String) {
         Task {
             let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
             if text == lastSearchedText {
-                let filteredUsers = searchResultData.compactMap { resultData in
+                let filteredResults = searchResultData.compactMap { resultData in
                     ResultsCellViewModel(user: resultData.name, userProfileImageLink: resultData.profileImageLink)
                 }
                 await MainActor.run {
-                    resultsTableController.filteredUsers = filteredUsers
-                    resultsTableController.terminateSkeletonAnimation()
-                    resultsTableController.tableView.reloadData()
+//                    resultsTableController.terminateSkeletonAnimation()
+//                    resultsTableController.filteredUsers = filteredUsers
+//                    resultsTableController.tableView.reloadData()
+                    updateTableView(withResults: filteredResults, toggleSkeletonAnimation: .terminate)
                 }
             }
         }
