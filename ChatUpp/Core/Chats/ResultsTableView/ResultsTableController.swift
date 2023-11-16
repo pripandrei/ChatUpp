@@ -26,6 +26,7 @@ class ResultsTableController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupTableView()
         configureTextLabel()
     }
@@ -75,6 +76,9 @@ class ResultsTableController: UITableViewController {
         tableView.rowHeight = 55
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         tableView.isSkeletonable = true
+        // Omit tableView to automatically go behind navigation bar
+        // when Skeleton view is running
+        edgesForExtendedLayout = []
     }
 }
 
@@ -115,11 +119,12 @@ extension ResultsTableController {
 extension ResultsTableController
 {
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard !tableView.sk.isSkeletonActive else {return nil}
+        
         let tableViewHeaderFooterView = UITableViewHeaderFooterView()
         var configuration = UIListContentConfiguration.subtitleCell()
         
         if userSearch == .local {
-            ////        if section == 0 {
             configuration.text = "Chats".uppercased()
         } else {
             configuration.text = "Global search".uppercased()
