@@ -10,9 +10,9 @@ import SkeletonView
 
 final class ResultsTableCell: UITableViewCell {
     
+    private var cellViewModel: ResultsCellViewModel!
     var userNameLabel = UILabel()
     var userImage = UIImageView()
-    private var cellViewModel: ResultsCellViewModel!
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -30,22 +30,17 @@ final class ResultsTableCell: UITableViewCell {
     
     func configure(viewModel: ResultsCellViewModel) {
         self.cellViewModel = viewModel
-//        cellViewModel.fetchImageData()
         setupBinding()
         
         userNameLabel.text = cellViewModel.userName
         
         guard let imageData = cellViewModel.userImageData.value else {
-//            cellViewModel.fetchImageData()
+            cellViewModel.fetchImageData()
             return
         }
         let image = UIImage(data: imageData)
         self.userImage.image = image
     }
-    
-//    func resetImg() {
-//        self.userImage.image = nil
-//    }
     
     private func setupBinding() {
         cellViewModel.userImageData.bind { [weak self] data in
@@ -88,12 +83,6 @@ final class ResultsTableCell: UITableViewCell {
             userNameLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             userNameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10),
             userNameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
-//            userNameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
-//            userNameLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5)
-//            userNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
-//            userNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-//            userNameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 5),
-//            userNameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10)
         ])
     }
 }
@@ -118,24 +107,4 @@ final class ResultsCellViewModel {
         }
     }
 }
-
-
-//final class ResultsCellViewModel {
-//
-//    var userName: String!
-//    var userImageData: Data!
-//
-//    init(userName: String, userImageData: Data) {
-//        self.userName = userName
-//        self.userImageData = userImageData
-//    }
-//
-//    func fetchImageData() {
-//        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { data in
-//            if let data = data {
-//                self.otherUserProfileImage.value = data
-//            }
-//        }
-//    }
-//}
 

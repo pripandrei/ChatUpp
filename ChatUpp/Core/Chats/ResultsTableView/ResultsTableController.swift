@@ -18,9 +18,9 @@ class ResultsTableController: UITableViewController {
     var filteredUsers: [ResultsCellViewModel] = [] 
 //    {
 //        didSet {
-//            if filteredUsers.isEmpty {
-//                noUserWasFoundLabel.isHidden = false
-//            }
+////            if filteredUsers.isEmpty {
+////                noUserWasFoundLabel.isHidden = false
+////            }
 //            terminateSkeletonAnimation()
 //        }
 //    }
@@ -132,12 +132,12 @@ extension ResultsTableController {
         let tableViewHeaderFooterView = UITableViewHeaderFooterView()
         var configuration = UIListContentConfiguration.subtitleCell()
         
-//        if userSearch == .local {
-////        if section == 0 {
-//            configuration.text = "Chats".uppercased()
-//        } else {
-            configuration.text = "Global search".uppercased()
-//        }
+        //        if userSearch == .local {
+        ////        if section == 0 {
+        //            configuration.text = "Chats".uppercased()
+        //        } else {
+        configuration.text = "Global search".uppercased()
+        //        }
         
         
         configuration.textProperties.color = .white
@@ -152,26 +152,4 @@ extension ResultsTableController {
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 25
     }
-    
-    //    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-    //        if section == 0 {
-    //            return "Chats"
-    //        }
-    //        return "Global search"
-    //    }
-    
-    
-//    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-//        guard let headerView = view as? UITableViewHeaderFooterView else { return }
-//        headerView.contentView.backgroundColor = .brown
-//        var configuration = UIListContentConfiguration.subtitleCell()
-//        if section == 0 {
-//            configuration.text = "Chats"
-//        } else {
-//            configuration.text = "Global search"
-//        }
-//        configuration.textProperties.color = .white
-//
-//        headerView.contentConfiguration = configuration
-//    }
 }

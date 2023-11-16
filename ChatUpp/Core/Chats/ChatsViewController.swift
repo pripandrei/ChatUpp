@@ -151,7 +151,10 @@ extension ChatsViewController: UISearchResultsUpdating {
         }
         
         lastSearchedText = text
-        resultsTableController.initiateSkeletonAnimation()
+        
+        if resultsTableController.filteredUsers.isEmpty {
+            resultsTableController.initiateSkeletonAnimation()            
+        }
         
         searchTimer?.invalidate()
         searchTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
