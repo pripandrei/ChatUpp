@@ -154,7 +154,6 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
     {
         return CGSize(width: view.bounds.width, height: 0)
     }
-    
 }
 
 //MARK: - COLLETION VIEW OFFSET HANDLER
@@ -166,7 +165,6 @@ extension ConversationViewController {
         let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
         let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
         
-
         self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         
         let currentOffSet = rootView.collectionView.contentOffset
@@ -185,6 +183,7 @@ extension ConversationViewController {
         // 2.scroll up
         // 3.dismiss keyboard
         // Result: cells from top will animate while resizing
+        // So to ditch this, we use layoutSubviews and layoutIfNeeded
 
         if keyboardHeight > 0 {
             view.layoutSubviews()
