@@ -15,23 +15,14 @@ enum Skeletonanimation {
 
 class ResultsTableController: UITableViewController {
     
-//    enum UsersSearch {
-//        case global
-//        case local
-//    }
-//
-    var filteredUsers: [ResultsCellViewModel] = [] 
-//    {
-//        didSet {
-////            if filteredUsers.isEmpty {
-////                noUserWasFoundLabel.isHidden = false
-////            }
-//            terminateSkeletonAnimation()
-//        }
-//    }
-//    var filteredGlobalUsers: [DBUser] = []
-    var noUserWasFoundLabel = UILabel()
-//    var userSearch: UsersSearch!
+    enum UsersSearch {
+        case local
+        case global
+    }
+    
+    var filteredUsers: [ResultsCellViewModel] = []
+    var userSearch: UsersSearch!
+    private var noUserWasFoundLabel = UILabel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,14 +54,14 @@ class ResultsTableController: UITableViewController {
         }
     }
 
-    func initiateSkeletonAnimation() {
+    private func initiateSkeletonAnimation() {
         let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
         tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
         noUserWasFoundLabel.isHidden = true
     }
     
-    func terminateSkeletonAnimation() {
+    private func terminateSkeletonAnimation() {
         tableView.stopSkeletonAnimation()
         tableView.hideSkeleton(transition: .crossDissolve(0.25))
         noUserWasFoundLabel.isHidden = false
@@ -81,38 +72,21 @@ class ResultsTableController: UITableViewController {
         tableView.delegate = self
         tableView.register(ResultsTableCell.self, forCellReuseIdentifier: CellIdentifire.resultsTableCell)
         tableView.sectionHeaderTopPadding = 0
-        tableView.rowHeight = 70
+        tableView.rowHeight = 55
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-    
-        
         tableView.isSkeletonable = true
-//        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .amethyst, secondaryColor: .clouds), animated: true, delay: 0.0, transition: .crossDissolve(.leastNonzeroMagnitude))
-//        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .belizeHole) ,animated: true, delay: 0.0, transition: .none)
-//        tableView.showAnimatedSkeleton(usingColor: .belizeHole, animation: { layer in
-//            layer.pulse
-//        }, transition: .none)
-//        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-//        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-//        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), animation: .none, transition: .none)
-//        toggleSkeletonView()
-//        initiateSkeletonAnimation()
     }
 }
 
 //MARK: - SKELETON TABLE VIEW DATA SOURCE
 
 extension ResultsTableController: SkeletonTableViewDataSource {
-    
-//    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return 20
-//    }
-    
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
        return CellIdentifire.resultsTableCell
     }
 }
 
-//MARK: - TABLE DATASOURCE
+//MARK: - TABLE VIEW DATASOURCE
 extension ResultsTableController {
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -137,24 +111,22 @@ extension ResultsTableController {
     }
 }
 
-//MARK: - TABLE DELEGATE
-extension ResultsTableController {
-    
-    
+//MARK: - TABLE VIEW DELEGATE
+extension ResultsTableController
+{
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let tableViewHeaderFooterView = UITableViewHeaderFooterView()
         var configuration = UIListContentConfiguration.subtitleCell()
         
-        //        if userSearch == .local {
-        ////        if section == 0 {
-        //            configuration.text = "Chats".uppercased()
-        //        } else {
-        configuration.text = "Global search".uppercased()
-        //        }
-        
+        if userSearch == .local {
+            ////        if section == 0 {
+            configuration.text = "Chats".uppercased()
+        } else {
+            configuration.text = "Global search".uppercased()
+        }
         
         configuration.textProperties.color = .white
-        configuration.textProperties.font = UIFont(name: "HelveticaNeue", size: 14)!
+        configuration.textProperties.font = UIFont(name: "HelveticaNeue", size: 13)!
         
         tableViewHeaderFooterView.contentConfiguration = configuration
         tableViewHeaderFooterView.contentView.backgroundColor = .brown
@@ -163,6 +135,25 @@ extension ResultsTableController {
     }
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 25
+        return 24
     }
 }
+
+
+
+
+
+
+
+// SKELETON ANIMATIONS LIKED
+
+//        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .amethyst, secondaryColor: .clouds), animated: true, delay: 0.0, transition: .crossDissolve(.leastNonzeroMagnitude))
+//        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .belizeHole) ,animated: true, delay: 0.0, transition: .none)
+//        tableView.showAnimatedSkeleton(usingColor: .belizeHole, animation: { layer in
+//            layer.pulse
+//        }, transition: .none)
+//        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
+//        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), animation: .none, transition: .none)
+//        toggleSkeletonView()
+//        initiateSkeletonAnimation()

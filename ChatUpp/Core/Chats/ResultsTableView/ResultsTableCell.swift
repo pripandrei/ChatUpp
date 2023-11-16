@@ -63,7 +63,7 @@ final class ResultsTableCell: UITableViewCell {
             userImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             userImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             userImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
-            userImage.widthAnchor.constraint(equalToConstant: 60)
+            userImage.widthAnchor.constraint(equalToConstant: 45)
         ])
     }
     
@@ -76,7 +76,7 @@ final class ResultsTableCell: UITableViewCell {
         userNameLabel.linesCornerRadius = 4
         userNameLabel.lastLineFillPercent = 30
 //        userNameLabel.skeletonPaddingInsets
-        userNameLabel.backgroundColor = .green
+//        userNameLabel.backgroundColor = .green
         userNameLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -86,6 +86,8 @@ final class ResultsTableCell: UITableViewCell {
         ])
     }
 }
+
+// MARK: - RESULTSCELL VIEWMODEL
 
 final class ResultsCellViewModel {
     
