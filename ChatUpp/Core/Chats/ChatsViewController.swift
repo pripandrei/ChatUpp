@@ -149,7 +149,9 @@ extension ChatsViewController: UISearchResultsUpdating {
             resultsTableController.tableView.reloadData()
             return
         }
+        
         lastSearchedText = text
+        resultsTableController.initiateSkeletonAnimation()
         
         searchTimer?.invalidate()
         searchTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
@@ -157,6 +159,7 @@ extension ChatsViewController: UISearchResultsUpdating {
         })
     }
     
+    // Transfer to viewModel
     private func performSearch(_ text: String) {
         Task {
             let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
@@ -165,8 +168,9 @@ extension ChatsViewController: UISearchResultsUpdating {
                     ResultsCellViewModel(user: resultData.name, userProfileImageLink: resultData.profileImageLink)
                 }
                 await MainActor.run {
-                    self.resultsTableController.filteredUsers = filteredUsers
-                    self.resultsTableController.tableView.reloadData()
+                    resultsTableController.filteredUsers = filteredUsers
+                    resultsTableController.terminateSkeletonAnimation()
+                    resultsTableController.tableView.reloadData()
                 }
             }
         }

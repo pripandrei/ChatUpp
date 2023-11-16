@@ -20,7 +20,9 @@ final class AlgoliaSearchManager {
     func performSearch(_ searchText: String) async -> [AlgoliaResultData] {
         let text = Query(searchText)
         do {
-           
+            let settings = Settings().set(\.typoTolerance, to: false)
+            try index.setSettings(settings)
+            
             let result = try index.search(query: text)
             
             return result.hits.compactMap { hitJson in

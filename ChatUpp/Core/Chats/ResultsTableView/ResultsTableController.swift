@@ -10,20 +10,26 @@ import SkeletonView
 
 class ResultsTableController: UITableViewController {
     
-    enum UsersSearch {
-        case global
-        case local
-    }
-    
-    var filteredUsers: [ResultsCellViewModel] = []
+//    enum UsersSearch {
+//        case global
+//        case local
+//    }
+//
+    var filteredUsers: [ResultsCellViewModel] = [] 
+//    {
+//        didSet {
+//            if filteredUsers.isEmpty {
+//                noUserWasFoundLabel.isHidden = false
+//            }
+//            terminateSkeletonAnimation()
+//        }
+//    }
 //    var filteredGlobalUsers: [DBUser] = []
     private var noUserWasFoundLabel = UILabel()
-    var userSearch: UsersSearch!
+//    var userSearch: UsersSearch!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        tableView.contentInsetAdjustmentBehavior = .never
-//        tableView.contentInset.top = 80
         setupTableView()
         configureTextLabel()
     }
@@ -43,6 +49,19 @@ class ResultsTableController: UITableViewController {
             noUserWasFoundLabel.centerYAnchor.constraint(equalTo: tableView.centerYAnchor, constant: -100),
         ])
     }
+
+    func initiateSkeletonAnimation() {
+        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
+        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
+        noUserWasFoundLabel.isHidden = true
+    }
+    
+    func terminateSkeletonAnimation() {
+        tableView.stopSkeletonAnimation()
+        tableView.hideSkeleton(transition: .crossDissolve(0.25))
+        noUserWasFoundLabel.isHidden = false
+    }
     
     private func setupTableView() {
         tableView.dataSource = self
@@ -51,7 +70,7 @@ class ResultsTableController: UITableViewController {
         tableView.sectionHeaderTopPadding = 0
         tableView.rowHeight = 70
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        
+    
         
         tableView.isSkeletonable = true
 //        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .amethyst, secondaryColor: .clouds), animated: true, delay: 0.0, transition: .crossDissolve(.leastNonzeroMagnitude))
@@ -59,9 +78,11 @@ class ResultsTableController: UITableViewController {
 //        tableView.showAnimatedSkeleton(usingColor: .belizeHole, animation: { layer in
 //            layer.pulse
 //        }, transition: .none)
-        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), animation: .none, transition: .none)
+//        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
+//        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), animation: .none, transition: .none)
+//        toggleSkeletonView()
+//        initiateSkeletonAnimation()
     }
 }
 
@@ -72,7 +93,7 @@ extension ResultsTableController: SkeletonTableViewDataSource {
 //    func collectionSkeletonView(_ skeletonView: UITableView, numberOfRowsInSection section: Int) -> Int {
 //        return 20
 //    }
-//
+    
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
        return CellIdentifire.resultsTableCell
     }
@@ -80,25 +101,16 @@ extension ResultsTableController: SkeletonTableViewDataSource {
 
 //MARK: - TABLE DATASOURCE
 extension ResultsTableController {
-    
+
     override func numberOfSections(in tableView: UITableView) -> Int {
-//        if !filteredGlobalUsers.isEmpty && !filteredUsers.isEmpty {
-//            return 2
-//        } else if !filteredGlobalUsers.isEmpty || !filteredUsers.isEmpty {
-//            return 1
-//        }
         if !filteredUsers.isEmpty {
             return 1
         }
-        noUserWasFoundLabel.isHidden = false
         return 0
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        if section == 0 {
-            return filteredUsers.count
-//        }
-//        return filteredGlobalUsers.count
+        return filteredUsers.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -120,12 +132,12 @@ extension ResultsTableController {
         let tableViewHeaderFooterView = UITableViewHeaderFooterView()
         var configuration = UIListContentConfiguration.subtitleCell()
         
-        if userSearch == .local {
-//        if section == 0 {
-            configuration.text = "Chats".uppercased()
-        } else {
+//        if userSearch == .local {
+////        if section == 0 {
+//            configuration.text = "Chats".uppercased()
+//        } else {
             configuration.text = "Global search".uppercased()
-        }
+//        }
         
         
         configuration.textProperties.color = .white
