@@ -33,9 +33,9 @@ class ChatCellViewModel {
     }
 
     func fetchImageData() {
-        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { data in
+        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { [weak self] data in
             if let data = data {
-                self.otherUserProfileImage.value = data
+                self?.otherUserProfileImage.value = data
             }
         }
     }

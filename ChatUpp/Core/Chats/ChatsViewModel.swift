@@ -10,11 +10,11 @@ import Foundation
 
 final class ChatsViewModel {
 
-    var isUserLoggedOut: ObservableObject<Bool> = ObservableObject(false)
-    var chats = [Chat]()
-    var otherMembers = [DBUser]()
-    var recentMessages = [Message]()
-    var cellViewModels = [ChatCellViewModel]()
+    private(set) var isUserLoggedOut: ObservableObject<Bool> = ObservableObject(false)
+    private(set) var chats = [Chat]()
+    private(set) var otherMembers = [DBUser]()
+    private(set) var recentMessages = [Message]()
+    private(set) var cellViewModels = [ChatCellViewModel]()
     
     var onDataFetched: (() -> Void)?
 
@@ -23,13 +23,13 @@ final class ChatsViewModel {
     }
     
     private func fetchChatData() async  {
-            do {
-                try await loadChats()
-                try await loadRecentMessages()
-                try await loadOtherMembersOfChats()
-            } catch {
-                print("Could not fetch ChatsViewModel Data: ", error.localizedDescription)
-            }
+        do {
+            try await loadChats()
+            try await loadRecentMessages()
+            try await loadOtherMembersOfChats()
+        } catch {
+            print("Could not fetch ChatsViewModel Data: ", error.localizedDescription)
+        }
     }
     
     func reloadChatsCellData() {

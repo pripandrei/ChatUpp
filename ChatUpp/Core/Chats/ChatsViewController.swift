@@ -132,7 +132,7 @@ extension ChatsViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         let searchBar = searchController.searchBar
-        
+        searchTimer?.invalidate()
         // If seach bar is empty or contains spaces
         guard let text = searchBar.text,
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else
@@ -156,9 +156,8 @@ extension ChatsViewController: UISearchResultsUpdating {
         }
         lastSearchedText = text
         
-        searchTimer?.invalidate()
-        searchTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { _ in
-            self.performSearch(text)
+        searchTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { [weak self] _ in
+            self?.performSearch(text)
         })
     }
     
