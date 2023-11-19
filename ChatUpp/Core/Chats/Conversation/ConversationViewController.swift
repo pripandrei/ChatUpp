@@ -111,7 +111,9 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         }
         
         // Schedules scrolling execution in order for proper animation scrolling
-        DispatchQueue.main.async { self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true) }
+        DispatchQueue.main.async {
+            self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+        }
         
         // Offset collection view conntent by cells (message) height contentSize
         // without animation, so that cell appears under the textView
