@@ -41,6 +41,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         setupBinding()
         addTargetToSendMessageBtn()
+        addTargetToAddPictureBtn()
         configureCollectionView()
         setTepGesture()
         addKeyboardNotificationObservers()
@@ -135,9 +136,9 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         }
     }
     
-//    private func addTargetToAddPictureBtn() {
-//        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
-//    }
+    private func addTargetToAddPictureBtn() {
+        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
+    }
 
     private func configurePhotoPicker() {
         var configuration = PHPickerConfiguration()
@@ -153,6 +154,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
 }
 
+//MARK: - PHOTO PICKER CONTROLLER DELEGATE
 
 extension ConversationViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
@@ -165,22 +167,6 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
             }
         }
     }
-}
-
-//MARK: - GESTURES
-
-extension ConversationViewController {
-
-private func setTepGesture() {
-    let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
-    rootView.collectionView.addGestureRecognizer(tap)
-}
-
-@objc func resignKeyboard() {
-    if rootView.messageTextView.isFirstResponder {
-        rootView.messageTextView.resignFirstResponder()
-    }
-}
 }
 
 //MARK: - GESTURES

@@ -13,6 +13,7 @@ final class ConversationViewControllerUI: UIView {
     let containerView = UIView()
     let messageTextView = UITextView()
     let sendMessageButton = UIButton()
+    let pictureAddButton = UIButton()
     
     var holderViewBottomConstraint: NSLayoutConstraint!
     
@@ -50,6 +51,27 @@ final class ConversationViewControllerUI: UIView {
         setupHolderView()
         setupMessageTextView()
         setupSendMessageBtn()
+        setupAddPictureButton()
+    }
+    
+    private func setupAddPictureButton() {
+        self.addSubviews(pictureAddButton)
+        // frmame size is used only for radius calculation
+        pictureAddButton.frame.size = CGSize(width: 35, height: 35)
+        pictureAddButton.configuration = .plain()
+        pictureAddButton.configuration?.baseForegroundColor = UIColor.purple
+        pictureAddButton.layer.cornerRadius = pictureAddButton.frame.size.width / 2.0
+        pictureAddButton.configuration?.image = UIImage(systemName: "photo")
+        pictureAddButton.clipsToBounds = true
+        
+        pictureAddButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            pictureAddButton.widthAnchor.constraint(equalToConstant: 35),
+            pictureAddButton.heightAnchor.constraint(equalToConstant: 35),
+            pictureAddButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
+            pictureAddButton.trailingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: -10)
+        ])
     }
     
     private func setupCollectionView() {
@@ -98,7 +120,7 @@ final class ConversationViewControllerUI: UIView {
             messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4),
             messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
             messageTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -55),
-            messageTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 35)
+            messageTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 55)
         ])
     }
     
