@@ -9,6 +9,8 @@
 // KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST COLLECTION VIEW FLOW
 
 import UIKit
+import Photos
+import PhotosUI
 
 final class ConversationViewController: UIViewController, UICollectionViewDelegate {
     
@@ -132,6 +134,53 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
             self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
         }
     }
+    
+//    private func addTargetToAddPictureBtn() {
+//        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
+//    }
+
+    private func configurePhotoPicker() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 1
+        configuration.filter = .images
+        let pickerVC = PHPickerViewController(configuration: configuration)
+        pickerVC.delegate = self
+        present(pickerVC, animated: true)
+    }
+
+    @objc func pictureAddBtnWasTapped() {
+        configurePhotoPicker()
+    }
+}
+
+
+extension ConversationViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        results.forEach { result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+                guard let image = reading as? UIImage, error == nil else { return }
+                print("IMAGE!: ", image)
+            }
+        }
+    }
+}
+
+//MARK: - GESTURES
+
+extension ConversationViewController {
+
+private func setTepGesture() {
+    let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
+    rootView.collectionView.addGestureRecognizer(tap)
+}
+
+@objc func resignKeyboard() {
+    if rootView.messageTextView.isFirstResponder {
+        rootView.messageTextView.resignFirstResponder()
+    }
+}
 }
 
 //MARK: - GESTURES
