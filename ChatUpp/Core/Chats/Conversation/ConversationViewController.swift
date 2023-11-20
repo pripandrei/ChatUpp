@@ -52,12 +52,15 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
     
     //MARK: - Binding
-    
+    var firstTimeMessageLoad = true
     private func setupBinding() {
         conversationViewModel.messages.bind { [weak self] messages in
-            if !messages.isEmpty {
-                DispatchQueue.main.async {
-                    self?.rootView.collectionView.reloadData()
+            if self?.firstTimeMessageLoad == true {
+                if !messages.isEmpty {
+                    DispatchQueue.main.async {
+                        self?.rootView.collectionView.reloadData()
+                    }
+                    self?.firstTimeMessageLoad = false
                 }
             }
         }
@@ -120,12 +123,13 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         guard let cell = rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
         
         let currentOffSet = rootView.collectionView.contentOffset
-        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.messageContainer.contentSize.height + 10)
+        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height + 10)
+        
         rootView.collectionView.setContentOffset(offSet, animated: false)
         
         // Animate collection content back so that cell (message) will go up
         UIView.animate(withDuration: 0.3) {
-            self.rootView.collectionView.setContentOffset(offSet, animated: false)
+            self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
         }
     }
 }

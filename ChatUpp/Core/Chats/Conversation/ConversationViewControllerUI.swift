@@ -23,6 +23,7 @@ final class ConversationViewControllerUI: UIView {
         
         let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
         collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
+        collectionVC.verticalScrollIndicatorInsets.bottom = 60
         
         return collectionVC
     }()

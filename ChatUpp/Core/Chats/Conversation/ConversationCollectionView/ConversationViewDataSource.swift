@@ -36,6 +36,10 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
             cell.adjustMessageSide(.left)
         }
         cell.handleMessageBubbleLayout()
+        
+        if indexPath.item == 0 {
+            print("0")
+        }
     
         return cell
     }
