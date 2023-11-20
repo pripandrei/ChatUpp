@@ -26,7 +26,7 @@ final class ConversationViewModel {
     
     func saveImage(data: Data) {
         Task {
-            let (path,name) = try await StorageManager.shered.saveImage(data: data)
+            let (path,name) = try await StorageManager.shered.saveImage(data: data, messageID: messages.value.first!.id)
             print("Success saving image: \(path) \(name)")
         }
     }
@@ -65,9 +65,13 @@ final class ConversationViewModel {
     func addNewCreatedMessage(_ messageBody: String) {
         let message = createNewMessage(messageBody)
         messages.value.insert(message, at: 0)
+        print("Before task")
         Task {
+            print("in task")
             await addMessageToDB(message)
+            print("in after task")
         }
+        print("after task")
     }
 }
 

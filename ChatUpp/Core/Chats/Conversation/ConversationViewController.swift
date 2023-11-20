@@ -100,10 +100,14 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         if !trimmedString.isEmpty {
             rootView.messageTextView.text.removeAll()
             
-            let indexPath = IndexPath(item: 0, section: 0)
-            conversationViewModel.addNewCreatedMessage(trimmedString)
-            handleContentMessageOffset(with: indexPath)
+            handleMessageCreation(message: trimmedString)
         }
+    }
+    
+    private func handleMessageCreation(message: String = "") {
+        let indexPath = IndexPath(item: 0, section: 0)
+        conversationViewModel.addNewCreatedMessage(message)
+        handleContentMessageOffset(with: indexPath)
     }
 
     private func handleContentMessageOffset(with indexPath: IndexPath)
@@ -169,6 +173,9 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                 print("IMAGE!: ", image)
                 
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
+                DispatchQueue.main.async {
+                    self?.handleMessageCreation()
+                }
                 self?.conversationViewModel.saveImage(data: data)
             }
         }
