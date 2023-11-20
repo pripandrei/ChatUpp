@@ -161,9 +161,15 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true)
         
         results.forEach { result in
-            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
-                guard let image = reading as? UIImage, error == nil else { return }
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                guard let image = reading as? UIImage, error == nil else {
+                    print("Could not read image!")
+                    return
+                }
                 print("IMAGE!: ", image)
+                
+                guard let data = image.jpegData(compressionQuality: 0.5) else {return}
+                self?.conversationViewModel.saveImage(data: data)
             }
         }
     }

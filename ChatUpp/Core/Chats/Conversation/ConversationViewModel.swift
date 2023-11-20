@@ -24,10 +24,11 @@ final class ConversationViewModel {
         fetchConversationMessages()
     }
     
-    func saveImage(data: Data) async throws {
-        
-        let (path,name) = try await StorageManager.shered.saveImage(data: data)
-        print("Success saving image: \(path) \(name)")
+    func saveImage(data: Data) {
+        Task {
+            let (path,name) = try await StorageManager.shered.saveImage(data: data)
+            print("Success saving image: \(path) \(name)")
+        }
     }
     
     private func fetchConversationMessages() {
