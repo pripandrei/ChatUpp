@@ -88,6 +88,16 @@ final class ChatsManager {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
         return try await messagesReference.order(by: "timestamp", descending: true).getDocuments(as: Message.self)
     }
+    
+    //MARK: - UPDATE MESSAGE IMAGE PATH
+    
+    
+    func updateMessageImagePath(messageID: String, chatDocumentPath: String, path: String) async throws {
+        let data: [String: Any] = [
+            Message.CodingKeys.imagePath.rawValue: path
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
+    }
 }
 
 

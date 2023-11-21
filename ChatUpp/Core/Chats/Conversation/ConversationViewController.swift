@@ -95,11 +95,14 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
     
+    private func addTargetToAddPictureBtn() {
+        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
+    }
+    
     @objc func sendMessageBtnWasTapped() {
         let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
             rootView.messageTextView.text.removeAll()
-            
             handleMessageCreation(message: trimmedString)
         }
     }
@@ -107,9 +110,12 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     private func handleMessageCreation(message: String = "") {
         let indexPath = IndexPath(item: 0, section: 0)
         conversationViewModel.addNewCreatedMessage(message)
-        handleContentMessageOffset(with: indexPath)
+        
+        Task { @MainActor in
+            handleContentMessageOffset(with: indexPath)
+        }
     }
-
+    
     private func handleContentMessageOffset(with indexPath: IndexPath)
     {
         // We disable insertion animation because we need to both animate
@@ -134,14 +140,10 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         rootView.collectionView.setContentOffset(offSet, animated: false)
         
-        // Animate collection content back so that cell (message) will go up
+        // Animate collection content back so that the cell (message) will go up
         UIView.animate(withDuration: 0.3) {
             self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
         }
-    }
-    
-    private func addTargetToAddPictureBtn() {
-        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
     }
 
     private func configurePhotoPicker() {
@@ -161,6 +163,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
 //MARK: - PHOTO PICKER CONTROLLER DELEGATE
 
 extension ConversationViewController: PHPickerViewControllerDelegate {
+    
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         
@@ -170,12 +173,9 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                     print("Could not read image!")
                     return
                 }
-                print("IMAGE!: ", image)
-                
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
-                DispatchQueue.main.async {
-                    self?.handleMessageCreation()
-                }
+                
+                self?.handleMessageCreation()
                 self?.conversationViewModel.saveImage(data: data)
             }
         }

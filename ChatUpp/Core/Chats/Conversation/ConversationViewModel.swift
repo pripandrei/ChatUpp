@@ -26,7 +26,10 @@ final class ConversationViewModel {
     
     func saveImage(data: Data) {
         Task {
-            let (path,name) = try await StorageManager.shered.saveImage(data: data, messageID: messages.value.first!.id)
+            let (path,name) = try await StorageManager.shared.saveMessageImage(data: data, messageID: messages.value.first!.id)
+            try await ChatsManager.shared.updateMessageImagePath(messageID: messages.value.first!.id,
+                                                                 chatDocumentPath: conversation.id,
+                                                                 path: name)
             print("Success saving image: \(path) \(name)")
         }
     }
@@ -47,7 +50,7 @@ final class ConversationViewModel {
         let message = Message(id: messageID,
                               messageBody: messageBody,
                               senderId: authenticatedUserID,
-                              imageUrl: nil,
+                              imagePath: nil,
                               timestamp: Date(),
                               messageSeen: false,
                               receivedBy: nil)
@@ -65,13 +68,9 @@ final class ConversationViewModel {
     func addNewCreatedMessage(_ messageBody: String) {
         let message = createNewMessage(messageBody)
         messages.value.insert(message, at: 0)
-        print("Before task")
         Task {
-            print("in task")
             await addMessageToDB(message)
-            print("in after task")
         }
-        print("after task")
     }
 }
 
