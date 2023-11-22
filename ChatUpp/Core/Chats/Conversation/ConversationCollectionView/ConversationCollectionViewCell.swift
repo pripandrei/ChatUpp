@@ -41,7 +41,13 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         self.cellViewModel = viewModel
         setupBinding()
         
-        messageContainer.text = viewModel.messageText
+        if viewModel.messageText == "" {
+//            messageContainer.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 150, height: 100))
+        } else {
+            messageContainer.text = viewModel.messageText
+        }
+        
+       
         if viewModel.imageData.value == nil && viewModel.imagePath != nil {
             viewModel.fetchImageData()
         }
@@ -54,7 +60,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     private func createImageAttachment(withImage image: UIImage) {
         let imageAttachment = NSTextAttachment(image: image)
-        imageAttachment.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 150, height: 200))
+//        imageAttachment.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 150, height: 200))
         let attributedString = NSAttributedString(attachment: imageAttachment)
         messageContainer.attributedText = attributedString
 //        messageContainer.textStorage.insert(attributedString, at: 0)
