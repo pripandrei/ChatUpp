@@ -13,9 +13,7 @@ final class ConversationViewModel {
     private var conversation: Chat
     var memberName: String
     var memberProfileImage: Data?
-//    var messages: ObservableObject<[Message]> = ObservableObject([])
     var messages: [Message] = []
-//    var cellViewModels: ObservableObject<[ConversationCellViewModel]> = ObservableObject([])
     var cellViewModels: [ConversationCellViewModel] = []
     
     let authenticatedUserID: String = (try? AuthenticationManager.shared.getAuthenticatedUser())!.uid
@@ -83,9 +81,9 @@ final class ConversationViewModel {
     
     private func insertNewMessage(_ message: Message) {
         messages.insert(message, at: 0)
-//        Task {
-//            await addMessageToDB(message)
-//        }
+        Task {
+            await addMessageToDB(message)
+        }
     }
     
     func createMessageBubble(_ messageText: String) {

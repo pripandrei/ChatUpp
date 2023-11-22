@@ -7,13 +7,13 @@
 
 import UIKit
 
-class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
+final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
     var conversationViewModel: ConversationViewModel!
     
     init(conversationViewModel: ConversationViewModel) {
+//        super.init()
         self.conversationViewModel = conversationViewModel
-        super.init()
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
