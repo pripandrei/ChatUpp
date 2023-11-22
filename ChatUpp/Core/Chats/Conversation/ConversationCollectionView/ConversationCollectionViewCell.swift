@@ -61,10 +61,12 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
-            print("!!!!!!!!!!!!!!!")
-            guard let imageData = data else {return}
-            guard let image = self?.convertDataToImage(imageData) else {return}
-            self?.createImageAttachment(withImage: image)
+//            DispatchQueue.main.async {
+                print("!!!!!!!!!!!!!!!")
+                guard let imageData = data else {return}
+                guard let image = self?.convertDataToImage(imageData) else {return}
+                self?.createImageAttachment(withImage: image)
+//            }
         }
     }
     

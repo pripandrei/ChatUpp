@@ -119,9 +119,9 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         let indexPath = IndexPath(item: 0, section: 0)
         
         conversationViewModel.createMessageBubble(messageText)
-//        Task { @MainActor in
+        Task { @MainActor in
             handleContentMessageOffset(with: indexPath)
-//        }
+        }
     }
     
     private func handleContentMessageOffset(with indexPath: IndexPath)
