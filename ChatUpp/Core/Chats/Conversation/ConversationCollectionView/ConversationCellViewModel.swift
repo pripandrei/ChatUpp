@@ -12,7 +12,7 @@ final class ConversationCellViewModel {
     
     private let messageId: String!
     private let timeStamp: Date!
-    private let imagePath: String?
+    let imagePath: String?
     let messageText: String!
     var imageData: ObservableObject<Data?> = ObservableObject(nil)
     let senderId: String!

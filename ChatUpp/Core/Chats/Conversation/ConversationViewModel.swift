@@ -14,7 +14,7 @@ final class ConversationViewModel {
     var memberName: String
     var memberProfileImage: Data?
     var messages: ObservableObject<[Message]> = ObservableObject([]) 
-    var cellViewModels: [ConversationCellViewModel]!
+    var cellViewModels: ObservableObject<[ConversationCellViewModel]> = ObservableObject([])
     
     let authenticatedUserID: String = (try? AuthenticationManager.shared.getAuthenticatedUser())!.uid
     
@@ -26,9 +26,11 @@ final class ConversationViewModel {
     }
     
     private func createConversationCellViewModels() -> [ConversationCellViewModel] {
-        return messages.value.map { message in
+        let cellsVM =  messages.value.map { message in
             ConversationCellViewModel(cellMessage: message)
         }
+        print(cellsVM.count)
+         return cellsVM
     }
     
     func saveImage(data: Data) {
@@ -45,7 +47,7 @@ final class ConversationViewModel {
         Task {
             do {
                 self.messages.value = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-                self.cellViewModels = createConversationCellViewModels()
+                self.cellViewModels.value = createConversationCellViewModels()
             } catch {
                 print("Could not fetch messages from db: ", error.localizedDescription)
             }
@@ -86,7 +88,7 @@ final class ConversationViewModel {
     func createMessageBubble(_ messageText: String) {
         let message = createNewMessage(messageText)
         insertNewMessage(message)
-        cellViewModels.append(createCellViewModel(with: message))
+        cellViewModels.value.insert(createCellViewModel(with: message), at: 0)
     }
 }
 

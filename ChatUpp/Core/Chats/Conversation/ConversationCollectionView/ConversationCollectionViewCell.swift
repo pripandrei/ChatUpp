@@ -39,12 +39,34 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
         self.cellViewModel = viewModel
+        setupBinding()
         
         messageContainer.text = viewModel.messageText
-        
+        if viewModel.imageData.value == nil && viewModel.imagePath != nil {
+            viewModel.fetchImageData()
+        }
     }
     
-   
+    private func convertDataToImage(_ data: Data) -> UIImage? {
+        guard let image = UIImage(data: data) else { return nil }
+        return image
+    }
+    
+    private func createImageAttachment(withImage image: UIImage) {
+        let imageAttachment = NSTextAttachment(image: image)
+        imageAttachment.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 50, height: 50))
+        let attributedString = NSAttributedString(attachment: imageAttachment)
+        messageContainer.attributedText = attributedString
+    }
+    
+    func setupBinding() {
+        cellViewModel.imageData.bind { [weak self] data in
+            print("!!!!!!!!!!!!!!!")
+            guard let imageData = data else {return}
+            guard let image = self?.convertDataToImage(imageData) else {return}
+            self?.createImageAttachment(withImage: image)
+        }
+    }
     
     //MARK: - LIFECYCLE
   

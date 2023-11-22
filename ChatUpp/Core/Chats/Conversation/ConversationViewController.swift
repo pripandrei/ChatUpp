@@ -67,6 +67,14 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
                 }
             }
         }
+        
+        conversationViewModel.cellViewModels.bind { [weak self] cellViewModels in
+            if !cellViewModels.isEmpty {
+                DispatchQueue.main.async {
+                    self?.rootView.collectionView.reloadData()                    
+                }
+            }
+        }
     }
     
 //MARK: - KEYBOARD NOTIFICATION OBSERVERS
@@ -108,12 +116,12 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
     
     private func handleMessageBubbleCreation(messageText: String = "") {
-        conversationViewModel.createMessageBubble(messageText)
-        
         let indexPath = IndexPath(item: 0, section: 0)
-        Task { @MainActor in
+        
+        conversationViewModel.createMessageBubble(messageText)
+//        Task { @MainActor in
             handleContentMessageOffset(with: indexPath)
-        }
+//        }
     }
     
     private func handleContentMessageOffset(with indexPath: IndexPath)
@@ -175,7 +183,9 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                 }
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
-                self?.handleMessageBubbleCreation()
+                DispatchQueue.main.async {
+                    self?.handleMessageBubbleCreation()
+                }
                 self?.conversationViewModel.saveImage(data: data)
             }
         }
