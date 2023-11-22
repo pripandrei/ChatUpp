@@ -55,24 +55,10 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
     
     //MARK: - Binding
-    var firstTimeMessageLoad = true
     private func setupBinding() {
-        conversationViewModel.messages.bind { [weak self] messages in
-            if self?.firstTimeMessageLoad == true {
-                if !messages.isEmpty {
-                    DispatchQueue.main.async {
-                        self?.rootView.collectionView.reloadData()
-                    }
-                    self?.firstTimeMessageLoad = false
-                }
-            }
-        }
-        
-        conversationViewModel.cellViewModels.bind { [weak self] cellViewModels in
-            if !cellViewModels.isEmpty {
-                DispatchQueue.main.async {
-                    self?.rootView.collectionView.reloadData()                    
-                }
+        conversationViewModel.onCellVMLoad = {
+            DispatchQueue.main.async { [weak self] in
+                self?.rootView.collectionView.reloadData()
             }
         }
     }
@@ -118,9 +104,9 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     private func handleMessageBubbleCreation(messageText: String = "") {
         let indexPath = IndexPath(item: 0, section: 0)
         
-        conversationViewModel.createMessageBubble(messageText)
+        self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
-            handleContentMessageOffset(with: indexPath)
+            self.handleContentMessageOffset(with: indexPath)
         }
     }
     
@@ -130,6 +116,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         // insertion of message and scroll to bottom at the same time.
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
+        
         UIView.performWithoutAnimation {
             self.rootView.collectionView.insertItems(at: [indexPath])
         }
@@ -183,9 +170,8 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                 }
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
-                DispatchQueue.main.async {
-                    self?.handleMessageBubbleCreation()
-                }
+                self?.handleMessageBubbleCreation()
+
                 self?.conversationViewModel.saveImage(data: data)
             }
         }

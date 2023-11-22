@@ -42,9 +42,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         setupBinding()
         
         messageContainer.text = viewModel.messageText
-        if viewModel.imageData.value == nil && viewModel.imagePath != nil {
-            viewModel.fetchImageData()
-        }
+//        if viewModel.imageData.value == nil && viewModel.imagePath != nil {
+//            viewModel.fetchImageData()
+//        }
     }
     
     private func convertDataToImage(_ data: Data) -> UIImage? {
