@@ -36,7 +36,7 @@ class ChatsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .orange
+        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupBinding()
         configureTableView()
         setupSearchController()

@@ -12,16 +12,23 @@ final class ConversationViewModel {
     
     private var conversation: Chat
     var memberName: String
-    var imageData: Data?
-    var messages: ObservableObject<[Message]> = ObservableObject([])
+    var memberProfileImage: Data?
+    var messages: ObservableObject<[Message]> = ObservableObject([]) 
+    var cellViewModels: [ConversationCellViewModel]!
     
     let authenticatedUserID: String = (try? AuthenticationManager.shared.getAuthenticatedUser())!.uid
     
     init(memberName: String, conversation: Chat, imageData: Data?) {
         self.memberName = memberName
         self.conversation = conversation
-        self.imageData = imageData
+        self.memberProfileImage = imageData
         fetchConversationMessages()
+    }
+    
+    private func createConversationCellViewModels() -> [ConversationCellViewModel] {
+        return messages.value.map { message in
+            ConversationCellViewModel(cellMessage: message)
+        }
     }
     
     func saveImage(data: Data) {
@@ -38,23 +45,23 @@ final class ConversationViewModel {
         Task {
             do {
                 self.messages.value = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+                self.cellViewModels = createConversationCellViewModels()
             } catch {
                 print("Could not fetch messages from db: ", error.localizedDescription)
             }
         }
     }
     
-    private func createNewMessage(_ messageBody: String) -> Message {
+     private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
         
-        let message = Message(id: messageID,
-                              messageBody: messageBody,
-                              senderId: authenticatedUserID,
-                              imagePath: nil,
-                              timestamp: Date(),
-                              messageSeen: false,
-                              receivedBy: nil)
-        return message
+        return Message(id: messageID,
+                       messageBody: messageBody,
+                       senderId: authenticatedUserID,
+                       imagePath: nil,
+                       timestamp: Date(),
+                       messageSeen: false,
+                       receivedBy: nil)
     }
     
     private func addMessageToDB(_ message: Message) async  {
@@ -65,12 +72,21 @@ final class ConversationViewModel {
         }
     }
     
-    func addNewCreatedMessage(_ messageBody: String) {
-        let message = createNewMessage(messageBody)
+    private func createCellViewModel(with message: Message) -> ConversationCellViewModel {
+        return ConversationCellViewModel(cellMessage: message)
+    }
+    
+    private func insertNewMessage(_ message: Message) {
         messages.value.insert(message, at: 0)
         Task {
             await addMessageToDB(message)
         }
+    }
+    
+    func createMessageBubble(_ messageText: String) {
+        let message = createNewMessage(messageText)
+        insertNewMessage(message)
+        cellViewModels.append(createCellViewModel(with: message))
     }
 }
 

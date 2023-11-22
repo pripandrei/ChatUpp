@@ -48,8 +48,15 @@ class ChatsCell: UITableViewCell {
             cellViewModel.fetchImageData()
             return
         }
+        setImage(imageData)
+    }
+    
+    private func setImage(_ imageData: Data) {
         let image = UIImage(data: imageData)
-        self.profileImage.image = image
+        
+        DispatchQueue.main.async {
+            self.profileImage.image = image
+        }
     }
     
 //MARK: - BINDING
@@ -57,10 +64,11 @@ class ChatsCell: UITableViewCell {
     private func setupBinding() {
         cellViewModel.otherUserProfileImage.bind { [weak self] data in
             if let imageData = data {
-                let image = UIImage(data: imageData)
-                DispatchQueue.main.async {
-                    self?.profileImage.image = image
-                }
+//                let image = UIImage(data: imageData)
+//                DispatchQueue.main.async {
+//                    self?.profileImage.image = image
+//                }
+                self?.setImage(imageData)
             }
         }
     }

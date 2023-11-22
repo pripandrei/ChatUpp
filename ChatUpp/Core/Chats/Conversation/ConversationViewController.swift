@@ -103,14 +103,14 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
             rootView.messageTextView.text.removeAll()
-            handleMessageCreation(message: trimmedString)
+            handleMessageBubbleCreation(messageText: trimmedString)
         }
     }
     
-    private func handleMessageCreation(message: String = "") {
-        let indexPath = IndexPath(item: 0, section: 0)
-        conversationViewModel.addNewCreatedMessage(message)
+    private func handleMessageBubbleCreation(messageText: String = "") {
+        conversationViewModel.createMessageBubble(messageText)
         
+        let indexPath = IndexPath(item: 0, section: 0)
         Task { @MainActor in
             handleContentMessageOffset(with: indexPath)
         }
@@ -175,7 +175,7 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                 }
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
-                self?.handleMessageCreation()
+                self?.handleMessageBubbleCreation()
                 self?.conversationViewModel.saveImage(data: data)
             }
         }
@@ -252,7 +252,7 @@ extension ConversationViewController {
 extension ConversationViewController
 {
     private func setNavigationBarItems() {
-        guard let imageData = conversationViewModel.imageData else {return}
+        guard let imageData = conversationViewModel.memberProfileImage else {return}
         let memberName = conversationViewModel.memberName
         
         customNavigationBar = ConversationCustomNavigationBar(viewController: self)

@@ -27,6 +27,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private var mainCellContainer = UIView()
     var messageContainer = UITextView(usingTextLayoutManager: false)
     private var timeStamp = UILabel()
+    var cellViewModel: ConversationCellViewModel!
  
     var mainCellContainerMaxWidth :CGFloat? {
         didSet {
@@ -35,6 +36,15 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             mainCellContainerMaxWidthConstraint.isActive = true
         }
     }
+    
+    func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
+        self.cellViewModel = viewModel
+        
+        messageContainer.text = viewModel.messageText
+        
+    }
+    
+   
     
     //MARK: - LIFECYCLE
   
@@ -155,9 +165,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             }
         }
     }
-    override func prepareForReuse() {
-        super.prepareForReuse()
-    }
+    
     private func adjustMessagePadding(_ messagePadding: MessagePadding) {
         switch messagePadding {
         case .initial: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)

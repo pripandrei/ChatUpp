@@ -17,7 +17,7 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return conversationViewModel.messages.value.count
+        return conversationViewModel.cellViewModels.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -26,11 +26,12 @@ class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
         
-        cell.messageContainer.text = conversationViewModel.messages.value[indexPath.item].messageBody
+        cell.messageContainer.text = conversationViewModel.cellViewModels[indexPath.item].messageText
+        
         cell.mainCellContainerMaxWidth = collectionView.bounds.width
         
         let authUserID = conversationViewModel.authenticatedUserID
-        if conversationViewModel.messages.value[indexPath.item].senderId == authUserID {
+        if conversationViewModel.cellViewModels[indexPath.item].senderId == authUserID {
             cell.adjustMessageSide(.right)
         } else {
             cell.adjustMessageSide(.left)
