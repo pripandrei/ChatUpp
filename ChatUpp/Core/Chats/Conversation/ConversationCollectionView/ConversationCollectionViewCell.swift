@@ -42,9 +42,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         setupBinding()
         
         messageContainer.text = viewModel.messageText
-//        if viewModel.imageData.value == nil && viewModel.imagePath != nil {
-//            viewModel.fetchImageData()
-//        }
+        if viewModel.imageData.value == nil && viewModel.imagePath != nil {
+            viewModel.fetchImageData()
+        }
     }
     
     private func convertDataToImage(_ data: Data) -> UIImage? {
@@ -54,19 +54,21 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     private func createImageAttachment(withImage image: UIImage) {
         let imageAttachment = NSTextAttachment(image: image)
-        imageAttachment.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 50, height: 50))
+        imageAttachment.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 150, height: 200))
         let attributedString = NSAttributedString(attachment: imageAttachment)
         messageContainer.attributedText = attributedString
+//        messageContainer.textStorage.insert(attributedString, at: 0)
+        print("IMAGE!!!!===", image)
     }
     
     func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
-//            DispatchQueue.main.async {
-                print("!!!!!!!!!!!!!!!")
+            DispatchQueue.main.async {
                 guard let imageData = data else {return}
                 guard let image = self?.convertDataToImage(imageData) else {return}
                 self?.createImageAttachment(withImage: image)
-//            }
+                self?.layoutIfNeeded()
+            }
         }
     }
     

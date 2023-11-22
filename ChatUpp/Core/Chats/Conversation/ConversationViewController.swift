@@ -168,6 +168,7 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                     print("Could not read image!")
                     return
                 }
+                
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
                 self?.handleMessageBubbleCreation()
