@@ -225,7 +225,10 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize
     {
-        return CGSize(width: view.bounds.width, height: 0)
+        // For some reason, cellForItemAt indexPath function is not triggered if height is 0
+        // and numberOfItemsInSection is 1, so, height should be at least 1.
+        // It will not affect height of cells, because they are set to automaticSize
+        return CGSize(width: view.bounds.width, height: 1)
     }
 }
 
