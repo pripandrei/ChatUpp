@@ -16,6 +16,9 @@ final class ChatsManager {
     
     private init() {}
     
+    let firestoreEncoder = Firestore.Encoder()
+    let firestoreDecoder = Firestore.Decoder()
+    
     let chatsCollection = Firestore.firestore().collection(FirestoreCollection.chats.rawValue)
     
     private func chatDocument(documentPath: String) -> DocumentReference {
@@ -91,10 +94,20 @@ final class ChatsManager {
     
     //MARK: - UPDATE MESSAGE IMAGE PATH
     
-    
     func updateMessageImagePath(messageID: String, chatDocumentPath: String, path: String) async throws {
         let data: [String: Any] = [
             Message.CodingKeys.imagePath.rawValue: path
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
+    }
+    
+    //MARK: - UPDATE MESSAGE IMAGE SIZE
+    
+    func updateMessageImageSize(messageID: String, chatDocumentPath: String, imageSize: MessageImageSize) async throws {
+        let encodedImageSize = try firestoreEncoder.encode(imageSize)
+        
+        let data: [String: Any] = [
+            Message.CodingKeys.imageSize.rawValue: encodedImageSize
         ]
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
     }

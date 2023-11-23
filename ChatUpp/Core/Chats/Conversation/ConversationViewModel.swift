@@ -33,12 +33,15 @@ final class ConversationViewModel {
         }
     }
     
-    func saveImage(data: Data) {
+    func saveImage(data: Data, size: CGSize) {
         Task {
             let (path,name) = try await StorageManager.shared.saveMessageImage(data: data, messageID: messages.first!.id)
             try await ChatsManager.shared.updateMessageImagePath(messageID: messages.first!.id,
                                                                  chatDocumentPath: conversation.id,
                                                                  path: name)
+            
+            let imageSize = MessageImageSize(width: Int(size.width), height: Int(size.height))
+            try await ChatsManager.shared.updateMessageImageSize(messageID: messages.first!.id, chatDocumentPath: conversation.id, imageSize: imageSize)
             print("Success saving image: \(path) \(name)")
         }
     }
@@ -55,7 +58,7 @@ final class ConversationViewModel {
         }
     }
     
-     private func createNewMessage(_ messageBody: String) -> Message {
+    private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
         
         return Message(id: messageID,
@@ -64,7 +67,8 @@ final class ConversationViewModel {
                        imagePath: nil,
                        timestamp: Date(),
                        messageSeen: false,
-                       receivedBy: nil)
+                       receivedBy: nil,
+                       imageSize: nil)
     }
     
     private func addMessageToDB(_ message: Message) async  {
@@ -90,6 +94,10 @@ final class ConversationViewModel {
         let message = createNewMessage(messageText)
         insertNewMessage(message)
         cellViewModels.insert(createCellViewModel(with: message), at: 0)
+    }
+    
+    func updateImageSizeOfMessage(size: CGSize) {
+        
     }
 }
 

@@ -7,6 +7,10 @@
 
 import Foundation
 
+struct MessageImageSize: Codable {
+    let width: Int
+    let height: Int
+}
 
 struct Message: Codable {
     let id: String
@@ -17,6 +21,8 @@ struct Message: Codable {
     let messageSeen: Bool
     let receivedBy: String?
     
+    let imageSize: MessageImageSize?
+    
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case messageBody = "message_body"
@@ -25,6 +31,7 @@ struct Message: Codable {
         case timestamp = "timestamp"
         case messageSeen = "message_seen"
         case receivedBy = "received_by"
+        case imageSize = "image_size"
     }
     
     init(from decoder: Decoder) throws {
@@ -36,6 +43,7 @@ struct Message: Codable {
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
         self.messageSeen = try container.decode(Bool.self, forKey: .messageSeen)
         self.receivedBy = try container.decodeIfPresent(String.self, forKey: .receivedBy)
+        self.imageSize = try container.decodeIfPresent(MessageImageSize.self, forKey: .imageSize)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -47,6 +55,7 @@ struct Message: Codable {
         try container.encode(self.timestamp, forKey: .timestamp)
         try container.encode(self.messageSeen, forKey: .messageSeen)
         try container.encode(self.receivedBy, forKey: .receivedBy)
+        try container.encode(self.imageSize, forKey: .imageSize)
     }
     
     init(id: String,
@@ -55,7 +64,8 @@ struct Message: Codable {
          imagePath: String?,
          timestamp: Date,
          messageSeen: Bool,
-         receivedBy: String?
+         receivedBy: String?,
+         imageSize: MessageImageSize?
     )
     {
         self.id = id
@@ -65,6 +75,7 @@ struct Message: Codable {
         self.timestamp = timestamp
         self.messageSeen = messageSeen
         self.receivedBy = receivedBy
+        self.imageSize = imageSize
     }
 }
 

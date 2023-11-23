@@ -172,8 +172,8 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
                 self?.handleMessageBubbleCreation()
-
-                self?.conversationViewModel.saveImage(data: data)
+                
+                self?.conversationViewModel.saveImage(data: data, size: image.size)
             }
         }
     }

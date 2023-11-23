@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ImageIO
 
 final class ConversationCollectionViewCell: UICollectionViewCell {
     
@@ -42,12 +43,11 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         setupBinding()
         
         if viewModel.messageText == "" {
-//            messageContainer.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 150, height: 100))
+            createImageAttachment()
         } else {
             messageContainer.text = viewModel.messageText
         }
         
-       
         if viewModel.imageData.value == nil && viewModel.imagePath != nil {
             viewModel.fetchImageData()
         }
@@ -62,21 +62,43 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         let imageAttachment = NSTextAttachment(image: image)
 //        imageAttachment.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 150, height: 200))
         let attributedString = NSAttributedString(attachment: imageAttachment)
-        messageContainer.attributedText = attributedString
-//        messageContainer.textStorage.insert(attributedString, at: 0)
-        print("IMAGE!!!!===", image)
+//        messageContainer.attributedText = attributedString
+        messageContainer.textStorage.insert(attributedString, at: 0)
     }
     
+    private var imageAttachment: NSTextAttachment?
+
+    private func createImageAttachment() {
+        imageAttachment = NSTextAttachment()
+        imageAttachment?.image = UIImage()
+        
+        if let size = cellViewModel.imageSize {
+            imageAttachment?.bounds.size = CGSize(width: size.width, height: size.height)
+        }
+        let attributedString = NSAttributedString(attachment: imageAttachment!)
+
+        messageContainer.textStorage.insert(attributedString, at: 0)
+    }
+       
     func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
             DispatchQueue.main.async {
-                guard let imageData = data else {return}
-                guard let image = self?.convertDataToImage(imageData) else {return}
-                self?.createImageAttachment(withImage: image)
-                self?.layoutIfNeeded()
+                self?.updateImageAttachment(data: data)
             }
         }
     }
+    
+    func updateImageAttachment(data: Data?) {
+        guard let imageData = data else { return }
+        guard let image = convertDataToImage(imageData) else { return }
+        
+        if let attachment = imageAttachment {
+            attachment.image = image
+            let attributedString = NSAttributedString(attachment: attachment)
+            messageContainer.attributedText = attributedString
+        }
+    }
+
     
     //MARK: - LIFECYCLE
   
