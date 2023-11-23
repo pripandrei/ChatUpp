@@ -27,6 +27,10 @@ final class ConversationViewModel {
         fetchConversationMessages()
     }
     
+//    func delete() {
+//        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)
+//    }
+    
     private func createConversationCellViewModels() -> [ConversationCellViewModel] {
         return messages.map { message in
             ConversationCellViewModel(cellMessage: message)
@@ -52,6 +56,7 @@ final class ConversationViewModel {
                 self.messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
                 self.cellViewModels = createConversationCellViewModels()
                 self.onCellVMLoad?()
+//                delete()
             } catch {
                 print("Could not fetch messages from db: ", error.localizedDescription)
             }

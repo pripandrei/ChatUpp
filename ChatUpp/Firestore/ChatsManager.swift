@@ -64,6 +64,27 @@ final class ChatsManager {
         return try await chatsQuery.getDocuments(as: Chat.self)
     }
     
+    //MARK: - DELETE MESSAGES BY TIMESTAMP
+    
+    func testDeleteLastDocuments(documentPath: String) {
+        chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).order(by: "timestamp", descending: true)
+            .limit(to: 1) // Limit the query to retrieve the last 10 documents
+            .getDocuments { (querySnapshot, error) in
+                if let error = error {
+                    print("Error fetching documents: \(error)")
+                } else {
+                    // Iterate through the documents and delete them
+                    for document in querySnapshot!.documents {
+                        document.reference.delete { error in
+                            if error == nil {
+                                print("Document \(document.documentID) successfully deleted")
+                            }
+                        }
+                    }
+                }
+            }
+    }
+    
     //MARK: - GET RECENT MESSAGE FROM CHATS
     
     func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
