@@ -44,15 +44,31 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         timeStamp.text = viewModel.timestamp
         
-        if viewModel.messageText == "" {
-            createImageAttachment()
-        } else {
-            messageContainer.text = viewModel.messageText
-        }
+//        if viewModel.messageText == "" {
+//            createImageAttachment()
+//        } else {
+//            messageContainer.text = viewModel.messageText
+//        }
         
-        if viewModel.imageData.value == nil && viewModel.imagePath != nil {
+        if viewModel.messageText != "" {
+            messageContainer.text = viewModel.messageText
+        } else if viewModel.imageData.value != nil {
+            self.updateImageAttachment(data: viewModel.imageData.value!)
+        } else {
+            createImageAttachment()
             viewModel.fetchImageData()
         }
+        
+//        if viewModel.imageData.value != nil {
+//            self.updateImageAttachment(data: viewModel.imageData.value!)
+//        } else if {
+//
+//        }
+//        if viewModel.imageData.value == nil && viewModel.imagePath != nil {
+//            viewModel.fetchImageData()
+//        } else {
+//
+//        }
     }
        
     func setupBinding() {
@@ -96,6 +112,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private func setupMessageTextView() {
         mainCellContainer.addSubview(messageContainer)
         
+        
         messageContainer.textColor = .white
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
         messageContainer.isEditable = false
@@ -104,6 +121,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 //        messageContainer.textContainer.lineFragmentPadding = 15
         messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         messageContainer.sizeToFit()
+        
         messageContainer.translatesAutoresizingMaskIntoConstraints = false
         messageContainer.layer.cornerRadius = 15
         messageContainer.clipsToBounds = true
@@ -199,8 +217,11 @@ extension ConversationCollectionViewCell {
         imageAttachment = NSTextAttachment()
         imageAttachment?.image = UIImage()
         
-        if let size = cellViewModel.imageSize {
-            imageAttachment?.bounds.size = CGSize(width: size.width, height: size.height)
+        if let cellImageSize = cellViewModel.imageSize {
+            let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
+            imageAttachment?.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+            
+//            imageAttachment?.bounds.size = CGSize(width: size.width, height: size.height)
         }
         let attributedString = NSAttributedString(attachment: imageAttachment!)
         messageContainer.textStorage.insert(attributedString, at: 0)
@@ -212,6 +233,8 @@ extension ConversationCollectionViewCell {
         
         if let attachment = imageAttachment {
             attachment.image = image
+//            messageContainer.setNeedsDisplay()
+//            messageContainer.setNeedsLayout()
             messageContainer.attributedText = NSAttributedString(attachment: attachment)
         }
     }

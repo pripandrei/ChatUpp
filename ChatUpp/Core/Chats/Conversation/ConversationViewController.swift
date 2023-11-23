@@ -179,6 +179,28 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
     }
 }
 
+//extension UIImage {
+//    func getAspectRatio() -> CGSize {
+//        let (equalWidth, equalHeight) = (250,250)
+//
+//        let preferredWidth: Double = 300
+//        let preferredHeight: Double = 350
+//
+//        let aspectRatioForWidth = Double(self.size.width) / Double(self.size.height)
+//        let aspectRatioForHeight = Double(self.size.height) / Double(self.size.width)
+//
+//        if self.size.width > self.size.height {
+//            let newHeight = preferredWidth / aspectRatioForWidth
+//            return CGSize(width: preferredWidth, height: newHeight)
+//        } else if self.size.height > self.size.width {
+//            let newWidth = preferredHeight / aspectRatioForHeight
+//            return CGSize(width: newWidth, height: preferredHeight)
+//        } else {
+//            return CGSize(width: equalWidth, height: equalHeight)
+//        }
+//    }
+//}
+
 //MARK: - GESTURES
 
 extension ConversationViewController {

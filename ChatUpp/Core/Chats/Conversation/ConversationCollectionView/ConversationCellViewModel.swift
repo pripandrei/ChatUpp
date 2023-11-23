@@ -41,6 +41,26 @@ final class ConversationCellViewModel {
             }
         }
     }
-    
-    
+}
+
+extension ConversationCellViewModel {
+    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize {
+        let (equalWidth, equalHeight) = (250,250)
+        
+        let preferredWidth: Double = 300
+        let preferredHeight: Double = 350
+        
+        let aspectRatioForWidth = Double(size.width) / Double(size.height)
+        let aspectRatioForHeight = Double(size.height) / Double(size.width)
+        
+        if size.width > size.height {
+            let newHeight = preferredWidth / aspectRatioForWidth
+            return CGSize(width: preferredWidth, height: newHeight)
+        } else if size.height > size.width {
+            let newWidth = preferredHeight / aspectRatioForHeight
+            return CGSize(width: newWidth, height: preferredHeight)
+        } else {
+            return CGSize(width: equalWidth, height: equalHeight)
+        }
+    }
 }

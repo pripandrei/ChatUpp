@@ -12,8 +12,12 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     var conversationViewModel: ConversationViewModel!
     
     init(conversationViewModel: ConversationViewModel) {
-//        super.init()
         self.conversationViewModel = conversationViewModel
+        super.init()
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -23,6 +27,7 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
+        print("entered")
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
         
