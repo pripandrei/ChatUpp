@@ -14,7 +14,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         case left
         case right
     }
-    
     private enum MessagePadding {
         case initial
         case spaceRight
@@ -25,6 +24,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private var messageContainerLeadingConstraint: NSLayoutConstraint!
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     
+    private var imageAttachment: NSTextAttachment?
     private var mainCellContainer = UIView()
     var messageContainer = UITextView(usingTextLayoutManager: false)
     private var timeStamp = UILabel()
@@ -42,6 +42,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         self.cellViewModel = viewModel
         setupBinding()
         
+        timeStamp.text = viewModel.timestamp
+        
         if viewModel.messageText == "" {
             createImageAttachment()
         } else {
@@ -52,33 +54,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             viewModel.fetchImageData()
         }
     }
-    
-    private func convertDataToImage(_ data: Data) -> UIImage? {
-        guard let image = UIImage(data: data) else { return nil }
-        return image
-    }
-    
-    private func createImageAttachment(withImage image: UIImage) {
-        let imageAttachment = NSTextAttachment(image: image)
-//        imageAttachment.bounds = CGRect(origin: CGPoint.zero, size: CGSize(width: 150, height: 200))
-        let attributedString = NSAttributedString(attachment: imageAttachment)
-//        messageContainer.attributedText = attributedString
-        messageContainer.textStorage.insert(attributedString, at: 0)
-    }
-    
-    private var imageAttachment: NSTextAttachment?
-
-    private func createImageAttachment() {
-        imageAttachment = NSTextAttachment()
-        imageAttachment?.image = UIImage()
-        
-        if let size = cellViewModel.imageSize {
-            imageAttachment?.bounds.size = CGSize(width: size.width, height: size.height)
-        }
-        let attributedString = NSAttributedString(attachment: imageAttachment!)
-
-        messageContainer.textStorage.insert(attributedString, at: 0)
-    }
        
     func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
@@ -87,18 +62,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             }
         }
     }
-    
-    func updateImageAttachment(data: Data?) {
-        guard let imageData = data else { return }
-        guard let image = convertDataToImage(imageData) else { return }
-        
-        if let attachment = imageAttachment {
-            attachment.image = image
-            let attributedString = NSAttributedString(attachment: attachment)
-            messageContainer.attributedText = attributedString
-        }
-    }
-
     
     //MARK: - LIFECYCLE
   
@@ -119,8 +82,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     private func setupMainCellContainer() {
         contentView.addSubview(mainCellContainer)
-        
-//        mainCellContainer.backgroundColor = .magenta
+
         mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -136,8 +98,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         messageContainer.textColor = .white
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
-        messageContainer.isEditable = false // Make it non-editable
-        messageContainer.isScrollEnabled = false // Disable scrolling
+        messageContainer.isEditable = false
+        messageContainer.isScrollEnabled = false
         messageContainer.textContainer.maximumNumberOfLines = 0 // Allow multiple lines
 //        messageContainer.textContainer.lineFragmentPadding = 15
         messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
@@ -155,7 +117,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private func setupTimestamp() {
         mainCellContainer.addSubview(timeStamp)
         
-        timeStamp.text = "20:42"
         timeStamp.font = UIFont(name: "HelveticaNeue", size: 12)
         timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
@@ -227,6 +188,37 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         case .spaceBottom: messageContainer.textContainerInset.bottom += 15
         }
         messageContainer.invalidateIntrinsicContentSize()
+    }
+}
+
+// MARK: - HANDLE IMAGE TO MESSAGE ATTACHEMENT
+
+extension ConversationCollectionViewCell {
+    
+    private func createImageAttachment() {
+        imageAttachment = NSTextAttachment()
+        imageAttachment?.image = UIImage()
+        
+        if let size = cellViewModel.imageSize {
+            imageAttachment?.bounds.size = CGSize(width: size.width, height: size.height)
+        }
+        let attributedString = NSAttributedString(attachment: imageAttachment!)
+        messageContainer.textStorage.insert(attributedString, at: 0)
+    }
+    
+    private func updateImageAttachment(data: Data?) {
+        guard let imageData = data,
+              let image = convertDataToImage(imageData) else { return }
+        
+        if let attachment = imageAttachment {
+            attachment.image = image
+            messageContainer.attributedText = NSAttributedString(attachment: attachment)
+        }
+    }
+    
+    private func convertDataToImage(_ data: Data) -> UIImage? {
+        guard let image = UIImage(data: data) else { return nil }
+        return image
     }
 }
 
