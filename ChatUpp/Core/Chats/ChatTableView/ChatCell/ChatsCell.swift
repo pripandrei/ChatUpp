@@ -62,13 +62,11 @@ class ChatsCell: UITableViewCell {
 //MARK: - BINDING
     
     private func setupBinding() {
-        cellViewModel.otherUserProfileImage.bind { [weak self] data in
+        cellViewModel.otherUserProfileImage.bind { [weak self,  url = cellViewModel.user.photoUrl] data in
             if let imageData = data {
-//                let image = UIImage(data: imageData)
-//                DispatchQueue.main.async {
-//                    self?.profileImage.image = image
+//                if let url = url, self?.cellViewModel.user.photoUrl == url {
+                    self?.setImage(imageData)
 //                }
-                self?.setImage(imageData)
             }
         }
     }

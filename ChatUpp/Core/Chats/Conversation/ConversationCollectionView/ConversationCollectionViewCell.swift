@@ -42,22 +42,83 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         self.cellViewModel = viewModel
         setupBinding()
         
-        timeStamp.text = viewModel.timestamp
         
-        if viewModel.messageText != "" {
-            messageContainer.text = viewModel.messageText
-        } else if viewModel.imageData.value != nil {
-            self.updateImageAttachment(data: viewModel.imageData.value!)
-        } else {
-            createImageAttachment()
-            viewModel.fetchImageData()
+        if imageAttachment?.image != nil {
+            print("OPP")
         }
+        if viewModel.messageText != "" {
+            
+            messageContainer.text = viewModel.messageText
+        } else if viewModel.imageData.value != nil  {
+            self.updateImageAttachment(data: viewModel.imageData.value!)
+        } else if viewModel.imagePath != nil {
+//            createImageAttachment()
+            
+            messageContainer.attributedText.size()
+            if viewModel.imagePath != nil {
+                viewModel.fetchImageData()
+            }
+        }
+        timeStamp.text = viewModel.timestamp
     }
-       
+    
+    private func createImageAttachment() {
+        imageAttachment = NSTextAttachment()
+        imageAttachment?.image = UIImage()
+        
+        if let cellImageSize = cellViewModel.imageSize {
+            let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
+            imageAttachment?.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+            
+//            imageAttachment?.bounds.size = CGSize(width: 150, height: 225)
+        }
+        let attributedString = NSAttributedString(attachment: imageAttachment!)
+        messageContainer.textStorage.insert(attributedString, at: 0)
+    }
+    
+    private func updateImageAttachment(data: Data?) {
+        guard let imageData = data,
+              let image = convertDataToImage(imageData) else { return }
+        
+        imageAttachment = NSTextAttachment()
+
+            let cgSize = CGSize(width:cellViewModel.imageSize!.width, height: cellViewModel.imageSize!.height)
+            imageAttachment?.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+        imageAttachment!.image = image
+        messageContainer.attributedText = NSAttributedString(attachment: imageAttachment!)
+        
+    }
+    
+    func settingImageToText(data: Data?) {
+        guard let imageData = data,
+              let image = convertDataToImage(imageData) else { return }
+        let imageAttachment = NSTextAttachment()
+        imageAttachment.image = image
+        
+        imageAttachment.bounds = CGRect(x: 0, y: 0, width: 150, height: 200)
+        let imageString = NSAttributedString(attachment: imageAttachment)
+        
+        let attributedString = NSMutableAttributedString(string: "@")
+        attributedString.append(imageString)
+        
+        messageContainer.attributedText = attributedString
+    }
+    
+    private func convertDataToImage(_ data: Data) -> UIImage? {
+        guard let image = UIImage(data: data) else { return nil }
+        return image
+    }
+  
     func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
-            DispatchQueue.main.async {
-                self?.updateImageAttachment(data: data)
+            if data == self?.cellViewModel.imageData.value {
+                DispatchQueue.main.async {
+//                    self?.settingImageToText(data: data)
+//                    self?.updateImageAttachment(data: data)
+                    if let image = self?.convertDataToImage(data!) {
+                        self?.messageContainer.largeContentImage  = image
+                    }
+                }
             }
         }
     }
@@ -196,36 +257,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 
 extension ConversationCollectionViewCell {
     
-    private func createImageAttachment() {
-        imageAttachment = NSTextAttachment()
-        imageAttachment?.image = UIImage()
-        
-        if let cellImageSize = cellViewModel.imageSize {
-            let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
-            imageAttachment?.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
-            
-//            imageAttachment?.bounds.size = CGSize(width: 150, height: 225)
-        }
-        let attributedString = NSAttributedString(attachment: imageAttachment!)
-        messageContainer.textStorage.insert(attributedString, at: 0)
-    }
-    
-    private func updateImageAttachment(data: Data?) {
-        guard let imageData = data,
-              let image = convertDataToImage(imageData) else { return }
-        
-        if let attachment = imageAttachment {
-            attachment.image = image
-//            messageContainer.setNeedsDisplay()
-//            messageContainer.setNeedsLayout()
-            messageContainer.attributedText = NSAttributedString(attachment: attachment)
-        }
-    }
-    
-    private func convertDataToImage(_ data: Data) -> UIImage? {
-        guard let image = UIImage(data: data) else { return nil }
-        return image
-    }
+  
 }
 
 // MARK: - GET LAST LINE MESSAGE STRING

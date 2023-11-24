@@ -68,7 +68,7 @@ final class ChatsManager {
     
     func testDeleteLastDocuments(documentPath: String) {
         chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).order(by: "timestamp", descending: true)
-            .limit(to: 1) // Limit the query to retrieve the last 10 documents
+            .limit(to: 20) // Limit the query to retrieve the last 10 documents
             .getDocuments { (querySnapshot, error) in
                 if let error = error {
                     print("Error fetching documents: \(error)")
