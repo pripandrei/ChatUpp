@@ -44,12 +44,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         timeStamp.text = viewModel.timestamp
         
-//        if viewModel.messageText == "" {
-//            createImageAttachment()
-//        } else {
-//            messageContainer.text = viewModel.messageText
-//        }
-        
         if viewModel.messageText != "" {
             messageContainer.text = viewModel.messageText
         } else if viewModel.imageData.value != nil {
@@ -58,17 +52,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             createImageAttachment()
             viewModel.fetchImageData()
         }
-        
-//        if viewModel.imageData.value != nil {
-//            self.updateImageAttachment(data: viewModel.imageData.value!)
-//        } else if {
-//
-//        }
-//        if viewModel.imageData.value == nil && viewModel.imagePath != nil {
-//            viewModel.fetchImageData()
-//        } else {
-//
-//        }
     }
        
     func setupBinding() {
@@ -78,6 +61,18 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             }
         }
     }
+    
+    override func prepareForReuse() {
+//        setNeedsDisplay()
+//        setNeedsLayout()
+//        layoutIfNeeded()
+    }
+    
+//    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+//        setNeedsDisplay()
+//        setNeedsLayout()
+//        return layoutAttributes
+//    }
     
     //MARK: - LIFECYCLE
   
@@ -221,7 +216,7 @@ extension ConversationCollectionViewCell {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             imageAttachment?.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
             
-//            imageAttachment?.bounds.size = CGSize(width: size.width, height: size.height)
+//            imageAttachment?.bounds.size = CGSize(width: 150, height: 225)
         }
         let attributedString = NSAttributedString(attachment: imageAttachment!)
         messageContainer.textStorage.insert(attributedString, at: 0)

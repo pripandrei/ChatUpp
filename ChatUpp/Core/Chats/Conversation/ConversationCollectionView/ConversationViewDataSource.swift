@@ -27,7 +27,6 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
-        print("entered")
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
         
@@ -45,7 +44,9 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
             cell.adjustMessageSide(.left)
         }
         cell.handleMessageBubbleLayout()
-
+        print("CELL FRAME SIZE",cell.frame.size)
+        print("messageContainer FRAME SIZE",cell.messageContainer.frame.size)
+//        print("messageContainer intrinsic FRAME SIZE",cell.intrinsicContentSize)
         return cell
     }
 }
