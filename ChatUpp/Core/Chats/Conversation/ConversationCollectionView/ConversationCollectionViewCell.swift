@@ -61,19 +61,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             }
         }
     }
-    
-    override func prepareForReuse() {
-//        setNeedsDisplay()
-//        setNeedsLayout()
-//        layoutIfNeeded()
-    }
-    
-//    override func preferredLayoutAttributesFitting(_ layoutAttributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
-//        setNeedsDisplay()
-//        setNeedsLayout()
-//        return layoutAttributes
-//    }
-    
+
     //MARK: - LIFECYCLE
   
     override init(frame: CGRect) {
