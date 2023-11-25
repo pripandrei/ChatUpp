@@ -41,22 +41,15 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
         self.cellViewModel = viewModel
         setupBinding()
-        
-        
-        if imageAttachment?.image != nil {
-            print("OPP")
-        }
+
         if viewModel.messageText != "" {
-            
             messageContainer.text = viewModel.messageText
         } else if viewModel.imageData.value != nil  {
             self.updateImageAttachment(data: viewModel.imageData.value!)
         } else if viewModel.imagePath != nil {
-//            createImageAttachment()
-            
-            messageContainer.attributedText.size()
+            createImageAttachment()
             if viewModel.imagePath != nil {
-                viewModel.fetchImageData()
+//                viewModel.fetchImageData()
             }
         }
         timeStamp.text = viewModel.timestamp
@@ -114,9 +107,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             if data == self?.cellViewModel.imageData.value {
                 DispatchQueue.main.async {
 //                    self?.settingImageToText(data: data)
-//                    self?.updateImageAttachment(data: data)
                     if let image = self?.convertDataToImage(data!) {
-                        self?.messageContainer.largeContentImage  = image
+                        self?.updateImageAttachment(data: data)
+//                        self?.messageContainer.largeContentImage  = image
                     }
                 }
             }
