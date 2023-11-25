@@ -42,6 +42,7 @@
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75CB52182B0BF064007F3AB6 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* StorageManager.swift */; };
 		75D6DC332B0D735100D2CD26 /* ConversationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */; };
+		75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */; };
 		75D7C5952AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */; };
 		75D7C5CC2ADAD40600F6D4B9 /* CGFloat+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */; };
 		75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */; };
@@ -95,6 +96,7 @@
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewModel.swift; sourceTree = "<group>"; };
+		75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCollectionViewCell.swift; sourceTree = "<group>"; };
 		75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extension.swift"; sourceTree = "<group>"; };
 		75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
@@ -335,6 +337,7 @@
 				75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */,
 				7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */,
 				7563F8C32AE8D2D1006FA374 /* String+Extensions.swift */,
+				75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -533,6 +536,7 @@
 				75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */,
 				756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
+				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
 				75CB52182B0BF064007F3AB6 /* StorageManager.swift in Sources */,
 				7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */,
