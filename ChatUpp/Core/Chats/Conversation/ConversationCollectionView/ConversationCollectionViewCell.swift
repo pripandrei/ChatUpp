@@ -112,6 +112,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         mainCellContainer.addSubview(messageContainer)
         
         messageContainer.backgroundColor = .blue
+        
+        
         messageContainer.textColor = .white
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
         messageContainer.isEditable = false
@@ -223,7 +225,7 @@ extension ConversationCollectionViewCell {
         } else {
             imageAttachment.image = UIImage()
         }
-
+        
         if let cellImageSize = cellViewModel.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
@@ -231,13 +233,36 @@ extension ConversationCollectionViewCell {
         
         let attributedString = NSAttributedString(attachment: imageAttachment)
         messageContainer.textStorage.insert(attributedString, at: 0)
+        
     }
     
     private func convertDataToImage(_ data: Data) -> UIImage? {
         guard let image = UIImage(data: data) else { return nil }
-        return image
+        return image.roundedCornerImage(with: 20)
     }
 }
+
+extension UIImage {
+    func roundedCornerImage(with radius: CGFloat) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        
+        return renderer.image { rendererContext in
+            let rect = CGRect(origin: .zero, size: size)
+            let path = UIBezierPath(roundedRect: rect,
+                                    byRoundingCorners: .allCorners,
+                                    cornerRadii: CGSize(width: radius, height: radius))
+            path.close()
+            let cgContext = rendererContext.cgContext
+            cgContext.saveGState()
+            path.addClip()
+            draw(in: rect)
+            cgContext.restoreGState()
+        }
+    }
+}
+
 
 // MARK: - GET LAST LINE MESSAGE STRING
 extension ConversationCollectionViewCell {
