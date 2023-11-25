@@ -52,12 +52,24 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         }
     }
     
+    private func cleanupCellContent() {
+        messageContainer.text = ""
+        imageAttachment.image = nil
+        layoutSubviews()
+    }
+    
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
+        cleanupCellContent()
+        
         self.cellViewModel = viewModel
         setupBinding()
         
         timeStamp.text = viewModel.timestamp
-        messageContainer.text = viewModel.messageText
+
+        if viewModel.messageText != "" {
+            messageContainer.text = viewModel.messageText
+            return
+        }
         if viewModel.imageData.value != nil  {
             createImageAttachment(data: viewModel.imageData.value!)
             return
@@ -70,10 +82,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             return
         }
     }
-    
-//    override func prepareForReuse() {
-//        customImage.image = nil
-//    }
     
     var customImage = UIImageView()
     
@@ -247,16 +255,17 @@ extension ConversationCollectionViewCell {
             imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
         }
         
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont(name: "HelveticaNeue", size: 17)!,
-            .foregroundColor: UIColor.white,
-        ]
+//        let attributes: [NSAttributedString.Key: Any] = [
+//            .font: UIFont(name: "HelveticaNeue", size: 17)!,
+//            .foregroundColor: UIColor.white,
+//        ]
         
-//        let attributedString = NSAttributedString(attachment: imageAttachment)
+        let attributedString = NSAttributedString(attachment: imageAttachment)
         
-        let mutableString = NSMutableAttributedString(attachment: imageAttachment)
-        mutableString.addAttributes(attributes, range: NSRange(location: 0, length: mutableString.length))
-        messageContainer.textStorage.insert(mutableString, at: 0)
+//        let mutableString = NSMutableAttributedString(attachment: imageAttachment)
+//        mutableString.addAttributes(attributes, range: NSRange(location: 0, length: mutableString.length))
+        messageContainer.textStorage.insert(attributedString, at: 0)
+        
     }
     
 //    private func updateImageAttachment(data: Data?) {
