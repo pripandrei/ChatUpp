@@ -24,8 +24,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private var messageContainerLeadingConstraint: NSLayoutConstraint!
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     
-    private var imageAttachment: NSTextAttachment?
-    private var mainCellContainer = UIView()
+    private var imageAttachment = NSTextAttachment()
+     var mainCellContainer = UIView()
     var messageContainer = UITextView(usingTextLayoutManager: false)
     private var timeStamp = UILabel()
     var cellViewModel: ConversationCellViewModel!
@@ -38,84 +38,62 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
-        self.cellViewModel = viewModel
-        setupBinding()
-
-        if viewModel.messageText != "" {
-            messageContainer.text = viewModel.messageText
-        } else if viewModel.imageData.value != nil  {
-            self.updateImageAttachment(data: viewModel.imageData.value!)
-        } else if viewModel.imagePath != nil {
-            createImageAttachment()
-            if viewModel.imagePath != nil {
-//                viewModel.fetchImageData()
-            }
-        }
-        timeStamp.text = viewModel.timestamp
-    }
-    
-    private func createImageAttachment() {
-        imageAttachment = NSTextAttachment()
-        imageAttachment?.image = UIImage()
-        
-        if let cellImageSize = cellViewModel.imageSize {
-            let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
-            imageAttachment?.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
-            
-//            imageAttachment?.bounds.size = CGSize(width: 150, height: 225)
-        }
-        let attributedString = NSAttributedString(attachment: imageAttachment!)
-        messageContainer.textStorage.insert(attributedString, at: 0)
-    }
-    
-    private func updateImageAttachment(data: Data?) {
-        guard let imageData = data,
-              let image = convertDataToImage(imageData) else { return }
-        
-        imageAttachment = NSTextAttachment()
-
-            let cgSize = CGSize(width:cellViewModel.imageSize!.width, height: cellViewModel.imageSize!.height)
-            imageAttachment?.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
-        imageAttachment!.image = image
-        messageContainer.attributedText = NSAttributedString(attachment: imageAttachment!)
-        
-    }
-    
-    func settingImageToText(data: Data?) {
-        guard let imageData = data,
-              let image = convertDataToImage(imageData) else { return }
-        let imageAttachment = NSTextAttachment()
-        imageAttachment.image = image
-        
-        imageAttachment.bounds = CGRect(x: 0, y: 0, width: 150, height: 200)
-        let imageString = NSAttributedString(attachment: imageAttachment)
-        
-        let attributedString = NSMutableAttributedString(string: "@")
-        attributedString.append(imageString)
-        
-        messageContainer.attributedText = attributedString
-    }
-    
-    private func convertDataToImage(_ data: Data) -> UIImage? {
-        guard let image = UIImage(data: data) else { return nil }
-        return image
-    }
-  
     func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
             if data == self?.cellViewModel.imageData.value {
                 DispatchQueue.main.async {
 //                    self?.settingImageToText(data: data)
                     if let image = self?.convertDataToImage(data!) {
-                        self?.updateImageAttachment(data: data)
+                        self?.createImageAttachment(data: data)
 //                        self?.messageContainer.largeContentImage  = image
                     }
                 }
             }
         }
     }
-
+    
+    func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
+        self.cellViewModel = viewModel
+        setupBinding()
+        
+        timeStamp.text = viewModel.timestamp
+        messageContainer.text = viewModel.messageText
+        if viewModel.imageData.value != nil  {
+            createImageAttachment(data: viewModel.imageData.value!)
+            return
+        }
+        if viewModel.imagePath != nil && viewModel.imageData.value == nil  {
+            createImageAttachment()
+            if viewModel.imagePath != nil {
+                viewModel.fetchImageData()
+            }
+            return
+        }
+    }
+    
+//    override func prepareForReuse() {
+//        customImage.image = nil
+//    }
+    
+    var customImage = UIImageView()
+    
+    func setupImageUI() {
+        mainCellContainer.addSubview(customImage)
+        
+        customImage.backgroundColor = .green.withAlphaComponent(0.2)
+        customImage.contentMode = .scaleAspectFit
+        customImage.clipsToBounds = true
+        
+        customImage.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            customImage.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor),
+            customImage.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor),
+            customImage.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor),
+            customImage.topAnchor.constraint(equalTo: messageContainer.topAnchor),
+            
+        ])
+    }
+    
     //MARK: - LIFECYCLE
   
     override init(frame: CGRect) {
@@ -123,8 +101,10 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         setupContentViewConstraints()
         setupMainCellContainer()
+        mainCellContainer.backgroundColor = .alizarin
         setupMessageTextView()
         setupTimestamp()
+//        setupImageUI()
     }
     
     required init?(coder: NSCoder) {
@@ -149,7 +129,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private func setupMessageTextView() {
         mainCellContainer.addSubview(messageContainer)
         
-        
+        messageContainer.backgroundColor = .blue
         messageContainer.textColor = .white
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
         messageContainer.isEditable = false
@@ -164,6 +144,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageContainer.clipsToBounds = true
         
         NSLayoutConstraint.activate([
+//            messageContainer.widthAnchor.constraint(equalToConstant: 300),
+
             messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
             messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor)
         ])
@@ -186,6 +168,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
+//            contentView.heightAnchor.constraint(equalToConstant: 250),
+//            contentView.widthAnchor.constraint(equalToConstant: 200),
            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
            contentView.topAnchor.constraint(equalTo: topAnchor),
@@ -246,6 +230,48 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     }
 }
 
+// MARK: - HANDLE IMAGE TO MESSAGE ATTACHEMENT
+
+extension ConversationCollectionViewCell {
+    
+    private func createImageAttachment(data: Data? = Data()) {
+        if let imageData = data,
+           let image = convertDataToImage(imageData) {
+            imageAttachment.image = image
+        } else {
+            imageAttachment.image = UIImage()
+        }
+
+        if let cellImageSize = cellViewModel.imageSize {
+            let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
+            imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+        }
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont(name: "HelveticaNeue", size: 17)!,
+            .foregroundColor: UIColor.white,
+        ]
+        
+//        let attributedString = NSAttributedString(attachment: imageAttachment)
+        
+        let mutableString = NSMutableAttributedString(attachment: imageAttachment)
+        mutableString.addAttributes(attributes, range: NSRange(location: 0, length: mutableString.length))
+        messageContainer.textStorage.insert(mutableString, at: 0)
+    }
+    
+//    private func updateImageAttachment(data: Data?) {
+//        guard let imageData = data,
+//              let image = convertDataToImage(imageData) else { return }
+////        imageAttachment = NSTextAttachment()
+////            imageAttachment!.image = image
+//            customImage.image = image
+//    }
+    
+    private func convertDataToImage(_ data: Data) -> UIImage? {
+        guard let image = UIImage(data: data) else { return nil }
+        return image
+    }
+}
 // MARK: - HANDLE IMAGE TO MESSAGE ATTACHEMENT
 
 extension ConversationCollectionViewCell {
