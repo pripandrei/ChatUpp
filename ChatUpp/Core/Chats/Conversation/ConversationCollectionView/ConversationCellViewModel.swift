@@ -55,10 +55,10 @@ extension ConversationCellViewModel {
         
         if size.width > size.height {
             let newHeight = preferredWidth / aspectRatioForWidth
-            return CGSize(width: preferredWidth, height: newHeight)
+            return CGSize(width: preferredWidth , height: newHeight)
         } else if size.height > size.width {
             let newWidth = preferredHeight / aspectRatioForHeight
-            return CGSize(width: newWidth, height: preferredHeight)
+            return CGSize(width: newWidth , height: preferredHeight)
         } else {
             return CGSize(width: equalWidth, height: equalHeight)
         }
