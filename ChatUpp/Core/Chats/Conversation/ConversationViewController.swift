@@ -221,15 +221,6 @@ extension ConversationViewController {
 
 extension ConversationViewController: UICollectionViewDelegateFlowLayout {
     
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-////        let cellWidth: CGFloat = // Specify your cell width here
-//        let collectionViewWidth = collectionView.bounds.width
-////        let inset = max(0, collectionViewWidth - cellWidth)
-//        var inset = UIEdgeInsets()
-//        inset.left = 190
-//        return inset
-//    }
-    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize

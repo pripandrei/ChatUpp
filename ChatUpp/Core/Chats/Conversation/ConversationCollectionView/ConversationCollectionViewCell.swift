@@ -38,20 +38,16 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func setupBinding() {
+    private func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
             if data == self?.cellViewModel.imageData.value {
                 DispatchQueue.main.async {
-//                    self?.settingImageToText(data: data)
-                    if let image = self?.convertDataToImage(data!) {
-                        self?.createImageAttachment(data: data)
-//                        self?.messageContainer.largeContentImage  = image
-                    }
+                    self?.configureImageAttachment(data: data)
                 }
             }
         }
     }
-    
+
     private func cleanupCellContent() {
         messageContainer.text = ""
         imageAttachment.image = nil
@@ -71,35 +67,14 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
             return
         }
         if viewModel.imageData.value != nil  {
-            createImageAttachment(data: viewModel.imageData.value!)
+            configureImageAttachment(data: viewModel.imageData.value!)
             return
         }
         if viewModel.imagePath != nil && viewModel.imageData.value == nil  {
-            createImageAttachment()
-            if viewModel.imagePath != nil {
-                viewModel.fetchImageData()
-            }
+            configureImageAttachment()
+            viewModel.fetchImageData()
             return
         }
-    }
-    
-    var customImage = UIImageView()
-    
-    func setupImageUI() {
-        mainCellContainer.addSubview(customImage)
-        
-        customImage.backgroundColor = .green.withAlphaComponent(0.2)
-        customImage.contentMode = .scaleAspectFit
-        customImage.clipsToBounds = true
-        
-        customImage.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            customImage.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor),
-            customImage.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor),
-            customImage.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor),
-            customImage.topAnchor.constraint(equalTo: messageContainer.topAnchor),
-            
-        ])
     }
     
     //MARK: - LIFECYCLE
@@ -112,7 +87,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         mainCellContainer.backgroundColor = .alizarin
         setupMessageTextView()
         setupTimestamp()
-//        setupImageUI()
     }
     
     required init?(coder: NSCoder) {
@@ -242,7 +216,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 
 extension ConversationCollectionViewCell {
     
-    private func createImageAttachment(data: Data? = Data()) {
+    private func configureImageAttachment(data: Data? = Data()) {
         if let imageData = data,
            let image = convertDataToImage(imageData) {
             imageAttachment.image = image
@@ -255,41 +229,17 @@ extension ConversationCollectionViewCell {
             imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
         }
         
-//        let attributes: [NSAttributedString.Key: Any] = [
-//            .font: UIFont(name: "HelveticaNeue", size: 17)!,
-//            .foregroundColor: UIColor.white,
-//        ]
-        
         let attributedString = NSAttributedString(attachment: imageAttachment)
-        
-//        let mutableString = NSMutableAttributedString(attachment: imageAttachment)
-//        mutableString.addAttributes(attributes, range: NSRange(location: 0, length: mutableString.length))
         messageContainer.textStorage.insert(attributedString, at: 0)
-        
     }
-    
-//    private func updateImageAttachment(data: Data?) {
-//        guard let imageData = data,
-//              let image = convertDataToImage(imageData) else { return }
-////        imageAttachment = NSTextAttachment()
-////            imageAttachment!.image = image
-//            customImage.image = image
-//    }
     
     private func convertDataToImage(_ data: Data) -> UIImage? {
         guard let image = UIImage(data: data) else { return nil }
         return image
     }
 }
-// MARK: - HANDLE IMAGE TO MESSAGE ATTACHEMENT
-
-extension ConversationCollectionViewCell {
-    
-  
-}
 
 // MARK: - GET LAST LINE MESSAGE STRING
-
 extension ConversationCollectionViewCell {
     
     private func getStringFromLastLine(usingTextView textView: UITextView) -> String {

@@ -31,10 +31,7 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         
         cell.mainCellContainerMaxWidth = collectionView.bounds.width
         cell.configureCell(usingViewModel: conversationViewModel.cellViewModels[indexPath.item])
-        
-//        cell.messageContainer.text = conversationViewModel.cellViewModels[indexPath.item].messageText
-//        cell.messageContainer.text = conversationViewModel.messages[indexPath.item].messageBody
-        
+    
         let authUserID = conversationViewModel.authenticatedUserID
         if conversationViewModel.cellViewModels[indexPath.item].senderId == authUserID {
             cell.adjustMessageSide(.right)
@@ -42,9 +39,6 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
             cell.adjustMessageSide(.left)
         }
         cell.handleMessageBubbleLayout()
-//        print("CELL FRAME SIZE",cell.frame.size)
-//        print("messageContainer FRAME SIZE",cell.messageContainer.frame.size)
-//        print("messageContainer intrinsic FRAME SIZE",cell.intrinsicContentSize)
         return cell
     }
 }
