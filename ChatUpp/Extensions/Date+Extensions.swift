@@ -10,7 +10,7 @@ import Foundation
 extension Date {
     func formatToHoursAndMinutes() -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat  = "hh:m"
+        formatter.dateFormat  = "hh:mm"
         let time = formatter.string(from: self)
         return time
     }

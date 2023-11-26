@@ -77,7 +77,7 @@ final class ConversationViewControllerUI: UIView {
     private func setupCollectionView() {
         self.addSubview(collectionView)
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
-        collectionView.backgroundColor = .link
+        collectionView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -91,13 +91,13 @@ final class ConversationViewControllerUI: UIView {
     private func setupHolderView() {
         self.addSubviews(containerView)
         
-        containerView.backgroundColor = .systemIndigo
+        containerView.backgroundColor = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.bounds.size.height = 80
         
         self.holderViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         self.holderViewBottomConstraint.isActive = true
-        
+        #colorLiteral(red: 0.1256499887, green: 0.2557474077, blue: 0.3938521147, alpha: 1)
         NSLayoutConstraint.activate([
             containerView.heightAnchor.constraint(equalToConstant: 80),
             containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor),

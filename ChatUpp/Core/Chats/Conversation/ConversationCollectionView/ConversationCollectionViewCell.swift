@@ -122,6 +122,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
         messageContainer.isEditable = false
         messageContainer.isScrollEnabled = false
+        messageContainer.isSelectable = false
         messageContainer.textContainer.maximumNumberOfLines = 0 // Allow multiple lines
 //        messageContainer.textContainer.lineFragmentPadding = 1.5
 //        messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
@@ -234,44 +235,19 @@ extension ConversationCollectionViewCell {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
         }
-        
         let attributedString = NSAttributedString(attachment: imageAttachment)
         
         // 0 padding for image
         imageAttachment.lineLayoutPadding = -5
         
         messageContainer.textStorage.insert(attributedString, at: 0)
-    
-        
     }
     
     private func convertDataToImage(_ data: Data) -> UIImage? {
         guard let image = UIImage(data: data) else { return nil }
         return image.roundedCornerImage(with: 25)
     }
-    
-  
 }
-extension UIImage
-{
-    func scale(newWidth: CGFloat) -> UIImage
-    {
-        guard self.size.width != newWidth else{return self}
-        
-        let scaleFactor = newWidth / self.size.width
-        
-        let newHeight = self.size.height * scaleFactor
-        let newSize = CGSize(width: newWidth, height: newHeight)
-        
-        UIGraphicsBeginImageContextWithOptions(newSize, true, 0.0)
-        self.draw(in: CGRect(x: 0, y: 0, width: newWidth, height: newHeight))
-        
-        let newImage: UIImage? = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-        return newImage ?? self
-    }
-}
-
 
 // MARK: - GET LAST LINE MESSAGE STRING
 extension ConversationCollectionViewCell {
