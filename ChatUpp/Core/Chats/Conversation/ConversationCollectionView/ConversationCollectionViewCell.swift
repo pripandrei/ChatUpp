@@ -56,6 +56,11 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     }
     
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
+        
+        defer {
+            handleMessageBubbleLayout()
+        }
+        
         cleanupCellContent()
         
         self.cellViewModel = viewModel
@@ -65,16 +70,15 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 
         if viewModel.messageText != "" {
             messageContainer.text = viewModel.messageText
-            handleMessageBubbleLayout()
             return
         }
         if viewModel.imageData.value != nil  {
-            adjustMessagePadding(.imageSpace)
+//            adjustMessagePadding(.imageSpace)
             configureImageAttachment(data: viewModel.imageData.value!)
             return
         }
         if viewModel.imagePath != nil && viewModel.imageData.value == nil  {
-            adjustMessagePadding(.imageSpace)
+//            adjustMessagePadding(.imageSpace)
             configureImageAttachment()
             viewModel.fetchImageData()
             return
