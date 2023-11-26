@@ -27,9 +27,9 @@ final class ConversationViewModel {
         fetchConversationMessages()
     }
     
-//    func delete() {
-//        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)
-//    }
+    func delete() {
+        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)
+    }
     
     private func createConversationCellViewModels() -> [ConversationCellViewModel] {
         return messages.map { message in
