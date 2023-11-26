@@ -9,7 +9,7 @@ import UIKit
 
 class ChatsCell: UITableViewCell {
     
-    private var messageLable = UILabel()
+    private var messageLable = UITextView()
     private var nameLabel = UILabel()
     private var profileImage = UIImageView()
     private var dateLable = UILabel()
@@ -23,6 +23,10 @@ class ChatsCell: UITableViewCell {
         setNameLabel()
         setProfileImage()
         setDateLable()
+        let cellBackground = UIView()
+        cellBackground.backgroundColor = #colorLiteral(red: 0.09686327726, green: 0.2637034953, blue: 0.3774781227, alpha: 1)
+        self.selectedBackgroundView = cellBackground
+        self.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     }
 
     required init?(coder: NSCoder) {
@@ -48,19 +52,25 @@ class ChatsCell: UITableViewCell {
             cellViewModel.fetchImageData()
             return
         }
+        setImage(imageData)
+    }
+    
+    private func setImage(_ imageData: Data) {
         let image = UIImage(data: imageData)
-        self.profileImage.image = image
+        
+        DispatchQueue.main.async {
+            self.profileImage.image = image
+        }
     }
     
 //MARK: - BINDING
     
     private func setupBinding() {
-        cellViewModel.otherUserProfileImage.bind { [weak self] data in
+        cellViewModel.otherUserProfileImage.bind { [weak self,  url = cellViewModel.user.photoUrl] data in
             if let imageData = data {
-                let image = UIImage(data: imageData)
-                DispatchQueue.main.async {
-                    self?.profileImage.image = image
-                }
+//                if let url = url, self?.cellViewModel.user.photoUrl == url {
+                    self?.setImage(imageData)
+//                }
             }
         }
     }
@@ -69,10 +79,17 @@ class ChatsCell: UITableViewCell {
     
     private func setMessageLable() {
         self.addSubview(messageLable)
+        messageLable.isEditable = false
+        messageLable.isScrollEnabled = false
+        messageLable.isSelectable = false
+        messageLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title2), size: 15)
         messageLable.text = "Temporary message here, for testing purposes only."
-        messageLable.numberOfLines = 0
-//        messageLable.adjustsFontSizeToFitWidth = true
-        messageLable.backgroundColor = .green
+        messageLable.textColor = #colorLiteral(red: 0.5970802903, green: 0.5856198668, blue: 0.6014393568, alpha: 1)
+        messageLable.textContainer.maximumNumberOfLines = 0
+        messageLable.contentInset.top = -5
+        messageLable.contentInset.left = -4
+        messageLable.backgroundColor = .clear
+        messageLable.textAlignment = .left
         configureMessageLableConstraints()
     }
     
@@ -80,7 +97,7 @@ class ChatsCell: UITableViewCell {
         messageLable.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            messageLable.topAnchor.constraint(equalTo: self.topAnchor, constant: self.bounds.height * 0.75),
+            messageLable.topAnchor.constraint(equalTo: self.topAnchor, constant: self.bounds.height * 0.60),
             messageLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -55),
             messageLable.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
             messageLable.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 75)
@@ -89,7 +106,9 @@ class ChatsCell: UITableViewCell {
     
     private func setNameLabel() {
         self.addSubview(nameLabel)
-        nameLabel.backgroundColor = .brown
+        nameLabel.textColor = #colorLiteral(red: 0.8956019878, green: 1, blue: 1, alpha: 1)
+//        nameLabel.font = UIFont.boldSystemFont(ofSize: 16.5)
+        nameLabel.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .headline), size: 17)
         
         setNameLableConstraints()
     }
@@ -107,24 +126,36 @@ class ChatsCell: UITableViewCell {
     
     private func setProfileImage() {
         self.addSubview(profileImage)
-//        profileImage.backgroundColor = .blue
+        profileImage.layer.cornerRadius = self.bounds.size.width * 0.09
+        profileImage.clipsToBounds = true
         setProfileImageConstraints()
     }
     
     private func setProfileImageConstraints() {
         profileImage.translatesAutoresizingMaskIntoConstraints = false
     
+//        NSLayoutConstraint.activate([
+//            profileImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+//            profileImage.trailingAnchor.constraint(equalTo: messageLable.leadingAnchor, constant: -8),
+//            profileImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
+//            profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10)
+//        ])
+        
         NSLayoutConstraint.activate([
-            profileImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
-            profileImage.trailingAnchor.constraint(equalTo: messageLable.leadingAnchor, constant: -8),
-            profileImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
-            profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10)
+            profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            profileImage.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+                   // Set a fixed width and height for the label (circular shape)
+            profileImage.widthAnchor.constraint(equalTo: profileImage.heightAnchor),
+                   // Ensure the label's width and height are equal
+            profileImage.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.15)
         ])
     }
     
     private func setDateLable() {
         self.addSubview(dateLable)
-        dateLable.backgroundColor = .cyan
+
+        dateLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title3), size: 14)
+        dateLable.textColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1)
         
         setDateLableConstraints()
     }
@@ -133,10 +164,11 @@ class ChatsCell: UITableViewCell {
         dateLable.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            dateLable.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            dateLable.topAnchor.constraint(equalTo: self.topAnchor, constant: 8),
             dateLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
-            dateLable.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
-            dateLable.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6)
+//            dateLable.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
+            dateLable.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
+            dateLable.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.25)
         ])
     }
 }

@@ -7,24 +7,31 @@
 
 import Foundation
 
+struct MessageImageSize: Codable {
+    let width: Int
+    let height: Int
+}
 
 struct Message: Codable {
     let id: String
     let messageBody: String
     let senderId: String
-    let imageUrl: String?
+    let imagePath: String?
     let timestamp: Date
     let messageSeen: Bool
     let receivedBy: String?
+    
+    let imageSize: MessageImageSize?
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case messageBody = "message_body"
         case senderId = "sent_by"
-        case imageUrl = "image_url"
+        case imagePath = "image_path"
         case timestamp = "timestamp"
         case messageSeen = "message_seen"
         case receivedBy = "received_by"
+        case imageSize = "image_size"
     }
     
     init(from decoder: Decoder) throws {
@@ -32,10 +39,11 @@ struct Message: Codable {
         self.id = try container.decode(String.self, forKey: .id)
         self.messageBody = try container.decode(String.self, forKey: .messageBody)
         self.senderId = try container.decode(String.self, forKey: .senderId)
-        self.imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl)
+        self.imagePath = try container.decodeIfPresent(String.self, forKey: .imagePath)
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
         self.messageSeen = try container.decode(Bool.self, forKey: .messageSeen)
         self.receivedBy = try container.decodeIfPresent(String.self, forKey: .receivedBy)
+        self.imageSize = try container.decodeIfPresent(MessageImageSize.self, forKey: .imageSize)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -43,28 +51,31 @@ struct Message: Codable {
         try container.encode(self.id, forKey: .id)
         try container.encode(self.messageBody, forKey: .messageBody)
         try container.encode(self.senderId, forKey: .senderId)
-        try container.encodeIfPresent(self.imageUrl, forKey: .imageUrl)
+        try container.encodeIfPresent(self.imagePath, forKey: .imagePath)
         try container.encode(self.timestamp, forKey: .timestamp)
         try container.encode(self.messageSeen, forKey: .messageSeen)
         try container.encode(self.receivedBy, forKey: .receivedBy)
+        try container.encode(self.imageSize, forKey: .imageSize)
     }
     
     init(id: String,
          messageBody: String,
          senderId: String,
-         imageUrl: String?,
+         imagePath: String?,
          timestamp: Date,
          messageSeen: Bool,
-         receivedBy: String?
+         receivedBy: String?,
+         imageSize: MessageImageSize?
     )
     {
         self.id = id
         self.messageBody = messageBody
         self.senderId = senderId
-        self.imageUrl = imageUrl
+        self.imagePath = imagePath
         self.timestamp = timestamp
         self.messageSeen = messageSeen
         self.receivedBy = receivedBy
+        self.imageSize = imageSize
     }
 }
 

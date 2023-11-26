@@ -36,7 +36,7 @@ class ChatsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .orange
+        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupBinding()
         configureTableView()
         setupSearchController()
@@ -62,6 +62,7 @@ class ChatsViewController: UIViewController {
         tableView.pin(to: view)
         tableView.rowHeight = 70
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        tableView.separatorColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
     }
     
     private func setupBinding() {
@@ -186,6 +187,7 @@ extension ChatsViewController: UISearchResultsUpdating {
 
 extension ChatsViewController: UITableViewDelegate {
     
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
         
@@ -197,4 +199,5 @@ extension ChatsViewController: UITableViewDelegate {
         
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
+    
 }

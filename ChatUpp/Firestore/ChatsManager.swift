@@ -16,6 +16,9 @@ final class ChatsManager {
     
     private init() {}
     
+    let firestoreEncoder = Firestore.Encoder()
+    let firestoreDecoder = Firestore.Decoder()
+    
     let chatsCollection = Firestore.firestore().collection(FirestoreCollection.chats.rawValue)
     
     private func chatDocument(documentPath: String) -> DocumentReference {
@@ -61,6 +64,27 @@ final class ChatsManager {
         return try await chatsQuery.getDocuments(as: Chat.self)
     }
     
+    //MARK: - DELETE MESSAGES BY TIMESTAMP
+    
+    func testDeleteLastDocuments(documentPath: String) {
+        chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).order(by: "timestamp", descending: true)
+            .limit(to: 20) // Limit the query to retrieve the last 10 documents
+            .getDocuments { (querySnapshot, error) in
+                if let error = error {
+                    print("Error fetching documents: \(error)")
+                } else {
+                    // Iterate through the documents and delete them
+                    for document in querySnapshot!.documents {
+                        document.reference.delete { error in
+                            if error == nil {
+                                print("Document \(document.documentID) successfully deleted")
+                            }
+                        }
+                    }
+                }
+            }
+    }
+    
     //MARK: - GET RECENT MESSAGE FROM CHATS
     
     func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
@@ -87,6 +111,26 @@ final class ChatsManager {
     func getAllMessages(fromChatDocumentPath documentID: String) async throws -> [Message] {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
         return try await messagesReference.order(by: "timestamp", descending: true).getDocuments(as: Message.self)
+    }
+    
+    //MARK: - UPDATE MESSAGE IMAGE PATH
+    
+    func updateMessageImagePath(messageID: String, chatDocumentPath: String, path: String) async throws {
+        let data: [String: Any] = [
+            Message.CodingKeys.imagePath.rawValue: path
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
+    }
+    
+    //MARK: - UPDATE MESSAGE IMAGE SIZE
+    
+    func updateMessageImageSize(messageID: String, chatDocumentPath: String, imageSize: MessageImageSize) async throws {
+        let encodedImageSize = try firestoreEncoder.encode(imageSize)
+        
+        let data: [String: Any] = [
+            Message.CodingKeys.imageSize.rawValue: encodedImageSize
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
     }
 }
 

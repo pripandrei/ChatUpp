@@ -9,7 +9,7 @@ import Foundation
 import Firebase
 
 class ChatCellViewModel {
-    var user: DBUser
+    let user: DBUser
     var recentMessages: Message
     var otherUserProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     

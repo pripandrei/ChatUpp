@@ -6,33 +6,78 @@
 //
 
 import UIKit
-
+import ImageIO
+import AVFoundation
 final class ConversationCollectionViewCell: UICollectionViewCell {
     
     enum MessageSide {
         case left
         case right
     }
-    
     private enum MessagePadding {
         case initial
-        case spaceRight
-        case spaceBottom
+        case rightSpace
+        case bottomSpace
+        case imageSpace
     }
     
     private var mainCellContainerMaxWidthConstraint: NSLayoutConstraint!
     private var messageContainerLeadingConstraint: NSLayoutConstraint!
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     
-    private var mainCellContainer = UIView()
+    private var imageAttachment = NSTextAttachment()
+     var mainCellContainer = UIView()
     var messageContainer = UITextView(usingTextLayoutManager: false)
     private var timeStamp = UILabel()
+    var cellViewModel: ConversationCellViewModel!
  
     var mainCellContainerMaxWidth :CGFloat? {
         didSet {
             guard let maxWidth = mainCellContainerMaxWidth else { return }
             mainCellContainerMaxWidthConstraint = messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - 70)
             mainCellContainerMaxWidthConstraint.isActive = true
+        }
+    }
+    
+    private func setupBinding() {
+        cellViewModel.imageData.bind { [weak self] data in
+            if data == self?.cellViewModel.imageData.value {
+                DispatchQueue.main.async {
+                    self?.configureImageAttachment(data: data)
+                }
+            }
+        }
+    }
+
+    private func cleanupCellContent() {
+        messageContainer.text = ""
+        imageAttachment.image = nil
+        layoutSubviews()
+    }
+    
+    func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
+        cleanupCellContent()
+        
+        self.cellViewModel = viewModel
+        setupBinding()
+        
+        timeStamp.text = viewModel.timestamp
+
+        if viewModel.messageText != "" {
+            messageContainer.text = viewModel.messageText
+            handleMessageBubbleLayout()
+            return
+        }
+        if viewModel.imageData.value != nil  {
+            adjustMessagePadding(.imageSpace)
+            configureImageAttachment(data: viewModel.imageData.value!)
+            return
+        }
+        if viewModel.imagePath != nil && viewModel.imageData.value == nil  {
+            adjustMessagePadding(.imageSpace)
+            configureImageAttachment()
+            viewModel.fetchImageData()
+            return
         }
     }
     
@@ -43,6 +88,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         setupContentViewConstraints()
         setupMainCellContainer()
+//        mainCellContainer.backgroundColor = .alizarin
         setupMessageTextView()
         setupTimestamp()
     }
@@ -55,8 +101,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     private func setupMainCellContainer() {
         contentView.addSubview(mainCellContainer)
-        
-//        mainCellContainer.backgroundColor = .magenta
+
         mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -70,19 +115,26 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private func setupMessageTextView() {
         mainCellContainer.addSubview(messageContainer)
         
+        messageContainer.backgroundColor = .blue
+        
+        
         messageContainer.textColor = .white
         messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
-        messageContainer.isEditable = false // Make it non-editable
-        messageContainer.isScrollEnabled = false // Disable scrolling
+        messageContainer.isEditable = false
+        messageContainer.isScrollEnabled = false
+        messageContainer.isSelectable = false
         messageContainer.textContainer.maximumNumberOfLines = 0 // Allow multiple lines
-//        messageContainer.textContainer.lineFragmentPadding = 15
-        messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-        messageContainer.sizeToFit()
+//        messageContainer.textContainer.lineFragmentPadding = 1.5
+//        messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+//        messageContainer.sizeToFit()
+        messageContainer.contentMode = .scaleToFill
         messageContainer.translatesAutoresizingMaskIntoConstraints = false
         messageContainer.layer.cornerRadius = 15
         messageContainer.clipsToBounds = true
         
         NSLayoutConstraint.activate([
+//            messageContainer.widthAnchor.constraint(equalToConstant: 300),
+
             messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
             messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor)
         ])
@@ -91,7 +143,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private func setupTimestamp() {
         mainCellContainer.addSubview(timeStamp)
         
-        timeStamp.text = "20:42"
         timeStamp.font = UIFont(name: "HelveticaNeue", size: 12)
         timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
@@ -106,6 +157,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
+//            contentView.heightAnchor.constraint(equalToConstant: 250),
+//            contentView.widthAnchor.constraint(equalToConstant: 200),
            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
            contentView.topAnchor.constraint(equalTo: topAnchor),
@@ -149,27 +202,54 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 
         if lastLineWithTimestempWidth > messageRectWidth {
             if lastLineWithTimestempWidth.rounded(.up) < mainCellContainerMaxWidthConstraint.constant  {
-                adjustMessagePadding(.spaceRight)
+                adjustMessagePadding(.rightSpace)
             } else {
-                adjustMessagePadding(.spaceBottom)
+                adjustMessagePadding(.bottomSpace)
             }
         }
     }
-    override func prepareForReuse() {
-        super.prepareForReuse()
-    }
+    
     private func adjustMessagePadding(_ messagePadding: MessagePadding) {
         switch messagePadding {
         case .initial: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-        case .spaceRight: messageContainer.textContainerInset.right = 41
-        case .spaceBottom: messageContainer.textContainerInset.bottom += 15
+        case .rightSpace: messageContainer.textContainerInset.right = 41
+        case .bottomSpace: messageContainer.textContainerInset.bottom += 15
+        case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         }
         messageContainer.invalidateIntrinsicContentSize()
     }
 }
 
-// MARK: - GET LAST LINE MESSAGE STRING
+// MARK: - HANDLE IMAGE TO MESSAGE ATTACHEMENT
 
+extension ConversationCollectionViewCell {
+    
+    private func configureImageAttachment(data: Data? = Data()) {
+        if let imageData = data,
+           let image = convertDataToImage(imageData) {
+            imageAttachment.image = image
+        } else {
+            imageAttachment.image = UIImage()
+        }
+        if let cellImageSize = cellViewModel.imageSize {
+            let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
+            imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+        }
+        let attributedString = NSAttributedString(attachment: imageAttachment)
+        
+        // 0 padding for image
+        imageAttachment.lineLayoutPadding = -5
+        
+        messageContainer.textStorage.insert(attributedString, at: 0)
+    }
+    
+    private func convertDataToImage(_ data: Data) -> UIImage? {
+        guard let image = UIImage(data: data) else { return nil }
+        return image.roundedCornerImage(with: 25)
+    }
+}
+
+// MARK: - GET LAST LINE MESSAGE STRING
 extension ConversationCollectionViewCell {
     
     private func getStringFromLastLine(usingTextView textView: UITextView) -> String {

@@ -9,6 +9,8 @@
 // KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST COLLECTION VIEW FLOW
 
 import UIKit
+import Photos
+import PhotosUI
 
 final class ConversationViewController: UIViewController, UICollectionViewDelegate {
     
@@ -39,6 +41,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         setupBinding()
         addTargetToSendMessageBtn()
+        addTargetToAddPictureBtn()
         configureCollectionView()
         setTepGesture()
         addKeyboardNotificationObservers()
@@ -52,16 +55,10 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
     
     //MARK: - Binding
-    var firstTimeMessageLoad = true
     private func setupBinding() {
-        conversationViewModel.messages.bind { [weak self] messages in
-            if self?.firstTimeMessageLoad == true {
-                if !messages.isEmpty {
-                    DispatchQueue.main.async {
-                        self?.rootView.collectionView.reloadData()
-                    }
-                    self?.firstTimeMessageLoad = false
-                }
+        conversationViewModel.onCellVMLoad = {
+            DispatchQueue.main.async { [weak self] in
+                self?.rootView.collectionView.reloadData()
             }
         }
     }
@@ -92,23 +89,34 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
     
+    private func addTargetToAddPictureBtn() {
+        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
+    }
+    
     @objc func sendMessageBtnWasTapped() {
         let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
             rootView.messageTextView.text.removeAll()
-            
-            let indexPath = IndexPath(item: 0, section: 0)
-            conversationViewModel.addNewCreatedMessage(trimmedString)
-            handleContentMessageOffset(with: indexPath)
+            handleMessageBubbleCreation(messageText: trimmedString)
         }
     }
-
+    
+    private func handleMessageBubbleCreation(messageText: String = "") {
+        let indexPath = IndexPath(item: 0, section: 0)
+        
+        self.conversationViewModel.createMessageBubble(messageText)
+        Task { @MainActor in
+            self.handleContentMessageOffset(with: indexPath)
+        }
+    }
+    
     private func handleContentMessageOffset(with indexPath: IndexPath)
     {
         // We disable insertion animation because we need to both animate
         // insertion of message and scroll to bottom at the same time.
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
+        
         UIView.performWithoutAnimation {
             self.rootView.collectionView.insertItems(at: [indexPath])
         }
@@ -127,12 +135,71 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         rootView.collectionView.setContentOffset(offSet, animated: false)
         
-        // Animate collection content back so that cell (message) will go up
+        // Animate collection content back so that the cell (message) will go up
         UIView.animate(withDuration: 0.3) {
             self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
         }
     }
+
+    private func configurePhotoPicker() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 1
+        configuration.filter = .images
+        let pickerVC = PHPickerViewController(configuration: configuration)
+        pickerVC.delegate = self
+        present(pickerVC, animated: true)
+    }
+
+    @objc func pictureAddBtnWasTapped() {
+        configurePhotoPicker()
+    }
 }
+
+//MARK: - PHOTO PICKER CONTROLLER DELEGATE
+
+extension ConversationViewController: PHPickerViewControllerDelegate {
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        results.forEach { result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                guard let image = reading as? UIImage, error == nil else {
+                    print("Could not read image!")
+                    return
+                }
+                
+                guard let data = image.jpegData(compressionQuality: 0.5) else {return}
+                
+                self?.handleMessageBubbleCreation()
+                
+                self?.conversationViewModel.saveImage(data: data, size: image.size)
+            }
+        }
+    }
+}
+
+//extension UIImage {
+//    func getAspectRatio() -> CGSize {
+//        let (equalWidth, equalHeight) = (250,250)
+//
+//        let preferredWidth: Double = 300
+//        let preferredHeight: Double = 350
+//
+//        let aspectRatioForWidth = Double(self.size.width) / Double(self.size.height)
+//        let aspectRatioForHeight = Double(self.size.height) / Double(self.size.width)
+//
+//        if self.size.width > self.size.height {
+//            let newHeight = preferredWidth / aspectRatioForWidth
+//            return CGSize(width: preferredWidth, height: newHeight)
+//        } else if self.size.height > self.size.width {
+//            let newWidth = preferredHeight / aspectRatioForHeight
+//            return CGSize(width: newWidth, height: preferredHeight)
+//        } else {
+//            return CGSize(width: equalWidth, height: equalHeight)
+//        }
+//    }
+//}
 
 //MARK: - GESTURES
 
@@ -158,7 +225,10 @@ extension ConversationViewController: UICollectionViewDelegateFlowLayout {
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize
     {
-        return CGSize(width: view.bounds.width, height: 0)
+        // For some reason, cellForItemAt indexPath function is not triggered if height is 0
+        // and numberOfItemsInSection is 1, so, height should be at least 1.
+        // It will not affect height of cells, because they are set to automaticSize
+        return CGSize(width: view.bounds.width, height: 1)
     }
 }
 
@@ -204,7 +274,7 @@ extension ConversationViewController {
 extension ConversationViewController
 {
     private func setNavigationBarItems() {
-        guard let imageData = conversationViewModel.imageData else {return}
+        guard let imageData = conversationViewModel.memberProfileImage else {return}
         let memberName = conversationViewModel.memberName
         
         customNavigationBar = ConversationCustomNavigationBar(viewController: self)

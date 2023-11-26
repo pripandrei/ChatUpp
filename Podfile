@@ -18,6 +18,7 @@ pod 'GoogleSignIn'
 pod 'GoogleSignInSwift'
 pod 'AlgoliaSearchClient', '~> 8.0'
 pod 'SkeletonView'
+pod 'Firebase/Storage'
 
 
 post_install do |installer|

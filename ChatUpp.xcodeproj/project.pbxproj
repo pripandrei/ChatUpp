@@ -39,8 +39,10 @@
 		75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */; };
 		75B5C4C32A49AB0B00F63A5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */; };
 		75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C42A49AB0B00F63A5A /* LaunchScreen.storyboard */; };
-		75B5C4CF2A49B3D300F63A5A /* -User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4CE2A49B3D300F63A5A /* -User.swift */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
+		75CB52182B0BF064007F3AB6 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* StorageManager.swift */; };
+		75D6DC332B0D735100D2CD26 /* ConversationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */; };
+		75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */; };
 		75D7C5952AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */; };
 		75D7C5CC2ADAD40600F6D4B9 /* CGFloat+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */; };
 		75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */; };
@@ -91,8 +93,10 @@
 		75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		75B5C4C52A49AB0B00F63A5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		75B5C4C72A49AB0B00F63A5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		75B5C4CE2A49B3D300F63A5A /* -User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "-User.swift"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
+		75CB52172B0BF064007F3AB6 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewModel.swift; sourceTree = "<group>"; };
+		75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCollectionViewCell.swift; sourceTree = "<group>"; };
 		75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extension.swift"; sourceTree = "<group>"; };
 		75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 			children = (
 				75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */,
 				7563F87B2ADE25E6006FA374 /* ConversationViewDataSource.swift */,
+				75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */,
 			);
 			path = ConversationCollectionView;
 			sourceTree = "<group>";
@@ -239,11 +244,11 @@
 				75FB79022AC31AEA00C2743A /* Core */,
 				75FB78FF2AC3188C00C2743A /* Extensions */,
 				756525D32AB50035005DC594 /* Firestore */,
+				75CB52192B0BF07D007F3AB6 /* Storage */,
 				75E054262B0428E200828B9D /* AlgoliaSearch */,
 				756525C02A7E821C005DC594 /* Authentication */,
 				756525C82A8127CC005DC594 /* Utilities */,
 				75B5C4CD2A49AB1500F63A5A /* Supporting files */,
-				75B5C4D02A4B153D00F63A5A /* Models */,
 				75B5C4C72A49AB0B00F63A5A /* Info.plist */,
 				756525BE2A7AF4C5005DC594 /* GoogleService-Info.plist */,
 			);
@@ -261,12 +266,12 @@
 			path = "Supporting files";
 			sourceTree = "<group>";
 		};
-		75B5C4D02A4B153D00F63A5A /* Models */ = {
+		75CB52192B0BF07D007F3AB6 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				75B5C4CE2A49B3D300F63A5A /* -User.swift */,
+				75CB52172B0BF064007F3AB6 /* StorageManager.swift */,
 			);
-			path = Models;
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		75D7C5722AD5C15000F6D4B9 /* ChatCell */ = {
@@ -332,6 +337,7 @@
 				75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */,
 				7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */,
 				7563F8C32AE8D2D1006FA374 /* String+Extensions.swift */,
+				75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -502,7 +508,6 @@
 				7543BE352ACC87E1003001BF /* ConversationViewModel.swift in Sources */,
 				75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */,
 				756525CA2A8127F5005DC594 /* Observable.swift in Sources */,
-				75B5C4CF2A49B3D300F63A5A /* -User.swift in Sources */,
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
 				7563F8802ADF6E31006FA374 /* FirestoreCollectionName.swift in Sources */,
 				755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */,
@@ -512,6 +517,7 @@
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
 				7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */,
 				753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */,
+				75D6DC332B0D735100D2CD26 /* ConversationCellViewModel.swift in Sources */,
 				75B48B572AF6837700A5FBFC /* ConversationViewControllerUI.swift in Sources */,
 				756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */,
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
@@ -530,7 +536,9 @@
 				75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */,
 				756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
+				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
+				75CB52182B0BF064007F3AB6 /* StorageManager.swift in Sources */,
 				7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */,
 				7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */,
 				756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */,

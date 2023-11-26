@@ -656,6 +656,9 @@ PODS:
   - Firebase/Database (10.18.0):
     - Firebase/CoreOnly
     - FirebaseDatabase (~> 10.18.0)
+  - Firebase/Storage (10.18.0):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 10.18.0)
   - FirebaseAnalytics (10.18.0):
     - FirebaseAnalytics/AdIdSupport (= 10.18.0)
     - FirebaseCore (~> 10.0)
@@ -682,6 +685,7 @@ PODS:
     - GoogleUtilities/Environment (~> 7.8)
     - GTMSessionFetcher/Core (< 4.0, >= 2.1)
     - RecaptchaInterop (~> 100.0)
+  - FirebaseAuthInterop (10.18.0)
   - FirebaseCore (10.18.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.12)
@@ -738,6 +742,12 @@ PODS:
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesSwift (~> 2.1)
   - FirebaseSharedSwift (10.18.0)
+  - FirebaseStorage (10.18.0):
+    - FirebaseAppCheckInterop (~> 10.0)
+    - FirebaseAuthInterop (~> 10.0)
+    - FirebaseCore (~> 10.0)
+    - FirebaseCoreExtension (~> 10.0)
+    - GTMSessionFetcher/Core (< 4.0, >= 2.1)
   - GoogleAppMeasurement (10.18.0):
     - GoogleAppMeasurement/AdIdSupport (= 10.18.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
@@ -871,6 +881,7 @@ DEPENDENCIES:
   - Firebase/Core
   - Firebase/Crashlytics
   - Firebase/Database
+  - Firebase/Storage
   - FirebaseFirestore
   - FirebaseFirestoreSwift
   - GoogleSignIn
@@ -888,6 +899,7 @@ SPEC REPOS:
     - FirebaseAnalytics
     - FirebaseAppCheckInterop
     - FirebaseAuth
+    - FirebaseAuthInterop
     - FirebaseCore
     - FirebaseCoreExtension
     - FirebaseCoreInternal
@@ -899,6 +911,7 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseSessions
     - FirebaseSharedSwift
+    - FirebaseStorage
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleSignIn
@@ -926,6 +939,7 @@ SPEC CHECKSUMS:
   FirebaseAnalytics: 4d310b35c48eaa4a058ddc04bdca6bdb5dc0fe80
   FirebaseAppCheckInterop: 3cd914842ba46f4304050874cd284de82f154ffd
   FirebaseAuth: 12314b438fa76048540c8fb86d6cfc9e08595176
+  FirebaseAuthInterop: 5818713dcd7239beb96c1125e4b14d6a5a910e5f
   FirebaseCore: 2322423314d92f946219c8791674d2f3345b598f
   FirebaseCoreExtension: 62b201498aa10535801cdf3448c7f4db5e24ed80
   FirebaseCoreInternal: 8eb002e564b533bdcf1ba011f33f2b5c10e2ed4a
@@ -937,6 +951,7 @@ SPEC CHECKSUMS:
   FirebaseInstallations: e842042ec6ac1fd2e37d7706363ebe7f662afea4
   FirebaseSessions: f90fe9212ee2818641eda051c0835c9c4e30d9ae
   FirebaseSharedSwift: 62e248642c0582324d0390706cadd314687c116b
+  FirebaseStorage: 8333c4b183764cdd170d9539a61322b71c23adff
   GoogleAppMeasurement: 70ce9aa438cff1cfb31ea3e660bcc67734cb716e
   GoogleDataTransport: 54dee9d48d14580407f8f5fbf2f496e92437a2f2
   GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
@@ -955,6 +970,6 @@ SPEC CHECKSUMS:
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
   SkeletonView: 5a050f6411e697abd4cda0a8d767013399dccd69
 
-PODFILE CHECKSUM: c3ac62d55c4d3342a6c11de79c4d1e181da87119
+PODFILE CHECKSUM: 27e1941021cf3b5723f3b489ca145236e4c61bd7
 
 COCOAPODS: 1.14.2
