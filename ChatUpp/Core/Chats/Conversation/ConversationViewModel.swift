@@ -100,10 +100,6 @@ final class ConversationViewModel {
         insertNewMessage(message)
         cellViewModels.insert(createCellViewModel(with: message), at: 0)
     }
-    
-    func updateImageSizeOfMessage(size: CGSize) {
-        
-    }
 }
 
 

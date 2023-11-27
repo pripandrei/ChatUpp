@@ -52,11 +52,12 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private func cleanupCellContent() {
         messageContainer.text = ""
         imageAttachment.image = nil
-        layoutSubviews()
+        layoutIfNeeded()
     }
     
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
-        
+//        print(imageAttachment.image)
+        print(imageAttachment.bounds.size)
         defer {
             handleMessageBubbleLayout()
         }
@@ -209,6 +210,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
                 adjustMessagePadding(.bottomSpace)
             }
         }
+        
     }
     
     private func adjustMessagePadding(_ messagePadding: MessagePadding) {
@@ -236,6 +238,7 @@ extension ConversationCollectionViewCell {
         if let cellImageSize = cellViewModel.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+            
         }
         let attributedString = NSAttributedString(attachment: imageAttachment)
         
@@ -247,7 +250,7 @@ extension ConversationCollectionViewCell {
     
     private func convertDataToImage(_ data: Data) -> UIImage? {
         guard let image = UIImage(data: data) else { return nil }
-        return image.roundedCornerImage(with: 34)
+        return image
     }
 }
 
@@ -255,6 +258,8 @@ extension ConversationCollectionViewCell {
 extension ConversationCollectionViewCell {
     
     private func getStringFromLastLine(usingTextView textView: UITextView) -> String {
+        guard textView.text != "" else { return "" }
+        
         let selectedRangee = textView.selectedRange
         let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
         
