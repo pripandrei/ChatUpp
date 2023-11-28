@@ -16,6 +16,10 @@ final class PhoneSignInViewModel {
     
     lazy var verificationID = defaults.string(forKey: verificationIDKey)
     
+    func signInViaPhone(using verificationID: String, verificationCode: String) {
+        AuthenticationManager.shared.signinWithPhoneSMS(using: verificationID, verificationCode: verificationCode)
+    }
+    
     func sendSmsToPhoneNumber(_ number: String) {
         Task {
             do {

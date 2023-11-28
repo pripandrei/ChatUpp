@@ -21,7 +21,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupPhoneTextField()
-        setupSmsTextField()
+        setupSmsTextField() 
         setupReceiveMessageButton()
         setupVerifyMessageButton()
     }
@@ -98,7 +98,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     @objc func receiveMessageButtonWasTapped() {
         guard let text = phoneTextField.text, !text.isEmpty else {return}
         
-        print(text)
+        
     }
     
     @objc func verifyMessageButtonWasTapped() {

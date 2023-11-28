@@ -91,7 +91,7 @@ extension AuthenticationManager {
     {
         let credentials = GoogleAuthProvider.credential(withIDToken: tokens.idToken, accessToken: tokens.accessToken)
         
-        signIn(credentials: credentials) { authResultModel in
+        googleSignin(credentials: credentials) { authResultModel in
             guard let authModel = authResultModel else {
                 complition(nil)
                 return
@@ -100,7 +100,7 @@ extension AuthenticationManager {
         }
     }
     
-    func signIn(credentials: AuthCredential, complition: @escaping (AuthDataResultModel?) -> Void)
+    private func googleSignin(credentials: AuthCredential, complition: @escaping (AuthDataResultModel?) -> Void)
     {
         Auth.auth().signIn(with: credentials) { authResult, error in
             guard let result = authResult, error == nil else {
@@ -121,6 +121,15 @@ extension AuthenticationManager {
     
     func sendSMSToPhone(number: String) async throws -> String {
         try await PhoneAuthProvider.provider().verifyPhoneNumber(number, uiDelegate: nil)
+    }
+    
+    func createOTPCredentials(with verificationID: String, verificationCode: String) -> PhoneAuthCredential {
+        return PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
+    }
+    
+    func signinWithPhoneSMS(using verificationID:String, verificationCode: String) {
+        let credentials = createOTPCredentials(with: verificationID, verificationCode: verificationCode)
+        print("Credentials!", credentials)
     }
     
 }
