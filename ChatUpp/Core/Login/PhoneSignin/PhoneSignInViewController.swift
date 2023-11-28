@@ -12,30 +12,51 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     weak var coordinator: Coordinator!
     
     let phoneViewModel = PhoneSignInViewModel()
+    let phoneTextField = UITextField()
     let smsTextField = UITextField()
     let receiveMessageButton = UIButton()
+    let verifyMessageButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        setupSMSTextField()
+        setupPhoneTextField()
+        setupSmsTextField()
         setupReceiveMessageButton()
+        setupVerifyMessageButton()
     }
     
-    func setupSMSTextField() {
+    func setupPhoneTextField() {
+        view.addSubview(phoneTextField)
+        
+        phoneTextField.delegate = self
+        phoneTextField.placeholder = "enter phone number"
+        phoneTextField.borderStyle = .roundedRect
+        
+        phoneTextField.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            phoneTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            phoneTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 250),
+            phoneTextField.widthAnchor.constraint(equalToConstant: 200),
+            phoneTextField.heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+    
+    func setupSmsTextField() {
         view.addSubview(smsTextField)
         
         smsTextField.delegate = self
-        smsTextField.placeholder = "enter phone number"
+        smsTextField.placeholder = "enter sms number"
         smsTextField.borderStyle = .roundedRect
         
         smsTextField.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             smsTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            smsTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 250),
+            smsTextField.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 40),
             smsTextField.widthAnchor.constraint(equalToConstant: 200),
-            smsTextField.heightAnchor.constraint(equalToConstant: 40)
+            smsTextField.heightAnchor.constraint(equalToConstant: 30)
         ])
     }
     
@@ -56,14 +77,40 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         ])
     }
     
+    
+    func setupVerifyMessageButton() {
+        view.addSubview(verifyMessageButton)
+       
+        verifyMessageButton.configuration = .filled()
+        verifyMessageButton.configuration?.title = "Verify"
+        verifyMessageButton.addTarget(self, action: #selector(verifyMessageButtonWasTapped), for: .touchUpInside)
+        
+        verifyMessageButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            verifyMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            verifyMessageButton.topAnchor.constraint(equalTo: receiveMessageButton.bottomAnchor, constant: 30),
+            verifyMessageButton.widthAnchor.constraint(equalToConstant: 200),
+            verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+    
     @objc func receiveMessageButtonWasTapped() {
-        guard let text = smsTextField.text, !text.isEmpty else {return}
+        guard let text = phoneTextField.text, !text.isEmpty else {return}
         
         print(text)
     }
     
+    @objc func verifyMessageButtonWasTapped() {
+        
+    }
+    
+    
+    
+   //MARK: - TEXTFIELD DELEGATE
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        smsTextField.resignFirstResponder()
+        phoneTextField.resignFirstResponder()
         return true
     }
     
