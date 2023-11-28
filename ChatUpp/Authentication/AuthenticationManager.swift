@@ -117,10 +117,4 @@ extension AuthenticationManager {
 
 //MARK: - PHONE SMS AUTH
 
-extension AuthenticationManager {
-    
-    func singupWithPhone() {
-//        PhoneAuthProvider.
-    }
-    
-}
+
