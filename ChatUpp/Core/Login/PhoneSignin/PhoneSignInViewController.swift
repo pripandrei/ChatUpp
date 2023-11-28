@@ -23,7 +23,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         setupPhoneTextField()
         setupSmsTextField() 
         setupReceiveMessageButton()
-        setupVerifyMessageButton()
+        setupVerifySMSButton()
     }
     
     func setupPhoneTextField() {
@@ -78,12 +78,12 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     }
     
     
-    func setupVerifyMessageButton() {
+    func setupVerifySMSButton() {
         view.addSubview(verifyMessageButton)
        
         verifyMessageButton.configuration = .filled()
         verifyMessageButton.configuration?.title = "Verify"
-        verifyMessageButton.addTarget(self, action: #selector(verifyMessageButtonWasTapped), for: .touchUpInside)
+        verifyMessageButton.addTarget(self, action: #selector(verifySMSButtonWasTapped), for: .touchUpInside)
         
         verifyMessageButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -96,13 +96,17 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     }
     
     @objc func receiveMessageButtonWasTapped() {
-        guard let text = phoneTextField.text, !text.isEmpty else {return}
+        guard let number = phoneTextField.text, !number.isEmpty else {return}
         
-        
+        phoneViewModel.sendSmsToPhoneNumber(number)
     }
     
-    @objc func verifyMessageButtonWasTapped() {
+    @objc func verifySMSButtonWasTapped() {
+        guard let code = smsTextField.text, !code.isEmpty else {return}
         
+        guard let verificationID = phoneViewModel.verificationID else {return}
+        
+        phoneViewModel.signInViaPhone(usingVerificationID: verificationID, verificationCode: code)
     }
     
     

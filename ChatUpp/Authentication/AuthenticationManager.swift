@@ -129,7 +129,7 @@ extension AuthenticationManager {
     
     func signinWithPhoneSMS(using verificationID:String, verificationCode: String) {
         let credentials = createOTPCredentials(with: verificationID, verificationCode: verificationCode)
-        print("Credentials!", credentials)
+        print("Success Credentials!: ", credentials)
     }
     
 }
