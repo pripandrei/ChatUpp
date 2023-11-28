@@ -7,6 +7,8 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
+import FirebaseFirestoreSwift
 
 
 enum AuthenticationStatus: Error {
@@ -111,4 +113,14 @@ extension AuthenticationManager {
             complition(authDataModel)
         }
     }
+}
+
+//MARK: - PHONE SMS AUTH
+
+extension AuthenticationManager {
+    
+    func singupWithPhone() {
+//        PhoneAuthProvider.
+    }
+    
 }

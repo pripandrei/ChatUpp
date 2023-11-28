@@ -15,11 +15,14 @@ protocol Coordinator: AnyObject {
     func presentLogInForm()
     func handleSignOut()
     func openConversationVC(conversationViewModel: ConversationViewModel)
+    func pushSignUpVC()
 }
 
 class MainCoordinator: Coordinator {
     
     var tabBar: TabBarViewController
+    
+    var navControllerForLoginVC: UINavigationController!
 
     init(tabBar: TabBarViewController) {
         self.tabBar = tabBar
@@ -37,14 +40,21 @@ class MainCoordinator: Coordinator {
         settingsViewController.coordinatorDelegate = self
     }
     
+    func pushSignUpVC() {
+        let signUpVC = EmailSignUpViewController()
+//        signUpVC.coordinatorDelegate = self
+        navControllerForLoginVC.pushViewController(signUpVC, animated: true)
+    }
+    
+   
     func presentLogInForm() {
         let loginVC = LoginViewController()
         loginVC.coordinatorDelegate = self
         
-        let navController = UINavigationController(rootViewController: loginVC)
+        navControllerForLoginVC = UINavigationController(rootViewController: loginVC)
         
-        navController.modalPresentationStyle = .fullScreen
-        tabBar.present(navController, animated: true)
+        navControllerForLoginVC.modalPresentationStyle = .fullScreen
+        tabBar.present(navControllerForLoginVC, animated: true)
     }
     
     func handleSignOut() {

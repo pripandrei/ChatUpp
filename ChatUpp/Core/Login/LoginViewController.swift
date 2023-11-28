@@ -15,7 +15,7 @@ class LoginViewController: UIViewController {
     
     private var googleSignInButton = GIDSignInButton()
     private let loginViewModel = LoginViewModel()
-    private let signUpText = "Don't have an account?"
+//    private let signUpText = "Don't have an account?"
     private let signUpLable: UILabel = UILabel()
     private let signUpButton = UIButton()
     private let logIn = UIButton()
@@ -51,6 +51,7 @@ class LoginViewController: UIViewController {
         setupSignUpButton()
         configureSignInGoogleButton()
         setupBinder()
+        setupPhoneButton()
     }
     
     //MARK: - Binder
@@ -66,12 +67,38 @@ class LoginViewController: UIViewController {
     
     // MARK: - Setup viewController
     
+    let phoneButton = UIButton()
+    
+    private func setupPhoneButton() {
+        view.addSubview(phoneButton)
+        
+        phoneButton.configuration = .filled()
+        phoneButton.configuration?.title = "Sign in with phone"
+        phoneButton.configuration?.baseBackgroundColor = .link
+        phoneButton.addTarget(self, action: #selector(phoneButtonTapped), for: .touchUpInside)
+        
+        phoneButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            phoneButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            phoneButton.topAnchor.constraint(equalTo: googleSignInButton.bottomAnchor, constant: 20),
+//            phoneButton.widthAnchor.constraint(equalToConstant: googleSignInButton.bounds.width),
+            phoneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
+            phoneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
+            phoneButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+    
+    @objc func phoneButtonTapped() {
+        
+    }
+    
     private func configureSignInGoogleButton() {
         view.addSubview(googleSignInButton)
         
         googleSignInButton.colorScheme = .dark
         googleSignInButton.style = .wide
-        googleSignInButton.layer.cornerRadius = 10
+//        googleSignInButton.layer.cornerRadius = 10
         googleSignInButton.addTarget(self, action: #selector(handleSignInWithGoogle), for: .touchUpInside)
         
         setSignInGoogleButtonConstraints()
@@ -96,7 +123,7 @@ class LoginViewController: UIViewController {
     private func setupSignUpLable() {
         view.addSubview(signUpLable)
         
-        signUpLable.text = signUpText
+        signUpLable.text = "Don't have an account?"
         signUpLable.font = UIFont(name: "MalayalamSangamMN", size: 14.0)
         setSignUpLableConstraints()
     }
@@ -204,8 +231,10 @@ class LoginViewController: UIViewController {
     // MARK: - Navigation
     
     @objc func pushSignUpVC() {
-        let signUpVC = EmailSignUpViewController()
-        navigationController?.pushViewController(signUpVC, animated: true)
+//        let signUpVC = EmailSignUpViewController()
+//        navigationController?.pushViewController(signUpVC, animated: true)
+        
+        coordinatorDelegate?.pushSignUpVC()
     }
     
     // MARK: - Login handler
