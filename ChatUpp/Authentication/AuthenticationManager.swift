@@ -117,4 +117,10 @@ extension AuthenticationManager {
 
 //MARK: - PHONE SMS AUTH
 
-
+extension AuthenticationManager {
+    
+    func sendSMSToPhone(number: String) async throws -> String {
+        try await PhoneAuthProvider.provider().verifyPhoneNumber(number, uiDelegate: nil)
+    }
+    
+}

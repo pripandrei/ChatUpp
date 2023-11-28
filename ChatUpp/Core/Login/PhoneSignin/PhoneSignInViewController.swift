@@ -10,6 +10,8 @@ import UIKit
 class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
 
     weak var coordinator: Coordinator!
+    
+    let phoneViewModel = PhoneSignInViewModel()
     let smsTextField = UITextField()
     let receiveMessageButton = UIButton()
     
