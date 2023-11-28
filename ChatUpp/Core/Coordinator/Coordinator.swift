@@ -16,6 +16,7 @@ protocol Coordinator: AnyObject {
     func handleSignOut()
     func openConversationVC(conversationViewModel: ConversationViewModel)
     func pushSignUpVC()
+    func pushPhoneSingInVC()
 }
 
 class MainCoordinator: Coordinator {
@@ -46,7 +47,12 @@ class MainCoordinator: Coordinator {
         navControllerForLoginVC.pushViewController(signUpVC, animated: true)
     }
     
-   
+    func pushPhoneSingInVC() {
+        let phoneSignInVC = PhoneSignInViewController()
+        phoneSignInVC.coordinator = self
+        navControllerForLoginVC.pushViewController(phoneSignInVC, animated: true)
+    }
+    
     func presentLogInForm() {
         let loginVC = LoginViewController()
         loginVC.coordinatorDelegate = self

@@ -90,7 +90,7 @@ class LoginViewController: UIViewController {
     }
     
     @objc func phoneButtonTapped() {
-        
+        coordinatorDelegate?.pushPhoneSingInVC()
     }
     
     private func configureSignInGoogleButton() {
