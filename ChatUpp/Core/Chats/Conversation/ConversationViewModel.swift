@@ -27,9 +27,9 @@ final class ConversationViewModel {
         fetchConversationMessages()
     }
     
-//    func delete() {
-//        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)
-//    }
+    func delete() {
+        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)
+    }
     
     private func createConversationCellViewModels() -> [ConversationCellViewModel] {
         return messages.map { message in
@@ -99,10 +99,6 @@ final class ConversationViewModel {
         let message = createNewMessage(messageText)
         insertNewMessage(message)
         cellViewModels.insert(createCellViewModel(with: message), at: 0)
-    }
-    
-    func updateImageSizeOfMessage(size: CGSize) {
-        
     }
 }
 

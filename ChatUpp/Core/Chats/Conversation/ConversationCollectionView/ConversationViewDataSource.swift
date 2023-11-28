@@ -10,6 +10,7 @@ import UIKit
 final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
     var conversationViewModel: ConversationViewModel!
+    var imageInserted: UIImage?
     
     init(conversationViewModel: ConversationViewModel) {
         self.conversationViewModel = conversationViewModel
@@ -38,7 +39,7 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         } else {
             cell.adjustMessageSide(.left)
         }
-//        cell.handleMessageBubbleLayout()
+        
         return cell
     }
 }

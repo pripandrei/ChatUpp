@@ -119,11 +119,13 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         UIView.performWithoutAnimation {
             self.rootView.collectionView.insertItems(at: [indexPath])
+            self.rootView.collectionView.reloadSections(IndexSet.init(integer: 0))
         }
         
         // Schedules scrolling execution in order for proper animation scrolling
         DispatchQueue.main.async {
             self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+//            self.rootView.collectionView.reloadItems(at: [indexPath])
         }
         
         // Offset collection view conntent by cells (message) height contentSize
@@ -168,38 +170,38 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                     print("Could not read image!")
                     return
                 }
-                
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
                 self?.handleMessageBubbleCreation()
-                
+                self?.conversationViewModel.cellViewModels[0].imageData.value = data
+                self?.conversationViewModel.cellViewModels[0].imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 self?.conversationViewModel.saveImage(data: data, size: image.size)
             }
         }
     }
 }
 
-//extension UIImage {
-//    func getAspectRatio() -> CGSize {
-//        let (equalWidth, equalHeight) = (250,250)
-//
-//        let preferredWidth: Double = 300
-//        let preferredHeight: Double = 350
-//
-//        let aspectRatioForWidth = Double(self.size.width) / Double(self.size.height)
-//        let aspectRatioForHeight = Double(self.size.height) / Double(self.size.width)
-//
-//        if self.size.width > self.size.height {
-//            let newHeight = preferredWidth / aspectRatioForWidth
-//            return CGSize(width: preferredWidth, height: newHeight)
-//        } else if self.size.height > self.size.width {
-//            let newWidth = preferredHeight / aspectRatioForHeight
-//            return CGSize(width: newWidth, height: preferredHeight)
-//        } else {
-//            return CGSize(width: equalWidth, height: equalHeight)
-//        }
-//    }
-//}
+extension UIImage {
+    func getAspectRatio() -> CGSize {
+        let (equalWidth, equalHeight) = (250,250)
+
+        let preferredWidth: Double = 300
+        let preferredHeight: Double = 350
+
+        let aspectRatioForWidth = Double(self.size.width) / Double(self.size.height)
+        let aspectRatioForHeight = Double(self.size.height) / Double(self.size.width)
+
+        if self.size.width > self.size.height {
+            let newHeight = preferredWidth / aspectRatioForWidth
+            return CGSize(width: preferredWidth, height: newHeight)
+        } else if self.size.height > self.size.width {
+            let newWidth = preferredHeight / aspectRatioForHeight
+            return CGSize(width: newWidth, height: preferredHeight)
+        } else {
+            return CGSize(width: equalWidth, height: equalHeight)
+        }
+    }
+}
 
 //MARK: - GESTURES
 

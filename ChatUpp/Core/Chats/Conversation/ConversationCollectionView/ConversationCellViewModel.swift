@@ -16,7 +16,7 @@ final class ConversationCellViewModel {
     let messageText: String!
     var imageData: ObservableObject<Data?> = ObservableObject(nil)
     let senderId: String!
-    let imageSize: MessageImageSize?
+    var imageSize: MessageImageSize?
     
     init(cellMessage: Message) {
         self.timeStamp = cellMessage.timestamp

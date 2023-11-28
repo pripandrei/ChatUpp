@@ -52,10 +52,16 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private func cleanupCellContent() {
         messageContainer.text = ""
         imageAttachment.image = nil
-        layoutSubviews()
+        layoutIfNeeded()
     }
     
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
+//        print(imageAttachment.image)
+        print(imageAttachment.bounds.size)
+        defer {
+            handleMessageBubbleLayout()
+        }
+        
         cleanupCellContent()
         
         self.cellViewModel = viewModel
@@ -65,16 +71,13 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 
         if viewModel.messageText != "" {
             messageContainer.text = viewModel.messageText
-            handleMessageBubbleLayout()
             return
         }
         if viewModel.imageData.value != nil  {
-            adjustMessagePadding(.imageSpace)
             configureImageAttachment(data: viewModel.imageData.value!)
             return
         }
         if viewModel.imagePath != nil && viewModel.imageData.value == nil  {
-            adjustMessagePadding(.imageSpace)
             configureImageAttachment()
             viewModel.fetchImageData()
             return
@@ -207,6 +210,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
                 adjustMessagePadding(.bottomSpace)
             }
         }
+        
     }
     
     private func adjustMessagePadding(_ messagePadding: MessagePadding) {
@@ -214,7 +218,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         case .initial: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         case .rightSpace: messageContainer.textContainerInset.right = 41
         case .bottomSpace: messageContainer.textContainerInset.bottom += 15
-        case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 4, left: 5, bottom: 4, right: 5)
         }
         messageContainer.invalidateIntrinsicContentSize()
     }
@@ -234,18 +238,19 @@ extension ConversationCollectionViewCell {
         if let cellImageSize = cellViewModel.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+            
         }
         let attributedString = NSAttributedString(attachment: imageAttachment)
         
         // 0 padding for image
-        imageAttachment.lineLayoutPadding = -5
+        imageAttachment.lineLayoutPadding = -6
         
         messageContainer.textStorage.insert(attributedString, at: 0)
     }
     
     private func convertDataToImage(_ data: Data) -> UIImage? {
         guard let image = UIImage(data: data) else { return nil }
-        return image.roundedCornerImage(with: 25)
+        return image
     }
 }
 
@@ -253,6 +258,8 @@ extension ConversationCollectionViewCell {
 extension ConversationCollectionViewCell {
     
     private func getStringFromLastLine(usingTextView textView: UITextView) -> String {
+        guard textView.text != "" else { return "" }
+        
         let selectedRangee = textView.selectedRange
         let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
         
