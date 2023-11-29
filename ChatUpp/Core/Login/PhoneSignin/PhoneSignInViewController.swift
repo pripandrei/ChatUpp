@@ -13,27 +13,29 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     
     let phoneViewModel = PhoneSignInViewModel()
     let phoneTextField = UITextField()
-    let smsTextField = UITextField()
+//    let smsTextField = UITextField()
     let receiveMessageButton = UIButton()
-    let verifyMessageButton = UIButton()
+//    let verifyMessageButton = UIButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupPhoneTextField()
-        setupSmsTextField() 
+//        setupSmsTextField()
         setupReceiveMessageButton()
-        setupVerifySMSButton()
-        setupBinder() 
+//        setupVerifySMSButton()
+//        setupBinder() 
     }
     
-    private func setupBinder() {
-        phoneViewModel.loginStatus.bind { [weak self] authStatus in
-            guard let status = authStatus, status == .userIsAuthenticated else {return}
-            self?.coordinator.pushUsernameRegistration()
-//            self?.navigationController?.dismiss(animated: true)
-        }
-    }
+//    private func setupBinder() {
+//        phoneViewModel.loginStatus.bind { [weak self] authStatus in
+//            guard let status = authStatus, status == .userIsAuthenticated else {return}
+//            guard let self else {return}
+////            self?.coordinator.pushUsernameRegistration()
+//            self.coordinator.pushPhoneCodeVerificationViewController(phoneViewModel: self.phoneViewModel)
+////            self?.navigationController?.dismiss(animated: true)
+//        }
+//    }
     
     func setupPhoneTextField() {
         view.addSubview(phoneTextField)
@@ -52,22 +54,22 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         ])
     }
     
-    func setupSmsTextField() {
-        view.addSubview(smsTextField)
-        
-        smsTextField.delegate = self
-        smsTextField.placeholder = "enter sms number"
-        smsTextField.borderStyle = .roundedRect
-        
-        smsTextField.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            smsTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            smsTextField.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 40),
-            smsTextField.widthAnchor.constraint(equalToConstant: 200),
-            smsTextField.heightAnchor.constraint(equalToConstant: 30)
-        ])
-    }
+//    func setupSmsTextField() {
+//        view.addSubview(smsTextField)
+//
+//        smsTextField.delegate = self
+//        smsTextField.placeholder = "enter sms number"
+//        smsTextField.borderStyle = .roundedRect
+//
+//        smsTextField.translatesAutoresizingMaskIntoConstraints = false
+//
+//        NSLayoutConstraint.activate([
+//            smsTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            smsTextField.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 40),
+//            smsTextField.widthAnchor.constraint(equalToConstant: 200),
+//            smsTextField.heightAnchor.constraint(equalToConstant: 30)
+//        ])
+//    }
     
     func setupReceiveMessageButton() {
         view.addSubview(receiveMessageButton)
@@ -80,43 +82,50 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             receiveMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            receiveMessageButton.topAnchor.constraint(equalTo: smsTextField.bottomAnchor, constant: 50),
+            receiveMessageButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 50),
             receiveMessageButton.widthAnchor.constraint(equalToConstant: 200),
             receiveMessageButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
     
-    func setupVerifySMSButton() {
-        view.addSubview(verifyMessageButton)
-       
-        verifyMessageButton.configuration = .filled()
-        verifyMessageButton.configuration?.title = "Verify"
-        verifyMessageButton.addTarget(self, action: #selector(verifySMSButtonWasTapped), for: .touchUpInside)
-        
-        verifyMessageButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            verifyMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            verifyMessageButton.topAnchor.constraint(equalTo: receiveMessageButton.bottomAnchor, constant: 30),
-            verifyMessageButton.widthAnchor.constraint(equalToConstant: 200),
-            verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
-        ])
-    }
+//    func setupVerifySMSButton() {
+//        view.addSubview(verifyMessageButton)
+//
+//        verifyMessageButton.configuration = .filled()
+//        verifyMessageButton.configuration?.title = "Verify"
+//        verifyMessageButton.addTarget(self, action: #selector(verifySMSButtonWasTapped), for: .touchUpInside)
+//
+//        verifyMessageButton.translatesAutoresizingMaskIntoConstraints = false
+//
+//        NSLayoutConstraint.activate([
+//            verifyMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            verifyMessageButton.topAnchor.constraint(equalTo: receiveMessageButton.bottomAnchor, constant: 30),
+//            verifyMessageButton.widthAnchor.constraint(equalToConstant: 200),
+//            verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
+//        ])
+//    }
     
     @objc func receiveMessageButtonWasTapped() {
         guard let number = phoneTextField.text, !number.isEmpty else {return}
         
-        phoneViewModel.sendSmsToPhoneNumber(number)
+        Task {
+            do {
+                try await phoneViewModel.sendSmsToPhoneNumber(number)
+                coordinator.pushPhoneCodeVerificationViewController(phoneViewModel: self.phoneViewModel)
+            } catch {
+                print("error sending sms to phone number: ", error.localizedDescription)
+            }
+        }
     }
     
-    @objc func verifySMSButtonWasTapped() {
-        guard let code = smsTextField.text, !code.isEmpty else {return}
-        
-        guard let verificationID = phoneViewModel.verificationID else {return}
-        
-        phoneViewModel.signInViaPhone(usingVerificationID: verificationID, verificationCode: code)
-    }
+//    @objc func verifySMSButtonWasTapped() {
+//        guard let code = smsTextField.text, !code.isEmpty else {return}
+//
+//        guard let verificationID = phoneViewModel.verificationID else {return}
+//
+//        phoneViewModel.signInViaPhone(usingVerificationID: verificationID, verificationCode: code)
+//    }
     
     
     

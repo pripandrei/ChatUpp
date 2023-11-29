@@ -10,13 +10,12 @@ import Foundation
 
 final class PhoneSignInViewModel {
     
-    let loginStatus: ObservableObject<AuthenticationStatus?> = ObservableObject(nil)
-    
     let verificationIDKey = "authVerificationID"
     
     let defaults = UserDefaults.standard
-    
     lazy var verificationID = defaults.string(forKey: verificationIDKey)
+    
+    let loginStatus: ObservableObject<AuthenticationStatus?> = ObservableObject(nil)
     
     func signInViaPhone(usingVerificationID verificationID: String, verificationCode: String) {
         Task {
@@ -32,15 +31,19 @@ final class PhoneSignInViewModel {
         }
     }
     
-    func sendSmsToPhoneNumber(_ number: String) {
-        Task {
-            do {
-                let verificationID = try await AuthenticationManager.shared.sendSMSToPhone(number: number)
-                defaults.set(verificationID, forKey: verificationIDKey)
-            } catch {
-                print("error sending sms to phone number: ", error.localizedDescription)
-            }
-        }
-    }
+//    func sendSmsToPhoneNumber(_ number: String) {
+//        Task {
+//            do {
+//                let verificationID = try await AuthenticationManager.shared.sendSMSToPhone(number: number)
+//                defaults.set(verificationID, forKey: verificationIDKey)
+//            } catch {
+//                print("error sending sms to phone number: ", error.localizedDescription)
+//            }
+//        }
+//    }
     
+    func sendSmsToPhoneNumber(_ number: String) async throws {
+        let verificationID = try await AuthenticationManager.shared.sendSMSToPhone(number: number)
+        defaults.set(verificationID, forKey: verificationIDKey)
+    }
 }

@@ -18,6 +18,7 @@ protocol Coordinator: AnyObject {
     func pushSignUpVC()
     func pushPhoneSingInVC()
     func pushUsernameRegistration()
+    func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
     func dismissNaviagtionController()
 }
 
@@ -86,6 +87,12 @@ class MainCoordinator: Coordinator {
         conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
         tabBar.customNavigationController?.pushViewController(conversationVC, animated: true)
+    }
+    
+    func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel) {
+        let phoneCodeVerificationVC = PhoneCodeVerificationViewController(viewModel: phoneViewModel)
+        phoneCodeVerificationVC.coordinator = self
+        navControllerForLoginVC.pushViewController(phoneCodeVerificationVC, animated: true)
     }
     
     func dismissNaviagtionController() {

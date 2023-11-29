@@ -1,0 +1,83 @@
+//
+//  PhoneCodeVerificationViewController.swift
+//  ChatUpp
+//
+//  Created by Andrei Pripa on 11/29/23.
+//
+
+import UIKit
+
+final class PhoneCodeVerificationViewController: UIViewController , UITextFieldDelegate {
+    
+    weak var coordinator: Coordinator!
+    
+    private var phoneViewModel: PhoneSignInViewModel!
+    
+    private let smsTextField = UITextField()
+    private let verifyMessageButton = UIButton()
+    
+    convenience init(viewModel: PhoneSignInViewModel) {
+        self.init()
+        self.phoneViewModel = viewModel
+    }
+
+    override func viewDidLoad() {
+        view.backgroundColor = .white
+        setupSmsTextField()
+        setupVerifySMSButton()
+        setupBinder()
+    }
+    
+    //MARK: - Binding
+    
+    private func setupBinder() {
+        phoneViewModel.loginStatus.bind { [weak self] authStatus in
+            guard let status = authStatus, status == .userIsAuthenticated else {return}
+            self?.coordinator.pushUsernameRegistration()
+        }
+    }
+
+    
+    func setupSmsTextField() {
+        view.addSubview(smsTextField)
+        
+        smsTextField.delegate = self
+        smsTextField.placeholder = "enter sms number"
+        smsTextField.borderStyle = .roundedRect
+        
+        smsTextField.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            smsTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            smsTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 250),
+            smsTextField.widthAnchor.constraint(equalToConstant: 200),
+            smsTextField.heightAnchor.constraint(equalToConstant: 30)
+        ])
+    }
+    
+    func setupVerifySMSButton() {
+        view.addSubview(verifyMessageButton)
+       
+        verifyMessageButton.configuration = .filled()
+        verifyMessageButton.configuration?.title = "Verify"
+        verifyMessageButton.addTarget(self, action: #selector(verifySMSButtonWasTapped), for: .touchUpInside)
+        
+        verifyMessageButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            verifyMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            verifyMessageButton.topAnchor.constraint(equalTo: smsTextField.bottomAnchor, constant: 30),
+            verifyMessageButton.widthAnchor.constraint(equalToConstant: 200),
+            verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+    
+    @objc func verifySMSButtonWasTapped() {
+        guard let code = smsTextField.text, !code.isEmpty else {return}
+        
+        guard let verificationID = phoneViewModel.verificationID else {return}
+        
+        phoneViewModel.signInViaPhone(usingVerificationID: verificationID, verificationCode: code)
+    }
+}
+
