@@ -18,6 +18,7 @@ protocol Coordinator: AnyObject {
     func pushSignUpVC()
     func pushPhoneSingInVC()
     func pushUsernameRegistration()
+    func dismissNaviagtionController()
 }
 
 class MainCoordinator: Coordinator {
@@ -66,7 +67,7 @@ class MainCoordinator: Coordinator {
     
     func pushUsernameRegistration() {
         let usernameRegistrationVC = UsernameRegistrationViewController()
-//        usernameRegistrationVC.coordinator = self
+        usernameRegistrationVC.coordinator = self
         navControllerForLoginVC.pushViewController(usernameRegistrationVC, animated: true)
     }
     
@@ -85,5 +86,9 @@ class MainCoordinator: Coordinator {
         conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
         tabBar.customNavigationController?.pushViewController(conversationVC, animated: true)
+    }
+    
+    func dismissNaviagtionController() {
+        navControllerForLoginVC.dismiss(animated: true)
     }
 }

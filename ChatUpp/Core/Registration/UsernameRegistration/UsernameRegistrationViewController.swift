@@ -9,14 +9,14 @@ import UIKit
 
 class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate {
     
+    var coordinator: Coordinator!
+    
     private let usernameRegistrationViewModel = UsernameRegistrationViewModel()
-    
     private let usernameTextField: UITextField = UITextField()
-    
     private let continueButton: UIButton = UIButton()
     
+    
     // MARK: VC LIFE CYCLE
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -30,7 +30,7 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     private func configureBinding() {
         usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
             if let finish = finishRegistration, finish == true {
-                self.navigationController?.dismiss(animated: true)
+                self.coordinator.dismissNaviagtionController()
             }
         }
     }

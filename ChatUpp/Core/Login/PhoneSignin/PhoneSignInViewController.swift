@@ -30,7 +30,8 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     private func setupBinder() {
         phoneViewModel.loginStatus.bind { [weak self] authStatus in
             guard let status = authStatus, status == .userIsAuthenticated else {return}
-            self?.navigationController?.dismiss(animated: true)
+            self?.coordinator.pushUsernameRegistration()
+//            self?.navigationController?.dismiss(animated: true)
         }
     }
     
