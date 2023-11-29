@@ -10,6 +10,8 @@ import FirebaseAuth
 
 class EmailSignUpViewController: UIViewController {
     
+    weak var coordinator: Coordinator?
+    
     private var signUpViewModel = EmailSignupViewModel()
     private let stackView = UIStackView()
     private let signUpButton = UIButton()
@@ -99,12 +101,9 @@ class EmailSignUpViewController: UIViewController {
     {
         let isValid = textFieldValidator.validate()
         if isValid {
-            if let navigationController = navigationController  {
-                signUpViewModel.signUp() { registrationStatus in
-                    if registrationStatus == .success {
-                        let usernameRegistrationVC = UsernameRegistrationViewController()
-                        navigationController.pushViewController(usernameRegistrationVC, animated: true)
-                    }
+            signUpViewModel.signUp() { registrationStatus in
+                if registrationStatus == .success {
+                    self.coordinator?.pushUsernameRegistration()
                 }
             }
         }

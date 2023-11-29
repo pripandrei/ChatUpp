@@ -24,6 +24,7 @@ struct AuthDataResultModel {
     let email: String?
     let photoURL: String?
     let name: String?
+    let phoneNumber: String?
 //    let phoneNumber: String?
     
     init(user: User) {
@@ -31,6 +32,7 @@ struct AuthDataResultModel {
         self.email = user.email
         self.photoURL = user.photoURL?.absoluteString
         self.name = user.displayName
+        self.phoneNumber = user.phoneNumber
     }
 }
 
@@ -127,9 +129,13 @@ extension AuthenticationManager {
         return PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
     }
     
-    func signinWithPhoneSMS(using verificationID:String, verificationCode: String) {
+    func signinWithPhoneSMS(using verificationID:String, verificationCode: String) async throws -> AuthDataResultModel {
+        
         let credentials = createOTPCredentials(with: verificationID, verificationCode: verificationCode)
+        let result = try await Auth.auth().signIn(with: credentials)
+        let authDataModel = AuthDataResultModel(user: result.user)
         print("Success Credentials!: ", credentials)
+        return authDataModel
     }
     
 }

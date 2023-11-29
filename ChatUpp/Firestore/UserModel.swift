@@ -15,6 +15,7 @@ struct DBUser: Codable
     let dateCreated: Date?
     let email: String?
     let photoUrl: String?
+    let phoneNumber: String?
     
     init(auth: AuthDataResultModel) {
         self.userId = auth.uid
@@ -22,6 +23,7 @@ struct DBUser: Codable
         self.dateCreated = Date()
         self.email = auth.email
         self.photoUrl = auth.photoURL
+        self.phoneNumber = auth.phoneNumber
     }
     
     enum CodingKeys: String, CodingKey {
@@ -30,6 +32,7 @@ struct DBUser: Codable
         case dateCreated = "date_created"
         case email = "email"
         case photoUrl = "photo_url"
+        case phoneNumber = "phone_number"
     }
     
     init(from decoder: Decoder) throws {
@@ -39,6 +42,7 @@ struct DBUser: Codable
         self.dateCreated = try container.decodeIfPresent(Date.self, forKey: .dateCreated)
         self.email = try container.decodeIfPresent(String.self, forKey: .email)
         self.photoUrl = try container.decodeIfPresent(String.self, forKey: .photoUrl)
+        self.phoneNumber = try container.decodeIfPresent(String.self, forKey: .phoneNumber)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -48,5 +52,6 @@ struct DBUser: Codable
         try container.encodeIfPresent(self.dateCreated, forKey: .dateCreated)
         try container.encodeIfPresent(self.email, forKey: .email)
         try container.encodeIfPresent(self.photoUrl, forKey: .photoUrl)
+        try container.encodeIfPresent(self.phoneNumber, forKey: .phoneNumber)
     }
 }

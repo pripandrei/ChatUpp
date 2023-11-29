@@ -143,22 +143,3 @@ extension ResultsTableController
         return 24
     }
 }
-
-
-
-
-
-
-
-// SKELETON ANIMATIONS LIKED
-
-//        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .amethyst, secondaryColor: .clouds), animated: true, delay: 0.0, transition: .crossDissolve(.leastNonzeroMagnitude))
-//        tableView.showGradientSkeleton(usingGradient: .init(baseColor: .belizeHole) ,animated: true, delay: 0.0, transition: .none)
-//        tableView.showAnimatedSkeleton(usingColor: .belizeHole, animation: { layer in
-//            layer.pulse
-//        }, transition: .none)
-//        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-//        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-//        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), animation: .none, transition: .none)
-//        toggleSkeletonView()
-//        initiateSkeletonAnimation()

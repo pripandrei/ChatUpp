@@ -90,7 +90,6 @@ final class UserManager {
         let usersQuery = userCollection
             .whereField(FirestoreField.name.rawValue, isGreaterThanOrEqualTo: searchName)
             .whereField(FirestoreField.name.rawValue, isLessThanOrEqualTo: "\(searchName)\u{f7ff}")
-//        let usersQuery = userCollection.whereField(FirestoreField.name.rawValue, isEqualTo: searchName)
         return try await usersQuery.getDocuments(as: DBUser.self)
     }
     
@@ -121,7 +120,6 @@ final class UserManager {
                 completion(nil)
                 return
             }
-//            print("request")
             guard let data = data else { completion(nil); return }
             
             completion(data)

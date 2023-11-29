@@ -17,6 +17,7 @@ protocol Coordinator: AnyObject {
     func openConversationVC(conversationViewModel: ConversationViewModel)
     func pushSignUpVC()
     func pushPhoneSingInVC()
+    func pushUsernameRegistration()
 }
 
 class MainCoordinator: Coordinator {
@@ -43,7 +44,7 @@ class MainCoordinator: Coordinator {
     
     func pushSignUpVC() {
         let signUpVC = EmailSignUpViewController()
-//        signUpVC.coordinatorDelegate = self
+        signUpVC.coordinator = self
         navControllerForLoginVC.pushViewController(signUpVC, animated: true)
     }
     
@@ -61,6 +62,12 @@ class MainCoordinator: Coordinator {
         
         navControllerForLoginVC.modalPresentationStyle = .fullScreen
         tabBar.present(navControllerForLoginVC, animated: true)
+    }
+    
+    func pushUsernameRegistration() {
+        let usernameRegistrationVC = UsernameRegistrationViewController()
+//        usernameRegistrationVC.coordinator = self
+        navControllerForLoginVC.pushViewController(usernameRegistrationVC, animated: true)
     }
     
     func handleSignOut() {
