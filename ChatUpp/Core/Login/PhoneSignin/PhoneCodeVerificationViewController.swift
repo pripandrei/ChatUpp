@@ -75,9 +75,9 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     @objc func verifySMSButtonWasTapped() {
         guard let code = smsTextField.text, !code.isEmpty else {return}
         
-        guard let verificationID = phoneViewModel.verificationID else {return}
+//        guard let verificationID = phoneViewModel.verificationID else {return}
         
-        phoneViewModel.signInViaPhone(usingVerificationID: verificationID, verificationCode: code)
+        phoneViewModel.signInViaPhone(usingVerificationCode: code)
     }
 }
 
