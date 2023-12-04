@@ -31,6 +31,8 @@ final class UserManager {
     
     // MARK: - CREATE NEW USER
     
+    
+    
     func createNewUser(user: DBUser, _ complition: @escaping (Bool) -> Void) {
         
 //         Same document should not be updated if it already exists in db (creation of new user updates it)
@@ -84,13 +86,6 @@ final class UserManager {
     
     func getUserFromDB(userID: String) async throws -> DBUser {
         return try await userDocument(userID: userID).getDocument(as: DBUser.self)
-    }
-    
-    func getUsersFromDB(where searchName: String) async throws -> [DBUser] {
-        let usersQuery = userCollection
-            .whereField(FirestoreField.name.rawValue, isGreaterThanOrEqualTo: searchName)
-            .whereField(FirestoreField.name.rawValue, isLessThanOrEqualTo: "\(searchName)\u{f7ff}")
-        return try await usersQuery.getDocuments(as: DBUser.self)
     }
     
     // MARK: - GET USER PROFILE IMAGE

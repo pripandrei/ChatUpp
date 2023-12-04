@@ -7,6 +7,10 @@
 
 import Foundation
 
+enum UserCreationStatus {
+    case userExists
+    case userIsCreated
+}
 
 final class PhoneSignInViewModel {
     
