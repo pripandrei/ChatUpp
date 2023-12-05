@@ -95,7 +95,10 @@ class MainCoordinator: Coordinator {
         navControllerForLoginVC.pushViewController(phoneCodeVerificationVC, animated: true)
     }
     
+    
     func dismissNaviagtionController() {
-        navControllerForLoginVC.dismiss(animated: true)
+        Task { @MainActor in
+            navControllerForLoginVC.dismiss(animated: true)            
+        }
     }
 }

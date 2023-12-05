@@ -32,6 +32,29 @@ final class UserManager {
     // MARK: - CREATE NEW USER
     
     
+//    func createNewUser(user: DBUser) async -> UserCreationStatus {
+//        do {
+//            // Check if user exists before creation
+//            let user = try await getUserFromDB(userID: user.userId)
+//            return .userExists
+//        } catch {
+//            if let user = try? userDocument(userID: user.userId).setData(from: user, merge: false) {
+//                return .userIsCreated
+//            }
+//            return .userIsCreated
+//            print("Error creating user document: \(error.localizedDescription)")
+////            return .errorCreatingUser(error)
+//        }
+//    }
+    
+    func createNewUser2(user: DBUser) async throws {
+        do {
+            try userDocument(userID: user.userId).setData(from: user, merge: false)
+        } catch {
+            print("Error creating user document: \(error.localizedDescription)")
+        }
+    }
+    
     
     func createNewUser(user: DBUser, _ complition: @escaping (Bool) -> Void) {
         

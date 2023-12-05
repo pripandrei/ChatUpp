@@ -69,6 +69,7 @@ final class ChatsViewModel {
         let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
         let memberIDs = ChatsManager.shared.getOtherMembersFromChats(chats, authUser.uid)
 
+        // TODO: Can be improved
         for id in memberIDs {
             let dbUser = try await UserManager.shared.getUserFromDB(userID: id)
             otherMembers.append(dbUser)

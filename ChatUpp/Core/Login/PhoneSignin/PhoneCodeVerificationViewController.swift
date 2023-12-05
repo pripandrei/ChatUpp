@@ -30,13 +30,24 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     
     //MARK: - Binding
     
+//    private func setupBinder() {
+//        phoneViewModel.signinStatus.bind { [weak self] authStatus in
+//            guard let status = authStatus, status == .userIsAuthenticated else {return}
+//            self?.coordinator.pushUsernameRegistration()
+//        }
+//    }
+
+//
     private func setupBinder() {
-        phoneViewModel.loginStatus.bind { [weak self] authStatus in
-            guard let status = authStatus, status == .userIsAuthenticated else {return}
-            self?.coordinator.pushUsernameRegistration()
+        phoneViewModel.signinStatus.bind { [weak self] authStatus in
+            guard let status = authStatus else {return}
+            if status == .userExists {
+                self?.coordinator.dismissNaviagtionController()
+            } else {
+                self?.coordinator.pushUsernameRegistration()                
+            }
         }
     }
-
     
     func setupSmsTextField() {
         view.addSubview(smsTextField)
