@@ -22,16 +22,6 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         setupReceiveMessageButton()
     }
     
-//    private func setupBinder() {
-//        phoneViewModel.loginStatus.bind { [weak self] authStatus in
-//            guard let status = authStatus, status == .userIsAuthenticated else {return}
-//            guard let self else {return}
-////            self?.coordinator.pushUsernameRegistration()
-//            self.coordinator.pushPhoneCodeVerificationViewController(phoneViewModel: self.phoneViewModel)
-////            self?.navigationController?.dismiss(animated: true)
-//        }
-//    }
-    
     func setupPhoneTextField() {
         view.addSubview(phoneTextField)
         

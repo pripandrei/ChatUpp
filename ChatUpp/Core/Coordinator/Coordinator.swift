@@ -97,8 +97,6 @@ class MainCoordinator: Coordinator {
     
     
     func dismissNaviagtionController() {
-        Task { @MainActor in
             navControllerForLoginVC.dismiss(animated: true)            
-        }
     }
 }

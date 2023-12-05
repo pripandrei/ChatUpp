@@ -7,11 +7,9 @@
 
 import Foundation
 
-enum UserCreationStatus: Error {
-
+enum UserCreationStatus {
     case userExists
     case userIsCreated
-//    case errorCreatingUser(Error)
 }
 
 final class PhoneSignInViewModel {
@@ -21,9 +19,7 @@ final class PhoneSignInViewModel {
     let defaults = UserDefaults.standard
     lazy var verificationID = defaults.string(forKey: verificationIDKey)
     
-//    let signinStatus: ObservableObject<AuthenticationStatus?> = ObservableObject(nil)
-    
-    let signinStatus: ObservableObject<UserCreationStatus?> = ObservableObject(nil)
+    let userCreationStatus: ObservableObject<UserCreationStatus?> = ObservableObject(nil)
     
     func signInViaPhone(usingVerificationCode code: String) {
         guard let verificationID = verificationID else { print("missing verificationID"); return}
@@ -31,18 +27,12 @@ final class PhoneSignInViewModel {
             do {
                 let resultModel = try await AuthenticationManager.shared.signinWithPhoneSMS(using: verificationID, verificationCode: code)
                 let dbUser = DBUser(auth: resultModel)
-                if let user = try? await UserManager.shared.getUserFromDB(userID: dbUser.userId) {
-                    signinStatus.value = .userExists
+                if let _ = try? await UserManager.shared.getUserFromDB(userID: dbUser.userId) {
+                    userCreationStatus.value = .userExists
                 } else {
-                    try await UserManager.shared.createNewUser2(user: dbUser)
-                    signinStatus.value = .userIsCreated
+                    try UserManager.shared.createNewUser(user: dbUser)
+                    userCreationStatus.value = .userIsCreated
                 }
-            
-//                UserManager.shared.
-                
-//                UserManager.shared.createNewUser(user: dbUser) { [weak self] isCreated in
-//                    isCreated ? (self?.signinStatus.value = .userIsAuthenticated) : (self?.signinStatus.value = .userIsNotAuthenticated)
-//                }
             } catch {
                 print("Error signing in with Phone: ", error.localizedDescription)
             }

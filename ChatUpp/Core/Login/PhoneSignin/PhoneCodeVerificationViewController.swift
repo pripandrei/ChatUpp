@@ -29,22 +29,16 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     }
     
     //MARK: - Binding
-    
-//    private func setupBinder() {
-//        phoneViewModel.signinStatus.bind { [weak self] authStatus in
-//            guard let status = authStatus, status == .userIsAuthenticated else {return}
-//            self?.coordinator.pushUsernameRegistration()
-//        }
-//    }
 
-//
     private func setupBinder() {
-        phoneViewModel.signinStatus.bind { [weak self] authStatus in
-            guard let status = authStatus else {return}
-            if status == .userExists {
-                self?.coordinator.dismissNaviagtionController()
-            } else {
-                self?.coordinator.pushUsernameRegistration()                
+        phoneViewModel.userCreationStatus.bind { [weak self] creationStatus in
+            guard let status = creationStatus else {return}
+            Task { @MainActor in
+                if status == .userExists {
+                    self?.coordinator.dismissNaviagtionController()
+                } else {
+                    self?.coordinator.pushUsernameRegistration()
+                }
             }
         }
     }
