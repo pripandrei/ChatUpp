@@ -15,17 +15,11 @@ class LoginViewController: UIViewController {
     
     private var googleSignInButton = GIDSignInButton()
     private let loginViewModel = LoginViewModel()
-//    private let signUpText = "Don't have an account?"
     private let signUpLable: UILabel = UILabel()
     private let signUpButton = UIButton()
-    private let logIn = UIButton()
-    private let stackView = UIStackView()
-    private var mailLogInField = UITextField()
-    private var passwordLogInField = UITextField()
-    lazy private var textFieldValidator = EmailCredentialsValidator(mailField: mailLogInField,
-                                                                    passwordField: passwordLogInField,
-                                                                    viewModel: loginViewModel)
-    
+    private var mailSignInButton = UIButton()
+    private let phoneButton = UIButton()
+
     // MARK: - VC LIFEC YCLE
     override func viewDidLoad()
     {
@@ -34,7 +28,7 @@ class LoginViewController: UIViewController {
         controllerMainSetup()
         
         view.backgroundColor = .white
-        title = "Log in"
+//        title = "Log in"
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
@@ -43,15 +37,12 @@ class LoginViewController: UIViewController {
     }
     
     private func controllerMainSetup() {
-        setupMailTextField()
-        setupPasswordTextField()
-        configureStackView()
-        setupLogInButton()
+        configureSignInGoogleButton()
+        setupPhoneButton()
+        setupMailButton()
+        setupBinder()
         setupSignUpLable()
         setupSignUpButton()
-        configureSignInGoogleButton()
-        setupBinder()
-        setupPhoneButton()
     }
     
     //MARK: - Binder
@@ -67,7 +58,30 @@ class LoginViewController: UIViewController {
     
     // MARK: - Setup viewController
     
-    let phoneButton = UIButton()
+    private func setupMailButton() {
+        view.addSubview(mailSignInButton)
+        
+        mailSignInButton.configuration = .filled()
+        mailSignInButton.configuration?.title = "Sign in with email"
+        mailSignInButton.configuration?.baseBackgroundColor = .link
+        mailSignInButton.addTarget(self, action: #selector(mailSignInButtonTapped), for: .touchUpInside)
+        
+        mailSignInButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            mailSignInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            mailSignInButton.topAnchor.constraint(equalTo: phoneButton.bottomAnchor, constant: 20),
+//            mailSignInButton.widthAnchor.constraint(equalToConstant: googleSignInButton.bounds.width),
+            mailSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
+            mailSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
+            mailSignInButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+    
+    @objc func mailSignInButtonTapped() {
+        coordinatorDelegate?.pushMailSignInController(viewModel: loginViewModel)
+    }
+    
     
     private func setupPhoneButton() {
         view.addSubview(phoneButton)
@@ -82,7 +96,6 @@ class LoginViewController: UIViewController {
         NSLayoutConstraint.activate([
             phoneButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             phoneButton.topAnchor.constraint(equalTo: googleSignInButton.bottomAnchor, constant: 20),
-//            phoneButton.widthAnchor.constraint(equalToConstant: googleSignInButton.bounds.width),
             phoneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
             phoneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             phoneButton.heightAnchor.constraint(equalToConstant: 40)
@@ -109,8 +122,7 @@ class LoginViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             googleSignInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            googleSignInButton.topAnchor.constraint(equalTo: signUpLable.bottomAnchor, constant: 100),
-//            googleSignInButton.heightAnchor.constraint(equalToConstant: 110),
+            googleSignInButton.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height / 1.5),
             googleSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
@@ -124,7 +136,7 @@ class LoginViewController: UIViewController {
         view.addSubview(signUpLable)
         
         signUpLable.text = "Don't have an account?"
-        signUpLable.font = UIFont(name: "MalayalamSangamMN", size: 14.0)
+        signUpLable.font = UIFont(name: "MalayalamSangamMN", size: 16.0)
         setSignUpLableConstraints()
     }
     
@@ -132,68 +144,18 @@ class LoginViewController: UIViewController {
         signUpLable.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            signUpLable.centerXAnchor.constraint(equalTo: logIn.centerXAnchor),
-            signUpLable.topAnchor.constraint(equalTo: logIn.bottomAnchor, constant: 10),
-            signUpLable.leadingAnchor.constraint(equalTo: logIn.leadingAnchor)
+            signUpLable.topAnchor.constraint(equalTo: mailSignInButton.bottomAnchor, constant: 12),
+            signUpLable.leadingAnchor.constraint(equalTo: mailSignInButton.leadingAnchor, constant: 40)
         ])
     }
 
-    private func configureStackView() {
-        view.addSubview(stackView)
-        
-        stackView.axis = .vertical
-        stackView.distribution = .fillEqually
-        stackView.spacing = 20
-        
-        stackView.addArrangedSubview(mailLogInField)
-        stackView.addArrangedSubview(passwordLogInField)
-        
-        setStackViewConstraints()
-    }
-    
-    private func setStackViewConstraints() {
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 230),
-//            stackView.widthAnchor.constraint(equalToConstant: 300),
-            stackView.heightAnchor.constraint(equalToConstant: 120),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
-        ])
-    }
-    
-    private func setupLogInButton()
-    {
-        view.addSubview(logIn)
-        
-        logIn.configuration = .filled()
-        logIn.configuration?.title = "Log in"
-        logIn.configuration?.baseBackgroundColor = .systemPink
-        logIn.addTarget(self, action: #selector(logInButtonTap), for: .touchUpInside)
-        
-        setLogInConstraints()
-    }
-    
-    private func setLogInConstraints()
-    {
-        logIn.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            logIn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            //            logIn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
-            logIn.topAnchor.constraint(equalTo: passwordLogInField.bottomAnchor, constant: 40.0),
-            logIn.widthAnchor.constraint(equalToConstant: 200),
-            logIn.heightAnchor.constraint(equalToConstant: 50)
-        ])
-    }
-    
     private func setupSignUpButton()
     {
         view.addSubview(signUpButton)
         
         signUpButton.configuration = .plain()
         signUpButton.configuration?.title = "Sign Up"
+        signUpButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
         signUpButton.addTarget(self, action: #selector(pushSignUpVC), for: .touchUpInside)
         signUpButton.configuration?.buttonSize = .small
         
@@ -204,47 +166,15 @@ class LoginViewController: UIViewController {
         signUpButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            signUpButton.leadingAnchor.constraint(equalTo: signUpLable.trailingAnchor, constant: -65),
-            signUpButton.topAnchor.constraint(equalTo: logIn.bottomAnchor, constant: 2)
+            signUpButton.leadingAnchor.constraint(equalTo: signUpLable.trailingAnchor, constant: 5),
+            signUpButton.topAnchor.constraint(equalTo: mailSignInButton.bottomAnchor, constant: 10.5)
         ])
     }
-    
-    private func setupMailTextField() {
-//        view.addSubview(mailLogInField)
-        
-        mailLogInField.delegate = textFieldValidator
-        mailLogInField.placeholder = "Enter mail here"
-        mailLogInField.borderStyle = .roundedRect
-        mailLogInField.translatesAutoresizingMaskIntoConstraints = false
-    }
 
-    private func setupPasswordTextField()
-    {
-//        view.addSubview(passwordLogInField)
-
-        passwordLogInField.delegate = textFieldValidator
-        passwordLogInField.placeholder = "Enter password here"
-        passwordLogInField.borderStyle = .roundedRect
-        passwordLogInField.translatesAutoresizingMaskIntoConstraints = false
-    }
-    
     // MARK: - Navigation
     
     @objc func pushSignUpVC() {
-//        let signUpVC = EmailSignUpViewController()
-//        navigationController?.pushViewController(signUpVC, animated: true)
-        
         coordinatorDelegate?.pushSignUpVC()
-    }
-    
-    // MARK: - Login handler
-    
-    @objc func logInButtonTap()
-    {
-        let isValide = textFieldValidator.validate()
-        if isValide {
-            loginViewModel.signInWithEmail()
-        }
     }
 }
 

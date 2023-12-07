@@ -14,12 +14,13 @@ protocol Coordinator: AnyObject {
     func start()
     func presentLogInForm()
     func handleSignOut()
-    func openConversationVC(conversationViewModel: ConversationViewModel)
     func pushSignUpVC()
     func pushPhoneSingInVC()
     func pushUsernameRegistration()
-    func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
     func dismissNaviagtionController()
+    func pushMailSignInController(viewModel: LoginViewModel)
+    func openConversationVC(conversationViewModel: ConversationViewModel)
+    func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
 }
 
 class MainCoordinator: Coordinator {
@@ -97,6 +98,11 @@ class MainCoordinator: Coordinator {
     
     
     func dismissNaviagtionController() {
-            navControllerForLoginVC.dismiss(animated: true)            
+        navControllerForLoginVC.dismiss(animated: true)
+    }
+    
+    func pushMailSignInController(viewModel: LoginViewModel) {
+        let mailVC = MailSignInViewController(viewModel: viewModel)
+        navControllerForLoginVC.pushViewController(mailVC, animated: true)
     }
 }

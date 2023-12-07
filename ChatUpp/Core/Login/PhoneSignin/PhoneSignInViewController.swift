@@ -34,7 +34,11 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         NSLayoutConstraint.activate([
             phoneTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             phoneTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 250),
-            phoneTextField.widthAnchor.constraint(equalToConstant: 200),
+//            phoneTextField.widthAnchor.constraint(equalToConstant: 250),
+//            phoneTextField.heightAnchor.constraint(equalToConstant: 40)
+            
+            phoneTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
+            phoneTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             phoneTextField.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
@@ -50,8 +54,12 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             receiveMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            receiveMessageButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 50),
-            receiveMessageButton.widthAnchor.constraint(equalToConstant: 200),
+            receiveMessageButton.topAnchor.constraint(equalTo: phoneTextField.bottomAnchor, constant: 30),
+//            receiveMessageButton.widthAnchor.constraint(equalToConstant: 200),
+//            receiveMessageButton.heightAnchor.constraint(equalToConstant: 40)
+            
+            receiveMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
+            receiveMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             receiveMessageButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }

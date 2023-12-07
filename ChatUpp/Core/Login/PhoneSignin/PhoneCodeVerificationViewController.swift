@@ -47,7 +47,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         view.addSubview(smsTextField)
         
         smsTextField.delegate = self
-        smsTextField.placeholder = "enter sms number"
+        smsTextField.placeholder = "enter code"
         smsTextField.borderStyle = .roundedRect
         
         smsTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -55,8 +55,13 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         NSLayoutConstraint.activate([
             smsTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             smsTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 250),
-            smsTextField.widthAnchor.constraint(equalToConstant: 200),
-            smsTextField.heightAnchor.constraint(equalToConstant: 30)
+//            smsTextField.widthAnchor.constraint(equalToConstant: 200),
+//            smsTextField.heightAnchor.constraint(equalToConstant: 30)
+            
+            smsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
+            smsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
+            smsTextField.heightAnchor.constraint(equalToConstant: 40)
+            
         ])
     }
     
@@ -72,7 +77,11 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         NSLayoutConstraint.activate([
             verifyMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             verifyMessageButton.topAnchor.constraint(equalTo: smsTextField.bottomAnchor, constant: 30),
-            verifyMessageButton.widthAnchor.constraint(equalToConstant: 200),
+//            verifyMessageButton.widthAnchor.constraint(equalToConstant: 200),
+//            verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
+            
+            verifyMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
+            verifyMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }

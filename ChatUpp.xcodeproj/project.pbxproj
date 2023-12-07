@@ -49,6 +49,7 @@
 		75D7C5CC2ADAD40600F6D4B9 /* CGFloat+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */; };
 		75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */; };
 		75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */; };
+		75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */; };
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
 		75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */; };
 		75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F12AC3106700C2743A /* LoginViewModel.swift */; };
@@ -106,6 +107,7 @@
 		75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extension.swift"; sourceTree = "<group>"; };
 		75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneCodeVerificationViewController.swift; sourceTree = "<group>"; };
+		75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSignInViewController.swift; sourceTree = "<group>"; };
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
 		75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
 		75FB78F12AC3106700C2743A /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */,
 				75FB78F12AC3106700C2743A /* LoginViewModel.swift */,
 				7533D9B92B167E7F0057EBC7 /* PhoneSignin */,
+				75DD0AEE2B221715005DBADE /* MailSignin */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -307,6 +310,14 @@
 				75D7C5722AD5C15000F6D4B9 /* ChatCell */,
 			);
 			path = ChatTableView;
+			sourceTree = "<group>";
+		};
+		75DD0AEE2B221715005DBADE /* MailSignin */ = {
+			isa = PBXGroup;
+			children = (
+				75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */,
+			);
+			path = MailSignin;
 			sourceTree = "<group>";
 		};
 		75E054262B0428E200828B9D /* AlgoliaSearch */ = {
@@ -557,6 +568,7 @@
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
 				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
+				75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */,
 				75CB52182B0BF064007F3AB6 /* StorageManager.swift in Sources */,
 				7533D9B82B1659210057EBC7 /* PhoneSignInViewController.swift in Sources */,
 				7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */,

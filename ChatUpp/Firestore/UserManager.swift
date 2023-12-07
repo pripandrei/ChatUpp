@@ -50,7 +50,6 @@ final class UserManager {
         try userDocument(userID: user.userId).setData(from: user, merge: false)
     }
     
-    
     func createNewUser(user: DBUser, _ complition: @escaping (Bool) -> Void) {
         
 //         Same document should not be updated if it already exists in db (creation of new user updates it)
