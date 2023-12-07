@@ -13,7 +13,7 @@ class LoginViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
     
-    private var googleSignInButton = GIDSignInButton()
+//    private var googleSignInButton = GIDSignInButton()
     private let loginViewModel = LoginViewModel()
     private let signUpLable: UILabel = UILabel()
     private let signUpButton = UIButton()
@@ -65,13 +65,16 @@ class LoginViewController: UIViewController {
         mailSignInButton.configuration?.title = "Sign in with email"
         mailSignInButton.configuration?.baseBackgroundColor = .link
         mailSignInButton.addTarget(self, action: #selector(mailSignInButtonTapped), for: .touchUpInside)
+        mailSignInButton.configuration?.image = UIImage(systemName: "envelope.fill")
+        
+        mailSignInButton.configuration?.imagePadding = 30
+        mailSignInButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -55, bottom: 0, trailing: 0)
         
         mailSignInButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             mailSignInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             mailSignInButton.topAnchor.constraint(equalTo: phoneButton.bottomAnchor, constant: 20),
-//            mailSignInButton.widthAnchor.constraint(equalToConstant: googleSignInButton.bounds.width),
             mailSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
             mailSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             mailSignInButton.heightAnchor.constraint(equalToConstant: 40)
@@ -90,6 +93,10 @@ class LoginViewController: UIViewController {
         phoneButton.configuration?.title = "Sign in with phone"
         phoneButton.configuration?.baseBackgroundColor = .link
         phoneButton.addTarget(self, action: #selector(phoneButtonTapped), for: .touchUpInside)
+        phoneButton.configuration?.image = UIImage(systemName: "phone.fill")
+        
+        phoneButton.configuration?.imagePadding = 35
+        phoneButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -45, bottom: 0, trailing: 0)
         
         phoneButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -106,13 +113,27 @@ class LoginViewController: UIViewController {
         coordinatorDelegate?.pushPhoneSingInVC()
     }
     
+    private var googleSignInButton = UIButton()
+    
     private func configureSignInGoogleButton() {
         view.addSubview(googleSignInButton)
         
-        googleSignInButton.colorScheme = .dark
-        googleSignInButton.style = .wide
+//        googleSignInButton.colorScheme = .dark
+//        googleSignInButton.style = .wide
 //        googleSignInButton.layer.cornerRadius = 10
+        
+        googleSignInButton.configuration = .filled()
+        googleSignInButton.configuration?.title = "Sign in with google"
+        
+        googleSignInButton.configuration?.baseBackgroundColor = .link
         googleSignInButton.addTarget(self, action: #selector(handleSignInWithGoogle), for: .touchUpInside)
+        
+//        googleSignInButton.configuration?.image = UIImage(named: "search")
+//        googleSignInButton.configuration?.contentInsets.trailing = 50
+//        googleSignInButton.configuration?.imagePlacement = .leading
+        googleSignInButton.configuration?.imagePadding = 35
+        googleSignInButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -45, bottom: 0, trailing: 0)
+        googleSignInButton.setImage(UIImage(named: "search"), for: .normal)
         
         setSignInGoogleButtonConstraints()
     }
@@ -124,7 +145,8 @@ class LoginViewController: UIViewController {
             googleSignInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             googleSignInButton.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height / 1.5),
             googleSignInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
-            googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
+            googleSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            googleSignInButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -158,6 +180,7 @@ class LoginViewController: UIViewController {
         signUpButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
         signUpButton.addTarget(self, action: #selector(pushSignUpVC), for: .touchUpInside)
         signUpButton.configuration?.buttonSize = .small
+        
         
         setSignUpButtonConstraints()
     }

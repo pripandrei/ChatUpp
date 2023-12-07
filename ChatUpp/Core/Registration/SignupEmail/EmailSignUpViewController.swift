@@ -22,7 +22,7 @@ class EmailSignUpViewController: UIViewController {
                                                                     viewModel: signUpViewModel)
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Sign Up"
+//        title = "Sign Up"
         view.backgroundColor = .white
         controllerMainConfiguration()
     }
@@ -88,7 +88,7 @@ class EmailSignUpViewController: UIViewController {
         signUpButton.addTarget(self, action: #selector(finishRegistration), for: .touchUpInside)
         
         NSLayoutConstraint.activate([
-            signUpButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
+            signUpButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 50.0),
             signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signUpButton.widthAnchor.constraint(equalToConstant: 200),
             signUpButton.heightAnchor.constraint(equalToConstant: 50)
