@@ -174,7 +174,7 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                 
                 self?.handleMessageBubbleCreation()
                 self?.conversationViewModel.cellViewModels[0].imageData.value = data
-                self?.conversationViewModel.cellViewModels[0].imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
+                self?.conversationViewModel.cellViewModels[0].cellMessage.imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 self?.conversationViewModel.saveImage(data: data, size: image.size)
             }
         }

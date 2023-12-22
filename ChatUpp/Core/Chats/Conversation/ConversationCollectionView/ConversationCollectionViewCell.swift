@@ -69,15 +69,15 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         timeStamp.text = viewModel.timestamp
 
-        if viewModel.messageText != "" {
-            messageContainer.text = viewModel.messageText
+        if viewModel.cellMessage.messageBody != "" {
+            messageContainer.text = viewModel.cellMessage.messageBody
             return
         }
         if viewModel.imageData.value != nil  {
             configureImageAttachment(data: viewModel.imageData.value!)
             return
         }
-        if viewModel.imagePath != nil && viewModel.imageData.value == nil  {
+        if viewModel.cellMessage.imagePath != nil && viewModel.imageData.value == nil  {
             configureImageAttachment()
             viewModel.fetchImageData()
             return
@@ -235,7 +235,7 @@ extension ConversationCollectionViewCell {
         } else {
             imageAttachment.image = UIImage()
         }
-        if let cellImageSize = cellViewModel.imageSize {
+        if let cellImageSize = cellViewModel.cellMessage.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
             

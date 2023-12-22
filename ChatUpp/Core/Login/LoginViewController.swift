@@ -117,20 +117,13 @@ class LoginViewController: UIViewController {
     
     private func configureSignInGoogleButton() {
         view.addSubview(googleSignInButton)
-        
-//        googleSignInButton.colorScheme = .dark
-//        googleSignInButton.style = .wide
-//        googleSignInButton.layer.cornerRadius = 10
-        
+    
         googleSignInButton.configuration = .filled()
         googleSignInButton.configuration?.title = "Sign in with google"
         
         googleSignInButton.configuration?.baseBackgroundColor = .link
         googleSignInButton.addTarget(self, action: #selector(handleSignInWithGoogle), for: .touchUpInside)
         
-//        googleSignInButton.configuration?.image = UIImage(named: "search")
-//        googleSignInButton.configuration?.contentInsets.trailing = 50
-//        googleSignInButton.configuration?.imagePlacement = .leading
         googleSignInButton.configuration?.imagePadding = 35
         googleSignInButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -45, bottom: 0, trailing: 0)
         googleSignInButton.setImage(UIImage(named: "search"), for: .normal)

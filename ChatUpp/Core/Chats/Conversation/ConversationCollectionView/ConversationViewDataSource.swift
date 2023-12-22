@@ -34,7 +34,7 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         cell.configureCell(usingViewModel: conversationViewModel.cellViewModels[indexPath.item])
     
         let authUserID = conversationViewModel.authenticatedUserID
-        if conversationViewModel.cellViewModels[indexPath.item].senderId == authUserID {
+        if conversationViewModel.cellViewModels[indexPath.item].cellMessage.senderId == authUserID {
             cell.adjustMessageSide(.right)
         } else {
             cell.adjustMessageSide(.left)

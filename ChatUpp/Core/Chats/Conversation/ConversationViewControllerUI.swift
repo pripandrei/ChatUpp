@@ -97,7 +97,7 @@ final class ConversationViewControllerUI: UIView {
         
         self.holderViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         self.holderViewBottomConstraint.isActive = true
-        #colorLiteral(red: 0.1256499887, green: 0.2557474077, blue: 0.3938521147, alpha: 1)
+        
         NSLayoutConstraint.activate([
             containerView.heightAnchor.constraint(equalToConstant: 80),
             containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor),

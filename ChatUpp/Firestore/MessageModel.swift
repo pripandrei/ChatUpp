@@ -21,7 +21,7 @@ struct Message: Codable {
     let messageSeen: Bool
     let receivedBy: String?
     
-    let imageSize: MessageImageSize?
+    var imageSize: MessageImageSize?
     
     enum CodingKeys: String, CodingKey {
         case id = "id"

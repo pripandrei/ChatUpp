@@ -10,32 +10,35 @@ import Foundation
 
 final class ConversationCellViewModel {
     
-    private let messageId: String!
-    private let timeStamp: Date!
-    let imagePath: String?
-    let messageText: String!
+    var cellMessage: Message
+    
+//    private let messageId: String!
+//    private let timeStamp: Date!
+//    let imagePath: String?
+//    let messageText: String!
     var imageData: ObservableObject<Data?> = ObservableObject(nil)
-    let senderId: String!
-    var imageSize: MessageImageSize?
+//    let senderId: String!
+//    var imageSize: MessageImageSize?
     
     init(cellMessage: Message) {
-        self.timeStamp = cellMessage.timestamp
-        self.messageText = cellMessage.messageBody
-        self.imagePath = cellMessage.imagePath
-        self.messageId = cellMessage.id
-        self.senderId = cellMessage.senderId
-        self.imageSize = cellMessage.imageSize
+//        self.timeStamp = cellMessage.timestamp
+//        self.messageText = cellMessage.messageBody
+//        self.imagePath = cellMessage.imagePath
+//        self.messageId = cellMessage.id
+//        self.senderId = cellMessage.senderId
+//        self.imageSize = cellMessage.imageSize
+        self.cellMessage = cellMessage
     }
     
     var timestamp: String {
-        let hoursAndMinutes = timeStamp.formatToHoursAndMinutes()
+        let hoursAndMinutes = cellMessage.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
     }
     
     func fetchImageData() {
         Task {
             do {
-                self.imageData.value = try await StorageManager.shared.getMessageImage(messageId: messageId, path: imagePath!)
+                self.imageData.value = try await StorageManager.shared.getMessageImage(messageId: cellMessage.id, path: cellMessage.imagePath!)
             } catch {
                 print("Error fetching image from storage: ", error)
             }
