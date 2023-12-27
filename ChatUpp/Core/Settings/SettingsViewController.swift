@@ -72,13 +72,17 @@ extension SettingsViewController {
     typealias SnapShot = NSDiffableDataSourceSnapshot<Int, SettingsItem>
     
     private func makeCollectionView() -> UICollectionView {
-        let configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+        var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
 //        configuration.headerMode = .supplementary
-        
+        configuration.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        configuration.backgroundColor = #colorLiteral(red: 0.1585061252, green: 0.4498263001, blue: 0.643848896, alpha: 1)
+//        configuration.showsSeparators = false
+        configuration.separatorConfiguration.color = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
-        
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
+        
+        
         return collectionView
     }
     
@@ -89,9 +93,14 @@ extension SettingsViewController {
             var configuration = UIListContentConfiguration.cell()
             configuration.text = settingItem.name
             configuration.image = UIImage(named: settingItem.iconName)!
-            
+            configuration.textProperties.color = .white
             configuration.imageProperties.cornerRadius = 5
             configuration.imageProperties.reservedLayoutSize = CGSize(width: 22, height: 22)
+            
+            var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
+            backgroundConfiguration.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.5)
+            
+            cell.backgroundConfiguration = backgroundConfiguration
             cell.contentConfiguration = configuration
         }
         
@@ -129,7 +138,7 @@ struct SettingsItem: Hashable {
     
     static var itemsData = [
         SettingsItem(name: "Edit profile", iconName: "edit_profile_icon"),
-        SettingsItem(name: "Switch apperance", iconName: "appearance_icon"),
+        SettingsItem(name: "Switch appearance", iconName: "appearance_icon"),
         SettingsItem(name: "Delete profile", iconName: "delete_profile_icon"),
         SettingsItem(name: "Log out", iconName: "log_out_icon")
     ]
