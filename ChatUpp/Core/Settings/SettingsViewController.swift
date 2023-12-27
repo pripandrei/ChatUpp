@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseAuth
 
-class SettingsViewController: UIViewController {
+class SettingsViewController: UIViewController, UICollectionViewDelegate {
     
     weak var coordinatorDelegate: Coordinator?
     
@@ -44,6 +44,18 @@ class SettingsViewController: UIViewController {
             tempCreateChatDocId.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -250),
             tempCreateChatDocId.heightAnchor.constraint(equalToConstant: 30),
             tempCreateChatDocId.widthAnchor.constraint(equalToConstant: 280)
+        ])
+    }
+    
+    private func configureCollectionViewLayout() {
+        view.addSubview(collectionView)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
     }
     
@@ -102,6 +114,8 @@ extension SettingsViewController {
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.delegate = self
+//        collectionView.selectionFollowsFocus = false
         return collectionView
     }
     
@@ -132,17 +146,9 @@ extension SettingsViewController {
         dataSource.apply(snapshot)
     }
     
-    
-    private func configureCollectionViewLayout() {
-        view.addSubview(collectionView)
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
-        ])
+    //MARK: - DELEGATE
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
     }
 }
 
