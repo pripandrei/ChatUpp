@@ -18,13 +18,17 @@ class SettingsViewController: UIViewController {
     
     let tempCreateChatDocId: UIButton = UIButton()
     
+    private lazy var collectionView = makeCollectionView()
+    private lazy var dataSource = makeDataSource()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureCollectionViewLayout()
+        createSnapshot()
         setupBinder()
-        setUpSignOutBtn()
-        configureTempLabelName()
-        binding()
-//        configureTempCreateChatDocId()
+        
+//        setUpSignOutBtn()
+//        binding()
         view.backgroundColor = .white
     }
     
@@ -32,23 +36,7 @@ class SettingsViewController: UIViewController {
         print("Settings ============ deinit")
     }
     
-//    private func configureTempCreateChatDocId() {
-//        view.addSubview(tempCreateChatDocId)
-//
-//        tempCreateChatDocId.configuration = .filled()
-//        tempCreateChatDocId.configuration?.title = "CreateChatDocID"
-//        tempCreateChatDocId.addTarget(self, action: #selector(tempCreateChatDocIdTapped), for: .touchUpInside)
-//        tempCreateChatDocId.configuration?.buttonSize = .large
-//
-//        configureTempCreateChatDocIdConstraints()
-//    }
-    
-//    @objc func tempCreateChatDocIdTapped()  {
-////        Task {
-////            await settingsViewModel.createDocID()
-////        }
-//    }
-    
+
     private func configureTempCreateChatDocIdConstraints() {
         tempCreateChatDocId.translatesAutoresizingMaskIntoConstraints = false
         
@@ -59,29 +47,15 @@ class SettingsViewController: UIViewController {
             tempCreateChatDocId.widthAnchor.constraint(equalToConstant: 280)
         ])
     }
+    
+    
 
-    private func configureTempLabelName() {
-        view.addSubview(tempLabelName)
-        
-        configureTempLabelNameConstraints()
-    }
     
-    private func configureTempLabelNameConstraints() {
-        tempLabelName.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            tempLabelName.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            tempLabelName.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -150),
-            tempLabelName.heightAnchor.constraint(equalToConstant: 30),
-            tempLabelName.widthAnchor.constraint(equalToConstant: 320)
-        ])
-    }
-    
-    func binding() {
-        settingsViewModel.setProfileName = { [weak self] name in
-            self?.tempLabelName.text = name
-        }
-    }
+//    func binding() {
+//        settingsViewModel.setProfileName = { [weak self] name in
+////            self?.tempLabelName.text = name
+//        }
+//    }
     
 // MARK: - Binder
     
@@ -115,4 +89,75 @@ class SettingsViewController: UIViewController {
             signOutBtn.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
+    
+    
+    
+}
+
+
+//MARK: - SETTINGS COLLECTION VIEW
+
+extension SettingsViewController {
+    
+    typealias DataSource = UICollectionViewDiffableDataSource<Int, SettingsItem>
+    typealias SnapShot = NSDiffableDataSourceSnapshot<Int, SettingsItem>
+    
+    private func makeCollectionView() -> UICollectionView {
+        var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+//        configuration.headerMode = .supplementary
+        let layout = UICollectionViewCompositionalLayout.list(using: configuration)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        return collectionView
+    }
+    
+    private func makeDataSource() -> DataSource {
+        let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, SettingsItem> { cell, indexPath, settingsItem in
+            let settingItem = SettingsItem.itemsData[indexPath.item]
+            
+            var configuration = cell.defaultContentConfiguration()
+            configuration.text = settingItem.name
+//            configuration.image = UIImage(named: settingItem.iconName)
+            configuration.image = UIImage(systemName: "circle.fill")!
+            cell.contentConfiguration = configuration
+        }
+        
+        let dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, settingsItem in
+            return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: settingsItem)
+        }
+        return dataSource
+    }
+    
+    private func createSnapshot() {
+        var snapshot = SnapShot()
+        snapshot.appendSections([0])
+        snapshot.appendItems(SettingsItem.itemsData)
+        dataSource.apply(snapshot)
+    }
+    
+    
+    private func configureCollectionViewLayout() {
+        view.addSubview(collectionView)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+        ])
+    }
+}
+
+
+struct SettingsItem: Hashable {
+    let name: String
+    let iconName: String
+    
+    static var itemsData = [
+        SettingsItem(name: "Edit profile", iconName: "profile_icon"),
+        SettingsItem(name: "Switch apperance", iconName: "apperance_icon"),
+        SettingsItem(name: "Delete profile", iconName: "delete_profile_icon"),
+        SettingsItem(name: "Log out", iconName: "log_out_icon")
+    ]
 }
