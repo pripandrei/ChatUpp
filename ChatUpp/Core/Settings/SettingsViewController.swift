@@ -152,9 +152,9 @@ struct SettingsItem: Hashable {
     let iconName: String
     
     static var itemsData = [
-        SettingsItem(name: "Edit profile", iconName: "android-icon-36x36"),
-        SettingsItem(name: "Switch apperance", iconName: "android-icon-36x36"),
-        SettingsItem(name: "Delete profile", iconName: "android-icon-36x36"),
-        SettingsItem(name: "Log out", iconName: "android-icon-36x36")
+        SettingsItem(name: "Edit profile", iconName: "edit_profile_icon"),
+        SettingsItem(name: "Switch apperance", iconName: "appearance_icon"),
+        SettingsItem(name: "Delete profile", iconName: "delete_profile_icon"),
+        SettingsItem(name: "Log out", iconName: "log_out_icon")
     ]
 }

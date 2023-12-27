@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "icons8-light-windows-11-color-16.png",
+      "filename" : "Icon-App-29x29@1x.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "Icon-App-29x29@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "Icon-App-29x29@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
