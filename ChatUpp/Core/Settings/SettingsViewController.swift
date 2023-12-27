@@ -36,7 +36,6 @@ class SettingsViewController: UIViewController {
         print("Settings ============ deinit")
     }
     
-
     private func configureTempCreateChatDocIdConstraints() {
         tempCreateChatDocId.translatesAutoresizingMaskIntoConstraints = false
         
@@ -48,8 +47,6 @@ class SettingsViewController: UIViewController {
         ])
     }
     
-    
-
     
 //    func binding() {
 //        settingsViewModel.setProfileName = { [weak self] name in
@@ -89,11 +86,7 @@ class SettingsViewController: UIViewController {
             signOutBtn.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
-    
-    
-    
 }
-
 
 //MARK: - SETTINGS COLLECTION VIEW
 
@@ -103,8 +96,9 @@ extension SettingsViewController {
     typealias SnapShot = NSDiffableDataSourceSnapshot<Int, SettingsItem>
     
     private func makeCollectionView() -> UICollectionView {
-        var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+        let configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
 //        configuration.headerMode = .supplementary
+        
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -115,10 +109,13 @@ extension SettingsViewController {
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, SettingsItem> { cell, indexPath, settingsItem in
             let settingItem = SettingsItem.itemsData[indexPath.item]
             
-            var configuration = cell.defaultContentConfiguration()
+//            var configuration = cell.defaultContentConfiguration()
+            var configuration = UIListContentConfiguration.cell()
             configuration.text = settingItem.name
-//            configuration.image = UIImage(named: settingItem.iconName)
-            configuration.image = UIImage(systemName: "circle.fill")!
+            configuration.image = UIImage(named: settingItem.iconName)!
+            
+            configuration.imageProperties.cornerRadius = 5
+            configuration.imageProperties.reservedLayoutSize = CGSize(width: 22, height: 22)
             cell.contentConfiguration = configuration
         }
         
@@ -155,9 +152,9 @@ struct SettingsItem: Hashable {
     let iconName: String
     
     static var itemsData = [
-        SettingsItem(name: "Edit profile", iconName: "profile_icon"),
-        SettingsItem(name: "Switch apperance", iconName: "apperance_icon"),
-        SettingsItem(name: "Delete profile", iconName: "delete_profile_icon"),
-        SettingsItem(name: "Log out", iconName: "log_out_icon")
+        SettingsItem(name: "Edit profile", iconName: "android-icon-36x36"),
+        SettingsItem(name: "Switch apperance", iconName: "android-icon-36x36"),
+        SettingsItem(name: "Delete profile", iconName: "android-icon-36x36"),
+        SettingsItem(name: "Log out", iconName: "android-icon-36x36")
     ]
 }
