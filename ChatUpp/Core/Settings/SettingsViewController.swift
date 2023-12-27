@@ -14,7 +14,7 @@ class SettingsViewController: UIViewController {
     
     let settingsViewModel = SettingsViewModel()
     let signOutBtn = UIButton()
-    let tempLabelName: UILabel = UILabel()
+//    let tempLabelName: UILabel = UILabel()
     
     let tempCreateChatDocId: UIButton = UIButton()
     
@@ -24,31 +24,30 @@ class SettingsViewController: UIViewController {
         setUpSignOutBtn()
         configureTempLabelName()
         binding()
-        configureTempCreateChatDocId()
+//        configureTempCreateChatDocId()
         view.backgroundColor = .white
-        
     }
     
     deinit {
         print("Settings ============ deinit")
     }
     
-    private func configureTempCreateChatDocId() {
-        view.addSubview(tempCreateChatDocId)
-        
-        tempCreateChatDocId.configuration = .filled()
-        tempCreateChatDocId.configuration?.title = "CreateChatDocID"
-        tempCreateChatDocId.addTarget(self, action: #selector(tempCreateChatDocIdTapped), for: .touchUpInside)
-        tempCreateChatDocId.configuration?.buttonSize = .large
-        
-        configureTempCreateChatDocIdConstraints()
-    }
+//    private func configureTempCreateChatDocId() {
+//        view.addSubview(tempCreateChatDocId)
+//
+//        tempCreateChatDocId.configuration = .filled()
+//        tempCreateChatDocId.configuration?.title = "CreateChatDocID"
+//        tempCreateChatDocId.addTarget(self, action: #selector(tempCreateChatDocIdTapped), for: .touchUpInside)
+//        tempCreateChatDocId.configuration?.buttonSize = .large
+//
+//        configureTempCreateChatDocIdConstraints()
+//    }
     
-    @objc func tempCreateChatDocIdTapped()  {
-//        Task {
-//            await settingsViewModel.createDocID()
-//        }
-    }
+//    @objc func tempCreateChatDocIdTapped()  {
+////        Task {
+////            await settingsViewModel.createDocID()
+////        }
+//    }
     
     private func configureTempCreateChatDocIdConstraints() {
         tempCreateChatDocId.translatesAutoresizingMaskIntoConstraints = false
