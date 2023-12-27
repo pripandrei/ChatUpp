@@ -76,10 +76,13 @@ class MainCoordinator: Coordinator {
     func handleSignOut() {
         resetWindowRoot()
         start()
+        presentLogInForm()
+//        tabBar.selectedIndex = 0
     }
     
     private func resetWindowRoot() {
         self.tabBar = TabBarViewController()
+        self.tabBar.selectedIndex = 1
         Utilities.windowRoot = tabBar
     }
     
@@ -99,6 +102,7 @@ class MainCoordinator: Coordinator {
     
     func dismissNaviagtionController() {
         navControllerForLoginVC.dismiss(animated: true)
+        tabBar.selectedIndex = 0
     }
     
     func pushMailSignInController(viewModel: LoginViewModel) {

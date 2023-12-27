@@ -12,11 +12,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     
     weak var coordinatorDelegate: Coordinator?
     
-    let settingsViewModel = SettingsViewModel()
-    let signOutBtn = UIButton()
-//    let tempLabelName: UILabel = UILabel()
-    
-    let tempCreateChatDocId: UIButton = UIButton()
+    private let settingsViewModel = SettingsViewModel()
     
     private lazy var collectionView = makeCollectionView()
     private lazy var dataSource = makeDataSource()
@@ -36,16 +32,25 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         print("Settings ============ deinit")
     }
     
-    private func configureTempCreateChatDocIdConstraints() {
-        tempCreateChatDocId.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            tempCreateChatDocId.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            tempCreateChatDocId.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -250),
-            tempCreateChatDocId.heightAnchor.constraint(equalToConstant: 30),
-            tempCreateChatDocId.widthAnchor.constraint(equalToConstant: 280)
-        ])
+// MARK: - Binder
+    
+    func setupBinder() {
+        settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
+            if isSignedOut == true {
+                self?.coordinatorDelegate?.handleSignOut()
+            }
+        }
     }
+    
+    //    func binding() {
+    //        settingsViewModel.setProfileName = { [weak self] name in
+    ////            self?.tempLabelName.text = name
+    //        }
+    //    }
+}
+
+// MARK: - SETUP UI
+extension SettingsViewController {
     
     private func configureCollectionViewLayout() {
         view.addSubview(collectionView)
@@ -58,50 +63,9 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
     }
-    
-    
-//    func binding() {
-//        settingsViewModel.setProfileName = { [weak self] name in
-////            self?.tempLabelName.text = name
-//        }
-//    }
-    
-// MARK: - Binder
-    
-    func setupBinder() {
-        settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
-            if isSignedOut == true {
-                self?.coordinatorDelegate?.handleSignOut()
-            }
-        }
-    }
-    
-// MARK: - setup ViewController
-    
-    func setUpSignOutBtn() {
-        view.addSubview(signOutBtn)
-        
-        signOutBtn.configuration = .filled()
-        signOutBtn.configuration?.title = "Sign Out"
-        signOutBtn.addTarget(settingsViewModel, action: #selector(settingsViewModel.signOut), for: .touchUpInside)
-        signOutBtn.configuration?.buttonSize = .large
-        
-        setSignOutBtnConstraints()
-    }
-    
-    private func setSignOutBtnConstraints() {
-        signOutBtn.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-//            signOutBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 10)
-            signOutBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            signOutBtn.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-    }
 }
 
 //MARK: - SETTINGS COLLECTION VIEW
-
 extension SettingsViewController {
     
     typealias DataSource = UICollectionViewDiffableDataSource<Int, SettingsItem>
@@ -115,7 +79,6 @@ extension SettingsViewController {
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
-//        collectionView.selectionFollowsFocus = false
         return collectionView
     }
     
@@ -123,7 +86,6 @@ extension SettingsViewController {
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, SettingsItem> { cell, indexPath, settingsItem in
             let settingItem = SettingsItem.itemsData[indexPath.item]
             
-//            var configuration = cell.defaultContentConfiguration()
             var configuration = UIListContentConfiguration.cell()
             configuration.text = settingItem.name
             configuration.image = UIImage(named: settingItem.iconName)!
@@ -149,6 +111,14 @@ extension SettingsViewController {
     //MARK: - DELEGATE
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        
+        switch indexPath.item {
+        case 0:  print("item 1")
+        case 1:  print("item 2")
+        case 2: print("item 3")
+        case 3: settingsViewModel.signOut()
+        default: break
+        }
     }
 }
 
