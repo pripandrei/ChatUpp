@@ -73,7 +73,8 @@ extension SettingsViewController {
     
     private func makeCollectionView() -> UICollectionView {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
-//        configuration.headerMode = .supplementary
+        
+        configuration.headerMode = .supplementary
         configuration.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
 //        configuration.backgroundColor = #colorLiteral(red: 0.1585061252, green: 0.4498263001, blue: 0.643848896, alpha: 1)
 //        configuration.showsSeparators = false
@@ -104,9 +105,38 @@ extension SettingsViewController {
             cell.contentConfiguration = configuration
         }
         
+//        let headerRegistration = UICollectionView.SupplementaryRegistration<CustomHeader2>(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, elementKind, indexPath in
+//
+//            // Create a custom configuration instance
+//            var contentConfiguration = UIListContentConfiguration.cell()
+//
+//            // Set up the configuration for vertical image and text arrangement
+//            contentConfiguration.imageProperties.maximumSize = CGSize(width: 100, height: 100) // Set your image size
+//            contentConfiguration.imageProperties.reservedLayoutSize = CGSize(width: 100, height: 100) // Reserve space for the image
+//
+//            contentConfiguration.image = UIImage(named: "1024")
+//            // Set the text properties
+//            contentConfiguration.text = "Your Text"
+//            contentConfiguration.textProperties.numberOfLines = 0 // Allow multiple lines for the text
+//            contentConfiguration.textProperties.alignment = .center // Center align the text
+//
+//            supplementaryView.contentConfiguration = contentConfiguration
+//        }
+        
+        let headerRegistration = UICollectionView.SupplementaryRegistration<CustomHeader>(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, _, indexPath in
+            supplementaryView.imageView.image = UIImage(named: "1024")
+            supplementaryView.textLabel.text = "Andrei Pripa"
+        }
+        
         let dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, settingsItem in
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: settingsItem)
         }
+        
+        dataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
+            collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
+            
+        }
+        
         return dataSource
     }
     
@@ -129,6 +159,7 @@ extension SettingsViewController {
         default: break
         }
     }
+
 }
 
 
@@ -142,4 +173,48 @@ struct SettingsItem: Hashable {
         SettingsItem(name: "Delete profile", iconName: "delete_profile_icon"),
         SettingsItem(name: "Log out", iconName: "log_out_icon")
     ]
+}
+
+
+class CustomHeader: UICollectionViewListCell {
+
+    let imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.layer.cornerRadius = 10
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    let textLabel: UILabel = {
+        let name = UILabel()
+//        name.text = "Andrei Pripa"
+        name.textAlignment = .center
+        name.textColor = .white
+        name.font = UIFont(name: "Helvetica", size: 25)
+        name.translatesAutoresizingMaskIntoConstraints = false
+        return name
+    }()
+
+   override init(frame: CGRect) {
+    super.init(frame: frame)
+       addSubview(imageView)
+       addSubview(textLabel)
+      
+       NSLayoutConstraint.activate([
+        imageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+        imageView.heightAnchor.constraint(equalToConstant: 110),
+        imageView.widthAnchor.constraint(equalToConstant: 110),
+        imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+ 
+        textLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
+        textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+        textLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+        textLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
+       ])
+   }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
