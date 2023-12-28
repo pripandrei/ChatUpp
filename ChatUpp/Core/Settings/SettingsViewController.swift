@@ -88,6 +88,8 @@ extension SettingsViewController {
     }
     
     private func makeDataSource() -> DataSource {
+        
+        // Cell registration & configuration
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, SettingsItem> { cell, indexPath, settingsItem in
             let settingItem = SettingsItem.itemsData[indexPath.item]
             
@@ -105,36 +107,20 @@ extension SettingsViewController {
             cell.contentConfiguration = configuration
         }
         
-//        let headerRegistration = UICollectionView.SupplementaryRegistration<CustomHeader2>(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, elementKind, indexPath in
-//
-//            // Create a custom configuration instance
-//            var contentConfiguration = UIListContentConfiguration.cell()
-//
-//            // Set up the configuration for vertical image and text arrangement
-//            contentConfiguration.imageProperties.maximumSize = CGSize(width: 100, height: 100) // Set your image size
-//            contentConfiguration.imageProperties.reservedLayoutSize = CGSize(width: 100, height: 100) // Reserve space for the image
-//
-//            contentConfiguration.image = UIImage(named: "1024")
-//            // Set the text properties
-//            contentConfiguration.text = "Your Text"
-//            contentConfiguration.textProperties.numberOfLines = 0 // Allow multiple lines for the text
-//            contentConfiguration.textProperties.alignment = .center // Center align the text
-//
-//            supplementaryView.contentConfiguration = contentConfiguration
-//        }
-        
+        // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<CustomHeader>(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, _, indexPath in
             supplementaryView.imageView.image = UIImage(named: "1024")
             supplementaryView.textLabel.text = "Andrei Pripa"
         }
         
+        // Data source initiation
         let dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, settingsItem in
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: settingsItem)
         }
         
+        // Supplementary view (Header) initiation
         dataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
             collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
-            
         }
         
         return dataSource
@@ -162,7 +148,7 @@ extension SettingsViewController {
 
 }
 
-
+//MARK: - SETTINGS ITEM MODEL
 struct SettingsItem: Hashable {
     let name: String
     let iconName: String
@@ -176,6 +162,7 @@ struct SettingsItem: Hashable {
 }
 
 
+//MARK: - CUSTOM HEADER CELL
 class CustomHeader: UICollectionViewListCell {
 
     let imageView: UIImageView = {
