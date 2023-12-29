@@ -8,15 +8,8 @@
 import Foundation
 import UIKit
 
-//class ABC: UIViewController {
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        view.backgroundColor = .white
-//    }
-//}
-
 protocol Coordinator: AnyObject {
-    var tabBar: TabBarViewController { get set }
+//    var tabBar: TabBarViewController { get set }
     
     func start()
     func presentLogInForm()
@@ -32,24 +25,24 @@ protocol Coordinator: AnyObject {
 
 class MainCoordinator: Coordinator {
     
-    var tabBar: TabBarViewController
-    
-    var navControllerForLoginVC: UINavigationController!
+    private var tabBar: TabBarViewController
+    private var navControllerForLoginVC: UINavigationController!
 
     init(tabBar: TabBarViewController) {
         self.tabBar = tabBar
     }
     
-    func setupTabBarItems() {
+    private func setupTabBarItems() {
         tabBar.setupTabBarController()
         tabBar.chatsVC?.coordinatorDelegate = self
         tabBar.settingsVC?.coordinatorDelegate = self
     }
     
     func start() {
-        if let _ = try? AuthenticationManager.shared.getAuthenticatedUser() {
+        do {
+            try AuthenticationManager.shared.getAuthenticatedUser()
             setupTabBarItems()
-        } else {
+        } catch {
             presentLogInForm()
         }
     }
@@ -72,6 +65,7 @@ class MainCoordinator: Coordinator {
         
         navControllerForLoginVC = UINavigationController(rootViewController: loginVC)
         
+        navControllerForLoginVC.modalTransitionStyle = .crossDissolve
         navControllerForLoginVC.modalPresentationStyle = .fullScreen
         tabBar.present(navControllerForLoginVC, animated: true)
         
