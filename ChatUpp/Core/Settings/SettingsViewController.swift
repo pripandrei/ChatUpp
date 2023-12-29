@@ -30,17 +30,6 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         print("Settings ============ deinit")
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        print("will dissapear")
-    }
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        print("GONE!")
-    }
-    
-    
-    
 // MARK: - Binder
     
     func setupBinder() {
@@ -149,7 +138,6 @@ extension SettingsViewController {
         case 1:  print("item 2")
         case 2: print("item 3")
         case 3: settingsViewModel.signOut()
-//            coordinatorDelegate?.handleSignOut()
         default: break
         }
     }

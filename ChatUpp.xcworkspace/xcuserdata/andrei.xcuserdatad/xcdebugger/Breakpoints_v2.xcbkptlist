@@ -7,47 +7,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "DBC9A8B4-BD32-4D7F-AC4C-CAEE830BF736"
+            uuid = "11BEA53C-3119-4FF8-A959-375D4156630E"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Coordinator/Coordinator.swift"
+            filePath = "ChatUpp/Utilities/Utilities.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "50"
-            endingLineNumber = "50"
-            landmarkName = "start()"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
+            landmarkName = "findLoginViewControllerInHierarchy()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "DBC9A8B4-BD32-4D7F-AC4C-CAEE830BF736 - d91e6eaae94b0bba"
+                  uuid = "11BEA53C-3119-4FF8-A959-375D4156630E - 4e9f56ff81c973e8"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.MainCoordinator.pushSignUpVC() -&gt; ()"
+                  symbolName = "static ChatUpp.Utilities.findLoginViewControllerInHierarchy() -&gt; Swift.Optional&lt;__C.UIViewController&gt;"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Coordinator/Coordinator.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Utilities/Utilities.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "51"
-                  endingLineNumber = "51"
-                  offsetFromSymbolStart = "84">
+                  startingLineNumber = "27"
+                  endingLineNumber = "27"
+                  offsetFromSymbolStart = "40">
                </Location>
                <Location
-                  uuid = "DBC9A8B4-BD32-4D7F-AC4C-CAEE830BF736 - 681fee03b5808865"
+                  uuid = "11BEA53C-3119-4FF8-A959-375D4156630E - 4e9f56ff81c973e8"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.MainCoordinator.start() -&gt; ()"
+                  symbolName = "static ChatUpp.Utilities.findLoginViewControllerInHierarchy() -&gt; Swift.Optional&lt;__C.UIViewController&gt;"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Coordinator/Coordinator.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Utilities/Utilities.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "50"
-                  endingLineNumber = "50"
-                  offsetFromSymbolStart = "64">
+                  startingLineNumber = "27"
+                  endingLineNumber = "27"
+                  offsetFromSymbolStart = "644">
                </Location>
             </Locations>
          </BreakpointContent>

@@ -9,20 +9,15 @@ import UIKit
 
 class TabBarViewController: UITabBarController {
     
-//    var customNavigationController: UINavigationController?
-//    var secondVC: SettingsViewController? = SettingsViewController()
-    
+    private(set) var chatsVC: ChatsViewController?
+    private(set) var settingsVC: SettingsViewController?
+
+    private(set) var customNavigationController: UINavigationController?
+
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-//        setupTabBarController()
     }
-    
-    private(set) var chatsVC: ChatsViewController?
-    private(set) var settingsVC: SettingsViewController?
-    
-//    lazy var customNavigationController: UINavigationController = UINavigationController(rootViewController: chatsVC ?? ChatsViewController())
-    var customNavigationController: UINavigationController?
     
     func setupTabBarController() {
         chatsVC = ChatsViewController()

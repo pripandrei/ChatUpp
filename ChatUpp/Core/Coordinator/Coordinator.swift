@@ -47,7 +47,7 @@ class MainCoordinator: Coordinator {
     }
     
     func start() {
-        if let user = try? AuthenticationManager.shared.getAuthenticatedUser() {
+        if let _ = try? AuthenticationManager.shared.getAuthenticatedUser() {
             setupTabBarItems()
         } else {
             presentLogInForm()
@@ -85,37 +85,15 @@ class MainCoordinator: Coordinator {
     
     func handleSignOut() {
 //        resetWindowRoot()
-        
-//        self.tabBar.viewControllers?.append(SettingsViewController())
-//        tabBar.selectedIndex = 0
-        
-//        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
-//
-//            self?.tabBar.customNavigationController.viewControllers[0] = ChatsViewController()
-//            self?.tabBar.viewControllers?[1].removeFromParent()
-//            self?.tabBar.viewControllers?.append(SettingsViewController())
-//            self?.tabBar.viewControllers?[1] = SettingsViewController()
-//            self?.start()
-//        }
-//        tabBar.customNavigationController?.popToRootViewController(animated: false)
-    
-        
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { [weak self] _ in
-            print("timer")
-            self?.tabBar.cleanupTabBarItems()
-//            self?.tabBar.selectedIndex = 0
-//            self?.resetWindowRoot()
-        }
-
-        self.presentLogInForm()
-//        start()
+        tabBar.cleanupTabBarItems()
+        presentLogInForm()
     }
     
-    private func resetWindowRoot() {
-        self.tabBar = TabBarViewController()
-        self.tabBar.selectedIndex = 1
-        Utilities.windowRoot = tabBar
-    }
+//    private func resetWindowRoot() {
+//        self.tabBar = TabBarViewController()
+//        self.tabBar.selectedIndex = 1
+//        Utilities.windowRoot = tabBar
+//    }
     
     func openConversationVC(conversationViewModel: ConversationViewModel) {
         let conversationVC = ConversationViewController(conversationViewModel: conversationViewModel)
