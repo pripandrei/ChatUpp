@@ -46,6 +46,9 @@ final class AuthenticationManager
     
     @discardableResult
     func getAuthenticatedUser() throws -> AuthDataResultModel {
+        let change = Auth.auth().currentUser?.createProfileChangeRequest()
+        change?.displayName = "Anatolii Andreevici"
+        change?.commitChanges()
         if let user = Auth.auth().currentUser {
             return AuthDataResultModel(user: user)
         }

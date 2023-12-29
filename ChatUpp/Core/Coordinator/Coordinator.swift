@@ -33,16 +33,18 @@ class MainCoordinator: Coordinator {
         self.tabBar = tabBar
     }
     
+    func setupTabBarItems() {
+        tabBar.setupTabBarController()
+        tabBar.chatsVC?.coordinatorDelegate = self
+        tabBar.settingsVC?.coordinatorDelegate = self
+    }
+    
     func start() {
-        guard let navController = tabBar.customNavigationController,
-        let chatsViewController = navController.viewControllers.first as? ChatsViewController else {
-            return
+        if let user = try? AuthenticationManager.shared.getAuthenticatedUser() {
+            setupTabBarItems()
+        } else {
+            presentLogInForm()
         }
-        guard let settingsViewController = tabBar.viewControllers?.first(where: { $0 is SettingsViewController }) as? SettingsViewController else {
-            return
-        }
-        chatsViewController.coordinatorDelegate = self
-        settingsViewController.coordinatorDelegate = self
     }
     
     func pushSignUpVC() {
@@ -75,22 +77,46 @@ class MainCoordinator: Coordinator {
     
     func handleSignOut() {
         resetWindowRoot()
-        start()
+        
+//        self.tabBar.viewControllers?[1] = SettingsViewController()
+//        DispatchQueue.main.asyncAfter(deadline: .now()) { [weak self] in
+//            self?.tabBar.viewControllers?[1] = SettingsViewController()
+//        }
+        
+//        self.tabBar.viewControllers?.append(SettingsViewController())
+//        tabBar.selectedIndex = 0
+        
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+
+            self?.tabBar.customNavigationController.viewControllers[0] = ChatsViewController()
+            self?.tabBar.viewControllers?[1].removeFromParent()
+            self?.tabBar.viewControllers?.append(SettingsViewController())
+            self?.tabBar.viewControllers?[1] = SettingsViewController()
+            self?.start()
+        }
+//        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) {  _ in
+//            self.tabBar.customNavigationController?.viewControllers[0] = ChatsViewController()
+//        }
+        
+//        tabBar.customNavigationController?.popToRootViewController(animated: false)
+//        (tabBar.customNavigationController?.viewControllers.first as? ChatsViewController)?.dismiss(animated: true)
+        
         presentLogInForm()
+//        start()
 //        tabBar.selectedIndex = 0
     }
     
     private func resetWindowRoot() {
-        self.tabBar = TabBarViewController()
-        self.tabBar.selectedIndex = 1
-        Utilities.windowRoot = tabBar
+//        self.tabBar = TabBarViewController()
+//        self.tabBar.selectedIndex = 1
+//        Utilities.windowRoot = tabBar
     }
     
     func openConversationVC(conversationViewModel: ConversationViewModel) {
         let conversationVC = ConversationViewController(conversationViewModel: conversationViewModel)
         conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
-        tabBar.customNavigationController?.pushViewController(conversationVC, animated: true)
+        tabBar.customNavigationController.pushViewController(conversationVC, animated: true)
     }
     
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel) {
@@ -101,8 +127,10 @@ class MainCoordinator: Coordinator {
     
     
     func dismissNaviagtionController() {
+        setupTabBarItems()
         navControllerForLoginVC.dismiss(animated: true)
-        tabBar.selectedIndex = 0
+        navControllerForLoginVC = nil
+//        tabBar.selectedIndex = 0
     }
     
     func pushMailSignInController(viewModel: LoginViewModel) {
@@ -110,3 +138,19 @@ class MainCoordinator: Coordinator {
         navControllerForLoginVC.pushViewController(mailVC, animated: true)
     }
 }
+
+
+
+
+
+
+
+
+//Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+//
+//    self?.tabBar.customNavigationController?.viewControllers[0] = ChatsViewController()
+//    self?.tabBar.viewControllers?[1].removeFromParent()
+//    self?.tabBar.viewControllers?.append(SettingsViewController())
+//    self?.tabBar.viewControllers?[1] = SettingsViewController()
+//    self?.start()
+//}

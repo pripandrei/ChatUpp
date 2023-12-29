@@ -23,12 +23,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = TabBarViewController()
         
         coordinator = MainCoordinator(tabBar: tabBarController)
-        coordinator?.start()
-        
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
+        coordinator?.start()
     }
 
+    
+//    Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false, block: { _ in
+//        self.window?.rootViewController = tabBarController
+//        self.coordinator?.presentLogInForm()
+//    })
+    
+    
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.
