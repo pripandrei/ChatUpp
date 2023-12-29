@@ -31,4 +31,12 @@ final class SettingsViewModel {
 //            }
 //        }
     }
+    
+    var authUser: AuthDataResultModel? {
+        let user = try? AuthenticationManager.shared.getAuthenticatedUser()
+        if user != nil {
+            return user
+        }
+        return nil
+    }
 }

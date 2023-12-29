@@ -13,16 +13,14 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     weak var coordinatorDelegate: Coordinator?
     
     private let settingsViewModel = SettingsViewModel()
-    
-    private lazy var collectionView = makeCollectionView()
-    private lazy var dataSource = makeDataSource()
+    private lazy var collectionView: UICollectionView = makeCollectionView()
+    private lazy var dataSource: DataSource = makeDataSource()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionViewLayout()
         createSnapshot()
         setupBinder()
-        
 //        setUpSignOutBtn()
 //        binding()
         view.backgroundColor = .white
@@ -41,7 +39,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             }
         }
     }
-    
+
     //    func binding() {
     //        settingsViewModel.setProfileName = { [weak self] name in
     ////            self?.tempLabelName.text = name
@@ -83,11 +81,12 @@ extension SettingsViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
         
-        
         return collectionView
     }
     
     private func makeDataSource() -> DataSource {
+        
+        // Cell registration & configuration
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, SettingsItem> { cell, indexPath, settingsItem in
             let settingItem = SettingsItem.itemsData[indexPath.item]
             
@@ -105,38 +104,21 @@ extension SettingsViewController {
             cell.contentConfiguration = configuration
         }
         
-//        let headerRegistration = UICollectionView.SupplementaryRegistration<CustomHeader2>(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, elementKind, indexPath in
-//
-//            // Create a custom configuration instance
-//            var contentConfiguration = UIListContentConfiguration.cell()
-//
-//            // Set up the configuration for vertical image and text arrangement
-//            contentConfiguration.imageProperties.maximumSize = CGSize(width: 100, height: 100) // Set your image size
-//            contentConfiguration.imageProperties.reservedLayoutSize = CGSize(width: 100, height: 100) // Reserve space for the image
-//
-//            contentConfiguration.image = UIImage(named: "1024")
-//            // Set the text properties
-//            contentConfiguration.text = "Your Text"
-//            contentConfiguration.textProperties.numberOfLines = 0 // Allow multiple lines for the text
-//            contentConfiguration.textProperties.alignment = .center // Center align the text
-//
-//            supplementaryView.contentConfiguration = contentConfiguration
-//        }
-        
-        let headerRegistration = UICollectionView.SupplementaryRegistration<CustomHeader>(elementKind: UICollectionView.elementKindSectionHeader) { supplementaryView, _, indexPath in
+        // Custom Header registration
+        let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
             supplementaryView.imageView.image = UIImage(named: "1024")
-            supplementaryView.textLabel.text = "Andrei Pripa"
+            supplementaryView.textLabel.text = (self?.settingsViewModel.authUser != nil) ? self?.settingsViewModel.authUser?.name : nil
         }
         
+        // Data source initiation
         let dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, settingsItem in
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: settingsItem)
         }
         
+        // Supplementary view (Header) initiation
         dataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
             collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
-            
         }
-        
         return dataSource
     }
     
@@ -158,63 +140,5 @@ extension SettingsViewController {
         case 3: settingsViewModel.signOut()
         default: break
         }
-    }
-
-}
-
-
-struct SettingsItem: Hashable {
-    let name: String
-    let iconName: String
-    
-    static var itemsData = [
-        SettingsItem(name: "Edit profile", iconName: "edit_profile_icon"),
-        SettingsItem(name: "Switch appearance", iconName: "appearance_icon"),
-        SettingsItem(name: "Delete profile", iconName: "delete_profile_icon"),
-        SettingsItem(name: "Log out", iconName: "log_out_icon")
-    ]
-}
-
-
-class CustomHeader: UICollectionViewListCell {
-
-    let imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.layer.cornerRadius = 10
-        imageView.clipsToBounds = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
-    
-    let textLabel: UILabel = {
-        let name = UILabel()
-//        name.text = "Andrei Pripa"
-        name.textAlignment = .center
-        name.textColor = .white
-        name.font = UIFont(name: "Helvetica", size: 25)
-        name.translatesAutoresizingMaskIntoConstraints = false
-        return name
-    }()
-
-   override init(frame: CGRect) {
-    super.init(frame: frame)
-       addSubview(imageView)
-       addSubview(textLabel)
-      
-       NSLayoutConstraint.activate([
-        imageView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-        imageView.heightAnchor.constraint(equalToConstant: 110),
-        imageView.widthAnchor.constraint(equalToConstant: 110),
-        imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
- 
-        textLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
-        textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-        textLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-        textLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
-       ])
-   }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }

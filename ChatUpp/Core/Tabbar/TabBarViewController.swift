@@ -9,23 +9,32 @@ import UIKit
 
 class TabBarViewController: UITabBarController {
     
-    var customNavigationController: UINavigationController?
-    
+    private(set) var chatsVC: ChatsViewController?
+    private(set) var settingsVC: SettingsViewController?
+
+    private(set) var customNavigationController: UINavigationController?
+
     public override func viewDidLoad() {
         super.viewDidLoad()
-        
-        setupTabBarController()
+        view.backgroundColor = .white
     }
     
     func setupTabBarController() {
-        let navController = UINavigationController(rootViewController: ChatsViewController())
-        navController.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
-        self.customNavigationController = navController
-    
-        let secondVC = SettingsViewController()
-        secondVC.tabBarItem = UITabBarItem(title: "Settings", image: nil, tag: 2)
+        chatsVC = ChatsViewController()
+        settingsVC = SettingsViewController()
+        customNavigationController = UINavigationController(rootViewController: chatsVC!)
         
-        viewControllers = [navController,secondVC]
+        customNavigationController?.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
+        settingsVC?.tabBarItem = UITabBarItem(title: "Settings", image: nil, tag: 2)
+        
+        viewControllers = [customNavigationController!,settingsVC!]
+    }
+    
+    func cleanupTabBarItems() {
+        chatsVC = nil
+        settingsVC = nil
+        customNavigationController = nil
+        viewControllers = []
     }
     
     deinit {

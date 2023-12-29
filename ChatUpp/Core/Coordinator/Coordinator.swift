@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 protocol Coordinator: AnyObject {
-    var tabBar: TabBarViewController { get set }
+//    var tabBar: TabBarViewController { get set }
     
     func start()
     func presentLogInForm()
@@ -25,24 +25,26 @@ protocol Coordinator: AnyObject {
 
 class MainCoordinator: Coordinator {
     
-    var tabBar: TabBarViewController
-    
-    var navControllerForLoginVC: UINavigationController!
+    private var tabBar: TabBarViewController
+    private var navControllerForLoginVC: UINavigationController!
 
     init(tabBar: TabBarViewController) {
         self.tabBar = tabBar
     }
     
+    private func setupTabBarItems() {
+        tabBar.setupTabBarController()
+        tabBar.chatsVC?.coordinatorDelegate = self
+        tabBar.settingsVC?.coordinatorDelegate = self
+    }
+    
     func start() {
-        guard let navController = tabBar.customNavigationController,
-        let chatsViewController = navController.viewControllers.first as? ChatsViewController else {
-            return
+        do {
+            try AuthenticationManager.shared.getAuthenticatedUser()
+            setupTabBarItems()
+        } catch {
+            presentLogInForm()
         }
-        guard let settingsViewController = tabBar.viewControllers?.first(where: { $0 is SettingsViewController }) as? SettingsViewController else {
-            return
-        }
-        chatsViewController.coordinatorDelegate = self
-        settingsViewController.coordinatorDelegate = self
     }
     
     func pushSignUpVC() {
@@ -63,8 +65,10 @@ class MainCoordinator: Coordinator {
         
         navControllerForLoginVC = UINavigationController(rootViewController: loginVC)
         
+        navControllerForLoginVC.modalTransitionStyle = .crossDissolve
         navControllerForLoginVC.modalPresentationStyle = .fullScreen
         tabBar.present(navControllerForLoginVC, animated: true)
+        
     }
     
     func pushUsernameRegistration() {
@@ -74,17 +78,16 @@ class MainCoordinator: Coordinator {
     }
     
     func handleSignOut() {
-        resetWindowRoot()
-        start()
+//        resetWindowRoot()
+        tabBar.cleanupTabBarItems()
         presentLogInForm()
-//        tabBar.selectedIndex = 0
     }
     
-    private func resetWindowRoot() {
-        self.tabBar = TabBarViewController()
-        self.tabBar.selectedIndex = 1
-        Utilities.windowRoot = tabBar
-    }
+//    private func resetWindowRoot() {
+//        self.tabBar = TabBarViewController()
+//        self.tabBar.selectedIndex = 1
+//        Utilities.windowRoot = tabBar
+//    }
     
     func openConversationVC(conversationViewModel: ConversationViewModel) {
         let conversationVC = ConversationViewController(conversationViewModel: conversationViewModel)
@@ -101,7 +104,9 @@ class MainCoordinator: Coordinator {
     
     
     func dismissNaviagtionController() {
+        setupTabBarItems()
         navControllerForLoginVC.dismiss(animated: true)
+        navControllerForLoginVC = nil
         tabBar.selectedIndex = 0
     }
     
@@ -110,3 +115,19 @@ class MainCoordinator: Coordinator {
         navControllerForLoginVC.pushViewController(mailVC, animated: true)
     }
 }
+
+
+
+
+
+
+
+
+//Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+//
+//    self?.tabBar.customNavigationController?.viewControllers[0] = ChatsViewController()
+//    self?.tabBar.viewControllers?[1].removeFromParent()
+//    self?.tabBar.viewControllers?.append(SettingsViewController())
+//    self?.tabBar.viewControllers?[1] = SettingsViewController()
+//    self?.start()
+//}
