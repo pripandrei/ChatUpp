@@ -60,16 +60,34 @@ class LoginViewController: UIViewController {
     
     private func setupMailButton() {
         view.addSubview(mailSignInButton)
+//
+//        mailSignInButton.configuration = .filled()
+//        mailSignInButton.configuration?.title = "Sign in with email"
+//        mailSignInButton.configuration?.baseBackgroundColor = .link
+//        mailSignInButton.addTarget(self, action: #selector(mailSignInButtonTapped), for: .touchUpInside)
+//        mailSignInButton.configuration?.image = UIImage(systemName: "envelope.fill")
+//
+//        mailSignInButton.configuration?.imagePadding = 50
+//        mailSignInButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -55, bottom: 0, trailing: 0)
+//
         
-        mailSignInButton.configuration = .filled()
-        mailSignInButton.configuration?.title = "Sign in with email"
-        mailSignInButton.configuration?.baseBackgroundColor = .link
-        mailSignInButton.addTarget(self, action: #selector(mailSignInButtonTapped), for: .touchUpInside)
-        mailSignInButton.configuration?.image = UIImage(systemName: "envelope.fill")
-        
-        mailSignInButton.configuration?.imagePadding = 30
-        mailSignInButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -55, bottom: 0, trailing: 0)
-        
+        mailSignInButton.setTitle("Sign in with email", for: .normal)
+        mailSignInButton.backgroundColor = .systemTeal
+
+        // Image font
+        let font = UIFont.systemFont(ofSize: 20)
+        let config = UIImage.SymbolConfiguration(font: font)
+
+        let img = UIImage(systemName: "envelope.fill", withConfiguration: config)!
+        mailSignInButton.setImage(img, for: .normal)
+        // Icon color
+        mailSignInButton.tintColor = .white
+//        mailSignInButton.setTitleColor(.magenta, for: .normal)
+        mailSignInButton.imageView?.contentMode = .scaleAspectFill
+        mailSignInButton.imageEdgeInsets = UIEdgeInsets(top: 1, left: -70, bottom: 1, right: 1)
+//        mailSignInButton.contentHorizontalAlignment = .fill
+//        mailSignInButton.contentVerticalAlignment = .fill
+//        mailSignInButton.titleLabel?.textAlignment = .center
         mailSignInButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
