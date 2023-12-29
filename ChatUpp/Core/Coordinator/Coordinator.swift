@@ -8,6 +8,13 @@
 import Foundation
 import UIKit
 
+//class ABC: UIViewController {
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//        view.backgroundColor = .white
+//    }
+//}
+
 protocol Coordinator: AnyObject {
     var tabBar: TabBarViewController { get set }
     
@@ -67,6 +74,7 @@ class MainCoordinator: Coordinator {
         
         navControllerForLoginVC.modalPresentationStyle = .fullScreen
         tabBar.present(navControllerForLoginVC, animated: true)
+        
     }
     
     func pushUsernameRegistration() {
@@ -76,47 +84,44 @@ class MainCoordinator: Coordinator {
     }
     
     func handleSignOut() {
-        resetWindowRoot()
-        
-//        self.tabBar.viewControllers?[1] = SettingsViewController()
-//        DispatchQueue.main.asyncAfter(deadline: .now()) { [weak self] in
-//            self?.tabBar.viewControllers?[1] = SettingsViewController()
-//        }
+//        resetWindowRoot()
         
 //        self.tabBar.viewControllers?.append(SettingsViewController())
 //        tabBar.selectedIndex = 0
         
-        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
-
-            self?.tabBar.customNavigationController.viewControllers[0] = ChatsViewController()
-            self?.tabBar.viewControllers?[1].removeFromParent()
-            self?.tabBar.viewControllers?.append(SettingsViewController())
-            self?.tabBar.viewControllers?[1] = SettingsViewController()
-            self?.start()
-        }
-//        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) {  _ in
-//            self.tabBar.customNavigationController?.viewControllers[0] = ChatsViewController()
+//        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+//
+//            self?.tabBar.customNavigationController.viewControllers[0] = ChatsViewController()
+//            self?.tabBar.viewControllers?[1].removeFromParent()
+//            self?.tabBar.viewControllers?.append(SettingsViewController())
+//            self?.tabBar.viewControllers?[1] = SettingsViewController()
+//            self?.start()
 //        }
-        
 //        tabBar.customNavigationController?.popToRootViewController(animated: false)
-//        (tabBar.customNavigationController?.viewControllers.first as? ChatsViewController)?.dismiss(animated: true)
+    
         
-        presentLogInForm()
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { [weak self] _ in
+            print("timer")
+            self?.tabBar.cleanupTabBarItems()
+//            self?.tabBar.selectedIndex = 0
+//            self?.resetWindowRoot()
+        }
+
+        self.presentLogInForm()
 //        start()
-//        tabBar.selectedIndex = 0
     }
     
     private func resetWindowRoot() {
-//        self.tabBar = TabBarViewController()
-//        self.tabBar.selectedIndex = 1
-//        Utilities.windowRoot = tabBar
+        self.tabBar = TabBarViewController()
+        self.tabBar.selectedIndex = 1
+        Utilities.windowRoot = tabBar
     }
     
     func openConversationVC(conversationViewModel: ConversationViewModel) {
         let conversationVC = ConversationViewController(conversationViewModel: conversationViewModel)
         conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
-        tabBar.customNavigationController.pushViewController(conversationVC, animated: true)
+        tabBar.customNavigationController?.pushViewController(conversationVC, animated: true)
     }
     
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel) {
@@ -130,7 +135,7 @@ class MainCoordinator: Coordinator {
         setupTabBarItems()
         navControllerForLoginVC.dismiss(animated: true)
         navControllerForLoginVC = nil
-//        tabBar.selectedIndex = 0
+        tabBar.selectedIndex = 0
     }
     
     func pushMailSignInController(viewModel: LoginViewModel) {

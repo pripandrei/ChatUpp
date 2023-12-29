@@ -21,7 +21,6 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         configureCollectionViewLayout()
         createSnapshot()
         setupBinder()
-        
 //        setUpSignOutBtn()
 //        binding()
         view.backgroundColor = .white
@@ -30,6 +29,17 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     deinit {
         print("Settings ============ deinit")
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("will dissapear")
+    }
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("GONE!")
+    }
+    
+    
     
 // MARK: - Binder
     
@@ -40,12 +50,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             }
         }
     }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        print("GONE!")
-    }
-    
+
     //    func binding() {
     //        settingsViewModel.setProfileName = { [weak self] name in
     ////            self?.tempLabelName.text = name
@@ -144,6 +149,7 @@ extension SettingsViewController {
         case 1:  print("item 2")
         case 2: print("item 3")
         case 3: settingsViewModel.signOut()
+//            coordinatorDelegate?.handleSignOut()
         default: break
         }
     }

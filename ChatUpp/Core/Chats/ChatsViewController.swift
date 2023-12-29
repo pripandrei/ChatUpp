@@ -27,7 +27,7 @@ class ChatsViewController: UIViewController {
     private let resultsTableController = ResultsTableController()
     private var searchController: UISearchController!
 
-    private var shouldValidateUserAuthentication: Bool = true
+//    private var shouldValidateUserAuthentication: Bool = true
     
     private var lastSearchedText: String?
     private var searchTimer: Timer?
@@ -40,6 +40,7 @@ class ChatsViewController: UIViewController {
         setupBinding()
         configureTableView()
         setupSearchController()
+        chatsViewModel.reloadChatsCellData()
     }
     
     deinit {
@@ -48,9 +49,9 @@ class ChatsViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if shouldValidateUserAuthentication {
-            chatsViewModel.validateUserAuthentication()
-        }
+//        if shouldValidateUserAuthentication {
+//            chatsViewModel.validateUserAuthentication()
+//        }
     }
     
     private func configureTableView() {
@@ -71,15 +72,15 @@ class ChatsViewController: UIViewController {
                     self?.tableView.reloadData()
                 }
         }
-        chatsViewModel.isUserLoggedOut.bind { [weak self] isSignedOut in
-            if isSignedOut == true {
-                self?.coordinatorDelegate?.presentLogInForm()
-            }
-            else {
-                self?.chatsViewModel.reloadChatsCellData()
-                self?.shouldValidateUserAuthentication = false
-            }
-        }
+//        chatsViewModel.isUserLoggedOut.bind { [weak self] isSignedOut in
+//            if isSignedOut == true {
+//                self?.coordinatorDelegate?.presentLogInForm()
+//            }
+//            else {
+//                self?.chatsViewModel.reloadChatsCellData()
+//                self?.shouldValidateUserAuthentication = false
+//            }
+//        }
     }
     
     func setupSearchController() {
