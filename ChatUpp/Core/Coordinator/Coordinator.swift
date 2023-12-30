@@ -81,10 +81,11 @@ class MainCoordinator: Coordinator {
     
     func handleSignOut() {
 //        resetWindowRoot()
-        tabBar.cleanupTabBarItems()
+//        tabBar.cleanupTabBarItems()
 
         self.resetWindowRoot()
         presentLogInForm()
+        print("se")
     }
     
     private func resetWindowRoot() {
