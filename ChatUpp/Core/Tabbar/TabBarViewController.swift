@@ -35,15 +35,7 @@ class TabBarViewController: UITabBarController {
         
         tabBar.isHidden = false
     }
-    
-//    func cleanupTabBarItems() {
-//        self.chatsVC = nil
-//        self.chatsNavigationController = nil
-//        self.settingsVC = nil
-//        self.settingsNavigationController = nil
-//        self.viewControllers = []
-//    }
-    
+
     deinit {
         print("TABBAR Deninit")
     }

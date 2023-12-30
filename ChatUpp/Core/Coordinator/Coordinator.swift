@@ -123,17 +123,8 @@ class MainCoordinator: Coordinator {
     func pushProfileEditingVC() {
         let profileEditingVC = ProfileEditingViewController()
         profileEditingVC.coordinatorDelegate = self
-        
-//        let navController = UINavigationController(rootViewController: profileEditingVC)
-        
         profileEditingVC.modalPresentationStyle = .fullScreen
         profileEditingVC.modalTransitionStyle = .crossDissolve
-        
-//        tabBar.settingsNavigationController?.modalTransitionStyle = .crossDissolve
-//        tabBar.settingsNavigationController?.modalPresentationStyle = .fullScreen
-        
-//        tabBar.settingsNavigationController?.pushViewController(profileEditingVC, animated: true)
-//        tabBar.settingsNavigationController?.topViewController?.present(navController, animated: true)
         tabBar.settingsNavigationController?.present(profileEditingVC, animated: true)
     }
 }

@@ -27,7 +27,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        view.backgroundColor = .white
+//        view.backgroundColor = .white
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
