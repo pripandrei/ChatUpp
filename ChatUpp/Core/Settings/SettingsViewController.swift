@@ -74,8 +74,7 @@ extension SettingsViewController {
         
         configuration.headerMode = .supplementary
         configuration.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-//        configuration.backgroundColor = #colorLiteral(red: 0.1585061252, green: 0.4498263001, blue: 0.643848896, alpha: 1)
-//        configuration.showsSeparators = false
+
         configuration.separatorConfiguration.color = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -88,6 +87,7 @@ extension SettingsViewController {
         
         // Cell registration & configuration
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, SettingsItem> { cell, indexPath, settingsItem in
+            
             let settingItem = SettingsItem.itemsData[indexPath.item]
             
             var configuration = UIListContentConfiguration.cell()
@@ -103,7 +103,7 @@ extension SettingsViewController {
             cell.backgroundConfiguration = backgroundConfiguration
             cell.contentConfiguration = configuration
         }
-        
+    
         // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
             supplementaryView.imageView.image = UIImage(named: "1024")
@@ -112,7 +112,8 @@ extension SettingsViewController {
         
         // Data source initiation
         let dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, settingsItem in
-            return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: settingsItem)
+            let cell =  collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: settingsItem)
+            return cell
         }
         
         // Supplementary view (Header) initiation
@@ -134,8 +135,8 @@ extension SettingsViewController {
         collectionView.deselectItem(at: indexPath, animated: true)
         
         switch indexPath.item {
-        case 0:  print("item 1")
-        case 1:  print("item 2")
+        case 0: coordinatorDelegate?.pushProfileEditingVC()
+        case 1: print("item 2")
         case 2: print("item 3")
         case 3: settingsViewModel.signOut()
         default: break

@@ -21,6 +21,8 @@ protocol Coordinator: AnyObject {
     func pushMailSignInController(viewModel: LoginViewModel)
     func openConversationVC(conversationViewModel: ConversationViewModel)
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
+    
+    func pushProfileEditingVC()
 }
 
 class MainCoordinator: Coordinator {
@@ -80,20 +82,22 @@ class MainCoordinator: Coordinator {
     func handleSignOut() {
 //        resetWindowRoot()
         tabBar.cleanupTabBarItems()
+
+        self.resetWindowRoot()
         presentLogInForm()
     }
     
-//    private func resetWindowRoot() {
-//        self.tabBar = TabBarViewController()
-//        self.tabBar.selectedIndex = 1
-//        Utilities.windowRoot = tabBar
-//    }
+    private func resetWindowRoot() {
+        self.tabBar = TabBarViewController()
+//        self.tabBar.selectedIndex = 0
+        Utilities.windowRoot = tabBar
+    }
     
     func openConversationVC(conversationViewModel: ConversationViewModel) {
         let conversationVC = ConversationViewController(conversationViewModel: conversationViewModel)
         conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
-        tabBar.customNavigationController?.pushViewController(conversationVC, animated: true)
+        tabBar.chatsNavigationController?.pushViewController(conversationVC, animated: true)
     }
     
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel) {
@@ -107,12 +111,21 @@ class MainCoordinator: Coordinator {
         setupTabBarItems()
         navControllerForLoginVC.dismiss(animated: true)
         navControllerForLoginVC = nil
-        tabBar.selectedIndex = 0
+//        tabBar.selectedIndex = 0
     }
     
     func pushMailSignInController(viewModel: LoginViewModel) {
         let mailVC = MailSignInViewController(viewModel: viewModel)
         navControllerForLoginVC.pushViewController(mailVC, animated: true)
+    }
+    
+    func pushProfileEditingVC() {
+        let profileEditingVC = ProfileEditingViewController()
+        profileEditingVC.coordinatorDelegate = self
+        
+        tabBar.settingsNavigationController?.modalTransitionStyle = .crossDissolve
+        tabBar.settingsNavigationController?.modalPresentationStyle = .fullScreen
+        tabBar.settingsNavigationController?.pushViewController(profileEditingVC, animated: false)
     }
 }
 
