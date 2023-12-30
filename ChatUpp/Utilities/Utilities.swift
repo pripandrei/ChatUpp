@@ -73,6 +73,14 @@ struct Utilities {
             UINavigationBar.appearance().barTintColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.8)
         }
     }
+    
+    static public func adjustNavigationBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        appearance.shadowColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
 
     static var windowRoot: TabBarViewController? {
         get {

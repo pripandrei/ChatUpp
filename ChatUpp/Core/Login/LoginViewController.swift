@@ -24,10 +24,26 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         controllerMainSetup()
         
+//        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+////        navigationController?.navigationBar.prefersLargeTitles = true
+//
+//        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        navigationController?.navigationBar.prefersLargeTitles = true
+//        navigationController?.navigationBar.prefersLargeTitles = true
         
         navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        navigationController?.navigationBar.prefersLargeTitles = true
+        
+        navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
     deinit {

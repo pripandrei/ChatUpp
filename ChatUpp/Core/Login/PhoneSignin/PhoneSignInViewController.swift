@@ -17,7 +17,8 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        Utilities.adjustNavigationBarAppearance()
         setupPhoneTextField()
         setupReceiveMessageButton()
     }
