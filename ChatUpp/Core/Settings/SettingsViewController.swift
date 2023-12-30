@@ -24,6 +24,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
 //        setUpSignOutBtn()
 //        binding()
         view.backgroundColor = .white
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
     
     deinit {
