@@ -10,21 +10,53 @@ import UIKit
 class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
     weak var coordinatorDelegate: Coordinator!
+    lazy var collectionView = makeCollectionView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        navigationController?.setNavigationBarHidden(true, animated: false)
+//        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        navigationController?.setNavigationBarHidden(true, animated: false)
         
         configureCollectionViewLayout()
         collectionView.register(CustomListCell.self, forCellWithReuseIdentifier: "ListCell")
+        Utilities.adjustNavigationBarAppearance()
+        setupNavigationBarItems()
     }
-
     
-    lazy var collectionView = makeCollectionView()
     
-    func makeCollectionView() -> UICollectionView {
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        setupNavigationBarItems()
+//    }
+    func setupNavigationBarItems() {
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(closeProfileVC))
+//        let img = UIImage(named: "appearance_icon")
+//        navigationItem.rightBarButtonItem = UIBarButtonItem(image: img, style: .plain, target: self, action: #selector(closeProfileVC))
+//        let item = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(closeProfileVC))
+//        navigationItem.leftBarButtonItems = [item]
+        
+//        let customTitleView = UIView()
+//
+//        if let img = UIImage(named: "appearance_icon") {
+//            let imageView = UIImageView(image: img)
+//            imageView.contentMode = .scaleAspectFit
+//            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+//            imageView.layer.cornerRadius = 20
+//            imageView.clipsToBounds = true
+//
+//
+//            customTitleView.addSubview(imageView)
+//            self.navigationItem.titleView = customTitleView
+//        }
+    }
+    
+    @objc func closeProfileVC() {
+        coordinatorDelegate.dismissEditProfileVC()
+    }
+    
+    private func makeCollectionView() -> UICollectionView {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         configuration.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
@@ -38,7 +70,6 @@ class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, 
     private func configureCollectionViewLayout() {
         view.addSubview(collectionView)
          
-        
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([

@@ -23,6 +23,11 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         setupReceiveMessageButton()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+    
     func setupPhoneTextField() {
         view.addSubview(phoneTextField)
         

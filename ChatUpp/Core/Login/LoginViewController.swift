@@ -34,11 +34,11 @@ class LoginViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: true)
-    }
+
+//    override func viewWillDisappear(_ animated: Bool) {
+//        super.viewWillDisappear(animated)
+//        navigationController?.setNavigationBarHidden(false, animated: true)
+//    }
     
     deinit {
         print("Login WAS DEINIT +++")

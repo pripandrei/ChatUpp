@@ -23,6 +23,7 @@ protocol Coordinator: AnyObject {
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
     
     func pushProfileEditingVC()
+    func dismissEditProfileVC()
 }
 
 class MainCoordinator: Coordinator {
@@ -67,7 +68,7 @@ class MainCoordinator: Coordinator {
         
         navControllerForLoginVC = UINavigationController(rootViewController: loginVC)
         
-        navControllerForLoginVC.modalTransitionStyle = .crossDissolve
+        navControllerForLoginVC.modalTransitionStyle = .coverVertical
         navControllerForLoginVC.modalPresentationStyle = .fullScreen
         tabBar.present(navControllerForLoginVC, animated: true)
         
@@ -123,24 +124,13 @@ class MainCoordinator: Coordinator {
     func pushProfileEditingVC() {
         let profileEditingVC = ProfileEditingViewController()
         profileEditingVC.coordinatorDelegate = self
-        profileEditingVC.modalPresentationStyle = .fullScreen
-        profileEditingVC.modalTransitionStyle = .crossDissolve
-        tabBar.settingsNavigationController?.present(profileEditingVC, animated: true)
+        let navController = UINavigationController(rootViewController: profileEditingVC)
+        navController.modalPresentationStyle = .fullScreen
+        navController.modalTransitionStyle = .crossDissolve
+        tabBar.settingsNavigationController?.present(navController, animated: true)
+    }
+    
+    func dismissEditProfileVC() {
+        tabBar.settingsNavigationController?.dismiss(animated: true)
     }
 }
-
-
-
-
-
-
-
-
-//Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
-//
-//    self?.tabBar.customNavigationController?.viewControllers[0] = ChatsViewController()
-//    self?.tabBar.viewControllers?[1].removeFromParent()
-//    self?.tabBar.viewControllers?.append(SettingsViewController())
-//    self?.tabBar.viewControllers?[1] = SettingsViewController()
-//    self?.start()
-//}
