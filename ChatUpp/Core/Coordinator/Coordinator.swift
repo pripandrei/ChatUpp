@@ -22,7 +22,7 @@ protocol Coordinator: AnyObject {
     func openConversationVC(conversationViewModel: ConversationViewModel)
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
     
-    func pushProfileEditingVC()
+    func pushProfileEditingVC(viewModel:ProfileEditingViewModel)
     func dismissEditProfileVC()
 }
 
@@ -121,8 +121,8 @@ class MainCoordinator: Coordinator {
         navControllerForLoginVC.pushViewController(mailVC, animated: true)
     }
     
-    func pushProfileEditingVC() {
-        let profileEditingVC = ProfileEditingViewController()
+    func pushProfileEditingVC(viewModel: ProfileEditingViewModel) {
+        let profileEditingVC = ProfileEditingViewController(viewModel: viewModel)
         profileEditingVC.coordinatorDelegate = self
         let navController = UINavigationController(rootViewController: profileEditingVC)
         navController.modalPresentationStyle = .fullScreen

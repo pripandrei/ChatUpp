@@ -7,10 +7,17 @@
 
 import UIKit
 
-class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
     weak var coordinatorDelegate: Coordinator!
     lazy var collectionView = makeCollectionView()
+    
+    var profileEditingViewModel: ProfileEditingViewModel!
+    
+    convenience init(viewModel: ProfileEditingViewModel) {
+        self.init()
+        self.profileEditingViewModel = viewModel
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,23 +40,6 @@ class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, 
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(closeProfileVC))
 //        let img = UIImage(named: "appearance_icon")
-//        navigationItem.rightBarButtonItem = UIBarButtonItem(image: img, style: .plain, target: self, action: #selector(closeProfileVC))
-//        let item = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(closeProfileVC))
-//        navigationItem.leftBarButtonItems = [item]
-        
-//        let customTitleView = UIView()
-//
-//        if let img = UIImage(named: "appearance_icon") {
-//            let imageView = UIImageView(image: img)
-//            imageView.contentMode = .scaleAspectFit
-//            imageView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-//            imageView.layer.cornerRadius = 20
-//            imageView.clipsToBounds = true
-//
-//
-//            customTitleView.addSubview(imageView)
-//            self.navigationItem.titleView = customTitleView
-//        }
     }
     
     @objc func closeProfileVC() {
@@ -84,20 +74,25 @@ class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, 
 //MARK: - COLLECTION VIEW DELEGATE
 extension ProfileEditingViewController {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        4
+        profileEditingViewModel.items.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ListCell", for: indexPath) as? CustomListCell else {fatalError("Could not deqeue CustomListCell")}
-        
+        cell.textField.text = profileEditingViewModel.items[indexPath.item]
+        cell.onTextChanged = { text in
+            self.profileEditingViewModel.applyTitle(title: text, toItem: indexPath.item)
+        }
         return cell
     }
 }
 
 //MARK: - CUSTOM LIST CELL
-class CustomListCell: UICollectionViewListCell {
+class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
     
     var textField: UITextField!
+    
+    var onTextChanged: ((String) -> Void)?
     
     override func updateConfiguration(using state: UICellConfigurationState) {
         var newConfiguration = UIBackgroundConfiguration.listGroupedCell().updated(for: state)
@@ -117,6 +112,8 @@ class CustomListCell: UICollectionViewListCell {
     
     private func makeTextField() -> UITextField {
         let textfield = UITextField(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: self.bounds.width, height: self.bounds.height)))
+        
+        textfield.delegate = self
     //    textfield.backgroundColor = .carrot.withAlphaComponent(0.3)
         textfield.text = "settingItem.name"
         textfield.placeholder = "test"
@@ -124,6 +121,17 @@ class CustomListCell: UICollectionViewListCell {
         textfield.layer.sublayerTransform = CATransform3DMakeTranslation(20, 0, 0)
         self.contentView.addSubview(textfield)
         return textfield
+    }
+    
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        onTextChanged?(textField.text ?? "empty")
+    }
+    
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        print("change")
+        return true
     }
 }
 

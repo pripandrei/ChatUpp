@@ -148,11 +148,19 @@ extension SettingsViewController {
         collectionView.deselectItem(at: indexPath, animated: true)
         
         switch indexPath.item {
-        case 0: coordinatorDelegate?.pushProfileEditingVC()
+        case 0:
+            coordinatorDelegate?.pushProfileEditingVC(viewModel: createprofileEditingViewModel())
         case 1: print("item 2")
         case 2: print("item 3")
         case 3: settingsViewModel.signOut()
         default: break
         }
+    }
+    
+    private func createprofileEditingViewModel() -> ProfileEditingViewModel {
+        guard let name = settingsViewModel.authUser?.name else {fatalError("Auth user is missing!")}
+        let phone = settingsViewModel.authUser?.phoneNumber
+        let nickName = "Nick Name"
+        return ProfileEditingViewModel(name: name, phone: phone, nickName: nickName)
     }
 }
