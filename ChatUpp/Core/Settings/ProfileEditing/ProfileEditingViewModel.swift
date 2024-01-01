@@ -7,10 +7,15 @@
 
 import Foundation
 
-
 final class ProfileEditingViewModel {
     
-    private var name: String!
+    enum ProfileEditingItemsPlaceholder: String, CaseIterable {
+        case name = "name"
+        case phone = "ex. +37376445934"
+        case username = "username"
+    }
+    
+    private var name: String?
     private var phone: String?
     private var nickName: String?
     
@@ -20,7 +25,7 @@ final class ProfileEditingViewModel {
         return [name,phone,nickName]
     }
     
-    init(name: String, phone: String?, nickName: String?) {
+    init(name: String?, phone: String?, nickName: String?) {
         self.name = name
         self.phone = phone
         self.nickName = nickName
@@ -34,6 +39,8 @@ final class ProfileEditingViewModel {
         default:break
         }
     }
+    
+    //TODO: implement data saving in to db
     
     
 //    var name: ProfileEditingItems!
@@ -62,6 +69,7 @@ final class ProfileEditingViewModel {
 //    }
     
 }
+
 
 
 enum ProfileEditingItems {

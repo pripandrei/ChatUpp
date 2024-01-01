@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     weak var coordinatorDelegate: Coordinator!
     lazy var collectionView = makeCollectionView()
@@ -27,6 +27,7 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
         
         configureCollectionViewLayout()
         collectionView.register(CustomListCell.self, forCellWithReuseIdentifier: "ListCell")
+        collectionView.register(CollectionViewListHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "Header")
         Utilities.adjustNavigationBarAppearance()
         setupNavigationBarItems()
     }
@@ -49,9 +50,11 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     private func makeCollectionView() -> UICollectionView {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         configuration.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        let layout = UICollectionViewCompositionalLayout.list(using: configuration)
+        configuration.headerMode = .supplementary
         
+        let layout = UICollectionViewCompositionalLayout.list(using: configuration)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        
         collectionView.delegate = self
         collectionView.dataSource = self
         return collectionView
@@ -73,19 +76,44 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
 
 //MARK: - COLLECTION VIEW DELEGATE
 extension ProfileEditingViewController {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         profileEditingViewModel.items.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ListCell", for: indexPath) as? CustomListCell else {fatalError("Could not deqeue CustomListCell")}
-        cell.textField.text = profileEditingViewModel.items[indexPath.item]
+        
+        cell.textField.placeholder = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
+        if  profileEditingViewModel.items[indexPath.item] != nil {
+            cell.textField.text = profileEditingViewModel.items[indexPath.item]
+        }
         cell.onTextChanged = { text in
             self.profileEditingViewModel.applyTitle(title: text, toItem: indexPath.item)
         }
         return cell
     }
+    
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let headerCell = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: "Header",
+            for: indexPath) as? CollectionViewListHeader
+        else {fatalError("Could not deqeue CollectionViewListHeader")}
+        
+        headerCell.imageView.image = UIImage(named: "1024")
+        headerCell.setupNewPhotoConstraints()
+        return headerCell
+    }
+    
 }
+
+
 
 //MARK: - CUSTOM LIST CELL
 class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
@@ -104,6 +132,7 @@ class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
     override init(frame: CGRect) {
         super.init(frame: frame)
         textField = makeTextField()
+        
     }
 
     required init?(coder: NSCoder) {
@@ -114,12 +143,14 @@ class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
         let textfield = UITextField(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: self.bounds.width, height: self.bounds.height)))
         
         textfield.delegate = self
-    //    textfield.backgroundColor = .carrot.withAlphaComponent(0.3)
-        textfield.text = "settingItem.name"
-        textfield.placeholder = "test"
         textfield.textColor = .black
         textfield.layer.sublayerTransform = CATransform3DMakeTranslation(20, 0, 0)
         self.contentView.addSubview(textfield)
+        
+//        var placeHolder: [NSAttributedString.Key: Any] = [.foregroundColor: #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)]
+//        let attr = NSAttributedString(string: "", attributes: placeHolder)
+//        textfield.attributedPlaceholder = attr
+        
         return textfield
     }
     

@@ -120,7 +120,8 @@ extension SettingsViewController {
         // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
             supplementaryView.imageView.image = UIImage(named: "1024")
-            supplementaryView.textLabel.text = (self?.settingsViewModel.authUser != nil) ? self?.settingsViewModel.authUser?.name : nil
+            supplementaryView.nameLabel.text = (self?.settingsViewModel.authUser != nil) ? self?.settingsViewModel.authUser?.name : nil
+            supplementaryView.setupNameConstraints()
         }
         
         // Data source initiation
@@ -160,7 +161,7 @@ extension SettingsViewController {
     private func createprofileEditingViewModel() -> ProfileEditingViewModel {
         guard let name = settingsViewModel.authUser?.name else {fatalError("Auth user is missing!")}
         let phone = settingsViewModel.authUser?.phoneNumber
-        let nickName = "Nick Name"
+        let nickName: String? = nil
         return ProfileEditingViewModel(name: name, phone: phone, nickName: nickName)
     }
 }
