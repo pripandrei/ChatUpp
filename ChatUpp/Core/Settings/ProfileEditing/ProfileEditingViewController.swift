@@ -109,7 +109,8 @@ extension ProfileEditingViewController {
             withReuseIdentifier: "Header",
             for: indexPath) as? CollectionViewListHeader
         else {fatalError("Could not deqeue CollectionViewListHeader")}
-                headerCell.imageView.image = UIImage(named: "\(profileEditingViewModel.profilePictureURL)")
+        headerCell.imageView.image = UIImage(named: "\(profileEditingViewModel.profilePictureURL)")
+//        headerCell.imageView.image = UIImage(data: profileEditingViewModel.pi)
         headerCell.setupNewPhotoConstraints()
         return headerCell
     }

@@ -171,11 +171,13 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                     return
                 }
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
+                let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 
                 self?.handleMessageBubbleCreation()
-                self?.conversationViewModel.cellViewModels[0].imageData.value = data
-                self?.conversationViewModel.cellViewModels[0].cellMessage.imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
-                self?.conversationViewModel.saveImage(data: data, size: image.size)
+                self?.conversationViewModel.handleImageDrop(imageData: data, size: imageSize)
+//                self?.conversationViewModel.cellViewModels[0].imageData.value = data
+//                self?.conversationViewModel.cellViewModels[0].cellMessage.imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
+//                self?.conversationViewModel.saveImage(data: data, size: image.size)
             }
         }
     }

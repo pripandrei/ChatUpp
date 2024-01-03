@@ -23,7 +23,14 @@ final class ProfileEditingViewModel {
     private var phone: String?
     private var nickName: String?
     
-    private var photo: Data?
+    private var photo: Data? {
+        didSet {
+            // TODO: Upload picture to storage
+            // and assigne URL link to usermanager
+        }
+    }
+    
+//    private var profilePictureURL: String
     
     var items: [String?] {
         return [name,phone,nickName]
@@ -45,6 +52,12 @@ final class ProfileEditingViewModel {
         }
     }
     
+//    var authUserID: String {
+//        if let userID = try? AuthenticationManager.shared.getAuthenticatedUser().uid {
+//            return userID
+//        }
+//    }
+    
     var profilePictureURL: String {
         do {
             let photoURL = try AuthenticationManager.shared.getAuthenticatedUser().photoURL
@@ -54,9 +67,9 @@ final class ProfileEditingViewModel {
         }
     }
     
-    func saveEditedData() {
-        
-    }
+//    func saveEditedData() {
+//        UserManager.shared.updateUser(with: authUserID, usingName: name, profilePhotoURL: photo , complition: <#T##(ResposneStatus) -> Void#>)
+//    }
     
     //TODO: implement data saving in to db
     

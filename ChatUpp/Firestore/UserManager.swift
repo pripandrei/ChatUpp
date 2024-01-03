@@ -74,10 +74,26 @@ final class UserManager {
     
     // MARK: - UPDATE USER
     
-    func updateUser(with userID: String, usingName name: String, profilePhotoURL: String? = nil, complition: @escaping (ResposneStatus) -> Void) {
-        let userData: [String: Any] = [
+    func updateUser(with userID: String,
+                    usingName name: String,
+                    profilePhotoURL: String? = nil,
+                    phoneNumber: String? = nil,
+                    nickname: String? = nil,
+                    complition: @escaping (ResposneStatus) -> Void)
+    {
+        var userData: [String: Any] = [
             DBUser.CodingKeys.name.rawValue : name
         ]
+        if let profilePhoto = profilePhotoURL {
+            userData[DBUser.CodingKeys.photoUrl.rawValue] = profilePhoto
+        }
+        if let phone = phoneNumber {
+            userData[DBUser.CodingKeys.phoneNumber.rawValue] = phone
+        }
+        if let username = nickname {
+            userData[DBUser.CodingKeys.nickname.rawValue] = username
+        }
+        
         userDocument(userID: userID).setData(userData, merge: true) { error in
             if let error = error {
                 print("There was an error updating username: ", error.localizedDescription)

@@ -100,6 +100,12 @@ final class ConversationViewModel {
         insertNewMessage(message)
         cellViewModels.insert(createCellViewModel(with: message), at: 0)
     }
+    
+    func handleImageDrop(imageData: Data, size: MessageImageSize) {
+        self.cellViewModels[0].imageData.value = imageData
+        self.cellViewModels[0].cellMessage.imageSize = size
+        self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
+    }
 }
 
 
