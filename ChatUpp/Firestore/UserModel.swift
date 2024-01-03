@@ -16,6 +16,7 @@ struct DBUser: Codable
     let email: String?
     let photoUrl: String?
     let phoneNumber: String?
+    var nickname: String?
     
     init(auth: AuthDataResultModel) {
         self.userId = auth.uid
@@ -33,6 +34,7 @@ struct DBUser: Codable
         case email = "email"
         case photoUrl = "photo_url"
         case phoneNumber = "phone_number"
+        case nickname = "nickname"
     }
     
     init(from decoder: Decoder) throws {
@@ -43,6 +45,7 @@ struct DBUser: Codable
         self.email = try container.decodeIfPresent(String.self, forKey: .email)
         self.photoUrl = try container.decodeIfPresent(String.self, forKey: .photoUrl)
         self.phoneNumber = try container.decodeIfPresent(String.self, forKey: .phoneNumber)
+        self.nickname = try container.decodeIfPresent(String.self, forKey: .nickname)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -53,5 +56,6 @@ struct DBUser: Codable
         try container.encodeIfPresent(self.email, forKey: .email)
         try container.encodeIfPresent(self.photoUrl, forKey: .photoUrl)
         try container.encodeIfPresent(self.phoneNumber, forKey: .phoneNumber)
+        try container.encodeIfPresent(self.nickname, forKey: .nickname)
     }
 }
