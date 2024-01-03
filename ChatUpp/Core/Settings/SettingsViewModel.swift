@@ -20,18 +20,17 @@ final class SettingsViewModel {
         }
     }
     
-    var setProfileName: ((String) -> Void)?
+//    var setProfileName: ((String) -> Void)?
     
-    func integrateName() async {
-//        let authResult = try! AuthenticationManager.shared.getAuthenticatedUser()
-//        let dbUser = DBUser(auth: authResult)
-//        UserManager.shared.getUserFromDB(userID: dbUser.userId) { [weak self] user in
-//            DispatchQueue.main.async {
-////                self?.setProfileName?(user.userId)
-//            }
-//        }
+    var onUserFetch: ((Data, String) -> Void)?
+    
+    func fetchUserFromDB() async throws {
+        let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
+        let dbUser = try await UserManager.shared.getUserFromDB(userID: uderID.uid)
+        let imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser.photoUrl)
+        
+        onUserFetch?(imageData,dbUser.name!)
     }
-
     
     var authUser: AuthDataResultModel? {
         let user = try? AuthenticationManager.shared.getAuthenticatedUser()

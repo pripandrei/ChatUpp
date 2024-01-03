@@ -123,18 +123,18 @@ final class UserManager {
     
     // MARK: - GET USER PROFILE IMAGE
     
-//    func getProfileImageData(urlPath: String?) async -> Data? {
-//        guard let urlPath = urlPath,
-//              let url = URL(string: urlPath) else { return nil }
-//
-//        do {
-//            let (imgData,_) = try await URLSession.shared.data(from: url)
-//            return imgData
-//        } catch {
-//            print("Could not get the image from url: ", error.localizedDescription)
-//            return nil
-//        }
-//    }
+    func getProfileImageData(urlPath: String?) async throws -> Data {
+        guard let urlPath = urlPath,
+              let url = URL(string: urlPath) else { throw UnwrappingError.nilValueFound("URL path for image Data is nil") }
+
+        do {
+            let (imgData,_) = try await URLSession.shared.data(from: url)
+            return imgData
+        } catch {
+            print("Could not get the image from url: ", error.localizedDescription)
+            throw error
+        }
+    }
     
     func getProfileImageData(urlPath: String?, completion: @escaping (Data?) -> Void) {
         guard let urlPath = urlPath,
@@ -154,6 +154,4 @@ final class UserManager {
         }.resume()
     }
 }
-
-
 
