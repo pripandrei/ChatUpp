@@ -74,7 +74,7 @@ final class UserManager {
     
     // MARK: - UPDATE USER
     
-    func updateUser(with userID: String, usingName name: String, complition: @escaping (ResposneStatus) -> Void) {
+    func updateUser(with userID: String, usingName name: String, profilePhotoURL: String? = nil, complition: @escaping (ResposneStatus) -> Void) {
         let userData: [String: Any] = [
             DBUser.CodingKeys.name.rawValue : name
         ]

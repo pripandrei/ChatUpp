@@ -91,5 +91,9 @@ struct Utilities {
             (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = newValue
         }
     }
+    
+    static var defaultProfileImage: UIImage {
+        return UIImage(named: "default_profile_photo") ?? UIImage()
+    }
 }
 

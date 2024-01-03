@@ -31,6 +31,7 @@ final class SettingsViewModel {
 //            }
 //        }
     }
+
     
     var authUser: AuthDataResultModel? {
         let user = try? AuthenticationManager.shared.getAuthenticatedUser()

@@ -15,7 +15,11 @@ final class ProfileEditingViewModel {
         case username = "username"
     }
     
-    private var name: String?
+    // initialeName in case user saves edits while name is empty,
+    // the name will remain as it was at the beginning
+    private let initialeName: String
+    
+    private var name: String
     private var phone: String?
     private var nickName: String?
     
@@ -25,22 +29,38 @@ final class ProfileEditingViewModel {
         return [name,phone,nickName]
     }
     
-    init(name: String?, phone: String?, nickName: String?) {
+    init(name: String, phone: String?, nickName: String?) {
         self.name = name
         self.phone = phone
         self.nickName = nickName
+        self.initialeName = name
     }
     
     func applyTitle(title: String, toItem item: Int) {
         switch item {
-        case 0: name = title
-        case 1: phone = title
-        case 2: nickName = title
+        case 0: name = title.isEmpty ? initialeName : title
+        case 1: phone = title.isEmpty ? nil : title
+        case 2: nickName = title.isEmpty ? nil : title
         default:break
         }
     }
     
+    var profilePictureURL: String {
+        do {
+            let photoURL = try AuthenticationManager.shared.getAuthenticatedUser().photoURL
+            return photoURL!
+        } catch {
+            return "default_profile_photo"
+        }
+    }
+    
+    func saveEditedData() {
+        
+    }
+    
     //TODO: implement data saving in to db
+    
+    
     
     
 //    var name: ProfileEditingItems!

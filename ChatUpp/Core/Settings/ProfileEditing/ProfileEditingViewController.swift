@@ -47,6 +47,10 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
         coordinatorDelegate.dismissEditProfileVC()
     }
     
+    @objc func saveEditData() {
+        
+    }
+    
     private func makeCollectionView() -> UICollectionView {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         configuration.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
@@ -105,14 +109,11 @@ extension ProfileEditingViewController {
             withReuseIdentifier: "Header",
             for: indexPath) as? CollectionViewListHeader
         else {fatalError("Could not deqeue CollectionViewListHeader")}
-        
-        headerCell.imageView.image = UIImage(named: "1024")
+                headerCell.imageView.image = UIImage(named: "\(profileEditingViewModel.profilePictureURL)")
         headerCell.setupNewPhotoConstraints()
         return headerCell
     }
-    
 }
-
 
 
 //MARK: - CUSTOM LIST CELL
@@ -156,13 +157,23 @@ class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
     
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        onTextChanged?(textField.text ?? "empty")
+//        if let text = textField.text, !text.isEmpty {
+//            onTextChanged?(textField.text ?? "")
+//        }
     }
     
     
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        print("change")
+    func textField(_ textField: UITextField,
+                   shouldChangeCharactersIn range: NSRange,
+                   replacementString string: String) -> Bool
+    {
+        if let text = textField.text as NSString? {
+            let updatedText = text.replacingCharacters(in: range, with: string)
+            onTextChanged?(updatedText as String)
+        }
         return true
     }
+    
+    
 }
 
