@@ -87,9 +87,12 @@ class CollectionViewListHeader: UICollectionViewListCell {
         
         NSLayoutConstraint.activate([
             additionalCredentials.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-            additionalCredentials.heightAnchor.constraint(equalToConstant: 110),
-            additionalCredentials.widthAnchor.constraint(equalToConstant: 110),
+//            additionalCredentials.heightAnchor.constraint(equalToConstant: 110),
+//            additionalCredentials.widthAnchor.constraint(equalToConstant: 110),
+            additionalCredentials.leadingAnchor.constraint(equalTo: leadingAnchor),
+            additionalCredentials.trailingAnchor.constraint(equalTo: trailingAnchor),
             additionalCredentials.centerXAnchor.constraint(equalTo: centerXAnchor),
+            additionalCredentials.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
         ])
     }
     

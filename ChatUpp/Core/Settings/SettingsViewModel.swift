@@ -30,7 +30,11 @@ final class SettingsViewModel {
 
 //    var setProfileName: ((String) -> Void)?
     
-    var onUserFetch: ((Data, String) -> Void)?
+//    var onUserFetch: ((Data, String) -> Void)?
+    var onUserFetch: ((_ name: String?,
+                                _ phone: String?,
+                                _ nickname: String?,
+                                _ profilePhoto: Data?) -> Void)?
     
     func fetchUserFromDB() async throws {
         let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
@@ -38,7 +42,8 @@ final class SettingsViewModel {
 //        self.imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
         self.imageData = try await StorageManager.shared.getUserImage(userID: dbUser!.userId, path: dbUser!.photoUrl!)
         
-        onUserFetch?(imageData!,dbUser!.name!)
+//        onUserFetch?(imageData!,dbUser!.name!)
+        onUserFetch?(dbUser?.name,dbUser?.phoneNumber,dbUser?.nickname,imageData)
     }
     
     var authUser: AuthDataResultModel? {

@@ -123,14 +123,19 @@ extension SettingsViewController {
         
         // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
-            self?.settingsViewModel.onUserFetch = { imageData, name in
+            self?.settingsViewModel.onUserFetch = { name,phone,nickname,imageData in
                 self?.collectionViewListHeader = supplementaryView
                 DispatchQueue.main.async {
 //                    AuthenticationManager.shared.modifyAuthUser(name: name)
 //                    print(Auth.auth().currentUser?.displayName)
                     
+                    supplementaryView.setupAdditionalCredentialsConstraints()
                     supplementaryView.nameLabel.text = name
-                    supplementaryView.imageView.image = UIImage(data: imageData)
+                    supplementaryView.additionalCredentials.text = "\(phone ?? " ")\(nickname ?? "")"
+//                    supplementaryView.additionalCredentials.text = "number 23123"
+                    if let image = imageData {
+                        supplementaryView.imageView.image = UIImage(data: image)
+                    }
                 }
             }
         }
@@ -155,7 +160,7 @@ extension SettingsViewController {
         dataSource.apply(snapshot)
     }
     
-    //MARK: - DELEGATE
+    //MARK: - COLLECTIONVIEW DELEGATE
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         
