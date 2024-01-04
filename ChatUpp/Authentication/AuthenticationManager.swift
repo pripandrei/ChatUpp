@@ -57,15 +57,17 @@ final class AuthenticationManager
     
     //TEMP function until local DB is not implemented
     
-    func modifyAuthUser(name: String, urlString: String) {
+    func modifyAuthUser(name: String) {
         
-        let url = URL(string: urlString)
+//        let url = URL(string: urlString)
         
         let profile = Auth.auth().currentUser?.createProfileChangeRequest()
         profile?.displayName = name
-        profile?.photoURL = url
+//        profile?.photoURL = url
         profile?.commitChanges()
     }
+    
+    
     
     func signOut() throws  {
         try Auth.auth().signOut()

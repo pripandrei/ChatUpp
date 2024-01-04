@@ -54,7 +54,7 @@ class CollectionViewListHeader: UICollectionViewListCell {
    override init(frame: CGRect) {
     super.init(frame: frame)
        setupImageConstraints()
-       
+       setupNameConstraints()
    }
     
     func setupImageConstraints() {
@@ -75,6 +75,8 @@ class CollectionViewListHeader: UICollectionViewListCell {
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 15),
             nameLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            nameLabel.heightAnchor.constraint(equalToConstant: 30),
+//            nameLabel.widthAnchor.constraint(equalToConstant: 30),
             nameLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             nameLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
         ])

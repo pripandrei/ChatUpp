@@ -23,23 +23,24 @@ final class ProfileEditingViewModel {
     private var phone: String?
     private var nickName: String?
     
-    private var photo: Data? {
-        didSet {
-            // TODO: Upload picture to storage
-            // and assigne URL link to usermanager
-        }
-    }
+    var profilePhoto: Data
     
-//    private var profilePictureURL: String
+    private var profilePictureURL: String?
+    var onSaveProfileData: (() -> Void)?
+    var userDataToTransferBack: ((_ name: String?,
+                                _ phone: String?,
+                                _ nickname: String?,
+                                _ profilePhoto: Data?) -> Void)?
     
     var items: [String?] {
         return [name,phone,nickName]
     }
     
-    init(name: String, phone: String?, nickName: String?) {
+    init(name: String, phone: String?, nickName: String?, profilePicutre: Data) {
         self.name = name
         self.phone = phone
         self.nickName = nickName
+        self.profilePhoto = profilePicutre
         self.initialeName = name
     }
     
@@ -52,28 +53,38 @@ final class ProfileEditingViewModel {
         }
     }
     
-//    var authUserID: String {
-//        if let userID = try? AuthenticationManager.shared.getAuthenticatedUser().uid {
-//            return userID
+    var authUserID: String {
+        if let userID = try? AuthenticationManager.shared.getAuthenticatedUser().uid {
+            return userID
+        }
+        fatalError("user is missing")
+    }
+    
+//    func saveImageToStorage() {
+//        Task {
+//           let (path,name) = try await StorageManager.shared.saveUserImage(data: profilePhoto, userId: authUserID)
+//            profilePictureURL = name
+//            print("PATH AND NAME: ", path, name)
 //        }
 //    }
     
-    var profilePictureURL: String {
-        do {
-            let photoURL = try AuthenticationManager.shared.getAuthenticatedUser().photoURL
-            return photoURL!
-        } catch {
-            return "default_profile_photo"
-        }
+    
+    func saveImageToStorage() async throws {
+        let (_,name) = try await StorageManager.shared.saveUserImage(data: profilePhoto, userId: authUserID)
+        profilePictureURL = name
     }
     
-//    func saveEditedData() {
-//        UserManager.shared.updateUser(with: authUserID, usingName: name, profilePhotoURL: photo , complition: <#T##(ResposneStatus) -> Void#>)
-//    }
-    
-    //TODO: implement data saving in to db
-    
-    
+    func saveProfileData() {
+        UserManager.shared.updateUser(with: authUserID, usingName: name, profilePhotoURL: profilePictureURL, phoneNumber: phone, nickname: nickName) { [weak self] respons in
+            guard let self = self else {return}
+            
+            if respons == .success {
+                userDataToTransferBack?(name,phone,nickName,profilePhoto)
+                onSaveProfileData?()
+            }
+        }
+    }
+
     
     
 //    var name: ProfileEditingItems!

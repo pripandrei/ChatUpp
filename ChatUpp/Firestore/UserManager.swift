@@ -10,7 +10,7 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 
 
-enum ResposneStatus {
+enum ResponseStatus {
     case success
     case failed
 }
@@ -79,7 +79,7 @@ final class UserManager {
                     profilePhotoURL: String? = nil,
                     phoneNumber: String? = nil,
                     nickname: String? = nil,
-                    complition: @escaping (ResposneStatus) -> Void)
+                    complition: @escaping (ResponseStatus) -> Void)
     {
         var userData: [String: Any] = [
             DBUser.CodingKeys.name.rawValue : name

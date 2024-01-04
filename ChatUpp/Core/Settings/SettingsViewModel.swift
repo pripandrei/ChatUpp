@@ -9,7 +9,9 @@ import Foundation
 
 final class SettingsViewModel {
 
-    var userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
+    private(set) var userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
+    private(set) var dbUser: DBUser?
+    private(set) var imageData: Data?
     
     @objc func signOut() {
         do {
@@ -20,16 +22,23 @@ final class SettingsViewModel {
         }
     }
     
+    init() {
+        Task {
+            try await self.fetchUserFromDB()            
+        }
+    }
+
 //    var setProfileName: ((String) -> Void)?
     
     var onUserFetch: ((Data, String) -> Void)?
     
     func fetchUserFromDB() async throws {
         let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
-        let dbUser = try await UserManager.shared.getUserFromDB(userID: uderID.uid)
-        let imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser.photoUrl)
+        self.dbUser = try await UserManager.shared.getUserFromDB(userID: uderID.uid)
+//        self.imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
+        self.imageData = try await StorageManager.shared.getUserImage(userID: dbUser!.userId, path: dbUser!.photoUrl!)
         
-        onUserFetch?(imageData,dbUser.name!)
+        onUserFetch?(imageData!,dbUser!.name!)
     }
     
     var authUser: AuthDataResultModel? {

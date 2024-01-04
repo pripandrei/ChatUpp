@@ -15,12 +15,16 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     private let settingsViewModel = SettingsViewModel()
     private lazy var collectionView: UICollectionView = makeCollectionView()
     private lazy var dataSource: DataSource = makeDataSource()
+    private var collectionViewListHeader: CollectionViewListHeader?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionViewLayout()
         createSnapshot()
         setupBinder()
+        Task {
+           try await settingsViewModel.fetchUserFromDB()            
+        }
 //        setUpSignOutBtn()
 //        binding()
     }
@@ -116,18 +120,19 @@ extension SettingsViewController {
             cell.backgroundConfiguration = backgroundConfiguration
             cell.contentConfiguration = configuration
         }
-    
+        
         // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
-            
-//            supplementaryView.imageView.image = Utilities.defaultProfileImage
-//            supplementaryView.nameLabel.text = (self?.settingsViewModel.authUser != nil) ? self?.settingsViewModel.authUser?.name : nil
-            
             self?.settingsViewModel.onUserFetch = { imageData, name in
-                supplementaryView.nameLabel.text = name
-                supplementaryView.imageView.image = UIImage(data: imageData)
+                self?.collectionViewListHeader = supplementaryView
+                DispatchQueue.main.async {
+//                    AuthenticationManager.shared.modifyAuthUser(name: name)
+//                    print(Auth.auth().currentUser?.displayName)
+                    
+                    supplementaryView.nameLabel.text = name
+                    supplementaryView.imageView.image = UIImage(data: imageData)
+                }
             }
-            supplementaryView.setupNameConstraints()
         }
         
         // Data source initiation
@@ -165,10 +170,38 @@ extension SettingsViewController {
     }
     
     private func createprofileEditingViewModel() -> ProfileEditingViewModel {
-        guard let name = settingsViewModel.authUser?.name else {fatalError("Auth user is missing!")}
-        let phone = settingsViewModel.authUser?.phoneNumber
-        let nickName: String? = nil
-//        let profilePicture =
-        return ProfileEditingViewModel(name: name, phone: phone, nickName: nickName)
+        guard let user = settingsViewModel.dbUser else {fatalError("dbUser is missing")}
+        
+        let name = user.name!
+        let phone = user.phoneNumber
+        let nickName = user.nickname
+        guard let profilePicutre = settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
+        
+//        guard let name = settingsViewModel.authUser?.name else {fatalError("Auth user is missing!")}
+//        let phone = settingsViewModel.authUser?.phoneNumber
+//        let nickName: String? = nil
+////        let profilePicture =
+        var profileVM = ProfileEditingViewModel(name: name, phone: phone, nickName: nickName, profilePicutre: profilePicutre)
+        profileVM.userDataToTransferBack = { [weak self] name,phone,nickname,photo in
+            guard let self = self else {return}
+            
+            if let name = name {
+                collectionViewListHeader?.nameLabel.text = name
+            }
+            if let phone = phone {
+                collectionViewListHeader?.additionalCredentials.text = phone
+            }
+            if let nickname = nickname {
+                if let text = collectionViewListHeader?.additionalCredentials.text {
+                    collectionViewListHeader?.additionalCredentials.text = "\(text) \(nickname)"
+                } else {
+                    collectionViewListHeader?.additionalCredentials.text = nickname
+                }
+            }
+            if let photo = photo {
+                collectionViewListHeader?.imageView.image = UIImage(data: photo)
+            }
+        }
+        return profileVM
     }
 }

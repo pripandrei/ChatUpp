@@ -17,6 +17,7 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     convenience init(viewModel: ProfileEditingViewModel) {
         self.init()
         self.profileEditingViewModel = viewModel
+        self.setupBinding()
     }
 
     override func viewDidLoad() {
@@ -32,15 +33,20 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
         setupNavigationBarItems()
     }
     
+    //MARK: - BINDING
     
+    private func setupBinding() {
+        profileEditingViewModel.onSaveProfileData = { [weak self] in
+            self?.coordinatorDelegate.dismissEditProfileVC()
+        }
+    }
 //    override func viewWillAppear(_ animated: Bool) {
 //        super.viewWillAppear(animated)
 //        setupNavigationBarItems()
 //    }
     func setupNavigationBarItems() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(closeProfileVC))
-//        let img = UIImage(named: "appearance_icon")
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEditData))
     }
     
     @objc func closeProfileVC() {
@@ -48,7 +54,13 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     }
     
     @objc func saveEditData() {
+//        profileEditingViewModel.saveImageToStorage()
+//        profileEditingViewModel.saveProfileData()
         
+        Task {
+            try await profileEditingViewModel.saveImageToStorage()
+            profileEditingViewModel.saveProfileData()
+        }
     }
     
     private func makeCollectionView() -> UICollectionView {
@@ -93,7 +105,7 @@ extension ProfileEditingViewController {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ListCell", for: indexPath) as? CustomListCell else {fatalError("Could not deqeue CustomListCell")}
         
         cell.textField.placeholder = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
-        if  profileEditingViewModel.items[indexPath.item] != nil {
+        if profileEditingViewModel.items[indexPath.item] != nil {
             cell.textField.text = profileEditingViewModel.items[indexPath.item]
         }
         cell.onTextChanged = { text in
@@ -109,8 +121,7 @@ extension ProfileEditingViewController {
             withReuseIdentifier: "Header",
             for: indexPath) as? CollectionViewListHeader
         else {fatalError("Could not deqeue CollectionViewListHeader")}
-        headerCell.imageView.image = UIImage(named: "\(profileEditingViewModel.profilePictureURL)")
-//        headerCell.imageView.image = UIImage(data: profileEditingViewModel.pi)
+        headerCell.imageView.image = UIImage(data: profileEditingViewModel.profilePhoto)
         headerCell.setupNewPhotoConstraints()
         return headerCell
     }
