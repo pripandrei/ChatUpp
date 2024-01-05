@@ -129,7 +129,8 @@ extension SettingsViewController {
 //                    AuthenticationManager.shared.modifyAuthUser(name: name)
 //                    print(Auth.auth().currentUser?.displayName)
                     
-                    supplementaryView.setupAdditionalCredentialsConstraints()
+//                    -- supplementaryView.setupAdditionalCredentialsConstraints()
+                    
                     supplementaryView.nameLabel.text = name
                     supplementaryView.additionalCredentials.text = "\(phone ?? " ")\(nickname ?? "")"
 //                    supplementaryView.additionalCredentials.text = "number 23123"
