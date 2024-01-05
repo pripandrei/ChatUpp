@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import Photos
+import PhotosUI
 
 final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -13,6 +15,8 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     lazy var collectionView = makeCollectionView()
     
     var profileEditingViewModel: ProfileEditingViewModel!
+    
+    var headerCell: CollectionViewListHeader!
     
     convenience init(viewModel: ProfileEditingViewModel) {
         self.init()
@@ -54,21 +58,7 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     }
     
     @objc func saveEditedData() {
-//        profileEditingViewModel.saveImageToStorage()
-//        profileEditingViewModel.saveProfileData()
-        
         profileEditingViewModel.handleProfileDataUpdate()
-//        Task {
-//            try await profileEditingViewModel.saveImageToStorage()
-//            profileEditingViewModel.saveProfileData()
-//        }
-//        Task {
-//            try await profileEditingViewModel.saveImageToStorage()
-//            try await profileEditingViewModel.updateDBUser()
-//            let dbUser = try await profileEditingViewModel.fetchFreshUserFromDB()
-//            profileEditingViewModel.userDataToTransferBack2?(dbUser)
-//        }
-
     }
     
     private func makeCollectionView() -> UICollectionView {
@@ -123,14 +113,17 @@ extension ProfileEditingViewController {
     }
     
     
+    
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let headerCell = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
             withReuseIdentifier: "Header",
             for: indexPath) as? CollectionViewListHeader
         else {fatalError("Could not deqeue CollectionViewListHeader")}
+        self.headerCell = headerCell
         headerCell.imageView.image = UIImage(data: profileEditingViewModel.initialProfilePhoto)
         headerCell.setupNewPhotoConstraints()
+        addGestureToNewPhotoLabel()
         return headerCell
     }
 }
@@ -196,4 +189,51 @@ class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
 }
 
 
+// MARK: - PHOTO PICKER
 
+extension ProfileEditingViewController: PHPickerViewControllerDelegate {
+    
+    func addGestureToNewPhotoLabel() {
+        headerCell.newPhotoLabel.isUserInteractionEnabled = true
+        let tap = UITapGestureRecognizer(target: self, action: #selector(initiatePhotoPicker))
+        headerCell.newPhotoLabel.addGestureRecognizer(tap)
+    }
+    
+    @objc func initiatePhotoPicker() {
+        configurePhotoPicker()
+    }
+    
+    private func configurePhotoPicker() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 1
+        configuration.filter = .images
+        let pickerVC = PHPickerViewController(configuration: configuration)
+        pickerVC.delegate = self
+        present(pickerVC, animated: true)
+    }
+
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        results.forEach { result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                guard let image = reading as? UIImage, error == nil else {
+                    print("Could not read image!")
+                    return
+                }
+                
+                print(image)
+                guard let data = image.jpegData(compressionQuality: 0.5) else {return}
+                
+                self?.profileEditingViewModel.editedProfilePhoto = data
+                Task { @MainActor in
+                    self?.headerCell.imageView.image = image                    
+                }
+//                let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
+//                
+//                self?.handleMessageBubbleCreation()
+//                self?.conversationViewModel.handleImageDrop(imageData: data, size: imageSize)
+            }
+        }
+    }
+}

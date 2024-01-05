@@ -81,7 +81,7 @@ final class ProfileEditingViewModel {
                 let dbUser = try await fetchFreshUserFromDB()
                 
                 Task { @MainActor in
-                    userDataToTransferBack?(dbUser, initialProfilePhoto)
+                    userDataToTransferBack?(dbUser, editedProfilePhoto)
                     profileDataIsEdited.value = true
                 }
             } catch {
