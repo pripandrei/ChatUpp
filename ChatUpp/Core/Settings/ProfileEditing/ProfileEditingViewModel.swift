@@ -17,9 +17,6 @@ final class ProfileEditingViewModel {
     
     // initialeName in case user saves edits while name is empty,
     // the name will remain as it was at the beginning
-    private var name: String?
-    private var phone: String?
-    private var nickName: String?
     
     var initialProfilePhoto: Data
     var editedProfilePhoto: Data?
@@ -29,14 +26,17 @@ final class ProfileEditingViewModel {
     var profileDataIsEdited: ObservableObject<Bool?> = ObservableObject(nil)
     var userDataToTransferBack: ((DBUser, Data?) -> Void)?
     
-    var editItems: [String?] {
-        return [name,phone,nickName]
+    
+    private var userData: (name: String?, phone: String?, nickname: String?)
+    var userDataItems: [String?] {
+        let userDataMirror = Mirror(reflecting: userData)
+        return userDataMirror.children.map({ $0.value }) as! [String?]
     }
     
     init(dbUser: DBUser, profilePicutre: Data) {
-        self.name = dbUser.name!
-        self.phone = dbUser.phoneNumber
-        self.nickName = dbUser.nickname
+        self.userData.name = dbUser.name!
+        self.userData.phone = dbUser.phoneNumber
+        self.userData.nickname = dbUser.nickname
         self.initialProfilePhoto = profilePicutre
     }
 
@@ -45,13 +45,14 @@ final class ProfileEditingViewModel {
             return userID
         }
         fatalError("user is missing")
+        
     }
     
     func applyTitle(title: String, toItem item: Int) {
         switch item {
-        case 0: name = title.isEmpty ? nil : title
-        case 1: phone = title
-        case 2: nickName = title
+        case 0: userData.name = title.isEmpty ? nil : title
+        case 1: userData.phone = title
+        case 2: userData.nickname = title
         default:break
         }
     }
@@ -69,7 +70,7 @@ final class ProfileEditingViewModel {
     }
     
     private func updateDBUser() async throws {
-        try await UserManager.shared.updateUser2(with: authUserID, usingName: name, profilePhotoURL: profilePictureURL, phoneNumber: phone, nickname: nickName)
+        try await UserManager.shared.updateUser2(with: authUserID, usingName: userData.name, profilePhotoURL: profilePictureURL, phoneNumber: userData.phone, nickname: userData.nickname)
     }
     
     func handleProfileDataUpdate() {

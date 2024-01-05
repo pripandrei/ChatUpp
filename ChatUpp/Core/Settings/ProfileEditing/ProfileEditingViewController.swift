@@ -106,15 +106,15 @@ extension ProfileEditingViewController {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        profileEditingViewModel.editItems.count
+        profileEditingViewModel.userDataItems.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ListCell", for: indexPath) as? CustomListCell else {fatalError("Could not deqeue CustomListCell")}
         
         cell.textField.placeholder = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
-        if profileEditingViewModel.editItems[indexPath.item] != nil {
-            cell.textField.text = profileEditingViewModel.editItems[indexPath.item]
+        if profileEditingViewModel.userDataItems[indexPath.item] != nil {
+            cell.textField.text = profileEditingViewModel.userDataItems[indexPath.item]
         }
         cell.onTextChanged = { text in
             self.profileEditingViewModel.applyTitle(title: text, toItem: indexPath.item)
@@ -193,7 +193,7 @@ class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
         }
         return true
     }
-    
-    
 }
+
+
 
