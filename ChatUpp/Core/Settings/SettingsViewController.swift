@@ -123,6 +123,7 @@ extension SettingsViewController {
         
         // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
+            supplementaryView.setupAdditionalCredentialsConstraints()
             self?.settingsViewModel.onUserFetch = { name,phone,nickname,imageData in
                 self?.collectionViewListHeader = supplementaryView
                 DispatchQueue.main.async {
@@ -130,9 +131,8 @@ extension SettingsViewController {
 //                    print(Auth.auth().currentUser?.displayName)
                     
 //                    -- supplementaryView.setupAdditionalCredentialsConstraints()
-                    
                     supplementaryView.nameLabel.text = name
-                    supplementaryView.additionalCredentials.text = "\(phone ?? " ")\(nickname ?? "")"
+                    supplementaryView.additionalCredentials.text = "\(phone ?? "")\(nickname ?? "")"
 //                    supplementaryView.additionalCredentials.text = "number 23123"
                     if let image = imageData {
                         supplementaryView.imageView.image = UIImage(data: image)

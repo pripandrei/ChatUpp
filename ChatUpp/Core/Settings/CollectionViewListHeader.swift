@@ -11,33 +11,22 @@ import UIKit
 // This custom header is for both settings and profile editin VC's
 class CollectionViewListHeader: UICollectionViewListCell {
     
-    
-    let stackView = UIStackView()
-    
-    func configureStack() {
-        //        let stackView = UIStackView()
-        addSubview(stackView)
+    lazy var stackView: UIStackView = {
+        let stackView = UIStackView()
         stackView.axis = .vertical
         //        stackView.distribution = .fillEqually
-        stackView.spacing = 10
+//        stackView.spacing = 10
         stackView.alignment = .center
         
         stackView.addArrangedSubview(imageView)
         stackView.addArrangedSubview(nameLabel)
-
-        setupStackViewConstraints()
-    }
-    
-    func setupStackViewConstraints() {
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.setCustomSpacing(12, after: imageView)
+        stackView.setCustomSpacing(3, after: nameLabel)
         
-        NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-        ])
-    }
+        addSubview(stackView)
+    
+        return stackView
+    }()
     
     let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -57,16 +46,16 @@ class CollectionViewListHeader: UICollectionViewListCell {
     }()
     
     // Phone number and username
-    lazy var additionalCredentials: UILabel = {
+    let additionalCredentials: UILabel = {
         let name = UILabel()
         name.textAlignment = .center
         name.textColor = .white
-        name.font = UIFont(name: "Helvetica", size: 19)
+        name.font = UIFont(name: "Helvetica", size: 18)
         name.translatesAutoresizingMaskIntoConstraints = false
         return name
     }()
     
-    lazy var newPhotoLabel: UILabel = {
+    let newPhotoLabel: UILabel = {
         let name = UILabel()
         name.text = "Set New Photo"
         name.textAlignment = .center
@@ -79,9 +68,22 @@ class CollectionViewListHeader: UICollectionViewListCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        configureStack()
+        setupStackViewConstraints()
         setupImageConstraints()
         setupNameConstraints()
+//        setupAdditionalCredentialsConstraints()
+    }
+    
+    
+    func setupStackViewConstraints() {
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+//            stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
+//            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -25),
+        ])
     }
     
     func setupImageConstraints() {
@@ -100,16 +102,17 @@ class CollectionViewListHeader: UICollectionViewListCell {
     }
     
     func setupAdditionalCredentialsConstraints() {
-        addSubview(additionalCredentials)
+        stackView.addArrangedSubview(additionalCredentials)
+//        stackView.setCustomSpacing(45, after: additionalCredentials)
         
         NSLayoutConstraint.activate([
-            additionalCredentials.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
+//            additionalCredentials.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
             //            additionalCredentials.heightAnchor.constraint(equalToConstant: 110),
             //            additionalCredentials.widthAnchor.constraint(equalToConstant: 110),
             additionalCredentials.leadingAnchor.constraint(equalTo: leadingAnchor),
             additionalCredentials.trailingAnchor.constraint(equalTo: trailingAnchor),
-            additionalCredentials.centerXAnchor.constraint(equalTo: centerXAnchor),
-            additionalCredentials.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
+            additionalCredentials.heightAnchor.constraint(equalToConstant: 20),
+//            additionalCredentials.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20)
         ])
     }
     
