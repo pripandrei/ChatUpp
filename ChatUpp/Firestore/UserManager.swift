@@ -104,6 +104,31 @@ final class UserManager {
         }
     }
     
+    func updateUser2(with userID: String,
+                    usingName name: String?,
+                    profilePhotoURL: String? = nil,
+                    phoneNumber: String? = nil,
+                    nickname: String? = nil) async throws
+    {
+        var userData: [String: Any] = [:]
+//            DBUser.CodingKeys.name.rawValue : name
+//        ]
+        if let name = name {
+            userData[DBUser.CodingKeys.name.rawValue] = name
+        }
+        if let profilePhoto = profilePhotoURL {
+            userData[DBUser.CodingKeys.photoUrl.rawValue] = profilePhoto
+        }
+        if let phone = phoneNumber {
+            userData[DBUser.CodingKeys.phoneNumber.rawValue] = phone
+        }
+        if let username = nickname {
+            userData[DBUser.CodingKeys.nickname.rawValue] = username
+        }
+        
+        try await userDocument(userID: userID).setData(userData, merge: true)
+    }
+    
     // MARK: - GET USER FROM DB
     
 //    func getUserFromDB(userID: String, complition: @escaping (DBUser) -> Void) {

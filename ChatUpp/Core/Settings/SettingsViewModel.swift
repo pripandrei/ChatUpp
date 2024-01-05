@@ -10,7 +10,8 @@ import Foundation
 final class SettingsViewModel {
 
     private(set) var userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
-    private(set) var dbUser: DBUser?
+    
+    var dbUser: DBUser?
     private(set) var imageData: Data?
     var onUserFetch: ((_ name: String?,
                                 _ phone: String?,
@@ -30,6 +31,11 @@ final class SettingsViewModel {
         Task {
             try await self.fetchUserFromDB()
         }
+    }
+    
+    func updateUserData(_ dbUser: DBUser, _ photoData: Data?) {
+        self.dbUser = dbUser
+        self.imageData = photoData
     }
     
     func fetchUserFromDB() async throws {

@@ -127,13 +127,8 @@ extension SettingsViewController {
             self?.settingsViewModel.onUserFetch = { name,phone,nickname,imageData in
                 self?.collectionViewListHeader = supplementaryView
                 DispatchQueue.main.async {
-//                    AuthenticationManager.shared.modifyAuthUser(name: name)
-//                    print(Auth.auth().currentUser?.displayName)
-                    
-//                    -- supplementaryView.setupAdditionalCredentialsConstraints()
                     supplementaryView.nameLabel.text = name
-                    supplementaryView.additionalCredentials.text = "\(phone ?? "")\(nickname ?? "")"
-//                    supplementaryView.additionalCredentials.text = "number 23123"
+                    supplementaryView.additionalCredentials.text = "\(phone ?? "") \u{25CF} \(nickname ?? "")"
                     if let image = imageData {
                         supplementaryView.imageView.image = UIImage(data: image)
                     }
@@ -177,35 +172,35 @@ extension SettingsViewController {
     
     private func createprofileEditingViewModel() -> ProfileEditingViewModel {
         guard let user = settingsViewModel.dbUser else {fatalError("dbUser is missing")}
-        
-        let name = user.name!
-        let phone = user.phoneNumber
-        let nickName = user.nickname
+ 
         guard let profilePicutre = settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
+
+        // TODO: REMEMBER, THIS NEEDS TO BE REFACTORED.
+        // APP WILL CRASH IF TRY TO OPEN EDIT VC BEFORE FETCHING IS DONE
         
-//        guard let name = settingsViewModel.authUser?.name else {fatalError("Auth user is missing!")}
-//        let phone = settingsViewModel.authUser?.phoneNumber
-//        let nickName: String? = nil
-////        let profilePicture =
-        var profileVM = ProfileEditingViewModel(name: name, phone: phone, nickName: nickName, profilePicutre: profilePicutre)
-        profileVM.userDataToTransferBack = { [weak self] name,phone,nickname,photo in
+        let profileVM = ProfileEditingViewModel(dbUser: user, profilePicutre: profilePicutre)
+        
+        profileVM.userDataToTransferBack = { [weak self] dbUser, photoData in
             guard let self = self else {return}
             
-            if let name = name {
-                collectionViewListHeader?.nameLabel.text = name
+            settingsViewModel.updateUserData(dbUser,photoData)
+            
+            if let name = dbUser.name {
+                self.collectionViewListHeader?.nameLabel.text = name
             }
-            if let phone = phone {
-                collectionViewListHeader?.additionalCredentials.text = phone
+            if let phone = dbUser.phoneNumber {
+                self.collectionViewListHeader?.additionalCredentials.text = phone
             }
-            if let nickname = nickname {
-                if let text = collectionViewListHeader?.additionalCredentials.text {
-                    collectionViewListHeader?.additionalCredentials.text = "\(text) \(nickname)"
+            if let nickname = dbUser.nickname {
+                if let text = self.collectionViewListHeader?.additionalCredentials.text {
+                    self.collectionViewListHeader?.additionalCredentials.text = "\(text) \(nickname)"
                 } else {
-                    collectionViewListHeader?.additionalCredentials.text = nickname
+                    self.collectionViewListHeader?.additionalCredentials.text = nickname
                 }
             }
-            if let photo = photo {
-                collectionViewListHeader?.imageView.image = UIImage(data: photo)
+            if let photo = photoData {
+                self.collectionViewListHeader?.imageView.image = UIImage(data: photo)
+                
             }
         }
         return profileVM

@@ -36,9 +36,9 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     //MARK: - BINDING
     
     private func setupBinding() {
-        profileEditingViewModel.onSaveProfileData = { [weak self] in
+        profileEditingViewModel.profileDataIsEdited.bind({ [weak self] isEdited in
             self?.coordinatorDelegate.dismissEditProfileVC()
-        }
+        })
     }
 //    override func viewWillAppear(_ animated: Bool) {
 //        super.viewWillAppear(animated)
@@ -46,21 +46,29 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
 //    }
     func setupNavigationBarItems() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEditData))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEditedData))
     }
     
     @objc func closeProfileVC() {
         coordinatorDelegate.dismissEditProfileVC()
     }
     
-    @objc func saveEditData() {
+    @objc func saveEditedData() {
 //        profileEditingViewModel.saveImageToStorage()
 //        profileEditingViewModel.saveProfileData()
         
-        Task {
-            try await profileEditingViewModel.saveImageToStorage()
-            profileEditingViewModel.saveProfileData()
-        }
+        profileEditingViewModel.handleProfileDataUpdate()
+//        Task {
+//            try await profileEditingViewModel.saveImageToStorage()
+//            profileEditingViewModel.saveProfileData()
+//        }
+//        Task {
+//            try await profileEditingViewModel.saveImageToStorage()
+//            try await profileEditingViewModel.updateDBUser()
+//            let dbUser = try await profileEditingViewModel.fetchFreshUserFromDB()
+//            profileEditingViewModel.userDataToTransferBack2?(dbUser)
+//        }
+
     }
     
     private func makeCollectionView() -> UICollectionView {
@@ -98,15 +106,15 @@ extension ProfileEditingViewController {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        profileEditingViewModel.items.count
+        profileEditingViewModel.editItems.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ListCell", for: indexPath) as? CustomListCell else {fatalError("Could not deqeue CustomListCell")}
         
         cell.textField.placeholder = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
-        if profileEditingViewModel.items[indexPath.item] != nil {
-            cell.textField.text = profileEditingViewModel.items[indexPath.item]
+        if profileEditingViewModel.editItems[indexPath.item] != nil {
+            cell.textField.text = profileEditingViewModel.editItems[indexPath.item]
         }
         cell.onTextChanged = { text in
             self.profileEditingViewModel.applyTitle(title: text, toItem: indexPath.item)
@@ -121,7 +129,7 @@ extension ProfileEditingViewController {
             withReuseIdentifier: "Header",
             for: indexPath) as? CollectionViewListHeader
         else {fatalError("Could not deqeue CollectionViewListHeader")}
-        headerCell.imageView.image = UIImage(data: profileEditingViewModel.profilePhoto)
+        headerCell.imageView.image = UIImage(data: profileEditingViewModel.initialProfilePhoto)
         headerCell.setupNewPhotoConstraints()
         return headerCell
     }

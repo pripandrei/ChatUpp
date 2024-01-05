@@ -17,42 +17,29 @@ final class ProfileEditingViewModel {
     
     // initialeName in case user saves edits while name is empty,
     // the name will remain as it was at the beginning
-    private let initialeName: String
-    
-    private var name: String
+    private var name: String?
     private var phone: String?
     private var nickName: String?
     
-    var profilePhoto: Data
+    var initialProfilePhoto: Data
+    var editedProfilePhoto: Data?
     
     private var profilePictureURL: String?
-    var onSaveProfileData: (() -> Void)?
-    var userDataToTransferBack: ((_ name: String?,
-                                _ phone: String?,
-                                _ nickname: String?,
-                                _ profilePhoto: Data?) -> Void)?
     
-    var items: [String?] {
+    var profileDataIsEdited: ObservableObject<Bool?> = ObservableObject(nil)
+    var userDataToTransferBack: ((DBUser, Data?) -> Void)?
+    
+    var editItems: [String?] {
         return [name,phone,nickName]
     }
     
-    init(name: String, phone: String?, nickName: String?, profilePicutre: Data) {
-        self.name = name
-        self.phone = phone
-        self.nickName = nickName
-        self.profilePhoto = profilePicutre
-        self.initialeName = name
+    init(dbUser: DBUser, profilePicutre: Data) {
+        self.name = dbUser.name!
+        self.phone = dbUser.phoneNumber
+        self.nickName = dbUser.nickname
+        self.initialProfilePhoto = profilePicutre
     }
-    
-    func applyTitle(title: String, toItem item: Int) {
-        switch item {
-        case 0: name = title.isEmpty ? initialeName : title
-        case 1: phone = title.isEmpty ? nil : title
-        case 2: nickName = title.isEmpty ? nil : title
-        default:break
-        }
-    }
-    
+
     var authUserID: String {
         if let userID = try? AuthenticationManager.shared.getAuthenticatedUser().uid {
             return userID
@@ -60,31 +47,60 @@ final class ProfileEditingViewModel {
         fatalError("user is missing")
     }
     
-//    func saveImageToStorage() {
-//        Task {
-//           let (path,name) = try await StorageManager.shared.saveUserImage(data: profilePhoto, userId: authUserID)
-//            profilePictureURL = name
-//            print("PATH AND NAME: ", path, name)
-//        }
-//    }
-    
-    
-    func saveImageToStorage() async throws {
-        let (_,name) = try await StorageManager.shared.saveUserImage(data: profilePhoto, userId: authUserID)
-        profilePictureURL = name
+    func applyTitle(title: String, toItem item: Int) {
+        switch item {
+        case 0: name = title.isEmpty ? nil : title
+        case 1: phone = title
+        case 2: nickName = title
+        default:break
+        }
     }
     
-    func saveProfileData() {
-        UserManager.shared.updateUser(with: authUserID, usingName: name, profilePhotoURL: profilePictureURL, phoneNumber: phone, nickname: nickName) { [weak self] respons in
-            guard let self = self else {return}
-            
-            if respons == .success {
-                userDataToTransferBack?(name,phone,nickName,profilePhoto)
-                onSaveProfileData?()
+    private func saveImageToStorage() async throws {
+        if let editedPhoto = editedProfilePhoto {
+            let (_,name) = try await StorageManager.shared.saveUserImage(data: editedPhoto, userId: authUserID)
+            profilePictureURL = name
+        }
+    }
+    
+    private func fetchFreshUserFromDB() async throws -> DBUser {
+        let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
+        return try await UserManager.shared.getUserFromDB(userID: uderID.uid)
+    }
+    
+    private func updateDBUser() async throws {
+        try await UserManager.shared.updateUser2(with: authUserID, usingName: name, profilePhotoURL: profilePictureURL, phoneNumber: phone, nickname: nickName)
+    }
+    
+    func handleProfileDataUpdate() {
+        Task {
+            do {
+                try await saveImageToStorage()
+                try await updateDBUser()
+                let dbUser = try await fetchFreshUserFromDB()
+                
+                Task { @MainActor in
+                    userDataToTransferBack?(dbUser, initialProfilePhoto)
+                    profileDataIsEdited.value = true
+                }
+            } catch {
+                print("Error occurred while updating user data: ", error)
             }
         }
     }
-
+    
+    
+//    func saveProfileData() {
+//        UserManager.shared.updateUser(with: authUserID, usingName: name, profilePhotoURL: profilePictureURL, phoneNumber: phone, nickname: nickName) { [weak self] respons in
+//            guard let self = self else {return}
+//
+//            if respons == .success {
+//                userDataToTransferBack?(name,phone,nickName,profilePhoto)
+//                onSaveProfileData?()
+//            }
+//        }
+//    }
+    
     
     
 //    var name: ProfileEditingItems!
