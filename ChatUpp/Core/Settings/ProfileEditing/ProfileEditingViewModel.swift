@@ -24,7 +24,7 @@ final class ProfileEditingViewModel {
     private var profilePictureURL: String?
     
     var profileDataIsEdited: ObservableObject<Bool?> = ObservableObject(nil)
-    var userDataToTransferBack: ((DBUser, Data?) -> Void)?
+    var userDataToTransferOnSave: ((DBUser, Data?) -> Void)?
     
     
     private var userData: (name: String?, phone: String?, nickname: String?)
@@ -81,7 +81,7 @@ final class ProfileEditingViewModel {
                 let dbUser = try await fetchFreshUserFromDB()
                 
                 Task { @MainActor in
-                    userDataToTransferBack?(dbUser, editedProfilePhoto)
+                    userDataToTransferOnSave?(dbUser, editedProfilePhoto)
                     profileDataIsEdited.value = true
                 }
             } catch {

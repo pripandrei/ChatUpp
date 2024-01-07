@@ -18,6 +18,12 @@ final class SettingsViewModel {
                                 _ nickname: String?,
                                 _ profilePhoto: Data?) -> Void)?
     
+    init() {
+        Task {
+            try await self.fetchUserFromDB()
+        }
+    }
+    
     @objc func signOut() {
         do {
             try AuthenticationManager.shared.signOut()
@@ -27,15 +33,10 @@ final class SettingsViewModel {
         }
     }
     
-    init() {
-        Task {
-            try await self.fetchUserFromDB()
-        }
-    }
-    
     func updateUserData(_ dbUser: DBUser, _ photoData: Data?) {
         self.dbUser = dbUser
-        self.imageData = photoData
+        guard let photo = photoData else {return}
+        self.imageData = photo
     }
     
     func fetchUserFromDB() async throws {

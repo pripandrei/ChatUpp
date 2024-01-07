@@ -180,7 +180,7 @@ extension SettingsViewController {
         
         let profileVM = ProfileEditingViewModel(dbUser: user, profilePicutre: profilePicutre)
         
-        profileVM.userDataToTransferBack = { [weak self] dbUser, photoData in
+        profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in
             guard let self = self else {return}
             
             settingsViewModel.updateUserData(dbUser,photoData)
