@@ -68,6 +68,10 @@ final class StorageManager {
         return (returnedPath, returnedName)
     }
     
+    func deleteProfileImage(ofUser userID: String, path: String) async throws {
+        try await userReference(userID: userID).child(path).delete()
+    }
+    
 //    func saveImage(data: Data, userId: String) async throws -> (path: String, name: String) {
 //        let meta = StorageMetadata()
 //        meta.contentType = "image/jpeg"

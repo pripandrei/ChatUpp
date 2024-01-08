@@ -14,10 +14,7 @@ final class ProfileEditingViewModel {
         case phone = "ex. +37376445934"
         case username = "username"
     }
-    
-    // initialeName in case user saves edits while name is empty,
-    // the name will remain as it was at the beginning
-    
+
     var initialProfilePhoto: Data
     var editedProfilePhoto: Data?
     
@@ -40,12 +37,18 @@ final class ProfileEditingViewModel {
         self.initialProfilePhoto = profilePicutre
     }
 
-    var authUserID: String {
-        if let userID = try? AuthenticationManager.shared.getAuthenticatedUser().uid {
-            return userID
+//    private var authUserID: String {
+//        if let userID = try? AuthenticationManager.shared.getAuthenticatedUser().uid {
+//            return userID
+//        }
+//        fatalError("user is missing")
+//    }
+    
+    private var authUser: AuthDataResultModel {
+        if let user = try? AuthenticationManager.shared.getAuthenticatedUser() {
+            return user
         }
         fatalError("user is missing")
-        
     }
     
     func applyTitle(title: String, toItem item: Int) {
@@ -59,18 +62,21 @@ final class ProfileEditingViewModel {
     
     private func saveImageToStorage() async throws {
         if let editedPhoto = editedProfilePhoto {
-            let (_,name) = try await StorageManager.shared.saveUserImage(data: editedPhoto, userId: authUserID)
+            let (_,name) = try await StorageManager.shared.saveUserImage(data: editedPhoto, userId: authUser.uid)
+            if let photoURL = authUser.photoURL {
+                try await removeProfileImage(ofUser: authUser.uid, urlPath: photoURL)
+            }
             profilePictureURL = name
         }
     }
     
     private func fetchFreshUserFromDB() async throws -> DBUser {
-        let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
-        return try await UserManager.shared.getUserFromDB(userID: uderID.uid)
+//        let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
+        return try await UserManager.shared.getUserFromDB(userID: authUser.uid)
     }
     
     private func updateDBUser() async throws {
-        try await UserManager.shared.updateUser(with: authUserID, usingName: userData.name, profilePhotoURL: profilePictureURL, phoneNumber: userData.phone, nickname: userData.nickname)
+        try await UserManager.shared.updateUser(with: authUser.uid, usingName: authUser.name, profilePhotoURL: profilePictureURL, phoneNumber: userData.phone, nickname: userData.nickname)
     }
     
     func handleProfileDataUpdate() {
@@ -79,6 +85,7 @@ final class ProfileEditingViewModel {
                 try await saveImageToStorage()
                 try await updateDBUser()
                 let dbUser = try await fetchFreshUserFromDB()
+                updateAuthUser(with: dbUser)
                 
                 Task { @MainActor in
                     userDataToTransferOnSave?(dbUser, editedProfilePhoto)
@@ -90,6 +97,17 @@ final class ProfileEditingViewModel {
         }
     }
     
+    private func updateAuthUser(with dbUser: DBUser) {
+        AuthenticationManager.shared.updateAuthUserData(name: dbUser.name, phoneNumber: dbUser.phoneNumber, photoURL: dbUser.photoUrl)
+    }
+    
+    private func removeProfileImage(ofUser userID: String, urlPath: String) async throws {
+//        do {
+            try await StorageManager.shared.deleteProfileImage(ofUser: userID, path: urlPath)
+//        } catch {
+//
+//        }
+    }
     
 //    func saveProfileData() {
 //        UserManager.shared.updateUser(with: authUserID, usingName: name, profilePhotoURL: profilePictureURL, phoneNumber: phone, nickname: nickName) { [weak self] respons in
@@ -132,7 +150,7 @@ final class ProfileEditingViewModel {
 }
 
 
-
+//MARK: - Profile Model
 enum ProfileEditingItems {
     case name(String)
     case phone(String)

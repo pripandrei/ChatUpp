@@ -56,8 +56,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     }
     
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
-//        print(imageAttachment.image)
-        print(imageAttachment.bounds.size)
         defer {
             handleMessageBubbleLayout()
         }

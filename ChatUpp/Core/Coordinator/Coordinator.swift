@@ -86,7 +86,6 @@ class MainCoordinator: Coordinator {
 
         self.resetWindowRoot()
         presentLogInForm()
-        print("se")
     }
     
     private func resetWindowRoot() {

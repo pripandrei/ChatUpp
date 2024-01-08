@@ -25,7 +25,6 @@ struct AuthDataResultModel {
     let photoURL: String?
     let name: String?
     let phoneNumber: String?
-//    let phoneNumber: String?
     
     init(user: User) {
         self.uid = user.uid
@@ -46,9 +45,6 @@ final class AuthenticationManager
     
     @discardableResult
     func getAuthenticatedUser() throws -> AuthDataResultModel {
-//        let change = Auth.auth().currentUser?.createProfileChangeRequest()
-//        change?.displayName = "Anatolii Andreevici"
-//        change?.commitChanges()
         if let user = Auth.auth().currentUser {
             return AuthDataResultModel(user: user)
         }
@@ -57,13 +53,21 @@ final class AuthenticationManager
     
     //TEMP function until local DB is not implemented
     
-    func modifyAuthUser(name: String) {
-        
-//        let url = URL(string: urlString)
-        
+//    func updateAuthUserPhone(_ phone: String) {
+//
+//        Auth.auth().currentUser?.updatePhoneNumber(<#T##phoneNumberCredential: PhoneAuthCredential##PhoneAuthCredential#>)
+//    }
+    
+    
+    //TODO: implement phone update functionality
+    func updateAuthUserData(name: String?, phoneNumber: String?, photoURL: String?) {
         let profile = Auth.auth().currentUser?.createProfileChangeRequest()
         profile?.displayName = name
-//        profile?.photoURL = url
+        
+        if let photoURL = photoURL {
+            let url = URL(string: photoURL)
+            profile?.photoURL = url
+        }
         profile?.commitChanges()
     }
     

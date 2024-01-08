@@ -43,16 +43,4 @@ final class PhoneSignInViewModel {
         let verificationID = try await AuthenticationManager.shared.sendSMSToPhone(number: number)
         defaults.set(verificationID, forKey: verificationIDKey)
     }
-    
-    
-    //    func sendSmsToPhoneNumber(_ number: String) {
-    //        Task {
-    //            do {
-    //                let verificationID = try await AuthenticationManager.shared.sendSMSToPhone(number: number)
-    //                defaults.set(verificationID, forKey: verificationIDKey)
-    //            } catch {
-    //                print("error sending sms to phone number: ", error.localizedDescription)
-    //            }
-    //        }
-    //    }
 }

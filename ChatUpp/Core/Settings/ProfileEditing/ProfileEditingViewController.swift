@@ -112,8 +112,6 @@ extension ProfileEditingViewController {
         return cell
     }
     
-    
-    
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let headerCell = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
@@ -146,7 +144,6 @@ class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
     override init(frame: CGRect) {
         super.init(frame: frame)
         textField = makeTextField()
-        
     }
 
     required init?(coder: NSCoder) {
@@ -167,15 +164,7 @@ class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
         
         return textfield
     }
-    
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-//        if let text = textField.text, !text.isEmpty {
-//            onTextChanged?(textField.text ?? "")
-//        }
-    }
-    
-    
+
     func textField(_ textField: UITextField,
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool
