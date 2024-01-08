@@ -18,7 +18,6 @@ enum AuthenticationStatus: Error {
 
 //MARK: - Authentication result model
 
-//ADD DATE CREATED!!
 struct AuthDataResultModel {
     let uid: String
     let email: String?
@@ -58,7 +57,6 @@ final class AuthenticationManager
 //        Auth.auth().currentUser?.updatePhoneNumber(<#T##phoneNumberCredential: PhoneAuthCredential##PhoneAuthCredential#>)
 //    }
     
-    
     //TODO: implement phone update functionality
     func updateAuthUserData(name: String?, phoneNumber: String?, photoURL: String?) {
         let profile = Auth.auth().currentUser?.createProfileChangeRequest()
@@ -70,8 +68,6 @@ final class AuthenticationManager
         }
         profile?.commitChanges()
     }
-    
-    
     
     func signOut() throws  {
         try Auth.auth().signOut()
