@@ -221,18 +221,12 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
                     print("Could not read image!")
                     return
                 }
-                
-                print(image)
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
                 self?.profileEditingViewModel.editedProfilePhoto = data
                 Task { @MainActor in
                     self?.headerCell.imageView.image = image                    
                 }
-//                let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
-//                
-//                self?.handleMessageBubbleCreation()
-//                self?.conversationViewModel.handleImageDrop(imageData: data, size: imageSize)
             }
         }
     }
