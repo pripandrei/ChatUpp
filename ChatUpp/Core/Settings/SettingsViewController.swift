@@ -135,16 +135,6 @@ extension SettingsViewController {
             if let image = self?.settingsViewModel.imageData {
                 supplementaryView.imageView.image = UIImage(data: image)
             }
-            
-//            self?.settingsViewModel.updateUserData = { name,phone,nickname,imageData in
-//                DispatchQueue.main.async {
-//                    supplementaryView.nameLabel.text = name
-//                    supplementaryView.additionalCredentials.text = "\(phone ?? "") \u{25CF} \(nickname ?? "")"
-//                    if let image = imageData {
-//                        supplementaryView.imageView.image = UIImage(data: image)
-//                    }
-//                }
-//            }
         }
         
         // Data source initiation
@@ -216,6 +206,6 @@ extension SettingsViewController {
 }
 
 
-final class SettingsDataSource: UICollectionViewDiffableDataSource<Int, SettingsItem> {
-    
-}
+//final class SettingsDataSource: UICollectionViewDiffableDataSource<Int, SettingsItem> {
+//    
+//}

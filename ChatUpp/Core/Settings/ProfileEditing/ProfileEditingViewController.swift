@@ -31,9 +31,17 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
 //        navigationController?.setNavigationBarHidden(true, animated: false)
         
         configureCollectionViewLayout()
-        collectionView.register(CustomListCell.self, forCellWithReuseIdentifier: "ListCell")
-        collectionView.register(CollectionViewListHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "Header")
-        Utilities.adjustNavigationBarAppearance()
+        registerCells()
+        setupNavigationBar()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        Utilities.setupNavigationBarAppearance()
+    }
+    
+    private func setupNavigationBar() {
+        Utilities.clearNavigationBarAppearance()
         setupNavigationBarItems()
     }
     
@@ -44,11 +52,8 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
             self?.coordinatorDelegate.dismissEditProfileVC()
         })
     }
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        setupNavigationBarItems()
-//    }
-    func setupNavigationBarItems() {
+
+    private func setupNavigationBarItems() {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEditedData))
     }
@@ -86,6 +91,11 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
     }
+    
+    private func registerCells() {
+        collectionView.register(CustomListCell.self, forCellWithReuseIdentifier: "ListCell")
+        collectionView.register(CollectionViewListHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "Header")
+    }
 }
 
 //MARK: - COLLECTION VIEW DELEGATE
@@ -117,7 +127,9 @@ extension ProfileEditingViewController {
             ofKind: kind,
             withReuseIdentifier: "Header",
             for: indexPath) as? CollectionViewListHeader
-        else {fatalError("Could not deqeue CollectionViewListHeader")}
+        else {
+            fatalError("Could not deqeue CollectionViewListHeader")
+        }
         self.headerCell = headerCell
         headerCell.imageView.image = UIImage(data: profileEditingViewModel.initialProfilePhoto)
         headerCell.setupNewPhotoConstraints()

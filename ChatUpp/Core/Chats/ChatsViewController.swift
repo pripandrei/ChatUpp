@@ -72,15 +72,6 @@ class ChatsViewController: UIViewController {
                     self?.tableView.reloadData()
                 }
         }
-//        chatsViewModel.isUserLoggedOut.bind { [weak self] isSignedOut in
-//            if isSignedOut == true {
-//                self?.coordinatorDelegate?.presentLogInForm()
-//            }
-//            else {
-//                self?.chatsViewModel.reloadChatsCellData()
-//                self?.shouldValidateUserAuthentication = false
-//            }
-//        }
     }
     
     func setupSearchController() {

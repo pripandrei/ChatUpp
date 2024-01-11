@@ -41,6 +41,7 @@ struct Utilities {
         return nil
     }
     
+    // Set color to Navigation Bar
     static public func setupNavigationBarAppearance() {
         if #available(iOS 13.0, *) {
             let appearance = UINavigationBarAppearance()
@@ -59,7 +60,8 @@ struct Utilities {
         }
     }
     
-    static public func adjustNavigationBarAppearance() {
+    // Adjust Navigation Bar color to be clear
+    static public func clearNavigationBarAppearance() {
         let appearance = UINavigationBarAppearance()
         appearance.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         appearance.shadowColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
