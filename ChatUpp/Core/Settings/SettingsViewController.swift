@@ -26,30 +26,12 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         super.viewDidLoad()
         configureCollectionViewLayout()
         createSnapshot()
-        setupBinder()
-//        Task {
-//           try await settingsViewModel.fetchUserFromDB()
-//        }
-        
-//        setUpSignOutBtn()
-//        binding()
     }
-    
-    
     
     convenience init() {
         self.init(nibName: nil, bundle: nil)
         self.setupBinder()
     }
-//
-//    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-//        super.init(nibName: nil, bundle: nil)
-//        self.setupBinder()
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        super.init(coder: coder)
-//    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -78,18 +60,9 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             }
         }
         settingsViewModel.onUserFetched = { [weak self] in
-//            Task { @MainActor in
-//                self?.dataSource = self?.makeDataSource()
-                self?.shouldEnableInteractionOnSelf = true
-//            }
+            self?.shouldEnableInteractionOnSelf = true
         }
     }
-
-    //    func binding() {
-    //        settingsViewModel.setProfileName = { [weak self] name in
-    ////            self?.tempLabelName.text = name
-    //        }
-    //    }
 }
 
 // MARK: - SETUP UI
@@ -213,9 +186,6 @@ extension SettingsViewController {
  
         guard let profilePicutre = settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
 
-        // TODO: REMEMBER, THIS NEEDS TO BE REFACTORED.
-        // APP WILL CRASH IF TRY TO OPEN EDIT VC BEFORE FETCHING IS DONE
-        
         let profileVM = ProfileEditingViewModel(dbUser: user, profilePicutre: profilePicutre)
         
         profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in

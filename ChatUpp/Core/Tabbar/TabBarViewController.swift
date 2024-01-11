@@ -35,21 +35,14 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         viewControllers = [chatsNavigationController!,settingsNavigationController!]
         
         tabBar.isHidden = false
-//        settingsVC?.setupBinder()
+        
         setupTabarAppearance()
-//        if let settingsItem = tabBar.items?.last {
-//            settingsItem.isEnabled = false
-//        }
     }
     
     func setupTabarAppearance() {
         let tabBarAppearance = UITabBarAppearance()
         let tabBarItemAppearance = UITabBarItemAppearance()
-        
-//        guard let customFont = UIFont(name: "HelveticaNeue-Bold", size: 10) else  {
-//            return
-//        }
-    
+
         tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.9)
         tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)]
         tabBarItemAppearance.selected.iconColor = #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)
@@ -73,20 +66,14 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         }
     }
     
-    
-//    private var shouldEnableSecondItem: Bool = false
-    
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         if let navcontroller = viewController as? UINavigationController,
            let settingsVC = navcontroller.viewControllers.first as? SettingsViewController,
-           settingsVC.shouldEnableInteractionOnSelf {
-            return true
-        }
+           settingsVC.shouldEnableInteractionOnSelf { return true }
+        
         if let navcontroller = viewController as? UINavigationController,
-           navcontroller.viewControllers.first is ChatsViewController
-        {
-            return true
-        }
+           navcontroller.viewControllers.first is ChatsViewController { return true }
+        
         return false
     }
     
