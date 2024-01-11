@@ -25,7 +25,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     func setupTabBarController() {
         chatsVC = ChatsViewController()
         settingsVC = SettingsViewController()
-    
+
         chatsNavigationController = UINavigationController(rootViewController: chatsVC!)
         settingsNavigationController = UINavigationController(rootViewController: settingsVC!)
         
@@ -35,7 +35,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         viewControllers = [chatsNavigationController!,settingsNavigationController!]
         
         tabBar.isHidden = false
-        
+//        settingsVC?.setupBinder()
         setupTabarAppearance()
 //        if let settingsItem = tabBar.items?.last {
 //            settingsItem.isEnabled = false
@@ -49,17 +49,15 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
 //        guard let customFont = UIFont(name: "HelveticaNeue-Bold", size: 10) else  {
 //            return
 //        }
-//
-        var cusstomFont = (UIFont(name: "HelveticaNeue-Bold", size: 10) != nil) ? UIFont(name: "HelveticaNeue-Bold", size: 10) : UIFont.systemFont(ofSize: 10, weight: .bold)
+    
         tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.9)
         tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)]
         tabBarItemAppearance.selected.iconColor = #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)
         tabBarItemAppearance.normal.iconColor = #colorLiteral(red: 0.4879326224, green: 0.617406249, blue: 0.6558095217, alpha: 1)
-        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.4879326224, green: 0.617406249, blue: 0.6558095217, alpha: 1)]
-        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .bold)]
+        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.4879326224, green: 0.617406249, blue: 0.6558095217, alpha:  1), NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
+
         tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
         
-//     #colorLiteral(red: 0.4879326224, green: 0.617406249, blue: 0.6558095217, alpha: 1)
         addTabbarIcons()
         
         tabBar.standardAppearance = tabBarAppearance
@@ -76,12 +74,24 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     }
     
     
-    private var shouldEnableSecondItem: Bool = false
+//    private var shouldEnableSecondItem: Bool = false
     
 //    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-//        if shouldEnableSecondItem {
+//        if let navcontroller = viewController as? UINavigationController,
+//           let settingsVC = navcontroller.viewControllers.first as? SettingsViewController,
+//           settingsVC.shouldEnableInteractionOnSelf {
+////            if settingsVC.shouldEnableInteractionOnSelf {
+//                return true
+////            }
+//        }
+//        if let navcontroller = viewController as? UINavigationController,
+//           let chatVC = navcontroller.viewControllers.first as? ChatsViewController
+//        {
 //            return true
 //        }
+////        if shouldEnableSecondItem {
+////            return true
+////        }
 //        return false
 //    }
     

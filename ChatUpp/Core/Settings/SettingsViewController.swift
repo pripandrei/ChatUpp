@@ -17,14 +17,17 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     private lazy var dataSource: DataSource = makeDataSource()
     private var collectionViewListHeader: CollectionViewListHeader?
     
+    
+    var shouldEnableInteractionOnSelf = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureCollectionViewLayout()
         createSnapshot()
         setupBinder()
-        Task {
-           try await settingsViewModel.fetchUserFromDB()            
-        }
+//        Task {
+//           try await settingsViewModel.fetchUserFromDB()
+//        }
         
 //        setUpSignOutBtn()
 //        binding()
@@ -57,9 +60,10 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
             }
         }
         settingsViewModel.onUserFetched = { [weak self] in
-            Task { @MainActor in
+//            Task { @MainActor in
 //                self?.dataSource = self?.makeDataSource()
-            }
+                self?.shouldEnableInteractionOnSelf = true
+//            }
         }
     }
 
@@ -84,6 +88,7 @@ extension SettingsViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
     }
+    
 }
 
 //MARK: - SETTINGS COLLECTION VIEW
@@ -130,16 +135,25 @@ extension SettingsViewController {
         // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
             supplementaryView.setupAdditionalCredentialsConstraints()
-            self?.settingsViewModel.updateUserData = { name,phone,nickname,imageData in
-                self?.collectionViewListHeader = supplementaryView
-                DispatchQueue.main.async {
-                    supplementaryView.nameLabel.text = name
-                    supplementaryView.additionalCredentials.text = "\(phone ?? "") \u{25CF} \(nickname ?? "")"
-                    if let image = imageData {
-                        supplementaryView.imageView.image = UIImage(data: image)
-                    }
-                }
+            self?.collectionViewListHeader = supplementaryView
+            
+            guard let user = self?.settingsViewModel.dbUser else {return}
+            
+            supplementaryView.nameLabel.text = user.name
+            supplementaryView.additionalCredentials.text = "\(user.phoneNumber ?? "") \u{25CF} \(user.nickname ?? "")"
+            if let image = self?.settingsViewModel.imageData {
+                supplementaryView.imageView.image = UIImage(data: image)
             }
+            
+//            self?.settingsViewModel.updateUserData = { name,phone,nickname,imageData in
+//                DispatchQueue.main.async {
+//                    supplementaryView.nameLabel.text = name
+//                    supplementaryView.additionalCredentials.text = "\(phone ?? "") \u{25CF} \(nickname ?? "")"
+//                    if let image = imageData {
+//                        supplementaryView.imageView.image = UIImage(data: image)
+//                    }
+//                }
+//            }
         }
         
         // Data source initiation
@@ -211,4 +225,9 @@ extension SettingsViewController {
         }
         return profileVM
     }
+}
+
+
+final class SettingsDataSource: UICollectionViewDiffableDataSource<Int, SettingsItem> {
+    
 }
