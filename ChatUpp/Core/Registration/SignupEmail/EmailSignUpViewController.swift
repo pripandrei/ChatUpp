@@ -22,8 +22,7 @@ class EmailSignUpViewController: UIViewController {
                                                                     viewModel: signUpViewModel)
     override func viewDidLoad() {
         super.viewDidLoad()
-//        title = "Sign Up"
-        view.backgroundColor = .white
+        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         controllerMainConfiguration()
     }
     
@@ -34,8 +33,9 @@ class EmailSignUpViewController: UIViewController {
         setPasswordSignupField()
         configureStackView()
         setSignUpButton()
+        
     }
-    
+
     private func setEmailSignupField()
     {
         emailSignupField.delegate = textFieldValidator
