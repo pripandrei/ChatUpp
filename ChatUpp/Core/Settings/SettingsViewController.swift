@@ -25,6 +25,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         Task {
            try await settingsViewModel.fetchUserFromDB()            
         }
+        
 //        setUpSignOutBtn()
 //        binding()
     }
@@ -53,6 +54,11 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
                 self?.coordinatorDelegate?.handleSignOut()
+            }
+        }
+        settingsViewModel.onUserFetched = { [weak self] in
+            Task { @MainActor in
+//                self?.dataSource = self?.makeDataSource()
             }
         }
     }
@@ -124,7 +130,7 @@ extension SettingsViewController {
         // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
             supplementaryView.setupAdditionalCredentialsConstraints()
-            self?.settingsViewModel.onUserFetch = { name,phone,nickname,imageData in
+            self?.settingsViewModel.updateUserData = { name,phone,nickname,imageData in
                 self?.collectionViewListHeader = supplementaryView
                 DispatchQueue.main.async {
                     supplementaryView.nameLabel.text = name
