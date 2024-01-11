@@ -17,7 +17,9 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     private lazy var dataSource: DataSource = makeDataSource()
     private var collectionViewListHeader: CollectionViewListHeader?
     
-    
+    // Initially settingsVC interaction is disabled
+    // until user data is fetched
+    // This is only when user logs in for the first time
     var shouldEnableInteractionOnSelf = false
     
     override func viewDidLoad() {
@@ -32,6 +34,22 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
 //        setUpSignOutBtn()
 //        binding()
     }
+    
+    
+    
+    convenience init() {
+        self.init(nibName: nil, bundle: nil)
+        self.setupBinder()
+    }
+//
+//    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+//        super.init(nibName: nil, bundle: nil)
+//        self.setupBinder()
+//    }
+//
+//    required init?(coder: NSCoder) {
+//        super.init(coder: coder)
+//    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

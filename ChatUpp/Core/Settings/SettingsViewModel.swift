@@ -13,10 +13,11 @@ final class SettingsViewModel {
     
     var dbUser: DBUser?
     private(set) var imageData: Data?
-    var updateUserData: ((_ name: String?,
-                                _ phone: String?,
-                                _ nickname: String?,
-                                _ profilePhoto: Data?) -> Void)?
+    var onUserFetched: (() -> ())?
+//    var updateUserData: ((_ name: String?,
+//                                _ phone: String?,
+//                                _ nickname: String?,
+//                                _ profilePhoto: Data?) -> Void)?
     
     init() {
         Task {
@@ -45,10 +46,8 @@ final class SettingsViewModel {
 //        self.imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
         self.imageData = try await StorageManager.shared.getUserImage(userID: dbUser!.userId, path: dbUser!.photoUrl!)
         onUserFetched?()
-        updateUserData?(dbUser?.name,dbUser?.phoneNumber,dbUser?.nickname,imageData)
+//        updateUserData?(dbUser?.name,dbUser?.phoneNumber,dbUser?.nickname,imageData)
     }
-    
-    var onUserFetched: (() -> ())?
     
     var authUser: AuthDataResultModel? {
         let user = try? AuthenticationManager.shared.getAuthenticatedUser()

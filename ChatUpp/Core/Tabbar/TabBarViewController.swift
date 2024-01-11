@@ -76,24 +76,19 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     
 //    private var shouldEnableSecondItem: Bool = false
     
-//    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-//        if let navcontroller = viewController as? UINavigationController,
-//           let settingsVC = navcontroller.viewControllers.first as? SettingsViewController,
-//           settingsVC.shouldEnableInteractionOnSelf {
-////            if settingsVC.shouldEnableInteractionOnSelf {
-//                return true
-////            }
-//        }
-//        if let navcontroller = viewController as? UINavigationController,
-//           let chatVC = navcontroller.viewControllers.first as? ChatsViewController
-//        {
-//            return true
-//        }
-////        if shouldEnableSecondItem {
-////            return true
-////        }
-//        return false
-//    }
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        if let navcontroller = viewController as? UINavigationController,
+           let settingsVC = navcontroller.viewControllers.first as? SettingsViewController,
+           settingsVC.shouldEnableInteractionOnSelf {
+            return true
+        }
+        if let navcontroller = viewController as? UINavigationController,
+           navcontroller.viewControllers.first is ChatsViewController
+        {
+            return true
+        }
+        return false
+    }
     
     deinit {
         print("TABBAR Deninit")
