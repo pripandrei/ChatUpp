@@ -71,7 +71,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
             let settingsItem = tabBarItems[1]
             let chatItem = tabBarItems[0]
             settingsItem.image = UIImage(named: "profile_icon")
-            chatItem.image = UIImage(named: "Icon-App-29x29")
+            chatItem.image = UIImage(named: "chats_icon")
         }
     }
     
