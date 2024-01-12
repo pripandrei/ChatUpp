@@ -26,8 +26,6 @@ class ChatsViewController: UIViewController {
     
     private let resultsTableController = ResultsTableController()
     private var searchController: UISearchController!
-
-//    private var shouldValidateUserAuthentication: Bool = true
     
     private var lastSearchedText: String?
     private var searchTimer: Timer?
@@ -36,7 +34,7 @@ class ChatsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupBinding()
         configureTableView()
         setupSearchController()
@@ -45,13 +43,6 @@ class ChatsViewController: UIViewController {
     
     deinit {
         print("ChatsVC was DEINITED!==")
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-//        if shouldValidateUserAuthentication {
-//            chatsViewModel.validateUserAuthentication()
-//        }
     }
     
     private func configureTableView() {

@@ -9,7 +9,7 @@ import UIKit
 import GoogleSignIn
 
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, UINavigationControllerDelegate {
     
     weak var coordinatorDelegate: Coordinator?
     private let loginViewModel = LoginViewModel()
@@ -22,6 +22,7 @@ class LoginViewController: UIViewController {
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        navigationController?.delegate = self
         view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         controllerMainSetup()
     }
@@ -30,12 +31,19 @@ class LoginViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    
+    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
         Utilities.clearNavigationBarAppearance()
-        navigationController?.setNavigationBarHidden(false, animated: false)
+        navigationController.setNavigationBarHidden(false, animated: false)
     }
+
+//    override func viewWillDisappear(_ animated: Bool) {
+//        super.viewWillDisappear(animated)
+//        Utilities.clearNavigationBarAppearance()
+//        navigationController?.setNavigationBarHidden(false, animated: false)
+//    }
+//
+    
     
     deinit {
         print("Login WAS DEINIT +++")

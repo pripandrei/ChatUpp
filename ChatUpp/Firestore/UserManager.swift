@@ -81,8 +81,7 @@ final class UserManager {
                     nickname: String? = nil) async throws
     {
         var userData: [String: Any] = [:]
-//            DBUser.CodingKeys.name.rawValue : name
-//        ]
+
         if let name = name {
             userData[DBUser.CodingKeys.name.rawValue] = name
         }
@@ -95,7 +94,6 @@ final class UserManager {
         if let username = nickname {
             userData[DBUser.CodingKeys.nickname.rawValue] = username
         }
-        
         try await userDocument(userID: userID).setData(userData, merge: true)
     }
     
@@ -177,6 +175,10 @@ final class UserManager {
             
             completion(data)
         }.resume()
+    }
+    
+    func deleteUserFromDB() {
+        
     }
 }
 

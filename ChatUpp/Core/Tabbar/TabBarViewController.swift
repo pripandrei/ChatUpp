@@ -40,6 +40,8 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     }
     
     func setupTabarAppearance() {
+        Utilities.setupNavigationBarAppearance()
+        
         let tabBarAppearance = UITabBarAppearance()
         let tabBarItemAppearance = UITabBarItemAppearance()
 
@@ -55,6 +57,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         
         tabBar.standardAppearance = tabBarAppearance
         tabBar.scrollEdgeAppearance = tabBarAppearance
+        
     }
 
     func addTabbarIcons() {

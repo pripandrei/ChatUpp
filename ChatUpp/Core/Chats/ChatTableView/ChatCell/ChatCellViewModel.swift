@@ -32,11 +32,17 @@ class ChatCellViewModel {
         user.name != nil ? user.name! : "name is missing"
     }
 
+//    func fetchImageData() {
+//        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { [weak self] data in
+//            if let data = data {
+//                self?.otherUserProfileImage.value = data
+//            }
+//        }
+//    }
+    
     func fetchImageData() {
-        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { [weak self] data in
-            if let data = data {
-                self?.otherUserProfileImage.value = data
-            }
+        Task {
+            self.otherUserProfileImage.value = try await StorageManager.shared.getUserImage(userID: user.userId, path: user.photoUrl!)
         }
     }
 }
