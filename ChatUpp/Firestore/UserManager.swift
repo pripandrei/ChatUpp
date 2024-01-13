@@ -19,6 +19,8 @@ enum ResponseStatus {
 
 final class UserManager {
     
+    static let mainDeletedUserID = "DeletedxE3btxSOXM2bRfkppe1P"
+    
     static let shared = UserManager()
     
     private init() {}
@@ -97,36 +99,6 @@ final class UserManager {
         try await userDocument(userID: userID).setData(userData, merge: true)
     }
     
-//    func updateUser(with userID: String,
-//                    usingName name: String,
-//                    profilePhotoURL: String? = nil,
-//                    phoneNumber: String? = nil,
-//                    nickname: String? = nil,
-//                    complition: @escaping (ResponseStatus) -> Void)
-//    {
-//        var userData: [String: Any] = [
-//            DBUser.CodingKeys.name.rawValue : name
-//        ]
-//        if let profilePhoto = profilePhotoURL {
-//            userData[DBUser.CodingKeys.photoUrl.rawValue] = profilePhoto
-//        }
-//        if let phone = phoneNumber {
-//            userData[DBUser.CodingKeys.phoneNumber.rawValue] = phone
-//        }
-//        if let username = nickname {
-//            userData[DBUser.CodingKeys.nickname.rawValue] = username
-//        }
-//
-//        userDocument(userID: userID).setData(userData, merge: true) { error in
-//            if let error = error {
-//                print("There was an error updating username: ", error.localizedDescription)
-//                complition(.failed)
-//                return
-//            }
-//            complition(.success)
-//        }
-//    }
-    
     // MARK: - GET USER FROM DB
     
 //    func getUserFromDB(userID: String, complition: @escaping (DBUser) -> Void) {
@@ -177,8 +149,9 @@ final class UserManager {
         }.resume()
     }
     
-    func deleteUserFromDB() {
-        
+    func deleteUserFromDB(userID: String) async throws {
+        try await userDocument(userID: userID).delete()
+        print("deleteUserFromDB")
     }
 }
 

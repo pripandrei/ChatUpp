@@ -68,17 +68,17 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
             chatItem.image = UIImage(named: "chats_icon")
         }
     }
-    
-    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-        if let navcontroller = viewController as? UINavigationController,
-           let settingsVC = navcontroller.viewControllers.first as? SettingsViewController,
-           settingsVC.shouldEnableInteractionOnSelf { return true }
-        
-        if let navcontroller = viewController as? UINavigationController,
-           navcontroller.viewControllers.first is ChatsViewController { return true }
-        
-        return false
-    }
+//    
+//    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+//        if let navcontroller = viewController as? UINavigationController,
+//           let settingsVC = navcontroller.viewControllers.first as? SettingsViewController,
+//           settingsVC.shouldEnableInteractionOnSelf { return true }
+//        
+//        if let navcontroller = viewController as? UINavigationController,
+//           navcontroller.viewControllers.first is ChatsViewController { return true }
+//        
+//        return false
+//    }
     
     deinit {
         print("TABBAR Deninit")

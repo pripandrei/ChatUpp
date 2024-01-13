@@ -56,7 +56,9 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     func setupBinder() {
         settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
-                self?.coordinatorDelegate?.handleSignOut()
+                Task { @MainActor in
+                    self?.coordinatorDelegate?.handleSignOut()
+                }
             }
         }
         settingsViewModel.onUserFetched = { [weak self] in
@@ -165,7 +167,13 @@ extension SettingsViewController {
         case 0:
             coordinatorDelegate?.pushProfileEditingVC(viewModel: createprofileEditingViewModel())
         case 1: print("item 2")
-        case 2: print("item 3")
+        case 2:
+            Task {
+                await settingsViewModel.deleteUser()
+//                await settingsViewModel.signOutOnAccountDeletion()
+                settingsViewModel.signOut()
+                print("Done")
+            }
         case 3: settingsViewModel.signOut()
         default: break
         }
@@ -207,5 +215,5 @@ extension SettingsViewController {
 
 
 //final class SettingsDataSource: UICollectionViewDiffableDataSource<Int, SettingsItem> {
-//    
+//
 //}

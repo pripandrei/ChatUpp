@@ -30,7 +30,9 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     private func configureBinding() {
         usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
             if let finish = finishRegistration, finish == true {
-                self.coordinator.dismissNaviagtionController()
+                Task { @MainActor in
+                    self.coordinator.dismissNaviagtionController()                    
+                }
             }
         }
     }

@@ -132,6 +132,19 @@ final class ChatsManager {
         ]
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
     }
+    
+    //MARK: - REPLACE DELETED USER ID IN CHATS
+    
+    func replaceUserId(_ id: String, with deletedId: String) async throws {
+        let chatsQuery = try await chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [id]).getDocuments()
+        
+        for document in chatsQuery.documents {
+            print("Documents")
+            try await document.reference.updateData(["members": FieldValue.arrayRemove([id])])
+            try await document.reference.updateData(["members": FieldValue.arrayUnion([deletedId])])
+        }
+    }
+    
 }
 
 

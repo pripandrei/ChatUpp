@@ -72,6 +72,33 @@ final class AuthenticationManager
     func signOut() throws  {
         try Auth.auth().signOut()
     }
+    
+//    func foreceRefreshIDToken() async throws {
+//        if let currentUser = Auth.auth().currentUser {
+//            try await currentUser.getIDTokenResult(forcingRefresh: true)
+//            currentUser.getIDTokenResult(forcingRefresh: true) { token, error in
+//                print(token)
+//                print(error)
+//            }
+//            
+//            currentUser.getIDToken() { token, error in
+//                print(token)
+//                print(error)
+//            }
+////            try await currentUser.idTokenForcingRefresh(true)
+//        }
+//    }
+    
+//    func signOutOnDeletion() async throws {
+//        if let currentUser = Auth.auth().currentUser {
+//            do {
+//                try await currentUser.getIDTokenResult(forcingRefresh: true)
+//            } catch {
+//                print("IDToken result error: " , error)
+//                try signOut()
+//            }
+//        }
+//    }
 }
 
 //MARK: - Sign in with Email
@@ -154,5 +181,13 @@ extension AuthenticationManager {
         print("Success Credentials!: ", credentials)
         return authDataModel
     }
+}
+
+//MARK: - Delete user
+extension AuthenticationManager {
     
+    func deleteAuthUser() async throws {
+        guard let authUser = Auth.auth().currentUser else {return}
+        try await authUser.delete()
+    }
 }
