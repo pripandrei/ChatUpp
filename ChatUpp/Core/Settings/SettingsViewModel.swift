@@ -43,22 +43,29 @@ final class SettingsViewModel {
     func fetchUserFromDB() async throws {
         let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
         self.dbUser = try await UserManager.shared.getUserFromDB(userID: uderID.uid)
+//        self.imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
         if let userID = dbUser?.userId, let photoUrl = dbUser?.photoUrl {
             self.imageData = try await StorageManager.shared.getUserImage(userID: userID, path: photoUrl)
         }
         onUserFetched?()
+//        updateUserData?(dbUser?.name,dbUser?.phoneNumber,dbUser?.nickname,imageData)
     }
     
     func deleteUser() async {
         guard let userID = dbUser?.userId else {return}
         let deletedUserID = UserManager.mainDeletedUserID
+//        let chats = try await ChatsManager.shared.getUserChatsFromDB(userID)
         
         do {
-            try await ChatsManager.shared.replaceUserId(userID, with: deletedUserID)
+            try await AuthenticationManager.shared.getAuthProvider()
+//            try await AuthenticationManager.shared.initiateReauthentication()
+//            try await AuthenticationManager.shared.foreceRefreshIDToken()
             try await AuthenticationManager.shared.deleteAuthUser()
+            try await ChatsManager.shared.replaceUserId(userID, with: deletedUserID)
+            try await StorageManager.shared.deleteProfileImage(ofUser: userID, path: dbUser!.photoUrl!)
             try await UserManager.shared.deleteUserFromDB(userID: userID)
         } catch {
-            print("Error delete User!: ", error.localizedDescription)
+            print("Error while deleting User!: ", error.localizedDescription)
         }
     }
     

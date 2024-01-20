@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 
+
 class SettingsViewController: UIViewController, UICollectionViewDelegate {
     
     weak var coordinatorDelegate: Coordinator?
@@ -168,12 +169,11 @@ extension SettingsViewController {
             coordinatorDelegate?.pushProfileEditingVC(viewModel: createprofileEditingViewModel())
         case 1: print("item 2")
         case 2:
-            Task {
-                await settingsViewModel.deleteUser()
-//                await settingsViewModel.signOutOnAccountDeletion()
-                settingsViewModel.signOut()
-                print("Done")
-            }
+            coordinatorDelegate?.showProfileDeletionVC()
+//            Task {
+//                await settingsViewModel.deleteUser()
+//                settingsViewModel.signOut()
+//            }
         case 3: settingsViewModel.signOut()
         default: break
         }

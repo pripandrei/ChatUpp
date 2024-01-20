@@ -37,6 +37,7 @@
 		756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D12AAA147A005DC594 /* ChatsCell.swift */; };
 		756525D52AB50079005DC594 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D42AB50079005DC594 /* UserManager.swift */; };
 		756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */; };
+		7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */; };
 		759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */; };
 		75B48B572AF6837700A5FBFC /* ConversationViewControllerUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B562AF6837700A5FBFC /* ConversationViewControllerUI.swift */; };
 		75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */; };
@@ -97,6 +98,7 @@
 		756525D12AAA147A005DC594 /* ChatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsCell.swift; sourceTree = "<group>"; };
 		756525D42AB50079005DC594 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameRegistrationViewController.swift; sourceTree = "<group>"; };
+		7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewController.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
 		75B48B562AF6837700A5FBFC /* ConversationViewControllerUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationViewControllerUI.swift; sourceTree = "<group>"; };
 		75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableController.swift; sourceTree = "<group>"; };
@@ -240,6 +242,14 @@
 			path = Firestore;
 			sourceTree = "<group>";
 		};
+		7573E5C12B5BD41A0096B4E6 /* ProfileDeletion */ = {
+			isa = PBXGroup;
+			children = (
+				7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */,
+			);
+			path = ProfileDeletion;
+			sourceTree = "<group>";
+		};
 		7586807A2AC3239E009C16D3 /* CredentialsValidator */ = {
 			isa = PBXGroup;
 			children = (
@@ -356,6 +366,7 @@
 		75FB78FD2AC3165F00C2743A /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				7573E5C12B5BD41A0096B4E6 /* ProfileDeletion */,
 				754439512B3FCFA80044A84B /* ProfileEditing */,
 				756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */,
 				75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */,
@@ -582,6 +593,7 @@
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
 				7533D9BB2B167ED80057EBC7 /* PhoneSigninViewModel.swift in Sources */,
 				7543BE302ACC86AE003001BF /* MessageModel.swift in Sources */,
+				7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */,
 				75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */,
 				75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */,
 				75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */,

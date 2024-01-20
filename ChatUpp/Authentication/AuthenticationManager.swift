@@ -9,6 +9,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFirestoreSwift
+import GoogleSignIn
 
 
 enum AuthenticationStatus: Error {
@@ -73,21 +74,58 @@ final class AuthenticationManager
         try Auth.auth().signOut()
     }
     
-//    func foreceRefreshIDToken() async throws {
-//        if let currentUser = Auth.auth().currentUser {
-//            try await currentUser.getIDTokenResult(forcingRefresh: true)
-//            currentUser.getIDTokenResult(forcingRefresh: true) { token, error in
-//                print(token)
-//                print(error)
-//            }
-//            
-//            currentUser.getIDToken() { token, error in
-//                print(token)
-//                print(error)
-//            }
-////            try await currentUser.idTokenForcingRefresh(true)
+    func getAuthProvider() async throws -> String {
+        guard let currentUser = Auth.auth().currentUser else { return ""}
+        let authToken = try await currentUser.getIDTokenResult(forcingRefresh: true)
+        return authToken.signInProvider
+    }
+    
+    func initiateReauthentication() async throws {
+//        let providerString = try await getAuthProvider()
+    
+//        switch providerString {
+//        case "phone":
 //        }
-//    }
+    }
+    
+    func phoneAuthReauthenticate(with verificationID: String, verificationCode: String) async throws {
+        if let user = Auth.auth().currentUser {
+            let phoneCredentials = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
+            try await user.reauthenticate(with: phoneCredentials)
+        }
+    }
+    
+    // Google signin reauthenticate
+    func googleAuthReauthenticate() async throws {
+        if let user = Auth.auth().currentUser {
+            let googleUser = try await GIDSignIn.sharedInstance.restorePreviousSignIn()
+            let authentication = GoogleAuthProvider.credential(withIDToken: googleUser.idToken!.tokenString, accessToken: googleUser.accessToken.tokenString)
+            try await user.reauthenticate(with: authentication)
+        }
+        
+        
+//        if let currentUser = Auth.auth().currentUser {
+//            let idToken = try await currentUser.idTokenForcingRefresh(true)
+//            print(idToken)
+//            
+////            let toke = try await currentUser.getIDToken()
+//            
+//            //TODO: Based on signInProvider, option of reauthenticate need to be providet to user
+//            let authToken = try await currentUser.getIDTokenResult(forcingRefresh: true)
+//            print(authToken.signInProvider)
+//            
+////            currentUser.getIDTokenResult(forcingRefresh: true) { token, error in
+////                print(token)
+////                print(error)
+////            }
+//            
+////            currentUser.getIDToken() { token, error in
+////                print(token)
+////                print(error)
+//            }
+            
+//        }
+    }
     
 //    func signOutOnDeletion() async throws {
 //        if let currentUser = Auth.auth().currentUser {

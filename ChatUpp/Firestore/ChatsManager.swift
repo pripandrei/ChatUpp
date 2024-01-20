@@ -139,7 +139,6 @@ final class ChatsManager {
         let chatsQuery = try await chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [id]).getDocuments()
         
         for document in chatsQuery.documents {
-            print("Documents")
             try await document.reference.updateData(["members": FieldValue.arrayRemove([id])])
             try await document.reference.updateData(["members": FieldValue.arrayUnion([deletedId])])
         }
