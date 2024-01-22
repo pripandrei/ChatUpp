@@ -178,6 +178,10 @@ extension SettingsViewController {
         default: break
         }
     }
+}
+
+//MARK: - Settings items ViewModel's
+extension SettingsViewController {
     
     private func createProfileDeletionViewModel() -> ProfileDeletionViewModel {
         guard let dbUser = settingsViewModel.dbUser else {fatalError("dbUser is missing")}

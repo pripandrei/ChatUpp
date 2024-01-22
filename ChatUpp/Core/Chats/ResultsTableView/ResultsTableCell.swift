@@ -107,6 +107,7 @@ final class ResultsCellViewModel {
                 self?.userImageData.value = data
             }
         }
+//        StorageManager.shared.getUserImage(userID: <#T##String#>, path: <#T##String#>)
     }
 }
 
