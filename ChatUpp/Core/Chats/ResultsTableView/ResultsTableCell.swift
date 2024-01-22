@@ -92,22 +92,31 @@ final class ResultsTableCell: UITableViewCell {
 final class ResultsCellViewModel {
     
     let userName: String
-    let userProfileImageLink: String
+//    let dbUser: DBUser
+    let userID: String
+    let userImageURL: String
     var userImageData: ObservableObject<Data?> = ObservableObject(nil)
     
-    init(user: String, userProfileImageLink: String) {
-        self.userName = user
-        self.userProfileImageLink = userProfileImageLink
+    init(userID: String, userName: String, userImageURL: String) {
+        self.userName = userName
+        self.userID = userID
+        self.userImageURL = userImageURL
         fetchImageData()
     }
+//    init(dbUser: DBUser) {
+//        self.dbUser = dbUser
+//        fetchImageData()
+//    }
     
     func fetchImageData() {
-        UserManager.shared.getProfileImageData(urlPath: userProfileImageLink) { [weak self] data in
-            if let data = data {
-                self?.userImageData.value = data
+        Task {
+//            guard let photoURL = userImageURL else { print("No profile image:"); return }
+            do {
+                userImageData.value = try await StorageManager.shared.getUserImage(userID: userID, path: userImageURL)
+            } catch {
+                print("Error getting user image form storage: ", error)
             }
         }
-//        StorageManager.shared.getUserImage(userID: <#T##String#>, path: <#T##String#>)
     }
 }
 

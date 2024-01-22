@@ -28,9 +28,10 @@ final class AlgoliaSearchManager {
             
             return result.hits.compactMap { hitJson in
                 if let name = hitJson.object["name"]?.object() as? String,
-                    let profileImage = hitJson.object["photo_url"]?.object() as? String
+                   let profileImage = hitJson.object["photo_url"]?.object() as? String,
+                   let userID = hitJson.object["user_id"]?.object() as? String
                 {
-                    return AlgoliaResultData(name: name, profileImageLink: profileImage)
+                    return AlgoliaResultData(userID: userID, name: name, profileImageLink: profileImage)
                 }
                 return nil
             }
@@ -42,6 +43,7 @@ final class AlgoliaSearchManager {
 }
 
 struct AlgoliaResultData {
+    let userID: String
     let name: String
     let profileImageLink: String
 }
