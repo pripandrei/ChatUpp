@@ -21,7 +21,7 @@ protocol Coordinator: AnyObject {
     func pushMailSignInController(viewModel: LoginViewModel)
     func openConversationVC(conversationViewModel: ConversationViewModel)
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
-    func showProfileDeletionVC()
+    func showProfileDeletionVC(viewModel: ProfileDeletionViewModel)
     
     func pushProfileEditingVC(viewModel:ProfileEditingViewModel)
     func dismissEditProfileVC()
@@ -134,8 +134,8 @@ class MainCoordinator: Coordinator {
         tabBar.settingsNavigationController?.dismiss(animated: true)
     }
     
-    func showProfileDeletionVC() {
-        let profileDeletionVC = ProfileDeletionViewController()
+    func showProfileDeletionVC(viewModel: ProfileDeletionViewModel) {
+        let profileDeletionVC = ProfileDeletionViewController(viewModel: viewModel)
         
         profileDeletionVC.coordinatorDelegate = self
         profileDeletionVC.modalPresentationStyle = .pageSheet

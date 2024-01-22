@@ -169,7 +169,7 @@ extension SettingsViewController {
             coordinatorDelegate?.pushProfileEditingVC(viewModel: createprofileEditingViewModel())
         case 1: print("item 2")
         case 2:
-            coordinatorDelegate?.showProfileDeletionVC()
+            coordinatorDelegate?.showProfileDeletionVC(viewModel: createProfileDeletionViewModel())
 //            Task {
 //                await settingsViewModel.deleteUser()
 //                settingsViewModel.signOut()
@@ -179,11 +179,14 @@ extension SettingsViewController {
         }
     }
     
+    private func createProfileDeletionViewModel() -> ProfileDeletionViewModel {
+        guard let dbUser = settingsViewModel.dbUser else {fatalError("dbUser is missing")}
+        return ProfileDeletionViewModel(dbUser: dbUser)
+    }
+    
     private func createprofileEditingViewModel() -> ProfileEditingViewModel {
         guard let user = settingsViewModel.dbUser else {fatalError("dbUser is missing")}
- 
         guard let profilePicutre = settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
-
         let profileVM = ProfileEditingViewModel(dbUser: user, profilePicutre: profilePicutre)
         
         profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in

@@ -14,10 +14,6 @@ final class SettingsViewModel {
     var dbUser: DBUser?
     private(set) var imageData: Data?
     var onUserFetched: (() -> ())?
-//    var updateUserData: ((_ name: String?,
-//                                _ phone: String?,
-//                                _ nickname: String?,
-//                                _ profilePhoto: Data?) -> Void)?
     
     init() {
         Task {
@@ -68,31 +64,4 @@ final class SettingsViewModel {
             print("Error while deleting User!: ", error.localizedDescription)
         }
     }
-    
-//    func signOutOnAccountDeletion() async {
-////        Task {
-//            do {
-//                try await AuthenticationManager.shared.foreceRefreshIDToken()
-//            } catch {
-//                signOut()
-//                print("Error while signing out on user deletion: ", error)
-//            }
-//            
-//            
-////            do {
-////                try await AuthenticationManager.shared.signOutOnDeletion()
-////                userIsSignedOut.value = true
-////            } catch {
-////                print("Error while signing out on user deletion: ", error)
-////            }
-////        }
-//    }
-    
-//    var authUser: AuthDataResultModel? {
-//        let user = try? AuthenticationManager.shared.getAuthenticatedUser()
-//        if user != nil {
-//            return user
-//        }
-//        return nil
-//    }
 }
