@@ -92,7 +92,6 @@ final class ResultsTableCell: UITableViewCell {
 final class ResultsCellViewModel {
     
     let userName: String
-//    let dbUser: DBUser
     let userID: String
     let userImageURL: String
     var userImageData: ObservableObject<Data?> = ObservableObject(nil)
@@ -103,14 +102,9 @@ final class ResultsCellViewModel {
         self.userImageURL = userImageURL
         fetchImageData()
     }
-//    init(dbUser: DBUser) {
-//        self.dbUser = dbUser
-//        fetchImageData()
-//    }
-    
+
     func fetchImageData() {
         Task {
-//            guard let photoURL = userImageURL else { print("No profile image:"); return }
             do {
                 userImageData.value = try await StorageManager.shared.getUserImage(userID: userID, path: userImageURL)
             } catch {

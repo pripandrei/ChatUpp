@@ -69,7 +69,6 @@ class ChatsViewController: UIViewController {
         searchController = UISearchController(searchResultsController: resultsTableController)
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-//        searchController.searchBar.delegate = self
         searchController.searchBar.placeholder = "Search"
         navigationItem.searchController = searchController
         definesPresentationContext = true
@@ -89,13 +88,10 @@ class ChatsViewController: UIViewController {
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-//                    return ResultsCellViewModel(user: chat.userMame, userProfileImageLink: chat.user.photoUrl!)
-//                    return ResultsCellViewModel(dbUser: chat.user)
                     return ResultsCellViewModel(userID: chat.user.userId, userName: chat.userMame, userImageURL: chat.user.photoUrl!)
                 }
             }
             if chat.userMame.lowercased().hasPrefix(trimmedSearchText) {
-//                return ResultsCellViewModel(dbUser: chat.user)
                 return ResultsCellViewModel(userID: chat.user.userId, userName: chat.userMame, userImageURL: chat.user.photoUrl!)
             }
             return nil
@@ -160,7 +156,6 @@ extension ChatsViewController: UISearchResultsUpdating {
             let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
             if text == lastSearchedText {
                 let filteredResults = searchResultData.compactMap { resultData in
-//                    ResultsCellViewModel(user: resultData.name, userProfileImageLink: resultData.profileImageLink)
                     return ResultsCellViewModel(userID: resultData.userID, userName: resultData.name, userImageURL: resultData.profileImageLink)
                 }
                 await MainActor.run {

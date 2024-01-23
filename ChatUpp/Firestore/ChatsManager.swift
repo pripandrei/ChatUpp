@@ -143,7 +143,6 @@ final class ChatsManager {
             try await document.reference.updateData(["members": FieldValue.arrayUnion([deletedId])])
         }
     }
-    
 }
 
 

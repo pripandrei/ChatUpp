@@ -34,20 +34,21 @@ final class ProfileDeletionViewModel {
     }
     
     func reauthenticateUser(usingCode code: String) async throws {
-        guard let verificationID = self.verificationID else {return}
+        guard let verificationID = self.verificationID else {throw UnwrappingError.nilValueFound("VerificationID is nil. Please request code first!")}
+        
         try await AuthenticationManager.shared.phoneAuthReauthenticate(with: verificationID, verificationCode: code)
     }
     
-    func deleteUser() async {
+    func deleteUser() async throws {
         let deletedUserID = UserManager.mainDeletedUserID
         
-        do {
+//        do {
             try await AuthenticationManager.shared.deleteAuthUser()
             try await ChatsManager.shared.replaceUserId(dbUser.userId, with: deletedUserID)
-            try await StorageManager.shared.deleteProfileImage(ofUser: dbUser.userId, path: dbUser.photoUrl!)
+//            try await StorageManager.shared.deleteProfileImage(ofUser: dbUser.userId, path: dbUser.photoUrl!)
             try await UserManager.shared.deleteUserFromDB(userID: dbUser.userId)
-        } catch {
-            print("Error while deleting User!: ", error.localizedDescription)
-        }
+//        } catch {
+//            print("Error while deleting User!: ", error.localizedDescription)
+//        }
     }
 }

@@ -28,15 +28,15 @@ final class ProfileDeletionViewController: UIViewController {
     }
     
     func setupUI() {
-        view.backgroundColor = .clouds
+        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         view.addSubview(sendCodeButton)
         view.addSubview(verificationCodeTextField)
         view.addSubview(informationLabel)
-        view.addSubview(deleteAccountButton)
+//        view.addSubview(deleteAccountButton)
         setupInformationLabelConstraints()
         setupSendCodeButtonConstraints()
         setupTextViewConstraints()
-        setupDeleteAccountButtonConstraints()
+//        setupDeleteAccountButtonConstraints()
     }
     
     func setupBinder() {
@@ -51,18 +51,25 @@ final class ProfileDeletionViewController: UIViewController {
     
     lazy var verificationCodeTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Enter code here"
-        textField.backgroundColor = .systemFill
+        textField.tintColor = .brown
+        textField.backgroundColor = #colorLiteral(red: 0.287940383, green: 0.5559768677, blue: 0.6724052429, alpha: 1)
+        textField.textColor = #colorLiteral(red: 0.8293038011, green: 0.8293038011, blue: 0.8293038011, alpha: 1)
+        
+        let placeholderColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        let placeholderText = NSAttributedString(string: "Enter code here", attributes: [NSAttributedString.Key.foregroundColor: placeholderColor])
+        textField.attributedPlaceholder = placeholderText
+//        textField.placeholder = "Enter code here"
+//        textField.backgroundColor = .systemFill
         textField.borderStyle = .roundedRect
         textField.font = UIFont(name: "HelveticaNeue", size: 17)
-        textField.textColor = .black
+        textField.delegate = self
         return textField
     }()
     
     lazy var informationLabel: UILabel = {
         let infoLabel = UILabel()
         infoLabel.text = "In order to delete your account, we need to make sure it's you. Verification code will be sent to your phone number."
-        infoLabel.textColor = .systemGray
+        infoLabel.textColor = .lightText
         infoLabel.font =  UIFont(name: "HelveticaNeue", size: 14.5)
         infoLabel.numberOfLines = 0
         return infoLabel
@@ -94,22 +101,39 @@ final class ProfileDeletionViewController: UIViewController {
         guard let code = verificationCodeTextField.text, !code.isEmpty else {return}
         
         Task {
-            try await profileDeletionViewModel.reauthenticateUser(usingCode: code)
-            createAlertController()
+            do {
+                try await profileDeletionViewModel.reauthenticateUser(usingCode: code)
+                createDeletionAlertController()
+            } catch {
+                print("Could not reauthenticate via phone code: ", error)
+            }
         }
     }
     
-    func createAlertController() {
+    func createDeletionAlertController() {
         let alert = UIAlertController(title: "Alert", message: "Delete this account? This acction can not be undone!", preferredStyle: .alert)
         let cancel = UIAlertAction(title: "Cancel", style: .cancel)
         let delete = UIAlertAction(title: "Delete", style: .destructive) { _ in
             Task {
-                await self.profileDeletionViewModel.deleteUser()
-                self.profileDeletionViewModel.signOut()
+                do {
+                    try await self.profileDeletionViewModel.deleteUser()
+                    self.profileDeletionViewModel.signOut()
+                } catch {
+                    print("Error while deleting User!: ", error.localizedDescription)
+                }
             }
         }
         alert.addAction(cancel)
         alert.addAction(delete)
+        
+        present(alert, animated: true)
+    }
+    
+    func createIncorectCodeAlertController() {
+        let alert = UIAlertController(title: "Alert", message: "Incorect code, please try again!", preferredStyle: .alert)
+        let okay = UIAlertAction(title: "OK", style: .default)
+
+        alert.addAction(okay)
         
         present(alert, animated: true)
     }
@@ -162,14 +186,33 @@ final class ProfileDeletionViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             sendCodeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            sendCodeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.size.height / 3),
+            sendCodeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.size.height / 2.8),
             sendCodeButton.heightAnchor.constraint(equalToConstant: 45),
             sendCodeButton.widthAnchor.constraint(equalToConstant: 110),
         ])
     }
 }
 
+//MARK: - TEXT FIELD DELEGATE
+
 extension ProfileDeletionViewController: UITextFieldDelegate {
     
-    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard let code = textField.text, code.count == 5 else {return true}
+        guard let text = code as NSString? else {return true}
+        
+        let updatedText = text.replacingCharacters(in: range, with: string)
+        Task {
+            do {
+                try await profileDeletionViewModel.reauthenticateUser(usingCode: updatedText)
+                createDeletionAlertController()
+                textField.text = ""
+            } catch {
+                createIncorectCodeAlertController()
+                textField.text = ""
+                print("Could not reauthenticate via phone code: ", error)
+            }
+        }
+        return true
+    }
 }

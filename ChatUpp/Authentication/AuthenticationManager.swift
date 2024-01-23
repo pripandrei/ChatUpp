@@ -102,41 +102,7 @@ final class AuthenticationManager
             let authentication = GoogleAuthProvider.credential(withIDToken: googleUser.idToken!.tokenString, accessToken: googleUser.accessToken.tokenString)
             try await user.reauthenticate(with: authentication)
         }
-        
-        
-//        if let currentUser = Auth.auth().currentUser {
-//            let idToken = try await currentUser.idTokenForcingRefresh(true)
-//            print(idToken)
-//            
-////            let toke = try await currentUser.getIDToken()
-//            
-//            //TODO: Based on signInProvider, option of reauthenticate need to be providet to user
-//            let authToken = try await currentUser.getIDTokenResult(forcingRefresh: true)
-//            print(authToken.signInProvider)
-//            
-////            currentUser.getIDTokenResult(forcingRefresh: true) { token, error in
-////                print(token)
-////                print(error)
-////            }
-//            
-////            currentUser.getIDToken() { token, error in
-////                print(token)
-////                print(error)
-//            }
-            
-//        }
     }
-    
-//    func signOutOnDeletion() async throws {
-//        if let currentUser = Auth.auth().currentUser {
-//            do {
-//                try await currentUser.getIDTokenResult(forcingRefresh: true)
-//            } catch {
-//                print("IDToken result error: " , error)
-//                try signOut()
-//            }
-//        }
-//    }
 }
 
 //MARK: - Sign in with Email
