@@ -41,14 +41,12 @@ final class ProfileDeletionViewModel {
     
     func deleteUser() async throws {
         let deletedUserID = UserManager.mainDeletedUserID
-        
-//        do {
-            try await AuthenticationManager.shared.deleteAuthUser()
-            try await ChatsManager.shared.replaceUserId(dbUser.userId, with: deletedUserID)
-//            try await StorageManager.shared.deleteProfileImage(ofUser: dbUser.userId, path: dbUser.photoUrl!)
-            try await UserManager.shared.deleteUserFromDB(userID: dbUser.userId)
-//        } catch {
-//            print("Error while deleting User!: ", error.localizedDescription)
-//        }
+    
+        try await AuthenticationManager.shared.deleteAuthUser()
+        try await ChatsManager.shared.replaceUserId(dbUser.userId, with: deletedUserID)
+        if let photoURL = dbUser.photoUrl {
+            try await StorageManager.shared.deleteProfileImage(ofUser: dbUser.userId, path: photoURL)
+        }
+        try await UserManager.shared.deleteUserFromDB(userID: dbUser.userId)
     }
 }

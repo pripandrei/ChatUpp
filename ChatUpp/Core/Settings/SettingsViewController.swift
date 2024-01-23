@@ -62,30 +62,14 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
                 }
             }
         }
-//        settingsViewModel.authProvider.bind { [weak self] provider in
-//            print(provider)
-//            guard let self = self else {return}
-//            
-//            switch provider {
-//            case "google.com":
-////                Task {
-////                    do {
-////                        try await self.settingsViewModel.reauthenticateGoogleUser()
-//                        self.createDeletionAlertController()
-////                    } catch {
-////                        print("Error while deleting User!: ", error.localizedDescription)
-////                    }
-////                }
-//            case "phone": self.coordinatorDelegate?.showProfileDeletionVC(viewModel: self.createProfileDeletionViewModel())
-//            default: break
-//            }
-//        }
         settingsViewModel.onUserFetched = { [weak self] in
             self?.shouldEnableInteractionOnSelf = true
         }
     }
     
-    func handleDeletionProviderPresentation(_ provider: String) {
+    // MARK: - DELETION PROVIDER HANDLER
+    
+    private func handleDeletionProviderPresentation(_ provider: String) {
         switch provider {
         case "google.com": self.createDeletionAlertController()
         case "phone": self.coordinatorDelegate?.showProfileDeletionVC(viewModel: self.createProfileDeletionViewModel())
@@ -93,7 +77,9 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
         }
     }
     
-    func createDeletionAlertController() {
+    // MARK: - ALERT CONTROLLER
+    
+    private func createDeletionAlertController() {
         Task {@MainActor in
             let alert = UIAlertController(title: "Alert", message: "Delete this account? This acction can not be undone!", preferredStyle: .alert)
             let cancel = UIAlertAction(title: "Cancel", style: .cancel)
@@ -114,9 +100,9 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     }
 }
 
-// MARK: - SETUP UI
-extension SettingsViewController {
-    
+// MARK: - SETUP COLLECTION VIEW LAYOUT
+extension SettingsViewController
+{
     private func configureCollectionViewLayout() {
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -128,7 +114,6 @@ extension SettingsViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
         ])
     }
-    
 }
 
 //MARK: - SETTINGS COLLECTION VIEW
@@ -205,8 +190,10 @@ extension SettingsViewController {
         snapshot.appendItems(SettingsItem.itemsData)
         dataSource.apply(snapshot)
     }
-    
-    //MARK: - COLLECTIONVIEW DELEGATE
+}
+
+//MARK: - COLLECTIONVIEW DELEGATE
+extension SettingsViewController {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         
@@ -215,24 +202,13 @@ extension SettingsViewController {
             coordinatorDelegate?.pushProfileEditingVC(viewModel: createprofileEditingViewModel())
         case 1: print("item 2")
         case 2:
-//            coordinatorDelegate?.showProfileDeletionVC(viewModel: createProfileDeletionViewModel())
-//            Task {
-//                do {
-//                    try await settingsViewModel.getCurrentAuthProvider()
-                    handleDeletionProviderPresentation(settingsViewModel.authProvider)
-//                } catch {
-//                    print("Could not get current provider: ", error)
-//                }
-//            }
-//            Task {
-//                await settingsViewModel.deleteUser()
-//                settingsViewModel.signOut()
-//            }
+            handleDeletionProviderPresentation(settingsViewModel.authProvider)
         case 3: settingsViewModel.signOut()
         default: break
         }
     }
 }
+
 
 //MARK: - Settings items ViewModel's
 extension SettingsViewController {

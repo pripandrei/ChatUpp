@@ -11,6 +11,8 @@ final class ProfileDeletionViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
     var profileDeletionViewModel: ProfileDeletionViewModel!
+    
+    //MARK: LIFECYCLE
 
     init(viewModel: ProfileDeletionViewModel) {
         super.init(nibName: nil, bundle: nil)
@@ -27,17 +29,8 @@ final class ProfileDeletionViewController: UIViewController {
         setupBinder()
     }
     
-    func setupUI() {
-        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        view.addSubview(sendCodeButton)
-        view.addSubview(verificationCodeTextField)
-        view.addSubview(informationLabel)
-//        view.addSubview(deleteAccountButton)
-        setupInformationLabelConstraints()
-        setupSendCodeButtonConstraints()
-        setupTextViewConstraints()
-//        setupDeleteAccountButtonConstraints()
-    }
+    
+    //MARK: - Binder
     
     func setupBinder() {
         profileDeletionViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
@@ -48,6 +41,8 @@ final class ProfileDeletionViewController: UIViewController {
             }
         }
     }
+    
+    //MARK: - SETUP UI
     
     lazy var verificationCodeTextField: UITextField = {
         let textField = UITextField()
@@ -85,75 +80,17 @@ final class ProfileDeletionViewController: UIViewController {
         return button
     }()
     
-    lazy var deleteAccountButton: UIButton = {
-        let button = UIButton()
-        button.configuration = .filled()
-        button.configuration?.title = "Delete Account"
-        button.configuration?.background.backgroundColor = .systemRed
-        button.layer.cornerRadius = 5
-        button.clipsToBounds = true
-        button.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
-        return button
-    }()
-    
-    @objc func deleteAccount() {
-        guard let code = verificationCodeTextField.text, !code.isEmpty else {return}
-        
-        Task {
-            do {
-                try await profileDeletionViewModel.reauthenticateUser(usingCode: code)
-                createDeletionAlertController()
-            } catch {
-                print("Could not reauthenticate via phone code: ", error)
-            }
-        }
+    func setupUI() {
+        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        view.addSubview(sendCodeButton)
+        view.addSubview(verificationCodeTextField)
+        view.addSubview(informationLabel)
+        setupInformationLabelConstraints()
+        setupSendCodeButtonConstraints()
+        setupTextViewConstraints()
     }
     
-    func createDeletionAlertController() {
-        let alert = UIAlertController(title: "Alert", message: "Delete this account? This acction can not be undone!", preferredStyle: .alert)
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
-        let delete = UIAlertAction(title: "Delete", style: .destructive) { _ in
-            Task {
-                do {
-                    try await self.profileDeletionViewModel.deleteUser()
-                    self.profileDeletionViewModel.signOut()
-                } catch {
-                    print("Error while deleting User!: ", error.localizedDescription)
-                }
-            }
-        }
-        alert.addAction(cancel)
-        alert.addAction(delete)
-        present(alert, animated: true)
-    }
-    
-    func createIncorectCodeAlertController() {
-        let alert = UIAlertController(title: "Alert", message: "Incorect code, please try again!", preferredStyle: .alert)
-        let okay = UIAlertAction(title: "OK", style: .default)
-
-        alert.addAction(okay)
-        
-        present(alert, animated: true)
-    }
-    
-    @objc func sendCodeButtonTapped() {
-        Task {
-            try await profileDeletionViewModel.sendSMSCode()
-        }
-    }
-    
-    func setupDeleteAccountButtonConstraints() {
-        deleteAccountButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            deleteAccountButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            deleteAccountButton.topAnchor.constraint(equalTo: sendCodeButton.bottomAnchor, constant: 20),
-            deleteAccountButton.heightAnchor.constraint(equalToConstant: 45),
-            deleteAccountButton.widthAnchor.constraint(equalToConstant: 110),
-//            deleteAccountButton.heightAnchor.constraint(equalToConstant: 40),
-//            deleteAccountButton.widthAnchor.constraint(equalToConstant: 300),
-        ])
-    }
+    //MARK: - SETUP CONSTRAINTS
     
     func setupInformationLabelConstraints() {
         informationLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -188,6 +125,57 @@ final class ProfileDeletionViewController: UIViewController {
             sendCodeButton.heightAnchor.constraint(equalToConstant: 45),
             sendCodeButton.widthAnchor.constraint(equalToConstant: 110),
         ])
+    }
+    
+    
+    //MARK: - ALERT CONTROLLERS
+    
+    private func createDeletionAlertController() {
+        let alert = UIAlertController(title: "Alert", message: "Delete this account? This acction can not be undone!", preferredStyle: .alert)
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+        let delete = UIAlertAction(title: "Delete", style: .destructive) { _ in
+            Task {
+                do {
+                    try await self.profileDeletionViewModel.deleteUser()
+                    self.profileDeletionViewModel.signOut()
+                } catch {
+                    print("Error while deleting User!: ", error.localizedDescription)
+                }
+            }
+        }
+        alert.addAction(cancel)
+        alert.addAction(delete)
+        present(alert, animated: true)
+    }
+    
+    private func createIncorectCodeAlertController() {
+        let alert = UIAlertController(title: "Alert", message: "Incorect code, please try again!", preferredStyle: .alert)
+        let okay = UIAlertAction(title: "OK", style: .default)
+
+        alert.addAction(okay)
+        
+        present(alert, animated: true)
+    }
+    
+    //MARK: - BUTTON ACTIONS
+    
+    @objc func deleteAccount() {
+        guard let code = verificationCodeTextField.text, !code.isEmpty else {return}
+        
+        Task {
+            do {
+                try await profileDeletionViewModel.reauthenticateUser(usingCode: code)
+                createDeletionAlertController()
+            } catch {
+                print("Could not reauthenticate via phone code: ", error)
+            }
+        }
+    }
+    
+    @objc func sendCodeButtonTapped() {
+        Task {
+            try await profileDeletionViewModel.sendSMSCode()
+        }
     }
 }
 
