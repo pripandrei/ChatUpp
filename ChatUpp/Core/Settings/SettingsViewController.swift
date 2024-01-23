@@ -62,8 +62,54 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
                 }
             }
         }
+//        settingsViewModel.authProvider.bind { [weak self] provider in
+//            print(provider)
+//            guard let self = self else {return}
+//            
+//            switch provider {
+//            case "google.com":
+////                Task {
+////                    do {
+////                        try await self.settingsViewModel.reauthenticateGoogleUser()
+//                        self.createDeletionAlertController()
+////                    } catch {
+////                        print("Error while deleting User!: ", error.localizedDescription)
+////                    }
+////                }
+//            case "phone": self.coordinatorDelegate?.showProfileDeletionVC(viewModel: self.createProfileDeletionViewModel())
+//            default: break
+//            }
+//        }
         settingsViewModel.onUserFetched = { [weak self] in
             self?.shouldEnableInteractionOnSelf = true
+        }
+    }
+    
+    func handleDeletionProviderPresentation(_ provider: String) {
+        switch provider {
+        case "google.com": self.createDeletionAlertController()
+        case "phone": self.coordinatorDelegate?.showProfileDeletionVC(viewModel: self.createProfileDeletionViewModel())
+        default: break
+        }
+    }
+    
+    func createDeletionAlertController() {
+        Task {@MainActor in
+            let alert = UIAlertController(title: "Alert", message: "Delete this account? This acction can not be undone!", preferredStyle: .alert)
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel)
+            let delete = UIAlertAction(title: "Delete", style: .destructive) { _ in
+                Task {
+                    do {
+                        try await self.settingsViewModel.deleteUser()
+                        self.settingsViewModel.signOut()
+                    } catch {
+                        print("Error while deleting User!: ", error.localizedDescription)
+                    }
+                }
+            }
+            alert.addAction(cancel)
+            alert.addAction(delete)
+            present(alert, animated: true)
         }
     }
 }
@@ -169,7 +215,15 @@ extension SettingsViewController {
             coordinatorDelegate?.pushProfileEditingVC(viewModel: createprofileEditingViewModel())
         case 1: print("item 2")
         case 2:
-            coordinatorDelegate?.showProfileDeletionVC(viewModel: createProfileDeletionViewModel())
+//            coordinatorDelegate?.showProfileDeletionVC(viewModel: createProfileDeletionViewModel())
+//            Task {
+//                do {
+//                    try await settingsViewModel.getCurrentAuthProvider()
+                    handleDeletionProviderPresentation(settingsViewModel.authProvider)
+//                } catch {
+//                    print("Could not get current provider: ", error)
+//                }
+//            }
 //            Task {
 //                await settingsViewModel.deleteUser()
 //                settingsViewModel.signOut()

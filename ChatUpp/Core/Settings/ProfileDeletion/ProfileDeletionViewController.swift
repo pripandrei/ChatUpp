@@ -58,8 +58,7 @@ final class ProfileDeletionViewController: UIViewController {
         let placeholderColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         let placeholderText = NSAttributedString(string: "Enter code here", attributes: [NSAttributedString.Key.foregroundColor: placeholderColor])
         textField.attributedPlaceholder = placeholderText
-//        textField.placeholder = "Enter code here"
-//        textField.backgroundColor = .systemFill
+
         textField.borderStyle = .roundedRect
         textField.font = UIFont(name: "HelveticaNeue", size: 17)
         textField.delegate = self
@@ -70,7 +69,7 @@ final class ProfileDeletionViewController: UIViewController {
         let infoLabel = UILabel()
         infoLabel.text = "In order to delete your account, we need to make sure it's you. Verification code will be sent to your phone number."
         infoLabel.textColor = .lightText
-        infoLabel.font =  UIFont(name: "HelveticaNeue", size: 14.5)
+        infoLabel.font =  UIFont(name: "HelveticaNeue", size: 15)
         infoLabel.numberOfLines = 0
         return infoLabel
     }()
@@ -125,7 +124,6 @@ final class ProfileDeletionViewController: UIViewController {
         }
         alert.addAction(cancel)
         alert.addAction(delete)
-        
         present(alert, animated: true)
     }
     
