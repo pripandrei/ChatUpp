@@ -91,15 +91,17 @@ final class ResultsTableCell: UITableViewCell {
 
 final class ResultsCellViewModel {
     
+    let chat: Chat?
     let userName: String
     let userID: String
     let userImageURL: String
     var userImageData: ObservableObject<Data?> = ObservableObject(nil)
     
-    init(userID: String, userName: String, userImageURL: String) {
+    init(userID: String, userName: String, userImageURL: String, chat: Chat? = nil) {
         self.userName = userName
         self.userID = userID
         self.userImageURL = userImageURL
+        self.chat = chat
         fetchImageData()
     }
 

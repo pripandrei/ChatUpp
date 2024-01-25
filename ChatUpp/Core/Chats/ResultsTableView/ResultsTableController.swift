@@ -13,12 +13,19 @@ enum Skeletonanimation {
     case terminate
 }
 
-class ResultsTableController: UITableViewController {
+final class ResultsTableController: UITableViewController {
+    
+    weak var coordinatorDelegate: Coordinator?
     
     enum UsersSearch {
         case local
         case global
     }
+    
+//    convenience init(coordinator: Coordinator) {
+//        self.init(nibName: nil, bundle: nil)
+//        self.coordinatorDelegate = coordinator
+//    }
     
     var filteredUsers: [ResultsCellViewModel] = []
     var userSearch: UsersSearch!
@@ -141,5 +148,21 @@ extension ResultsTableController
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 24
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("ITEM",indexPath.item)
+        
+        tableView.deselectRow(at: indexPath, animated: false)
+        
+        //TEMPORARILY guard, while global search is not implemented 
+        guard let chat = filteredUsers[indexPath.item].chat else {return}
+        
+        let memberName =  filteredUsers[indexPath.item].userName
+        let memberPhoto =  filteredUsers[indexPath.item].userImageData.value
+        
+        let conversationViewModel = ConversationViewModel(memberName: memberName, conversation: chat, imageData: memberPhoto)
+        
+        coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
 }

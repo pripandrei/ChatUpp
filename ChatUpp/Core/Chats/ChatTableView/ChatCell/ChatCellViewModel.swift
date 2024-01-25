@@ -10,21 +10,21 @@ import Firebase
 
 class ChatCellViewModel {
     let user: DBUser
-    var recentMessages: Message
+    var recentMessage: Message
     var otherUserProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     
-    init(user: DBUser, recentMessages: Message) {
+    init(user: DBUser, recentMessage: Message) {
         self.user = user
-        self.recentMessages = recentMessages
+        self.recentMessage = recentMessage
 //        fetchImageData()
     }
     
     var message: String {
-        return recentMessages.messageBody
+        return recentMessage.messageBody
     }
     
     var timestamp: String {
-        let hoursAndMinutes = recentMessages.timestamp.formatToHoursAndMinutes()
+        let hoursAndMinutes = recentMessage.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
     }
     

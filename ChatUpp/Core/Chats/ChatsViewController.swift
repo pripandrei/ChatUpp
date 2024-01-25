@@ -23,8 +23,12 @@ class ChatsViewController: UIViewController {
     private let tableView = UITableView()
     private var chatsViewModel = ChatsViewModel()
     private var tableViewDataSource: UITableViewDataSource!
-    
-    private let resultsTableController = ResultsTableController()
+
+    lazy private var resultsTableController = {
+        let resultsTableController = ResultsTableController()
+        resultsTableController.coordinatorDelegate = self.coordinatorDelegate
+        return resultsTableController
+    }()
     private var searchController: UISearchController!
     
     private var lastSearchedText: String?
@@ -76,7 +80,8 @@ class ChatsViewController: UIViewController {
     }
     
     func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
-        return chatsViewModel.cellViewModels.compactMap ({ chat in
+       
+        return chatsViewModel.cellViewModels.enumerated().compactMap ({ index, chatCell in
            
             let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
             
@@ -84,15 +89,17 @@ class ChatsViewController: UIViewController {
             let filteredSearchText = searchTextComponents.joined(separator: " ")
             let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
             
-            let nameSubstrings = chat.userMame.lowercased().components(separatedBy: delimiters)
+            let nameSubstrings = chatCell.userMame.lowercased().components(separatedBy: delimiters)
+            
+            let conversation = chatsViewModel.chats[index]
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    return ResultsCellViewModel(userID: chat.user.userId, userName: chat.userMame, userImageURL: chat.user.photoUrl!)
+                    return ResultsCellViewModel(userID: chatCell.user.userId, userName: chatCell.userMame, userImageURL: chatCell.user.photoUrl!, chat: conversation)
                 }
             }
-            if chat.userMame.lowercased().hasPrefix(trimmedSearchText) {
-                return ResultsCellViewModel(userID: chat.user.userId, userName: chat.userMame, userImageURL: chat.user.photoUrl!)
+            if chatCell.userMame.lowercased().hasPrefix(trimmedSearchText) {
+                return ResultsCellViewModel(userID: chatCell.user.userId, userName: chatCell.userMame, userImageURL: chatCell.user.photoUrl!, chat: conversation)
             }
             return nil
         })
@@ -150,7 +157,7 @@ extension ChatsViewController: UISearchResultsUpdating {
         resultsTableController.toggleSkeletonAnimation(value)
     }
     
-    // Transfer to viewModel
+    // TODO: Transfer to viewModel
     private func performSearch(_ text: String) {
         Task {
             let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
@@ -180,5 +187,4 @@ extension ChatsViewController: UITableViewDelegate
         
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
-    
 }

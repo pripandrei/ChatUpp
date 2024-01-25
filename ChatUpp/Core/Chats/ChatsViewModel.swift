@@ -44,7 +44,7 @@ final class ChatsViewModel {
         var cellsViewModel = [ChatCellViewModel]()
         
         for (user,message) in zip(otherMembers, recentMessages) {
-            let cellViewModel = ChatCellViewModel(user: user, recentMessages: message)
+            let cellViewModel = ChatCellViewModel(user: user, recentMessage: message)
             cellsViewModel.append(cellViewModel)
         }
         return cellsViewModel
