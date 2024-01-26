@@ -10,7 +10,7 @@ import Foundation
 
 final class ConversationViewModel {
     
-    private var conversation: Chat
+    private var conversation: Chat?
     var memberName: String
     var memberProfileImage: Data?
     var messages: [Message] = []
@@ -20,16 +20,15 @@ final class ConversationViewModel {
     
     var onCellVMLoad: (() -> Void)?
     
-    init(memberName: String, conversation: Chat, imageData: Data?) {
+    init(memberName: String, conversation: Chat? = nil, imageData: Data?) {
         self.memberName = memberName
         self.conversation = conversation
         self.memberProfileImage = imageData
+        
+        // 1.Fetching should be done only if conversation: Chat is not nil.
+        // 2.Conversation should be transfered to optional
         fetchConversationMessages()
     }
-    
-//    func delete() {
-//        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)
-//    }
     
     private func createConversationCellViewModels() -> [ConversationCellViewModel] {
         return messages.map { message in
@@ -37,7 +36,12 @@ final class ConversationViewModel {
         }
     }
     
+    private func createCellViewModel(with message: Message) -> ConversationCellViewModel {
+        return ConversationCellViewModel(cellMessage: message)
+    }
+    
     func saveImage(data: Data, size: CGSize) {
+        guard let conversation = conversation else {return}
         Task {
             let (path,name) = try await StorageManager.shared.saveMessageImage(data: data, messageID: messages.first!.id)
             try await ChatsManager.shared.updateMessageImagePath(messageID: messages.first!.id,
@@ -51,6 +55,7 @@ final class ConversationViewModel {
     }
     
     private func fetchConversationMessages() {
+        guard let conversation = conversation else {return}
         Task {
             do {
                 self.messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
@@ -77,15 +82,12 @@ final class ConversationViewModel {
     }
     
     private func addMessageToDB(_ message: Message) async  {
+        guard let conversation = conversation else {return}
         do {
             try await ChatsManager.shared.createNewMessageInDataBase(message: message, atChatPath: conversation.id)
         } catch {
             print("error occur while trying to create message: ", error.localizedDescription)
         }
-    }
-    
-    private func createCellViewModel(with message: Message) -> ConversationCellViewModel {
-        return ConversationCellViewModel(cellMessage: message)
     }
     
     private func insertNewMessage(_ message: Message) {
@@ -106,6 +108,10 @@ final class ConversationViewModel {
         self.cellViewModels[0].cellMessage.imageSize = size
         self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
     }
+    
+    //    func delete() {
+    //        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)
+    //    }
 }
 
 
