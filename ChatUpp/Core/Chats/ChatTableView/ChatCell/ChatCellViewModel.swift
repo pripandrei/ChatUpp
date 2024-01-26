@@ -9,8 +9,8 @@ import Foundation
 import Firebase
 
 class ChatCellViewModel {
-    let user: DBUser
-    var recentMessage: Message
+    private let user: DBUser
+    private var recentMessage: Message
     var otherUserProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     
     init(user: DBUser, recentMessage: Message) {
@@ -31,6 +31,14 @@ class ChatCellViewModel {
     var userMame: String {
         user.name != nil ? user.name! : "name is missing"
     }
+    
+    var userID: String {
+        user.userId
+    }
+    
+    var userProfilePhotoURL: String {
+        user.photoUrl ?? ""
+    }
 
 //    func fetchImageData() {
 //        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { [weak self] data in
@@ -42,7 +50,7 @@ class ChatCellViewModel {
     
     func fetchImageData() {
         Task {
-            self.otherUserProfileImage.value = try await StorageManager.shared.getUserImage(userID: user.userId, path: user.photoUrl!)
+            self.otherUserProfileImage.value = try await StorageManager.shared.getUserImage(userID: userID, path: userProfilePhotoURL)
         }
     }
 }

@@ -7,10 +7,16 @@
 
 import Foundation
 
+struct Member {
+    let memberID: String
+    let memberName: String
+    var memberProfileImage: Data?
+}
 
 final class ConversationViewModel {
     
     private var conversation: Chat?
+    var memberID: String
     var memberName: String
     var memberProfileImage: Data?
     var messages: [Message] = []
@@ -20,14 +26,29 @@ final class ConversationViewModel {
     
     var onCellVMLoad: (() -> Void)?
     
-    init(memberName: String, conversation: Chat? = nil, imageData: Data?) {
+    init(memberID: String ,memberName: String, conversation: Chat? = nil, imageData: Data?) {
         self.memberName = memberName
         self.conversation = conversation
         self.memberProfileImage = imageData
+        self.memberID = memberID
         
         // 1.Fetching should be done only if conversation: Chat is not nil.
         // 2.Conversation should be transfered to optional
         fetchConversationMessages()
+    }
+    
+    private func createConversation() async throws {
+        let chatId = UUID().uuidString
+        let members = [authenticatedUserID, memberID]
+        let chat = Chat(id: chatId, members: members, lastMessage: messages.first!.id)
+        self.conversation = chat
+//        Task {
+//            do {
+                try await ChatsManager.shared.createNewChat(chat: chat)
+//            } catch {
+//                print("Could not create new chat!: ", error.localizedDescription)
+//            }
+//        }
     }
     
     private func createConversationCellViewModels() -> [ConversationCellViewModel] {
@@ -93,6 +114,9 @@ final class ConversationViewModel {
     private func insertNewMessage(_ message: Message) {
         messages.insert(message, at: 0)
         Task {
+            if self.conversation == nil {
+                try await createConversation()
+            }
             await addMessageToDB(message)
         }
     }

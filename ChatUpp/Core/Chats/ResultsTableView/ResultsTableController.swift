@@ -158,9 +158,10 @@ extension ResultsTableController
         //TEMPORARILY guard, while global search is not implemented
 //        guard let chat = filteredUsers[indexPath.item].chat else {return}
         let chat = filteredUsers[indexPath.item].chat
-        let memberName =  filteredUsers[indexPath.item].userName
-        let memberPhoto =  filteredUsers[indexPath.item].userImageData.value
-        let conversationViewModel = ConversationViewModel(memberName: memberName, conversation: chat, imageData: memberPhoto)
+        let memberID = filteredUsers[indexPath.item].userID
+        let memberName = filteredUsers[indexPath.item].userName
+        let memberPhoto = filteredUsers[indexPath.item].userImageData.value
+        let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
         
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }

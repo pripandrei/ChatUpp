@@ -95,11 +95,11 @@ class ChatsViewController: UIViewController {
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    return ResultsCellViewModel(userID: chatCell.user.userId, userName: chatCell.userMame, userImageURL: chatCell.user.photoUrl!, chat: conversation)
+                    return ResultsCellViewModel(userID: chatCell.userID, userName: chatCell.userMame, userImageURL: chatCell.userProfilePhotoURL, chat: conversation)
                 }
             }
             if chatCell.userMame.lowercased().hasPrefix(trimmedSearchText) {
-                return ResultsCellViewModel(userID: chatCell.user.userId, userName: chatCell.userMame, userImageURL: chatCell.user.photoUrl!, chat: conversation)
+                return ResultsCellViewModel(userID: chatCell.userID, userName: chatCell.userMame, userImageURL: chatCell.userProfilePhotoURL, chat: conversation)
             }
             return nil
         })
@@ -180,10 +180,11 @@ extension ChatsViewController: UITableViewDelegate
         tableView.deselectRow(at: indexPath, animated: false)
         
         let chat = chatsViewModel.chats[indexPath.item]
+        let memberID = chatsViewModel.cellViewModels[indexPath.item].userID
         let memberName = chatsViewModel.cellViewModels[indexPath.item].userMame
         let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].otherUserProfileImage.value
         
-        let conversationViewModel = ConversationViewModel(memberName: memberName, conversation: chat, imageData: memberPhoto)
+        let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
         
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }

@@ -10,7 +10,7 @@ import Foundation
 struct Chat: Codable {
     let id: String
     let members: [String]
-    let recentMessage: String
+    let recentMessageID: String
     
 //    let messages: [Message]?
     
@@ -25,7 +25,7 @@ struct Chat: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.members = try container.decode([String].self, forKey: .members)
-        self.recentMessage = try container.decode(String.self, forKey: .recentMessage)
+        self.recentMessageID = try container.decode(String.self, forKey: .recentMessage)
 //        self.messages = try container.decodeIfPresent([Message].self, forKey: .messages)
     }
     
@@ -33,7 +33,7 @@ struct Chat: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.id, forKey: .id)
         try container.encode(self.members, forKey: .members)
-        try container.encode(self.recentMessage, forKey: .recentMessage)
+        try container.encode(self.recentMessageID, forKey: .recentMessage)
 //        try container.encodeIfPresent(self.messages, forKey: .messages)
     }
     
@@ -45,7 +45,7 @@ struct Chat: Codable {
     {
         self.id = id
         self.members = members
-        self.recentMessage = lastMessage
+        self.recentMessageID = lastMessage
 //        self.messages = messages
     }
 }
