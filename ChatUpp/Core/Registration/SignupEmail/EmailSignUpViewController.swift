@@ -33,7 +33,6 @@ class EmailSignUpViewController: UIViewController {
         setPasswordSignupField()
         configureStackView()
         setSignUpButton()
-        
     }
 
     private func setEmailSignupField()

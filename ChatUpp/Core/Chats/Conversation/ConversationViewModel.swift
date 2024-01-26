@@ -6,12 +6,12 @@
 //
 
 import Foundation
-
-struct Member {
-    let memberID: String
-    let memberName: String
-    var memberProfileImage: Data?
-}
+//
+//struct Member {
+//    let memberID: String
+//    let memberName: String
+//    var memberProfileImage: Data?
+//}
 
 final class ConversationViewModel {
     
@@ -42,13 +42,7 @@ final class ConversationViewModel {
         let members = [authenticatedUserID, memberID]
         let chat = Chat(id: chatId, members: members, lastMessage: messages.first!.id)
         self.conversation = chat
-//        Task {
-//            do {
-                try await ChatsManager.shared.createNewChat(chat: chat)
-//            } catch {
-//                print("Could not create new chat!: ", error.localizedDescription)
-//            }
-//        }
+        try await ChatsManager.shared.createNewChat(chat: chat)
     }
     
     private func createConversationCellViewModels() -> [ConversationCellViewModel] {

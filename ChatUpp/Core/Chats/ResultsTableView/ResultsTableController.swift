@@ -155,8 +155,6 @@ extension ResultsTableController
         
         tableView.deselectRow(at: indexPath, animated: false)
         
-        //TEMPORARILY guard, while global search is not implemented
-//        guard let chat = filteredUsers[indexPath.item].chat else {return}
         let chat = filteredUsers[indexPath.item].chat
         let memberID = filteredUsers[indexPath.item].userID
         let memberName = filteredUsers[indexPath.item].userName
