@@ -27,6 +27,8 @@ final class ResultsTableController: UITableViewController {
 //        self.coordinatorDelegate = coordinator
 //    }
     
+    var searchBar: UISearchBar?
+    
     var filteredUsers: [ResultsCellViewModel] = [] 
     var userSearch: UsersSearch!
     private var noUserWasFoundLabel = UILabel()
@@ -155,12 +157,16 @@ extension ResultsTableController
         
         tableView.deselectRow(at: indexPath, animated: false)
         
-        let chat = filteredUsers[indexPath.item].chat
-        let memberID = filteredUsers[indexPath.item].userID
-        let memberName = filteredUsers[indexPath.item].userName
-        let memberPhoto = filteredUsers[indexPath.item].userImageData.value
-        let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
+        searchBar?.resignFirstResponder()
         
-        coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
+        Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
+            let chat = self.filteredUsers[indexPath.item].chat
+            let memberID = self.filteredUsers[indexPath.item].userID
+            let memberName = self.filteredUsers[indexPath.item].userName
+            let memberPhoto = self.filteredUsers[indexPath.item].userImageData.value
+            let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
+            
+            self.coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
+        }
     }
 }

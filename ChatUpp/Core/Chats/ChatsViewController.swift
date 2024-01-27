@@ -29,6 +29,7 @@ class ChatsViewController: UIViewController {
         resultsTableController.coordinatorDelegate = self.coordinatorDelegate
         return resultsTableController
     }()
+    
     private var searchController: UISearchController!
     
     private var lastSearchedText: String?
@@ -74,6 +75,7 @@ class ChatsViewController: UIViewController {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search"
+        resultsTableController.searchBar = searchController.searchBar
         navigationItem.searchController = searchController
         definesPresentationContext = true
         navigationItem.hidesSearchBarWhenScrolling = true
@@ -178,7 +180,7 @@ extension ChatsViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
-        
+
         let chat = chatsViewModel.chats[indexPath.item]
         let memberID = chatsViewModel.cellViewModels[indexPath.item].userID
         let memberName = chatsViewModel.cellViewModels[indexPath.item].userMame
