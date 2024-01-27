@@ -27,7 +27,7 @@ final class ResultsTableController: UITableViewController {
 //        self.coordinatorDelegate = coordinator
 //    }
     
-    var filteredUsers: [ResultsCellViewModel] = []
+    var filteredUsers: [ResultsCellViewModel] = [] 
     var userSearch: UsersSearch!
     private var noUserWasFoundLabel = UILabel()
     

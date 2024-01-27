@@ -16,7 +16,7 @@ class ChatCellViewModel {
     init(user: DBUser, recentMessage: Message) {
         self.user = user
         self.recentMessage = recentMessage
-//        fetchImageData()
+        //        fetchImageData()
     }
     
     var message: String {
@@ -39,19 +39,20 @@ class ChatCellViewModel {
     var userProfilePhotoURL: String {
         user.photoUrl ?? ""
     }
-
-//    func fetchImageData() {
-//        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { [weak self] data in
-//            if let data = data {
-//                self?.otherUserProfileImage.value = data
-//            }
-//        }
-//    }
     
     func fetchImageData() {
         Task {
             self.otherUserProfileImage.value = try await StorageManager.shared.getUserImage(userID: userID, path: userProfilePhotoURL)
         }
     }
+
+    //    func fetchImageData() {
+    //        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { [weak self] data in
+    //            if let data = data {
+    //                self?.otherUserProfileImage.value = data
+    //            }
+    //        }
+    //    }
+        
 }
 

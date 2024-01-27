@@ -69,7 +69,7 @@ class ChatsCell: UITableViewCell {
     private func setupBinding() {
         cellViewModel.otherUserProfileImage.bind { [weak self, url = cellViewModel.userProfilePhotoURL] data in
             if let imageData = data {
-//                if let url = url, self?.cellViewModel.user.photoUrl == url {
+//                if self?.cellViewModel.userProfilePhotoURL == url {
                     self?.setImage(imageData)
 //                }
             }

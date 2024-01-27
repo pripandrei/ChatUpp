@@ -13,6 +13,7 @@ final class ResultsTableCell: UITableViewCell {
     private var cellViewModel: ResultsCellViewModel!
     var userNameLabel = UILabel()
     var userImage = UIImageView()
+    var userImageURL: String?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -34,17 +35,16 @@ final class ResultsTableCell: UITableViewCell {
         
         userNameLabel.text = cellViewModel.userName
         
-        guard let imageData = cellViewModel.userImageData.value else {
+        if self.userImageURL != cellViewModel.userImageURL {
+            self.userImage.image = nil
             cellViewModel.fetchImageData()
-            return
+            self.userImageURL = cellViewModel.userImageURL
         }
-        let image = UIImage(data: imageData)
-        self.userImage.image = image
     }
     
     private func setupBinding() {
-        cellViewModel.userImageData.bind { [weak self] data in
-            if let imageData = data {
+        cellViewModel.userImageData.bind { [weak self, url = cellViewModel.userImageURL] data in
+            if let imageData = data , url == self?.userImageURL {
                 let image = UIImage(data: imageData)
                 DispatchQueue.main.async {
                     self?.userImage.image = image
@@ -87,32 +87,4 @@ final class ResultsTableCell: UITableViewCell {
     }
 }
 
-// MARK: - RESULTSCELL VIEWMODEL
-
-final class ResultsCellViewModel {
-    
-    let chat: Chat?
-    let userName: String
-    let userID: String
-    let userImageURL: String
-    var userImageData: ObservableObject<Data?> = ObservableObject(nil)
-    
-    init(userID: String, userName: String, userImageURL: String, chat: Chat? = nil) {
-        self.userName = userName
-        self.userID = userID
-        self.userImageURL = userImageURL
-        self.chat = chat
-        fetchImageData()
-    }
-
-    func fetchImageData() {
-        Task {
-            do {
-                userImageData.value = try await StorageManager.shared.getUserImage(userID: userID, path: userImageURL)
-            } catch {
-                print("Error getting user image form storage: ", error)
-            }
-        }
-    }
-}
 
