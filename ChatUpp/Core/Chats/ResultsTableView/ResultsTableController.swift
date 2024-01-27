@@ -143,7 +143,7 @@ extension ResultsTableController
         configuration.textProperties.font = UIFont(name: "HelveticaNeue", size: 13)!
         
         tableViewHeaderFooterView.contentConfiguration = configuration
-        tableViewHeaderFooterView.contentView.backgroundColor = .brown
+        tableViewHeaderFooterView.contentView.backgroundColor = #colorLiteral(red: 0.1177659705, green: 0.3260737062, blue: 0.4667393565, alpha: 1)
         
         return tableViewHeaderFooterView
     }
