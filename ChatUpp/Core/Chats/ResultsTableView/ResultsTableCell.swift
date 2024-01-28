@@ -36,8 +36,12 @@ final class ResultsTableCell: UITableViewCell {
         userNameLabel.text = cellViewModel.userName
         
         if self.userImageURL != cellViewModel.userImageURL {
-//            self.userImage.image = nil
-//            cellViewModel.fetchImageData()
+            
+            //...
+            self.userImage.image = nil
+            cellViewModel.fetchImageData()
+            
+            //...
             self.userImageURL = cellViewModel.userImageURL
         }
     }
@@ -45,7 +49,7 @@ final class ResultsTableCell: UITableViewCell {
     private func setupBinding() {
         cellViewModel.userImageData.bind { [weak self, url = cellViewModel.userImageURL] data in
             if let imageData = data
-//                , url == self?.userImageURL
+                , url == self?.userImageURL
             {
                 let image = UIImage(data: imageData)
                 DispatchQueue.main.async {

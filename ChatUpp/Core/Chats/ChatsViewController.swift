@@ -43,7 +43,9 @@ class ChatsViewController: UIViewController {
         setupBinding()
         configureTableView()
         setupSearchController()
-        chatsViewModel.fetchChatsCellData()
+//        chatsViewModel.fetchChatsData()
+//        chatsViewModel.addChatsListener { self.chatsViewModel.fetchChatsData() }
+        chatsViewModel.setupChatListener()
     }
     
     deinit {

@@ -98,13 +98,13 @@ final class ChatsManager {
     }
     
     //MARK: - GET OTHER MEMBERS FROM CHATS
-    
-    func getOtherMembersFromChats(_ chats: [Chat],_ authUserId: String) -> [String] {
-        return chats.map { chat in
-            guard let memberId = chat.members.first(where: { $0 != authUserId} ) else {fatalError("member is missing")}
-            return memberId
-        }
-    }
+//
+//    func getOtherMembersFromChats(_ chats: [Chat],_ authUserId: String) -> [String] {
+//        return chats.map { chat in
+//            guard let memberId = chat.members.first(where: { $0 != authUserId} ) else {fatalError("member is missing")}
+//            return memberId
+//        }
+//    }
     
     //MARK: - GET ALL MESSAGES FROM CHAT
     
