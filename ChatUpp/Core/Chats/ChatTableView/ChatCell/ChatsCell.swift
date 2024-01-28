@@ -49,7 +49,7 @@ class ChatsCell: UITableViewCell {
     private func handleImageSetup()
     {
         guard let imageData = cellViewModel.otherUserProfileImage.value else {
-//            cellViewModel.fetchImageData()
+            profileImage.image = nil
             cellViewModel.fetchImageData()
             return
         }

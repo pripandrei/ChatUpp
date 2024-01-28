@@ -143,6 +143,36 @@ final class ChatsManager {
             try await document.reference.updateData(["members": FieldValue.arrayUnion([deletedId])])
         }
     }
+    
+    //MARK: - LISTENER
+    
+    func addListenerForChats(withUserId userID: String, complition: @escaping ([Chat]) -> Void)
+    {
+        chatsCollection.addSnapshotListener { querySnapshot, error in
+            guard error == nil else { print(error!.localizedDescription); return}
+            guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
+            
+            let filteredChats = documents.compactMap { document in
+//                do {
+                    let chat = try? document.data(as: Chat.self)
+                    return chat?.members.contains { $0 == userID } == true ? chat : nil
+//                } catch {
+//                    print("Error decoding chat for listener: \(error.localizedDescription)")
+//                    return nil
+//                }
+            }
+            
+//            let chats = documents.compactMap { document in
+//                try? document.data(as: Chat.self)
+//            }.filter { chat in
+//                chat.members.contains { memberID in
+//                    memberID == userID
+//                }
+//            }
+            complition(filteredChats)
+        }
+    }
+    
 }
 
 
