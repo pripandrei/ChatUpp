@@ -16,6 +16,8 @@ final class ChatsViewModel {
     private(set) var cellViewModels = [ChatCellViewModel]()
     
     var onDataFetched: (() -> Void)?
+    
+    private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
 
     private func fetchChatData() async  {
         do {
@@ -27,7 +29,7 @@ final class ChatsViewModel {
         }
     }
     
-    func reloadChatsCellData() {
+    func fetchChatsCellData() {
         loadChats {
             Task {
                 await self.fetchChatData()
@@ -47,14 +49,14 @@ final class ChatsViewModel {
         }
         return cellsViewModel
     }
-
+    
     private func loadChats(complition: @escaping () -> Void)  {
-       guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() else {return}
-        ChatsManager.shared.addListenerForChats(withUserId: authUser.uid, complition: { [weak self] chats in
+//        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() else {return}
+        ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats in
             self?.chats = chats
             complition()
         })
-//        self.chats = try await ChatsManager.shared.getUserChatsFromDB(authUser.uid)
+        //        self.chats = try await ChatsManager.shared.getUserChatsFromDB(authUser.uid)
     }
     
     private func loadRecentMessages() async throws  {
@@ -63,7 +65,7 @@ final class ChatsViewModel {
     }
     
     private func loadOtherMembersOfChats() async throws {
-        let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
+//        let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
         let memberIDs = ChatsManager.shared.getOtherMembersFromChats(chats, authUser.uid)
 
         self.otherMembers = []

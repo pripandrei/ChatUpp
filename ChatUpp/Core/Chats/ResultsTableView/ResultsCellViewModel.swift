@@ -17,12 +17,13 @@ final class ResultsCellViewModel {
     let userImageURL: String
     var userImageData: ObservableObject<Data?> = ObservableObject(nil)
     
-    init(userID: String, userName: String, userImageURL: String, chat: Chat? = nil) {
+    init(userID: String, userName: String, userImageURL: String, chat: Chat? = nil, imageData: Data? = nil) {
         self.userName = userName
         self.userID = userID
         self.userImageURL = userImageURL
         self.chat = chat
-        fetchImageData()
+        self.userImageData.value = imageData
+//        fetchImageData()
     }
 
     func fetchImageData() {

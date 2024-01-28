@@ -144,35 +144,31 @@ final class ChatsManager {
         }
     }
     
-    //MARK: - LISTENER
+    //MARK: - CHAT LISTENER
     
-    func addListenerForChats(withUserId userID: String, complition: @escaping ([Chat]) -> Void)
+    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat]) -> Void)
     {
-        chatsCollection.addSnapshotListener { querySnapshot, error in
+//        chatsCollection.addSnapshotListener { querySnapshot, error in
+//            guard error == nil else { print(error!.localizedDescription); return}
+//            guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
+//
+//            let filteredChats = documents.compactMap { document in
+//                let chat = try? document.data(as: Chat.self)
+//                return chat?.members.contains { $0 == userID } == true ? chat : nil
+//            }
+//            complition(filteredChats)
+//        }
+        
+        chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
             
-            let filteredChats = documents.compactMap { document in
-//                do {
-                    let chat = try? document.data(as: Chat.self)
-                    return chat?.members.contains { $0 == userID } == true ? chat : nil
-//                } catch {
-//                    print("Error decoding chat for listener: \(error.localizedDescription)")
-//                    return nil
-//                }
+            let chats = documents.compactMap { documentSnapshot in
+                try? documentSnapshot.data(as: Chat.self)
             }
-            
-//            let chats = documents.compactMap { document in
-//                try? document.data(as: Chat.self)
-//            }.filter { chat in
-//                chat.members.contains { memberID in
-//                    memberID == userID
-//                }
-//            }
-            complition(filteredChats)
+            complition(chats)
         }
     }
-    
 }
 
 

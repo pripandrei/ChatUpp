@@ -22,7 +22,7 @@ final class ConversationViewModel {
     var messages: [Message] = []
     var cellViewModels: [ConversationCellViewModel] = []
     
-    let authenticatedUserID: String = (try? AuthenticationManager.shared.getAuthenticatedUser())!.uid
+    let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
     var onCellVMLoad: (() -> Void)?
     
