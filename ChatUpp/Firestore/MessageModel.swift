@@ -54,8 +54,8 @@ struct Message: Codable {
         try container.encodeIfPresent(self.imagePath, forKey: .imagePath)
         try container.encode(self.timestamp, forKey: .timestamp)
         try container.encode(self.messageSeen, forKey: .messageSeen)
-        try container.encode(self.receivedBy, forKey: .receivedBy)
-        try container.encode(self.imageSize, forKey: .imageSize)
+        try container.encodeIfPresent(self.receivedBy, forKey: .receivedBy)
+        try container.encodeIfPresent(self.imageSize, forKey: .imageSize)
     }
     
     init(id: String,

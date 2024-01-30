@@ -30,8 +30,8 @@
             filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "50"
-            endingLineNumber = "50"
+            startingLineNumber = "53"
+            endingLineNumber = "53"
             landmarkName = "fetchChatData()"
             landmarkType = "7">
             <Locations>
@@ -358,8 +358,8 @@
             filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "47"
-            endingLineNumber = "47"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
             landmarkName = "fetchChatData()"
             landmarkType = "7">
             <Locations>
@@ -436,8 +436,8 @@
             filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "48"
-            endingLineNumber = "48"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
             landmarkName = "fetchChatData()"
             landmarkType = "7">
             <Locations>

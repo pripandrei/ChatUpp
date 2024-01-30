@@ -12,7 +12,7 @@ final class ChatsViewModel {
 
     private(set) var chats: [Chat] = []
     private(set) var otherMembers: [DBUser] = []
-    private(set) var recentMessages: [Message] = []
+    private(set) var recentMessages: [Message?] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
     
     var onDataFetched: (() -> Void)?
@@ -20,13 +20,16 @@ final class ChatsViewModel {
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
 
     private func createCellViewModel() -> [ChatCellViewModel] {
-        print(authUser.name)
+//        print(authUser.name)
         return chats.enumerated().map { index, element in
-            print(otherMembers.count)
-            print(recentMessages.count)
+//            var message: Message? = nil
+//            print(otherMembers.count)
+//            print(recentMessages.count)
             let member = otherMembers[index]
-            let message = recentMessages[index]
-            return ChatCellViewModel(user: member, recentMessage: message, chatID: element.id)
+//            if element.recentMessageID != nil {
+               let message = recentMessages[index]
+//            }
+            return ChatCellViewModel(user: member, chatID: element.id, recentMessage: message)
         }
 //        return zip(otherMembers, recentMessages).map { ChatCellViewModel(user: $0, recentMessage: $1) }
     }
@@ -71,7 +74,7 @@ final class ChatsViewModel {
         })
     }
     
-    private func loadRecentMessages() async throws -> [Message]  {
+    private func loadRecentMessages() async throws -> [Message?]  {
         try await ChatsManager.shared.getRecentMessageFromChats(chats)
     }
     

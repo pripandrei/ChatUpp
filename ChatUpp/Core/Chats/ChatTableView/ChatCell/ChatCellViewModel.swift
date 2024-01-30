@@ -17,7 +17,7 @@ class ChatCellViewModel {
     
     var recentMessage: ObservableObject<Message?> = ObservableObject(nil)
     
-    init(user: DBUser, recentMessage: Message, chatID: String) {
+    init(user: DBUser, chatID: String, recentMessage: Message?) {
         self.user = user
         self.recentMessage.value = recentMessage
         self.chatId = chatID

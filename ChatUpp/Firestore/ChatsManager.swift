@@ -87,11 +87,12 @@ final class ChatsManager {
     
     //MARK: - GET RECENT MESSAGE FROM CHATS
     
-    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message] {
-        var messages = [Message]()
+    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message?] {
+        var messages = [Message?]()
         
         for chat in chats {
-            let message = try await getMessageDocument(messagePath: chat.recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
+            guard let recentMessageID = chat.recentMessageID else {messages.append(nil) ; continue}
+            let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             messages.append(message)
         }
         return messages
