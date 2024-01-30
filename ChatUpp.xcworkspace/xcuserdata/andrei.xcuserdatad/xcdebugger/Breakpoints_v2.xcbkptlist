@@ -7,47 +7,93 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "BC77FB6B-B852-4E6D-A5CB-28A7BE01D5B8"
+            uuid = "371915E4-7030-4B1C-9E46-D9E9E06DDB9D"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsTableCell.swift"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "51"
-            endingLineNumber = "51"
+            startingLineNumber = "81"
+            endingLineNumber = "81"
             landmarkName = "setupBinding()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "795FAEC3-390D-4188-93AC-4B341C04D6EE"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "29"
+            endingLineNumber = "29"
+            landmarkName = "addListenerToRecentMessage()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "BC77FB6B-B852-4E6D-A5CB-28A7BE01D5B8 - 92f5ec0025f0ecbf"
+                  uuid = "795FAEC3-390D-4188-93AC-4B341C04D6EE - 980fb7c649e9e13e"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Foundation.Data&gt;) -&gt; () in ChatUpp.ResultsTableCell.setupBinding() -&gt; ()"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async throws -&gt; () in closure #1 (ChatUpp.Chat) -&gt; () in ChatUpp.ChatCellViewModel.addListenerToRecentMessage() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ResultsTableView/ResultsTableCell.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "47"
-                  endingLineNumber = "47"
-                  offsetFromSymbolStart = "200">
+                  startingLineNumber = "29"
+                  endingLineNumber = "29"
+                  offsetFromSymbolStart = "76">
                </Location>
                <Location
-                  uuid = "BC77FB6B-B852-4E6D-A5CB-28A7BE01D5B8 - 92f5ec0025f0ecbf"
+                  uuid = "795FAEC3-390D-4188-93AC-4B341C04D6EE - 49a34583815c1069"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Foundation.Data&gt;) -&gt; () in ChatUpp.ResultsTableCell.setupBinding() -&gt; ()"
+                  symbolName = "(2) await resume partial function for closure #1 @Sendable () async throws -&gt; () in closure #1 (ChatUpp.Chat) -&gt; () in ChatUpp.ChatCellViewModel.addListenerToRecentMessage() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ResultsTableView/ResultsTableCell.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "47"
-                  endingLineNumber = "47"
-                  offsetFromSymbolStart = "252">
+                  startingLineNumber = "29"
+                  endingLineNumber = "29"
+                  offsetFromSymbolStart = "40">
+               </Location>
+               <Location
+                  uuid = "795FAEC3-390D-4188-93AC-4B341C04D6EE - 255bf4d992573d3c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async throws -&gt; () in closure #1 (ChatUpp.Chat) -&gt; () in ChatUpp.ChatCellViewModel.addListenerToRecentMessage() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "29"
+                  endingLineNumber = "29"
+                  offsetFromSymbolStart = "104">
+               </Location>
+               <Location
+                  uuid = "795FAEC3-390D-4188-93AC-4B341C04D6EE - 1f01d45e0183df3d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async throws -&gt; () in closure #1 (ChatUpp.Chat) -&gt; () in ChatUpp.ChatCellViewModel.addListenerToRecentMessage() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "29"
+                  endingLineNumber = "29"
+                  offsetFromSymbolStart = "80">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -55,33 +101,49 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "0D18B80B-A9AB-4CF0-B514-FD54EFBAA9A5"
+            uuid = "6442A58A-3BA8-4A92-80C2-54E5A912004A"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsTableCell.swift"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "54"
-            endingLineNumber = "54"
-            landmarkName = "setupBinding()"
+            startingLineNumber = "27"
+            endingLineNumber = "27"
+            landmarkName = "addListenerToRecentMessage()"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "AA06EB11-61BF-4559-AF70-9F0058B600C8"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsTableCell.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "36"
-            endingLineNumber = "36"
-            landmarkName = "configure(viewModel:)"
-            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "6442A58A-3BA8-4A92-80C2-54E5A912004A - cbd140e3dc3880d2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ChatCellViewModel.addListenerToRecentMessage() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "27"
+                  endingLineNumber = "27"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "6442A58A-3BA8-4A92-80C2-54E5A912004A - 737c1c90bbc62b74"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (ChatUpp.Chat) -&gt; () in ChatUpp.ChatCellViewModel.addListenerToRecentMessage() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "28"
+                  endingLineNumber = "28"
+                  offsetFromSymbolStart = "100">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -43,7 +43,6 @@ class ChatsViewController: UIViewController {
         setupBinding()
         configureTableView()
         setupSearchController()
-//        chatsViewModel.fetchChatsData()
 //        chatsViewModel.addChatsListener { self.chatsViewModel.fetchChatsData() }
         chatsViewModel.setupChatListener()
     }
@@ -99,7 +98,6 @@ class ChatsViewController: UIViewController {
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    print("=====LOCAL IMAGE:", chatCell.otherUserProfileImage.value)
                     return ResultsCellViewModel(userID: chatCell.userID, userName: chatCell.userMame, userImageURL: chatCell.userProfilePhotoURL, chat: conversation, imageData: chatCell.otherUserProfileImage.value)
                 }
             }

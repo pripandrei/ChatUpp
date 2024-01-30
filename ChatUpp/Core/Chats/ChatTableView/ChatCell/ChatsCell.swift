@@ -37,6 +37,7 @@ class ChatsCell: UITableViewCell {
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
+        cellViewModel.addListenerToRecentMessage()
         setupBinding()
         handleImageSetup()
         
@@ -71,6 +72,13 @@ class ChatsCell: UITableViewCell {
             if let imageData = data {
                 if self?.cellViewModel.userProfilePhotoURL == url {
                     self?.setImage(imageData)
+                }
+            }
+        }
+        cellViewModel.testMessage.bind { message in
+            if let messageBody = message?.messageBody {
+                Task {@MainActor in
+                    self.messageLable.text = messageBody
                 }
             }
         }

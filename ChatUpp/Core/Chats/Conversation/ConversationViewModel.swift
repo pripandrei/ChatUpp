@@ -37,12 +37,16 @@ final class ConversationViewModel {
         fetchConversationMessages()
     }
     
-    private func createConversation() async throws {
+    private func createConversation() async {
         let chatId = UUID().uuidString
         let members = [authenticatedUserID, memberID]
         let chat = Chat(id: chatId, members: members, lastMessage: messages.first!.id)
         self.conversation = chat
-        try await ChatsManager.shared.createNewChat(chat: chat)
+        do {
+            try await ChatsManager.shared.createNewChat(chat: chat)
+        } catch {
+            print("Error creating conversation", error.localizedDescription)
+        }
     }
     
     private func createConversationCellViewModels() -> [ConversationCellViewModel] {
@@ -101,17 +105,27 @@ final class ConversationViewModel {
         do {
             try await ChatsManager.shared.createNewMessageInDataBase(message: message, atChatPath: conversation.id)
         } catch {
-            print("error occur while trying to create message: ", error.localizedDescription)
+            print("error occur while trying to create message in DB: ", error.localizedDescription)
         }
     }
     
     private func insertNewMessage(_ message: Message) {
         messages.insert(message, at: 0)
         Task {
-            if self.conversation == nil {
-                try await createConversation()
-            }
+            guard let conversation = self.conversation else { await createConversation(); return }
+            //            if self.conversation == nil {
+            //                try await createConversation()
+            //            }
             await addMessageToDB(message)
+            await updateChatLastMessage(chatID: conversation.id, messageID: message.id)
+        }
+    }
+    
+    private func updateChatLastMessage(chatID: String, messageID: String) async {
+        do {
+            try await ChatsManager.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
+        } catch {
+            print("Error updating chat last message:", error.localizedDescription)
         }
     }
     

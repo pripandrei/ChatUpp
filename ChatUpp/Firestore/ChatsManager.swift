@@ -113,6 +113,15 @@ final class ChatsManager {
         return try await messagesReference.order(by: "timestamp", descending: true).getDocuments(as: Message.self)
     }
     
+    //MARK: - UPDATE RECENT MESSAGE OF CHAT
+    
+    func updateChatRecentMessage(recentMessageID: String ,chatID: String) async throws {
+        let data: [String: Any] = [
+            Chat.CodingKeys.recentMessage.rawValue : recentMessageID
+        ]
+        try await chatDocument(documentPath: chatID).updateData(data)
+    }
+    
     //MARK: - UPDATE MESSAGE IMAGE PATH
     
     func updateMessageImagePath(messageID: String, chatDocumentPath: String, path: String) async throws {
@@ -144,7 +153,7 @@ final class ChatsManager {
         }
     }
     
-    //MARK: - CHAT LISTENER
+    //MARK: - LISTENERS
     
     func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat]) -> Void)
     {
@@ -159,18 +168,41 @@ final class ChatsManager {
 //            complition(filteredChats)
 //        }
         
+        // get only the added or removed doc with diff option.
+        // use compliciton to get the doc and find if the doc is in array of chats remove it, if not add it
+        
         chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
+
+            querySnapshot?.documentChanges.forEach({ diff in
+                if diff.type == .added || diff.type == .removed {
+                    let chats = documents.compactMap { documentSnapshot in
+                        try? documentSnapshot.data(as: Chat.self)
+                    }
+                    complition(chats)
+                }
+            })
+//
+//            let chats = documents.compactMap { documentSnapshot in
+//                try? documentSnapshot.data(as: Chat.self)
+////                try? documentSnapshot.document.data(as: Chat.self)
+//            }
+//            print("+++++Count of chats",chats.count)
+//            complition(chats)
+        }
+    }
+    
+    func addListenerForLastMessage(chatID: String, complition: @escaping (Chat) -> Void) {
+        chatDocument(documentPath: chatID).addSnapshotListener { docSnapshot, error in
+            guard error == nil else { print(error!.localizedDescription); return}
+            guard let document = docSnapshot else { print("No Documents to listen"); return}
             
-            let chats = documents.compactMap { documentSnapshot in
-                try? documentSnapshot.data(as: Chat.self)
-            }
-            complition(chats)
+            guard let chat = try? document.data(as: Chat.self) else {print("Could not decode Chat data!") ; return}
+            complition(chat)
         }
     }
 }
-
 
 extension Query {
     func getDocuments<T>(as type: T.Type) async throws -> [T] where T: Decodable  {
@@ -180,7 +212,6 @@ extension Query {
         }
     }
 }
-
 
 class GenericViewController<T: UIView>: UIViewController { }
 
