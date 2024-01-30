@@ -91,6 +91,7 @@ final class ChatsManager {
         var messages = [Message]()
         
         for chat in chats {
+            print(chat.recentMessageID, chat.id)
             let message = try await getMessageDocument(messagePath: chat.recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             messages.append(message)
         }
@@ -173,16 +174,25 @@ final class ChatsManager {
         
         chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
-            guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
+            guard let documents = querySnapshot?.documentChanges else { print("No Documents to listen"); return}
 
-            querySnapshot?.documentChanges.forEach({ diff in
+            
+            let chats = documents.compactMap { diff in
                 if diff.type == .added || diff.type == .removed {
-                    let chats = documents.compactMap { documentSnapshot in
-                        try? documentSnapshot.data(as: Chat.self)
-                    }
-                    complition(chats)
+                    return try? diff.document.data(as: Chat.self)
                 }
-            })
+                return nil
+            }
+            complition(chats)
+            
+//            querySnapshot?.documentChanges.forEach({ diff in
+//                if diff.type == .added || diff.type == .removed {
+//                    let chats = documents.compactMap { documentSnapshot in
+//                        try? documentSnapshot.data(as: Chat.self)
+//                    }
+//                    complition(chats)
+//                }
+//            })
 //
 //            let chats = documents.compactMap { documentSnapshot in
 //                try? documentSnapshot.data(as: Chat.self)

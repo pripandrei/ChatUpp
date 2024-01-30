@@ -20,7 +20,10 @@ final class ChatsViewModel {
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
 
     private func createCellViewModel() -> [ChatCellViewModel] {
-        chats.enumerated().map { index, element in
+        print(authUser.name)
+        return chats.enumerated().map { index, element in
+            print(otherMembers.count)
+            print(recentMessages.count)
             let member = otherMembers[index]
             let message = recentMessages[index]
             return ChatCellViewModel(user: member, recentMessage: message, chatID: element.id)
@@ -29,6 +32,7 @@ final class ChatsViewModel {
     }
     
     func setupChatListener() {
+       
         addChatsListener {
             Task {
                 await self.fetchChatData()
@@ -48,9 +52,10 @@ final class ChatsViewModel {
     }
     
     private func addChatsListener(complition: @escaping () -> Void)  {
+        
         ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats in
             guard let self = self else {return}
-            
+            print("Times listener called")
 //            if self.chats.isEmpty {
 //                self.chats = chats
 //            } else if self.chats.contains(where: {$0.id == chats.first!.id}) {
@@ -83,7 +88,7 @@ final class ChatsViewModel {
     
     private func getOtherMembersFromChats() -> [String] {
         return chats.compactMap { chat in
-            chat.members.first(where: { $0 != authUser.uid} )
+            return chat.members.first(where: { $0 != authUser.uid} )
         }
     }
 }
