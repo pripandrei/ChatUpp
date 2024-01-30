@@ -112,13 +112,17 @@ final class ConversationViewModel {
     private func insertNewMessage(_ message: Message) {
         messages.insert(message, at: 0)
         Task {
-            guard let conversation = self.conversation else { await createConversation(); return }
+            //            guard let conversation = self.conversation else { await createConversation(); return }
+            if self.conversation == nil {
+                await createConversation()
+            }
             await addMessageToDB(message)
-            await updateLastMessageFromDBChat(chatID: conversation.id, messageID: message.id)
+            await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: message.id)
         }
     }
     
-    private func updateLastMessageFromDBChat(chatID: String, messageID: String) async {
+    private func updateLastMessageFromDBChat(chatID: String?, messageID: String) async {
+        guard let chatID = chatID else { print("chatID is nil") ; return}
         do {
             try await ChatsManager.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
         } catch {
