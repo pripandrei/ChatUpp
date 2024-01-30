@@ -67,7 +67,7 @@ final class ProfileEditingViewModel {
     }
     
     private func updateDBUser() async throws {
-        try await UserManager.shared.updateUser(with: authUser.uid, usingName: authUser.name, profilePhotoURL: profilePictureURL, phoneNumber: userData.phone, nickname: userData.nickname)
+        try await UserManager.shared.updateUser(with: authUser.uid, usingName: userData.name, profilePhotoURL: profilePictureURL, phoneNumber: userData.phone, nickname: userData.nickname)
     }
     
     func handleProfileDataUpdate() {

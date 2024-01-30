@@ -91,7 +91,6 @@ final class ChatsManager {
         var messages = [Message]()
         
         for chat in chats {
-            print(chat.recentMessageID, chat.id)
             let message = try await getMessageDocument(messagePath: chat.recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             messages.append(message)
         }

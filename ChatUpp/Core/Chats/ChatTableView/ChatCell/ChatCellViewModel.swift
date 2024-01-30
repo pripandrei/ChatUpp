@@ -9,18 +9,36 @@ import Foundation
 import Firebase
 
 class ChatCellViewModel {
-    private let user: DBUser
-    private var recentMessage: Message
+    
+    private(set) var user: DBUser
+//    private(set) var recentMessage: Message
     var otherUserProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     var chatId: String
     
-    var testMessage: ObservableObject<Message?> = ObservableObject(nil)
+    var recentMessage: ObservableObject<Message?> = ObservableObject(nil)
     
     init(user: DBUser, recentMessage: Message, chatID: String) {
         self.user = user
-        self.recentMessage = recentMessage
+        self.recentMessage.value = recentMessage
         self.chatId = chatID
         //        fetchImageData()
+    }
+    
+    var message: String? {
+        return recentMessage.value?.messageBody != nil ? recentMessage.value!.messageBody : nil
+    }
+    
+    var timestamp: String? {
+        guard let hoursAndMinutes = recentMessage.value?.timestamp.formatToHoursAndMinutes() else {return nil}
+        return hoursAndMinutes
+    }
+    
+    var userName: String {
+        user.name != nil ? user.name! : "name is missing"
+    }
+
+    var userProfilePhotoURL: String {
+        user.photoUrl ?? ""
     }
     
     func addListenerToRecentMessage() {
@@ -28,36 +46,15 @@ class ChatCellViewModel {
             Task {
                 let message = try await ChatsManager.shared.getRecentMessageFromChats([chat])
                 if let message = message.first {
-                    self.testMessage.value = message
+                    self.recentMessage.value = message
                 }
             }
         }
     }
     
-    var message: String {
-        return recentMessage.messageBody
-    }
-    
-    var timestamp: String {
-        let hoursAndMinutes = recentMessage.timestamp.formatToHoursAndMinutes()
-        return hoursAndMinutes
-    }
-    
-    var userMame: String {
-        user.name != nil ? user.name! : "name is missing"
-    }
-    
-    var userID: String {
-        user.userId
-    }
-    
-    var userProfilePhotoURL: String {
-        user.photoUrl ?? ""
-    }
-    
     func fetchImageData() {
         Task {
-            self.otherUserProfileImage.value = try await StorageManager.shared.getUserImage(userID: userID, path: userProfilePhotoURL)
+            self.otherUserProfileImage.value = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
         }
     }
     

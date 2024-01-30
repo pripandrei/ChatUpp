@@ -42,7 +42,7 @@ class ChatsCell: UITableViewCell {
         handleImageSetup()
         
         messageLable.text = viewModel.message
-        nameLabel.text = viewModel.userMame
+        nameLabel.text = viewModel.user.name
         dateLable.adjustsFontSizeToFitWidth = true
         dateLable.text = viewModel.timestamp
     }
@@ -75,10 +75,11 @@ class ChatsCell: UITableViewCell {
                 }
             }
         }
-        cellViewModel.testMessage.bind { message in
-            if let messageBody = message?.messageBody {
-                Task {@MainActor in
-                    self.messageLable.text = messageBody
+        cellViewModel.recentMessage.bind { [weak self] message in
+            if let message = message {
+                Task { @MainActor in
+                    self?.messageLable.text = message.messageBody
+                    self?.dateLable.text = message.timestamp.formatToHoursAndMinutes()
                 }
             }
         }

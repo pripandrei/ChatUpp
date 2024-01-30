@@ -92,17 +92,17 @@ class ChatsViewController: UIViewController {
             let filteredSearchText = searchTextComponents.joined(separator: " ")
             let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
             
-            let nameSubstrings = chatCell.userMame.lowercased().components(separatedBy: delimiters)
+            let nameSubstrings = chatCell.userName.lowercased().components(separatedBy: delimiters)
             
             let conversation = chatsViewModel.chats[index]
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    return ResultsCellViewModel(userID: chatCell.userID, userName: chatCell.userMame, userImageURL: chatCell.userProfilePhotoURL, chat: conversation, imageData: chatCell.otherUserProfileImage.value)
+                    return ResultsCellViewModel(userID: chatCell.user.userId, userName: chatCell.userName, userImageURL: chatCell.userProfilePhotoURL, chat: conversation, imageData: chatCell.otherUserProfileImage.value)
                 }
             }
-            if chatCell.userMame.lowercased().hasPrefix(trimmedSearchText) {
-                return ResultsCellViewModel(userID: chatCell.userID, userName: chatCell.userMame, userImageURL: chatCell.userProfilePhotoURL, chat: conversation)
+            if chatCell.userName.lowercased().hasPrefix(trimmedSearchText) {
+                return ResultsCellViewModel(userID: chatCell.user.userId, userName: chatCell.userName, userImageURL: chatCell.userProfilePhotoURL, chat: conversation)
             }
             return nil
         })
@@ -183,8 +183,8 @@ extension ChatsViewController: UITableViewDelegate
         tableView.deselectRow(at: indexPath, animated: false)
 
         let chat = chatsViewModel.chats[indexPath.item]
-        let memberID = chatsViewModel.cellViewModels[indexPath.item].userID
-        let memberName = chatsViewModel.cellViewModels[indexPath.item].userMame
+        let memberID = chatsViewModel.cellViewModels[indexPath.item].user.userId
+        let memberName = chatsViewModel.cellViewModels[indexPath.item].userName
         let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].otherUserProfileImage.value
         
         let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
