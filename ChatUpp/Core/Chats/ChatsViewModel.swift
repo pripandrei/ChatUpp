@@ -20,18 +20,12 @@ final class ChatsViewModel {
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
 
     private func createCellViewModel() -> [ChatCellViewModel] {
-//        print(authUser.name)
         return chats.enumerated().map { index, element in
-//            var message: Message? = nil
-//            print(otherMembers.count)
-//            print(recentMessages.count)
             let member = otherMembers[index]
-//            if element.recentMessageID != nil {
-               let message = recentMessages[index]
-//            }
+            let message = recentMessages[index]
             return ChatCellViewModel(user: member, chatID: element.id, recentMessage: message)
         }
-//        return zip(otherMembers, recentMessages).map { ChatCellViewModel(user: $0, recentMessage: $1) }
+        //        return zip(otherMembers, recentMessages).map { ChatCellViewModel(user: $0, recentMessage: $1) }
     }
     
     func setupChatListener() {
