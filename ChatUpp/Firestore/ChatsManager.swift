@@ -156,7 +156,7 @@ final class ChatsManager {
     
     //MARK: - LISTENERS
     
-    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat]) -> Void)
+    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void)
     {
 //        chatsCollection.addSnapshotListener { querySnapshot, error in
 //            guard error == nil else { print(error!.localizedDescription); return}
@@ -174,24 +174,24 @@ final class ChatsManager {
         
         chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
-            guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
+//            guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
+            guard let documents = querySnapshot?.documentChanges else { print("No Documents to listen"); return}
 
+            var docChangeType: [DocumentChangeType] = []
             
-//            let chats = documents.compactMap { diff in
+            let chats = documents.compactMap { docChange in
+                docChangeType.append(docChange.type)
 //                if diff.type == .added || diff.type == .removed {
-//                    return try? diff.document.data(as: Chat.self)
-//                }
-//                return nil
-//            }
-//
-            let chats = documents.compactMap { diff in
-//                if diff.type == .added || diff.type == .removed {
-                    return try? diff.data(as: Chat.self)
+                    return try? docChange.document.data(as: Chat.self)
 //                }
 //                return nil
             }
-            
-            complition(chats)
+            complition(chats,docChangeType)
+//
+//            let chats = documents.compactMap { diff in
+//                    return try? diff.data(as: Chat.self)
+//            }
+//            complition(chats)
             
             
 //            querySnapshot?.documentChanges.forEach({ diff in
@@ -202,24 +202,18 @@ final class ChatsManager {
 //                    complition(chats)
 //                }
 //            })
-//
-//            let chats = documents.compactMap { documentSnapshot in
-//                try? documentSnapshot.data(as: Chat.self)
-////                try? documentSnapshot.document.data(as: Chat.self)
-//            }
-//            print("+++++Count of chats",chats.count)
-//            complition(chats)
         }
     }
-    
-    func addListenerForLastMessage(chatID: String, complition: @escaping (Chat) -> Void) {
-        chatDocument(documentPath: chatID).addSnapshotListener { docSnapshot, error in
+
+    func addListenerForLastMessage(chatID: String, complition: @escaping (Chat) -> Void) -> ListenerRegistration {
+        let listener = chatDocument(documentPath: chatID).addSnapshotListener { docSnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let document = docSnapshot else { print("No Documents to listen"); return}
             
             guard let chat = try? document.data(as: Chat.self) else {print("Could not decode Chat data!") ; return}
             complition(chat)
         }
+        return listener
     }
 }
 

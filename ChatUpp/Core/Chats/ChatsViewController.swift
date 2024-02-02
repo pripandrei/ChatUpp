@@ -65,9 +65,16 @@ class ChatsViewController: UIViewController {
     
     private func setupBinding() {
         chatsViewModel.onDataFetched = { [weak self] in
-                DispatchQueue.main.async {
-                    self?.tableView.reloadData()
-                }
+            DispatchQueue.main.async {
+                self?.tableView.reloadData()
+            }
+        }
+        
+        chatsViewModel.reloadCell = {
+            DispatchQueue.main.async {
+                let indexPath = IndexPath(row: 0, section: 0)
+                self.tableView.insertRows(at: [indexPath], with: .automatic)
+            }
         }
     }
     

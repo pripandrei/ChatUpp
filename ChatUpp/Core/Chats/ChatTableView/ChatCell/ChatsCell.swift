@@ -37,7 +37,7 @@ class ChatsCell: UITableViewCell {
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
-        cellViewModel.addListenerToRecentMessage()
+//        cellViewModel.addListenerToRecentMessage()
         setupBinding()
         handleImageSetup()
         
@@ -78,6 +78,8 @@ class ChatsCell: UITableViewCell {
         cellViewModel.recentMessage.bind { [weak self] message in
             if let message = message {
                 Task { @MainActor in
+//                    print(self?.nameLabel.text)
+//                    print(message.messageBody)
                     self?.messageLable.text = message.messageBody
                     self?.dateLable.text = message.timestamp.formatToHoursAndMinutes()
                 }

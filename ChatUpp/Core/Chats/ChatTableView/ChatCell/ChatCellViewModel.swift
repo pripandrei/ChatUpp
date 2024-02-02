@@ -41,15 +41,26 @@ class ChatCellViewModel {
         user.photoUrl ?? ""
     }
     
+    var listener: ListenerRegistration?
+    
     func addListenerToRecentMessage() {
-        ChatsManager.shared.addListenerForLastMessage(chatID: chatId) { chat in
+//        if listener != nil {
+//            listener?.remove()
+//        }
+        self.listener = ChatsManager.shared.addListenerForLastMessage(chatID: chatId) { chat in
             Task {
                 let message = try await ChatsManager.shared.getRecentMessageFromChats([chat])
+//                print(self.userName)
+//                print(message)
                 if let message = message.first {
                     self.recentMessage.value = message
                 }
             }
         }
+    }
+    
+    func updateRecentMessage(_ message: Message?) {
+        self.recentMessage.value = message
     }
     
     func fetchImageData() {
@@ -58,8 +69,11 @@ class ChatCellViewModel {
         }
     }
     
+    deinit {
+        print("CHATCELLViewMOdel DeINITED")
+//        listener?.remove()
+    }
     
-
     //    func fetchImageData() {
     //        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { [weak self] data in
     //            if let data = data {
