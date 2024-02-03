@@ -39,12 +39,15 @@ class ChatsCell: UITableViewCell {
         self.cellViewModel = viewModel
 //        cellViewModel.addListenerToRecentMessage()
         setupBinding()
-        handleImageSetup()
+//        handleImageSetup()
         
-        messageLable.text = viewModel.message
-        nameLabel.text = viewModel.user.name
+        self.messageLable.text = cellViewModel.recentMessage.value?.messageBody
+        self.dateLable.text = cellViewModel.recentMessage.value?.timestamp.formatToHoursAndMinutes()
+        
+//        messageLable.text = viewModel.message
+//        nameLabel.text = viewModel.user.name
         dateLable.adjustsFontSizeToFitWidth = true
-        dateLable.text = viewModel.timestamp
+//        dateLable.text = viewModel.timestamp
     }
     
     private func handleImageSetup()
@@ -70,10 +73,10 @@ class ChatsCell: UITableViewCell {
     private func setupBinding() {
         cellViewModel.otherUserProfileImage.bind { [weak self, url = cellViewModel.userProfilePhotoURL] data in
             if let imageData = data {
-                if self?.cellViewModel.userProfilePhotoURL == url {
+//                if self?.cellViewModel.userProfilePhotoURL == url {
                     self?.setImage(imageData)
                 }
-            }
+//            }
         }
         cellViewModel.recentMessage.bind { [weak self] message in
             if let message = message {
@@ -83,6 +86,11 @@ class ChatsCell: UITableViewCell {
                     self?.messageLable.text = message.messageBody
                     self?.dateLable.text = message.timestamp.formatToHoursAndMinutes()
                 }
+            }
+        }
+        cellViewModel.onUserFetch = {
+            Task{ @MainActor in
+                self.nameLabel.text = self.cellViewModel.user?.name
             }
         }
     }

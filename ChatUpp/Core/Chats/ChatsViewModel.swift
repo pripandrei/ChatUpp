@@ -19,14 +19,14 @@ final class ChatsViewModel {
     
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
 
-    private func createCellViewModel() -> [ChatCellViewModel] {
-        return chats.enumerated().map { index, element in
-            let member = otherMembers[index]
-            let message = recentMessages[index]
-            return ChatCellViewModel(user: member, chatID: element.id, recentMessage: message)
-        }
-        //        return zip(otherMembers, recentMessages).map { ChatCellViewModel(user: $0, recentMessage: $1) }
-    }
+//    private func createCellViewModel() -> [ChatCellViewModel] {
+//        return chats.enumerated().map { index, element in
+//            let member = otherMembers[index]
+//            let message = recentMessages[index]
+//            return ChatCellViewModel(user: member, chatID: element.id, recentMessage: message)
+//        }
+//        //        return zip(otherMembers, recentMessages).map { ChatCellViewModel(user: $0, recentMessage: $1) }
+//    }
     
     func setupChatListener() {
         addChatsListener {
@@ -68,52 +68,24 @@ final class ChatsViewModel {
 //            }
             docTypes.enumerated().forEach { index, type in
                 switch type {
-                case .added: Task {
-                    try await self.handleAddedChat(chats[index])
-                }
+                case .added:  self.handleAddedChat(chats[index])
                 case .removed: self.handleRemovedChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
             }
-//            self.chats = chats
-//            complition()
         })
     }
     
-    private func handleAddedChat(_ chat: Chat) async throws  {
-        self.chats.append(chat)
-//        Task {
-        
-            guard let recentMessage = try await self.loadRecentMessages([chat]).first else {return}
-            guard let otherMembers = try await self.loadOtherMembersOfChats([chat]).first else {return}
-            self.recentMessages.append(recentMessage)
-            self.otherMembers.append(otherMembers)
-            let cellVM = ChatCellViewModel(user: otherMembers, chatID: chat.id, recentMessage: recentMessage)
+    private func handleAddedChat(_ chat: Chat) {
+        DispatchQueue.main.async {
+            self.chats.append(chat)
+            let cellVM = ChatCellViewModel(chat: chat)
             self.cellViewModels.insert(cellVM, at: 0)
-            
+            self.onDataFetched?()
 //            self.reloadCell?()
-//        }
-        print("added!!")
+        }
     }
-    
-//    private func handleAddedChat(_ chat: Chat) {
-//        print("enteered Handel")
-//        self.chats.insert(chat, at: 0)
-////        Task {
-//        guard let member = try? DBUser(auth: AuthenticationManager.shared.getAuthenticatedUser()) else {return}
-//        let message = Message(id: "", messageBody: "", senderId: "", imagePath: nil, timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil)
-////            guard let recentMessage = try await self.loadRecentMessages([chat]).first else {return}
-////            guard let otherMembers = try await self.loadOtherMembersOfChats([chat]).first else {return}
-//            self.recentMessages.insert(message, at: 0)
-//            self.otherMembers.insert(member, at: 0)
-//            let cellVM = ChatCellViewModel(user: member, chatID: chat.id, recentMessage: message)
-//            self.cellViewModels.insert(cellVM, at: 0)
-//
-//            self.reloadCell?()
-////        }
-//
-//        print("added!!")
-//    }
+
 
     var reloadCell: (() -> Void)?
     
@@ -124,7 +96,7 @@ final class ChatsViewModel {
             Task {
                 guard let message = try await loadRecentMessages([chat]).first else {return}
                 cellViewModels.forEach { cell in
-                    if cell.chatId == oldChat.id {
+                    if cell.chat.id == oldChat.id {
                         cell.updateRecentMessage(message)
                     }
                 }
