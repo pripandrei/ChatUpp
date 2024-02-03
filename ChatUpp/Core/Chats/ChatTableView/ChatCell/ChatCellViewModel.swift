@@ -70,6 +70,7 @@ class ChatCellViewModel {
         guard let user = self.user else {return}
         Task {
             self.otherUserProfileImage.value = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
+            print("otherProfile image: ",self.otherUserProfileImage.value)
         }
     }
     

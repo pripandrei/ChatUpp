@@ -66,23 +66,36 @@ final class ChatsViewModel {
 //                }
 //                return
 //            }
+            let isFirstTime = self.chats.isEmpty ? true : false
             docTypes.enumerated().forEach { index, type in
                 switch type {
-                case .added:  self.handleAddedChat(chats[index])
+                case .added: self.handleAddedChat(chats[index], isFirstTime)
                 case .removed: self.handleRemovedChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
             }
+//            Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+//                self.onDataFetched?()
+//            }
+//            self.reloadCell?()
         })
     }
     
-    private func handleAddedChat(_ chat: Chat) {
+    private func handleAddedChat(_ chat: Chat,_ firstTime: Bool) {
+//            DispatchQueue.main.async {
+//                self.chats.append(chat)
+//                let cellVM = ChatCellViewModel(chat: chat)
+//                self.cellViewModels.insert(cellVM, at: 0)
+//                self.onDataFetched?()
+//                firstTime ? self.onDataFetched?() : self.reloadCell?()
+//            }
         DispatchQueue.main.async {
-            self.chats.append(chat)
+            self.chats.insert(chat, at: 0)
             let cellVM = ChatCellViewModel(chat: chat)
             self.cellViewModels.insert(cellVM, at: 0)
-            self.onDataFetched?()
+//            self.onDataFetched?()
 //            self.reloadCell?()
+//            firstTime ? self.onDataFetched?() : self.reloadCell?()
         }
     }
 

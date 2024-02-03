@@ -39,14 +39,15 @@ class ChatsCell: UITableViewCell {
         self.cellViewModel = viewModel
 //        cellViewModel.addListenerToRecentMessage()
         setupBinding()
-//        handleImageSetup()
+        handleImageSetup()
         
+        self.dateLable.adjustsFontSizeToFitWidth = true
         self.messageLable.text = cellViewModel.recentMessage.value?.messageBody
         self.dateLable.text = cellViewModel.recentMessage.value?.timestamp.formatToHoursAndMinutes()
+        self.nameLabel.text = self.cellViewModel.user?.name
         
 //        messageLable.text = viewModel.message
 //        nameLabel.text = viewModel.user.name
-        dateLable.adjustsFontSizeToFitWidth = true
 //        dateLable.text = viewModel.timestamp
     }
     
