@@ -53,21 +53,24 @@ final class ChatsViewModel {
     private func addChatsListener(complition: @escaping () -> Void)  {
         
         ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
+            print(chats.count, "chats count")
             guard let self = self else {return}
 //            print("Times listener called")
-            if self.chats.isEmpty {
-                self.chats = chats
-                Task {
-                    await self.fetchChatData()
-
-                    self.cellViewModels = self.createCellViewModel()
-                    self.onDataFetched?()
-                }
-                return
-            }
+//            if self.chats.isEmpty {
+//                self.chats = chats
+//                Task {
+//                    await self.fetchChatData()
+//
+//                    self.cellViewModels = self.createCellViewModel()
+//                    self.onDataFetched?()
+//                }
+//                return
+//            }
             docTypes.enumerated().forEach { index, type in
                 switch type {
-                case .added: self.handleAddedChat(chats[index])
+                case .added: Task {
+                    try await self.handleAddedChat(chats[index])
+                }
                 case .removed: self.handleRemovedChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
@@ -77,20 +80,40 @@ final class ChatsViewModel {
         })
     }
     
-    private func handleAddedChat(_ chat: Chat) {
-        self.chats.insert(chat, at: 0)
-        Task {
+    private func handleAddedChat(_ chat: Chat) async throws  {
+        self.chats.append(chat)
+//        Task {
+        
             guard let recentMessage = try await self.loadRecentMessages([chat]).first else {return}
             guard let otherMembers = try await self.loadOtherMembersOfChats([chat]).first else {return}
-            self.recentMessages.insert(recentMessage, at: 0)
-            self.otherMembers.insert(otherMembers, at: 0)
+            self.recentMessages.append(recentMessage)
+            self.otherMembers.append(otherMembers)
             let cellVM = ChatCellViewModel(user: otherMembers, chatID: chat.id, recentMessage: recentMessage)
             self.cellViewModels.insert(cellVM, at: 0)
             
-            self.reloadCell?()
-        }
+//            self.reloadCell?()
+//        }
         print("added!!")
     }
+    
+//    private func handleAddedChat(_ chat: Chat) {
+//        print("enteered Handel")
+//        self.chats.insert(chat, at: 0)
+////        Task {
+//        guard let member = try? DBUser(auth: AuthenticationManager.shared.getAuthenticatedUser()) else {return}
+//        let message = Message(id: "", messageBody: "", senderId: "", imagePath: nil, timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil)
+////            guard let recentMessage = try await self.loadRecentMessages([chat]).first else {return}
+////            guard let otherMembers = try await self.loadOtherMembersOfChats([chat]).first else {return}
+//            self.recentMessages.insert(message, at: 0)
+//            self.otherMembers.insert(member, at: 0)
+//            let cellVM = ChatCellViewModel(user: member, chatID: chat.id, recentMessage: message)
+//            self.cellViewModels.insert(cellVM, at: 0)
+//
+//            self.reloadCell?()
+////        }
+//
+//        print("added!!")
+//    }
 
     var reloadCell: (() -> Void)?
     

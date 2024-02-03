@@ -71,10 +71,10 @@ class ChatsViewController: UIViewController {
         }
         
         chatsViewModel.reloadCell = {
-            DispatchQueue.main.async {
+//            DispatchQueue.main.async {
                 let indexPath = IndexPath(row: 0, section: 0)
                 self.tableView.insertRows(at: [indexPath], with: .automatic)
-            }
+//            }
         }
     }
     
