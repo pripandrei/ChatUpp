@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 class ChatsTableViewDataSource: NSObject, UITableViewDataSource {
 
@@ -28,3 +29,13 @@ class ChatsTableViewDataSource: NSObject, UITableViewDataSource {
         return cell
     }
 }
+
+//MARK: - SKELETON TABLE VIEW DATA SOURCE
+
+extension ChatsTableViewDataSource: SkeletonTableViewDataSource {
+    
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+       return CellIdentifire.chatCell
+    }
+}
+

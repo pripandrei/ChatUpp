@@ -81,6 +81,7 @@ final class ResultsTableCell: UITableViewCell {
         userNameLabel.skeletonTextNumberOfLines = .custom(3)
         userNameLabel.linesCornerRadius = 4
         userNameLabel.lastLineFillPercent = 30
+        
 //        userNameLabel.skeletonPaddingInsets
 //        userNameLabel.backgroundColor = .green
         userNameLabel.translatesAutoresizingMaskIntoConstraints = false

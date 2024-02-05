@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 class ChatsCell: UITableViewCell {
     
@@ -19,6 +20,11 @@ class ChatsCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        self.isSkeletonable = true
+        contentView.isSkeletonable = true
+        contentView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        
         setMessageLable()
         setNameLabel()
         setProfileImage()
@@ -26,7 +32,9 @@ class ChatsCell: UITableViewCell {
         let cellBackground = UIView()
         cellBackground.backgroundColor = #colorLiteral(red: 0.09686327726, green: 0.2637034953, blue: 0.3774781227, alpha: 1)
         self.selectedBackgroundView = cellBackground
-        self.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        self.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        
+        
     }
 
     required init?(coder: NSCoder) {
@@ -99,7 +107,7 @@ class ChatsCell: UITableViewCell {
 //MARK: - UI SETUP
     
     private func setMessageLable() {
-        self.addSubview(messageLable)
+        contentView.addSubview(messageLable)
         messageLable.isEditable = false
         messageLable.isScrollEnabled = false
         messageLable.isSelectable = false
@@ -111,6 +119,12 @@ class ChatsCell: UITableViewCell {
         messageLable.contentInset.left = -4
         messageLable.backgroundColor = .clear
         messageLable.textAlignment = .left
+        
+        messageLable.isSkeletonable = true
+        messageLable.linesCornerRadius = 4
+        messageLable.skeletonTextLineHeight = .fixed(10)
+        messageLable.skeletonTextNumberOfLines = .custom(2)
+        
         configureMessageLableConstraints()
     }
     
@@ -126,10 +140,15 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setNameLabel() {
-        self.addSubview(nameLabel)
+        contentView.addSubview(nameLabel)
         nameLabel.textColor = #colorLiteral(red: 0.8956019878, green: 1, blue: 1, alpha: 1)
 //        nameLabel.font = UIFont.boldSystemFont(ofSize: 16.5)
         nameLabel.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .headline), size: 17)
+        
+        nameLabel.isSkeletonable = true
+        nameLabel.linesCornerRadius = 4
+        nameLabel.skeletonTextLineHeight = .fixed(10)
+        nameLabel.skeletonTextNumberOfLines = .custom(1)
         
         setNameLableConstraints()
     }
@@ -146,22 +165,16 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setProfileImage() {
-        self.addSubview(profileImage)
+        contentView.addSubview(profileImage)
         profileImage.layer.cornerRadius = self.bounds.size.width * 0.09
         profileImage.clipsToBounds = true
+        profileImage.isSkeletonable = true
         setProfileImageConstraints()
     }
     
     private func setProfileImageConstraints() {
         profileImage.translatesAutoresizingMaskIntoConstraints = false
     
-//        NSLayoutConstraint.activate([
-//            profileImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
-//            profileImage.trailingAnchor.constraint(equalTo: messageLable.leadingAnchor, constant: -8),
-//            profileImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
-//            profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10)
-//        ])
-        
         NSLayoutConstraint.activate([
             profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             profileImage.centerYAnchor.constraint(equalTo: self.centerYAnchor),
@@ -173,10 +186,15 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setDateLable() {
-        self.addSubview(dateLable)
+        contentView.addSubview(dateLable)
 
         dateLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title3), size: 14)
         dateLable.textColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1)
+        
+        dateLable.isSkeletonable = true
+        dateLable.linesCornerRadius = 4
+        dateLable.skeletonTextLineHeight = .fixed(10)
+        dateLable.skeletonTextNumberOfLines = .custom(1)
         
         setDateLableConstraints()
     }

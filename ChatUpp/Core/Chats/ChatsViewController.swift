@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import FirebaseAuth
+import SkeletonView
 
 // MARK: - CELL IDENTIFIER
 
@@ -45,6 +45,7 @@ class ChatsViewController: UIViewController {
         setupSearchController()
 //        chatsViewModel.addChatsListener { self.chatsViewModel.fetchChatsData() }
         chatsViewModel.setupChatListener()
+        toggleSkeletonAnimation(.initiate)
     }
     
     deinit {
@@ -57,16 +58,20 @@ class ChatsViewController: UIViewController {
         tableView.delegate = self
         tableViewDataSource = ChatsTableViewDataSource(viewModel: chatsViewModel)
         tableView.dataSource = tableViewDataSource
+        tableView.isSkeletonable = true
         tableView.pin(to: view)
         tableView.rowHeight = 70
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         tableView.separatorColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
     }
     
+    // MARK: - Binding
+    
     private func setupBinding() {
         chatsViewModel.onInitialChatsFetched = { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
+                self?.toggleSkeletonAnimation(.terminate)
             }
         }
         
@@ -76,6 +81,27 @@ class ChatsViewController: UIViewController {
                 self.tableView.insertRows(at: [indexPath], with: .automatic)
             }
         }
+    }
+    
+    
+    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
+        if value == .initiate {
+            initiateSkeletonAnimation()
+        } else {
+            terminateSkeletonAnimation()
+        }
+    }
+    // MARK: - SkeletonView
+    
+    private func initiateSkeletonAnimation() {
+        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
+        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
+    }
+    
+    private func terminateSkeletonAnimation() {
+        tableView.stopSkeletonAnimation()
+        tableView.hideSkeleton(transition: .crossDissolve(0.25))
     }
     
     func setupSearchController() {
