@@ -54,8 +54,8 @@ class ChatsCell: UITableViewCell {
     private func handleImageSetup()
     {
         guard let imageData = cellViewModel.otherUserProfileImage.value else {
-            profileImage.image = nil
-            cellViewModel.fetchImageData()
+//            profileImage.image = nil
+//            cellViewModel.fetchImageData()
             return
         }
         setImage(imageData)

@@ -28,6 +28,12 @@ final class ChatsViewModel {
 //        //        return zip(otherMembers, recentMessages).map { ChatCellViewModel(user: $0, recentMessage: $1) }
 //    }
     
+    private func createCellViewModel(with chats: [Chat]) -> [ChatCellViewModel] {
+        return chats.map { chat in
+            return ChatCellViewModel(chat: chat)
+        }
+    }
+    
     func setupChatListener() {
         addChatsListener {
 //            Task {
@@ -50,10 +56,20 @@ final class ChatsViewModel {
         }
     }
     
+    
+    func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws {
+        return await withThrowingTaskGroup(of: (DBUser?, Message?, Data?).self) { group in
+            for cellViewModel in cellViewModels {
+                group.addTask {
+                    try await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.loadRecentMessage(), cellViewModel.fetchImageData())
+//                    try await cellViewModel.fetchUserData()
+                }
+            }
+        }
+    }
+    
     private func addChatsListener(complition: @escaping () -> Void)  {
-        
         ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
-            print(chats.count, "chats count")
             guard let self = self else {return}
 //            print("Times listener called")
 //            if self.chats.isEmpty {
@@ -66,36 +82,61 @@ final class ChatsViewModel {
 //                }
 //                return
 //            }
-            let isFirstTime = self.chats.isEmpty ? true : false
+            if self.chats.isEmpty {
+//                handleAddedChat(chats)
+//                self.chats = chats
+//                self.cellViewModels = createCellViewModel(with: chats)
+//                Task {
+//                    try await self.fetchCellVMData()
+//                    self.onDataFetched?()
+//                }
+                handleAddedChat2(chats, firstTimeAdd: true)
+                return
+            }
+            
             docTypes.enumerated().forEach { index, type in
                 switch type {
-                case .added: self.handleAddedChat(chats[index], isFirstTime)
+                case .added: self.handleAddedChat2([chats[index]], firstTimeAdd: false)
                 case .removed: self.handleRemovedChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
             }
-//            Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
-//                self.onDataFetched?()
+//            Task {
+//                try await self.fetchCellVMData()
+//                isFirstTime ? self.onDataFetched?() : self.reloadCell?()
 //            }
-//            self.reloadCell?()
         })
     }
     
-    private func handleAddedChat(_ chat: Chat,_ firstTime: Bool) {
-//            DispatchQueue.main.async {
-//                self.chats.append(chat)
-//                let cellVM = ChatCellViewModel(chat: chat)
-//                self.cellViewModels.insert(cellVM, at: 0)
-//                self.onDataFetched?()
-//                firstTime ? self.onDataFetched?() : self.reloadCell?()
-//            }
-        DispatchQueue.main.async {
+    private func handleAddedChat2(_ chats: [Chat], firstTimeAdd: Bool) {
+        var cellVMs: [ChatCellViewModel] = []
+        
+        for chat in chats {
             self.chats.insert(chat, at: 0)
             let cellVM = ChatCellViewModel(chat: chat)
             self.cellViewModels.insert(cellVM, at: 0)
-//            self.onDataFetched?()
-//            self.reloadCell?()
-//            firstTime ? self.onDataFetched?() : self.reloadCell?()
+            cellVMs.append(cellVM)
+        }
+        
+        Task { [cellVMs] in
+            try await self.fetchCellVMData(cellVMs)
+            firstTimeAdd ? onDataFetched?() : reloadCell?()
+        }
+    }
+
+    
+    private func handleAddedChat(_ chat: Chat) {
+        //        DispatchQueue.main.async {
+//        for chat in chats {
+        self.chats.insert(chat, at: 0)
+        let cellVM = ChatCellViewModel(chat: chat)
+        self.cellViewModels.insert(cellVM, at: 0)
+//        }
+        Task {
+            try await cellVM.loadOtherMemberOfChat()
+            try await cellVM.loadRecentMessage()
+            try await cellVM.fetchImageData()
+            reloadCell?()
         }
     }
 

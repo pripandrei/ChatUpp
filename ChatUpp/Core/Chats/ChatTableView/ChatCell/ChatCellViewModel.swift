@@ -10,21 +10,24 @@ import Firebase
 
 class ChatCellViewModel {
     
-    private(set) var user: DBUser? {didSet { onUserFetch?() ; fetchImageData()}}
+    private(set) var user: DBUser?
+//    {didSet { onUserFetch?() ; fetchImageData()}}
     var otherUserProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     var recentMessage: ObservableObject<Message?> = ObservableObject(nil)
+    
+    var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     var onUserFetch: (() -> Void)?
     var chat: Chat
     
     init(chat: Chat) {
         self.chat = chat
-        Task {
-            let user = try await loadOtherMembersOfChats([chat])
-            print(chat,user)
-            self.user = user.first!
-            self.recentMessage.value = try await loadRecentMessages([chat]).first!
-        }
+//        Task {
+//            let user = try await loadOtherMembersOfChats()
+//            print(chat,user)
+//            self.user = user
+//            self.recentMessage.value = try await loadRecentMessages([chat]).first!
+//        }
     }
     
     var message: String? {
@@ -43,67 +46,55 @@ class ChatCellViewModel {
     var userProfilePhotoURL: String {
         user?.photoUrl ?? ""
     }
-    
-    var listener: ListenerRegistration?
-    
-//    func addListenerToRecentMessage() {
-////        if listener != nil {
-////            listener?.remove()
-////        }
-//        self.listener = ChatsManager.shared.addListenerForLastMessage(chatID: chatId) { chat in
-//            Task {
-//                let message = try await ChatsManager.shared.getRecentMessageFromChats([chat])
-////                print(self.userName)
-////                print(message)
-//                if let message = message.first {
-//                    self.recentMessage.value = message
-//                }
-//            }
-//        }
-//    }
-//    
+
     func updateRecentMessage(_ message: Message?) {
         self.recentMessage.value = message
     }
     
-    func fetchImageData() {
-        guard let user = self.user else {return}
-        Task {
-            self.otherUserProfileImage.value = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
-            print("otherProfile image: ",self.otherUserProfileImage.value)
-        }
+    @discardableResult
+    func loadOtherMemberOfChat() async throws -> DBUser? {
+        guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else {return nil}
+        let member = try await UserManager.shared.getUserFromDB(userID: memberID)
+        self.user = member
+        return member
+    }
+    @discardableResult
+    func loadRecentMessage() async throws -> Message?  {
+        guard let message = try await ChatsManager.shared.getRecentMessageFromChats([chat]).first else {return nil}
+        self.recentMessage.value = message
+        return message
+    }
+    @discardableResult
+    func fetchImageData() async throws -> Data? {
+        guard let user = self.user else {return nil}
+        let photoData = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
+        self.otherUserProfileImage.value = photoData
+        return photoData
     }
     
-    deinit {
-        print("CHATCELLViewMOdel DeINITED")
-//        listener?.remove()
-    }
-    
-    
-    
-    
-    private func loadRecentMessages(_ chats: [Chat]) async throws -> [Message?]  {
-        try await ChatsManager.shared.getRecentMessageFromChats(chats)
-    }
-    
-    private func loadOtherMembersOfChats(_ chats: [Chat]) async throws -> [DBUser] {
-        let memberIDs = getOtherMembersFromChats(chats)
-        var otherMembers = [DBUser]()
+    func fetchUserData() async throws -> (DBUser?, Message?, Data?) {
+        
+//        async let loadMembers = loadOtherMemberOfChat()
+//        async let loadMessage = loadRecentMessage()
+//    
+//        
+//        let (mem, mesage) = try await (loadMembers, loadMessage)
+//        
+//        let loadImageData = try await fetchImageData()
+//        
+//        return (mem, mesage, loadImageData)
+        
+        let member = try await loadOtherMemberOfChat()
+        self.user = member
+        let recentMessage = try await loadRecentMessage()
+        self.recentMessage.value = recentMessage
+        let imageData = try await fetchImageData()
 
-        for id in memberIDs {
-            let dbUser = try await UserManager.shared.getUserFromDB(userID: id)
-            otherMembers.append(dbUser)
-        }
-        return otherMembers
+        self.otherUserProfileImage.value = imageData
+
+        return (member,recentMessage,imageData)
     }
-    
-    var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
-    
-    private func getOtherMembersFromChats(_ chats: [Chat]) -> [String] {
-        return chats.compactMap { chat in
-            return chat.members.first(where: { $0 != authUser.uid} )
-        }
-    }
+
     
     //    func fetchImageData() {
     //        UserManager.shared.getProfileImageData(urlPath: user.photoUrl) { [weak self] data in
