@@ -17,8 +17,8 @@ class ChatCellViewModel {
     
     var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-    var onUserFetch: (() -> Void)?
-    var chat: Chat
+    var onUserModified: (() -> Void)?
+    private(set) var chat: Chat
     
     init(chat: Chat) {
         self.chat = chat
@@ -46,9 +46,25 @@ class ChatCellViewModel {
     var userProfilePhotoURL: String {
         user?.photoUrl ?? ""
     }
+    
+    func updateChat(_ modifiedChat: Chat) {
+        self.chat = modifiedChat
+        Task { try await loadRecentMessage() }
+    }
 
     func updateRecentMessage(_ message: Message?) {
         self.recentMessage.value = message
+    }
+    
+    func updateUser(_ modifiedUserID: String) async {
+        do {
+            let updatedUser = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
+            self.user = updatedUser
+            self.otherUserProfileImage.value = try await self.fetchImageData()
+            self.onUserModified?()
+        } catch {
+            print("Error updating user while listening: ", error.localizedDescription)
+        }
     }
     
     @discardableResult

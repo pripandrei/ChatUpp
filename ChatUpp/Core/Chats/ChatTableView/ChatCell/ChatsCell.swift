@@ -89,7 +89,7 @@ class ChatsCell: UITableViewCell {
                 }
             }
         }
-        cellViewModel.onUserFetch = {
+        cellViewModel.onUserModified = {
             Task{ @MainActor in
                 self.nameLabel.text = self.cellViewModel.user?.name
             }

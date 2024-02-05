@@ -64,7 +64,7 @@ class ChatsViewController: UIViewController {
     }
     
     private func setupBinding() {
-        chatsViewModel.onDataFetched = { [weak self] in
+        chatsViewModel.onInitialChatsFetched = { [weak self] in
             DispatchQueue.main.async {
                 self?.tableView.reloadData()
             }
