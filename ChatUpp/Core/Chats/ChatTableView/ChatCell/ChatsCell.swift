@@ -169,6 +169,7 @@ class ChatsCell: UITableViewCell {
         profileImage.layer.cornerRadius = self.bounds.size.width * 0.09
         profileImage.clipsToBounds = true
         profileImage.isSkeletonable = true
+        
         setProfileImageConstraints()
     }
     

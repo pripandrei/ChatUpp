@@ -43,10 +43,14 @@ class ChatsViewController: UIViewController {
         setupBinding()
         configureTableView()
         setupSearchController()
-//        chatsViewModel.addChatsListener { self.chatsViewModel.fetchChatsData() }
         chatsViewModel.setupChatListener()
-        toggleSkeletonAnimation(.initiate)
+        self.toggleSkeletonAnimation(.initiate)
     }
+    
+//    override func viewDidLayoutSubviews() {
+//        super.viewDidLayoutSubviews()
+//        toggleSkeletonAnimation(.initiate)
+//    }
     
     deinit {
         print("ChatsVC was DEINITED!==")
@@ -69,7 +73,7 @@ class ChatsViewController: UIViewController {
     
     private func setupBinding() {
         chatsViewModel.onInitialChatsFetched = { [weak self] in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self?.tableView.reloadData()
                 self?.toggleSkeletonAnimation(.terminate)
             }
@@ -96,12 +100,14 @@ class ChatsViewController: UIViewController {
     private func initiateSkeletonAnimation() {
         let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
+        tableView.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.40))
+        
+//        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), transition: .crossDissolve(.signalingNaN))
     }
     
     private func terminateSkeletonAnimation() {
         tableView.stopSkeletonAnimation()
-        tableView.hideSkeleton(transition: .crossDissolve(0.25))
+        tableView.hideSkeleton(transition: SkeletonTransitionStyle.none)
     }
     
     func setupSearchController() {
