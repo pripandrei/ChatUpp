@@ -21,9 +21,7 @@ class ChatsCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        self.isSkeletonable = true
-        contentView.isSkeletonable = true
-        contentView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        
         
         setMessageLable()
         setNameLabel()
@@ -32,7 +30,11 @@ class ChatsCell: UITableViewCell {
         let cellBackground = UIView()
         cellBackground.backgroundColor = #colorLiteral(red: 0.09686327726, green: 0.2637034953, blue: 0.3774781227, alpha: 1)
         self.selectedBackgroundView = cellBackground
-//        self.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        self.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        
+        self.isSkeletonable = true
+        contentView.isSkeletonable = true
+//        contentView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         
         
     }

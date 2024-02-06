@@ -28,7 +28,11 @@ class ChatsTableViewDataSource: NSObject, UITableViewDataSource {
         
         return cell
     }
+    
+    
 }
+
+
 
 //MARK: - SKELETON TABLE VIEW DATA SOURCE
 
