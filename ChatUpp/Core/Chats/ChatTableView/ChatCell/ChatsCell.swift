@@ -10,7 +10,7 @@ import SkeletonView
 
 class ChatsCell: UITableViewCell {
     
-    private var messageLable = UITextView()
+    private var messageLable = CustomMessageLabel()
     private var nameLabel = UILabel()
     private var profileImage = UIImageView()
     private var dateLable = UILabel()
@@ -34,8 +34,6 @@ class ChatsCell: UITableViewCell {
         setProfileImage()
         setDateLable()
 //        contentView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        
-        
     }
 
     required init?(coder: NSCoder) {
@@ -46,27 +44,18 @@ class ChatsCell: UITableViewCell {
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
-//        cellViewModel.addListenerToRecentMessage()
         setupBinding()
         handleImageSetup()
         
-        self.dateLable.adjustsFontSizeToFitWidth = true
         self.messageLable.text = cellViewModel.recentMessage.value?.messageBody
         self.dateLable.text = cellViewModel.recentMessage.value?.timestamp.formatToHoursAndMinutes()
-        self.nameLabel.text = self.cellViewModel.user?.name
-        
-//        messageLable.text = viewModel.message
-//        nameLabel.text = viewModel.user.name
-//        dateLable.text = viewModel.timestamp
+        self.nameLabel.text = cellViewModel.user?.name
+        self.dateLable.adjustsFontSizeToFitWidth = true
     }
     
     private func handleImageSetup()
     {
-        guard let imageData = cellViewModel.otherUserProfileImage.value else {
-//            profileImage.image = nil
-//            cellViewModel.fetchImageData()
-            return
-        }
+        guard let imageData = cellViewModel.otherUserProfileImage.value else { return }
         setImage(imageData)
     }
     
@@ -81,7 +70,7 @@ class ChatsCell: UITableViewCell {
 //MARK: - BINDING
     
     private func setupBinding() {
-        cellViewModel.otherUserProfileImage.bind { [weak self, url = cellViewModel.userProfilePhotoURL] data in
+        cellViewModel.otherUserProfileImage.bind { [weak self, url = cellViewModel.user?.photoUrl] data in
             if let imageData = data {
 //                if self?.cellViewModel.userProfilePhotoURL == url {
                     self?.setImage(imageData)
@@ -91,8 +80,6 @@ class ChatsCell: UITableViewCell {
         cellViewModel.recentMessage.bind { [weak self] message in
             if let message = message {
                 Task { @MainActor in
-//                    print(self?.nameLabel.text)
-//                    print(message.messageBody)
                     self?.messageLable.text = message.messageBody
                     self?.dateLable.text = message.timestamp.formatToHoursAndMinutes()
                 }
@@ -109,17 +96,12 @@ class ChatsCell: UITableViewCell {
     
     private func setMessageLable() {
         contentView.addSubview(messageLable)
-        messageLable.isEditable = false
-        messageLable.isScrollEnabled = false
-        messageLable.isSelectable = false
-        messageLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title2), size: 15)
+        messageLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title2), size: 14)
         messageLable.text = "Temporary message here, for testing purposes only."
         messageLable.textColor = #colorLiteral(red: 0.5970802903, green: 0.5856198668, blue: 0.6014393568, alpha: 1)
-        messageLable.textContainer.maximumNumberOfLines = 0
-        messageLable.contentInset.top = -5
-        messageLable.contentInset.left = -4
         messageLable.backgroundColor = .clear
         messageLable.textAlignment = .left
+        messageLable.numberOfLines = 2
         
         messageLable.isSkeletonable = true
         messageLable.linesCornerRadius = 4
@@ -134,9 +116,10 @@ class ChatsCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             messageLable.topAnchor.constraint(equalTo: self.topAnchor, constant: self.bounds.height * 0.60),
+            messageLable.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 77),
             messageLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -55),
-            messageLable.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
-            messageLable.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 75)
+            messageLable.heightAnchor.constraint(equalToConstant: 37)
+//            messageLable.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -8)
         ])
     }
     
@@ -145,6 +128,7 @@ class ChatsCell: UITableViewCell {
         nameLabel.textColor = #colorLiteral(red: 0.8956019878, green: 1, blue: 1, alpha: 1)
 //        nameLabel.font = UIFont.boldSystemFont(ofSize: 16.5)
         nameLabel.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .headline), size: 17)
+        
         
         nameLabel.isSkeletonable = true
         nameLabel.linesCornerRadius = 4
@@ -158,10 +142,10 @@ class ChatsCell: UITableViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            nameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 7),
             nameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -55),
             nameLabel.bottomAnchor.constraint(equalTo: messageLable.topAnchor, constant: -1),
-            nameLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 75)
+            nameLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 77)
         ])
     }
     
@@ -213,3 +197,15 @@ class ChatsCell: UITableViewCell {
         ])
     }
 }
+
+extension ChatsCell {
+    class CustomMessageLabel: UILabel {
+        override func drawText(in rect: CGRect) {
+            var targetRect = textRect(forBounds: rect, limitedToNumberOfLines: numberOfLines)
+            targetRect.origin.y = 2
+            targetRect.origin.x = 2
+            super.drawText(in: targetRect)
+        }
+    }
+}
+

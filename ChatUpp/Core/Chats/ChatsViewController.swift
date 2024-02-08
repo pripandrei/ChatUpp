@@ -131,17 +131,21 @@ class ChatsViewController: UIViewController {
             let filteredSearchText = searchTextComponents.joined(separator: " ")
             let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
             
-            let nameSubstrings = chatCell.userName.lowercased().components(separatedBy: delimiters)
-            
             let conversation = chatsViewModel.chats[index]
+            
+            guard let user = chatCell.user,
+                  let userName = user.name,
+                  let userProfilePhotoURL = user.photoUrl else {return nil}
+            
+            let nameSubstrings = userName.lowercased().components(separatedBy: delimiters)
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    return ResultsCellViewModel(userID: chatCell.user!.userId, userName: chatCell.userName, userImageURL: chatCell.userProfilePhotoURL, chat: conversation, imageData: chatCell.otherUserProfileImage.value)
+                    return ResultsCellViewModel(userID: user.userId, userName: userName, userImageURL: userProfilePhotoURL, chat: conversation, imageData: chatCell.otherUserProfileImage.value)
                 }
             }
-            if chatCell.userName.lowercased().hasPrefix(trimmedSearchText) {
-                return ResultsCellViewModel(userID: chatCell.user!.userId, userName: chatCell.userName, userImageURL: chatCell.userProfilePhotoURL, chat: conversation)
+            if userName.lowercased().hasPrefix(trimmedSearchText) {
+                return ResultsCellViewModel(userID: user.userId, userName: userName, userImageURL: userProfilePhotoURL, chat: conversation)
             }
             return nil
         })
@@ -218,13 +222,15 @@ extension ChatsViewController: UISearchResultsUpdating {
 
 extension ChatsViewController: UITableViewDelegate
 {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("TAPPPP")
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
+    {
         tableView.deselectRow(at: indexPath, animated: false)
 
+        guard let user = chatsViewModel.cellViewModels[indexPath.item].user,
+              let memberName = user.name else {return}
+        
+        let memberID = user.userId
         let chat = chatsViewModel.chats[indexPath.item]
-        let memberID = chatsViewModel.cellViewModels[indexPath.item].user!.userId
-        let memberName = chatsViewModel.cellViewModels[indexPath.item].userName
         let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].otherUserProfileImage.value
         
         let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
