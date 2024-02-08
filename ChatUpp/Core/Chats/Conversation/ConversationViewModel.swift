@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseFirestore
 //
 //struct Member {
 //    let memberID: String
@@ -16,25 +17,27 @@ import Foundation
 final class ConversationViewModel {
     
     private var conversation: Chat?
-    var memberID: String
-    var memberName: String
-    var memberProfileImage: Data?
-    var messages: [Message] = []
-    var cellViewModels: [ConversationCellViewModel] = []
+    private(set) var memberID: String
+    private(set) var memberName: String
+    private(set) var memberProfileImage: Data?
+    private(set) var messages: [Message] = []
+    private(set) var cellViewModels: [ConversationCellViewModel] = []
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
     var onCellVMLoad: (() -> Void)?
+    var onNewMessageAdded: (() -> Void)?
+    
+    private(set) var messageListener: ListenerRegistration?
     
     init(memberID: String ,memberName: String, conversation: Chat? = nil, imageData: Data?) {
         self.memberName = memberName
         self.conversation = conversation
         self.memberProfileImage = imageData
         self.memberID = memberID
-        
-        // 1.Fetching should be done only if conversation: Chat is not nil.
-        // 2.Conversation should be transfered to optional
+
         fetchConversationMessages()
+        addListenerToMessages()
     }
     
     private func createConversation() async {
@@ -85,6 +88,34 @@ final class ConversationViewModel {
                 print("Could not fetch messages from db: ", error.localizedDescription)
             }
         }
+    }
+
+    func addListenerToMessages() {
+        guard let conversation = conversation else {return}
+        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages in
+            guard let self = self else {return}
+            
+            print(messages)
+            
+            if self.messages.isEmpty {
+                self.fetchConversationMessages()
+                return
+            }
+            messages.forEach { message in
+                self.handleAddedMessage(message)
+            }
+        }
+    }
+    
+    private func handleAddedMessage(_ message: Message) {
+//        if self.messages[0].id == message.id {}
+        if self.messages.contains(where: { $0.id == message.id }) {
+            return
+        }
+        self.messages.insert(message, at: 0)
+        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+        self.cellViewModels.insert(conversationCellVM, at: 0)
+        self.onNewMessageAdded?()
     }
     
     private func createNewMessage(_ messageBody: String) -> Message {

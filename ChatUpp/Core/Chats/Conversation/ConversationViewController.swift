@@ -29,7 +29,14 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
     
     deinit {
+        print("====DEINIT")
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        print("didDissapear")
+        conversationViewModel.messageListener?.remove()
     }
     
     override func loadView() {
@@ -59,6 +66,13 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         conversationViewModel.onCellVMLoad = {
             DispatchQueue.main.async { [weak self] in
                 self?.rootView.collectionView.reloadData()
+            }
+        }
+        
+        conversationViewModel.onNewMessageAdded = { [weak self] in
+            Task { @MainActor in
+                let indexPath = IndexPath(row: 0, section: 0)
+                self?.rootView.collectionView.insertItems(at: [indexPath])
             }
         }
     }

@@ -174,47 +174,43 @@ final class ChatsManager {
         
         chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
-//            guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
-            guard let documents = querySnapshot?.documentChanges else { print("No Documents to listen"); return}
+            guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
 
             var docChangeType: [DocumentChangeType] = []
             
             let chats = documents.compactMap { docChange in
                 docChangeType.append(docChange.type)
-//                if diff.type == .added || diff.type == .removed {
-                    return try? docChange.document.data(as: Chat.self)
-//                }
-//                return nil
+                return try? docChange.document.data(as: Chat.self)
             }
             complition(chats,docChangeType)
-//
-//            let chats = documents.compactMap { diff in
-//                    return try? diff.data(as: Chat.self)
-//            }
-//            complition(chats)
+        }
+    }
+    
+    func addListenerToChatMessages(_ chatId: String, complition: @escaping ([Message]) -> Void) -> ListenerRegistration
+    {
+        return chatDocument(documentPath: chatId).collection(FirestoreCollection.messages.rawValue).addSnapshotListener { querySnapshot, error in
+            guard error == nil else { print(error!.localizedDescription); return}
+            guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
             
-            
-//            querySnapshot?.documentChanges.forEach({ diff in
-//                if diff.type == .added || diff.type == .removed {
-//                    let chats = documents.compactMap { documentSnapshot in
-//                        try? documentSnapshot.data(as: Chat.self)
-//                    }
-//                    complition(chats)
-//                }
-//            })
+            let messages = documents.compactMap { documentMessage in
+                try? documentMessage.document.data(as: Message.self)
+            }
+            complition(messages)
         }
     }
 
-    func addListenerForLastMessage(chatID: String, complition: @escaping (Chat) -> Void) -> ListenerRegistration {
-        let listener = chatDocument(documentPath: chatID).addSnapshotListener { docSnapshot, error in
-            guard error == nil else { print(error!.localizedDescription); return}
-            guard let document = docSnapshot else { print("No Documents to listen"); return}
-            
-            guard let chat = try? document.data(as: Chat.self) else {print("Could not decode Chat data!") ; return}
-            complition(chat)
-        }
-        return listener
-    }
+//    func addListenerForLastMessage(chatID: String, complition: @escaping (Chat) -> Void) -> ListenerRegistration {
+//        let listener = chatDocument(documentPath: chatID).addSnapshotListener { docSnapshot, error in
+//            guard error == nil else { print(error!.localizedDescription); return}
+//            guard let document = docSnapshot else { print("No Documents to listen"); return}
+//
+//            guard let chat = try? document.data(as: Chat.self) else {print("Could not decode Chat data!") ; return}
+//            complition(chat)
+//        }
+//        return listener
+//    }
+    
+    
 }
 
 extension Query {
