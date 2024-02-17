@@ -27,7 +27,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     private var imageAttachment = NSTextAttachment()
      var mainCellContainer = UIView()
-    var messageContainer = UITextView(usingTextLayoutManager: false)
+    var messageContainer = UITextView()
     private var timeStamp = UILabel()
     var cellViewModel: ConversationCellViewModel!
  
@@ -258,23 +258,27 @@ extension ConversationCollectionViewCell {
     private func getStringFromLastLine(usingTextView textView: UITextView) -> String {
         guard textView.text != "" else { return "" }
         
-        let selectedRangee = textView.selectedRange
-        let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
+        let mirrorTextView = UITextView(usingTextLayoutManager: false)
+        mirrorTextView.text = textView.text
+        mirrorTextView.font = textView.font
         
-        let glyphIndex = glyphRange.lowerBound == textView.layoutManager.numberOfGlyphs ? glyphRange.lowerBound - 1 : glyphRange.lowerBound
+        let selectedRangee = mirrorTextView.selectedRange
+        let glyphRange = mirrorTextView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
+        
+        let glyphIndex = glyphRange.lowerBound == mirrorTextView.layoutManager.numberOfGlyphs ? glyphRange.lowerBound - 1 : glyphRange.lowerBound
         
         var effectiveGlyphRange = NSRange(location: 0, length: 0)
         
-        textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex , effectiveRange: &effectiveGlyphRange)
-        let effectiveCharRange = textView.layoutManager.characterRange(forGlyphRange: effectiveGlyphRange, actualGlyphRange: nil)
+        mirrorTextView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex , effectiveRange: &effectiveGlyphRange)
+        let effectiveCharRange = mirrorTextView.layoutManager.characterRange(forGlyphRange: effectiveGlyphRange, actualGlyphRange: nil)
         
         let rangeStart = effectiveCharRange.location
         let rangeLength = effectiveCharRange.length
         
-        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: textView.text!)
+        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: mirrorTextView.text!)
         else { print("Invalid range"); return "" }
         
-        let substring = textView.text![validRange]
+        let substring = mirrorTextView.text![validRange]
         return String(substring)
     }
 }

@@ -95,8 +95,6 @@ final class ConversationViewModel {
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages in
             guard let self = self else {return}
             
-            print(messages)
-            
             if self.messages.isEmpty {
                 self.fetchConversationMessages()
                 return
