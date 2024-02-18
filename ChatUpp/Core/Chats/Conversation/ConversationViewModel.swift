@@ -36,9 +36,10 @@ final class ConversationViewModel {
         self.memberProfileImage = imageData
         self.memberID = memberID
 
-        fetchConversationMessages()
+//        fetchConversationMessages()
         addListenerToMessages()
     }
+    
     
     private func createConversation() async {
         let chatId = UUID().uuidString
@@ -47,6 +48,7 @@ final class ConversationViewModel {
         self.conversation = chat
         do {
             try await ChatsManager.shared.createNewChat(chat: chat)
+            addListenerToMessages()
         } catch {
             print("Error creating conversation", error.localizedDescription)
         }
