@@ -40,10 +40,10 @@ final class ChatsViewModel {
     }
     
     func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws {
-        return await withThrowingTaskGroup(of: (DBUser?, Message?, Data?)?.self) { group in
+        return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?)?.self) { group in
             for cellViewModel in cellViewModels {
                 group.addTask {
-                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.loadRecentMessage(), cellViewModel.fetchImageData())
+                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage())
 //                    try await cellViewModel.fetchUserData()
                 }
             }
