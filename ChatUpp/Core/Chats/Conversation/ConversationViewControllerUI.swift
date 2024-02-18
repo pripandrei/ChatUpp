@@ -17,16 +17,43 @@ final class ConversationViewControllerUI: UIView {
     
     var holderViewBottomConstraint: NSLayoutConstraint!
     
-    lazy var collectionView: UICollectionView = {
-        let collectionViewFlowLayout = InvertedCollectionViewFlowLayout()
-        collectionViewFlowLayout.scrollDirection = .vertical
-        collectionViewFlowLayout.estimatedItemSize = InvertedCollectionViewFlowLayout.automaticSize
+//    lazy var collectionView: UICollectionView = {
+//        let collectionViewFlowLayout = InvertedCollectionViewFlowLayout()
+//        collectionViewFlowLayout.scrollDirection = .vertical
+//        collectionViewFlowLayout.estimatedItemSize = InvertedCollectionViewFlowLayout.automaticSize
+//
+//        let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
+//        collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
+//        collectionVC.verticalScrollIndicatorInsets.bottom = 60
+//
+//        return collectionVC
+//    }()
+    
+    let collectionView: UICollectionView = {
+        let layout = InvertedCollectionViewFlowLayout { (section, environment) -> NSCollectionLayoutSection? in
+            
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(10))
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            
+//            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
+            let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+            
+            let section = NSCollectionLayoutSection(group: group)
+//            section.contentInsets = NSDirectionalEdgeInsets(top: -10, leading: 10, bottom: 70, trailing: 10)
+            //            section.contentInsets.top = .init(-10)
+            section.interGroupSpacing = 5
+            return section
+        }
+        layout.configuration.scrollDirection = .vertical
         
-        let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
-        collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
-        collectionVC.verticalScrollIndicatorInsets.bottom = 60
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+//        collectionView.backgroundColor = .brown
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+    
+        collectionView.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
+        collectionView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -10, left: 0, bottom: 70, right: 0)
         
-        return collectionVC
+        return collectionView
     }()
     
     convenience init() {
@@ -73,10 +100,10 @@ final class ConversationViewControllerUI: UIView {
             pictureAddButton.trailingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: -10)
         ])
     }
-    
+
     private func setupCollectionView() {
         self.addSubview(collectionView)
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
+        collectionView.contentInset = UIEdgeInsets(top: -5, left: 0, bottom: 75, right: 0)
         collectionView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -150,7 +177,7 @@ final class ConversationViewControllerUI: UIView {
 }
 
 //MARK: - INVERTED COLLECTION FLOW
-final class InvertedCollectionViewFlowLayout: UICollectionViewFlowLayout {
+final class InvertedCollectionViewFlowLayout: UICollectionViewCompositionalLayout {
     
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         let attributes = super.layoutAttributesForItem(at: indexPath)

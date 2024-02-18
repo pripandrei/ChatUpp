@@ -27,7 +27,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     
     private var imageAttachment = NSTextAttachment()
      var mainCellContainer = UIView()
-    var messageContainer = UITextView()
+    var messageContainer = UITextView(usingTextLayoutManager: false)
     private var timeStamp = UILabel()
     var cellViewModel: ConversationCellViewModel!
  
@@ -258,27 +258,27 @@ extension ConversationCollectionViewCell {
     private func getStringFromLastLine(usingTextView textView: UITextView) -> String {
         guard textView.text != "" else { return "" }
         
-        let mirrorTextView = UITextView(usingTextLayoutManager: false)
-        mirrorTextView.text = textView.text
-        mirrorTextView.font = textView.font
+//        let mirrorTextView = UITextView(usingTextLayoutManager: false)
+//        mirrorTextView.text = textView.text
+//        mirrorTextView.font = textView.font
         
-        let selectedRangee = mirrorTextView.selectedRange
-        let glyphRange = mirrorTextView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
+        let selectedRangee = textView.selectedRange
+        let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
         
-        let glyphIndex = glyphRange.lowerBound == mirrorTextView.layoutManager.numberOfGlyphs ? glyphRange.lowerBound - 1 : glyphRange.lowerBound
+        let glyphIndex = glyphRange.lowerBound == textView.layoutManager.numberOfGlyphs ? glyphRange.lowerBound - 1 : glyphRange.lowerBound
         
         var effectiveGlyphRange = NSRange(location: 0, length: 0)
         
-        mirrorTextView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex , effectiveRange: &effectiveGlyphRange)
-        let effectiveCharRange = mirrorTextView.layoutManager.characterRange(forGlyphRange: effectiveGlyphRange, actualGlyphRange: nil)
+        textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex , effectiveRange: &effectiveGlyphRange)
+        let effectiveCharRange = textView.layoutManager.characterRange(forGlyphRange: effectiveGlyphRange, actualGlyphRange: nil)
         
         let rangeStart = effectiveCharRange.location
         let rangeLength = effectiveCharRange.length
         
-        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: mirrorTextView.text!)
+        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: textView.text!)
         else { print("Invalid range"); return "" }
         
-        let substring = mirrorTextView.text![validRange]
+        let substring = textView.text![validRange]
         return String(substring)
     }
 }
