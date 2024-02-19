@@ -34,14 +34,18 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 //    let mirrorTextView = UITextView(usingTextLayoutManager: false)
     private var timeStamp = UILabel()
     var cellViewModel: ConversationCellViewModel!
+    
+    var maxMessageWidth: CGFloat {
+        return self.frame.width * 2 / 3
+    }
  
-    var mainCellContainerMaxWidth :CGFloat? {
-        didSet {
+//    var mainCellContainerMaxWidth :CGFloat? {
+//        didSet {
 //            guard let maxWidth = mainCellContainerMaxWidth else { return }
 //            mainCellContainerMaxWidthConstraint = messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - 70)
 //            mainCellContainerMaxWidthConstraint.isActive = true
-        }
-    }
+//        }
+//    }
     
     private func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
@@ -57,19 +61,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 //        messageContainer.text = ""
         imageAttachment.image = nil
         layoutIfNeeded()
-        
-//
-//
-//
-//        let text = cellViewModel.cellMessage.messageBody
-//
-//        // Replace with DTAttributedTextCell
-//        let label = DTAttributedTextCell()
-//        label.textLabel?.text = text
-//        label.textDelegate = self // Optional for handling tap gestures etc.
-//
-//        // Add the label to your cell's content view
-//        addSubview(label)
     }
 
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
@@ -149,7 +140,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         messageContainer.delegate = self
         
         let attributedString = NSAttributedString(string: "simple message Test text@", attributes: [
-            .font: UIFont.systemFont(ofSize: 16),
+            .font:  UIFont(name: "HelveticaNeue", size: 17),
             .foregroundColor: UIColor.white,
             .paragraphStyle: {
                 let paragraphStyle = NSMutableParagraphStyle()
@@ -170,23 +161,22 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
 //        messageContainer.textContainer.maximumNumberOfLines = 0 // Allow multiple lines
 //        messageContainer.textContainer.lineFragmentPadding = 1.5
 //        messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
-        messageContainer.sizeToFit()
         messageContainer.contentMode = .redraw
-        messageContainer.translatesAutoresizingMaskIntoConstraints = false
         messageContainer.layer.cornerRadius = 15
         messageContainer.clipsToBounds = true
+        messageContainer.sizeToFit()
+        messageContainer.translatesAutoresizingMaskIntoConstraints = false
+        
+    
         
         NSLayoutConstraint.activate([
 //            messageContainer.widthAnchor.constraint(equalToConstant: 300),
 //            messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor),
-            messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth),
+            
             messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
-            messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor)
+            messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor),
+            messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth),
         ])
-    }
-    
-    var maxMessageWidth: CGFloat {
-        return self.frame.width * 2 / 3
     }
     
     private func setupTimestamp() {
@@ -302,72 +292,73 @@ extension ConversationCollectionViewCell {
 }
 
 // MARK: - GET LAST LINE MESSAGE STRING
-extension ConversationCollectionViewCell {
-    
-    private func getStringFromLastLine(usingTextView textView: UITextView) -> String {
-        guard textView.text != "" else { return "" }
-        
-        let selectedRangee = textView.selectedRange
-        let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
-        
-        let glyphIndex = glyphRange.lowerBound == textView.layoutManager.numberOfGlyphs ? glyphRange.lowerBound - 1 : glyphRange.lowerBound
-        
-        var effectiveGlyphRange = NSRange(location: 0, length: 0)
-        
-        textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex , effectiveRange: &effectiveGlyphRange)
-        let effectiveCharRange = textView.layoutManager.characterRange(forGlyphRange: effectiveGlyphRange, actualGlyphRange: nil)
-        
-        let rangeStart = effectiveCharRange.location
-        let rangeLength = effectiveCharRange.length
-        
-        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: textView.text!)
-        else { print("Invalid range"); return "" }
-        
-        let substring = textView.text![validRange]
-        return String(substring)
-        return ""
-    }
-}
+//extension ConversationCollectionViewCell {
+//
+//    private func getStringFromLastLine(usingTextView textView: UITextView) -> String {
+//        guard textView.text != "" else { return "" }
+//
+//        let selectedRangee = textView.selectedRange
+//        let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
+//
+//        let glyphIndex = glyphRange.lowerBound == textView.layoutManager.numberOfGlyphs ? glyphRange.lowerBound - 1 : glyphRange.lowerBound
+//
+//        var effectiveGlyphRange = NSRange(location: 0, length: 0)
+//
+//        textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex , effectiveRange: &effectiveGlyphRange)
+//        let effectiveCharRange = textView.layoutManager.characterRange(forGlyphRange: effectiveGlyphRange, actualGlyphRange: nil)
+//
+//        let rangeStart = effectiveCharRange.location
+//        let rangeLength = effectiveCharRange.length
+//
+//        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: textView.text!)
+//        else { print("Invalid range"); return "" }
+//
+//        let substring = textView.text![validRange]
+//        return String(substring)
+//        return ""
+//    }
+//}
 
-extension UITextView {
-    func lastLine() -> String {
-        guard let text = text as NSString? else {
-            return "nil"
-        }
-        
-        // Calculate the range for the last line
-        let lastGlyphIndex = layoutManager.glyphIndexForCharacter(at: text.length - 1)
-        let lastLineRange = layoutManager.lineFragmentRect(forGlyphAt: lastGlyphIndex, effectiveRange: nil)
-        let lastLineRect = layoutManager.boundingRect(forGlyphRange: NSRange(location: lastGlyphIndex, length: 1), in: textContainer)
-        
-        // Check if the last line is visible in the text view
-        if lastLineRect.maxY < contentOffset.y || lastLineRect.minY > contentOffset.y + bounds.height {
-            // Last line is not currently visible
-            return "nil"
-        }
-        
-        // Extract the last line string
-        let lastLineStartIndex = layoutManager.characterIndexForGlyph(at: lastGlyphIndex)
-        let lastLine = text.substring(from: lastLineStartIndex)
-        return lastLine
-    }
-}
+//extension UITextView {
+//    func lastLine() -> String {
+//        guard let text = text as NSString? else {
+//            return "nil"
+//        }
+//
+//        // Calculate the range for the last line
+//        let lastGlyphIndex = layoutManager.glyphIndexForCharacter(at: text.length - 1)
+//        let lastLineRange = layoutManager.lineFragmentRect(forGlyphAt: lastGlyphIndex, effectiveRange: nil)
+//        let lastLineRect = layoutManager.boundingRect(forGlyphRange: NSRange(location: lastGlyphIndex, length: 1), in: textContainer)
+//
+//        // Check if the last line is visible in the text view
+//        if lastLineRect.maxY < contentOffset.y || lastLineRect.minY > contentOffset.y + bounds.height {
+//            // Last line is not currently visible
+//            return "nil"
+//        }
+//
+//        // Extract the last line string
+//        let lastLineStartIndex = layoutManager.characterIndexForGlyph(at: lastGlyphIndex)
+//        let lastLine = text.substring(from: lastLineStartIndex)
+//        return lastLine
+//    }
+//}
 
 
 extension ConversationCollectionViewCell: DTAttributedTextContentViewDelegate {
     
-//    func attributedTextContentView(_ attributedTextContentView: DTAttributedTextContentView!, didDraw layoutFrame: DTCoreTextLayoutFrame!, in context: CGContext!) {
-//        //        let asd = layoutFrame.linesContained(in: messageContainer.bounds)
-//        //        print(layoutFrame.linesContained(in: messageContainer.bounds))
-//        //        print(layoutFrame.lines.last)
-//        //        print(messageContainer.lastLine())
-//        //        layoutFrame.numberOfLines = 3
-//        
-//        if let lines = layoutFrame.lines as? [DTCoreTextLayoutLine], let lastLine = lines.last {
-//            let string = lastLine.stringRange()
-//            let attributedString = attributedTextContentView.attributedString
-//            let plainText = attributedString?.attributedSubstring(from: string)
+    func attributedTextContentView(_ attributedTextContentView: DTAttributedTextContentView!, didDraw layoutFrame: DTCoreTextLayoutFrame!, in context: CGContext!) {
+        //        let asd = layoutFrame.linesContained(in: messageContainer.bounds)
+        //        print(layoutFrame.linesContained(in: messageContainer.bounds))
+        //        print(layoutFrame.lines.last)
+        //        print(messageContainer.lastLine())
+                layoutFrame.numberOfLines = 0
+        
+
+        if let lines = layoutFrame.lines as? [DTCoreTextLayoutLine], let lastLine = lines.last {
+            let string = lastLine.stringRange()
+            let attributedString = attributedTextContentView.attributedString
+            let plainText = attributedString?.attributedSubstring(from: string)
 //            print(plainText?.string)
-//        }
-//    }
+        }
+    }
 }

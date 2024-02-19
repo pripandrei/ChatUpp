@@ -30,7 +30,7 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
-        cell.mainCellContainerMaxWidth = collectionView.bounds.width
+//        cell.mainCellContainerMaxWidth = collectionView.bounds.width
         cell.configureCell(usingViewModel: conversationViewModel.cellViewModels[indexPath.item])
     
         let authUserID = conversationViewModel.authenticatedUserID

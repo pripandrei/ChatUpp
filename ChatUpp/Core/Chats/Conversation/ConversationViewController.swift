@@ -236,18 +236,18 @@ extension ConversationViewController {
 
 //MARK: - COLLECTION VIEW LAYOUT
 
-//extension ConversationViewController: UICollectionViewDelegateFlowLayout {
-//    
-//    func collectionView(_ collectionView: UICollectionView,
-//                        layout collectionViewLayout: UICollectionViewLayout,
-//                        sizeForItemAt indexPath: IndexPath) -> CGSize
-//    {
-//        // For some reason, cellForItemAt indexPath function is not triggered if height is 0
-//        // and numberOfItemsInSection is 1, so, height should be at least 1.
-//        // It will not affect height of cells, because they are set to automaticSize
-//        return CGSize(width: view.bounds.width, height: 1)
-//    }
-//}
+extension ConversationViewController: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize
+    {
+        // For some reason, cellForItemAt indexPath function is not triggered if height is 0
+        // and numberOfItemsInSection is 1, so, height should be at least 1.
+        // It will not affect height of cells, because they are set to automaticSize
+        return CGSize(width: view.bounds.width, height: 1)
+    }
+}
 
 //MARK: - COLLETION VIEW OFFSET HANDLER
 
