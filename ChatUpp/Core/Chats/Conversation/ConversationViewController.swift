@@ -131,30 +131,32 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
         
-        UIView.performWithoutAnimation {
-            self.rootView.collectionView.insertItems(at: [indexPath])
-            self.rootView.collectionView.reloadSections(IndexSet.init(integer: 0))
-        }
+//        UIView.performWithoutAnimation {
+//            self.rootView.collectionView.insertItems(at: [indexPath])
+//            self.rootView.collectionView.reloadSections(IndexSet.init(integer: 0))
+//        }
         
         // Schedules scrolling execution in order for proper animation scrolling
         DispatchQueue.main.async {
+            let indexPath2 = IndexPath(item: 25, section: 0)
+//            self.rootView.collectionView.scrollToItem(at: indexPath2, at: .top, animated: false)
             self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
 //            self.rootView.collectionView.reloadItems(at: [indexPath])
         }
         
         // Offset collection view conntent by cells (message) height contentSize
         // without animation, so that cell appears under the textView
-        guard let cell = rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
-        
-        let currentOffSet = rootView.collectionView.contentOffset
-        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height + 10)
-        
-        rootView.collectionView.setContentOffset(offSet, animated: false)
-        
-        // Animate collection content back so that the cell (message) will go up
-        UIView.animate(withDuration: 0.3) {
-            self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
-        }
+//        guard let cell = rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
+//
+//        let currentOffSet = rootView.collectionView.contentOffset
+//        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height + 10)
+//
+//        rootView.collectionView.setContentOffset(offSet, animated: false)
+//
+//        // Animate collection content back so that the cell (message) will go up
+//        UIView.animate(withDuration: 0.3) {
+//            self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
+//        }
     }
 
     private func configurePhotoPicker() {
