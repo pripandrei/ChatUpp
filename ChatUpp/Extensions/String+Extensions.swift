@@ -10,8 +10,15 @@ import UIKit
 
 extension String {
     func getSize() -> CGSize {
-        guard let font = UIFont(name: "HelveticaNeue", size: 18) else { return CGSize.zero }
-        let attributes = [NSAttributedString.Key.font: font]
+        guard let font = UIFont(name: "HelveticaNeue", size: 17) else { return CGSize.zero }
+        let attributes: [NSAttributedString.Key: Any] = [.font: font,
+                          .foregroundColor: UIColor.white,
+                          .paragraphStyle: {
+                              let paragraphStyle = NSMutableParagraphStyle()
+                              paragraphStyle.alignment = .left
+                              paragraphStyle.lineBreakMode = .byWordWrapping
+                              return paragraphStyle
+                          }()]
         return self.size(withAttributes: attributes)
     }
 }

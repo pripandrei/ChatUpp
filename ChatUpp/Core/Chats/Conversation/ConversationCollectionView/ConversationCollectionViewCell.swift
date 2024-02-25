@@ -10,7 +10,7 @@ import ImageIO
 import AVFoundation
 import DTCoreText
 
-final class ConversationCollectionViewCell: UICollectionViewCell {
+final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDelegate {
     
     enum MessageSide {
         case left
@@ -28,25 +28,15 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     
     private var imageAttachment = NSTextAttachment()
-     var mainCellContainer = UIView()
-//    var messageContainer = UITextView(usingTextLayoutManager: false)
+    var mainCellContainer = UIView()
     var messageContainer = DTAttributedTextContentView()
-//    let mirrorTextView = UITextView(usingTextLayoutManager: false)
     private var timeStamp = UILabel()
     var cellViewModel: ConversationCellViewModel!
     
     var maxMessageWidth: CGFloat {
         return self.frame.width * 2 / 3
     }
- 
-//    var mainCellContainerMaxWidth :CGFloat? {
-//        didSet {
-//            guard let maxWidth = mainCellContainerMaxWidth else { return }
-//            mainCellContainerMaxWidthConstraint = messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth - 70)
-//            mainCellContainerMaxWidthConstraint.isActive = true
-//        }
-//    }
-    
+
     private func setupBinding() {
         cellViewModel.imageData.bind { [weak self] data in
             if data == self?.cellViewModel.imageData.value {
@@ -62,7 +52,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         imageAttachment.image = nil
         layoutIfNeeded()
     }
-
+    
     func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
         defer {
             handleMessageBubbleLayout()
@@ -87,7 +77,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
                 }()
             ])
             messageContainer.attributedString = attributedString
-            
             return
         }
         if viewModel.imageData.value != nil  {
@@ -108,7 +97,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         
         setupContentViewConstraints()
         setupMainCellContainer()
-//        mainCellContainer.backgroundColor = .alizarin
         setupMessageTextView()
         setupTimestamp()
     }
@@ -125,59 +113,34 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
+            mainCellContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
+            mainCellContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             mainCellContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             mainCellContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            mainCellContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
-            mainCellContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
-    let label = DTAttributedTextCell()
     
     private func setupMessageTextView() {
         mainCellContainer.addSubview(messageContainer)
 
         messageContainer.backgroundColor = .blue
         messageContainer.delegate = self
-        
-        let attributedString = NSAttributedString(string: "simple message Test text@", attributes: [
-            .font:  UIFont(name: "HelveticaNeue", size: 17),
-            .foregroundColor: UIColor.white,
-            .paragraphStyle: {
-                let paragraphStyle = NSMutableParagraphStyle()
-                paragraphStyle.alignment = .left
-                paragraphStyle.lineBreakMode = .byWordWrapping
-                return paragraphStyle
-            }()
-        ])
-        
-        messageContainer.attributedString = attributedString
-
-//        messageContainer.textColor = .white
-//        messageContainer.font = UIFont(name: "HelveticaNeue", size: 17)
-//        messageContainer.isEditable = false
-//        messageContainer.isScrollEnabled = false
-//        messageContainer.isSelectable = false
-//        messageContainer.isHidden = false
-//        messageContainer.textContainer.maximumNumberOfLines = 0 // Allow multiple lines
-//        messageContainer.textContainer.lineFragmentPadding = 1.5
-//        messageContainer.textContainerInset = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         messageContainer.contentMode = .redraw
-        messageContainer.layer.cornerRadius = 15
-        messageContainer.clipsToBounds = true
-        messageContainer.sizeToFit()
-        messageContainer.translatesAutoresizingMaskIntoConstraints = false
+//        messageContainer.layer.cornerRadius = 15
+//        messageContainer.clipsToBounds = true
         
-    
+        messageContainer.translatesAutoresizingMaskIntoConstraints = false
+ 
+        widthConstraint = messageContainer.widthAnchor.constraint(equalToConstant: 260)
         
         NSLayoutConstraint.activate([
-//            messageContainer.widthAnchor.constraint(equalToConstant: 300),
-//            messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor),
-            
+            widthConstraint,
             messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
             messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor),
-            messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth),
         ])
     }
+    
+    var widthConstraint: NSLayoutConstraint!
     
     private func setupTimestamp() {
         mainCellContainer.addSubview(timeStamp)
@@ -196,8 +159,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-//            contentView.heightAnchor.constraint(equalToConstant: 250),
-//            contentView.widthAnchor.constraint(equalToConstant: 200),
            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
            contentView.topAnchor.constraint(equalTo: topAnchor),
@@ -212,12 +173,12 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
         switch side {
         case .right:
             messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(greaterThanOrEqualTo: mainCellContainer.leadingAnchor)
-            messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor, constant: -10)
+            messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
             messageContainer.backgroundColor = #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
         case .left:
-            messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 10)
+            messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor)
             messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(lessThanOrEqualTo: mainCellContainer.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
@@ -231,29 +192,46 @@ final class ConversationCollectionViewCell: UICollectionViewCell {
     func handleMessageBubbleLayout() {
         adjustMessagePadding(.initial)
         
+        if messageContainer.attributedString == nil {
+            messageContainer.attributedString = NSAttributedString(string: "")
+        }
+        let boundingRect: CGRect = messageContainer.attributedString.boundingRect(with: .init(width: 260.0, height: .greatestFiniteMagnitude), options: .usesLineFragmentOrigin, context: nil)
+        widthConstraint.constant = ceil(boundingRect.width + 18)
+
         layoutIfNeeded()
         
-        let padding :CGFloat = 12
-//        let lastLineString = getStringFromLastLine(usingTextView: messageContainer)
-        let lastLineString = "ABC"
+        let padding :CGFloat = 18
+        
+        guard let lastLineString = getLastLineFromMessageAttributedString()?.string else {return}
+
         let lastLineStringWidth = lastLineString.getSize().width
         let lastLineWithTimestempWidth = (lastLineStringWidth + timeStamp.bounds.width) + padding
-        let messageRectWidth = messageContainer.bounds.width
+        let messageRectWidth = messageContainer.intrinsicContentSize().width
 
         if lastLineWithTimestempWidth > messageRectWidth {
             if lastLineWithTimestempWidth.rounded(.up) < maxMessageWidth  {
                 adjustMessagePadding(.rightSpace)
+                widthConstraint.constant += timeStamp.frame.width + 5
+                layoutIfNeeded()
             } else {
                 adjustMessagePadding(.bottomSpace)
             }
         }
-        
+    }
+    
+    private func getLastLineFromMessageAttributedString() -> NSAttributedString? {
+        if let lines = messageContainer.layoutFrame.lines as? [DTCoreTextLayoutLine], let lastLine = lines.last {
+            let string = lastLine.stringRange()
+            let attributedString = messageContainer.attributedString
+            return attributedString?.attributedSubstring(from: string)
+        }
+        return nil
     }
     
     private func adjustMessagePadding(_ messagePadding: MessagePadding) {
         switch messagePadding {
         case .initial: messageContainer.edgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-        case .rightSpace: messageContainer.edgeInsets.right = 41
+        case .rightSpace: messageContainer.edgeInsets.right = timeStamp.intrinsicContentSize.width
         case .bottomSpace: messageContainer.edgeInsets.bottom += 15
         case .imageSpace: messageContainer.edgeInsets = UIEdgeInsets(top: 4, left: 5, bottom: 4, right: 5)
         }
@@ -346,19 +324,24 @@ extension ConversationCollectionViewCell {
 
 extension ConversationCollectionViewCell: DTAttributedTextContentViewDelegate {
     
-    func attributedTextContentView(_ attributedTextContentView: DTAttributedTextContentView!, didDraw layoutFrame: DTCoreTextLayoutFrame!, in context: CGContext!) {
-        //        let asd = layoutFrame.linesContained(in: messageContainer.bounds)
-        //        print(layoutFrame.linesContained(in: messageContainer.bounds))
-        //        print(layoutFrame.lines.last)
-        //        print(messageContainer.lastLine())
-                layoutFrame.numberOfLines = 0
-        
-
-        if let lines = layoutFrame.lines as? [DTCoreTextLayoutLine], let lastLine = lines.last {
-            let string = lastLine.stringRange()
-            let attributedString = attributedTextContentView.attributedString
-            let plainText = attributedString?.attributedSubstring(from: string)
-//            print(plainText?.string)
-        }
-    }
+//    func attributedTextContentView(_ attributedTextContentView: DTAttributedTextContentView!, willDraw layoutFrame: DTCoreTextLayoutFrame!, in context: CGContext!) {
+////        print("")
+////        handleMessageBubbleLayout()
+//    }
+//
+//    func attributedTextContentView(_ attributedTextContentView: DTAttributedTextContentView!, didDraw layoutFrame: DTCoreTextLayoutFrame!, in context: CGContext!) {
+//        //        let asd = layoutFrame.linesContained(in: messageContainer.bounds)
+//        //        print(layoutFrame.linesContained(in: messageContainer.bounds))
+//        //        print(layoutFrame.lines.last)
+//        //        print(messageContainer.lastLine())
+//                layoutFrame.numberOfLines = 0
+//
+//
+//        if let lines = layoutFrame.lines as? [DTCoreTextLayoutLine], let lastLine = lines.last {
+//            let string = lastLine.stringRange()
+//            let attributedString = attributedTextContentView.attributedString
+//            let plainText = attributedString?.attributedSubstring(from: string)
+//        }
+////        handleMessageBubbleLayout()
+//    }
 }
