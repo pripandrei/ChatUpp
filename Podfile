@@ -8,7 +8,9 @@ target 'ChatUpp' do
   # Pods for ChatUpp
 
 pod 'Firebase/Core'
-pod 'Firebase/Crashlytics'
+
+	# pod 'Firebase/Crashlytics'
+	
 pod 'Firebase/Auth'
 pod 'Firebase/Database'
 pod 'FirebaseFirestore'
@@ -19,14 +21,14 @@ pod 'GoogleSignInSwift'
 pod 'AlgoliaSearchClient', '~> 8.0'
 pod 'SkeletonView'
 pod 'Firebase/Storage'
-pod 'DTCoreText'
+pod 'YYText'
 
 
 post_install do |installer|
     installer.generated_projects.each do |project|
         project.targets.each do |target|
             target.build_configurations.each do |config|
-                config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+                config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
             end
         end
     end

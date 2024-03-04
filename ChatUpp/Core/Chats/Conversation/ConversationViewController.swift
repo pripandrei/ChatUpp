@@ -61,6 +61,11 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         rootView.collectionView.delegate = self
     }
     
+//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+//        guard let cell = cell as? ConversationCollectionViewCell else {return}
+//        cell.getMessageLastLineSize()
+//    }
+    
     //MARK: - Binding
     private func setupBinding() {
         conversationViewModel.onCellVMLoad = {
@@ -138,7 +143,6 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         // Schedules scrolling execution in order for proper animation scrolling
         DispatchQueue.main.async {
-            let indexPath2 = IndexPath(item: 25, section: 0)
 //            self.rootView.collectionView.scrollToItem(at: indexPath2, at: .top, animated: false)
             self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
 //            self.rootView.collectionView.reloadItems(at: [indexPath])

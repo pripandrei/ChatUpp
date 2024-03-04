@@ -19,21 +19,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>DTCoreText-Resources.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>DTCoreText.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>DTFoundation.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>Firebase.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -74,11 +59,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>FirebaseCrashlytics.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>FirebaseDatabase.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -100,11 +80,6 @@
 			<false/>
 		</dict>
 		<key>FirebaseInstallations.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>FirebaseSessions.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -134,11 +109,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>GoogleDataTransport.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>GoogleSignIn-GoogleSignIn.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -150,6 +120,11 @@
 			<false/>
 		</dict>
 		<key>GoogleSignInSwift.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>GoogleUtilities-GoogleUtilities_Privacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -174,12 +149,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>PromisesObjC.xcscheme</key>
+		<key>PromisesObjC-FBLPromises_Privacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>PromisesSwift.xcscheme</key>
+		<key>PromisesObjC.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -190,6 +165,11 @@
 			<false/>
 		</dict>
 		<key>SkeletonView.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>YYText.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -210,6 +190,11 @@
 			<false/>
 		</dict>
 		<key>gRPC-Core.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>leveldb-library-leveldb_Privacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

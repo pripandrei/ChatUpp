@@ -6,9 +6,9 @@
 //
 
 import UIKit
-import ImageIO
-import AVFoundation
-import DTCoreText
+import YYText
+//import ImageIO
+//import AVFoundation
 
 final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDelegate {
     
@@ -17,7 +17,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         case right
     }
     private enum MessagePadding {
-        case initial
+        case initialSpacing
         case rightSpace
         case bottomSpace
         case imageSpace
@@ -26,10 +26,11 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     private var mainCellContainerMaxWidthConstraint: NSLayoutConstraint!
     private var messageContainerLeadingConstraint: NSLayoutConstraint!
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
+    //    private var widthConstraint: NSLayoutConstraint!
     
-    private var imageAttachment = NSTextAttachment()
+//    private var imageAttachment = NSTextAttachment()
     var mainCellContainer = UIView()
-    var messageContainer = DTAttributedTextContentView()
+    var messageContainer = YYLabel()
     private var timeStamp = UILabel()
     var cellViewModel: ConversationCellViewModel!
     
@@ -49,7 +50,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
 
     private func cleanupCellContent() {
 //        messageContainer.text = ""
-        imageAttachment.image = nil
+//        imageAttachment.image = nil
         layoutIfNeeded()
     }
     
@@ -57,8 +58,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         defer {
             handleMessageBubbleLayout()
         }
-        
-        cleanupCellContent()
+//        cleanupCellContent()
         
         self.cellViewModel = viewModel
         setupBinding()
@@ -67,7 +67,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
 
         if viewModel.cellMessage.messageBody != "" {
             let attributedString = NSAttributedString(string: viewModel.cellMessage.messageBody, attributes: [
-                .font: UIFont(name: "HelveticaNeue", size: 17),
+                .font: UIFont(name: "HelveticaNeue", size: 17)!,
                 .foregroundColor: UIColor.white,
                 .paragraphStyle: {
                     let paragraphStyle = NSMutableParagraphStyle()
@@ -76,7 +76,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
                     return paragraphStyle
                 }()
             ])
-            messageContainer.attributedString = attributedString
+            messageContainer.attributedText = attributedString
             return
         }
         if viewModel.imageData.value != nil  {
@@ -124,23 +124,22 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         mainCellContainer.addSubview(messageContainer)
 
         messageContainer.backgroundColor = .blue
-        messageContainer.delegate = self
+        messageContainer.numberOfLines = 0
+        messageContainer.preferredMaxLayoutWidth = 260
         messageContainer.contentMode = .redraw
-//        messageContainer.layer.cornerRadius = 15
-//        messageContainer.clipsToBounds = true
+        adjustMessagePadding(.initialSpacing)
+        messageContainer.layer.cornerRadius = 15
+        messageContainer.clipsToBounds = true
         
         messageContainer.translatesAutoresizingMaskIntoConstraints = false
- 
-        widthConstraint = messageContainer.widthAnchor.constraint(equalToConstant: 260)
+//        widthConstraint = messageContainer.widthAnchor.constraint(equalToConstant: 260)
         
         NSLayoutConstraint.activate([
-            widthConstraint,
+//            widthConstraint,
             messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
             messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor),
         ])
     }
-    
-    var widthConstraint: NSLayoutConstraint!
     
     private func setupTimestamp() {
         mainCellContainer.addSubview(timeStamp)
@@ -182,7 +181,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
             messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(lessThanOrEqualTo: mainCellContainer.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
-            
             messageContainer.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
         }
     }
@@ -190,50 +188,67 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     // MARK: - MESSAGE BUBBLE LAYOUT HANDLER
     
     func handleMessageBubbleLayout() {
-        adjustMessagePadding(.initial)
-        
-        if messageContainer.attributedString == nil {
-            messageContainer.attributedString = NSAttributedString(string: "")
+        if messageContainer.attributedText?.string == "The first time the government" {
+            print("enter")
         }
-        let boundingRect: CGRect = messageContainer.attributedString.boundingRect(with: .init(width: 260.0, height: .greatestFiniteMagnitude), options: .usesLineFragmentOrigin, context: nil)
-        widthConstraint.constant = ceil(boundingRect.width + 18)
-
-        layoutIfNeeded()
+        updateMessageTextLayout()
+        guard let lastLineMessageWidth = getMessageLastLineSize() else {return}
+        guard let numberOfMessageLines = messageContainer.textLayout?.lines.count else {return}
+        let padding: CGFloat = 20
+        let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timeStamp.intrinsicContentSize.width) + padding
+        let messageRectWidth = messageContainer.intrinsicContentSize.width
         
-        let padding :CGFloat = 18
-        
-        guard let lastLineString = getLastLineFromMessageAttributedString()?.string else {return}
-
-        let lastLineStringWidth = lastLineString.getSize().width
-        let lastLineWithTimestempWidth = (lastLineStringWidth + timeStamp.bounds.width) + padding
-        let messageRectWidth = messageContainer.intrinsicContentSize().width
-
-        if lastLineWithTimestempWidth > messageRectWidth {
-            if lastLineWithTimestempWidth.rounded(.up) < maxMessageWidth  {
+        if lastLineMessageAndTimestampWidth > 259 {
+            adjustMessagePadding(.bottomSpace)
+            return
+        }
+        if lastLineMessageAndTimestampWidth <= 259 {
+            if numberOfMessageLines == 1 {
                 adjustMessagePadding(.rightSpace)
-                widthConstraint.constant += timeStamp.frame.width + 5
-                layoutIfNeeded()
-            } else {
-                adjustMessagePadding(.bottomSpace)
+            } else if lastLineMessageAndTimestampWidth > messageRectWidth {
+                let difference = lastLineMessageAndTimestampWidth - messageRectWidth
+                messageContainer.textContainerInset.right += difference + padding / 2
             }
         }
+        
+//        if messageRectWidth > 260 {
+////            if lastLineMessageAndTimestampWidth.rounded(.up) < maxMessageWidth  {
+//            adjustMessagePadding(.bottomSpace)
+////                widthConstraint.constant += timeStamp.frame.width + 5
+////                layoutIfNeeded()
+////            } else {
+////            }
+//        }
+//        else {
+//            adjustMessagePadding(.rightSpace)
+//           
+//        }
     }
     
-    private func getLastLineFromMessageAttributedString() -> NSAttributedString? {
-        if let lines = messageContainer.layoutFrame.lines as? [DTCoreTextLayoutLine], let lastLine = lines.last {
-            let string = lastLine.stringRange()
-            let attributedString = messageContainer.attributedString
-            return attributedString?.attributedSubstring(from: string)
+    func updateMessageTextLayout() {
+//        layoutIfNeeded()
+        let textLayout = YYTextLayout(containerSize: CGSize(width: messageContainer.intrinsicContentSize.width, height: messageContainer.intrinsicContentSize.height), text: messageContainer.attributedText!)
+        messageContainer.textLayout = textLayout
+        adjustMessagePadding(.initialSpacing)
+    }
+    
+    func getMessageLastLineSize() -> CGFloat? {
+        if let lastLine = messageContainer.textLayout?.lines.last {
+            let range = lastLine.range
+            let labelAttributedString = messageContainer.attributedText
+            let lastLineString = labelAttributedString?.attributedSubstring(from: range)
+            print("last line string: ", lastLineString?.string ,"last line width: " ,lastLine.lineWidth)
+            return lastLine.lineWidth
         }
         return nil
     }
     
     private func adjustMessagePadding(_ messagePadding: MessagePadding) {
         switch messagePadding {
-        case .initial: messageContainer.edgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
-        case .rightSpace: messageContainer.edgeInsets.right = timeStamp.intrinsicContentSize.width
-        case .bottomSpace: messageContainer.edgeInsets.bottom += 15
-        case .imageSpace: messageContainer.edgeInsets = UIEdgeInsets(top: 4, left: 5, bottom: 4, right: 5)
+        case .initialSpacing: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
+        case .rightSpace: messageContainer.textContainerInset.right = timeStamp.intrinsicContentSize.width + 15
+        case .bottomSpace: messageContainer.textContainerInset.bottom += 14
+        case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 4, left: 5, bottom: 4, right: 5)
         }
         messageContainer.invalidateIntrinsicContentSize()
     }
@@ -244,104 +259,52 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
 extension ConversationCollectionViewCell {
     
     private func configureImageAttachment(data: Data? = Data()) {
-        if let imageData = data,
-           let image = convertDataToImage(imageData) {
-            imageAttachment.image = image
-        } else {
-            imageAttachment.image = UIImage()
+//        var tempImage = UIImage()
+//        if let imageData = data,
+//           let image = convertDataToImage(imageData) {
+////            imageAttachment.image = image
+//            tempImage = image
+//        } else {
+////            imageAttachment.image = UIImage()
+//        }
+////        if let cellImageSize = cellViewModel.cellMessage.imageSize {
+////            let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
+////            imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+////
+////        }
+////        let attributedString = NSAttributedString(attachment: imageAttachment)
+//
+//        // TEST
+//        let imageTextAttachment = DTImageTextAttachment(image: tempImage)
+//        if let cellImageSize = cellViewModel.cellMessage.imageSize {
+////            let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
+////            imageTextAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
+//        }
+//        let attachmentString = NSAttributedString(attachment: imageTextAttachment)
+////        let attributedString = NSMutableAttributedString(string: "")
+////        attributedString.append(attachmentString)
+//        messageContainer.attributedString = attachmentString
+
+//
+//        // 0 padding for image
+////        imageAttachment.lineLayoutPadding = -6
+//        print("--")
+////        messageContainer.textStorage.insert(attributedString, at: 0)
+        ///
+        guard let image = UIImage(named: "default_profile_photo") else {
+            print("Error loading image")
+            return
         }
+        
         if let cellImageSize = cellViewModel.cellMessage.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
-            imageAttachment.bounds.size = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
-            
+            let testSize = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
         }
-        let attributedString = NSAttributedString(attachment: imageAttachment)
         
-        // 0 padding for image
-        imageAttachment.lineLayoutPadding = -6
-        
-//        messageContainer.textStorage.insert(attributedString, at: 0)
     }
     
     private func convertDataToImage(_ data: Data) -> UIImage? {
         guard let image = UIImage(data: data) else { return nil }
         return image
     }
-}
-
-// MARK: - GET LAST LINE MESSAGE STRING
-//extension ConversationCollectionViewCell {
-//
-//    private func getStringFromLastLine(usingTextView textView: UITextView) -> String {
-//        guard textView.text != "" else { return "" }
-//
-//        let selectedRangee = textView.selectedRange
-//        let glyphRange = textView.layoutManager.glyphRange(forCharacterRange: selectedRangee, actualCharacterRange: nil)
-//
-//        let glyphIndex = glyphRange.lowerBound == textView.layoutManager.numberOfGlyphs ? glyphRange.lowerBound - 1 : glyphRange.lowerBound
-//
-//        var effectiveGlyphRange = NSRange(location: 0, length: 0)
-//
-//        textView.layoutManager.lineFragmentRect(forGlyphAt: glyphIndex , effectiveRange: &effectiveGlyphRange)
-//        let effectiveCharRange = textView.layoutManager.characterRange(forGlyphRange: effectiveGlyphRange, actualGlyphRange: nil)
-//
-//        let rangeStart = effectiveCharRange.location
-//        let rangeLength = effectiveCharRange.length
-//
-//        guard let validRange = Range(NSRange(location: rangeStart, length: rangeLength), in: textView.text!)
-//        else { print("Invalid range"); return "" }
-//
-//        let substring = textView.text![validRange]
-//        return String(substring)
-//        return ""
-//    }
-//}
-
-//extension UITextView {
-//    func lastLine() -> String {
-//        guard let text = text as NSString? else {
-//            return "nil"
-//        }
-//
-//        // Calculate the range for the last line
-//        let lastGlyphIndex = layoutManager.glyphIndexForCharacter(at: text.length - 1)
-//        let lastLineRange = layoutManager.lineFragmentRect(forGlyphAt: lastGlyphIndex, effectiveRange: nil)
-//        let lastLineRect = layoutManager.boundingRect(forGlyphRange: NSRange(location: lastGlyphIndex, length: 1), in: textContainer)
-//
-//        // Check if the last line is visible in the text view
-//        if lastLineRect.maxY < contentOffset.y || lastLineRect.minY > contentOffset.y + bounds.height {
-//            // Last line is not currently visible
-//            return "nil"
-//        }
-//
-//        // Extract the last line string
-//        let lastLineStartIndex = layoutManager.characterIndexForGlyph(at: lastGlyphIndex)
-//        let lastLine = text.substring(from: lastLineStartIndex)
-//        return lastLine
-//    }
-//}
-
-
-extension ConversationCollectionViewCell: DTAttributedTextContentViewDelegate {
-    
-//    func attributedTextContentView(_ attributedTextContentView: DTAttributedTextContentView!, willDraw layoutFrame: DTCoreTextLayoutFrame!, in context: CGContext!) {
-////        print("")
-////        handleMessageBubbleLayout()
-//    }
-//
-//    func attributedTextContentView(_ attributedTextContentView: DTAttributedTextContentView!, didDraw layoutFrame: DTCoreTextLayoutFrame!, in context: CGContext!) {
-//        //        let asd = layoutFrame.linesContained(in: messageContainer.bounds)
-//        //        print(layoutFrame.linesContained(in: messageContainer.bounds))
-//        //        print(layoutFrame.lines.last)
-//        //        print(messageContainer.lastLine())
-//                layoutFrame.numberOfLines = 0
-//
-//
-//        if let lines = layoutFrame.lines as? [DTCoreTextLayoutLine], let lastLine = lines.last {
-//            let string = lastLine.stringRange()
-//            let attributedString = attributedTextContentView.attributedString
-//            let plainText = attributedString?.attributedSubstring(from: string)
-//        }
-////        handleMessageBubbleLayout()
-//    }
 }

@@ -32,10 +32,10 @@ final class ConversationViewControllerUI: UIView {
     let collectionView: UICollectionView = {
         let layout = InvertedCollectionViewFlowLayout { (section, environment) -> NSCollectionLayoutSection? in
             
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(10))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(40))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             
-//            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
             let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
@@ -49,7 +49,7 @@ final class ConversationViewControllerUI: UIView {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
 //        collectionView.backgroundColor = .brown
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-    
+        
         collectionView.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
         collectionView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -10, left: 0, bottom: 70, right: 0)
         
