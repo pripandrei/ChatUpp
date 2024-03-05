@@ -38,7 +38,7 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
         } else {
             cell.adjustMessageSide(.left)
         }
-        
+        cell.contentView.layoutIfNeeded()
         return cell
     }
 }
