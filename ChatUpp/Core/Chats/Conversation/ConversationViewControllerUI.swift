@@ -41,7 +41,7 @@ final class ConversationViewControllerUI: UIView {
             let section = NSCollectionLayoutSection(group: group)
 //            section.contentInsets = NSDirectionalEdgeInsets(top: -10, leading: 10, bottom: 70, trailing: 10)
             //            section.contentInsets.top = .init(-10)
-            section.interGroupSpacing = 5
+            section.interGroupSpacing = 3
             return section
         }
         layout.configuration.scrollDirection = .vertical

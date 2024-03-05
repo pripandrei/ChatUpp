@@ -50,8 +50,8 @@ extension ConversationCellViewModel {
     func getCellAspectRatio(forImageSize size: CGSize) -> CGSize {
         let (equalWidth, equalHeight) = (250,250)
         
-        let preferredWidth: Double = 300
-        let preferredHeight: Double = 350
+        let preferredWidth: Double = 270
+        let preferredHeight: Double = 320
         
         let aspectRatioForWidth = Double(size.width) / Double(size.height)
         let aspectRatioForHeight = Double(size.height) / Double(size.width)
