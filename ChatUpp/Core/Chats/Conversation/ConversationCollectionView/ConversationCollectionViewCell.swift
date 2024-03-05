@@ -66,8 +66,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         timeStamp.backgroundColor = .clear
         messageImage = nil
         timeStamp.textContainerInset = .zero
-//        layoutIfNeeded()
         adjustMessagePadding(.initialSpacing)
+                layoutIfNeeded()
+//        messageContainer.textContainerInset =  UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     }
     
 //    override func prepareForReuse() {
@@ -212,7 +213,11 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     // MARK: - MESSAGE BUBBLE LAYOUT HANDLER
     
     func handleMessageBubbleLayout() {
-//        updateMessageTextLayout()
+        updateMessageTextLayout()
+        
+        if messageContainer.attributedText?.string == "Prestige\nEight" {
+            print("stop")
+        }
 //        adjustMessagePadding(.initialSpacing)
         guard let lastLineMessageWidth = getMessageLastLineSize() else {return}
         guard let numberOfMessageLines = messageContainer.textLayout?.lines.count else {return}
@@ -230,20 +235,28 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
                 adjustMessagePadding(.rightSpace)
             } else if lastLineMessageAndTimestampWidth > messageRectWidth {
                 let difference = lastLineMessageAndTimestampWidth - messageRectWidth
-                messageContainer.textContainerInset.right += difference + padding / 2
+                adjustMessagePadding(.initialSpacing)
+                messageContainer.textContainerInset.right = difference + padding / 2
+                
+            } else {
+                adjustMessagePadding(.initialSpacing)
             }
         }
     }
     
-//    func updateMessageTextLayout() {
-//        layoutIfNeeded()
-//        let textLayout = YYTextLayout(containerSize: CGSize(width: messageContainer.intrinsicContentSize.width, height: messageContainer.intrinsicContentSize.height), text: messageContainer.attributedText!)
-//        messageContainer.textLayout = textLayout
+    func updateMessageTextLayout() {
 //        adjustMessagePadding(.initialSpacing)
-//    }
+//        messageContainer.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+//        layoutIfNeeded()
+//        messageContainer.invalidateIntrinsicContentSize()
+//        adjustMessagePadding(.initialSpacing)
+        let textLayout = YYTextLayout(containerSize: CGSize(width: messageContainer.intrinsicContentSize.width, height: messageContainer.intrinsicContentSize.height), text: messageContainer.attributedText!)
+        messageContainer.textLayout = textLayout
+        adjustMessagePadding(.initialSpacing)
+    }
 //    
     func getMessageLastLineSize() -> CGFloat? {
-        layoutIfNeeded()
+//        layoutIfNeeded()
         if let lastLine = messageContainer.textLayout?.lines.last {
             let range = lastLine.range
             let labelAttributedString = messageContainer.attributedText
@@ -261,7 +274,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         case .bottomSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
         case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 3, left: 4, bottom: 3, right: 4)
         }
-        messageContainer.invalidateIntrinsicContentSize()
+//        messageContainer.invalidateIntrinsicContentSize()
     }
     var messageImage: UIImage?
 }

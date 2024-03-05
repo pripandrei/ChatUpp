@@ -7,47 +7,143 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "6923081F-10EF-43E6-AA42-7CD50DF925D5"
+            uuid = "C2531615-7F25-435E-8639-C5E36DE7B4C7"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "260"
+            endingLineNumber = "260"
+            landmarkName = "getMessageLastLineSize()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C2531615-7F25-435E-8639-C5E36DE7B4C7 - cecbff1195db82c0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationCollectionViewCell.getMessageLastLineSize() -&gt; Swift.Optional&lt;CoreGraphics.CGFloat&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "250"
+                  endingLineNumber = "250"
+                  offsetFromSymbolStart = "444">
+               </Location>
+               <Location
+                  uuid = "C2531615-7F25-435E-8639-C5E36DE7B4C7 - cecbff1195db82c0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationCollectionViewCell.getMessageLastLineSize() -&gt; Swift.Optional&lt;CoreGraphics.CGFloat&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "250"
+                  endingLineNumber = "250"
+                  offsetFromSymbolStart = "84">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6B3F59C0-D9E3-484C-ABF4-892C4B42EA7B"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "261"
+            endingLineNumber = "261"
+            landmarkName = "getMessageLastLineSize()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "6B3F59C0-D9E3-484C-ABF4-892C4B42EA7B - cecbff1195db82e3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationCollectionViewCell.getMessageLastLineSize() -&gt; Swift.Optional&lt;CoreGraphics.CGFloat&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "251"
+                  endingLineNumber = "251"
+                  offsetFromSymbolStart = "460">
+               </Location>
+               <Location
+                  uuid = "6B3F59C0-D9E3-484C-ABF4-892C4B42EA7B - cecbff1195db82e3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationCollectionViewCell.getMessageLastLineSize() -&gt; Swift.Optional&lt;CoreGraphics.CGFloat&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "251"
+                  endingLineNumber = "251"
+                  offsetFromSymbolStart = "444">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "086155A1-74E6-46FB-A5C4-00CB76C7919D"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "248"
-            endingLineNumber = "248"
-            landmarkName = "getMessageLastLineSize()"
+            startingLineNumber = "219"
+            endingLineNumber = "219"
+            landmarkName = "handleMessageBubbleLayout()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "6923081F-10EF-43E6-AA42-7CD50DF925D5 - cecbff1195db8321"
+                  uuid = "086155A1-74E6-46FB-A5C4-00CB76C7919D - a8c77673e5e0227d"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationCollectionViewCell.getMessageLastLineSize() -&gt; Swift.Optional&lt;CoreGraphics.CGFloat&gt;"
+                  symbolName = "ChatUpp.ConversationCollectionViewCell.handleMessageBubbleLayout() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "249"
-                  endingLineNumber = "249"
-                  offsetFromSymbolStart = "460">
+                  startingLineNumber = "219"
+                  endingLineNumber = "219"
+                  offsetFromSymbolStart = "104">
                </Location>
                <Location
-                  uuid = "6923081F-10EF-43E6-AA42-7CD50DF925D5 - cecbff1195db8321"
+                  uuid = "086155A1-74E6-46FB-A5C4-00CB76C7919D - a8c77673e5e0227d"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationCollectionViewCell.getMessageLastLineSize() -&gt; Swift.Optional&lt;CoreGraphics.CGFloat&gt;"
+                  symbolName = "ChatUpp.ConversationCollectionViewCell.handleMessageBubbleLayout() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationCollectionView/ConversationCollectionViewCell.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "249"
-                  endingLineNumber = "249"
-                  offsetFromSymbolStart = "444">
+                  startingLineNumber = "219"
+                  endingLineNumber = "219"
+                  offsetFromSymbolStart = "700">
                </Location>
             </Locations>
          </BreakpointContent>

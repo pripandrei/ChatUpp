@@ -32,7 +32,7 @@ final class ConversationViewControllerUI: UIView {
     let collectionView: UICollectionView = {
         let layout = InvertedCollectionViewFlowLayout { (section, environment) -> NSCollectionLayoutSection? in
             
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(1000))
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(10))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
             
 //            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
