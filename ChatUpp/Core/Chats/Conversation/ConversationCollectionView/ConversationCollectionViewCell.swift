@@ -41,7 +41,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         cellViewModel.imageData.bind { [weak self] data in
             if data == self?.cellViewModel.imageData.value {
                 DispatchQueue.main.async {
-//                    self?.configureImageAttachment(data: data)
+                    self?.configureImageAttachment(data: data)
                 }
             }
         }
@@ -65,6 +65,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         timeStamp.text = nil
         timeStamp.backgroundColor = .clear
         messageImage = nil
+        timeStamp.textContainerInset = .zero
 //        layoutIfNeeded()
         adjustMessagePadding(.initialSpacing)
     }
@@ -89,17 +90,16 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
 
         if viewModel.cellMessage.messageBody != "" {
             messageContainer.attributedText = makeAttributedStringForMessage()
-//            adjustMessagePadding(.rightSpace)
 //            layoutIfNeeded()
             handleMessageBubbleLayout()
             return
         }
         if viewModel.imageData.value != nil {
-//            configureImageAttachment(data: viewModel.imageData.value!)
+            configureImageAttachment(data: viewModel.imageData.value!)
             return
         }
         if viewModel.cellMessage.imagePath != nil && viewModel.imageData.value == nil  {
-//            configureImageAttachment()
+            configureImageAttachment()
             viewModel.fetchImageData()
             return
         }
@@ -283,7 +283,7 @@ extension ConversationCollectionViewCell {
             let testSize = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
             messageImage = messageImage?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
         }
-        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: messageImage, contentMode: .center, attachmentSize: messageImage!.size, alignTo: UIFont(name: "HelveticaNeue", size: 18)!, alignment: .center)
+        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: messageImage, contentMode: .center, attachmentSize: messageImage!.size, alignTo: UIFont(name: "Helvetica", size: 17)!, alignment: .center)
         
         messageContainer.attributedText = imageAttributedString
         setupTimestampBackgroundForImage()
