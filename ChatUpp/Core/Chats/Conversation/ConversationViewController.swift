@@ -61,11 +61,6 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         rootView.collectionView.delegate = self
     }
     
-//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-//        guard let cell = cell as? ConversationCollectionViewCell else {return}
-//        cell.getMessageLastLineSize()
-//    }
-    
     //MARK: - Binding
     private func setupBinding() {
         conversationViewModel.onCellVMLoad = {
@@ -77,7 +72,8 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         conversationViewModel.onNewMessageAdded = { [weak self] in
             Task { @MainActor in
                 let indexPath = IndexPath(row: 0, section: 0)
-                self?.rootView.collectionView.insertItems(at: [indexPath])
+                self?.handleContentMessageOffset(with: indexPath, scrollToBottom: false)
+//                self?.rootView.collectionView.insertItems(at: [indexPath])
             }
         }
     }
@@ -125,42 +121,44 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
-            self.handleContentMessageOffset(with: indexPath)
+            self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
         }
     }
     
-    private func handleContentMessageOffset(with indexPath: IndexPath)
+    private func handleContentMessageOffset(with indexPath: IndexPath, scrollToBottom: Bool)
     {
         // We disable insertion animation because we need to both animate
         // insertion of message and scroll to bottom at the same time.
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
         
-//        UIView.performWithoutAnimation {
-//            self.rootView.collectionView.insertItems(at: [indexPath])
+        UIView.performWithoutAnimation {
+            self.rootView.collectionView.insertItems(at: [indexPath])
 //            self.rootView.collectionView.reloadSections(IndexSet.init(integer: 0))
-//        }
-        
-        // Schedules scrolling execution in order for proper animation scrolling
-        DispatchQueue.main.async {
-//            self.rootView.collectionView.scrollToItem(at: indexPath2, at: .top, animated: false)
-            self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
-//            self.rootView.collectionView.reloadItems(at: [indexPath])
         }
         
-        // Offset collection view conntent by cells (message) height contentSize
+        // Schedules scrolling execution in order for proper animation scrolling
+        if scrollToBottom {
+            DispatchQueue.main.async {
+                //            self.rootView.collectionView.scrollToItem(at: indexPath2, at: .top, animated: false)
+                self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+                //            self.rootView.collectionView.reloadItems(at: [indexPath])
+            }
+        }
+        // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
-//        guard let cell = rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {return}
-//
-//        let currentOffSet = rootView.collectionView.contentOffset
-//        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height + 10)
-//
-//        rootView.collectionView.setContentOffset(offSet, animated: false)
-//
-//        // Animate collection content back so that the cell (message) will go up
-//        UIView.animate(withDuration: 0.3) {
-//            self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
-//        }
+        guard let cell = self.rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else { return }
+        
+        cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: -20)
+        let currentOffSet = self.rootView.collectionView.contentOffset
+        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
+        self.rootView.collectionView.setContentOffset(offSet, animated: false)
+        
+        //        // Animate collection content back so that the cell (message) will go up
+        UIView.animate(withDuration: 0.2) {
+            cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 20)
+            self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
+        }
     }
 
     private func configurePhotoPicker() {
@@ -275,18 +273,18 @@ extension ConversationViewController {
         // Exaplanation:
         // while trying to use only view.layoutIfNeeded(),
         // cells from top will resize while animate
-        // Steps:
+        // Steps to reproduce:
         // 1.initiate keyboard
         // 2.scroll up
         // 3.dismiss keyboard
         // Result: cells from top will animate while resizing
         // So to ditch this, we use layoutSubviews and layoutIfNeeded
 
-//        if keyboardHeight > 0 {
-//            view.layoutSubviews()
-//        } else {
-//            view.layoutIfNeeded()
-//        }
+        if keyboardHeight > 0 {
+            view.layoutSubviews()
+        } else {
+            view.layoutIfNeeded()
+        }
     }
 }
 

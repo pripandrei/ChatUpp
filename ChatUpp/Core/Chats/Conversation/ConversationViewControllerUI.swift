@@ -17,18 +17,6 @@ final class ConversationViewControllerUI: UIView {
     
     var holderViewBottomConstraint: NSLayoutConstraint!
     
-//    lazy var collectionView: UICollectionView = {
-//        let collectionViewFlowLayout = InvertedCollectionViewFlowLayout()
-//        collectionViewFlowLayout.scrollDirection = .vertical
-//        collectionViewFlowLayout.estimatedItemSize = InvertedCollectionViewFlowLayout.automaticSize
-//
-//        let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
-//        collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
-//        collectionVC.verticalScrollIndicatorInsets.bottom = 60
-//
-//        return collectionVC
-//    }()
-    
     let collectionView: UICollectionView = {
         let layout = InvertedCollectionViewFlowLayout { (section, environment) -> NSCollectionLayoutSection? in
             
@@ -232,3 +220,21 @@ final class ConversationCustomNavigationBar {
         }
     }
 }
+
+
+
+
+
+
+
+//    lazy var collectionView: UICollectionView = {
+//        let collectionViewFlowLayout = InvertedCollectionViewFlowLayout()
+//        collectionViewFlowLayout.scrollDirection = .vertical
+//        collectionViewFlowLayout.estimatedItemSize = InvertedCollectionViewFlowLayout.automaticSize
+//
+//        let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
+//        collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
+//        collectionVC.verticalScrollIndicatorInsets.bottom = 60
+//
+//        return collectionVC
+//    }()

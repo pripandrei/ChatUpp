@@ -11,22 +11,9 @@ import Foundation
 final class ConversationCellViewModel {
     
     var cellMessage: Message
-    
-//    private let messageId: String!
-//    private let timeStamp: Date!
-//    let imagePath: String?
-//    let messageText: String!
     var imageData: ObservableObject<Data?> = ObservableObject(nil)
-//    let senderId: String!
-//    var imageSize: MessageImageSize?
-    
+
     init(cellMessage: Message) {
-//        self.timeStamp = cellMessage.timestamp
-//        self.messageText = cellMessage.messageBody
-//        self.imagePath = cellMessage.imagePath
-//        self.messageId = cellMessage.id
-//        self.senderId = cellMessage.senderId
-//        self.imageSize = cellMessage.imageSize
         self.cellMessage = cellMessage
     }
     
