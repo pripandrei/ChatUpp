@@ -67,8 +67,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         messageImage = nil
         timeStamp.textContainerInset = .zero
         adjustMessagePadding(.initialSpacing)
-                layoutIfNeeded()
-//        messageContainer.textContainerInset =  UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        layoutIfNeeded()
     }
     
 //    override func prepareForReuse() {
@@ -142,8 +141,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         messageContainer.numberOfLines = 0
         messageContainer.preferredMaxLayoutWidth = maxMessageWidth
         messageContainer.contentMode = .redraw
-//        messageContainer.layer.cornerRadius = 15
-//        messageContainer.clipsToBounds = true
+        messageContainer.layer.cornerRadius = 15
+        messageContainer.clipsToBounds = true
         
 //        adjustMessagePadding(.initialSpacing)
         
@@ -164,8 +163,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         timeStamp.layer.cornerRadius = 7
         timeStamp.clipsToBounds = true
         timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
-//        timeStamp.adjustsFontSizeToFitWidth = true
-//        timeStamp.minimumScaleFactor = 0.9
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -175,7 +172,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     }
     
     private func setupTimestampBackgroundForImage() {
-        timeStamp.backgroundColor = .darkGray.withAlphaComponent(0.5)
+        timeStamp.backgroundColor = .darkGray.withAlphaComponent(0.6)
         timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
     }
     
@@ -215,10 +212,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     func handleMessageBubbleLayout() {
         updateMessageTextLayout()
         
-        if messageContainer.attributedText?.string == "Prestige\nEight" {
-            print("stop")
-        }
-//        adjustMessagePadding(.initialSpacing)
         guard let lastLineMessageWidth = getMessageLastLineSize() else {return}
         guard let numberOfMessageLines = messageContainer.textLayout?.lines.count else {return}
         
@@ -235,21 +228,15 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
                 adjustMessagePadding(.rightSpace)
             } else if lastLineMessageAndTimestampWidth > messageRectWidth {
                 let difference = lastLineMessageAndTimestampWidth - messageRectWidth
-                adjustMessagePadding(.initialSpacing)
+//                adjustMessagePadding(.initialSpacing)
                 messageContainer.textContainerInset.right = difference + padding / 2
-                
             } else {
-                adjustMessagePadding(.initialSpacing)
+//                adjustMessagePadding(.initialSpacing)
             }
         }
     }
     
     func updateMessageTextLayout() {
-//        adjustMessagePadding(.initialSpacing)
-//        messageContainer.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-//        layoutIfNeeded()
-//        messageContainer.invalidateIntrinsicContentSize()
-//        adjustMessagePadding(.initialSpacing)
         let textLayout = YYTextLayout(containerSize: CGSize(width: messageContainer.intrinsicContentSize.width, height: messageContainer.intrinsicContentSize.height), text: messageContainer.attributedText!)
         messageContainer.textLayout = textLayout
         adjustMessagePadding(.initialSpacing)
