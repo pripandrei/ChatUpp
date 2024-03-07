@@ -87,9 +87,9 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
      
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            
             if rootView.containerView.frame.origin.y > 760 {
                 handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
+                isKeyboardHidden = false
             }
         }
     }
@@ -97,6 +97,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
+            isKeyboardHidden = true
         }
     }
     
@@ -124,6 +125,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
             self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
         }
     }
+    private var isKeyboardHidden: Bool = true
     
     private func handleContentMessageOffset(with indexPath: IndexPath, scrollToBottom: Bool)
     {
@@ -132,29 +134,33 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
         
-        UIView.performWithoutAnimation {
+        let currentOffSet = self.rootView.collectionView.contentOffset
+        let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
+        
+        if !scrollToBottom && contentIsScrolled {
             self.rootView.collectionView.insertItems(at: [indexPath])
-//            self.rootView.collectionView.reloadSections(IndexSet.init(integer: 0))
+            return
+        } else {
+            UIView.performWithoutAnimation {
+                self.rootView.collectionView.insertItems(at: [indexPath])
+            }
         }
         
         // Schedules scrolling execution in order for proper animation scrolling
-        if scrollToBottom {
-            DispatchQueue.main.async {
-                //            self.rootView.collectionView.scrollToItem(at: indexPath2, at: .top, animated: false)
-                self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
-                //            self.rootView.collectionView.reloadItems(at: [indexPath])
-            }
+        DispatchQueue.main.async {
+            self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
         }
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
+        
         guard let cell = self.rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else { return }
         
         cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: -20)
-        let currentOffSet = self.rootView.collectionView.contentOffset
+        
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
         self.rootView.collectionView.setContentOffset(offSet, animated: false)
         
-        //        // Animate collection content back so that the cell (message) will go up
+        // Animate collection content back so that the cell (message) will go up
         UIView.animate(withDuration: 0.2) {
             cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 20)
             self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
@@ -236,21 +242,6 @@ extension ConversationViewController {
     }
 }
 
-//MARK: - COLLECTION VIEW LAYOUT
-
-//extension ConversationViewController: UICollectionViewDelegateFlowLayout {
-//    
-//    func collectionView(_ collectionView: UICollectionView,
-//                        layout collectionViewLayout: UICollectionViewLayout,
-//                        sizeForItemAt indexPath: IndexPath) -> CGSize
-//    {
-//        // For some reason, cellForItemAt indexPath function is not triggered if height is 0
-//        // and numberOfItemsInSection is 1, so, height should be at least 1.
-//        // It will not affect height of cells, because they are set to automaticSize
-//        return CGSize(width: view.bounds.width, height: 1)
-//    }
-//}
-
 //MARK: - COLLETION VIEW OFFSET HANDLER
 
 extension ConversationViewController {
@@ -269,6 +260,8 @@ extension ConversationViewController {
         rootView.collectionView.contentInset.top = customCollectionViewInset
         rootView.collectionView.verticalScrollIndicatorInsets.top = customCollectionViewInset
         
+        print("CurrentContentOffSet: ", currentOffSet)
+        print("Updated ContentOffSet: ", rootView.collectionView.contentOffset)
         // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
         // Exaplanation:
         // while trying to use only view.layoutIfNeeded(),
