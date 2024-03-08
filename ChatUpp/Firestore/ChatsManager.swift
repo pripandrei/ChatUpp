@@ -123,6 +123,16 @@ final class ChatsManager {
         try await chatDocument(documentPath: chatID).updateData(data)
     }
     
+    //MARK: - UPDATE MESSAGE SEEN STATUS
+    
+    func updateMessageSeenStatus(messageID: String , chatID: String) async throws {
+        let data: [String: Any] = [
+            Message.CodingKeys.messageSeen.rawValue : true
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
+    }
+    
+    
     //MARK: - UPDATE MESSAGE IMAGE PATH
     
     func updateMessageImagePath(messageID: String, chatDocumentPath: String, path: String) async throws {

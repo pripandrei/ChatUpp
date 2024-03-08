@@ -10,7 +10,6 @@ import UIKit
 final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
     var conversationViewModel: ConversationViewModel!
-    var imageInserted: UIImage?
     
     init(conversationViewModel: ConversationViewModel) {
         self.conversationViewModel = conversationViewModel
@@ -29,16 +28,31 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
-//        cell.mainCellContainerMaxWidth = collectionView.bounds.width
-        cell.configureCell(usingViewModel: conversationViewModel.cellViewModels[indexPath.item])
+        
+        let viewModel = conversationViewModel.cellViewModels[indexPath.item]
+       
+        cell.configureCell(usingViewModel: viewModel)
     
         let authUserID = conversationViewModel.authenticatedUserID
-        if conversationViewModel.cellViewModels[indexPath.item].cellMessage.senderId == authUserID {
+        if viewModel.cellMessage.senderId == authUserID {
             cell.adjustMessageSide(.right)
         } else {
             cell.adjustMessageSide(.left)
         }
-        cell.contentView.layoutIfNeeded()
+        
+
+        if viewModel.cellMessage.messageBody == "Mikey" {
+            print("Yeah")
+        }
+        if !viewModel.cellMessage.messageSeen && viewModel.cellMessage.senderId != authUserID {
+            guard let chatID = conversationViewModel.conversation else {return cell}
+            let messageID = viewModel.cellMessage.id
+            
+            Task {
+                try await cell.cellViewModel.updateMessageSeenStatus(messageID, inChat: chatID.id)
+            }
+        }
+        
         return cell
     }
 }

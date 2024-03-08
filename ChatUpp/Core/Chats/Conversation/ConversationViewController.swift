@@ -12,8 +12,9 @@ import UIKit
 import Photos
 import PhotosUI
 
-final class ConversationViewController: UIViewController, UICollectionViewDelegate {
+final class ConversationViewController: UIViewController, UICollectionViewDelegate, UIScrollViewDelegate {
     
+
     weak var coordinatorDelegate :Coordinator?
     private var conversationViewModel :ConversationViewModel!
     private var collectionViewDataSource :ConversationViewDataSource!
@@ -159,13 +160,71 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
         self.rootView.collectionView.setContentOffset(offSet, animated: false)
-        
+    
         // Animate collection content back so that the cell (message) will go up
         UIView.animate(withDuration: 0.2) {
             cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 20)
             self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
         }
     }
+    
+//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+//        guard let conversationCell = cell as? ConversationCollectionViewCell else {return}
+////        print(cell.cellViewModel.cellMessage.messageBody)
+//        for cell in rootView.collectionView.visibleCells {
+//            guard let conversationCell = cell as? ConversationCollectionViewCell else {return}
+//            if conversationCell.cellViewModel.cellMessage.messageBody == "888" {
+//                print("===Body",conversationCell.cellViewModel.cellMessage.messageBody)
+//            }
+//        }
+//        if conversationCell.cellViewModel.cellMessage.messageBody == "888" {
+//            print("Visible")
+//        }
+//    }
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        // Loop through visible cells
+//        for cell in rootView.collectionView.visibleCells {
+//            guard let conversationCell = cell as? ConversationCollectionViewCell else {return}
+//            // Check if the cell is fully visible
+//
+//            if conversationCell.cellViewModel.cellMessage.messageBody == "888" {
+//                print("Este!")
+//                let frame = rootView.collectionView.frame.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: rootView.containerView.bounds.height + 50, right: 0))
+//
+//                let uiview = UIView(frame: frame)
+//                rootView.addSubview(uiview)
+//                uiview.backgroundColor = .alizarin
+//
+//                if frame.contains(cell.frame) {
+//                    // Do something with the cell that is fully visible
+//                    // For example, you can access its indexPath like this:
+//                    if let indexPath = rootView.collectionView.indexPath(for: cell) {
+//                        print("Cell at indexPath \(indexPath) is fully visible")
+//                    }
+//                }
+//            }
+//        }
+//    }
+    
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        for cell in rootView.collectionView.visibleCells {
+//            guard let conversationCell = cell as? ConversationCollectionViewCell else {return}
+//
+//            if conversationCell.cellViewModel.cellMessage.messageBody == "Mikey" {
+//                if let indexPath = rootView.collectionView.indexPath(for: cell) {
+//                    let layoutAttribute = rootView.collectionView.layoutAttributesForItem(at: indexPath)
+//                    let cellFrame = layoutAttribute!.frame
+//                    let collectionRect = rootView.collectionView.bounds
+//                    
+////                    let uiview = UIView(frame: collectionRect)
+////                    rootView.addSubview(uiview)
+////                    uiview.backgroundColor = .alizarin
+//                    let isCellFullyVisable = collectionRect.contains(cellFrame)
+//                    print(isCellFullyVisable)
+//                }
+//            }
+//        }
+//    }
 
     private func configurePhotoPicker() {
         var configuration = PHPickerConfiguration()
@@ -207,7 +266,7 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
 extension UIImage {
     func getAspectRatio() -> CGSize {
         let (equalWidth, equalHeight) = (250,250)
-
+        
         let preferredWidth: Double = 300
         let preferredHeight: Double = 350
 

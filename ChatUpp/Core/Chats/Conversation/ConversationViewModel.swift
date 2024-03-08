@@ -16,7 +16,7 @@ import FirebaseFirestore
 
 final class ConversationViewModel {
     
-    private var conversation: Chat?
+    private(set) var conversation: Chat?
     private(set) var memberID: String
     private(set) var memberName: String
     private(set) var memberProfileImage: Data?

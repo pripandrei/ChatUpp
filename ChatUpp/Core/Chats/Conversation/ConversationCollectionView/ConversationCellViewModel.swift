@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 final class ConversationCellViewModel {
     
     var cellMessage: Message
@@ -30,6 +29,10 @@ final class ConversationCellViewModel {
                 print("Error fetching image from storage: ", error)
             }
         }
+    }
+    
+    func updateMessageSeenStatus(_ messageId: String, inChat chatId: String) async throws {
+        try await ChatsManager.shared.updateMessageSeenStatus(messageID: messageId, chatID: chatId)
     }
 }
 
