@@ -30,14 +30,22 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     }
     
     deinit {
-        print("====DEINIT")
-        NotificationCenter.default.removeObserver(self)
+        print("====ConversationVC Deinit")
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        print("didDissapear")
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cleanUp()
+    }
+    
+    private func cleanUp() {
+        NotificationCenter.default.removeObserver(self)
         conversationViewModel.messageListener?.remove()
+        coordinatorDelegate = nil
+        conversationViewModel = nil
+        collectionViewDataSource = nil
+        customNavigationBar = nil
     }
     
     override func loadView() {
@@ -67,6 +75,8 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         conversationViewModel.onCellVMLoad = {
             DispatchQueue.main.async { [weak self] in
                 self?.rootView.collectionView.reloadSections(IndexSet(integer: 0))
+                let path = IndexPath(item: 29, section: 0)
+                self?.rootView.collectionView.scrollToItem(at: path, at: .bottom, animated: false)
 //                self?.rootView.collectionView.scrollToItem(at: IndexPath(item: (self?.conversationViewModel.messages.count)! - 1, section: 0), at: .bottom, animated: false)
             }
         }
@@ -230,26 +240,84 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
 //        }
 //    }
 //
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        for cell in rootView.collectionView.visibleCells {
+            guard let conversationCell = cell as? ConversationCollectionViewCell else {return}
+            
+            if checkIfCellMessageIsVisible(cellMessage: conversationCell) {
+                updateMessageSeenStatus(conversationCell)
+            }
+        }
+    }
+    
+    func checkIfCellMessageIsVisible(cellMessage cell: ConversationCollectionViewCell) -> Bool {
+        let cellMessage = cell.cellViewModel.cellMessage
+        let authUserID = conversationViewModel.authenticatedUserID
+        
+        if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
+            if let indexPath = rootView.collectionView.indexPath(for: cell) {
+                let layoutAttribute = rootView.collectionView.layoutAttributesForItem(at: indexPath)
+                let cellFrame = layoutAttribute!.frame
+                let collectionRect = rootView.collectionView.bounds.offsetBy(dx: 0, dy: 65)
+                let isCellFullyVisable = collectionRect.contains(cellFrame)
+                return isCellFullyVisable
+            }
+        }
+        return false
+    }
+    
+    func updateMessageSeenStatus(_ cell: ConversationCollectionViewCell) {
+        guard let chatID = conversationViewModel.conversation else {return}
+        let messageId = cell.cellViewModel.cellMessage.id
+        
+        cell.cellViewModel.cellMessage = cell.cellViewModel.cellMessage.updateMessageSeenStatus()
+        Task {
+            print("pointd")
+            try await cell.cellViewModel.updateMessageSeenStatus(messageId, inChat: chatID.id)
+        }
+    }
+
+    
+//    func updateSeenStatus(conversationCell: ConversationCollectionViewCell) {
+//        let authUserID = conversationViewModel.authenticatedUserID
+//        let cellMessage = conversationCell.cellViewModel.cellMessage
+//        if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
+//            guard let chatID = conversationViewModel.conversation else {return}
+//            let messageID = cellMessage.id
+//
+//            Task {
+//                try await conversationCell.cellViewModel.updateMessageSeenStatus(messageID, inChat: chatID.id)
+//            }
+//        }
+//    }
+//    func isCellVisible(cell: UICollectionViewCell, collectionView: UICollectionView, containerView: UIView) -> Bool {
+//        let cellRect = collectionView.convert(cell.frame, to: collectionView.superview)
+//        let visibleRect = collectionView.convert(collectionView.bounds, to: collectionView.superview)
+//        let containerRect = containerView.frame
+//
+//        // Adjust visibleRect to exclude the area covered by the bottom container view
+//        let adjustedVisibleRect = CGRect(x: visibleRect.origin.x,
+//                                         y: visibleRect.origin.y + navigationController!.navigationBar.frame.height + 40,
+//                                         width: visibleRect.width,
+//                                         height: visibleRect.height - containerRect.height - navigationController!.navigationBar.frame.height)
+//
+//        return cellRect.intersects(adjustedVisibleRect)
+//    }
+//
 //    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        for cell in rootView.collectionView.visibleCells {
-//            guard let conversationCell = cell as? ConversationCollectionViewCell else {return}
-//
-//            if conversationCell.cellViewModel.cellMessage.messageBody == "Mikey" {
-//                if let indexPath = rootView.collectionView.indexPath(for: cell) {
-//                    let layoutAttribute = rootView.collectionView.layoutAttributesForItem(at: indexPath)
-//                    let cellFrame = layoutAttribute!.frame
-//                    let collectionRect = rootView.collectionView.bounds.offsetBy(dx: 0, dy: 65)
-//
-////                    let uiview = UIView(frame: collectionRect)
-////                    rootView.addSubview(uiview)
-////                    uiview.backgroundColor = .alizarin
-//                    let isCellFullyVisable = collectionRect.contains(cellFrame)
-//                    print(isCellFullyVisable)
+//        if let visibleCells = rootView.collectionView.visibleCells as? [ConversationCollectionViewCell] {
+//            for cell in visibleCells {
+//                if cell.cellViewModel.cellMessage.messageBody == "9876" {
+//                    if isCellVisible(cell: cell, collectionView: rootView.collectionView, containerView: rootView.containerView) {
+//                        print("It is visible")
+//                        // The cell is visible above the bottom container view
+//                        // Add your logic here
+//                    }
 //                }
 //            }
 //        }
 //    }
-//
+    
     private func configurePhotoPicker() {
         var configuration = PHPickerConfiguration()
         configuration.selectionLimit = 1

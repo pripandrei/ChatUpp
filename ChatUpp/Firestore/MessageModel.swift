@@ -77,6 +77,10 @@ struct Message: Codable {
         self.receivedBy = receivedBy
         self.imageSize = imageSize
     }
+    
+    func updateMessageSeenStatus() -> Message {
+        return Message(id: self.id, messageBody: self.messageBody, senderId: self.senderId, imagePath: self.imagePath, timestamp: self.timestamp, messageSeen: !self.messageSeen, receivedBy: self.receivedBy, imageSize: self.imageSize)
+    }
 }
 
 

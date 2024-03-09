@@ -43,14 +43,14 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
 //        if viewModel.cellMessage.messageBody == "Mikey" || viewModel.cellMessage.messageBody == "Yy" {
 //            print("Yeah")
 //        }
-        if !viewModel.cellMessage.messageSeen && viewModel.cellMessage.senderId != authUserID {
-            guard let chatID = conversationViewModel.conversation else {return cell}
-            let messageID = viewModel.cellMessage.id
-            
-            Task {
-                try await cell.cellViewModel.updateMessageSeenStatus(messageID, inChat: chatID.id)
-            }
-        }
+//        if !viewModel.cellMessage.messageSeen && viewModel.cellMessage.senderId != authUserID {
+//            guard let chatID = conversationViewModel.conversation else {return cell}
+//            let messageID = viewModel.cellMessage.id
+//
+//            Task {
+//                try await cell.cellViewModel.updateMessageSeenStatus(messageID, inChat: chatID.id)
+//            }
+//        }
         
         return cell
     }
