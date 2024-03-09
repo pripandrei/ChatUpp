@@ -94,17 +94,36 @@ final class ConversationViewModel {
 
     func addListenerToMessages() {
         guard let conversation = conversation else {return}
-        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages in
+        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
             guard let self = self else {return}
             
             if self.messages.isEmpty {
                 self.fetchConversationMessages()
                 return
             }
+            
+            docTypes.enumerated().forEach { index, type in
+                switch type {
+                case .added: self.handleAddedMessage(messages[index])
+                case .removed: self.handleRemovedMessage(messages[index])
+                case .modified: self.handleModifiedMessage(messages[index])
+                }
+            }
             messages.forEach { message in
                 self.handleAddedMessage(message)
             }
         }
+    }
+    var messageWasModified: ((Int) -> Void)?
+    private func handleModifiedMessage(_ message: Message) {
+        guard let indexOfMessageToModify = messages.firstIndex(where: {$0.id == message.id}) else {return}
+        messages[indexOfMessageToModify] = message
+        cellViewModels[indexOfMessageToModify].cellMessage = message
+        messageWasModified?(indexOfMessageToModify)
+    }
+    
+    private func handleRemovedMessage(_ message: Message) {
+        
     }
     
     private func handleAddedMessage(_ message: Message) {

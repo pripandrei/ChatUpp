@@ -196,16 +196,19 @@ final class ChatsManager {
         }
     }
     
-    func addListenerToChatMessages(_ chatId: String, complition: @escaping ([Message]) -> Void) -> ListenerRegistration
+    func addListenerToChatMessages(_ chatId: String, complition: @escaping ([Message], [DocumentChangeType]) -> Void) -> ListenerRegistration
     {
         return chatDocument(documentPath: chatId).collection(FirestoreCollection.messages.rawValue).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
             
+            var docChangeType: [DocumentChangeType] = []
+            
             let messages = documents.compactMap { documentMessage in
-                try? documentMessage.document.data(as: Message.self)
+                docChangeType.append(documentMessage.type)
+                return try? documentMessage.document.data(as: Message.self)
             }
-            complition(messages)
+            complition(messages,docChangeType)
         }
     }
 

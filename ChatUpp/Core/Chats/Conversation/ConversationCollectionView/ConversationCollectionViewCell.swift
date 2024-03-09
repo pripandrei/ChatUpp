@@ -12,11 +12,11 @@ import YYText
 
 final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDelegate {
     
-    enum MessageSide {
+    enum BubbleMessageSide {
         case left
         case right
     }
-    private enum MessagePadding {
+    private enum BubbleMessagePadding {
         case initialSpacing
         case rightSpace
         case bottomSpace
@@ -106,6 +106,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         setupMainCellContainer()
         setupMessageTextView()
         setupTimestamp()
+        setupSeenStatusMark()
     }
     
     required init?(coder: NSCoder) {
@@ -113,6 +114,32 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     }
     
 // MARK: - UI INITIAL STEUP
+    
+    enum SeenStatusIcon: String {
+        case single = "single-seen-icon"
+        case double = "double-seen-icon_2"
+    }
+    
+    var sennStatusMark = YYLabel()
+    
+    private func setupSeenStatusMark() {
+        mainCellContainer.addSubview(sennStatusMark)
+        
+        guard var seenStatusIconImage = UIImage(named: SeenStatusIcon.double.rawValue)?.resize(to: CGSize(width: 15, height: 15)) else {return}
+
+        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
+      
+        sennStatusMark.attributedText = imageAttributedString
+        
+        sennStatusMark.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            sennStatusMark.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -5),
+            sennStatusMark.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
+        ])
+        
+    }
+    
     private func setupMainCellContainer() {
         contentView.addSubview(mainCellContainer)
         mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -221,7 +248,7 @@ extension ConversationCollectionViewCell
     }
     
     // MARK: - MESSAGE BUBBLE CONSTRAINTS
-    func adjustMessageSide(_ side: MessageSide) {
+    func adjustMessageSide(_ side: BubbleMessageSide) {
         if messageContainerLeadingConstraint != nil { messageContainerLeadingConstraint.isActive = false }
         if messageContainerTrailingConstraint != nil { messageContainerTrailingConstraint.isActive = false }
 
@@ -241,7 +268,7 @@ extension ConversationCollectionViewCell
         }
     }
     // MARK: - MESSAGE BUBBLE PADDING
-    private func adjustMessagePadding(_ messagePadding: MessagePadding) {
+    private func adjustMessagePadding(_ messagePadding: BubbleMessagePadding) {
         switch messagePadding {
         case .initialSpacing: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
         case .rightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 10)

@@ -88,6 +88,15 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
 //                self?.rootView.collectionView.insertItems(at: [indexPath])
             }
         }
+        
+        conversationViewModel.messageWasModified = { index in
+            Task { @MainActor in
+                let indexPath = IndexPath(item: index, section: 0)
+                guard let cell = self.rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else { return }
+               print( cell.cellViewModel.cellMessage.messageBody)
+                self.rootView.collectionView.reloadItems(at: [indexPath])
+            }
+        }
     }
     
 //MARK: - KEYBOARD NOTIFICATION OBSERVERS
@@ -272,7 +281,6 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         
         cell.cellViewModel.cellMessage = cell.cellViewModel.cellMessage.updateMessageSeenStatus()
         Task {
-            print("pointd")
             try await cell.cellViewModel.updateMessageSeenStatus(messageId, inChat: chatID.id)
         }
     }

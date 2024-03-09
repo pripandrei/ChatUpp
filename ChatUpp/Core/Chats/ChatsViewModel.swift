@@ -94,11 +94,11 @@ final class ChatsViewModel {
     private func handleModifiedChat(_ chat: Chat) {
         guard let oldViewModel = self.cellViewModels.first(where: {$0.chat.id == chat.id}) else {return}
         
-        // Recent message modified
+        // If recent message modified
         if oldViewModel.recentMessage.value?.id != chat.recentMessageID {
             oldViewModel.updateChat(chat)
         }
-        // Other User was deleted
+        // If other User was deleted
         let deletedUserID = UserManager.mainDeletedUserID
         if chat.members.contains(where: {$0 == deletedUserID}) {
             Task {
