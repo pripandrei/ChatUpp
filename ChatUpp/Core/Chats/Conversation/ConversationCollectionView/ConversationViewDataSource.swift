@@ -40,10 +40,9 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
             cell.adjustMessageSide(.left)
         }
         
-
-        if viewModel.cellMessage.messageBody == "Mikey" {
-            print("Yeah")
-        }
+//        if viewModel.cellMessage.messageBody == "Mikey" || viewModel.cellMessage.messageBody == "Yy" {
+//            print("Yeah")
+//        }
         if !viewModel.cellMessage.messageSeen && viewModel.cellMessage.senderId != authUserID {
             guard let chatID = conversationViewModel.conversation else {return cell}
             let messageID = viewModel.cellMessage.id

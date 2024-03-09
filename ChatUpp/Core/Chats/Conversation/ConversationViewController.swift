@@ -66,7 +66,8 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     private func setupBinding() {
         conversationViewModel.onCellVMLoad = {
             DispatchQueue.main.async { [weak self] in
-                self?.rootView.collectionView.reloadData()
+                self?.rootView.collectionView.reloadSections(IndexSet(integer: 0))
+//                self?.rootView.collectionView.scrollToItem(at: IndexPath(item: (self?.conversationViewModel.messages.count)! - 1, section: 0), at: .bottom, animated: false)
             }
         }
         
@@ -207,6 +208,29 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
 //    }
     
 //    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        guard let containerViewFrame = rootView.containerView.superview?.convert(rootView.containerView.frame, to: rootView.collectionView) else {
+//            return
+//        }
+//
+//        let visibleAreaRect = rootView.collectionView.bounds.inset(by: UIEdgeInsets(top: containerViewFrame.height, left: 0, bottom: 0, right: 0))
+//        guard let visibleLayoutAttributes = rootView.collectionView.collectionViewLayout.layoutAttributesForElements(in: visibleAreaRect) else {return }
+//
+//        for layoutAttributes in visibleLayoutAttributes {
+//            guard
+//                let cell = rootView.collectionView.cellForItem(at: layoutAttributes.indexPath) as? ConversationCollectionViewCell,
+//                !cell.cellViewModel.cellMessage.messageSeen
+//            else {
+//                continue
+//            }
+//            print("====",cell.cellViewModel.cellMessage.messageBody)
+//            if visibleAreaRect.intersects(layoutAttributes.frame) {
+//                // Perform your actions here
+//                print("Cell is visible above the container view")
+//            }
+//        }
+//    }
+//
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
 //        for cell in rootView.collectionView.visibleCells {
 //            guard let conversationCell = cell as? ConversationCollectionViewCell else {return}
 //
@@ -214,8 +238,8 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
 //                if let indexPath = rootView.collectionView.indexPath(for: cell) {
 //                    let layoutAttribute = rootView.collectionView.layoutAttributesForItem(at: indexPath)
 //                    let cellFrame = layoutAttribute!.frame
-//                    let collectionRect = rootView.collectionView.bounds
-//                    
+//                    let collectionRect = rootView.collectionView.bounds.offsetBy(dx: 0, dy: 65)
+//
 ////                    let uiview = UIView(frame: collectionRect)
 ////                    rootView.addSubview(uiview)
 ////                    uiview.backgroundColor = .alizarin
@@ -225,7 +249,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
 //            }
 //        }
 //    }
-
+//
     private func configurePhotoPicker() {
         var configuration = PHPickerConfiguration()
         configuration.selectionLimit = 1
