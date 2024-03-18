@@ -68,6 +68,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         timeStamp.text = nil
         timeStamp.backgroundColor = .clear
         messageImage = nil
+        sennStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
         adjustMessagePadding(.initialSpacing)
         layoutIfNeeded()
@@ -81,7 +82,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         timeStamp.text = viewModel.timestamp
         
         setupBinding()
-
+//        configureMessageSeenStatus()
+    
         if viewModel.cellMessage.messageBody != "" {
             messageContainer.attributedText = makeAttributedStringForMessage()
             handleMessageBubbleLayout()
@@ -96,6 +98,15 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
             viewModel.fetchImageData()
             return
         }
+    }
+    
+    func configureMessageSeenStatus() {
+        let seenStatusIcon = cellViewModel.cellMessage.messageSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
+        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: CGSize(width: 15, height: 15)) else {return}
+
+        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
+      
+        sennStatusMark.attributedText = imageAttributedString
     }
     
     //MARK: - LIFECYCLE
@@ -124,12 +135,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     
     private func setupSeenStatusMark() {
         mainCellContainer.addSubview(sennStatusMark)
-        
-        guard var seenStatusIconImage = UIImage(named: SeenStatusIcon.double.rawValue)?.resize(to: CGSize(width: 15, height: 15)) else {return}
-
-        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
-      
-        sennStatusMark.attributedText = imageAttributedString
         
         sennStatusMark.translatesAutoresizingMaskIntoConstraints = false
         

@@ -35,6 +35,7 @@ final class ConversationViewDataSource: NSObject, UICollectionViewDataSource {
     
         let authUserID = conversationViewModel.authenticatedUserID
         if viewModel.cellMessage.senderId == authUserID {
+            cell.configureMessageSeenStatus()
             cell.adjustMessageSide(.right)
         } else {
             cell.adjustMessageSide(.left)

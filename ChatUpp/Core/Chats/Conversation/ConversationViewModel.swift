@@ -25,7 +25,7 @@ final class ConversationViewModel {
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
-    var onCellVMLoad: (() -> Void)?
+    var onCellVMLoad: ((IndexPath?) -> Void)?
     var onNewMessageAdded: (() -> Void)?
     
     private(set) var messageListener: ListenerRegistration?
@@ -60,6 +60,19 @@ final class ConversationViewModel {
         }
     }
     
+    private func findFirstNotSeenMessageIndex() -> IndexPath? {
+        var indexOfNotSeenMessageToScrollTo: IndexPath?
+        for (index,message) in messages.enumerated() {
+            print(message.messageBody)
+            if !message.messageSeen {
+                indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
+            } else {
+                break
+            }
+        }
+        return indexOfNotSeenMessageToScrollTo
+    }
+    
     private func createCellViewModel(with message: Message) -> ConversationCellViewModel {
         return ConversationCellViewModel(cellMessage: message)
     }
@@ -84,7 +97,8 @@ final class ConversationViewModel {
             do {
                 self.messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
                 self.cellViewModels = createConversationCellViewModels()
-                self.onCellVMLoad?()
+                let indexOfNotSeenMessageToScrollTo = self.findFirstNotSeenMessageIndex()
+                self.onCellVMLoad?(indexOfNotSeenMessageToScrollTo)
 //                delete()
             } catch {
                 print("Could not fetch messages from db: ", error.localizedDescription)
@@ -115,6 +129,7 @@ final class ConversationViewModel {
         }
     }
     var messageWasModified: ((Int) -> Void)?
+    
     private func handleModifiedMessage(_ message: Message) {
         guard let indexOfMessageToModify = messages.firstIndex(where: {$0.id == message.id}) else {return}
         messages[indexOfMessageToModify] = message
