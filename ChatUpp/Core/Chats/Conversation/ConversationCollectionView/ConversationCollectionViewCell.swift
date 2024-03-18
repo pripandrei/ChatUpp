@@ -82,7 +82,6 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         timeStamp.text = viewModel.timestamp
         
         setupBinding()
-//        configureMessageSeenStatus()
     
         if viewModel.cellMessage.messageBody != "" {
             messageContainer.attributedText = makeAttributedStringForMessage()
