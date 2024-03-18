@@ -7,12 +7,6 @@
 
 import Foundation
 import FirebaseFirestore
-//
-//struct Member {
-//    let memberID: String
-//    let memberName: String
-//    var memberProfileImage: Data?
-//}
 
 final class ConversationViewModel {
     
@@ -63,8 +57,7 @@ final class ConversationViewModel {
     private func findFirstNotSeenMessageIndex() -> IndexPath? {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
         for (index,message) in messages.enumerated() {
-            print(message.messageBody)
-            if !message.messageSeen {
+            if !message.messageSeen && message.senderId != authenticatedUserID {
                 indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
             } else {
                 break

@@ -101,8 +101,9 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     }
     
     func configureMessageSeenStatus() {
+        let iconSize = cellViewModel.cellMessage.messageSeen ? CGSize(width: 16, height: 15) : CGSize(width: 18, height: 14)
         let seenStatusIcon = cellViewModel.cellMessage.messageSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
-        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: CGSize(width: 15, height: 15)) else {return}
+        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
 
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
       
@@ -127,8 +128,8 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
 // MARK: - UI INITIAL STEUP
     
     enum SeenStatusIcon: String {
-        case single = "single-seen-icon"
-        case double = "double-seen-icon_2"
+        case single = "icons8-done-64-6"
+        case double = "icons8-double-tick-48-3"
     }
     
     var sennStatusMark = YYLabel()

@@ -33,9 +33,8 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         print("====ConversationVC Deinit")
     }
     
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         cleanUp()
     }
     
@@ -74,7 +73,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     private func setupBinding() {
         conversationViewModel.onCellVMLoad = { indexOfCellToScrollTo in
             DispatchQueue.main.async { [weak self] in
-                self?.rootView.collectionView.reloadData()
+                self?.rootView.collectionView.reloadSections(IndexSet(integer: 0))
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                 self?.rootView.collectionView.scrollToItem(at: indexToScrollTo, at: .top, animated: false)
             }
