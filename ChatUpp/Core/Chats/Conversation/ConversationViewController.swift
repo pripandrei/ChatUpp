@@ -73,9 +73,9 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         conversationViewModel.onCellVMLoad = { indexOfCellToScrollTo in
             Task { @MainActor in
                 self.rootView.tableView.reloadData()
-                //                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                 //                self.rootView.collectionView.layoutIfNeeded()
-                self.rootView.tableView.scrollToRow(at: IndexPath(row: self.conversationViewModel.cellViewModels.count - 20, section: 0), at: .bottom, animated: false)
+                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
                 //                self.view.layoutIfNeeded()
             }
         }
@@ -92,7 +92,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
             Task { @MainActor in
                 let indexPath = IndexPath(item: index, section: 0)
                 guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
-                self.rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
+                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
             }
         }
     }
@@ -157,11 +157,11 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
         
         if !scrollToBottom && contentIsScrolled {
-            self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
+            self.rootView.tableView.insertRows(at: [indexPath], with: .none)
             return
         } else {
             UIView.performWithoutAnimation {
-                self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
+                self.rootView.tableView.insertRows(at: [indexPath], with: .none)
             }
         }
         
@@ -204,14 +204,14 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         let cellMessage = conversationViewModel.cellViewModels[indexPath.item].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
-//        if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
-//            if let layoutAttributes = rootView.collectionView.layoutAttributesForItem(at: indexPath) {
-//                let cellFrame = layoutAttributes.frame
-//                let collectionRect = rootView.collectionView.bounds.offsetBy(dx: 0, dy: 65)
-//                let isCellFullyVisible = collectionRect.contains(cellFrame)
-//                return isCellFullyVisible
-//            }
-//        }
+        if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
+            if let cell = rootView.tableView.cellForRow(at: indexPath) {
+                let cellFrame = cell.frame
+                let tableRect = rootView.tableView.bounds.offsetBy(dx: 0, dy: 65)
+                let isCellFullyVisible = tableRect.contains(cellFrame)
+                return isCellFullyVisible
+            }
+        }
         return false
     }
 

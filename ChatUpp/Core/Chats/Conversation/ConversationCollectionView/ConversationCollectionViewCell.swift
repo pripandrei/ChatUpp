@@ -72,7 +72,9 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         sennStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
         adjustMessagePadding(.initialSpacing)
-        contentView.layoutIfNeeded()
+        UIView.performWithoutAnimation {
+            self.contentView.layoutIfNeeded()
+        }
     }
     
     //MARK: - CELL DATA CONFIGURATION
