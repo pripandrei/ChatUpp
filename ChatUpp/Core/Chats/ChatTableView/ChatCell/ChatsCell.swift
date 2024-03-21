@@ -15,6 +15,27 @@ class ChatsCell: UITableViewCell {
     private var profileImage = UIImageView()
     private var dateLable = UILabel()
     private var cellViewModel: ChatCellViewModel!
+    private var unreadMessagesCountLabel = UILabel()
+    
+    func setupUnreadMessagesCountLabel() {
+        addSubview(unreadMessagesCountLabel)
+        
+        unreadMessagesCountLabel.font = UIFont(name: "Helvetica", size: 16)
+        unreadMessagesCountLabel.backgroundColor = .green
+        unreadMessagesCountLabel.layer.cornerRadius = 12
+        unreadMessagesCountLabel.textAlignment = .center
+        unreadMessagesCountLabel.clipsToBounds = true
+        
+        unreadMessagesCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            unreadMessagesCountLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
+            unreadMessagesCountLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
+//            unreadMessagesCountLabel.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
+            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
+            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
+        ])
+    }
     
 //MARK: - LIFECYCLE
     
@@ -33,6 +54,7 @@ class ChatsCell: UITableViewCell {
         setNameLabel()
         setProfileImage()
         setDateLable()
+        setupUnreadMessagesCountLabel()
 //        contentView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     }
 
@@ -51,6 +73,7 @@ class ChatsCell: UITableViewCell {
         self.dateLable.text = cellViewModel.recentMessage.value?.timestamp.formatToHoursAndMinutes()
         self.nameLabel.text = cellViewModel.user?.name
         self.dateLable.adjustsFontSizeToFitWidth = true
+        self.unreadMessagesCountLabel.text = "\(cellViewModel.chat.unreadMessages)"
     }
     
     private func handleImageSetup()
@@ -89,6 +112,10 @@ class ChatsCell: UITableViewCell {
             Task{ @MainActor in
                 self.nameLabel.text = self.cellViewModel.user?.name
             }
+        }
+        cellViewModel.unreadMessageCount.bind { count in
+            guard let count = count else {return}
+            self.unreadMessagesCountLabel.text = "\(count)"
         }
     }
     

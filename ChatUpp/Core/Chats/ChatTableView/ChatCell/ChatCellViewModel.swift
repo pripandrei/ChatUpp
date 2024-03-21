@@ -11,22 +11,28 @@ import Firebase
 class ChatCellViewModel {
     
     private(set) var user: DBUser?
-//    {didSet { onUserFetch?() ; fetchImageData()}}
     var otherUserProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     var recentMessage: ObservableObject<Message?> = ObservableObject(nil)
-    
     var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     var onUserModified: (() -> Void)?
     private(set) var chat: Chat
     
+    private(set) var unreadMessageCount: ObservableObject<Int?> = ObservableObject(nil)
+    
     init(chat: Chat) {
         self.chat = chat
     }
     
+    func updateUnreadMessagesCount(_ count: Int) {
+        unreadMessageCount.value = count
+//        self.chat = Chat(id: chat.id, members: chat.members, lastMessage: chat.recentMessageID, unreadMessages: count)
+        print("Count after recieving from server update: ", count)
+    }
+    
     func updateChat(_ modifiedChat: Chat) {
         self.chat = modifiedChat
-        Task { try await loadRecentMessage() }
+//        Task { try await loadRecentMessage() }
     }
 
     func updateRecentMessage(_ message: Message?) {
@@ -51,12 +57,14 @@ class ChatCellViewModel {
         self.user = member
         return member
     }
+    
     @discardableResult
     func loadRecentMessage() async throws -> Message?  {
         guard let message = try await ChatsManager.shared.getRecentMessageFromChats([chat]).first else { return nil }
         self.recentMessage.value = message
         return message
     }
+    
     @discardableResult
     func fetchImageData() async throws -> Data? {
         guard let user = self.user,

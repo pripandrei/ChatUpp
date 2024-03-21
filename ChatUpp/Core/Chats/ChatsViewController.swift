@@ -230,7 +230,8 @@ extension ChatsViewController: UITableViewDelegate
               let memberName = user.name else {return}
         
         let memberID = user.userId
-        let chat = chatsViewModel.chats[indexPath.item]
+//        let chat = chatsViewModel.chats[indexPath.item]
+        let chat = chatsViewModel.cellViewModels[indexPath.item].chat
         let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].otherUserProfileImage.value
         
         let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)

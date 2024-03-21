@@ -31,8 +31,11 @@ final class ConversationCellViewModel {
         }
     }
     
-    func updateMessageSeenStatus(_ messageId: String, inChat chatId: String) async throws {
-        try await ChatsManager.shared.updateMessageSeenStatus(messageID: messageId, chatID: chatId)
+    func updateMessageSeenStatus(_ messageId: String, inChat chatId: String) {
+        Task {
+            try await ChatsManager.shared.updateMessageSeenStatus(messageID: messageId, chatID: chatId)
+            
+        }
     }
 }
 

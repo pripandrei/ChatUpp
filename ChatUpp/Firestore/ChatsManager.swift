@@ -132,6 +132,24 @@ final class ChatsManager {
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
+    //MARK: - UPDATE CHAT UNREAD MESSAGE COUNT
+    
+    func updateChatUnreadMessagesCount(chatID: String, shouldIncreaseCount: Bool, messageCount: Int) async throws {
+        
+//        var messageCount = try await getChatUnreadMessagesCount(chatID: chatID)
+//        print("unreadCount: ", messageCount)
+//        var unreadMessageCount = shouldIncreaseCount ? messageCount + 1 : messageCount - 1
+        
+        let data: [String: Any] = [
+            Chat.CodingKeys.unreadMessages.rawValue : messageCount
+        ]
+        try await chatDocument(documentPath: chatID).updateData(data)
+        print("UnreadMEssages were updated!")
+    }
+    
+    private func getChatUnreadMessagesCount(chatID: String) async throws -> Int {
+        return try await chatDocument(documentPath: chatID).getDocument(as: Chat.self).unreadMessages
+    }
     
     //MARK: - UPDATE MESSAGE IMAGE PATH
     
