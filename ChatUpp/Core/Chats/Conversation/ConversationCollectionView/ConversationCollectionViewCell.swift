@@ -10,7 +10,7 @@ import YYText
 //import ImageIO
 //import AVFoundation
 
-final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDelegate {
+final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegate {
     
     enum BubbleMessageSide {
         case left
@@ -37,6 +37,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     var maxMessageWidth: CGFloat {
         return self.frame.width * 2 / 3
     }
+    private let cellSpacing = 5.0
     
     private func makeAttributedStringForMessage() -> NSAttributedString {
         return NSAttributedString(string: cellViewModel.cellMessage.messageBody, attributes: [
@@ -110,9 +111,12 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
     }
     
     //MARK: - LIFECYCLE
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        
+//        transform = CGAffineTransform(scaleX: 1, y: -1)
+        backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupContentViewConstraints()
         setupMainCellContainer()
         setupMessageTextView()
@@ -172,7 +176,7 @@ final class ConversationCollectionViewCell: UICollectionViewCell, UIScrollViewDe
         
         NSLayoutConstraint.activate([
 //            widthConstraint,
-            messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
+            messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor, constant: cellSpacing),
             messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor),
         ])
     }

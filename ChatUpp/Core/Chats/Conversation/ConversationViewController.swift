@@ -12,8 +12,7 @@ import UIKit
 import Photos
 import PhotosUI
 
-final class ConversationViewController: UIViewController, UICollectionViewDelegate, UIScrollViewDelegate {
-    
+final class ConversationViewController: UIViewController, UITableViewDelegate, UIScrollViewDelegate {
 
     weak var coordinatorDelegate :Coordinator?
     private var conversationViewModel :ConversationViewModel!
@@ -65,23 +64,19 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
 
     private func configureCollectionView() {
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
-        rootView.collectionView.dataSource = collectionViewDataSource
-        rootView.collectionView.delegate = self
+        rootView.tableView.dataSource = collectionViewDataSource
+        rootView.tableView.delegate = self
     }
     
     //MARK: - Binding
     private func setupBinding() {
         conversationViewModel.onCellVMLoad = { indexOfCellToScrollTo in
-//            DispatchQueue.main.async { [weak self] in
             Task { @MainActor in
-                self.rootView.collectionView.reloadData()
-//                self.rootView.collectionView.reloadSections(IndexSet(integer: 0))
-                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-//                self.rootView.collectionView.layoutIfNeeded()
-//                
-//                self.rootView.collectionView.scrollToItem(at: indexToScrollTo, at: .top, animated: false)
-////                self.rootView.collectionView.layoutSubviews()
-//                self.view.layoutIfNeeded()
+                self.rootView.tableView.reloadData()
+                //                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+                //                self.rootView.collectionView.layoutIfNeeded()
+                self.rootView.tableView.scrollToRow(at: IndexPath(row: self.conversationViewModel.cellViewModels.count - 20, section: 0), at: .bottom, animated: false)
+                //                self.view.layoutIfNeeded()
             }
         }
         
@@ -96,8 +91,8 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         conversationViewModel.messageWasModified = { index in
             Task { @MainActor in
                 let indexPath = IndexPath(item: index, section: 0)
-                guard let cell = self.rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else { return }
-                self.rootView.collectionView.reloadItems(at: [indexPath])
+                guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
+                self.rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
             }
         }
     }
@@ -112,7 +107,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if rootView.containerView.frame.origin.y > 760 {
-                handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
+                handleCollectionViewOffSet(usingKeyboardSize: keyboardSize, willShow: true)
                 isKeyboardHidden = false
             }
         }
@@ -120,7 +115,7 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
+            handleCollectionViewOffSet(usingKeyboardSize: keyboardSize, willShow: false)
             isKeyboardHidden = true
         }
     }
@@ -158,44 +153,44 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         // If we dont do this, conflict occurs and results in glitches
         // Instead we will animate contentOffset
         
-        let currentOffSet = self.rootView.collectionView.contentOffset
+        let currentOffSet = self.rootView.tableView.contentOffset
         let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
         
         if !scrollToBottom && contentIsScrolled {
-            self.rootView.collectionView.insertItems(at: [indexPath])
+            self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
             return
         } else {
             UIView.performWithoutAnimation {
-                self.rootView.collectionView.insertItems(at: [indexPath])
+                self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
             }
         }
         
         // Schedules scrolling execution in order for proper animation scrolling
         DispatchQueue.main.async {
-            self.rootView.collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+            self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
         }
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
         
-        guard let cell = self.rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else { return }
+        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
         
         cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: -20)
         
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
-        self.rootView.collectionView.setContentOffset(offSet, animated: false)
+        self.rootView.tableView.setContentOffset(offSet, animated: false)
     
         // Animate collection content back so that the cell (message) will go up
         UIView.animate(withDuration: 0.2) {
             cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 20)
-            self.rootView.collectionView.setContentOffset(currentOffSet, animated: false)
+            self.rootView.tableView.setContentOffset(currentOffSet, animated: false)
         }
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let visibleIndices = rootView.collectionView.indexPathsForVisibleItems
+        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else {return}
         
         for indexPath in visibleIndices {
-            guard let cell = rootView.collectionView.cellForItem(at: indexPath) as? ConversationCollectionViewCell else {
+            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else {
                 continue
             }
             if checkIfCellMessageIsVisible(indexPath: indexPath) {
@@ -209,14 +204,14 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
         let cellMessage = conversationViewModel.cellViewModels[indexPath.item].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
-        if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
-            if let layoutAttributes = rootView.collectionView.layoutAttributesForItem(at: indexPath) {
-                let cellFrame = layoutAttributes.frame
-                let collectionRect = rootView.collectionView.bounds.offsetBy(dx: 0, dy: 65)
-                let isCellFullyVisible = collectionRect.contains(cellFrame)
-                return isCellFullyVisible
-            }
-        }
+//        if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
+//            if let layoutAttributes = rootView.collectionView.layoutAttributesForItem(at: indexPath) {
+//                let cellFrame = layoutAttributes.frame
+//                let collectionRect = rootView.collectionView.bounds.offsetBy(dx: 0, dy: 65)
+//                let isCellFullyVisible = collectionRect.contains(cellFrame)
+//                return isCellFullyVisible
+//            }
+//        }
         return false
     }
 
@@ -293,7 +288,7 @@ extension ConversationViewController {
     
     private func setTepGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
-        rootView.collectionView.addGestureRecognizer(tap)
+        rootView.tableView.addGestureRecognizer(tap)
     }
     
     @objc func resignKeyboard() {
@@ -307,37 +302,53 @@ extension ConversationViewController {
 
 extension ConversationViewController {
     
-    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
+    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect, willShow: Bool) {
         
-        let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
-        let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
-        
-        self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-        
-        let currentOffSet = rootView.collectionView.contentOffset
-        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
-        
-        rootView.collectionView.setContentOffset(offSet, animated: false)
-        rootView.collectionView.contentInset.top = customCollectionViewInset
-        rootView.collectionView.verticalScrollIndicatorInsets.top = customCollectionViewInset
-        
-        // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
-        // Exaplanation:
-        // while trying to use only view.layoutIfNeeded(),
-        // cells from top will resize while animate
-        // Steps to reproduce:
-        // 1.initiate keyboard
-        // 2.scroll up
-        // 3.dismiss keyboard
-        // Result: cells from top will animate while resizing
-        // So to ditch this, we use layoutSubviews and layoutIfNeeded
-
-        if keyboardHeight > 0 {
-            view.layoutSubviews()
+        var content = self.rootView.tableView.contentOffset
+//        content.y = willShow ? content.y + 300 : content.y - 300
+        if willShow {
+            content.y += 300
         } else {
-            view.layoutIfNeeded()
+            content.y -= 300
+        }
+        
+        UIView.animate(withDuration: 3.0) {
+            self.rootView.tableView.setContentOffset(content, animated: false)
+//            self.view.layoutSubviews()
+//            self.rootView.tableView.layoutIfNeeded()
         }
     }
+    
+//    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
+//        let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
+//        let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
+//
+//        self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+//
+//        let currentOffSet = rootView.tableView.contentOffset
+//        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
+//
+//        rootView.tableView.setContentOffset(offSet, animated: false)
+//        rootView.tableView.contentInset.top = customCollectionViewInset
+//        rootView.tableView.verticalScrollIndicatorInsets.top = customCollectionViewInset
+//
+//        // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
+//        // Exaplanation:
+//        // while trying to use only view.layoutIfNeeded(),
+//        // cells from top will resize while animate
+//        // Steps to reproduce:
+//        // 1.initiate keyboard
+//        // 2.scroll up
+//        // 3.dismiss keyboard
+//        // Result: cells from top will animate while resizing
+//        // So to ditch this, we use layoutSubviews and layoutIfNeeded
+//
+//        if keyboardHeight > 0 {
+//            view.layoutSubviews()
+//        } else {
+//            view.layoutIfNeeded()
+//        }
+//    }
 }
 
 //MARK: - SETUP NAVIGATION BAR ITEMS
