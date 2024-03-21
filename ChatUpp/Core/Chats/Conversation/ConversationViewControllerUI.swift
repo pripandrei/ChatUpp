@@ -46,7 +46,7 @@ final class ConversationViewControllerUI: UIView {
     
     let tableView: UITableView = {
         let tableView = UITableView()
-        //        tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
+        tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
 //        tableView.estimatedRowHeight = UITableView.automaticDimension
         
         tableView.separatorStyle = .none
