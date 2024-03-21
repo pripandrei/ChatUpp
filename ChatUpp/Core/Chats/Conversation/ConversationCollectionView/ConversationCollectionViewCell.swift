@@ -35,7 +35,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     private var messageImage: UIImage?
     
     var maxMessageWidth: CGFloat {
-        return self.frame.width * 2 / 3
+        return 290.0
     }
     private let cellSpacing = 5.0
     
@@ -72,7 +72,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         sennStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
         adjustMessagePadding(.initialSpacing)
-        layoutIfNeeded()
+        contentView.layoutIfNeeded()
     }
     
     //MARK: - CELL DATA CONFIGURATION
@@ -119,7 +119,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupContentViewConstraints()
         setupMainCellContainer()
-        setupMessageTextView()
+        setupMessageTextLabel()
         setupTimestamp()
         setupSeenStatusMark()
     }
@@ -161,7 +161,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         ])
     }
     
-    private func setupMessageTextView() {
+    private func setupMessageTextLabel() {
         mainCellContainer.addSubview(messageContainer)
 
         messageContainer.backgroundColor = .blue
@@ -173,11 +173,12 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         
         messageContainer.translatesAutoresizingMaskIntoConstraints = false
 //        widthConstraint = messageContainer.widthAnchor.constraint(equalToConstant: maxMessageWidth)
-        
+
         NSLayoutConstraint.activate([
 //            widthConstraint,
             messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor, constant: cellSpacing),
             messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor),
+//            messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth)
         ])
     }
     
@@ -218,7 +219,7 @@ extension ConversationCollectionViewCell
 {
     func handleMessageBubbleLayout() {
         createMessageTextLayout()
-        
+    
         guard let lastLineMessageWidth = getMessageLastLineSize() else {return}
         guard let numberOfMessageLines = messageContainer.textLayout?.lines.count else {return}
         
@@ -226,11 +227,11 @@ extension ConversationCollectionViewCell
         let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timeStamp.intrinsicContentSize.width) + padding
         let messageRectWidth = messageContainer.intrinsicContentSize.width
         
-        if lastLineMessageAndTimestampWidth > maxMessageWidth - 2 {
+        if lastLineMessageAndTimestampWidth > maxMessageWidth  {
             adjustMessagePadding(.bottomSpace)
             return
         }
-        if lastLineMessageAndTimestampWidth <= maxMessageWidth - 2 {
+        if lastLineMessageAndTimestampWidth <= maxMessageWidth {
             if numberOfMessageLines == 1 {
                 adjustMessagePadding(.rightSpace)
             } else if lastLineMessageAndTimestampWidth > messageRectWidth {
@@ -248,9 +249,12 @@ extension ConversationCollectionViewCell
     
     func getMessageLastLineSize() -> CGFloat? {
         if let lastLine = messageContainer.textLayout?.lines.last {
-            let range = lastLine.range
-            let labelAttributedString = messageContainer.attributedText
-            let lastLineString = labelAttributedString?.attributedSubstring(from: range)
+//            print(lastLine.bounds)
+//            print("String: ",messageContainer.textLayout?.text.string)
+//            print("number of lines: ",messageContainer.textLayout?.lines.count)
+//            let range = lastLine.range
+//            let labelAttributedString = messageContainer.attributedText
+//            let lastLineString = labelAttributedString?.attributedSubstring(from: range)
             return lastLine.lineWidth
         }
         return nil
@@ -284,7 +288,7 @@ extension ConversationCollectionViewCell
         case .bottomSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
         case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 3, left: 4, bottom: 3, right: 4)
         }
-//        messageContainer.invalidateIntrinsicContentSize()
+        messageContainer.invalidateIntrinsicContentSize()
     }
 }
 
