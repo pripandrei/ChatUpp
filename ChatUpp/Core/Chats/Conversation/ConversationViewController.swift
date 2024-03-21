@@ -72,14 +72,16 @@ final class ConversationViewController: UIViewController, UICollectionViewDelega
     //MARK: - Binding
     private func setupBinding() {
         conversationViewModel.onCellVMLoad = { indexOfCellToScrollTo in
-            DispatchQueue.main.async { [weak self] in
-//                self?.rootView.collectionView.reloadData()
-                self?.rootView.collectionView.reloadSections(IndexSet(integer: 0))
+//            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor in
+                self.rootView.collectionView.reloadData()
+//                self.rootView.collectionView.reloadSections(IndexSet(integer: 0))
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-//                self?.rootView.containerView.layoutIfNeeded()
-//                self?.rootView.collectionView.scrollToItem(at: indexToScrollTo, at: .top, animated: false)
-//                self?.rootView.containerView.layoutSubviews()
-//                self?.view.layoutIfNeeded()
+//                self.rootView.collectionView.layoutIfNeeded()
+//                
+//                self.rootView.collectionView.scrollToItem(at: indexToScrollTo, at: .top, animated: false)
+////                self.rootView.collectionView.layoutSubviews()
+//                self.view.layoutIfNeeded()
             }
         }
         
