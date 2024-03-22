@@ -110,11 +110,6 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
             configureImageAttachment()
             viewModel.fetchImageData()
         }
-//        if viewModel.cellMessage.imagePath != nil && viewModel.imageData.value == nil  {
-//            configureImageAttachment()
-//            viewModel.fetchImageData()
-//            return
-//        }
     }
     
     func configureMessageSeenStatus() {

@@ -26,7 +26,7 @@ class ChatsCell: UITableViewCell {
         unreadMessagesCountLabel.layer.cornerRadius = 12
         unreadMessagesCountLabel.textAlignment = .center
         unreadMessagesCountLabel.clipsToBounds = true
-        
+        unreadMessagesCountLabel.isHidden = true
         unreadMessagesCountLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -71,12 +71,15 @@ class ChatsCell: UITableViewCell {
         setupBinding()
         handleImageSetup()
         
-        self.messageLable.text = cellViewModel.recentMessage.value?.messageBody
-        self.dateLable.text = cellViewModel.recentMessage.value?.timestamp.formatToHoursAndMinutes()
         self.nameLabel.text = cellViewModel.user?.name
         self.dateLable.adjustsFontSizeToFitWidth = true
-//        self.unreadMessagesCountLabel.text = "\(cellViewModel.chat.unreadMessages)"
-        guard let unreadMessageCount = cellViewModel.unreadMessageCount.value else {return}
+        
+        guard let message = cellViewModel.recentMessage.value else {return}
+        self.messageLable.text = message.messageBody
+        self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
+    
+        guard let unreadMessageCount = cellViewModel.unreadMessageCount.value, cellViewModel.authUser.uid != message.senderId else {return}
+        unreadMessagesCountLabel.isHidden = false
         self.unreadMessagesCountLabel.text = "\(unreadMessageCount)"
     }
     
@@ -117,10 +120,17 @@ class ChatsCell: UITableViewCell {
                 self.nameLabel.text = self.cellViewModel.user?.name
             }
         }
-        cellViewModel.unreadMessageCount.bind { count in
+        cellViewModel.unreadMessageCount.bind { [weak self] count in
+            guard let self = self else {return}
             guard let count = count else {return}
             Task { @MainActor in
+                guard self.cellViewModel.authUser.uid != self.cellViewModel.recentMessage.value?.senderId else {return}
                 self.unreadMessagesCountLabel.text = "\(count)"
+                if count == 0 {
+                    self.unreadMessagesCountLabel.isHidden = true
+                    return
+                }
+                self.unreadMessagesCountLabel.isHidden = false
             }
 //            animateUnreadMessageCounterOnReceive()
         }
