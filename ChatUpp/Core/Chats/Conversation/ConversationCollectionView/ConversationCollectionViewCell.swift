@@ -18,9 +18,15 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     }
     private enum BubbleMessagePadding {
         case initialSpacing
-        case rightSpace
+        case incomingMessageRightSpace
+        case outgoingMessageRightSapce
         case bottomSpace
         case imageSpace
+    }
+    
+    enum SeenStatusIcon: String {
+        case single = "icons8-done-64-6"
+        case double = "icons8-double-tick-48-3"
     }
     
     private var mainCellContainerMaxWidthConstraint: NSLayoutConstraint!
@@ -33,11 +39,12 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     private var timeStamp = YYLabel()
     var cellViewModel: ConversationCellViewModel!
     private var messageImage: UIImage?
+    var sennStatusMark = YYLabel()
     
     var maxMessageWidth: CGFloat {
         return 290.0
     }
-    private let cellSpacing = 5.0
+    private let cellSpacing = 3.0
     
     private func makeAttributedStringForMessage() -> NSAttributedString {
         return NSAttributedString(string: cellViewModel.cellMessage.messageBody, attributes: [
@@ -78,32 +85,40 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     }
     
     //MARK: - CELL DATA CONFIGURATION
-    func configureCell(usingViewModel viewModel: ConversationCellViewModel) {
+    func configureCell(usingViewModel viewModel: ConversationCellViewModel, forSide side: BubbleMessageSide) {
+        
         cleanupCellContent()
         
         self.cellViewModel = viewModel
         timeStamp.text = viewModel.timestamp
-        
         setupBinding()
-    
+        adjustMessageSide(side)
+        
+        if side == .right {
+            configureMessageSeenStatus()
+        }
+        
         if viewModel.cellMessage.messageBody != "" {
             messageContainer.attributedText = makeAttributedStringForMessage()
-            handleMessageBubbleLayout()
+            handleMessageBubbleLayout(forSide: side)
             return
         }
         if viewModel.imageData.value != nil {
             configureImageAttachment(data: viewModel.imageData.value!)
             return
-        }
-        if viewModel.cellMessage.imagePath != nil && viewModel.imageData.value == nil  {
+        } else {
             configureImageAttachment()
             viewModel.fetchImageData()
-            return
         }
+//        if viewModel.cellMessage.imagePath != nil && viewModel.imageData.value == nil  {
+//            configureImageAttachment()
+//            viewModel.fetchImageData()
+//            return
+//        }
     }
     
     func configureMessageSeenStatus() {
-        let iconSize = cellViewModel.cellMessage.messageSeen ? CGSize(width: 16, height: 15) : CGSize(width: 18, height: 14)
+        let iconSize = cellViewModel.cellMessage.messageSeen ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
         let seenStatusIcon = cellViewModel.cellMessage.messageSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
         guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
 
@@ -123,8 +138,8 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         setupContentViewConstraints()
         setupMainCellContainer()
         setupMessageTextLabel()
-        setupTimestamp()
         setupSeenStatusMark()
+        setupTimestamp()
     }
     
     required init?(coder: NSCoder) {
@@ -133,23 +148,36 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     
 // MARK: - UI INITIAL STEUP
     
-    enum SeenStatusIcon: String {
-        case single = "icons8-done-64-6"
-        case double = "icons8-double-tick-48-3"
-    }
-    
-    var sennStatusMark = YYLabel()
-    
     private func setupSeenStatusMark() {
         mainCellContainer.addSubview(sennStatusMark)
         
+        sennStatusMark.font = UIFont(name: "Helvetica", size: 4)
         sennStatusMark.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            sennStatusMark.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -5),
+            sennStatusMark.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
             sennStatusMark.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
         ])
+    }
+    
+    private func setupTimestamp() {
+        mainCellContainer.addSubview(timeStamp)
         
+        timeStamp.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
+        timeStamp.layer.cornerRadius = 7
+        timeStamp.clipsToBounds = true
+        timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
+        timeStamp.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            timeStamp.trailingAnchor.constraint(equalTo: sennStatusMark.leadingAnchor, constant: -2),
+            timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
+        ])
+    }
+    
+    private func setupTimestampBackgroundForImage() {
+        timeStamp.backgroundColor = .darkGray.withAlphaComponent(0.6)
+        timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
     }
     
     private func setupMainCellContainer() {
@@ -185,27 +213,6 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         ])
     }
     
-    
-    private func setupTimestamp() {
-        mainCellContainer.addSubview(timeStamp)
-        
-        timeStamp.font = UIFont(name: "TimesNewRomanPSMT", size: 12)
-        timeStamp.layer.cornerRadius = 7
-        timeStamp.clipsToBounds = true
-        timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
-        timeStamp.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            timeStamp.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
-            timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
-        ])
-    }
-    
-    private func setupTimestampBackgroundForImage() {
-        timeStamp.backgroundColor = .darkGray.withAlphaComponent(0.6)
-        timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
-    }
-    
     private func setupContentViewConstraints() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -221,14 +228,19 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
 // MARK: - MESSAGE BUBBLE LAYOUT HANDLER
 extension ConversationCollectionViewCell
 {
-    func handleMessageBubbleLayout() {
+    func handleMessageBubbleLayout(forSide side: BubbleMessageSide) {
         createMessageTextLayout()
     
         guard let lastLineMessageWidth = getMessageLastLineSize() else {return}
         guard let numberOfMessageLines = messageContainer.textLayout?.lines.count else {return}
         
         let padding: CGFloat = 20.0
-        let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timeStamp.intrinsicContentSize.width) + padding
+        let timestampWidth: CGFloat = timeStamp.intrinsicContentSize.width
+        let seenStatusMarkWidth: CGFloat = 21.0
+        
+        let widthForSide = side == .right ? seenStatusMarkWidth : 0
+        
+        let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding
         let messageRectWidth = messageContainer.intrinsicContentSize.width
         
         if lastLineMessageAndTimestampWidth > maxMessageWidth  {
@@ -237,7 +249,7 @@ extension ConversationCollectionViewCell
         }
         if lastLineMessageAndTimestampWidth <= maxMessageWidth {
             if numberOfMessageLines == 1 {
-                adjustMessagePadding(.rightSpace)
+                side == .right ? adjustMessagePadding(.incomingMessageRightSpace) : adjustMessagePadding(.outgoingMessageRightSapce)
             } else if lastLineMessageAndTimestampWidth > messageRectWidth {
                 let difference = lastLineMessageAndTimestampWidth - messageRectWidth
                 messageContainer.textContainerInset.right = difference + padding / 2
@@ -282,9 +294,10 @@ extension ConversationCollectionViewCell
     private func adjustMessagePadding(_ messagePadding: BubbleMessagePadding) {
         switch messagePadding {
         case .initialSpacing: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-        case .rightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 10)
+        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 20 + 10)
+        case .outgoingMessageRightSapce: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 15)
         case .bottomSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
-        case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 3, left: 4, bottom: 3, right: 4)
+        case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
         }
         messageContainer.invalidateIntrinsicContentSize()
     }

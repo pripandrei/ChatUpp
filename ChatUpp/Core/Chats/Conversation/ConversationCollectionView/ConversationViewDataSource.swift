@@ -17,16 +17,12 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
         let viewModel = conversationViewModel.cellViewModels[indexPath.item]
-       
-        cell.configureCell(usingViewModel: viewModel)
-    
         let authUserID = conversationViewModel.authenticatedUserID
-        if viewModel.cellMessage.senderId == authUserID {
-            cell.configureMessageSeenStatus()
-            cell.adjustMessageSide(.right)
-        } else {
-            cell.adjustMessageSide(.left)
-        }
+        let cellSide = viewModel.cellMessage.senderId == authUserID ?
+        ConversationCollectionViewCell.BubbleMessageSide.right : ConversationCollectionViewCell.BubbleMessageSide.left
+        
+        cell.configureCell(usingViewModel: viewModel, forSide: cellSide)
+        
         return cell
     }
     
