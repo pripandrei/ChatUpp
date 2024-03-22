@@ -85,7 +85,6 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
             Task { @MainActor in
                 let indexPath = IndexPath(row: 0, section: 0)
                 self?.handleContentMessageOffset(with: indexPath, scrollToBottom: false)
-//                self?.rootView.collectionView.insertItems(at: [indexPath])
             }
         }
         
@@ -199,7 +198,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
             }
             if checkIfCellMessageIsVisible(indexPath: indexPath) {
                 updateMessageSeenStatus(cell)
-                conversationViewModel.shouldSubtractFromUnreadMessageCount()
+                Task { try await conversationViewModel.updateUnreadMessagesCount?() }
             }
         }
     }

@@ -17,39 +17,14 @@ final class ConversationViewControllerUI: UIView {
     
     var holderViewBottomConstraint: NSLayoutConstraint!
     
-//    let collectionView: UICollectionView = {
-//        let layout = InvertedCollectionViewFlowLayout { (section, environment) -> NSCollectionLayoutSection? in
-//
-//            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(5))
-//            let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//
-////            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
-//            let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
-//
-//            let section = NSCollectionLayoutSection(group: group)
-////            section.contentInsets = NSDirectionalEdgeInsets(top: -10, leading: 10, bottom: 70, trailing: 10)
-//            //            section.contentInsets.top = .init(-10)
-//            section.interGroupSpacing = 3
-//            return section
-//        }
-//        layout.configuration.scrollDirection = .vertical
-//
-//        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-////        collectionView.backgroundColor = .brown
-//        collectionView.translatesAutoresizingMaskIntoConstraints = false
-//
-//        collectionView.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
-//        collectionView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -10, left: 0, bottom: 70, right: 0)
-//
-//        return collectionView
-//    }()
-    
     let tableView: UITableView = {
         let tableView = UITableView()
         
         // Invert Table View upside down
+        tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
-        
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
+        tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -10, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle = .none
         tableView.register(ConversationCollectionViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationMessageCell)
         return tableView
@@ -72,7 +47,6 @@ final class ConversationViewControllerUI: UIView {
     // MARK: - VIEW LAYOUT SETUP
     
     func setupLayout() {
-//        revertCollectionflowLayout()
         setupTableView()
         setupHolderView()
         setupMessageTextView()
@@ -102,8 +76,6 @@ final class ConversationViewControllerUI: UIView {
 
     private func setupTableView() {
         self.addSubview(tableView)
-        tableView.contentInset = UIEdgeInsets(top: -5, left: 0, bottom: 75, right: 0)
-        tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -232,20 +204,29 @@ final class ConversationCustomNavigationBar {
     }
 }
 
-
-
-
-
-
-
-//    lazy var collectionView: UICollectionView = {
-//        let collectionViewFlowLayout = InvertedCollectionViewFlowLayout()
-//        collectionViewFlowLayout.scrollDirection = .vertical
-//        collectionViewFlowLayout.estimatedItemSize = InvertedCollectionViewFlowLayout.automaticSize
+//    let collectionView: UICollectionView = {
+//        let layout = InvertedCollectionViewFlowLayout { (section, environment) -> NSCollectionLayoutSection? in
 //
-//        let collectionVC = UICollectionView(frame: CGRect.zero, collectionViewLayout: collectionViewFlowLayout)
-//        collectionVC.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
-//        collectionVC.verticalScrollIndicatorInsets.bottom = 60
+//            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(5))
+//            let item = NSCollectionLayoutItem(layoutSize: itemSize)
 //
-//        return collectionVC
+////            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
+//            let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
+//
+//            let section = NSCollectionLayoutSection(group: group)
+////            section.contentInsets = NSDirectionalEdgeInsets(top: -10, leading: 10, bottom: 70, trailing: 10)
+//            //            section.contentInsets.top = .init(-10)
+//            section.interGroupSpacing = 3
+//            return section
+//        }
+//        layout.configuration.scrollDirection = .vertical
+//
+//        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+////        collectionView.backgroundColor = .brown
+//        collectionView.translatesAutoresizingMaskIntoConstraints = false
+//
+//        collectionView.register(ConversationCollectionViewCell.self, forCellWithReuseIdentifier: CellIdentifire.conversationMessageCell)
+//        collectionView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -10, left: 0, bottom: 70, right: 0)
+//
+//        return collectionView
 //    }()

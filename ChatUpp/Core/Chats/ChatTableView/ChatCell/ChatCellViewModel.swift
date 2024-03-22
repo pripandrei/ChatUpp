@@ -26,13 +26,10 @@ class ChatCellViewModel {
     
     func updateUnreadMessagesCount(_ count: Int) {
         unreadMessageCount.value = count
-//        self.chat = Chat(id: chat.id, members: chat.members, lastMessage: chat.recentMessageID, unreadMessages: count)
-        print("Count after recieving from server update: ", count)
     }
     
     func updateChat(_ modifiedChat: Chat) {
         self.chat = modifiedChat
-//        Task { try await loadRecentMessage() }
     }
 
     func updateRecentMessage(_ message: Message?) {

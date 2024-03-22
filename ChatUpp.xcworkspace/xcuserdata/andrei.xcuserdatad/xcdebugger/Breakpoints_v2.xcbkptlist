@@ -46,10 +46,42 @@
             filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "123"
-            endingLineNumber = "123"
+            startingLineNumber = "124"
+            endingLineNumber = "124"
             landmarkName = "setupBinding()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "5F46DC35-411C-4BB0-B914-E47A31C64659 - de08f187d3b31904"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #4 (Swift.Optional&lt;Swift.Int&gt;) -&gt; () in ChatUpp.ChatsCell.setupBinding() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "122"
+                  endingLineNumber = "122"
+                  offsetFromSymbolStart = "376">
+               </Location>
+               <Location
+                  uuid = "5F46DC35-411C-4BB0-B914-E47A31C64659 - 8f43088199e5315d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 @Swift.MainActor @Sendable () async -&gt; () in closure #4 (Swift.Optional&lt;Swift.Int&gt;) -&gt; () in ChatUpp.ChatsCell.setupBinding() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "124"
+                  endingLineNumber = "124"
+                  offsetFromSymbolStart = "332">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

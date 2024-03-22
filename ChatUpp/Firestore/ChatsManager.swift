@@ -41,10 +41,6 @@ final class ChatsManager {
         try getMessageDocument(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
     
-//    func createNewMessage(message: Message, atChatPath path: String, complition: () -> Void) {
-//        
-//    }
-    
     //MARK: - GET CHAT DOCUMENT (currently not in use)
 //
 //    func getChatDocumentFromDB(chatID: String) async throws -> Chat {
@@ -132,25 +128,6 @@ final class ChatsManager {
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
-    //MARK: - UPDATE CHAT UNREAD MESSAGE COUNT
-    
-    func updateChatUnreadMessagesCount(chatID: String, shouldIncreaseCount: Bool, messageCount: Int) async throws {
-        
-//        var messageCount = try await getChatUnreadMessagesCount(chatID: chatID)
-//        print("unreadCount: ", messageCount)
-//        var unreadMessageCount = shouldIncreaseCount ? messageCount + 1 : messageCount - 1
-        
-        let data: [String: Any] = [
-            Chat.CodingKeys.unreadMessages.rawValue : messageCount
-        ]
-        try await chatDocument(documentPath: chatID).updateData(data)
-        print("UnreadMEssages were updated!")
-    }
-    
-    private func getChatUnreadMessagesCount(chatID: String) async throws -> Int {
-        return try await chatDocument(documentPath: chatID).getDocument(as: Chat.self).unreadMessages
-    }
-    
     //MARK: - GET ALL UNREAD CHAT MESSAGES COUNT
     
     func getUnreadMessagesCount(for chatID: String) async throws -> Int {
@@ -193,17 +170,6 @@ final class ChatsManager {
     
     func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void)
     {
-//        chatsCollection.addSnapshotListener { querySnapshot, error in
-//            guard error == nil else { print(error!.localizedDescription); return}
-//            guard let documents = querySnapshot?.documents else { print("No Documents to listen"); return}
-//
-//            let filteredChats = documents.compactMap { document in
-//                let chat = try? document.data(as: Chat.self)
-//                return chat?.members.contains { $0 == userID } == true ? chat : nil
-//            }
-//            complition(filteredChats)
-//        }
-        
         // get only the added or removed doc with diff option.
         // use compliciton to get the doc and find if the doc is in array of chats remove it, if not add it
         
@@ -247,8 +213,6 @@ final class ChatsManager {
 //        }
 //        return listener
 //    }
-    
-    
 }
 
 extension Query {

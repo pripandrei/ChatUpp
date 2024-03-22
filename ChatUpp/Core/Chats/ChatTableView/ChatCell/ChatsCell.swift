@@ -38,6 +38,7 @@ class ChatsCell: UITableViewCell {
         ])
     }
     
+    
 //MARK: - LIFECYCLE
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

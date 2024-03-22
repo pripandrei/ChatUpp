@@ -21,18 +21,17 @@ final class ConversationViewModel {
     
     var onCellVMLoad: ((IndexPath?) -> Void)?
     var onNewMessageAdded: (() -> Void)?
-    
     private(set) var messageListener: ListenerRegistration?
+    var messageWasModified: ((Int) -> Void)?
+    var updateUnreadMessagesCount: (() async throws -> Void)?
     
     init(memberID: String ,memberName: String, conversation: Chat? = nil, imageData: Data?) {
         self.memberName = memberName
         self.conversation = conversation
         self.memberProfileImage = imageData
         self.memberID = memberID
-//        self.messageCount = conversation!.unreadMessages
         addListenerToMessages()
     }
-    
     
     private func createConversation() async {
         let chatId = UUID().uuidString
@@ -121,7 +120,6 @@ final class ConversationViewModel {
             }
         }
     }
-    var messageWasModified: ((Int) -> Void)?
     
     private func handleModifiedMessage(_ message: Message) {
         guard let indexOfMessageToModify = messages.firstIndex(where: {$0.id == message.id}) else {return}
@@ -170,43 +168,11 @@ final class ConversationViewModel {
     private func insertNewMessage(_ message: Message) {
         messages.insert(message, at: 0)
         Task {
-            //            guard let conversation = self.conversation else { await createConversation(); return }
             if self.conversation == nil {
                 await createConversation()
             }
             await addMessageToDB(message)
-            await shouldIncreaseUnreadMessageCount(chatID: conversation?.id)
             await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: message.id)
-        }
-    }
-    
-    lazy var messageCount = conversation!.unreadMessages
-    
-    private func shouldIncreaseUnreadMessageCount(chatID: String?) async {
-        guard let chatID = chatID else { print("chatID is nil") ; return}
-        do {
-            messageCount += 1
-            try await ChatsManager.shared.updateChatUnreadMessagesCount(chatID: chatID, shouldIncreaseCount: true, messageCount: messageCount)
-        } catch {
-            print("Error updating chat last message:", error.localizedDescription)
-        }
-    }
-   
-    var updateUnreadMessagesCount: (() async throws -> Void)?
-    
-    func shouldSubtractFromUnreadMessageCount() {
-        Task {
-            guard let chatID = conversation?.id else { print("chatID is nil") ; return}
-            
-            do {
-                print("unreadMessages count before subtract: ",messageCount)
-                messageCount -= 1
-                //            print("message count", messageCount)
-                try await ChatsManager.shared.updateChatUnreadMessagesCount(chatID: chatID, shouldIncreaseCount: false, messageCount: messageCount)
-                try await updateUnreadMessagesCount?()
-            } catch {
-                print("Error updating chat last message:", error.localizedDescription)
-            }
         }
     }
     

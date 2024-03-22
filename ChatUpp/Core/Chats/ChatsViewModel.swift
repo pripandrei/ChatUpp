@@ -19,15 +19,6 @@ final class ChatsViewModel {
     var reloadCell: (() -> Void)?
     
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
-
-//    private func createCellViewModel() -> [ChatCellViewModel] {
-//        return chats.enumerated().map { index, element in
-//            let member = otherMembers[index]
-//            let message = recentMessages[index]
-//            return ChatCellViewModel(user: member, chatID: element.id, recentMessage: message)
-//        }
-//        //        return zip(otherMembers, recentMessages).map { ChatCellViewModel(user: $0, recentMessage: $1) }
-//    }
     
     private func createCellViewModel(with chats: [Chat]) -> [ChatCellViewModel] {
         return chats.map { chat in
@@ -39,12 +30,12 @@ final class ChatsViewModel {
         addChatsListener()
     }
     
+    // Fetch all data at once
     func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws {
         return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?, Int?)?.self) { group in
             for cellViewModel in cellViewModels {
                 group.addTask {
                     try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage(), cellViewModel.fetchUnreadMessagesCount())
-//                    try await cellViewModel.fetchUserData()
                 }
             }
         }
@@ -93,13 +84,6 @@ final class ChatsViewModel {
     
     private func handleModifiedChat(_ chat: Chat) {
         guard let oldViewModel = self.cellViewModels.first(where: {$0.chat.id == chat.id}) else {return}
-        
-        // If unread message modified
-//        if oldViewModel.chat.unreadMessages != chat.unreadMessages {
-//            oldViewModel.updateChat(chat)
-//            oldViewModel.updateUnreadMessagesCount(chat.unreadMessages)
-////            Task {try await ChatsManager.shared.updateChatUnreadMessagesCount(chatID: oldViewModel.chat.id, shouldIncreaseCount: true)}
-//        }
         
         // If recent message modified
         if oldViewModel.recentMessage.value?.id != chat.recentMessageID {

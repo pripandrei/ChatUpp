@@ -185,6 +185,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         ])
     }
     
+    
     private func setupTimestamp() {
         mainCellContainer.addSubview(timeStamp)
         
@@ -252,12 +253,6 @@ extension ConversationCollectionViewCell
     
     func getMessageLastLineSize() -> CGFloat? {
         if let lastLine = messageContainer.textLayout?.lines.last {
-//            print(lastLine.bounds)
-//            print("String: ",messageContainer.textLayout?.text.string)
-//            print("number of lines: ",messageContainer.textLayout?.lines.count)
-//            let range = lastLine.range
-//            let labelAttributedString = messageContainer.attributedText
-//            let lastLineString = labelAttributedString?.attributedSubstring(from: range)
             return lastLine.lineWidth
         }
         return nil
