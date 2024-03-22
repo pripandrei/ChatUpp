@@ -21,31 +21,11 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
     private var rootView = ConversationViewControllerUI()
     
     private var isKeyboardHidden: Bool = true
-
     
-//MARK: - LIFECYCLE
-    
+    //MARK: - LIFECYCLE
     convenience init(conversationViewModel: ConversationViewModel) {
         self.init()
         self.conversationViewModel = conversationViewModel
-    }
-    
-    deinit {
-        print("====ConversationVC Deinit")
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        cleanUp()
-    }
-    
-    private func cleanUp() {
-        NotificationCenter.default.removeObserver(self)
-        conversationViewModel.messageListener?.remove()
-        coordinatorDelegate = nil
-        conversationViewModel = nil
-        collectionViewDataSource = nil
-        customNavigationBar = nil
     }
     
     override func loadView() {
@@ -58,13 +38,35 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         setupBinding()
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
-        configureCollectionView()
+        configureTableView()
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        cleanUp()
+    }
+    
+    deinit {
+        print("====ConversationVC Deinit")
+    }
+    
+    //MARK: - CLEANUP
+    
+    private func cleanUp() {
+        NotificationCenter.default.removeObserver(self)
+        conversationViewModel.messageListener?.remove()
+        coordinatorDelegate = nil
+        conversationViewModel = nil
+        collectionViewDataSource = nil
+        customNavigationBar = nil
+    }
+    
+    //MARK: - TABLE VIEW CONFITURATION
 
-    private func configureCollectionView() {
+    private func configureTableView() {
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
         rootView.tableView.dataSource = collectionViewDataSource
         rootView.tableView.delegate = self
@@ -77,17 +79,15 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
                 self.rootView.tableView.reloadData()
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                 self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-                self.handleMessagesUpdateIfNeeded()
+                self.updateMessageSeenStatusIfNeeded()
             }
         }
-        
         conversationViewModel.onNewMessageAdded = { [weak self] in
             Task { @MainActor in
                 let indexPath = IndexPath(row: 0, section: 0)
                 self?.handleContentMessageOffset(with: indexPath, scrollToBottom: false)
             }
         }
-        
         conversationViewModel.messageWasModified = { index in
             Task { @MainActor in
                 let indexPath = IndexPath(item: index, section: 0)
@@ -97,13 +97,11 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         }
     }
     
-//MARK: - KEYBOARD NOTIFICATION OBSERVERS
-    
+    //MARK: - KEYBOARD NOTIFICATION OBSERVERS
     private func addKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-     
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if rootView.containerView.frame.origin.y > 760 {
@@ -112,7 +110,6 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
             }
         }
     }
-    
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             handleCollectionViewOffSet(usingKeyboardSize: keyboardSize, willShow: false)
@@ -120,6 +117,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         }
     }
     
+    //MARK: - SEND MESSAGE BUTTON CONFIGURATION
     private func addTargetToSendMessageBtn() {
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
@@ -136,6 +134,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         }
     }
     
+    //MARK: - MESSAGE BUBBLE CREATION
     private func handleMessageBubbleCreation(messageText: String = "") {
         let indexPath = IndexPath(item: 0, section: 0)
         
@@ -144,7 +143,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
             self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
         }
     }
-    
+    //MARK: - MESSAGE BUBBLE LAYOUT
     private func handleContentMessageOffset(with indexPath: IndexPath, scrollToBottom: Bool)
     {
         // We disable insertion animation because we need to both animate
@@ -186,24 +185,24 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        handleMessagesUpdateIfNeeded()
+        updateMessageSeenStatusIfNeeded()
     }
-
-    func handleMessagesUpdateIfNeeded() {
+    
+    //MARK: - MESSAGE SEEN STATUS HANDLER
+    func updateMessageSeenStatusIfNeeded() {
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else {return}
         
         for indexPath in visibleIndices {
             guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else {
                 continue
             }
-            if checkIfCellMessageIsVisible(indexPath: indexPath) {
+            if checkIfCellMessageIsCurrentlyVisible(indexPath: indexPath) {
                 updateMessageSeenStatus(cell)
                 Task { try await conversationViewModel.updateUnreadMessagesCount?() }
             }
         }
     }
-    
-    func checkIfCellMessageIsVisible(indexPath: IndexPath) -> Bool {
+    func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool {
         let cellMessage = conversationViewModel.cellViewModels[indexPath.item].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
@@ -217,7 +216,6 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         }
         return false
     }
-
     func updateMessageSeenStatus(_ cell: ConversationCollectionViewCell) {
         guard let chatID = conversationViewModel.conversation else {return}
         let messageId = cell.cellViewModel.cellMessage.id
@@ -226,6 +224,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         cell.cellViewModel.updateMessageSeenStatus(messageId, inChat: chatID.id)
     }
     
+    //MARK: - PHOTO PICKER
     private func configurePhotoPicker() {
         var configuration = PHPickerConfiguration()
         configuration.selectionLimit = 1

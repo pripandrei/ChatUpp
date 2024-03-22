@@ -147,26 +147,6 @@ final class ConversationViewControllerUI: UIView {
     }
 }
 
-//MARK: - INVERTED COLLECTION FLOW
-final class InvertedCollectionViewFlowLayout: UICollectionViewCompositionalLayout {
-    
-    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        let attributes = super.layoutAttributesForItem(at: indexPath)
-        attributes?.transform = CGAffineTransform(scaleX: 1, y: -1)
-        return attributes
-    }
-    
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        let attributesList = super.layoutAttributesForElements(in: rect)
-        if let list = attributesList {
-            for attribute in list {
-                attribute.transform = CGAffineTransform(scaleX: 1, y: -1)
-            }
-        }
-        return attributesList
-    }
-}
-
 // MARK: - SETUP NAVIGATION BAR ITEMS
 final class ConversationCustomNavigationBar {
 
@@ -203,6 +183,26 @@ final class ConversationCustomNavigationBar {
         }
     }
 }
+
+//MARK: - INVERTED COLLECTION FLOW
+//final class InvertedCollectionViewFlowLayout: UICollectionViewCompositionalLayout {
+//
+//    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+//        let attributes = super.layoutAttributesForItem(at: indexPath)
+//        attributes?.transform = CGAffineTransform(scaleX: 1, y: -1)
+//        return attributes
+//    }
+//
+//    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+//        let attributesList = super.layoutAttributesForElements(in: rect)
+//        if let list = attributesList {
+//            for attribute in list {
+//                attribute.transform = CGAffineTransform(scaleX: 1, y: -1)
+//            }
+//        }
+//        return attributesList
+//    }
+//}
 
 //    let collectionView: UICollectionView = {
 //        let layout = InvertedCollectionViewFlowLayout { (section, environment) -> NSCollectionLayoutSection? in
