@@ -4,7 +4,7 @@
 //
 //  Created by Andrei Pripa on 10/3/23.
 
-// IMPORTANT: COLLECTION VIEW FLOW LAYOUT IS INVERTED (BOTTOM => TOP),
+// IMPORTANT: TABLE VIEW FLOW LAYOUT IS INVERTED (BOTTOM => TOP),
 // THEREFORE, SOME PROPERTIES AND ADJUSTMENTS WERE MADE AND SET AS BOTTOM => TOP.
 // KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST COLLECTION VIEW FLOW
 
@@ -19,6 +19,8 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
     private var collectionViewDataSource :ConversationViewDataSource!
     private var customNavigationBar :ConversationCustomNavigationBar!
     private var rootView = ConversationViewControllerUI()
+    
+    private var isKeyboardHidden: Bool = true
 
     
 //MARK: - LIFECYCLE
@@ -74,9 +76,8 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
             Task { @MainActor in
                 self.rootView.tableView.reloadData()
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-                //                self.rootView.collectionView.layoutIfNeeded()
                 self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-                //                self.view.layoutIfNeeded()
+                self.handleMessagesUpdateIfNeeded()
             }
         }
         
@@ -91,7 +92,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         conversationViewModel.messageWasModified = { index in
             Task { @MainActor in
                 let indexPath = IndexPath(item: index, section: 0)
-                guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
+                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
                 self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
             }
         }
@@ -144,7 +145,6 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
             self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
         }
     }
-    private var isKeyboardHidden: Bool = true
     
     private func handleContentMessageOffset(with indexPath: IndexPath, scrollToBottom: Bool)
     {
@@ -187,6 +187,10 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        handleMessagesUpdateIfNeeded()
+    }
+
+    func handleMessagesUpdateIfNeeded() {
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else {return}
         
         for indexPath in visibleIndices {
@@ -199,7 +203,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
             }
         }
     }
-
+    
     func checkIfCellMessageIsVisible(indexPath: IndexPath) -> Bool {
         let cellMessage = conversationViewModel.cellViewModels[indexPath.item].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID

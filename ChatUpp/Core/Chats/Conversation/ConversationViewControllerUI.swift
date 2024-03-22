@@ -46,12 +46,11 @@ final class ConversationViewControllerUI: UIView {
     
     let tableView: UITableView = {
         let tableView = UITableView()
+        
+        // Invert Table View upside down
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
-//        tableView.estimatedRowHeight = UITableView.automaticDimension
         
         tableView.separatorStyle = .none
-//        tableView.separatorInsetReference = .fromCellEdges
-//        tableView.separatorInset = UIEdgeInsets(top: 20, left: 0, bottom: 40, right: 0) // Adjust left and right insets as per your requirement
         tableView.register(ConversationCollectionViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationMessageCell)
         return tableView
     }()

@@ -29,7 +29,7 @@ final class ConversationViewModel {
         self.conversation = conversation
         self.memberProfileImage = imageData
         self.memberID = memberID
-        self.messageCount = conversation!.unreadMessages
+//        self.messageCount = conversation!.unreadMessages
         addListenerToMessages()
     }
     
@@ -179,7 +179,6 @@ final class ConversationViewModel {
             await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: message.id)
         }
     }
-//    lazy var count = conversation!.unreadMessages
     
     lazy var messageCount = conversation!.unreadMessages
     

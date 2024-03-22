@@ -116,8 +116,9 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        
+        // Invert cell upside down
         transform = CGAffineTransform(scaleX: 1, y: -1)
+        
         backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupContentViewConstraints()
         setupMainCellContainer()

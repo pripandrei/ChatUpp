@@ -20,8 +20,9 @@ class ChatsCell: UITableViewCell {
     func setupUnreadMessagesCountLabel() {
         addSubview(unreadMessagesCountLabel)
         
+        unreadMessagesCountLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
         unreadMessagesCountLabel.font = UIFont(name: "Helvetica", size: 16)
-        unreadMessagesCountLabel.backgroundColor = .green
+        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         unreadMessagesCountLabel.layer.cornerRadius = 12
         unreadMessagesCountLabel.textAlignment = .center
         unreadMessagesCountLabel.clipsToBounds = true
@@ -115,8 +116,22 @@ class ChatsCell: UITableViewCell {
         }
         cellViewModel.unreadMessageCount.bind { count in
             guard let count = count else {return}
-            self.unreadMessagesCountLabel.text = "\(count)"
+            self.unreadMessagesCountLabel.text = "\(count)"            
         }
+    }
+    
+    //MARK: - Animate new message counter
+    
+    func animateUnreadMessageCounterOnReceive() {
+        UIView.transition(with:  self.unreadMessagesCountLabel, duration: 0.2, options: .transitionCrossDissolve, animations: {
+            self.unreadMessagesCountLabel.transform = CGAffineTransform(scaleX: 1.54, y: 1.54)
+            self.unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.4254744351, green: 0.9171335101, blue: 0.9273491502, alpha: 1).withAlphaComponent(0.9)
+        },completion: {_ in
+            UIView.transition(with: self.unreadMessagesCountLabel, duration: 0.2, options: .transitionCrossDissolve, animations: {
+                self.unreadMessagesCountLabel.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+                self.unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1).withAlphaComponent(0.9)
+            })
+        })
     }
     
 //MARK: - UI SETUP
