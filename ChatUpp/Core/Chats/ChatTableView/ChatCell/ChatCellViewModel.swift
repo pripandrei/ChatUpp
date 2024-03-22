@@ -74,6 +74,13 @@ class ChatCellViewModel {
         return photoData
     }
     
+    @discardableResult
+    func fetchUnreadMessagesCount() async throws -> Int? {
+        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chat.id)
+        self.unreadMessageCount.value = unreadMessageCount
+        return unreadMessageCount
+    }
+    
     func fetchUserData() async throws -> (DBUser?, Message?, Data?) {
         let member = try await loadOtherMemberOfChat()
         self.user = member

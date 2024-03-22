@@ -192,6 +192,8 @@ final class ConversationViewModel {
         }
     }
    
+    var updateUnreadMessagesCount: (() async throws -> Void)?
+    
     func shouldSubtractFromUnreadMessageCount() {
         Task {
             guard let chatID = conversation?.id else { print("chatID is nil") ; return}
@@ -201,6 +203,7 @@ final class ConversationViewModel {
                 messageCount -= 1
                 //            print("message count", messageCount)
                 try await ChatsManager.shared.updateChatUnreadMessagesCount(chatID: chatID, shouldIncreaseCount: false, messageCount: messageCount)
+                try await updateUnreadMessagesCount?()
             } catch {
                 print("Error updating chat last message:", error.localizedDescription)
             }

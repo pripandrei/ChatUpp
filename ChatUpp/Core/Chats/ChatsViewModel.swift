@@ -40,10 +40,10 @@ final class ChatsViewModel {
     }
     
     func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws {
-        return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?)?.self) { group in
+        return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?, Int?)?.self) { group in
             for cellViewModel in cellViewModels {
                 group.addTask {
-                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage())
+                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage(), cellViewModel.fetchUnreadMessagesCount())
 //                    try await cellViewModel.fetchUserData()
                 }
             }
@@ -91,22 +91,23 @@ final class ChatsViewModel {
         }
     }
     
-    
-    
     private func handleModifiedChat(_ chat: Chat) {
         guard let oldViewModel = self.cellViewModels.first(where: {$0.chat.id == chat.id}) else {return}
         
         // If unread message modified
-        if oldViewModel.chat.unreadMessages != chat.unreadMessages {
-            oldViewModel.updateChat(chat)
-            oldViewModel.updateUnreadMessagesCount(chat.unreadMessages)
-//            Task {try await ChatsManager.shared.updateChatUnreadMessagesCount(chatID: oldViewModel.chat.id, shouldIncreaseCount: true)}
-        }
+//        if oldViewModel.chat.unreadMessages != chat.unreadMessages {
+//            oldViewModel.updateChat(chat)
+//            oldViewModel.updateUnreadMessagesCount(chat.unreadMessages)
+////            Task {try await ChatsManager.shared.updateChatUnreadMessagesCount(chatID: oldViewModel.chat.id, shouldIncreaseCount: true)}
+//        }
         
         // If recent message modified
         if oldViewModel.recentMessage.value?.id != chat.recentMessageID {
             oldViewModel.updateChat(chat)
-            Task { try await oldViewModel.loadRecentMessage() }
+            Task {
+                try await oldViewModel.loadRecentMessage()
+                try await oldViewModel.fetchUnreadMessagesCount()
+            }
         }
         // If other User was deleted
         let deletedUserID = UserManager.mainDeletedUserID

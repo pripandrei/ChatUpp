@@ -151,6 +151,13 @@ final class ChatsManager {
         return try await chatDocument(documentPath: chatID).getDocument(as: Chat.self).unreadMessages
     }
     
+    //MARK: - GET ALL UNREAD CHAT MESSAGES COUNT
+    
+    func getUnreadMessagesCount(for chatID: String) async throws -> Int {
+        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+        return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).getDocuments().count
+    }
+    
     //MARK: - UPDATE MESSAGE IMAGE PATH
     
     func updateMessageImagePath(messageID: String, chatDocumentPath: String, path: String) async throws {

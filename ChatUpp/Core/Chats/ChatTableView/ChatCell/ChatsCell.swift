@@ -74,7 +74,9 @@ class ChatsCell: UITableViewCell {
         self.dateLable.text = cellViewModel.recentMessage.value?.timestamp.formatToHoursAndMinutes()
         self.nameLabel.text = cellViewModel.user?.name
         self.dateLable.adjustsFontSizeToFitWidth = true
-        self.unreadMessagesCountLabel.text = "\(cellViewModel.chat.unreadMessages)"
+//        self.unreadMessagesCountLabel.text = "\(cellViewModel.chat.unreadMessages)"
+        guard let unreadMessageCount = cellViewModel.unreadMessageCount.value else {return}
+        self.unreadMessagesCountLabel.text = "\(unreadMessageCount)"
     }
     
     private func handleImageSetup()
@@ -116,7 +118,10 @@ class ChatsCell: UITableViewCell {
         }
         cellViewModel.unreadMessageCount.bind { count in
             guard let count = count else {return}
-            self.unreadMessagesCountLabel.text = "\(count)"            
+            Task { @MainActor in
+                self.unreadMessagesCountLabel.text = "\(count)"
+            }
+//            animateUnreadMessageCounterOnReceive()
         }
     }
     

@@ -225,17 +225,20 @@ extension ChatsViewController: UITableViewDelegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
         tableView.deselectRow(at: indexPath, animated: false)
-
-        guard let user = chatsViewModel.cellViewModels[indexPath.item].user,
+        
+        let cellVM = self.chatsViewModel.cellViewModels[indexPath.item]
+        
+        guard let user = cellVM.user,
               let memberName = user.name else {return}
         
         let memberID = user.userId
-//        let chat = chatsViewModel.chats[indexPath.item]
-        let chat = chatsViewModel.cellViewModels[indexPath.item].chat
-        let memberPhoto = chatsViewModel.cellViewModels[indexPath.item].otherUserProfileImage.value
+        let chat = cellVM.chat
+        let memberPhoto = cellVM.otherUserProfileImage.value
         
         let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
-        
+        conversationViewModel.updateUnreadMessagesCount = {
+            try await cellVM.fetchUnreadMessagesCount()
+        }
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
 }
