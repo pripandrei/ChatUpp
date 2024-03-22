@@ -105,14 +105,14 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if rootView.containerView.frame.origin.y > 760 {
-                handleCollectionViewOffSet(usingKeyboardSize: keyboardSize, willShow: true)
+                handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
                 isKeyboardHidden = false
             }
         }
     }
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            handleCollectionViewOffSet(usingKeyboardSize: keyboardSize, willShow: false)
+            handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
             isKeyboardHidden = true
         }
     }
@@ -181,6 +181,7 @@ final class ConversationViewController: UIViewController, UITableViewDelegate, U
         UIView.animate(withDuration: 0.2) {
             cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 20)
             self.rootView.tableView.setContentOffset(currentOffSet, animated: false)
+//            self.rootView.tableView.layoutIfNeeded()
         }
     }
     
@@ -304,53 +305,53 @@ extension ConversationViewController {
 
 extension ConversationViewController {
     
-    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect, willShow: Bool) {
-        
-        var content = self.rootView.tableView.contentOffset
-//        content.y = willShow ? content.y + 300 : content.y - 300
-        if willShow {
-            content.y += 300
-        } else {
-            content.y -= 300
-        }
-        
-        UIView.animate(withDuration: 3.0) {
-            self.rootView.tableView.setContentOffset(content, animated: false)
-//            self.view.layoutSubviews()
-//            self.rootView.tableView.layoutIfNeeded()
-        }
-    }
+//    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect, willShow: Bool) {
+//
+//        var content = self.rootView.tableView.contentOffset
+////        content.y = willShow ? content.y + 300 : content.y - 300
+//        if willShow {
+//            content.y += 300
+//        } else {
+//            content.y -= 300
+//        }
+//
+//        UIView.animate(withDuration: 3.0) {
+//            self.rootView.tableView.setContentOffset(content, animated: false)
+////            self.view.layoutSubviews()
+////            self.rootView.tableView.layoutIfNeeded()
+//        }
+//    }
     
-//    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
-//        let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
-//        let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
-//
-//        self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-//
-//        let currentOffSet = rootView.tableView.contentOffset
-//        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
-//
-//        rootView.tableView.setContentOffset(offSet, animated: false)
-//        rootView.tableView.contentInset.top = customCollectionViewInset
-//        rootView.tableView.verticalScrollIndicatorInsets.top = customCollectionViewInset
-//
-//        // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
-//        // Exaplanation:
-//        // while trying to use only view.layoutIfNeeded(),
-//        // cells from top will resize while animate
-//        // Steps to reproduce:
-//        // 1.initiate keyboard
-//        // 2.scroll up
-//        // 3.dismiss keyboard
-//        // Result: cells from top will animate while resizing
-//        // So to ditch this, we use layoutSubviews and layoutIfNeeded
-//
+    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
+        let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
+        let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
+
+        self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+
+        let currentOffSet = rootView.tableView.contentOffset
+        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
+
+        rootView.tableView.setContentOffset(offSet, animated: false)
+        rootView.tableView.contentInset.top = customCollectionViewInset
+        rootView.tableView.verticalScrollIndicatorInsets.top = customCollectionViewInset
+
+        // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
+        // Exaplanation:
+        // while trying to use only view.layoutIfNeeded(),
+        // cells from top will resize while animate
+        // Steps to reproduce:
+        // 1.initiate keyboard
+        // 2.scroll up
+        // 3.dismiss keyboard
+        // Result: cells from top will animate while resizing
+        // So to ditch this, we use layoutSubviews and layoutIfNeeded
+
 //        if keyboardHeight > 0 {
 //            view.layoutSubviews()
 //        } else {
-//            view.layoutIfNeeded()
+            view.layoutIfNeeded()
 //        }
-//    }
+    }
 }
 
 //MARK: - SETUP NAVIGATION BAR ITEMS
