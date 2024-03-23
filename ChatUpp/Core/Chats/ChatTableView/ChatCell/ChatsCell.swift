@@ -7,6 +7,7 @@
 
 import UIKit
 import SkeletonView
+import YYText
 
 class ChatsCell: UITableViewCell {
     
@@ -17,30 +18,7 @@ class ChatsCell: UITableViewCell {
     private var cellViewModel: ChatCellViewModel!
     private var unreadMessagesCountLabel = UILabel()
     
-    func setupUnreadMessagesCountLabel() {
-        addSubview(unreadMessagesCountLabel)
-        
-        unreadMessagesCountLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
-        unreadMessagesCountLabel.font = UIFont(name: "Helvetica", size: 16)
-        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
-        unreadMessagesCountLabel.layer.cornerRadius = 12
-        unreadMessagesCountLabel.textAlignment = .center
-        unreadMessagesCountLabel.clipsToBounds = true
-        unreadMessagesCountLabel.isHidden = true
-        unreadMessagesCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            unreadMessagesCountLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
-            unreadMessagesCountLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
-//            unreadMessagesCountLabel.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
-            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
-            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
-        ])
-    }
-    
-    
 //MARK: - LIFECYCLE
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -71,6 +49,7 @@ class ChatsCell: UITableViewCell {
         setupBinding()
         handleImageSetup()
         
+        unreadMessagesCountLabel.isHidden = true
         self.nameLabel.text = cellViewModel.user?.name
         self.dateLable.adjustsFontSizeToFitWidth = true
         
@@ -78,7 +57,7 @@ class ChatsCell: UITableViewCell {
         self.messageLable.text = message.messageBody
         self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
     
-        guard let unreadMessageCount = cellViewModel.unreadMessageCount.value, cellViewModel.authUser.uid != message.senderId else {return}
+        guard let unreadMessageCount = cellViewModel.unreadMessageCount.value, unreadMessageCount != 0, cellViewModel.authUser.uid != message.senderId else {return}
         unreadMessagesCountLabel.isHidden = false
         self.unreadMessagesCountLabel.text = "\(unreadMessageCount)"
     }
@@ -131,26 +110,74 @@ class ChatsCell: UITableViewCell {
                     return
                 }
                 self.unreadMessagesCountLabel.isHidden = false
+                self.animateUnreadMessageCounterOnReceive()
             }
-//            animateUnreadMessageCounterOnReceive()
         }
     }
     
     //MARK: - Animate new message counter
     
     func animateUnreadMessageCounterOnReceive() {
-        UIView.transition(with:  self.unreadMessagesCountLabel, duration: 0.2, options: .transitionCrossDissolve, animations: {
-            self.unreadMessagesCountLabel.transform = CGAffineTransform(scaleX: 1.54, y: 1.54)
-            self.unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.4254744351, green: 0.9171335101, blue: 0.9273491502, alpha: 1).withAlphaComponent(0.9)
-        },completion: {_ in
-            UIView.transition(with: self.unreadMessagesCountLabel, duration: 0.2, options: .transitionCrossDissolve, animations: {
-                self.unreadMessagesCountLabel.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-                self.unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1).withAlphaComponent(0.9)
-            })
+        UIView.animate(withDuration: 0.2, animations: {
+        }, completion: { _ in
+            UIView.animate(withDuration: 0.09, animations: {
+                self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 5, dy: 0)
+            }) { _ in
+                UIView.animate(withDuration: 0.05, animations: {
+                    self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -10, dy: 0)
+                }) { _ in
+                    UIView.animate(withDuration: 0.05, animations: {
+                        self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 8, dy: 0)
+                    }) { _ in
+                        UIView.animate(withDuration: 0.05, animations: {
+                            self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -6, dy: 0)
+                        }) { _ in
+                            UIView.animate(withDuration: 0.05, animations: {
+                                self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 5, dy: 0)
+                            }) { _ in
+                                UIView.animate(withDuration: 0.05, animations: {
+                                    self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -3, dy: 0)
+                                }) { _ in
+                                    UIView.animate(withDuration: 0.05, animations: {
+                                        self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 1, dy: 0)
+                                    })
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         })
     }
     
 //MARK: - UI SETUP
+    
+    func setupUnreadMessagesCountLabel() {
+        contentView.addSubview(unreadMessagesCountLabel)
+        
+        unreadMessagesCountLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
+        unreadMessagesCountLabel.font = UIFont(name: "Helvetica", size: 16)
+        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
+        unreadMessagesCountLabel.layer.cornerRadius = 12
+        unreadMessagesCountLabel.textAlignment = .center
+        unreadMessagesCountLabel.clipsToBounds = true
+        unreadMessagesCountLabel.layer.masksToBounds = true
+//        unreadMessagesCountLabel.isHidden = true
+        unreadMessagesCountLabel.linesCornerRadius = 8
+        unreadMessagesCountLabel.isSkeletonable = true
+        unreadMessagesCountLabel.skeletonTextLineHeight = .fixed(25)
+        unreadMessagesCountLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
+        
+        unreadMessagesCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            unreadMessagesCountLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
+            unreadMessagesCountLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
+//            unreadMessagesCountLabel.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
+            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
+            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
+        ])
+    }
     
     private func setMessageLable() {
         contentView.addSubview(messageLable)
