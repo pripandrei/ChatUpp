@@ -17,6 +17,8 @@ final class ConversationViewModel {
     private(set) var messages: [Message] = []
     private(set) var cellViewModels: [ConversationCellViewModel] = []
     
+    
+    
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
     var onCellVMLoad: ((IndexPath?) -> Void)?
@@ -36,8 +38,7 @@ final class ConversationViewModel {
     private func createConversation() async {
         let chatId = UUID().uuidString
         let members = [authenticatedUserID, memberID]
-        let unreadMessagesCount = messages.first!.messageSeen ? 0 : 1
-        let chat = Chat(id: chatId, members: members, lastMessage: messages.first!.id, unreadMessages: unreadMessagesCount)
+        let chat = Chat(id: chatId, members: members, lastMessage: messages.first?.id)
         self.conversation = chat
         do {
             try await ChatsManager.shared.createNewChat(chat: chat)
@@ -176,27 +177,6 @@ final class ConversationViewModel {
         }
     }
     
-//    var unreadMessageUpdateTimer: Timer = Timer()
-//    
-//    func shouldSubtractFromUnreadMessageCount() async {
-//        guard let chatID = conversation?.id else { print("chatID is nil") ; return}
-//        self.messageCount -= 1
-//        unreadMessageUpdateTimer.invalidate()
-//        unreadMessageUpdateTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-//                //            print("message count", messageCount)
-//            Task {
-//                do {
-//                    print("unreadMessages count before subtract: ",self.messageCount)
-//                    
-//                    try await ChatsManager.shared.updateChatUnreadMessagesCount(chatID: chatID, shouldIncreaseCount: false, messageCount: self.messageCount)
-//                } catch {
-//                    print("Error updating chat last message:", error.localizedDescription)
-//                }
-//            }
-//        }
-//        unreadMessageUpdateTimer.fire()
-//    }
-    
     private func updateLastMessageFromDBChat(chatID: String?, messageID: String) async {
         guard let chatID = chatID else { print("chatID is nil") ; return}
         do {
@@ -227,6 +207,26 @@ final class ConversationViewModel {
 
 
 
+//    var unreadMessageUpdateTimer: Timer = Timer()
+//
+//    func shouldSubtractFromUnreadMessageCount() async {
+//        guard let chatID = conversation?.id else { print("chatID is nil") ; return}
+//        self.messageCount -= 1
+//        unreadMessageUpdateTimer.invalidate()
+//        unreadMessageUpdateTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+//                //            print("message count", messageCount)
+//            Task {
+//                do {
+//                    print("unreadMessages count before subtract: ",self.messageCount)
+//
+//                    try await ChatsManager.shared.updateChatUnreadMessagesCount(chatID: chatID, shouldIncreaseCount: false, messageCount: self.messageCount)
+//                } catch {
+//                    print("Error updating chat last message:", error.localizedDescription)
+//                }
+//            }
+//        }
+//        unreadMessageUpdateTimer.fire()
+//    }
 
 
 

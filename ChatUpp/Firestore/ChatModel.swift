@@ -34,8 +34,7 @@ struct Chat: Codable {
     
     init(id: String,
          members: [String],
-         lastMessage: String?,
-         unreadMessages: Int
+         lastMessage: String?
     )
     {
         self.id = id

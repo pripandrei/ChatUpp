@@ -78,6 +78,7 @@ final class ChatsViewModel {
             try await cellVM.loadOtherMemberOfChat()
             try await cellVM.loadRecentMessage()
             try await cellVM.fetchImageData()
+            try await cellVM.fetchUnreadMessagesCount()
             reloadCell?()
         }
     }

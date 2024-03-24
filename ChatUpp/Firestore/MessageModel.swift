@@ -109,3 +109,4 @@ struct RecentMessage: Codable {
         try container.encode(timestamp, forKey: .timestamp)    
     }
 }
+

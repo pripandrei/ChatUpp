@@ -24,7 +24,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         case imageSpace
     }
     
-    enum SeenStatusIcon: String {
+    private enum SeenStatusIcon: String {
         case single = "icons8-done-64-6"
         case double = "icons8-double-tick-48-3"
     }
@@ -32,7 +32,6 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     private var mainCellContainerMaxWidthConstraint: NSLayoutConstraint!
     private var messageContainerLeadingConstraint: NSLayoutConstraint!
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
-    //    private var widthConstraint: NSLayoutConstraint!
     
     var mainCellContainer = UIView()
     var messageContainer = YYLabel()
@@ -79,6 +78,9 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         sennStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
         adjustMessagePadding(.initialSpacing)
+        
+        // Layout with no animation to hide resizing animation of cells on keyboard show/hide
+        // or any other table view content offset change
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
         }
@@ -100,13 +102,6 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
             return
         }
         configureImageAttachment(data: viewModel.imageData.value)
-//        if viewModel.imageData.value != nil {
-//            configureImageAttachment(data: viewModel.imageData.value!)
-//            return
-//        } else {
-//            configureImageAttachment()
-//            viewModel.fetchImageData()
-//        }
     }
     
     func configureMessageSeenStatus() {
@@ -228,7 +223,7 @@ extension ConversationCollectionViewCell
         
         let padding: CGFloat = 20.0
         let timestampWidth: CGFloat = timeStamp.intrinsicContentSize.width
-        let seenStatusMarkWidth: CGFloat = 21.0
+        let seenStatusMarkWidth: CGFloat = 24.0
         
         let widthForSide = side == .right ? seenStatusMarkWidth : 0
         
@@ -288,7 +283,7 @@ extension ConversationCollectionViewCell
     private func adjustMessagePadding(_ messagePadding: BubbleMessagePadding) {
         switch messagePadding {
         case .initialSpacing: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 20 + 10)
+        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + sennStatusMark.intrinsicContentSize.width + 15)
         case .outgoingMessageRightSapce: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 15)
         case .bottomSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
         case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
