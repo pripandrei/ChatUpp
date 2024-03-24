@@ -47,11 +47,6 @@ class ChatsViewController: UIViewController {
         self.toggleSkeletonAnimation(.initiate)
     }
     
-//    override func viewDidLayoutSubviews() {
-//        super.viewDidLayoutSubviews()
-//        toggleSkeletonAnimation(.initiate)
-//    }
-    
     deinit {
         print("ChatsVC was DEINITED!==")
     }
@@ -86,7 +81,6 @@ class ChatsViewController: UIViewController {
             }
         }
     }
-    
     
     func toggleSkeletonAnimation(_ value: Skeletonanimation) {
         if value == .initiate {

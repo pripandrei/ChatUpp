@@ -42,6 +42,19 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
+        setupHeader()
+    }
+    
+    func setupHeader() {
+        let headerView = DateHeaderLabel()
+        
+        view.addSubview(headerView)
+//        guard let navigationBarBottomConstraint = navigationController?.navigationBar.bottomAnchor else {return}
+        
+        NSLayoutConstraint.activate([
+            headerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            headerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 100)
+        ])
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -263,28 +276,6 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
     }
 }
 
-extension UIImage {
-    func getAspectRatio() -> CGSize {
-        let (equalWidth, equalHeight) = (250,250)
-        
-        let preferredWidth: Double = 300
-        let preferredHeight: Double = 350
-
-        let aspectRatioForWidth = Double(self.size.width) / Double(self.size.height)
-        let aspectRatioForHeight = Double(self.size.height) / Double(self.size.width)
-
-        if self.size.width > self.size.height {
-            let newHeight = preferredWidth / aspectRatioForWidth
-            return CGSize(width: preferredWidth, height: newHeight)
-        } else if self.size.height > self.size.width {
-            let newWidth = preferredHeight / aspectRatioForHeight
-            return CGSize(width: newWidth, height: preferredHeight)
-        } else {
-            return CGSize(width: equalWidth, height: equalHeight)
-        }
-    }
-}
-
 //MARK: - GESTURES
 
 extension ConversationViewController {
@@ -304,24 +295,6 @@ extension ConversationViewController {
 //MARK: - COLLETION VIEW OFFSET HANDLER
 
 extension ConversationViewController {
-    
-//    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect, willShow: Bool) {
-//
-//        var content = self.rootView.tableView.contentOffset
-////        content.y = willShow ? content.y + 300 : content.y - 300
-//        if willShow {
-//            content.y += 300
-//        } else {
-//            content.y -= 300
-//        }
-//
-//        UIView.animate(withDuration: 3.0) {
-//            self.rootView.tableView.setContentOffset(content, animated: false)
-////            self.view.layoutSubviews()
-////            self.rootView.tableView.layoutIfNeeded()
-//        }
-//    }
-    
     private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
         let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
@@ -368,18 +341,18 @@ extension ConversationViewController
 }
 
 //MARK: - TABLE VIEW DELEGATE
-extension ConversationViewController: UITableViewDelegate {
-
+extension ConversationViewController: UITableViewDelegate
+{
     class DateHeaderLabel: UILabel {
-        
         override init(frame: CGRect) {
             super.init(frame: frame)
             
-            backgroundColor = .black
+            backgroundColor = #colorLiteral(red: 0.176230222, green: 0.3105865121, blue: 0.4180542529, alpha: 1)
             textColor = .white
             textAlignment = .center
             translatesAutoresizingMaskIntoConstraints = false // enables auto layout
             font = UIFont.boldSystemFont(ofSize: 14)
+            text = "11/2/2003"
         }
         
         required init?(coder aDecoder: NSCoder) {
@@ -395,40 +368,16 @@ extension ConversationViewController: UITableViewDelegate {
         }
     }
     
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let label = DateHeaderLabel()
-        label.text = "11/2/2003"
-        
-        let containerView = UIView()
-        
-        containerView.addSubview(label)
-        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        label.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        
-        return containerView
-    }
-    
-//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-//        let headerLabel = UILabel()
-//
-//        headerLabel.text = "10/2/2004"
-//        headerLabel.backgroundColor = .alizarin
-//        headerLabel.textColor = .white
-//        headerLabel.textAlignment = .center
-//        headerLabel.font = UIFont(name: "Helvetica", size: 14)
-//        headerLabel.layer.cornerRadius = 10
-////        headerLabel.clipsToBounds = true
-//        headerLabel.layer.masksToBounds = true
-//
+//    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+//        let label = DateHeaderLabel()
 //
 //        let containerView = UIView()
-//        containerView.addSubview(headerLabel)
+//        containerView.addSubview(label)
 //
-//        NSLayoutConstraint.activate([
-//            headerLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-//            headerLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-//        ])
+//        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+//        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
 //
+//        containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
 //        return containerView
 //    }
 }

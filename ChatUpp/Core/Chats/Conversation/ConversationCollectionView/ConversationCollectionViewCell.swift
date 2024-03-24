@@ -93,23 +93,20 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         timeStamp.text = viewModel.timestamp
         setupBinding()
         adjustMessageSide(side)
-        
-        if side == .right {
-            configureMessageSeenStatus()
-        }
-        
+
         if viewModel.cellMessage.messageBody != "" {
             messageContainer.attributedText = makeAttributedStringForMessage()
             handleMessageBubbleLayout(forSide: side)
             return
         }
-        if viewModel.imageData.value != nil {
-            configureImageAttachment(data: viewModel.imageData.value!)
-            return
-        } else {
-            configureImageAttachment()
-            viewModel.fetchImageData()
-        }
+        configureImageAttachment(data: viewModel.imageData.value)
+//        if viewModel.imageData.value != nil {
+//            configureImageAttachment(data: viewModel.imageData.value!)
+//            return
+//        } else {
+//            configureImageAttachment()
+//            viewModel.fetchImageData()
+//        }
     }
     
     func configureMessageSeenStatus() {
@@ -272,6 +269,8 @@ extension ConversationCollectionViewCell
 
         switch side {
         case .right:
+            configureMessageSeenStatus()
+            
             messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(greaterThanOrEqualTo: mainCellContainer.leadingAnchor)
             messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor, constant: -10)
             messageContainerLeadingConstraint.isActive = true
@@ -301,11 +300,12 @@ extension ConversationCollectionViewCell
 // MARK: - HANDLE IMAGE OF MESSAGE SETUP
 extension ConversationCollectionViewCell {
     
-    private func configureImageAttachment(data: Data? = Data()) {
+    private func configureImageAttachment(data: Data?) {
         if let imageData = data, let image = convertDataToImage(imageData) {
             messageImage = image
         } else {
             messageImage = UIImage()
+            cellViewModel.fetchImageData()
         }
         if let cellImageSize = cellViewModel.cellMessage.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
