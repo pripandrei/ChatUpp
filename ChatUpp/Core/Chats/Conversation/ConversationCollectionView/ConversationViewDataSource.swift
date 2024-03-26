@@ -20,7 +20,6 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return conversationViewModel.cellViewModels[section].count
         return conversationViewModel.cellMessageGroups[section].cellViewModels.count
     }
     

@@ -20,7 +20,7 @@ final class ConversationViewModel {
     private(set) var memberName: String
     private(set) var memberProfileImage: Data?
 //    private(set) var messages: [Message] = []
-    private(set) var cellMessageGroups: [ConversationMessageGroups] = []
+    var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: ListenerRegistration?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid

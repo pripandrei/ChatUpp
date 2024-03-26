@@ -149,9 +149,11 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - MESSAGE BUBBLE CREATION
     private func handleMessageBubbleCreation(messageText: String = "") {
-        let indexPath = IndexPath(item: 0, section: 0)
+        let indexPath = IndexPath(row: 0, section: 0)
 
-        self.conversationViewModel.createMessageBubble(messageText)
+//        self.conversationViewModel.cellMessageGroups.append(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: "", messageBody: "", senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]))
+        
+//        self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
             self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
         }
