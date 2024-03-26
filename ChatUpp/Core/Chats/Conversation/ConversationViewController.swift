@@ -217,7 +217,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool {
-        let cellMessage = conversationViewModel.cellViewModels[indexPath.section][indexPath.row].cellMessage
+//        let cellMessage = conversationViewModel.cellViewModels[indexPath.section][indexPath.row].cellMessage
+        let cellMessage = conversationViewModel.cellMessageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
         if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
@@ -373,7 +374,8 @@ extension ConversationViewController: UITableViewDelegate
 
         let containerView = UIView()
         containerView.addSubview(label)
-        label.text = conversationViewModel.messageGroups[section].date.description
+//        label.text = conversationViewModel.messageGroups[section].date.description
+        label.text = conversationViewModel.cellMessageGroups[section].date.description
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
 

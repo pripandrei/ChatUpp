@@ -16,9 +16,11 @@ final class ConversationViewModel {
     private(set) var memberProfileImage: Data?
     private(set) var messages: [Message] = []
 //    private(set) var cellViewModels: [ConversationCellViewModel] = []
-    private(set) var cellViewModels: [[ConversationCellViewModel]] = [[]]
+//    private(set) var cellViewModels: [[ConversationCellViewModel]] = [[]]
     
-    private(set) var messageGroups: [MessageGroup] = []
+    private(set) var cellMessageGroups: [ConversationMessageGroups] = []
+    
+//    private(set) var messageGroups: [MessageGroup] = []
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
@@ -50,24 +52,30 @@ final class ConversationViewModel {
     }
 
     private func createConversationCellViewModels() -> [[ConversationCellViewModel]] {
-        return messageGroups.map { group in
-            group.messages.map { message in
-                ConversationCellViewModel(cellMessage: message)
+        return cellMessageGroups.map { group in
+            group.cellViewModels.map { cell in
+                ConversationCellViewModel(cellMessage: cell.cellMessage)
             }
         }
     }
     
     func createMessageGroups(_ messages: [Message]) {
+        //TODO: Exclude this if call from insertMssage function (dont need to check, the message is not there)
+//        if self.cellMessageGroups.contains(where: {$0.cellViewModels.contains(where: {$0.cellMessage.id == messages.last?.id})}) {
+//            return
+//        }
         messages.forEach { message in
+            let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+            
             let calendar = Calendar.current
             let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
             let date = calendar.date(from: components)!
             
-            if let index = self.messageGroups.firstIndex(where: {$0.date == date})  {
-                messageGroups[index].messages.append(message)
+            if let index = self.cellMessageGroups.firstIndex(where: {$0.date == date})  {
+                cellMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
             } else {
-                let newGroup = MessageGroup(date: date, messages: [message])
-                messageGroups.append(newGroup)
+                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+                cellMessageGroups.insert(newGroup, at: 0)
             }
         }
     }
@@ -79,7 +87,7 @@ final class ConversationViewModel {
 //                self.messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
                 let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
                 createMessageGroups(messages)
-                self.cellViewModels = createConversationCellViewModels()
+//                self.cellViewModels = createConversationCellViewModels()
                 let indexOfNotSeenMessageToScrollTo = self.findFirstNotSeenMessageIndex()
                 self.onCellVMLoad?(indexOfNotSeenMessageToScrollTo)
 //                delete()
@@ -94,10 +102,15 @@ final class ConversationViewModel {
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
             guard let self = self else {return}
             
-            if self.messageGroups.isEmpty {
+            if self.cellMessageGroups.isEmpty {
                 self.fetchConversationMessages()
                 return
             }
+            
+            // check whethear the current user is the sender of the mssage
+//            if checkIfCellMessageGroupsContainsMessage(messages) {
+//                return
+//            }
             docTypes.enumerated().forEach { index, type in
                 switch type {
                 case .added: self.handleAddedMessage(messages[index])
@@ -105,21 +118,35 @@ final class ConversationViewModel {
                 case .modified: self.handleModifiedMessage(messages[index])
                 }
             }
-            messages.forEach { message in
-                self.handleAddedMessage(message)
-                print("Entered")
-            }
+//            messages.forEach { message in
+//                self.handleAddedMessage(message)
+//                print("Entered")
+//            }
         }
     }
     
+    private func handleAddedMessage(_ message: Message) {
+        if !checkIfCellMessageGroupsContainsMessage([message]) {
+            createMessageGroups([message])
+            self.onNewMessageAdded?()
+        }
+    }
+    
+    private func checkIfCellMessageGroupsContainsMessage(_ messages: [Message]) -> Bool {
+        if self.cellMessageGroups.contains(where: {$0.cellViewModels.contains(where: {$0.cellMessage.id == messages.last?.id})}) {
+            return true
+        }
+        return false
+    }
+    
     private func handleModifiedMessage(_ message: Message) {
-        guard let messageGroupIndex = messageGroups.firstIndex(where: { $0.messages.contains(where: { $0.id == message.id }) }) else {return}
-        guard let messageIndex = messageGroups[messageGroupIndex].messages.firstIndex(where: {$0.id == message.id}) else {return}
+        guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
+        guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
         let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
 //        guard let indexOfMessageToModify = messages.firstIndex(where: {$0.id == message.id}) else {return}
 //        messages[indexOfMessageToModify] = message
         
-        cellViewModels[messageGroupIndex][messageIndex].cellMessage = message
+        cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage = message
 //        cellViewModels[indexOfMessageToModify].cellMessage = message
         messageWasModified?(indexPath)
     }
@@ -128,31 +155,31 @@ final class ConversationViewModel {
 
     }
     
-    private func handleAddedMessage(_ message: Message) {
-        // Check whether message already exists, meaning, you are the sender of it.
-        if self.messageGroups.contains(where: {$0.messages.contains(where: {$0.id == message.id})}) {
-            return
-        }
-        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-        
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
-        let date = calendar.date(from: components)!
-        
-        if let index = self.messageGroups.firstIndex(where: {$0.date == date})  {
-            messageGroups[index].messages.append(message)
-            self.cellViewModels[index].insert(conversationCellVM, at: 0)
-        } else {
-            let newGroup = MessageGroup(date: date, messages: [message])
-            messageGroups.append(newGroup)
-            self.cellViewModels.append([conversationCellVM])
-        }
-        
-//        self.messages.insert(message, at: 0)
-       
-//        self.cellViewModels.insert(conversationCellVM, at: 0)
-//        self.onNewMessageAdded?()
-    }
+//    private func handleAddedMessage(_ message: Message) {
+//        // Check whether message already exists, meaning, you are the sender of it.
+//        if self.messageGroups.contains(where: {$0.messages.contains(where: {$0.id == message.id})}) {
+//            return
+//        }
+//        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+//
+//        let calendar = Calendar.current
+//        let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
+//        let date = calendar.date(from: components)!
+//
+//        if let index = self.messageGroups.firstIndex(where: {$0.date == date})  {
+//            messageGroups[index].messages.append(message)
+//            self.cellViewModels[index].insert(conversationCellVM, at: 0)
+//        } else {
+//            let newGroup = MessageGroup(date: date, messages: [message])
+//            messageGroups.append(newGroup)
+//            self.cellViewModels.append([conversationCellVM])
+//        }
+//
+////        self.messages.insert(message, at: 0)
+//
+////        self.cellViewModels.insert(conversationCellVM, at: 0)
+////        self.onNewMessageAdded?()
+//    }
     
     private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
@@ -186,7 +213,7 @@ final class ConversationViewModel {
     }
     
     private func insertNewMessage(_ message: Message) {
-        handleNewMessageCreation(message)
+        createMessageGroups([message])
         Task {
             if self.conversation == nil {
                 await createConversation()
@@ -196,23 +223,23 @@ final class ConversationViewModel {
         }
     }
     
-    
-    private func handleNewMessageCreation(_ message: Message) {
-        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-        
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
-        let date = calendar.date(from: components)!
-        
-        if let index = self.messageGroups.firstIndex(where: {$0.date == date})  {
-            messageGroups[index].messages.append(message)
-            self.cellViewModels[index].insert(conversationCellVM, at: 0)
-        } else {
-            let newGroup = MessageGroup(date: date, messages: [message])
-            messageGroups.append(newGroup)
-            self.cellViewModels.append([conversationCellVM])
-        }
-    }
+//
+//    private func handleNewMessageCreation(_ message: Message) {
+//        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+//
+//        let calendar = Calendar.current
+//        let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
+//        let date = calendar.date(from: components)!
+//
+//        if let index = self.messageGroups.firstIndex(where: {$0.date == date})  {
+//            messageGroups[index].messages.append(message)
+//            self.cellViewModels[index].insert(conversationCellVM, at: 0)
+//        } else {
+//            let newGroup = MessageGroup(date: date, messages: [message])
+//            messageGroups.append(newGroup)
+//            self.cellViewModels.append([conversationCellVM])
+//        }
+//    }
     
     func createMessageBubble(_ messageText: String) {
         let message = createNewMessage(messageText)
@@ -220,8 +247,12 @@ final class ConversationViewModel {
     }
     
     func handleImageDrop(imageData: Data, size: MessageImageSize) {
-        self.cellViewModels.last?[0].imageData.value = imageData
-        self.cellViewModels.last?[0].cellMessage.imageSize = size
+        self.cellMessageGroups.last?.cellViewModels.last?.imageData.value = imageData
+        self.cellMessageGroups.last?.cellViewModels.last?.cellMessage.imageSize = size
+        
+//        self.cellViewModels.last?[0].imageData.value = imageData
+//        self.cellViewModels.last?[0].cellMessage.imageSize = size
+        
 //        self.cellViewModels[0].imageData.value = imageData
 //        self.cellViewModels[0].cellMessage.imageSize = size
         self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
@@ -229,13 +260,24 @@ final class ConversationViewModel {
     
     private func findFirstNotSeenMessageIndex() -> IndexPath? {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
-        for (index,message) in messages.enumerated() {
-            if !message.messageSeen && message.senderId != authenticatedUserID {
-                indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
-            } else {
-                break
+        
+        cellMessageGroups.forEach { messageGroup in
+            for (index,conversationVM) in messageGroup.cellViewModels.enumerated() {
+                if !conversationVM.cellMessage.messageSeen && conversationVM.cellMessage.senderId != authenticatedUserID {
+                    indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
+                } else {
+                    break
+                }
             }
         }
+        
+//        for (index,message) in cellMessageGroups.enumerated() {
+//            if !message.messageSeen && message.senderId != authenticatedUserID {
+//                indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
+//            } else {
+//                break
+//            }
+//        }
         return indexOfNotSeenMessageToScrollTo
     }
     

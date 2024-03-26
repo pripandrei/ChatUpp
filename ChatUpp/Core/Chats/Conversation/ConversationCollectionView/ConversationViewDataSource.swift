@@ -16,19 +16,21 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return conversationViewModel.messageGroups.count
+        return conversationViewModel.cellMessageGroups.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 //        return conversationViewModel.cellViewModels[section].count
-        return conversationViewModel.messageGroups[section].messages.count
+        return conversationViewModel.cellMessageGroups[section].cellViewModels.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
         
-        let viewModel = conversationViewModel.cellViewModels[indexPath.section][indexPath.row]
-        let message = conversationViewModel.messageGroups[indexPath.section].messages[indexPath.row]
+//        let viewModel = conversationViewModel.cellViewModels[indexPath.section][indexPath.row]
+        let viewModel = conversationViewModel.cellMessageGroups[indexPath.section].cellViewModels[indexPath.row]
+//        let message = conversationViewModel.cellMessageGroups[indexPath.section].messages[indexPath.row]
+        let message = viewModel.cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         let cellSide = message.senderId == authUserID ?
         ConversationCollectionViewCell.BubbleMessageSide.right : ConversationCollectionViewCell.BubbleMessageSide.left
