@@ -11,8 +11,8 @@ import Foundation
 final class ChatsViewModel {
 
     private(set) var chats: [Chat] = []
-    private(set) var otherMembers: [DBUser] = []
-    private(set) var recentMessages: [Message?] = []
+//    private(set) var otherMembers: [DBUser] = []
+//    private(set) var recentMessages: [Message?] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
     
     var onInitialChatsFetched: (() -> Void)?
@@ -109,7 +109,7 @@ final class ChatsViewModel {
         self.chats.removeAll(where: {$0.id == chat.id})
     }
     
-    private func loadRecentMessages(_ chats: [Chat]) async throws -> [Message?]  {
-        try await ChatsManager.shared.getRecentMessageFromChats(chats)
-    }
+//    private func loadRecentMessages(_ chats: [Chat]) async throws -> [Message?]  {
+//        try await ChatsManager.shared.getRecentMessageFromChats(chats)
+//    }
 }

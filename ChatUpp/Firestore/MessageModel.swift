@@ -110,3 +110,13 @@ struct RecentMessage: Codable {
     }
 }
 
+struct MessageGroup {
+    let date: Date
+    var messages: [Message]
+}
+
+
+struct ConversationMessageGroups {
+    let date: Date
+    var cellViewModels: [ConversationCellViewModel]
+}

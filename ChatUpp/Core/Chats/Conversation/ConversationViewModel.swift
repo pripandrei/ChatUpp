@@ -15,16 +15,17 @@ final class ConversationViewModel {
     private(set) var memberName: String
     private(set) var memberProfileImage: Data?
     private(set) var messages: [Message] = []
-    private(set) var cellViewModels: [ConversationCellViewModel] = []
+//    private(set) var cellViewModels: [ConversationCellViewModel] = []
+    private(set) var cellViewModels: [[ConversationCellViewModel]] = [[]]
     
-    
+    private(set) var messageGroups: [MessageGroup] = []
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
     var onCellVMLoad: ((IndexPath?) -> Void)?
     var onNewMessageAdded: (() -> Void)?
     private(set) var messageListener: ListenerRegistration?
-    var messageWasModified: ((Int) -> Void)?
+    var messageWasModified: ((IndexPath) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     
     init(memberID: String ,memberName: String, conversation: Chat? = nil, imageData: Data?) {
@@ -47,40 +48,27 @@ final class ConversationViewModel {
             print("Error creating conversation", error.localizedDescription)
         }
     }
-    
-    private func createConversationCellViewModels() -> [ConversationCellViewModel] {
-        return messages.map { message in
-            ConversationCellViewModel(cellMessage: message)
-        }
-    }
-    
-    private func findFirstNotSeenMessageIndex() -> IndexPath? {
-        var indexOfNotSeenMessageToScrollTo: IndexPath?
-        for (index,message) in messages.enumerated() {
-            if !message.messageSeen && message.senderId != authenticatedUserID {
-                indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
-            } else {
-                break
+
+    private func createConversationCellViewModels() -> [[ConversationCellViewModel]] {
+        return messageGroups.map { group in
+            group.messages.map { message in
+                ConversationCellViewModel(cellMessage: message)
             }
         }
-        return indexOfNotSeenMessageToScrollTo
     }
     
-    private func createCellViewModel(with message: Message) -> ConversationCellViewModel {
-        return ConversationCellViewModel(cellMessage: message)
-    }
-    
-    func saveImage(data: Data, size: CGSize) {
-        guard let conversation = conversation else {return}
-        Task {
-            let (path,name) = try await StorageManager.shared.saveMessageImage(data: data, messageID: messages.first!.id)
-            try await ChatsManager.shared.updateMessageImagePath(messageID: messages.first!.id,
-                                                                 chatDocumentPath: conversation.id,
-                                                                 path: name)
+    func createMessageGroups(_ messages: [Message]) {
+        messages.forEach { message in
+            let calendar = Calendar.current
+            let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
+            let date = calendar.date(from: components)!
             
-            let imageSize = MessageImageSize(width: Int(size.width), height: Int(size.height))
-            try await ChatsManager.shared.updateMessageImageSize(messageID: messages.first!.id, chatDocumentPath: conversation.id, imageSize: imageSize)
-            print("Success saving image: \(path) \(name)")
+            if let index = self.messageGroups.firstIndex(where: {$0.date == date})  {
+                messageGroups[index].messages.append(message)
+            } else {
+                let newGroup = MessageGroup(date: date, messages: [message])
+                messageGroups.append(newGroup)
+            }
         }
     }
     
@@ -88,7 +76,9 @@ final class ConversationViewModel {
         guard let conversation = conversation else {return}
         Task {
             do {
-                self.messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+//                self.messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+                let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+                createMessageGroups(messages)
                 self.cellViewModels = createConversationCellViewModels()
                 let indexOfNotSeenMessageToScrollTo = self.findFirstNotSeenMessageIndex()
                 self.onCellVMLoad?(indexOfNotSeenMessageToScrollTo)
@@ -98,17 +88,16 @@ final class ConversationViewModel {
             }
         }
     }
-
+    
     func addListenerToMessages() {
         guard let conversation = conversation else {return}
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
             guard let self = self else {return}
             
-            if self.messages.isEmpty {
+            if self.messageGroups.isEmpty {
                 self.fetchConversationMessages()
                 return
             }
-            
             docTypes.enumerated().forEach { index, type in
                 switch type {
                 case .added: self.handleAddedMessage(messages[index])
@@ -118,30 +107,51 @@ final class ConversationViewModel {
             }
             messages.forEach { message in
                 self.handleAddedMessage(message)
+                print("Entered")
             }
         }
     }
     
     private func handleModifiedMessage(_ message: Message) {
-        guard let indexOfMessageToModify = messages.firstIndex(where: {$0.id == message.id}) else {return}
-        messages[indexOfMessageToModify] = message
-        cellViewModels[indexOfMessageToModify].cellMessage = message
-        messageWasModified?(indexOfMessageToModify)
+        guard let messageGroupIndex = messageGroups.firstIndex(where: { $0.messages.contains(where: { $0.id == message.id }) }) else {return}
+        guard let messageIndex = messageGroups[messageGroupIndex].messages.firstIndex(where: {$0.id == message.id}) else {return}
+        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
+//        guard let indexOfMessageToModify = messages.firstIndex(where: {$0.id == message.id}) else {return}
+//        messages[indexOfMessageToModify] = message
+        
+        cellViewModels[messageGroupIndex][messageIndex].cellMessage = message
+//        cellViewModels[indexOfMessageToModify].cellMessage = message
+        messageWasModified?(indexPath)
     }
     
     private func handleRemovedMessage(_ message: Message) {
-        
+
     }
     
     private func handleAddedMessage(_ message: Message) {
-//        if self.messages[0].id == message.id {}
-        if self.messages.contains(where: { $0.id == message.id }) {
+        // Check whether message already exists, meaning, you are the sender of it.
+        if self.messageGroups.contains(where: {$0.messages.contains(where: {$0.id == message.id})}) {
             return
         }
-        self.messages.insert(message, at: 0)
         let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-        self.cellViewModels.insert(conversationCellVM, at: 0)
-        self.onNewMessageAdded?()
+        
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
+        let date = calendar.date(from: components)!
+        
+        if let index = self.messageGroups.firstIndex(where: {$0.date == date})  {
+            messageGroups[index].messages.append(message)
+            self.cellViewModels[index].insert(conversationCellVM, at: 0)
+        } else {
+            let newGroup = MessageGroup(date: date, messages: [message])
+            messageGroups.append(newGroup)
+            self.cellViewModels.append([conversationCellVM])
+        }
+        
+//        self.messages.insert(message, at: 0)
+       
+//        self.cellViewModels.insert(conversationCellVM, at: 0)
+//        self.onNewMessageAdded?()
     }
     
     private func createNewMessage(_ messageBody: String) -> Message {
@@ -166,17 +176,6 @@ final class ConversationViewModel {
         }
     }
     
-    private func insertNewMessage(_ message: Message) {
-        messages.insert(message, at: 0)
-        Task {
-            if self.conversation == nil {
-                await createConversation()
-            }
-            await addMessageToDB(message)
-            await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: message.id)
-        }
-    }
-    
     private func updateLastMessageFromDBChat(chatID: String?, messageID: String) async {
         guard let chatID = chatID else { print("chatID is nil") ; return}
         do {
@@ -186,17 +185,83 @@ final class ConversationViewModel {
         }
     }
     
+    private func insertNewMessage(_ message: Message) {
+        handleNewMessageCreation(message)
+        Task {
+            if self.conversation == nil {
+                await createConversation()
+            }
+            await addMessageToDB(message)
+            await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: message.id)
+        }
+    }
+    
+    
+    private func handleNewMessageCreation(_ message: Message) {
+        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+        
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
+        let date = calendar.date(from: components)!
+        
+        if let index = self.messageGroups.firstIndex(where: {$0.date == date})  {
+            messageGroups[index].messages.append(message)
+            self.cellViewModels[index].insert(conversationCellVM, at: 0)
+        } else {
+            let newGroup = MessageGroup(date: date, messages: [message])
+            messageGroups.append(newGroup)
+            self.cellViewModels.append([conversationCellVM])
+        }
+    }
+    
     func createMessageBubble(_ messageText: String) {
         let message = createNewMessage(messageText)
         insertNewMessage(message)
-        cellViewModels.insert(createCellViewModel(with: message), at: 0)
     }
     
     func handleImageDrop(imageData: Data, size: MessageImageSize) {
-        self.cellViewModels[0].imageData.value = imageData
-        self.cellViewModels[0].cellMessage.imageSize = size
+        self.cellViewModels.last?[0].imageData.value = imageData
+        self.cellViewModels.last?[0].cellMessage.imageSize = size
+//        self.cellViewModels[0].imageData.value = imageData
+//        self.cellViewModels[0].cellMessage.imageSize = size
         self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
     }
+    
+    private func findFirstNotSeenMessageIndex() -> IndexPath? {
+        var indexOfNotSeenMessageToScrollTo: IndexPath?
+        for (index,message) in messages.enumerated() {
+            if !message.messageSeen && message.senderId != authenticatedUserID {
+                indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
+            } else {
+                break
+            }
+        }
+        return indexOfNotSeenMessageToScrollTo
+    }
+    
+    func saveImage(data: Data, size: CGSize) {
+        guard let conversation = conversation else {return}
+        Task {
+            let (path,name) = try await StorageManager.shared.saveMessageImage(data: data, messageID: messages.first!.id)
+            try await ChatsManager.shared.updateMessageImagePath(messageID: messages.first!.id,
+                                                                 chatDocumentPath: conversation.id,
+                                                                 path: name)
+            
+            let imageSize = MessageImageSize(width: Int(size.width), height: Int(size.height))
+            try await ChatsManager.shared.updateMessageImageSize(messageID: messages.first!.id, chatDocumentPath: conversation.id, imageSize: imageSize)
+            print("Success saving image: \(path) \(name)")
+        }
+    }
+    
+    //    private func createConversationCellViewModels() -> [ConversationCellViewModel] {
+    //        return messages.map { message in
+    //            ConversationCellViewModel(cellMessage: message)
+    //        }
+    //    }
+//
+//    private func createCellViewModel(with message: Message) -> ConversationCellViewModel {
+//        return ConversationCellViewModel(cellMessage: message)
+//    }
     
     //    func delete() {
     //        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)

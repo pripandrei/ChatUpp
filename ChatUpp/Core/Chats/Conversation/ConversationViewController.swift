@@ -4,9 +4,9 @@
 //
 //  Created by Andrei Pripa on 10/3/23.
 
-// IMPORTANT: TABLE VIEW FLOW LAYOUT IS INVERTED (BOTTOM => TOP),
+// IMPORTANT: TABLE VIEW IS INVERTED, UPSIDE DOWN (BOTTOM => TOP),
 // THEREFORE, SOME PROPERTIES AND ADJUSTMENTS WERE MADE AND SET AS BOTTOM => TOP.
-// KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST COLLECTION VIEW FLOW
+// KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST TABLE VIEW
 
 import UIKit
 import Photos
@@ -101,9 +101,9 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 self?.handleContentMessageOffset(with: indexPath, scrollToBottom: false)
             }
         }
-        conversationViewModel.messageWasModified = { index in
+        conversationViewModel.messageWasModified = { indexPath in
             Task { @MainActor in
-                let indexPath = IndexPath(item: index, section: 0)
+//                let indexPath = IndexPath(item: index, section: 0)
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
                 self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
             }
@@ -217,7 +217,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool {
-        let cellMessage = conversationViewModel.cellViewModels[indexPath.item].cellMessage
+        let cellMessage = conversationViewModel.cellViewModels[indexPath.section][indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
         if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
@@ -368,16 +368,16 @@ extension ConversationViewController: UITableViewDelegate
         }
     }
     
-//    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-//        let label = DateHeaderLabel()
-//
-//        let containerView = UIView()
-//        containerView.addSubview(label)
-//
-//        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-//        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-//
-//        containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
-//        return containerView
-//    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let label = DateHeaderLabel()
+
+        let containerView = UIView()
+        containerView.addSubview(label)
+        label.text = conversationViewModel.messageGroups[section].date.description
+        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+
+        containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
+        return containerView
+    }
 }

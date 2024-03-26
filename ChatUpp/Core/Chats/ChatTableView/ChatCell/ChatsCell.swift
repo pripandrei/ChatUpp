@@ -50,7 +50,7 @@ class ChatsCell: UITableViewCell {
         handleImageSetup()
         
         unreadMessagesCountLabel.isHidden = true
-        self.nameLabel.text = cellViewModel.user?.name
+        self.nameLabel.text = cellViewModel.member?.name
         self.dateLable.adjustsFontSizeToFitWidth = true
         
         guard let message = cellViewModel.recentMessage.value else {return}
@@ -64,7 +64,7 @@ class ChatsCell: UITableViewCell {
     
     private func handleImageSetup()
     {
-        guard let imageData = cellViewModel.otherUserProfileImage.value else { return }
+        guard let imageData = cellViewModel.memberProfileImage.value else { return }
         setImage(imageData)
     }
     
@@ -79,7 +79,7 @@ class ChatsCell: UITableViewCell {
 //MARK: - BINDING
     
     private func setupBinding() {
-        cellViewModel.otherUserProfileImage.bind { [weak self, url = cellViewModel.user?.photoUrl] data in
+        cellViewModel.memberProfileImage.bind { [weak self, url = cellViewModel.member?.photoUrl] data in
             if let imageData = data {
 //                if self?.cellViewModel.userProfilePhotoURL == url {
                     self?.setImage(imageData)
@@ -96,7 +96,7 @@ class ChatsCell: UITableViewCell {
         }
         cellViewModel.onUserModified = {
             Task{ @MainActor in
-                self.nameLabel.text = self.cellViewModel.user?.name
+                self.nameLabel.text = self.cellViewModel.member?.name
             }
         }
         cellViewModel.unreadMessageCount.bind { [weak self] count in

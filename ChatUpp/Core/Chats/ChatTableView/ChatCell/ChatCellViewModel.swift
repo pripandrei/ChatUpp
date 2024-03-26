@@ -10,8 +10,8 @@ import Firebase
 
 class ChatCellViewModel {
     
-    private(set) var user: DBUser?
-    var otherUserProfileImage: ObservableObject<Data?> = ObservableObject(nil)
+    private(set) var member: DBUser?
+    var memberProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     var recentMessage: ObservableObject<Message?> = ObservableObject(nil)
     var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
@@ -39,8 +39,8 @@ class ChatCellViewModel {
     func updateUser(_ modifiedUserID: String) async {
         do {
             let updatedUser = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
-            self.user = updatedUser
-            self.otherUserProfileImage.value = try await self.fetchImageData()
+            self.member = updatedUser
+            self.memberProfileImage.value = try await self.fetchImageData()
             self.onUserModified?()
         } catch {
             print("Error updating user while listening: ", error.localizedDescription)
@@ -51,7 +51,7 @@ class ChatCellViewModel {
     func loadOtherMemberOfChat() async throws -> DBUser? {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else { return nil }
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
-        self.user = member
+        self.member = member
         return member
     }
     
@@ -64,10 +64,10 @@ class ChatCellViewModel {
     
     @discardableResult
     func fetchImageData() async throws -> Data? {
-        guard let user = self.user,
-              let userProfilePhotoURL = self.user?.photoUrl else { print("Could not get User data to fetch imageData") ; return nil }
+        guard let user = self.member,
+              let userProfilePhotoURL = self.member?.photoUrl else { print("Could not get User data to fetch imageData") ; return nil }
         let photoData = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
-        self.otherUserProfileImage.value = photoData
+        self.memberProfileImage.value = photoData
         return photoData
     }
     
@@ -80,12 +80,12 @@ class ChatCellViewModel {
     
     func fetchUserData() async throws -> (DBUser?, Message?, Data?) {
         let member = try await loadOtherMemberOfChat()
-        self.user = member
+        self.member = member
         let recentMessage = try await loadRecentMessage()
         self.recentMessage.value = recentMessage
         let imageData = try await fetchImageData()
 
-        self.otherUserProfileImage.value = imageData
+        self.memberProfileImage.value = imageData
 
         return (member,recentMessage,imageData)
     }
