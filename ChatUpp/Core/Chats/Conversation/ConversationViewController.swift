@@ -150,7 +150,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     //MARK: - MESSAGE BUBBLE CREATION
     private func handleMessageBubbleCreation(messageText: String = "") {
         let indexPath = IndexPath(item: 0, section: 0)
-        
+
         self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
             self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
@@ -381,5 +381,9 @@ extension ConversationViewController: UITableViewDelegate
 
         containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
         return containerView
+    }
+
+    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+        false
     }
 }

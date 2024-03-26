@@ -10,11 +10,16 @@ import FirebaseFirestore
 
 final class ConversationViewModel {
     
+    struct ConversationMessageGroups {
+        let date: Date
+        var cellViewModels: [ConversationCellViewModel]
+    }
+    
     private(set) var conversation: Chat?
     private(set) var memberID: String
     private(set) var memberName: String
     private(set) var memberProfileImage: Data?
-    private(set) var messages: [Message] = []
+//    private(set) var messages: [Message] = []
     private(set) var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: ListenerRegistration?
     
@@ -54,7 +59,7 @@ final class ConversationViewModel {
         }
     }
     
-    func createMessageGroups(_ messages: [Message]) {
+    private func createMessageGroups(_ messages: [Message]) {
         messages.forEach { message in
             let conversationCellVM = ConversationCellViewModel(cellMessage: message)
             
@@ -180,12 +185,6 @@ final class ConversationViewModel {
         insertNewMessage(message)
     }
     
-    func handleImageDrop(imageData: Data, size: MessageImageSize) {
-        self.cellMessageGroups.first?.cellViewModels.first?.imageData.value = imageData
-        self.cellMessageGroups.first?.cellViewModels.first?.cellMessage.imageSize = size
-        self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
-    }
-    
     private func findFirstNotSeenMessageIndex() -> IndexPath? {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
         
@@ -199,6 +198,12 @@ final class ConversationViewModel {
             }
         }
         return indexOfNotSeenMessageToScrollTo
+    }
+    
+    func handleImageDrop(imageData: Data, size: MessageImageSize) {
+        self.cellMessageGroups.first?.cellViewModels.first?.imageData.value = imageData
+        self.cellMessageGroups.first?.cellViewModels.first?.cellMessage.imageSize = size
+        self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
     }
     
     func saveImage(data: Data, size: CGSize) {
@@ -215,21 +220,9 @@ final class ConversationViewModel {
             print("Success saving image: \(path) \(name)")
         }
     }
-    
-    //    private func createConversationCellViewModels() -> [ConversationCellViewModel] {
-    //        return messages.map { message in
-    //            ConversationCellViewModel(cellMessage: message)
-    //        }
-    //    }
-//
-//    private func createCellViewModel(with message: Message) -> ConversationCellViewModel {
-//        return ConversationCellViewModel(cellMessage: message)
-//    }
-    
-    //    func delete() {
-    //        ChatsManager.shared.testDeleteLastDocuments(documentPath: conversation.id)
-    //    }
 }
+
+
 
 
 
