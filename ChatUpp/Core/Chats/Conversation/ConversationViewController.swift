@@ -42,7 +42,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
-        setupHeader()
+//        setupHeader()
     }
     
     func setupHeader() {
@@ -151,11 +151,27 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func handleMessageBubbleCreation(messageText: String = "") {
         let indexPath = IndexPath(row: 0, section: 0)
 
-//        self.conversationViewModel.cellMessageGroups.append(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: "ewrewr23423424", messageBody: "HEYY!", senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]))
+//        self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: "ewrewr23423424", messageBody: "HEYY!", senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
         
         self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
             self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+        // Cast the view as UITableViewHeaderFooterView
+//        guard let header = view as? UIView else { return }
+        if section == 0 {
+            // Initial appearance (optional)
+            view.alpha = 0.0
+            
+            // Perform animation
+            view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -20)
+            UIView.animate(withDuration: 0.2) {
+                view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 20)
+                view.alpha = 1.0
+            }
         }
     }
     //MARK: - MESSAGE BUBBLE LAYOUT
@@ -170,23 +186,27 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
         
         if !scrollToBottom && contentIsScrolled {
-            self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+            UIView.animate(withDuration: 0.0) {
+                self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+                self.rootView.tableView.reloadData()
+            }
             return
         } else {
             UIView.performWithoutAnimation {
-                //                self.rootView.tableView.reloadData()
-//                if self.rootView.tableView.visibleCells.isEmpty {
-//                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-//                } else {
-                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-//                }
-//                self.rootView.tableView.reloadData()
+                if self.rootView.tableView.visibleCells.isEmpty {
+                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+                    self.rootView.tableView.reloadData()
+                } else {
+                    self.rootView.tableView.reloadData()
+                }
             }
         }
         
         // Schedules scrolling execution in order for proper animation scrolling
         DispatchQueue.main.async {
-            self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
+            if scrollToBottom {
+                self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
+            }
         }
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
@@ -194,7 +214,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
         
         cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: -20)
-        
+
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
         self.rootView.tableView.setContentOffset(offSet, animated: false)
     
