@@ -98,13 +98,15 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         conversationViewModel.onNewMessageAdded = { [weak self] in
             Task { @MainActor in
                 let indexPath = IndexPath(row: 0, section: 0)
-                self?.handleContentMessageOffset(with: indexPath, scrollToBottom: false)
+                self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
             }
         }
         conversationViewModel.messageWasModified = { indexPath in
             Task { @MainActor in
 //                let indexPath = IndexPath(item: index, section: 0)
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
+                
+                //TODO: MANAGE THIS WHEN MESSAGE MODIFICATION FEATURE WILL BE ADDED
 //                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
             }
         }
@@ -151,39 +153,36 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func handleMessageBubbleCreation(messageText: String = "") {
         let indexPath = IndexPath(row: 0, section: 0)
 
-//        self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: messageText, messageBody: messageText, senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
+// self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: messageText, messageBody: messageText, senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
         
         self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
-            self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
+            self.handleTableViewCellInsertion(with: indexPath, scrollToBottom: true)
         }
+    }
+
+    //MARK: - HANDLE CELL MESSAGE INSERTION
+    private func handleTableViewCellInsertion(with indexPath: IndexPath, scrollToBottom: Bool)
+    {
+        handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
+        
+        // Schedules scrolling execution in order for proper animation scrolling
+        DispatchQueue.main.async {
+            if scrollToBottom {self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)}
+        }
+        setCellOffset(cellIndexPath: indexPath)
     }
     
-    func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
-        // Cast the view as UITableViewHeaderFooterView
-//        guard let header = view as? UIView else { return }
-        if section == 0 {
-            // Initial appearance (optional)
-            view.alpha = 0.0
-
-            // Perform animation
-            view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -20)
-            UIView.animate(withDuration: 0.3) {
-                view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 20)
-                view.alpha = 1.0
-            }
-        }
-    }
-    //MARK: - MESSAGE BUBBLE LAYOUT
-    private func handleContentMessageOffset(with indexPath: IndexPath, scrollToBottom: Bool)
-    {
-        // We disable insertion animation because we need to both animate
-        // insertion of message and scroll to bottom at the same time.
-        // If we dont do this, conflict occurs and results in glitches
-        // Instead we will animate contentOffset
-        
+    func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
         let currentOffSet = self.rootView.tableView.contentOffset
         let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
+        
+        // We disable insertion animation, in else block, because we need to both
+        // animate insertion of message and scroll to bottom at the same time.
+        // If we dont do this, conflict occurs and results in glitches
+        // Instead we will animate contentOffset
+        // This is not the case if table content is scrolled,
+        // meaning, cell is not visible
         
         if !scrollToBottom && contentIsScrolled {
             UIView.animate(withDuration: 0.0) {
@@ -197,36 +196,26 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                     self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
                     self.rootView.tableView.reloadData()
                 } else {
-//                    self.rootView.tableView.performBatchUpdates ({
 //                        self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-                        self.rootView.tableView.reloadData()
-//                        self.rootView.tableView.layoutIfNeeded()
-//                    }) { _ in
-////                        self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-//                    }
+                    self.rootView.tableView.reloadData()
                 }
             }
         }
-        
-        // Schedules scrolling execution in order for proper animation scrolling
-        DispatchQueue.main.async {
-            if scrollToBottom {
-                self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
-            }
-        }
-        // Offset collection view content by cells (message) height contentSize
-        // without animation, so that cell appears under the textView
-        
+    }
+    
+    func setCellOffset(cellIndexPath indexPath: IndexPath) {
+        let currentOffSet = self.rootView.tableView.contentOffset
         guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
         
-//        cell.transform = CGAffineTransform(translationX: 0, y: -40)
+        // Offset collection view content by cells (message) height contentSize
+        // without animation, so that cell appears under the textView
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
         self.rootView.tableView.setContentOffset(offSet, animated: false)
         cell.frame.origin.y = -40
+        
         // Animate collection content back so that the cell (message) will go up
         UIView.animate(withDuration: 0.3, delay: 0.1) {
             cell.frame.origin.y = 0
-//            cell.transform = CGAffineTransform(translationX: 0, y: 0)
             self.rootView.tableView.setContentOffset(currentOffSet, animated: false)
         }
     }
@@ -250,7 +239,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool {
-//        let cellMessage = conversationViewModel.cellViewModels[indexPath.section][indexPath.row].cellMessage
         let cellMessage = conversationViewModel.cellMessageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
@@ -288,7 +276,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 }
 
 //MARK: - PHOTO PICKER CONTROLLER DELEGATE
-
 extension ConversationViewController: PHPickerViewControllerDelegate {
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
@@ -311,7 +298,6 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
 }
 
 //MARK: - GESTURES
-
 extension ConversationViewController {
     
     private func setTepGesture() {
@@ -327,7 +313,6 @@ extension ConversationViewController {
 }
 
 //MARK: - COLLETION VIEW OFFSET HANDLER
-
 extension ConversationViewController {
     private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
@@ -384,11 +369,10 @@ extension ConversationViewController: UITableViewDelegate
             backgroundColor = #colorLiteral(red: 0.176230222, green: 0.3105865121, blue: 0.4180542529, alpha: 1)
             textColor = .white
             textAlignment = .center
-            translatesAutoresizingMaskIntoConstraints = false // enables auto layout
+            translatesAutoresizingMaskIntoConstraints = false
             font = UIFont.boldSystemFont(ofSize: 14)
-            text = "11/2/2003"
         }
-        
+
         required init?(coder aDecoder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
@@ -404,18 +388,30 @@ extension ConversationViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         let label = DateHeaderLabel()
-
+        
         let containerView = UIView()
         containerView.addSubview(label)
-//        label.text = conversationViewModel.messageGroups[section].date.description
+        //        label.text = conversationViewModel.messageGroups[section].date.description
         label.text = conversationViewModel.cellMessageGroups[section].date.description
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-
+        
         containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
         return containerView
     }
+    
+    func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+        if section == 0 {
+            view.alpha = 0.0
 
+            view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -20)
+            UIView.animate(withDuration: 0.3) {
+                view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 20)
+                view.alpha = 1.0
+            }
+        }
+    }
+    
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         false
     }

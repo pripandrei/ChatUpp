@@ -140,18 +140,7 @@ final class ConversationViewModel {
     
     private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
-        
-        var currentDate = Date()
-
-        // Calculate tomorrow's date
-        if let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: currentDate) {
-            // Assign tomorrow's date to a variable
-            currentDate = tomorrow
-            print("Tomorrow's date is: \(currentDate)")
-        } else {
-            print("Error calculating tomorrow's date.")
-        }
-        
+    
         return Message(id: messageID,
                        messageBody: messageBody,
                        senderId: authenticatedUserID,
