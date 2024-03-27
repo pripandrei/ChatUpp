@@ -395,6 +395,8 @@ extension ConversationViewController: UITableViewDelegate
         label.text = conversationViewModel.cellMessageGroups[section].date.description
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        label.topAnchor.constraint(equalTo: containerView.topAnchor,constant: 12).isActive = true
+        label.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,constant: -12).isActive = true
         
         containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
         return containerView
