@@ -105,7 +105,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             Task { @MainActor in
 //                let indexPath = IndexPath(item: index, section: 0)
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
-                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+//                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
             }
         }
     }
@@ -162,17 +162,17 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
         // Cast the view as UITableViewHeaderFooterView
 //        guard let header = view as? UIView else { return }
-        if section == 0 {
-            // Initial appearance (optional)
-            view.alpha = 0.0
-            
-            // Perform animation
-            view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -20)
-            UIView.animate(withDuration: 0.2) {
-                view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 20)
-                view.alpha = 1.0
-            }
-        }
+//        if section == 0 {
+//            // Initial appearance (optional)
+//            view.alpha = 0.0
+//
+//            // Perform animation
+//            view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -20)
+//            UIView.animate(withDuration: 0.2) {
+//                view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 20)
+//                view.alpha = 1.0
+//            }
+//        }
     }
     //MARK: - MESSAGE BUBBLE LAYOUT
     private func handleContentMessageOffset(with indexPath: IndexPath, scrollToBottom: Bool)
@@ -197,6 +197,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                     self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
                     self.rootView.tableView.reloadData()
                 } else {
+                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
                     self.rootView.tableView.reloadData()
                 }
             }
@@ -213,15 +214,17 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         
         guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
         
-        cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: -20)
-
+        cell.frame.origin.y = -40
+//        cell.transform = CGAffineTransform(translationX: 0, y: -40)
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
         self.rootView.tableView.setContentOffset(offSet, animated: false)
     
         // Animate collection content back so that the cell (message) will go up
-        UIView.animate(withDuration: 0.2) {
-            cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 20)
+        UIView.animate(withDuration: 1.3, delay: 0.0) {
+            cell.frame.origin.y = 0
+//            cell.transform = CGAffineTransform(translationX: 0, y: 0)
             self.rootView.tableView.setContentOffset(currentOffSet, animated: false)
+//            self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
 //            self.rootView.tableView.layoutIfNeeded()
         }
     }
@@ -415,3 +418,70 @@ extension ConversationViewController: UITableViewDelegate
         false
     }
 }
+
+
+
+
+
+//
+//private func handleContentMessageOffset(with indexPath: IndexPath, scrollToBottom: Bool)
+//{
+//    // We disable insertion animation because we need to both animate
+//    // insertion of message and scroll to bottom at the same time.
+//    // If we dont do this, conflict occurs and results in glitches
+//    // Instead we will animate contentOffset
+//
+//    let currentOffSet = self.rootView.tableView.contentOffset
+//    let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
+//
+//    if !scrollToBottom && contentIsScrolled {
+//        UIView.animate(withDuration: 0.0) {
+//            self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+//            self.rootView.tableView.reloadData()
+//        }
+//        return
+//    } else {
+////            UIView.performWithoutAnimation {
+////                if self.rootView.tableView.visibleCells.isEmpty {
+////                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+////                    self.rootView.tableView.reloadData()
+////                } else {
+//////                    self.rootView.tableView.reloadData()
+//////                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+////                    self.rootView.tableView.reloadSections(IndexSet(integer: 0), with: .none)
+//////                    self.rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
+////                }
+////            }
+//        UIView.animate(withDuration: 0.0) {
+//            self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+//            self.rootView.tableView.reloadData()
+//        }
+//    }
+//
+//    // Schedules scrolling execution in order for proper animation scrolling
+//    DispatchQueue.main.async {
+//        if scrollToBottom {
+////                self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
+//        }
+//    }
+//    // Offset collection view content by cells (message) height contentSize
+//    // without animation, so that cell appears under the textView
+//
+//    guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
+//
+//    cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: -50)
+//
+//    let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
+////        self.rootView.tableView.setContentOffset(offSet, animated: false)
+//
+//    // Animate collection content back so that the cell (message) will go up
+//
+//    UIView.animate(withDuration: 2.2, delay: 0.0, options: .curveLinear, animations: {
+//        cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 50)
+////            self.rootView.tableView.setContentOffset(currentOffSet, animated: false)
+//       //            self.rootView.tableView.layoutIfNeeded()
+//    })
+////        UIView.transition(with: cell, duration: 2.2, animations: {
+////            cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 50)
+////        })
+//}
