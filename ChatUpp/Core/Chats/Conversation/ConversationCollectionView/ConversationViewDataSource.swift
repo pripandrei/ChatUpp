@@ -14,7 +14,7 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
         self.conversationViewModel = conversationViewModel
         super.init()
     }
-    
+//
     func numberOfSections(in tableView: UITableView) -> Int {
         return conversationViewModel.cellMessageGroups.count
     }

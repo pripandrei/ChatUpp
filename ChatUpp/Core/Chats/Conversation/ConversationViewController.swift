@@ -151,9 +151,9 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func handleMessageBubbleCreation(messageText: String = "") {
         let indexPath = IndexPath(row: 0, section: 0)
 
-//        self.conversationViewModel.cellMessageGroups.append(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: "", messageBody: "", senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]))
+//        self.conversationViewModel.cellMessageGroups.append(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: "ewrewr23423424", messageBody: "HEYY!", senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]))
         
-//        self.conversationViewModel.createMessageBubble(messageText)
+        self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
             self.handleContentMessageOffset(with: indexPath, scrollToBottom: true)
         }
@@ -174,7 +174,13 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             return
         } else {
             UIView.performWithoutAnimation {
-                self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+                //                self.rootView.tableView.reloadData()
+//                if self.rootView.tableView.visibleCells.isEmpty {
+//                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+//                } else {
+                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+//                }
+//                self.rootView.tableView.reloadData()
             }
         }
         
