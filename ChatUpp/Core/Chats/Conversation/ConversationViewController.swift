@@ -21,6 +21,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private var rootView = ConversationViewControllerUI()
     
     private var isKeyboardHidden: Bool = true
+    private var isNewSectionAdded: Bool = false
     
     //MARK: - LIFECYCLE
     convenience init(conversationViewModel: ConversationViewModel) {
@@ -153,15 +154,14 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func handleMessageBubbleCreation(messageText: String = "") {
         let indexPath = IndexPath(row: 0, section: 0)
         
-        self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: messageText, messageBody: messageText, senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
+//        self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: messageText, messageBody: messageText, senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
         
-        //        self.conversationViewModel.createMessageBubble(messageText)
+                self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
             self.handleTableViewCellInsertion(with: indexPath, scrollToBottom: true)
         }
     }
     
-    var isNewSectionAdded: Bool = false
     //MARK: - HANDLE CELL MESSAGE INSERTION
     private func handleTableViewCellInsertion(with indexPath: IndexPath, scrollToBottom: Bool)
     {
@@ -176,15 +176,13 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         isNewSectionAdded = false
     }
     
-
-    
     func handleSectionAnimation() {
         guard let footerView = rootView.tableView.footerView(forSection: 0) else {return}
         
         footerView.alpha = 0.0
-        footerView.frame = footerView.frame.offsetBy(dx: footerView.frame.origin.x, dy: -20)
+        footerView.frame = footerView.frame.offsetBy(dx: footerView.frame.origin.x, dy: -30)
         UIView.animate(withDuration: 0.3) {
-            footerView.frame = footerView.frame.offsetBy(dx: footerView.frame.origin.x, dy: 20)
+            footerView.frame = footerView.frame.offsetBy(dx: footerView.frame.origin.x, dy: 30)
             footerView.alpha = 1.0
         }
     }
@@ -406,20 +404,20 @@ extension ConversationViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let label = DateHeaderLabel()
         
+        let label = DateHeaderLabel()
         let containerView = UIView()
-//        containerView.contentView.backgroundColor = .clear
+        
         containerView.addSubview(label)
-        //        label.text = conversationViewModel.messageGroups[section].date.description
-        label.text = conversationViewModel.cellMessageGroups[section].date.description
+        
+        let dateForSection = conversationViewModel.cellMessageGroups[section].date
+        label.text = dateForSection.formatToYearMonthDayCustomString()
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         label.topAnchor.constraint(equalTo: containerView.topAnchor,constant: 10).isActive = true
         label.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,constant: -10).isActive = true
         
         containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
-//        tableView.tableFooterView = containerView
         return containerView
     }
     
@@ -427,9 +425,9 @@ extension ConversationViewController: UITableViewDelegate
         if isNewSectionAdded && section == 0 {
             view.alpha = 0.0
             
-            view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -20)
+            view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -30)
             UIView.animate(withDuration: 0.3) {
-                view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 20)
+                view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 30)
                 view.alpha = 1.0
             }
         }

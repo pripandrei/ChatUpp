@@ -63,10 +63,8 @@ final class ConversationViewModel {
         messages.forEach { message in
             let conversationCellVM = ConversationCellViewModel(cellMessage: message)
             
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.year,.month,.day], from: message.timestamp)
-            let date = calendar.date(from: components)!
-            
+            guard let date = message.timestamp.formatToYearMonthDay() else {return}
+
             if let index = self.cellMessageGroups.firstIndex(where: {$0.date == date})  {
                 cellMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
             } else {
