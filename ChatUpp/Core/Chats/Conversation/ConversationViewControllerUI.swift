@@ -27,6 +27,7 @@ final class ConversationViewControllerUI: UIView {
         tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -10, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle = .none
         tableView.register(ConversationCollectionViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationMessageCell)
+        tableView.sectionHeaderTopPadding = 0
         return tableView
     }()
     

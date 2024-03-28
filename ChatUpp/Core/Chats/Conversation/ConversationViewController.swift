@@ -152,25 +152,48 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     //MARK: - MESSAGE BUBBLE CREATION
     private func handleMessageBubbleCreation(messageText: String = "") {
         let indexPath = IndexPath(row: 0, section: 0)
-
-// self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: messageText, messageBody: messageText, senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
         
-        self.conversationViewModel.createMessageBubble(messageText)
+        self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: messageText, messageBody: messageText, senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
+        
+        //        self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
             self.handleTableViewCellInsertion(with: indexPath, scrollToBottom: true)
         }
     }
-
+    
+    var isNewSectionAdded: Bool = false
     //MARK: - HANDLE CELL MESSAGE INSERTION
     private func handleTableViewCellInsertion(with indexPath: IndexPath, scrollToBottom: Bool)
     {
+        isNewSectionAdded = checkIfNewSectionWasAdded()
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-        
+//        if isNewSectionAdded {handleSectionAnimation()}
         // Schedules scrolling execution in order for proper animation scrolling
         DispatchQueue.main.async {
             if scrollToBottom {self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)}
         }
         setCellOffset(cellIndexPath: indexPath)
+        isNewSectionAdded = false
+    }
+    
+
+    
+    func handleSectionAnimation() {
+        guard let footerView = rootView.tableView.footerView(forSection: 0) else {return}
+        
+        footerView.alpha = 0.0
+        footerView.frame = footerView.frame.offsetBy(dx: footerView.frame.origin.x, dy: -20)
+        UIView.animate(withDuration: 0.3) {
+            footerView.frame = footerView.frame.offsetBy(dx: footerView.frame.origin.x, dy: 20)
+            footerView.alpha = 1.0
+        }
+    }
+    
+    func checkIfNewSectionWasAdded() -> Bool {
+        if rootView.tableView.numberOfSections < conversationViewModel.cellMessageGroups.count {
+            return true
+        }
+        return false
     }
     
     func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
@@ -218,10 +241,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             cell.frame.origin.y = 0
             self.rootView.tableView.setContentOffset(currentOffSet, animated: false)
         }
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        updateMessageSeenStatusIfNeeded()
     }
     
     //MARK: - MESSAGE SEEN STATUS HANDLER
@@ -390,22 +409,24 @@ extension ConversationViewController: UITableViewDelegate
         let label = DateHeaderLabel()
         
         let containerView = UIView()
+//        containerView.contentView.backgroundColor = .clear
         containerView.addSubview(label)
         //        label.text = conversationViewModel.messageGroups[section].date.description
         label.text = conversationViewModel.cellMessageGroups[section].date.description
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        label.topAnchor.constraint(equalTo: containerView.topAnchor,constant: 12).isActive = true
-        label.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,constant: -12).isActive = true
+        label.topAnchor.constraint(equalTo: containerView.topAnchor,constant: 10).isActive = true
+        label.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,constant: -10).isActive = true
         
         containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
+//        tableView.tableFooterView = containerView
         return containerView
     }
     
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
-        if section == 0 {
+        if isNewSectionAdded && section == 0 {
             view.alpha = 0.0
-
+            
             view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -20)
             UIView.animate(withDuration: 0.3) {
                 view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 20)
@@ -417,6 +438,15 @@ extension ConversationViewController: UITableViewDelegate
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         false
     }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        updateMessageSeenStatusIfNeeded()
+    }
+    
+//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+//        print(scrollView as? UITableView)
+////        rootView.tableView.tableFooterView?.isHidden = true
+//    }
 }
 
 
