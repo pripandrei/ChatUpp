@@ -97,10 +97,14 @@ final class ConversationViewControllerUI: UIView {
         self.holderViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         self.holderViewBottomConstraint.isActive = true
         
+        let heightConstraint = containerView.heightAnchor.constraint(equalToConstant: 80)
+        heightConstraint.isActive = true
+        heightConstraint.priority = .defaultLow
+        
         NSLayoutConstraint.activate([
-            containerView.heightAnchor.constraint(equalToConstant: 80),
-            containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            containerView.leadingAnchor.constraint(equalTo: self.leadingAnchor)
+//            containerView.heightAnchor.constraint(equalToConstant: 80),
+            containerView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
     }
     
@@ -114,14 +118,33 @@ final class ConversationViewControllerUI: UIView {
         messageTextView.textContainerInset = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
         messageTextView.textColor = .white
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
+        messageTextView.textContainer.maximumNumberOfLines = 0
+        messageTextView.delegate = self
+        
+//        messageTextView.textContainer.heightTracksTextView = true
+        messageTextView.isScrollEnabled = false
+        
+//        let heightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4)
+//        heightConstraint.isActive = true
+//        heightConstraint.priority = .defaultLow
+        
+        textViewHeightConstraint.isActive = true
+        textViewHeightConstraint.priority = .defaultLow
+        
+        let topConstraint = messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10)
+        topConstraint.isActive = true
+//        topHeightConstraint.priority = .defaultLow
         
         NSLayoutConstraint.activate([
-            messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4),
-            messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+//            messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4),
+            messageTextView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -containerView.bounds.height * 0.45),
+//            messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
             messageTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -55),
             messageTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 55)
         ])
     }
+    
+    lazy var textViewHeightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4)
     
     private func setupSendMessageBtn() {
         containerView.addSubview(sendMessageButton)
@@ -182,6 +205,23 @@ final class ConversationCustomNavigationBar {
 
             viewController.navigationItem.titleView = customTitleView
         }
+    }
+}
+
+extension ConversationViewControllerUI: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        let numberOfLines = Int(textView.contentSize.height / textView.font!.lineHeight)
+
+        if numberOfLines >= 4 && !messageTextView.isScrollEnabled {
+            textViewHeightConstraint.constant = textView.contentSize.height
+            messageTextView.isScrollEnabled = true
+        }
+        if numberOfLines <= 3 {
+            textViewHeightConstraint.constant = textView.contentSize.height
+            textView.layoutIfNeeded()
+            textView.isScrollEnabled = false
+        }
+        print(numberOfLines)
     }
 }
 

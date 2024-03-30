@@ -46,18 +46,17 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //        setupHeader()
     }
     
-    func setupHeader() {
-        let headerView = DateHeaderLabel()
-        
-        view.addSubview(headerView)
-//        guard let navigationBarBottomConstraint = navigationController?.navigationBar.bottomAnchor else {return}
-        
-        NSLayoutConstraint.activate([
-            headerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            headerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 100)
-        ])
-    }
-    
+//    func setupHeader() {
+//        let headerView = DateHeaderLabel()
+//
+//        view.addSubview(headerView)
+//
+//        NSLayoutConstraint.activate([
+//            headerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            headerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 100)
+//        ])
+//    }
+//
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         cleanUp()
@@ -104,7 +103,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
         conversationViewModel.messageWasModified = { indexPath in
             Task { @MainActor in
-//                let indexPath = IndexPath(item: index, section: 0)
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
                 
                 //TODO: MANAGE THIS WHEN MESSAGE MODIFICATION FEATURE WILL BE ADDED
@@ -167,7 +165,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     {
         isNewSectionAdded = checkIfNewSectionWasAdded()
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-//        if isNewSectionAdded {handleSectionAnimation()}
+
         // Schedules scrolling execution in order for proper animation scrolling
         DispatchQueue.main.async {
             if scrollToBottom {self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)}
@@ -343,17 +341,6 @@ extension ConversationViewController {
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.contentInset.top = customCollectionViewInset
         rootView.tableView.verticalScrollIndicatorInsets.top = customCollectionViewInset
-
-        // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
-        // Exaplanation:
-        // while trying to use only view.layoutIfNeeded(),
-        // cells from top will resize while animate
-        // Steps to reproduce:
-        // 1.initiate keyboard
-        // 2.scroll up
-        // 3.dismiss keyboard
-        // Result: cells from top will animate while resizing
-        // So to ditch this, we use layoutSubviews and layoutIfNeeded
 
 //        if keyboardHeight > 0 {
 //            view.layoutSubviews()
