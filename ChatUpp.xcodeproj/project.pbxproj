@@ -39,6 +39,22 @@
 		756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */; };
 		7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */; };
 		7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */; };
+		757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */; };
+		757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0E12BB9D70C00A64DA4 /* FirebaseAuthCombine-Community */; };
+		757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0E32BB9D70D00A64DA4 /* FirebaseDatabase */; };
+		757AB0E62BB9D70D00A64DA4 /* FirebaseDatabaseSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0E52BB9D70D00A64DA4 /* FirebaseDatabaseSwift */; };
+		757AB0E82BB9D70D00A64DA4 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0E72BB9D70D00A64DA4 /* FirebaseDynamicLinks */; };
+		757AB0EA2BB9D70D00A64DA4 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0E92BB9D70D00A64DA4 /* FirebaseFirestore */; };
+		757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0EB2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community */; };
+		757AB0EE2BB9D70D00A64DA4 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0ED2BB9D70D00A64DA4 /* FirebaseFirestoreSwift */; };
+		757AB0F02BB9D70D00A64DA4 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0EF2BB9D70D00A64DA4 /* FirebaseFunctions */; };
+		757AB0F22BB9D70D00A64DA4 /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0F12BB9D70D00A64DA4 /* FirebaseInstallations */; };
+		757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0F32BB9D70D00A64DA4 /* FirebaseStorage */; };
+		757AB0F62BB9D70D00A64DA4 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0F52BB9D70D00A64DA4 /* FirebaseStorageCombine-Community */; };
+		757AB0F92BB9D7DD00A64DA4 /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0F82BB9D7DD00A64DA4 /* AlgoliaSearchClient */; };
+		757AB0FC2BB9D81B00A64DA4 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0FB2BB9D81B00A64DA4 /* GoogleSignIn */; };
+		757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0FD2BB9D81B00A64DA4 /* GoogleSignInSwift */; };
+		757AB1012BB9D85100A64DA4 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB1002BB9D85100A64DA4 /* SkeletonView */; };
 		759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */; };
 		75B48B572AF6837700A5FBFC /* ConversationViewControllerUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B562AF6837700A5FBFC /* ConversationViewControllerUI.swift */; };
 		75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */; };
@@ -65,11 +81,9 @@
 		75FB78F82AC311D000C2743A /* ChatsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F72AC311D000C2743A /* ChatsViewModel.swift */; };
 		75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */; };
 		75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB79002AC318D600C2743A /* UIView+Extensions.swift */; };
-		89BEC3795EFF6A86906D1AEF /* Pods_ChatUpp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16945F0E08FAF16CF02D57E2 /* Pods_ChatUpp.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		16945F0E08FAF16CF02D57E2 /* Pods_ChatUpp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ChatUpp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSignInViewController.swift; sourceTree = "<group>"; };
 		7533D9BA2B167ED80057EBC7 /* PhoneSigninViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSigninViewModel.swift; sourceTree = "<group>"; };
 		753D0B682AC1FA6100C22AC4 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -130,8 +144,6 @@
 		75FB78F72AC311D000C2743A /* ChatsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsViewModel.swift; sourceTree = "<group>"; };
 		75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		75FB79002AC318D600C2743A /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
-		8BA62625DE3B3CFDCB76E448 /* Pods-ChatUpp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatUpp.release.xcconfig"; path = "Target Support Files/Pods-ChatUpp/Pods-ChatUpp.release.xcconfig"; sourceTree = "<group>"; };
-		C6F8C25C96AC6DC3F23E228B /* Pods-ChatUpp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatUpp.debug.xcconfig"; path = "Target Support Files/Pods-ChatUpp/Pods-ChatUpp.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,7 +151,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89BEC3795EFF6A86906D1AEF /* Pods_ChatUpp.framework in Frameworks */,
+				757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */,
+				757AB0E62BB9D70D00A64DA4 /* FirebaseDatabaseSwift in Frameworks */,
+				757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */,
+				757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */,
+				757AB0F02BB9D70D00A64DA4 /* FirebaseFunctions in Frameworks */,
+				757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */,
+				757AB0F92BB9D7DD00A64DA4 /* AlgoliaSearchClient in Frameworks */,
+				757AB0E82BB9D70D00A64DA4 /* FirebaseDynamicLinks in Frameworks */,
+				757AB0EA2BB9D70D00A64DA4 /* FirebaseFirestore in Frameworks */,
+				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
+				757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */,
+				757AB0EE2BB9D70D00A64DA4 /* FirebaseFirestoreSwift in Frameworks */,
+				757AB1012BB9D85100A64DA4 /* SkeletonView in Frameworks */,
+				757AB0F62BB9D70D00A64DA4 /* FirebaseStorageCombine-Community in Frameworks */,
+				757AB0F22BB9D70D00A64DA4 /* FirebaseInstallations in Frameworks */,
+				757AB0FC2BB9D81B00A64DA4 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,8 +305,6 @@
 			children = (
 				75B5C4B82A49AB0A00F63A5A /* ChatUpp */,
 				75B5C4B72A49AB0A00F63A5A /* Products */,
-				D40FF7EC1EFD3EA8DDF24C93 /* Pods */,
-				9A774AFF592AD23FC132B5EB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -438,23 +463,6 @@
 			path = UsernameRegistration;
 			sourceTree = "<group>";
 		};
-		9A774AFF592AD23FC132B5EB /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				16945F0E08FAF16CF02D57E2 /* Pods_ChatUpp.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		D40FF7EC1EFD3EA8DDF24C93 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				C6F8C25C96AC6DC3F23E228B /* Pods-ChatUpp.debug.xcconfig */,
-				8BA62625DE3B3CFDCB76E448 /* Pods-ChatUpp.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -462,17 +470,33 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 75B5C4CA2A49AB0B00F63A5A /* Build configuration list for PBXNativeTarget "ChatUpp" */;
 			buildPhases = (
-				B1EE988C918CBEB2658B0CEB /* [CP] Check Pods Manifest.lock */,
 				75B5C4B22A49AB0A00F63A5A /* Sources */,
 				75B5C4B32A49AB0A00F63A5A /* Frameworks */,
 				75B5C4B42A49AB0A00F63A5A /* Resources */,
-				D317EAEDDB4B5BD6EC20955B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = ChatUpp;
+			packageProductDependencies = (
+				757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */,
+				757AB0E12BB9D70C00A64DA4 /* FirebaseAuthCombine-Community */,
+				757AB0E32BB9D70D00A64DA4 /* FirebaseDatabase */,
+				757AB0E52BB9D70D00A64DA4 /* FirebaseDatabaseSwift */,
+				757AB0E72BB9D70D00A64DA4 /* FirebaseDynamicLinks */,
+				757AB0E92BB9D70D00A64DA4 /* FirebaseFirestore */,
+				757AB0EB2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community */,
+				757AB0ED2BB9D70D00A64DA4 /* FirebaseFirestoreSwift */,
+				757AB0EF2BB9D70D00A64DA4 /* FirebaseFunctions */,
+				757AB0F12BB9D70D00A64DA4 /* FirebaseInstallations */,
+				757AB0F32BB9D70D00A64DA4 /* FirebaseStorage */,
+				757AB0F52BB9D70D00A64DA4 /* FirebaseStorageCombine-Community */,
+				757AB0F82BB9D7DD00A64DA4 /* AlgoliaSearchClient */,
+				757AB0FB2BB9D81B00A64DA4 /* GoogleSignIn */,
+				757AB0FD2BB9D81B00A64DA4 /* GoogleSignInSwift */,
+				757AB1002BB9D85100A64DA4 /* SkeletonView */,
+			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
 			productType = "com.apple.product-type.application";
@@ -501,6 +525,12 @@
 				Base,
 			);
 			mainGroup = 75B5C4AD2A49AB0A00F63A5A;
+			packageReferences = (
+				757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				757AB0F72BB9D7DD00A64DA4 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
+				757AB0FA2BB9D81B00A64DA4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				757AB0FF2BB9D85100A64DA4 /* XCRemoteSwiftPackageReference "SkeletonView" */,
+			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -522,48 +552,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		B1EE988C918CBEB2658B0CEB /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ChatUpp-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D317EAEDDB4B5BD6EC20955B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ChatUpp/Pods-ChatUpp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ChatUpp/Pods-ChatUpp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ChatUpp/Pods-ChatUpp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		75B5C4B22A49AB0A00F63A5A /* Sources */ = {
@@ -758,7 +746,6 @@
 		};
 		75B5C4CB2A49AB0B00F63A5A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C6F8C25C96AC6DC3F23E228B /* Pods-ChatUpp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -786,7 +773,6 @@
 		};
 		75B5C4CC2A49AB0B00F63A5A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8BA62625DE3B3CFDCB76E448 /* Pods-ChatUpp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -834,6 +820,124 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = exactVersion;
+				version = 10.23.0;
+			};
+		};
+		757AB0F72BB9D7DD00A64DA4 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 8.20.1;
+			};
+		};
+		757AB0FA2BB9D81B00A64DA4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = {
+				kind = exactVersion;
+				version = 7.1.0;
+			};
+		};
+		757AB0FF2BB9D85100A64DA4 /* XCRemoteSwiftPackageReference "SkeletonView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Juanpe/SkeletonView.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.30.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		757AB0E12BB9D70C00A64DA4 /* FirebaseAuthCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseAuthCombine-Community";
+		};
+		757AB0E32BB9D70D00A64DA4 /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		757AB0E52BB9D70D00A64DA4 /* FirebaseDatabaseSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabaseSwift;
+		};
+		757AB0E72BB9D70D00A64DA4 /* FirebaseDynamicLinks */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDynamicLinks;
+		};
+		757AB0E92BB9D70D00A64DA4 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		757AB0EB2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseFirestoreCombine-Community";
+		};
+		757AB0ED2BB9D70D00A64DA4 /* FirebaseFirestoreSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestoreSwift;
+		};
+		757AB0EF2BB9D70D00A64DA4 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
+		};
+		757AB0F12BB9D70D00A64DA4 /* FirebaseInstallations */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseInstallations;
+		};
+		757AB0F32BB9D70D00A64DA4 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		757AB0F52BB9D70D00A64DA4 /* FirebaseStorageCombine-Community */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseStorageCombine-Community";
+		};
+		757AB0F82BB9D7DD00A64DA4 /* AlgoliaSearchClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0F72BB9D7DD00A64DA4 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = AlgoliaSearchClient;
+		};
+		757AB0FB2BB9D81B00A64DA4 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0FA2BB9D81B00A64DA4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		757AB0FD2BB9D81B00A64DA4 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0FA2BB9D81B00A64DA4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		757AB1002BB9D85100A64DA4 /* SkeletonView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 757AB0FF2BB9D85100A64DA4 /* XCRemoteSwiftPackageReference "SkeletonView" */;
+			productName = SkeletonView;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 75B5C4AE2A49AB0A00F63A5A /* Project object */;
 }
