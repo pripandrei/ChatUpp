@@ -256,3 +256,57 @@ final class ConversationViewModel {
 
 
 
+//private func createMessageGroups(_ messages: [Message]) {
+//    for message in self.messages {
+//        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+//        
+//        guard let date = message.timestamp.formatToYearMonthDay() else {
+//            return
+//            
+//        }
+//        
+//        if cellMessageGroups.isEmpty {
+//            let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+//            cellMessageGroups.append(newGroup)
+//            continue
+//        }
+//        
+//        for (index, group) in cellMessageGroups.enumerated() {
+//            if group.date == date {
+//                cellMessageGroups[index].cellViewModels.append(conversationCellVM)
+//                break
+//            }
+//            if index == cellMessageGroups.endIndex - 1 {
+//                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+//                cellMessageGroups.append(newGroup)
+//            }
+//        }
+//
+////            if let index = self.cellMessageGroups.firstIndex(where: {$0.date == date})  {
+////                print("Before In: ", cellMessageGroups[index].cellViewModels.count)
+////                cellMessageGroups[index].cellViewModels.append(conversationCellVM)
+////                print("After In: ", cellMessageGroups[index].cellViewModels.count)
+////            } else {
+////                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+////                print("Before Else: ", cellMessageGroups.count)
+////                cellMessageGroups.append(newGroup)
+////                print("After Else: ", cellMessageGroups.count)
+////            }
+//    }
+////        messages.forEach { message in
+////            let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+////
+////            guard let date = message.timestamp.formatToYearMonthDay() else {return}
+////
+////            if let index = self.cellMessageGroups.firstIndex(where: {$0.date == date})  {
+////                print("Before In: ", cellMessageGroups[index].cellViewModels.count)
+////                cellMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+////                print("After In: ", cellMessageGroups[index].cellViewModels.count)
+////            } else {
+////                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+////                print("Before Else: ", cellMessageGroups.count)
+////                cellMessageGroups.insert(newGroup, at: 0)
+////                print("After Else: ", cellMessageGroups.count)
+////            }
+////        }
+//}
