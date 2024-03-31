@@ -76,8 +76,8 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         timeStamp.backgroundColor = .clear
         messageImage = nil
         sennStatusMark.attributedText = nil
-//        timeStamp.textContainerInset = .zero
-//        adjustMessagePadding(.initialSpacing)
+        timeStamp.textContainerInset = .zero
+        adjustMessagePadding(.initialSpacing)
         
         // Layout with no animation to hide resizing animation of cells on keyboard show/hide
         // or any other table view content offset change
@@ -110,7 +110,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
 
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
-
+      
         sennStatusMark.attributedText = imageAttributedString
     }
     
@@ -122,7 +122,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         transform = CGAffineTransform(scaleX: 1, y: -1)
         
         backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        setupContentViewConstraints()
+//        setupContentViewConstraints()
         setupMainCellContainer()
         setupMessageTextLabel()
         setupSeenStatusMark()
@@ -220,16 +220,16 @@ extension ConversationCollectionViewCell
     
         guard let lastLineMessageWidth = getMessageLastLineSize() else {return}
         guard let numberOfMessageLines = messageContainer.textLayout?.lines.count else {return}
-
+        
         let padding: CGFloat = 20.0
         let timestampWidth: CGFloat = timeStamp.intrinsicContentSize.width
         let seenStatusMarkWidth: CGFloat = 24.0
-
+        
         let widthForSide = side == .right ? seenStatusMarkWidth : 0
-
+        
         let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding
         let messageRectWidth = messageContainer.intrinsicContentSize.width
-
+        
         if lastLineMessageAndTimestampWidth > maxMessageWidth  {
             adjustMessagePadding(.bottomSpace)
             return
