@@ -21,6 +21,8 @@
 		754439302B3D2BDC0044A84B /* CollectionViewListHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7544392F2B3D2BDC0044A84B /* CollectionViewListHeader.swift */; };
 		754439532B3FCFF30044A84B /* ProfileEditingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754439522B3FCFF30044A84B /* ProfileEditingViewController.swift */; };
 		754439552B4134150044A84B /* ProfileEditingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754439542B4134150044A84B /* ProfileEditingViewModel.swift */; };
+		7545AD902BB9E65B00E9B107 /* YYText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7545AD8F2BB9E61100E9B107 /* YYText.framework */; };
+		7545AD912BB9E65B00E9B107 /* YYText.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7545AD8F2BB9E61100E9B107 /* YYText.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		755A3F7B2AD0689500739861 /* ChatsTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */; };
 		755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */; };
 		755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F9F2AD2F2C100739861 /* Coordinator.swift */; };
@@ -83,6 +85,30 @@
 		75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB79002AC318D600C2743A /* UIView+Extensions.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		7545AD8E2BB9E61100E9B107 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7545AD892BB9E61100E9B107 /* YYText.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D918BFD61F372E3000106E14;
+			remoteInfo = YYText;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7545AD922BB9E65B00E9B107 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				7545AD912BB9E65B00E9B107 /* YYText.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSignInViewController.swift; sourceTree = "<group>"; };
 		7533D9BA2B167ED80057EBC7 /* PhoneSigninViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSigninViewModel.swift; sourceTree = "<group>"; };
@@ -98,6 +124,8 @@
 		7544392F2B3D2BDC0044A84B /* CollectionViewListHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewListHeader.swift; sourceTree = "<group>"; };
 		754439522B3FCFF30044A84B /* ProfileEditingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingViewController.swift; sourceTree = "<group>"; };
 		754439542B4134150044A84B /* ProfileEditingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingViewModel.swift; sourceTree = "<group>"; };
+		7545AD892BB9E61100E9B107 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = YYText.xcodeproj; sourceTree = "<group>"; };
+		7545AD8C2BB9E61100E9B107 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsTableViewDataSource.swift; sourceTree = "<group>"; };
 		755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCellViewModel.swift; sourceTree = "<group>"; };
 		755A3F9F2AD2F2C100739861 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
@@ -152,6 +180,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */,
+				7545AD902BB9E65B00E9B107 /* YYText.framework in Frameworks */,
 				757AB0E62BB9D70D00A64DA4 /* FirebaseDatabaseSwift in Frameworks */,
 				757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */,
 				757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */,
@@ -201,6 +230,32 @@
 				754439542B4134150044A84B /* ProfileEditingViewModel.swift */,
 			);
 			path = ProfileEditing;
+			sourceTree = "<group>";
+		};
+		7545AD392BB9DEFC00E9B107 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7545AD882BB9E61100E9B107 /* Framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7545AD882BB9E61100E9B107 /* Framework */ = {
+			isa = PBXGroup;
+			children = (
+				7545AD892BB9E61100E9B107 /* YYText.xcodeproj */,
+				7545AD8C2BB9E61100E9B107 /* Info.plist */,
+			);
+			name = Framework;
+			path = "../../../Downloads/YYText-master-2/Framework";
+			sourceTree = "<group>";
+		};
+		7545AD8A2BB9E61100E9B107 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7545AD8F2BB9E61100E9B107 /* YYText.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		755A3F9E2AD2F2A700739861 /* Coordinator */ = {
@@ -305,6 +360,7 @@
 			children = (
 				75B5C4B82A49AB0A00F63A5A /* ChatUpp */,
 				75B5C4B72A49AB0A00F63A5A /* Products */,
+				7545AD392BB9DEFC00E9B107 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -473,6 +529,7 @@
 				75B5C4B22A49AB0A00F63A5A /* Sources */,
 				75B5C4B32A49AB0A00F63A5A /* Frameworks */,
 				75B5C4B42A49AB0A00F63A5A /* Resources */,
+				7545AD922BB9E65B00E9B107 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -533,12 +590,28 @@
 			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 7545AD8A2BB9E61100E9B107 /* Products */;
+					ProjectRef = 7545AD892BB9E61100E9B107 /* YYText.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				75B5C4B52A49AB0A00F63A5A /* ChatUpp */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		7545AD8F2BB9E61100E9B107 /* YYText.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = YYText.framework;
+			remoteRef = 7545AD8E2BB9E61100E9B107 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		75B5C4B42A49AB0A00F63A5A /* Resources */ = {
