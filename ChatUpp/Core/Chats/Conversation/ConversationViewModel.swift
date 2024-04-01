@@ -60,18 +60,20 @@ final class ConversationViewModel {
     }
     
     private func createMessageGroups(_ messages: [Message]) {
+        var tempMessageGroup: [ConversationMessageGroups] = cellMessageGroups
         messages.forEach { message in
             let conversationCellVM = ConversationCellViewModel(cellMessage: message)
             
             guard let date = message.timestamp.formatToYearMonthDay() else {return}
 
-            if let index = self.cellMessageGroups.firstIndex(where: {$0.date == date})  {
-                cellMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+            if let index = tempMessageGroup.firstIndex(where: {$0.date == date})  {
+                tempMessageGroup[index].cellViewModels.insert(conversationCellVM, at: 0)
             } else {
                 let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
-                cellMessageGroups.insert(newGroup, at: 0)
+                tempMessageGroup.insert(newGroup, at: 0)
             }
         }
+        self.cellMessageGroups = tempMessageGroup
     }
     
     private func fetchConversationMessages() {
