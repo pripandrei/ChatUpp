@@ -39,6 +39,8 @@
 		756525D52AB50079005DC594 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D42AB50079005DC594 /* UserManager.swift */; };
 		756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */; };
 		756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */; };
+		7570339D2BC09E28002732B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7570339C2BC09E17002732B5 /* FlagPhoneNumber.framework */; };
+		7570339E2BC09E28002732B5 /* FlagPhoneNumber.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7570339C2BC09E17002732B5 /* FlagPhoneNumber.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */; };
 		7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */; };
 		757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */; };
@@ -93,6 +95,13 @@
 			remoteGlobalIDString = D918BFD61F372E3000106E14;
 			remoteInfo = YYText;
 		};
+		7570339B2BC09E17002732B5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 757033972BC09E17002732B5 /* FlagPhoneNumber.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0DF48B3922917047006AB39C;
+			remoteInfo = FlagPhoneNumber;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -102,6 +111,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				7570339E2BC09E28002732B5 /* FlagPhoneNumber.framework in Embed Frameworks */,
 				754E560E2BBA159D008F8E8A /* YYText.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -141,6 +151,7 @@
 		756525D42AB50079005DC594 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
 		756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameRegistrationViewController.swift; sourceTree = "<group>"; };
 		756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsCellViewModel.swift; sourceTree = "<group>"; };
+		757033972BC09E17002732B5 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = ../../../Downloads/FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = "<group>"; };
 		7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewController.swift; sourceTree = "<group>"; };
 		7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewModel.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
@@ -186,6 +197,7 @@
 				757AB0F02BB9D70D00A64DA4 /* FirebaseFunctions in Frameworks */,
 				757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */,
 				757AB0F92BB9D7DD00A64DA4 /* AlgoliaSearchClient in Frameworks */,
+				7570339D2BC09E28002732B5 /* FlagPhoneNumber.framework in Frameworks */,
 				757AB0E82BB9D70D00A64DA4 /* FirebaseDynamicLinks in Frameworks */,
 				757AB0EA2BB9D70D00A64DA4 /* FirebaseFirestore in Frameworks */,
 				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
@@ -234,6 +246,7 @@
 		754E56062BBA158E008F8E8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				757033972BC09E17002732B5 /* FlagPhoneNumber.xcodeproj */,
 				754E56072BBA158E008F8E8A /* YYText.xcodeproj */,
 			);
 			name = Frameworks;
@@ -315,6 +328,14 @@
 				7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */,
 			);
 			path = Firestore;
+			sourceTree = "<group>";
+		};
+		757033982BC09E17002732B5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7570339C2BC09E17002732B5 /* FlagPhoneNumber.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		7573E5C12B5BD41A0096B4E6 /* ProfileDeletion */ = {
@@ -581,6 +602,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 757033982BC09E17002732B5 /* Products */;
+					ProjectRef = 757033972BC09E17002732B5 /* FlagPhoneNumber.xcodeproj */;
+				},
+				{
 					ProductGroup = 754E56082BBA158E008F8E8A /* Products */;
 					ProjectRef = 754E56072BBA158E008F8E8A /* YYText.xcodeproj */;
 				},
@@ -598,6 +623,13 @@
 			fileType = wrapper.framework;
 			path = YYText.framework;
 			remoteRef = 754E560B2BBA158E008F8E8A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		7570339C2BC09E17002732B5 /* FlagPhoneNumber.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = FlagPhoneNumber.framework;
+			remoteRef = 7570339B2BC09E17002732B5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
