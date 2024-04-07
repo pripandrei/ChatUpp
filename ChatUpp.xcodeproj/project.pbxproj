@@ -41,6 +41,7 @@
 		756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */; };
 		7570339D2BC09E28002732B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7570339C2BC09E17002732B5 /* FlagPhoneNumber.framework */; };
 		7570339E2BC09E28002732B5 /* FlagPhoneNumber.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7570339C2BC09E17002732B5 /* FlagPhoneNumber.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */; };
 		7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */; };
 		7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */; };
 		757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */; };
@@ -152,6 +153,7 @@
 		756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameRegistrationViewController.swift; sourceTree = "<group>"; };
 		756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsCellViewModel.swift; sourceTree = "<group>"; };
 		757033972BC09E17002732B5 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = ../../../Downloads/FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = "<group>"; };
+		757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewShadowConfigurable.swift; sourceTree = "<group>"; };
 		7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewController.swift; sourceTree = "<group>"; };
 		7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewModel.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
@@ -338,6 +340,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		757033A32BC2D829002732B5 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		7573E5C12B5BD41A0096B4E6 /* ProfileDeletion */ = {
 			isa = PBXGroup;
 			children = (
@@ -385,6 +395,7 @@
 		75B5C4B82A49AB0A00F63A5A /* ChatUpp */ = {
 			isa = PBXGroup;
 			children = (
+				757033A32BC2D829002732B5 /* Protocols */,
 				75FB79022AC31AEA00C2743A /* Core */,
 				75FB78FF2AC3188C00C2743A /* Extensions */,
 				756525D32AB50035005DC594 /* Firestore */,
@@ -688,6 +699,7 @@
 				75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */,
 				756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */,
 				754439532B3FCFF30044A84B /* ProfileEditingViewController.swift in Sources */,
+				757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
 				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
