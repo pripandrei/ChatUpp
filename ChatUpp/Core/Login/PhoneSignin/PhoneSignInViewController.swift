@@ -15,12 +15,17 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     let phoneViewModel = PhoneSignInViewModel()
     let customizedFPNTextField = CustomFPNTextField()
     let receiveMessageButton = UIButton()
+    var isPhoneNumberValid: Bool = false
+    
+    let listController: FPNCountryListViewController = FPNCountryListViewController(style: .grouped)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
 //        Utilities.adjustNavigationBarAppearance()
         setupPhoneTextField()
+        setupListController()
+        setupListControllerNavigationBarAppearance()
         setupReceiveMessageButton()
     }
     
@@ -34,8 +39,11 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         view.addSubview(customizedFPNTextField)
         
         customizedFPNTextField.delegate = self
-//        phoneNumberTextField.placeholder = "enter phone number"
         customizedFPNTextField.borderStyle = .roundedRect
+        customizedFPNTextField.displayMode = .list
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        customizedFPNTextField.addGestureRecognizerToDialCode(tapGesture)
         
         customizedFPNTextField.translatesAutoresizingMaskIntoConstraints = false
         
@@ -49,7 +57,10 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         customizedFPNTextField.layoutIfNeeded()
         customizedFPNTextField.setupTopShadow()
         customizedFPNTextField.setupBottomShadow()
-//        phoneNumberTextField.setupShadows()
+    }
+    
+    @objc func handleTap(_ sender: UITapGestureRecognizer) {
+        presentListViewController()
     }
     
     func setupReceiveMessageButton() {
@@ -64,18 +75,14 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         NSLayoutConstraint.activate([
             receiveMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             receiveMessageButton.topAnchor.constraint(equalTo: customizedFPNTextField.bottomAnchor, constant: 30),
-//            receiveMessageButton.widthAnchor.constraint(equalToConstant: 200),
-//            receiveMessageButton.heightAnchor.constraint(equalToConstant: 40)
-            
             receiveMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
             receiveMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             receiveMessageButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
-
+    
     @objc func receiveMessageButtonWasTapped() {
-        guard let number = customizedFPNTextField.getFormattedPhoneNumber(format: .E164), !number.isEmpty else {return}
-        
+        guard isPhoneNumberValid, let number = customizedFPNTextField.getFormattedPhoneNumber(format: .E164) else { presentInvalidNumberAlert() ; return}
         Task {
             do {
                 try await phoneViewModel.sendSmsToPhoneNumber(number)
@@ -86,8 +93,32 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         }
     }
     
-   //MARK: - TEXTFIELD DELEGATE
+    // INVALID NUMBER ALERT
+    func presentInvalidNumberAlert() {
+        let alert = UIAlertController(title: "Alert", message: "Please enter a valid phone number", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .cancel)
+        alert.addAction(okAction)
+        present(alert, animated: true)
+    }
     
+    // FPN LIST VC SETUP
+    func setupListController() {
+        listController.setup(repository: customizedFPNTextField.countryRepository)
+        listController.didSelect = { [weak self] country in
+            self?.customizedFPNTextField.setFlag(countryCode: country.code)
+        }
+        listController.tableView.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+    }
+    
+    func setupListControllerNavigationBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        listController.navigationController?.navigationBar.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        listController.navigationController?.navigationBar.standardAppearance = appearance
+        listController.navigationController?.navigationBar.scrollEdgeAppearance = appearance
+    }
+    
+   // TEXTFIELD DELEGATE
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         customizedFPNTextField.resignFirstResponder()
         return true
@@ -117,14 +148,12 @@ class CustomFPNTextField: FPNTextField, TextViewShadowConfigurable {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: - GESTURE
-    
+    // GESTURES
     func addGestureRecognizerToDialCode(_ tapGestureRecognizer: UITapGestureRecognizer) {
         dialCodeAndFlagButtonMainContainer?.addGestureRecognizer(tapGestureRecognizer)
     }
     
-    //MARK: - TEXTVIEW UI SETUP
-    
+    // TEXTVIEW UI SETUP
     private func moveRightDialCodeAndFlagButtonMainContainer() {
         dialCodeAndFlagButtonMainContainer?.subviews.forEach({ view in
             view.transform = CGAffineTransform(translationX: 5, y: 0)
@@ -141,13 +170,10 @@ class CustomFPNTextField: FPNTextField, TextViewShadowConfigurable {
         separatorBetweenDialCodeAndTextPhone.heightAnchor.constraint(equalToConstant: self.intrinsicContentSize.height).isActive = true
         separatorBetweenDialCodeAndTextPhone.leadingAnchor.constraint(equalTo: dialCodeAndFlagButtonMainContainer!.trailingAnchor, constant: 8).isActive = true
         separatorBetweenDialCodeAndTextPhone.centerYAnchor.constraint(equalTo: dialCodeAndFlagButtonMainContainer!.centerYAnchor).isActive = true
-        //        separatorBetweenDialCodeAndTextPhone.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-        //        separatorBetweenDialCodeAndTextPhone.leadingAnchor.constraint(equalTo: dialCodeView!.trailingAnchor, constant: 7).isActive = true
     }
 }
 
-
-//MARK: - TEXTFIELD TEXTRECT ADJUST
+//MARK: - TEXTFIELD TEXT RECT ADJUST
 extension CustomFPNTextField {
     open override func textRect(forBounds bounds: CGRect) -> CGRect {
         var rect = super.textRect(forBounds: bounds)
@@ -159,5 +185,31 @@ extension CustomFPNTextField {
         return textRect(forBounds: bounds)
     }
 }
+
+//MARK: - FPNTextField Delegate
+extension PhoneSignInViewController: FPNTextFieldDelegate {
+    func fpnDidSelectCountry(name: String, dialCode: String, code: String) {}
+    
+    func fpnDidValidatePhoneNumber(textField: FlagPhoneNumber.FPNTextField, isValid: Bool) {
+        isPhoneNumberValid = isValid
+    }
+    func presentListViewController() {
+        let navigationViewController = UINavigationController(rootViewController: listController)
+//        navigationViewController.title = "Countries"
+        setupListControllerNavigationBarAppearance()
+        self.present(navigationViewController, animated: true)
+    }
+    func fpnDisplayCountryList() {
+        presentListViewController()
+    }
+}
+
+//MARK: - FPN LIST VC CELL CUSTOMIZATION
+extension FPNCountryListViewController {
+    open override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+    }
+}
+
 
 
