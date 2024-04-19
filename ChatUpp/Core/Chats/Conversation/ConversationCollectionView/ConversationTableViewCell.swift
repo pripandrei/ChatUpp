@@ -75,10 +75,17 @@ final class ConversationTableViewCell: UITableViewCell, UIScrollViewDelegate {
         
         backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
 //        setupContentViewConstraints()
+        setupBackgroundSelectionView()
         setupMainCellContainer()
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
+    }
+    
+    private func setupBackgroundSelectionView() {
+        let selectedView = UIView()
+        selectedView.backgroundColor = UIColor.clear
+        selectedBackgroundView = selectedView
     }
     
     required init?(coder: NSCoder) {

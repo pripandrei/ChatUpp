@@ -420,9 +420,9 @@ extension ConversationViewController: UITableViewDelegate
         }
     }
     
-    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        false
-    }
+//    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
+//        false
+//    }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateMessageSeenStatusIfNeeded()
