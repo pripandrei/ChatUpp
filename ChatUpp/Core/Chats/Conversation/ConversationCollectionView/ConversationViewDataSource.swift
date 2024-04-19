@@ -24,7 +24,7 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationCollectionViewCell else { fatalError("Could not dequeu custom collection cell") }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationTableViewCell else { fatalError("Could not dequeu custom collection cell") }
         
 //        let viewModel = conversationViewModel.cellViewModels[indexPath.section][indexPath.row]
         let viewModel = conversationViewModel.cellMessageGroups[indexPath.section].cellViewModels[indexPath.row]
@@ -32,7 +32,7 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
         let message = viewModel.cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         let cellSide = message.senderId == authUserID ?
-        ConversationCollectionViewCell.BubbleMessageSide.right : ConversationCollectionViewCell.BubbleMessageSide.left
+        ConversationTableViewCell.BubbleMessageSide.right : ConversationTableViewCell.BubbleMessageSide.left
         
         cell.configureCell(usingViewModel: viewModel, forSide: cellSide)
         

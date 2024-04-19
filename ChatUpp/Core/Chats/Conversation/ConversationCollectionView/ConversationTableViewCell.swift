@@ -10,7 +10,15 @@ import YYText
 //import ImageIO
 //import AVFoundation
 
-final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegate {
+protocol MenuIdentifiable {
+    var indexPath: IndexPath {get}
+}
+
+extension Array where Element: MenuIdentifiable {
+    
+}
+
+final class ConversationTableViewCell: UITableViewCell, UIScrollViewDelegate {
     
     enum BubbleMessageSide {
         case left
@@ -56,6 +64,25 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
                 return paragraphStyle
             }()
         ])
+    }
+    
+    //MARK: - LIFECYCLE
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        // Invert cell upside down
+        transform = CGAffineTransform(scaleX: 1, y: -1)
+        
+        backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        setupContentViewConstraints()
+        setupMainCellContainer()
+        setupMessageTextLabel()
+        setupSeenStatusMark()
+        setupTimestamp()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     //MARK: - BINDER
@@ -114,29 +141,10 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         sennStatusMark.attributedText = imageAttributedString
     }
     
-    //MARK: - LIFECYCLE
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        // Invert cell upside down
-        transform = CGAffineTransform(scaleX: 1, y: -1)
-        
-        backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-//        setupContentViewConstraints()
-        setupMainCellContainer()
-        setupMessageTextLabel()
-        setupSeenStatusMark()
-        setupTimestamp()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
 // MARK: - UI INITIAL STEUP
     
     private func setupSeenStatusMark() {
-        mainCellContainer.addSubview(sennStatusMark)
+        messageContainer.addSubview(sennStatusMark)
         
         sennStatusMark.font = UIFont(name: "Helvetica", size: 4)
         sennStatusMark.translatesAutoresizingMaskIntoConstraints = false
@@ -148,7 +156,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     }
     
     private func setupTimestamp() {
-        mainCellContainer.addSubview(timeStamp)
+        messageContainer.addSubview(timeStamp)
         
         timeStamp.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
         timeStamp.layer.cornerRadius = 7
@@ -182,6 +190,8 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     private func setupMessageTextLabel() {
         mainCellContainer.addSubview(messageContainer)
 
+        //TODO: - review implementing a main container for message,timestamp,seenstatus
+        
         messageContainer.backgroundColor = .blue
         messageContainer.numberOfLines = 0
         messageContainer.preferredMaxLayoutWidth = maxMessageWidth
@@ -194,8 +204,8 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
 
         NSLayoutConstraint.activate([
 //            widthConstraint,
-            messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor, constant: cellSpacing),
-            messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor),
+            messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
+            messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor, constant: -cellSpacing),
 //            messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth)
         ])
     }
@@ -213,7 +223,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
 }
 
 // MARK: - MESSAGE BUBBLE LAYOUT HANDLER
-extension ConversationCollectionViewCell
+extension ConversationTableViewCell
 {
     func handleMessageBubbleLayout(forSide side: BubbleMessageSide) {
         createMessageTextLayout()
@@ -293,7 +303,7 @@ extension ConversationCollectionViewCell
 }
 
 // MARK: - HANDLE IMAGE OF MESSAGE SETUP
-extension ConversationCollectionViewCell {
+extension ConversationTableViewCell {
     
     private func configureImageAttachment(data: Data?) {
         if let imageData = data, let image = convertDataToImage(imageData) {

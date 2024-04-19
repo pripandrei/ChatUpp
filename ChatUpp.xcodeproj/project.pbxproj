@@ -73,7 +73,7 @@
 		75CB52182B0BF064007F3AB6 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* StorageManager.swift */; };
 		75D6DC332B0D735100D2CD26 /* ConversationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */; };
 		75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */; };
-		75D7C5952AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */; };
+		75D7C5952AD72DBC00F6D4B9 /* ConversationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5942AD72DBC00F6D4B9 /* ConversationTableViewCell.swift */; };
 		75D7C5CC2ADAD40600F6D4B9 /* CGFloat+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */; };
 		75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */; };
 		75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */; };
@@ -171,7 +171,7 @@
 		75CB52172B0BF064007F3AB6 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewModel.swift; sourceTree = "<group>"; };
 		75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
-		75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCollectionViewCell.swift; sourceTree = "<group>"; };
+		75D7C5942AD72DBC00F6D4B9 /* ConversationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewCell.swift; sourceTree = "<group>"; };
 		75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGFloat+Extension.swift"; sourceTree = "<group>"; };
 		75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneCodeVerificationViewController.swift; sourceTree = "<group>"; };
@@ -273,7 +273,7 @@
 		7563F87D2ADE2C1A006FA374 /* ConversationCollectionView */ = {
 			isa = PBXGroup;
 			children = (
-				75D7C5942AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift */,
+				75D7C5942AD72DBC00F6D4B9 /* ConversationTableViewCell.swift */,
 				7563F87B2ADE25E6006FA374 /* ConversationViewDataSource.swift */,
 				75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */,
 			);
@@ -711,7 +711,7 @@
 				7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */,
 				7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */,
 				756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */,
-				75D7C5952AD72DBC00F6D4B9 /* ConversationCollectionViewCell.swift in Sources */,
+				75D7C5952AD72DBC00F6D4B9 /* ConversationTableViewCell.swift in Sources */,
 				7563F8C42AE8D2D1006FA374 /* String+Extensions.swift in Sources */,
 				75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */,
 				75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */,

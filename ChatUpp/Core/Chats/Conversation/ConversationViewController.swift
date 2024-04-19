@@ -103,7 +103,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
         conversationViewModel.messageWasModified = { indexPath in
             Task { @MainActor in
-                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
+                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
                 
                 //TODO: MANAGE THIS WHEN MESSAGE MODIFICATION FEATURE WILL BE ADDED
 //                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
@@ -224,7 +224,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     func setCellOffset(cellIndexPath indexPath: IndexPath) {
         let currentOffSet = self.rootView.tableView.contentOffset
-        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
+        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
         
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
@@ -244,7 +244,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else {return}
         
         for indexPath in visibleIndices {
-            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else {
+            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {
                 continue
             }
             if checkIfCellMessageIsCurrentlyVisible(indexPath: indexPath) {
@@ -267,7 +267,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
         return false
     }
-    func updateMessageSeenStatus(_ cell: ConversationCollectionViewCell) {
+    func updateMessageSeenStatus(_ cell: ConversationTableViewCell) {
         guard let chatID = conversationViewModel.conversation else {return}
         let messageId = cell.cellViewModel.cellMessage.id
         
@@ -427,6 +427,42 @@ extension ConversationViewController: UITableViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateMessageSeenStatusIfNeeded()
     }
+    
+    
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        let identifire = indexPath as NSCopying
+        
+        return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
+            let copy = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
+                print("copy")
+            }
+            let delete = UIAction(title: "Delete", image:UIImage(systemName: "trash"), attributes: .destructive) { _ in
+                print("delete")
+            }
+           return UIMenu(title: "Options", children:  [copy, delete])
+        })
+    }
+    
+    func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        
+        guard let indexPath = configuration.identifier as? IndexPath,
+              let cell = tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+
+        let targetRect = cell.convert(cell.messageContainer.bounds, to: cell.contentView)
+        
+//        let parameters = UIPreviewParameters()
+//        
+//        let previewTarget = UIPreviewTarget(container: cell.messageContainer, center: targetRect.origin)
+        let preview = UITargetedPreview(view: cell.messageContainer)
+        
+        return preview
+    }
+    
+//    func tableView(_ tableView: UITableView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+//        print("animator")
+//    }
     
 //    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 //        print(scrollView as? UITableView)

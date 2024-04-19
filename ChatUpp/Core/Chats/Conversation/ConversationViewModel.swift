@@ -8,6 +8,8 @@
 import Foundation
 import FirebaseFirestore
 
+
+
 final class ConversationViewModel {
     
     struct ConversationMessageGroups {
@@ -63,7 +65,7 @@ final class ConversationViewModel {
         var tempMessageGroup: [ConversationMessageGroups] = cellMessageGroups
         messages.forEach { message in
             let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-            
+
             guard let date = message.timestamp.formatToYearMonthDay() else {return}
 
             if let index = tempMessageGroup.firstIndex(where: {$0.date == date})  {
@@ -221,6 +223,8 @@ final class ConversationViewModel {
         }
     }
 }
+
+
 
 
 
