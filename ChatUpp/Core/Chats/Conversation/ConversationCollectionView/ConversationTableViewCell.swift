@@ -18,7 +18,7 @@ extension Array where Element: MenuIdentifiable {
     
 }
 
-final class ConversationTableViewCell: UITableViewCell, UIScrollViewDelegate {
+final class ConversationTableViewCell: UITableViewCell {
     
     enum BubbleMessageSide {
         case left
@@ -364,10 +364,13 @@ final class MessageContextMenuInteractionHandler: NSObject, UIContextMenuInterac
                 let pastBoard = UIPasteboard.general
                 pastBoard.string = self.messageYYLabel.text
             }
+            let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble")) { action in
+                print("delete")
+            }
             let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { action in
                 print("delete")
             }
-            return UIMenu(title: "",  children: [copyAction,deleteAction])
+            return UIMenu(title: "", children: [editAction, copyAction, deleteAction])
         })
         return contextMenuConfiguration
     }

@@ -109,6 +109,12 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
             }
         }
+        conversationViewModel.onMessageRemoved = { [weak self] in
+            Task { @MainActor in
+                self?.rootView.tableView.reloadData()
+            }
+        }
+        
     }
     
     //MARK: - KEYBOARD NOTIFICATION OBSERVERS

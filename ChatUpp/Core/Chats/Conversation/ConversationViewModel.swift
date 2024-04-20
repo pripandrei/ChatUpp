@@ -136,8 +136,26 @@ final class ConversationViewModel {
         messageWasModified?(indexPath)
     }
     
+    var onMessageRemoved: (() -> Void)?
+    
     private func handleRemovedMessage(_ message: Message) {
-
+        guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
+        guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
+        
+        cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
+        
+        // if section doesn't contain any messages, remove it
+        if cellMessageGroups[messageGroupIndex].cellViewModels.isEmpty {
+            cellMessageGroups.remove(at: messageGroupIndex)
+        }
+        
+        // if last message was deleted, update last message for chat
+        if messageGroupIndex == 0 && messageIndex == 0 {
+            Task {
+                await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
+            }
+        }
+        onMessageRemoved?()
     }
     
     private func createNewMessage(_ messageBody: String) -> Message {
