@@ -69,7 +69,7 @@ final class ConversationTableViewCell: UITableViewCell, UIScrollViewDelegate {
     //MARK: - LIFECYCLE
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+
         // Invert cell upside down
         transform = CGAffineTransform(scaleX: 1, y: -1)
         
@@ -82,6 +82,7 @@ final class ConversationTableViewCell: UITableViewCell, UIScrollViewDelegate {
         setupTimestamp()
     }
     
+    // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
     private func setupBackgroundSelectionView() {
         let selectedView = UIView()
         selectedView.backgroundColor = UIColor.clear

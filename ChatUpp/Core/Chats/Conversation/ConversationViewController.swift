@@ -419,10 +419,6 @@ extension ConversationViewController: UITableViewDelegate
             }
         }
     }
-    
-//    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-//        false
-//    }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateMessageSeenStatusIfNeeded()
@@ -441,29 +437,29 @@ extension ConversationViewController: UITableViewDelegate
             let delete = UIAction(title: "Delete", image:UIImage(systemName: "trash"), attributes: .destructive) { _ in
                 print("delete")
             }
-           return UIMenu(title: "Options", children:  [copy, delete])
+            return UIMenu(title: "Options", children:  [copy, delete])
         })
     }
     
     func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        
-        guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+        makeConversationMessagePreview(for: configuration)
+    }
 
-        let targetRect = cell.convert(cell.messageContainer.bounds, to: cell.contentView)
+    func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        makeConversationMessagePreview(for: configuration)
+    }
+    
+    private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard let indexPath = configuration.identifier as? IndexPath,
+              let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+
+        let parameter = UIPreviewParameters()
+        parameter.backgroundColor = .clear
         
-//        let parameters = UIPreviewParameters()
-//        
-//        let previewTarget = UIPreviewTarget(container: cell.messageContainer, center: targetRect.origin)
-        let preview = UITargetedPreview(view: cell.messageContainer)
+        let preview = UITargetedPreview(view: cell.messageContainer, parameters: parameter)
         
         return preview
     }
-    
-//    func tableView(_ tableView: UITableView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
-//        print("animator")
-//    }
-    
 //    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 //        print(scrollView as? UITableView)
 ////        rootView.tableView.tableFooterView?.isHidden = true
