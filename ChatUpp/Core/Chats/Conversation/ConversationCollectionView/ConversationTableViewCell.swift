@@ -47,8 +47,9 @@ final class ConversationTableViewCell: UITableViewCell, UIScrollViewDelegate {
     var cellViewModel: ConversationCellViewModel!
     private var messageImage: UIImage?
     var sennStatusMark = YYLabel()
+    var contextMenuInteraction: MessageContextMenuInteractionHandler!
     
-    var maxMessageWidth: CGFloat {
+    private var maxMessageWidth: CGFloat {
         return 290.0
     }
     private let cellSpacing = 3.0
@@ -80,6 +81,7 @@ final class ConversationTableViewCell: UITableViewCell, UIScrollViewDelegate {
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
+        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
@@ -335,5 +337,43 @@ extension ConversationTableViewCell {
     private func convertDataToImage(_ data: Data) -> UIImage? {
         guard let image = UIImage(data: data) else { return nil }
         return image
+    }
+}
+
+//MARK:- CONTEXT MENU CONFIGURATION DELEGATE CLASS
+final class MessageContextMenuInteractionHandler: NSObject, UIContextMenuInteractionDelegate {
+    
+    private var messageYYLabel: YYLabel!
+    
+    init(message: YYLabel) {
+        self.messageYYLabel = message
+        super.init()
+        setupContextMenuInteraction()
+    }
+
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configuration: UIContextMenuConfiguration, highlightPreviewForItemWithIdentifier identifier: NSCopying) -> UITargetedPreview? {
+        let parameter = UIPreviewParameters()
+        parameter.backgroundColor = .clear
+        
+        let preview = UITargetedPreview(view: messageYYLabel, parameters: parameter)
+        return preview
+    }
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        let contextMenuConfiguration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedAction in
+            let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
+                let pastBoard = UIPasteboard.general
+                pastBoard.string = self.messageYYLabel.text
+            }
+            let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { action in
+                print("delete")
+            }
+            return UIMenu(title: "",  children: [copyAction,deleteAction])
+        })
+        return contextMenuConfiguration
+    }
+    
+    private func setupContextMenuInteraction() {
+        let contextMenuInteraction = UIContextMenuInteraction(delegate: self)
+        messageYYLabel.addInteraction(contextMenuInteraction)
     }
 }
