@@ -145,11 +145,12 @@ final class ConversationViewModel {
         messageWasModified?(indexPath)
     }
     
-    var onMessageRemoved: (() -> Void)?
+    var onMessageRemoved: ((IndexPath) -> Void)?
     
     private func handleRemovedMessage(_ message: Message) {
         guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
         guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
+        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
         
         cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
         
@@ -164,7 +165,7 @@ final class ConversationViewModel {
                 await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
             }
         }
-        onMessageRemoved?()
+        onMessageRemoved?(indexPath)
     }
     
     private func createNewMessage(_ messageBody: String) -> Message {
@@ -250,6 +251,15 @@ final class ConversationViewModel {
         }
     }
     
+    func deleteMessage(messageID: String) {
+        Task {
+            do {
+                try await ChatsManager.shared.removeMessageFromDB(messageID: messageID, conversationID: conversation!.id)
+            } catch {
+                print("Error deleting message: ",error.localizedDescription)
+            }
+        }
+    }
 }
 
 

@@ -203,7 +203,12 @@ final class ChatsManager {
         }
     }
     
-  
+    //MARK: - REMOVE MESSAGE FROM DB
+    
+    func removeMessageFromDB(messageID: String, conversationID: String) async throws {
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: conversationID).delete()
+    }
+
 //    func addListenerForLastMessage(chatID: String, complition: @escaping (Chat) -> Void) -> ListenerRegistration {
 //        let listener = chatDocument(documentPath: chatID).addSnapshotListener { docSnapshot, error in
 //            guard error == nil else { print(error!.localizedDescription); return}

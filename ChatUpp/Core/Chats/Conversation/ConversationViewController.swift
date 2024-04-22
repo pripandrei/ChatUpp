@@ -109,9 +109,12 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
             }
         }
-        conversationViewModel.onMessageRemoved = { [weak self] in
+        conversationViewModel.onMessageRemoved = { [weak self] indexPath in
             Task { @MainActor in
-                self?.rootView.tableView.reloadData()
+                UIView.transition(with: self!.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
+                    self?.rootView.tableView.reloadData()
+                }
+//                self?.rootView.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
             }
         }
         
@@ -446,10 +449,14 @@ extension ConversationViewController: UITableViewDelegate
                     pastBoard.string = cell.messageContainer.text
                 }
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble")) { action in
-                    print("delete")
+                    print("edit")
                 }
-                let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { action in
+                let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] action in
                     print("delete")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        print("after deadline ")
+                        self?.conversationViewModel.deleteMessage(messageID: cell.cellViewModel.cellMessage.id)
+                    }
                 }
                 return UIMenu(title: "", children: [editAction, copyAction, deleteAction])
             })
