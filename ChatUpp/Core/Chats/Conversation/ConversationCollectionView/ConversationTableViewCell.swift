@@ -47,7 +47,7 @@ final class ConversationTableViewCell: UITableViewCell {
     var cellViewModel: ConversationCellViewModel!
     private var messageImage: UIImage?
     var sennStatusMark = YYLabel()
-    var contextMenuInteraction: MessageContextMenuInteractionHandler!
+//    var contextMenuInteraction: MessageContextMenuInteractionHandler!
     
     private var maxMessageWidth: CGFloat {
         return 290.0
@@ -81,7 +81,7 @@ final class ConversationTableViewCell: UITableViewCell {
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
-        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
+//        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
@@ -358,6 +358,7 @@ final class MessageContextMenuInteractionHandler: NSObject, UIContextMenuInterac
         let preview = UITargetedPreview(view: messageYYLabel, parameters: parameter)
         return preview
     }
+    
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         let contextMenuConfiguration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedAction in
             let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in

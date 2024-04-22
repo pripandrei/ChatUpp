@@ -432,40 +432,50 @@ extension ConversationViewController: UITableViewDelegate
     
 
     // MARK: - CONTEXT MENU CONFIGURATION
-//    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-//        
-//        let identifire = indexPath as NSCopying
-//        
-//        return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
-//            let copy = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
-//                print("copy")
-//            }
-//            let delete = UIAction(title: "Delete", image:UIImage(systemName: "trash"), attributes: .destructive) { _ in
-//                print("delete")
-//            }
-//            return UIMenu(title: "Options", children:  [copy, delete])
-//        })
-//    }
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        guard let cell = tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+        let tapLocationInCell = cell.contentView.convert(point, from: tableView)
+        
+        if cell.messageContainer.frame.contains(tapLocationInCell) {
+            let identifire = indexPath as NSCopying
+            return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
+                let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
+                    let pastBoard = UIPasteboard.general
+                    pastBoard.string = cell.messageContainer.text
+                }
+                let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble")) { action in
+                    print("delete")
+                }
+                let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { action in
+                    print("delete")
+                }
+                return UIMenu(title: "", children: [editAction, copyAction, deleteAction])
+            })
+        }
+        return nil
+    }
 //    
-//    func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-//        makeConversationMessagePreview(for: configuration)
-//    }
-//
-//    func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-//        makeConversationMessagePreview(for: configuration)
-//    }
-//    
-//    private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-//        guard let indexPath = configuration.identifier as? IndexPath,
-//              let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
-//
-//        let parameter = UIPreviewParameters()
-//        parameter.backgroundColor = .clear
-//        
-//        let preview = UITargetedPreview(view: cell.messageContainer, parameters: parameter)
-//        
-//        return preview
-//    }
+    func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        makeConversationMessagePreview(for: configuration)
+    }
+
+    func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        makeConversationMessagePreview(for: configuration)
+    }
+    
+    private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard let indexPath = configuration.identifier as? IndexPath,
+              let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+
+        let parameter = UIPreviewParameters()
+        parameter.backgroundColor = .clear
+        
+        let preview = UITargetedPreview(view: cell.messageContainer, parameters: parameter)
+        
+        return preview
+    }
 //    
 //    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 //        print(scrollView as? UITableView)

@@ -204,7 +204,6 @@ final class ChatsManager {
     }
     
   
-
 //    func addListenerForLastMessage(chatID: String, complition: @escaping (Chat) -> Void) -> ListenerRegistration {
 //        let listener = chatDocument(documentPath: chatID).addSnapshotListener { docSnapshot, error in
 //            guard error == nil else { print(error!.localizedDescription); return}

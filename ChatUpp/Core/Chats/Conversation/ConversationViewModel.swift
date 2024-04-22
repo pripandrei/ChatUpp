@@ -8,7 +8,10 @@
 import Foundation
 import FirebaseFirestore
 
-
+struct CurrentlyOpenedConversation {
+    static var id: String?
+    private init() {}
+}
 
 final class ConversationViewModel {
     
@@ -37,7 +40,12 @@ final class ConversationViewModel {
         self.conversation = conversation
         self.memberProfileImage = imageData
         self.memberID = memberID
+        CurrentlyOpenedConversation.id = conversation?.id
         addListenerToMessages()
+    }
+    
+    deinit {
+        CurrentlyOpenedConversation.id = nil
     }
     
     private func createConversation() async {
@@ -45,6 +53,7 @@ final class ConversationViewModel {
         let members = [authenticatedUserID, memberID]
         let chat = Chat(id: chatId, members: members, lastMessage: cellMessageGroups.first?.cellViewModels.first?.cellMessage.id)
         self.conversation = chat
+        CurrentlyOpenedConversation.id = chat.id
         do {
             try await ChatsManager.shared.createNewChat(chat: chat)
             addListenerToMessages()
@@ -240,6 +249,7 @@ final class ConversationViewModel {
             print("Success saving image: \(path) \(name)")
         }
     }
+    
 }
 
 
