@@ -143,6 +143,7 @@ final class ConversationViewModel {
         let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
 
         cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage = message
+        cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].isMessageEdited.value = true
         messageWasModified?(indexPath)
     }
     
@@ -171,7 +172,7 @@ final class ConversationViewModel {
     
     private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
-    
+        
         return Message(id: messageID,
                        messageBody: messageBody,
                        senderId: authenticatedUserID,
@@ -179,7 +180,8 @@ final class ConversationViewModel {
                        timestamp: Date(),
                        messageSeen: false,
                        receivedBy: nil,
-                       imageSize: nil)
+                       imageSize: nil,
+                       isEdited: false)
     }
     
     private func addMessageToDB(_ message: Message) async  {

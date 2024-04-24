@@ -81,6 +81,22 @@ final class ChatsManager {
             }
     }
     
+    func testUpdateEditedFiled() {
+        let data: [String: Any] = [
+            Message.CodingKeys.isEdited.rawValue : false
+        ]
+        chatDocument(documentPath: "049EDFBC-1F46-465E-B0B6-FEFD8A3C3E16").collection(FirestoreCollection.messages.rawValue).getDocuments { (querySnapshot, error) in
+                if let error = error {
+                    print("Error fetching documents: \(error)")
+                } else {
+                    // Iterate through the documents and delete them
+                    for document in querySnapshot!.documents {
+                        document.reference.updateData(data)
+                    }
+                }
+            }
+    }
+    
     //MARK: - GET RECENT MESSAGE FROM CHATS
     
     func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message?] {
@@ -128,11 +144,18 @@ final class ChatsManager {
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
-    //MARK: - UPDATE MESSAGE CONTENT
+    //MARK: - UPDATE MESSAGE TEXT
     
     func updateMessageFromDB(_ messageText: String, messageID: String, chatID: String) async throws {
         let data: [String: Any] = [
             Message.CodingKeys.messageBody.rawValue : messageText
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
+    }
+    
+    func updateMessageTest(messageID: String, chatID: String) async throws {
+        let data: [String: Any] = [
+            Message.CodingKeys.isEdited.rawValue : false
         ]
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }

@@ -44,9 +44,10 @@ final class ConversationTableViewCell: UITableViewCell {
     var mainCellContainer = UIView()
     var messageContainer = YYLabel()
     private var timeStamp = YYLabel()
-    var cellViewModel: ConversationCellViewModel!
-    private var messageImage: UIImage?
     var sennStatusMark = YYLabel()
+    private var messageImage: UIImage?
+    var editedLabel: UILabel?
+    var cellViewModel: ConversationCellViewModel!
 //    var contextMenuInteraction: MessageContextMenuInteractionHandler!
     
     private var maxMessageWidth: CGFloat {
@@ -67,6 +68,8 @@ final class ConversationTableViewCell: UITableViewCell {
         ])
     }
     
+  
+    
     //MARK: - LIFECYCLE
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -81,6 +84,7 @@ final class ConversationTableViewCell: UITableViewCell {
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
+//        setupEditedLabel()
 //        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
     }
     
@@ -104,6 +108,11 @@ final class ConversationTableViewCell: UITableViewCell {
                 }
             }
         }
+        cellViewModel.isMessageEdited.bind { isEdited in
+            if isEdited {
+                self.setupEditedLabel()
+            }
+        }
     }
 
     //MARK: - CELL PREPARE CLEANUP
@@ -114,6 +123,8 @@ final class ConversationTableViewCell: UITableViewCell {
         messageImage = nil
         sennStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
+//        editedLabel = nil
+        editedLabel?.text = nil
         adjustMessagePadding(.initialSpacing)
         
         // Layout with no animation to hide resizing animation of cells on keyboard show/hide
@@ -129,6 +140,7 @@ final class ConversationTableViewCell: UITableViewCell {
         cleanupCellContent()
         
         self.cellViewModel = viewModel
+        setupEditedLabel()
         timeStamp.text = viewModel.timestamp
         setupBinding()
         adjustMessageSide(side)
@@ -152,6 +164,29 @@ final class ConversationTableViewCell: UITableViewCell {
     }
     
 // MARK: - UI INITIAL STEUP
+    
+    private func setupEditedLabel() {
+        if cellViewModel.isMessageEdited.value {
+            editedLabel = UILabel()
+            guard let editedLabel = editedLabel else {return}
+            
+            messageContainer.addSubviews(editedLabel)
+            
+            editedLabel.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
+            editedLabel.text = "edited"
+    //        editedLabel.layer.cornerRadius = 7
+    //        editedLabel.clipsToBounds = true
+            editedLabel.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
+    //        editedLabel.isHidden = true
+            
+            editedLabel.translatesAutoresizingMaskIntoConstraints = false
+            
+            NSLayoutConstraint.activate([
+                editedLabel.trailingAnchor.constraint(equalTo: timeStamp.leadingAnchor, constant: -2),
+                editedLabel.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
+            ])
+        }
+    }
     
     private func setupSeenStatusMark() {
         messageContainer.addSubview(sennStatusMark)
@@ -247,7 +282,7 @@ extension ConversationTableViewCell
         
         let widthForSide = side == .right ? seenStatusMarkWidth : 0
         
-        let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding
+        var lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding + editedMessageWidth()
         let messageRectWidth = messageContainer.intrinsicContentSize.width
         
         if lastLineMessageAndTimestampWidth > maxMessageWidth  {
@@ -303,12 +338,17 @@ extension ConversationTableViewCell
     private func adjustMessagePadding(_ messagePadding: BubbleMessagePadding) {
         switch messagePadding {
         case .initialSpacing: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + sennStatusMark.intrinsicContentSize.width + 15)
-        case .outgoingMessageRightSapce: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 15)
+        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + sennStatusMark.intrinsicContentSize.width + 15 + editedMessageWidth())
+        case .outgoingMessageRightSapce: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 15 + editedMessageWidth())
         case .bottomSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
         case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
         }
         messageContainer.invalidateIntrinsicContentSize()
+    }
+    
+    private func editedMessageWidth() -> Double {
+        guard let editedLabel = editedLabel else {return 0}
+        return editedLabel.intrinsicContentSize.width
     }
 }
 
@@ -339,7 +379,7 @@ extension ConversationTableViewCell {
         return image
     }
 }
-
+// NOT IN USE
 //MARK:- CONTEXT MENU CONFIGURATION DELEGATE CLASS
 final class MessageContextMenuInteractionHandler: NSObject, UIContextMenuInteractionDelegate {
     

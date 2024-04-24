@@ -22,6 +22,11 @@ class ChatCellViewModel {
     
     init(chat: Chat) {
         self.chat = chat
+//        ChatsManager.shared.testUpdateEditedFiled()
+//        Task {
+//
+//            try await ChatsManager.shared.updateMessageTest(messageID: "07844ED4-82AD-4A41-916E-5D5D9CCF579C", chatID: "049EDFBC-1F46-465E-B0B6-FEFD8A3C3E16")
+//        }
     }
     
     func updateUnreadMessagesCount(_ count: Int) {
