@@ -39,6 +39,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         setupBinding()
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
+        addTargetToEditMessageBtn()
         configureTableView()
         setTepGesture()
         addKeyboardNotificationObservers()
@@ -106,7 +107,10 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
                 
                 //TODO: MANAGE THIS WHEN MESSAGE MODIFICATION FEATURE WILL BE ADDED
-//                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+                self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
+//                UIView.transition(with: self.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
+//                    self.rootView.tableView.reloadData()
+//                }
             }
         }
         conversationViewModel.onMessageRemoved = { [weak self] indexPath in
@@ -149,6 +153,18 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
     }
     
+    private func addTargetToEditMessageBtn() {
+        rootView.editMessageButton.addTarget(self, action: #selector(editMessageBtnWasTapped), for: .touchUpInside)
+    }
+    
+    @objc func editMessageBtnWasTapped() {
+        guard let editedMessage = rootView.messageTextView.text else {return}
+        conversationViewModel.shouldEditMessage?(editedMessage)
+        rootView.editMessageButton.isHidden = true
+        rootView.messageTextView.text.removeAll()
+        rootView.messageTextView.resignFirstResponder()
+    }
+    
     @objc func sendMessageBtnWasTapped() {
         let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
@@ -163,7 +179,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         
 //        self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: messageText, messageBody: messageText, senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
         
-                self.conversationViewModel.createMessageBubble(messageText)
+        self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
             self.handleTableViewCellInsertion(with: indexPath, scrollToBottom: true)
         }
@@ -433,7 +449,7 @@ extension ConversationViewController: UITableViewDelegate
         updateMessageSeenStatusIfNeeded()
     }
     
-
+   
     // MARK: - CONTEXT MENU CONFIGURATION
     
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
@@ -449,13 +465,19 @@ extension ConversationViewController: UITableViewDelegate
                     pastBoard.string = cell.messageContainer.text
                 }
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble")) { action in
-                    print("edit")
+                    DispatchQueue.main.async {
+                        self.rootView.editMessageButton.isHidden = false
+                        self.rootView.messageTextView.becomeFirstResponder()
+                        self.rootView.messageTextView.text = cell.messageContainer.text
+
+                        self.conversationViewModel.shouldEditMessage = { edditedMessage in
+                            self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
+                        }
+                    }
                 }
                 let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] action in
-                    print("delete")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        print("after deadline ")
-                        self?.conversationViewModel.deleteMessage(messageID: cell.cellViewModel.cellMessage.id)
+                        self?.conversationViewModel.deleteMessageFromDB(messageID: cell.cellViewModel.cellMessage.id)
                     }
                 }
                 return UIMenu(title: "", children: [editAction, copyAction, deleteAction])

@@ -27,6 +27,7 @@ final class ConversationViewModel {
 //    private(set) var messages: [Message] = []
     var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: ListenerRegistration?
+    var shouldEditMessage: ((String) -> Void)?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
@@ -251,13 +252,19 @@ final class ConversationViewModel {
         }
     }
     
-    func deleteMessage(messageID: String) {
+    func deleteMessageFromDB(messageID: String) {
         Task {
             do {
                 try await ChatsManager.shared.removeMessageFromDB(messageID: messageID, conversationID: conversation!.id)
             } catch {
                 print("Error deleting message: ",error.localizedDescription)
             }
+        }
+    }
+    
+    func editMessageTextFromDB(_ messageText: String, messageID: String) {
+        Task {
+            try await ChatsManager.shared.updateMessageFromDB(messageText, messageID: messageID, chatID: conversation!.id)
         }
     }
 }

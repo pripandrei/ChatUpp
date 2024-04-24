@@ -37,6 +37,7 @@ extension UIImage {
     }
     
     func resize(to newSize: CGSize) -> UIImage {
+        
         UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
         defer { UIGraphicsEndImageContext() }
         self.draw(in: CGRect(origin: .zero, size: newSize))

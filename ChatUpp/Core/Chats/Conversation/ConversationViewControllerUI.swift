@@ -8,12 +8,13 @@
 import Foundation
 import UIKit
 
-final class ConversationViewControllerUI: UIView {
-
+class ConversationViewControllerUI: UIView {
+    
     let containerView = UIView()
     let messageTextView = UITextView()
     let sendMessageButton = UIButton()
     let pictureAddButton = UIButton()
+    let editMessageButton = UIButton()
     
     var holderViewBottomConstraint: NSLayoutConstraint!
     
@@ -31,13 +32,14 @@ final class ConversationViewControllerUI: UIView {
         return tableView
     }()
     
-    convenience init() {
-        self.init(frame: .zero)
-        setupLayout()
-    }
+    //    convenience init() {
+    //        self.init(frame: .zero)
+    //        setupLayout()
+    //    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupLayout()
     }
     
     required init?(coder: NSCoder) {
@@ -53,6 +55,7 @@ final class ConversationViewControllerUI: UIView {
         setupMessageTextView()
         setupSendMessageBtn()
         setupAddPictureButton()
+        setupEditMessageButton()
     }
     
     private func setupAddPictureButton() {
@@ -74,7 +77,7 @@ final class ConversationViewControllerUI: UIView {
             pictureAddButton.trailingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: -10)
         ])
     }
-
+    
     private func setupTableView() {
         self.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -102,7 +105,7 @@ final class ConversationViewControllerUI: UIView {
         heightConstraint.priority = .defaultLow
         
         NSLayoutConstraint.activate([
-//            containerView.heightAnchor.constraint(equalToConstant: 80),
+            //            containerView.heightAnchor.constraint(equalToConstant: 80),
             containerView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
@@ -121,24 +124,24 @@ final class ConversationViewControllerUI: UIView {
         messageTextView.textContainer.maximumNumberOfLines = 0
         messageTextView.delegate = self
         
-//        messageTextView.textContainer.heightTracksTextView = true
+        //        messageTextView.textContainer.heightTracksTextView = true
         messageTextView.isScrollEnabled = false
         
-//        let heightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4)
-//        heightConstraint.isActive = true
-//        heightConstraint.priority = .defaultLow
+        //        let heightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4)
+        //        heightConstraint.isActive = true
+        //        heightConstraint.priority = .defaultLow
         
         textViewHeightConstraint.isActive = true
         textViewHeightConstraint.priority = .defaultLow
         
         let topConstraint = messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10)
         topConstraint.isActive = true
-//        topHeightConstraint.priority = .defaultLow
+        //        topHeightConstraint.priority = .defaultLow
         
         NSLayoutConstraint.activate([
-//            messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4),
+            //            messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4),
             messageTextView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -containerView.bounds.height * 0.45),
-//            messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+            //            messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
             messageTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -55),
             messageTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 55)
         ])
@@ -165,6 +168,29 @@ final class ConversationViewControllerUI: UIView {
         ])
     }
     
+    func setupEditMessageButton() {
+        self.addSubviews(editMessageButton)
+        
+        editMessageButton.frame.size = CGSize(width: 35, height: 35)
+        editMessageButton.configuration = .filled()
+        editMessageButton.configuration?.baseBackgroundColor = UIColor.blue
+        editMessageButton.layer.cornerRadius = editMessageButton.frame.size.width / 2.0
+        editMessageButton.configuration?.image = UIImage(systemName: "checkmark")
+        editMessageButton.clipsToBounds =  true
+        editMessageButton.isHidden = true
+        
+        editMessageButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            editMessageButton.heightAnchor.constraint(equalToConstant: 35),
+            editMessageButton.widthAnchor.constraint(equalToConstant: 35),
+            editMessageButton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
+            editMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
+        ])
+        
+        
+    }
+    
     private func revertCollectionflowLayout() {
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         tableView.layoutIfNeeded()
@@ -173,16 +199,16 @@ final class ConversationViewControllerUI: UIView {
 
 // MARK: - SETUP NAVIGATION BAR ITEMS
 final class ConversationCustomNavigationBar {
-
+    
     private let viewController: UIViewController!
-
+    
     init(viewController: UIViewController) {
         self.viewController = viewController
     }
-
+    
     func setupNavigationBarItems(with imageData: Data, memberName: String) {
         let customTitleView = UIView()
-
+        
         if let image = UIImage(data: imageData) {
             let imageView = UIImageView(image: image)
             imageView.contentMode = .scaleAspectFit
@@ -190,9 +216,9 @@ final class ConversationCustomNavigationBar {
             imageView.layer.cornerRadius = 20
             imageView.clipsToBounds = true
             imageView.center = imageView.convert(CGPoint(x: ((viewController.navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0), from: viewController.view)
-
+            
             customTitleView.addSubview(imageView)
-
+            
             let titleLabel = UILabel()
             titleLabel.frame = CGRect(x: 0, y: 0, width: 200, height: 20)
             titleLabel.text = memberName
@@ -202,7 +228,7 @@ final class ConversationCustomNavigationBar {
             //            titleLabel.sizeToFit()
             titleLabel.center = titleLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
             customTitleView.addSubview(titleLabel)
-
+            
             viewController.navigationItem.titleView = customTitleView
         }
     }
@@ -211,7 +237,7 @@ final class ConversationCustomNavigationBar {
 extension ConversationViewControllerUI: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         let numberOfLines = Int(textView.contentSize.height / textView.font!.lineHeight)
-
+        
         if numberOfLines >= 4 && !messageTextView.isScrollEnabled {
             textViewHeightConstraint.constant = textView.contentSize.height
             messageTextView.isScrollEnabled = true
