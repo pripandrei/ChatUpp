@@ -148,17 +148,18 @@ final class ChatsManager {
     
     func updateMessageFromDB(_ messageText: String, messageID: String, chatID: String) async throws {
         let data: [String: Any] = [
-            Message.CodingKeys.messageBody.rawValue : messageText
+            Message.CodingKeys.messageBody.rawValue : messageText,
+            Message.CodingKeys.isEdited.rawValue : true
         ]
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
-    func updateMessageTest(messageID: String, chatID: String) async throws {
-        let data: [String: Any] = [
-            Message.CodingKeys.isEdited.rawValue : false
-        ]
-        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
-    }
+//    func updateMessageTest(messageID: String, chatID: String) async throws {
+//        let data: [String: Any] = [
+//            Message.CodingKeys.isEdited.rawValue : false
+//        ]
+//        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
+//    }
     
     //MARK: - GET ALL UNREAD CHAT MESSAGES COUNT
     
