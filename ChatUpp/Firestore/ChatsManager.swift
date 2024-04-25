@@ -81,11 +81,58 @@ final class ChatsManager {
             }
     }
     
+
+
+    // Assuming you've already configured Firebase in your project
+
+    func updateAllMessagesFields() {
+        
+        // Query the "Chats" collection
+        chatsCollection.getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Error getting documents: \(error)")
+            } else {
+                guard let querySnapshot = querySnapshot else { return }
+                
+                for document in querySnapshot.documents {
+                    let chatID = document.documentID
+                    
+                    // Reference to the "Messages" subcollection within the current chat
+                    let messagesCollectionRef = self.chatsCollection.document(chatID).collection("messages")
+                    
+                    // Update the "is_edited" field for each document in the "Messages" subcollection
+                    messagesCollectionRef.getDocuments { (messageQuerySnapshot, error) in
+                        if let error = error {
+                            print("Error getting documents: \(error)")
+                        } else {
+                            guard let messageQuerySnapshot = messageQuerySnapshot else { return }
+                            
+                            for messageDocument in messageQuerySnapshot.documents {
+                                let messageID = messageDocument.documentID
+                                
+                                // Update the "is_edited" field for each message document
+                                let messageDocRef = messagesCollectionRef.document(messageID)
+                                messageDocRef.updateData(["is_edited": false]) { error in
+                                    if let error = error {
+                                        print("Error updating document: \(error)")
+                                    } else {
+                                        print("Document \(messageID) updated successfully")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    
     func testUpdateEditedFiled() {
         let data: [String: Any] = [
             Message.CodingKeys.isEdited.rawValue : false
         ]
-        chatDocument(documentPath: "049EDFBC-1F46-465E-B0B6-FEFD8A3C3E16").collection(FirestoreCollection.messages.rawValue).getDocuments { (querySnapshot, error) in
+        chatDocument(documentPath: "06067529-2DA4-48E0-9D8A-03305FF1AC8C").collection(FirestoreCollection.messages.rawValue).getDocuments { (querySnapshot, error) in
                 if let error = error {
                     print("Error fetching documents: \(error)")
                 } else {

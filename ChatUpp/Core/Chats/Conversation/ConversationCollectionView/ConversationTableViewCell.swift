@@ -44,7 +44,7 @@ final class ConversationTableViewCell: UITableViewCell {
     var mainCellContainer = UIView()
     var messageContainer = YYLabel()
     private var timeStamp = YYLabel()
-    var sennStatusMark = YYLabel()
+    var seenStatusMark = YYLabel()
     private var messageImage: UIImage?
     var editedLabel: UILabel?
     var cellViewModel: ConversationCellViewModel!
@@ -121,7 +121,7 @@ final class ConversationTableViewCell: UITableViewCell {
         timeStamp.text = nil
         timeStamp.backgroundColor = .clear
         messageImage = nil
-        sennStatusMark.attributedText = nil
+        seenStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
 //        editedLabel = nil
         editedLabel?.text = nil
@@ -160,13 +160,14 @@ final class ConversationTableViewCell: UITableViewCell {
 
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
       
-        sennStatusMark.attributedText = imageAttributedString
+        seenStatusMark.attributedText = imageAttributedString
     }
     
 // MARK: - UI INITIAL STEUP
     
     private func setupEditedLabel() {
-        if cellViewModel.isMessageEdited.value {
+        if cellViewModel.cellMessage.isEdited {
+//        if cellViewModel.isMessageEdited.value {
             editedLabel = UILabel()
             guard let editedLabel = editedLabel else {return}
             
@@ -189,14 +190,14 @@ final class ConversationTableViewCell: UITableViewCell {
     }
     
     private func setupSeenStatusMark() {
-        messageContainer.addSubview(sennStatusMark)
+        messageContainer.addSubview(seenStatusMark)
         
-        sennStatusMark.font = UIFont(name: "Helvetica", size: 4)
-        sennStatusMark.translatesAutoresizingMaskIntoConstraints = false
+        seenStatusMark.font = UIFont(name: "Helvetica", size: 4)
+        seenStatusMark.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            sennStatusMark.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
-            sennStatusMark.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
+            seenStatusMark.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
+            seenStatusMark.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
         ])
     }
     
@@ -210,7 +211,7 @@ final class ConversationTableViewCell: UITableViewCell {
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            timeStamp.trailingAnchor.constraint(equalTo: sennStatusMark.leadingAnchor, constant: -2),
+            timeStamp.trailingAnchor.constraint(equalTo: seenStatusMark.leadingAnchor, constant: -2),
             timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
         ])
     }
@@ -282,7 +283,7 @@ extension ConversationTableViewCell
         
         let widthForSide = side == .right ? seenStatusMarkWidth : 0
         
-        var lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding + editedMessageWidth()
+        let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding + editedMessageWidth()
         let messageRectWidth = messageContainer.intrinsicContentSize.width
         
         if lastLineMessageAndTimestampWidth > maxMessageWidth  {
@@ -338,7 +339,7 @@ extension ConversationTableViewCell
     private func adjustMessagePadding(_ messagePadding: BubbleMessagePadding) {
         switch messagePadding {
         case .initialSpacing: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + sennStatusMark.intrinsicContentSize.width + 15 + editedMessageWidth())
+        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + seenStatusMark.intrinsicContentSize.width + 15 + editedMessageWidth())
         case .outgoingMessageRightSapce: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 15 + editedMessageWidth())
         case .bottomSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
         case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)

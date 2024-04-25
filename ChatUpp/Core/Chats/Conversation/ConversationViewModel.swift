@@ -33,7 +33,7 @@ final class ConversationViewModel {
     
     var onCellVMLoad: ((IndexPath?) -> Void)?
     var onNewMessageAdded: (() -> Void)?
-    var messageWasModified: ((IndexPath) -> Void)?
+    var messageWasModified: ((IndexPath, String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     
     init(memberID: String ,memberName: String, conversation: Chat? = nil, imageData: Data?) {
@@ -41,12 +41,7 @@ final class ConversationViewModel {
         self.conversation = conversation
         self.memberProfileImage = imageData
         self.memberID = memberID
-        CurrentlyOpenedConversation.id = conversation?.id
         addListenerToMessages()
-    }
-    
-    deinit {
-        CurrentlyOpenedConversation.id = nil
     }
     
     private func createConversation() async {
@@ -54,7 +49,6 @@ final class ConversationViewModel {
         let members = [authenticatedUserID, memberID]
         let chat = Chat(id: chatId, members: members, lastMessage: cellMessageGroups.first?.cellViewModels.first?.cellMessage.id)
         self.conversation = chat
-        CurrentlyOpenedConversation.id = chat.id
         do {
             try await ChatsManager.shared.createNewChat(chat: chat)
             addListenerToMessages()
@@ -138,13 +132,27 @@ final class ConversationViewModel {
     }
     
     private func handleModifiedMessage(_ message: Message) {
+        //        if message.isEdited {
+        
         guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
         guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
         let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
-
+        let oldMessage = cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage
+        var modifyAnimation: String = ""
+        
         cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage = message
-        cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].isMessageEdited.value = true
-        messageWasModified?(indexPath)
+       
+        // animation of cell reload based on what field of message was mofidied
+        if oldMessage.messageBody != message.messageBody {
+            modifyAnimation = "left"
+        } else if oldMessage.messageSeen != message.messageSeen {
+            modifyAnimation = "none"
+        }
+        
+        
+        //            cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].isMessageEdited.value = true
+        messageWasModified?(indexPath, modifyAnimation)
+        //        }
     }
     
     var onMessageRemoved: ((IndexPath) -> Void)?

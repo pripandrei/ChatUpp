@@ -102,12 +102,18 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
             }
         }
-        conversationViewModel.messageWasModified = { indexPath in
+        conversationViewModel.messageWasModified = { indexPath, animationType in
             Task { @MainActor in
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
                 
+                switch animationType {
+                case "left": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
+                case "none": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+                default: break
+                }
+                
                 //TODO: MANAGE THIS WHEN MESSAGE MODIFICATION FEATURE WILL BE ADDED
-                self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
+//                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
 //                UIView.transition(with: self.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
 //                    self.rootView.tableView.reloadData()
 //                }
