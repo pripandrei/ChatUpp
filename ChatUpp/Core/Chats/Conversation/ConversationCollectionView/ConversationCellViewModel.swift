@@ -11,7 +11,6 @@ final class ConversationCellViewModel {
     
     var cellMessage: Message
     var imageData: ObservableObject<Data?> = ObservableObject(nil)
-    lazy var isMessageEdited: ObservableObject<Bool> = ObservableObject(cellMessage.isEdited)
 
     init(cellMessage: Message) {
         self.cellMessage = cellMessage

@@ -132,27 +132,21 @@ final class ConversationViewModel {
     }
     
     private func handleModifiedMessage(_ message: Message) {
-        //        if message.isEdited {
-        
         guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
         guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
         let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
         let oldMessage = cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage
-        var modifyAnimation: String = ""
+        var modificationType: String = ""
         
         cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage = message
-       
+        
         // animation of cell reload based on what field of message was mofidied
         if oldMessage.messageBody != message.messageBody {
-            modifyAnimation = "left"
+            modificationType = "text"
         } else if oldMessage.messageSeen != message.messageSeen {
-            modifyAnimation = "none"
+            modificationType = "seenStatus"
         }
-        
-        
-        //            cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].isMessageEdited.value = true
-        messageWasModified?(indexPath, modifyAnimation)
-        //        }
+        messageWasModified?(indexPath, modificationType)
     }
     
     var onMessageRemoved: ((IndexPath) -> Void)?

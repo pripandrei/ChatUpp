@@ -108,11 +108,6 @@ final class ConversationTableViewCell: UITableViewCell {
                 }
             }
         }
-        cellViewModel.isMessageEdited.bind { isEdited in
-            if isEdited {
-                self.setupEditedLabel()
-            }
-        }
     }
 
     //MARK: - CELL PREPARE CLEANUP
@@ -167,7 +162,6 @@ final class ConversationTableViewCell: UITableViewCell {
     
     private func setupEditedLabel() {
         if cellViewModel.cellMessage.isEdited {
-//        if cellViewModel.isMessageEdited.value {
             editedLabel = UILabel()
             guard let editedLabel = editedLabel else {return}
             

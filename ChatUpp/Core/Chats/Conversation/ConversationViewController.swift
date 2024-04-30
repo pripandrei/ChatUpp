@@ -36,6 +36,11 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        Timer.scheduledTimer(withTimeInterval: 8, repeats: true) { _ in
+//            self.rootView.tableView.setContentOffset(CGPoint(x: 0, y: self.rootView.tableView.contentOffset.y - self.rootView.messageTextView.contentSize.height), animated: false)
+//        }
+        
+
         setupBinding()
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
@@ -58,6 +63,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //        ])
 //    }
 //
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         cleanUp()
@@ -91,9 +97,12 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         conversationViewModel.onCellVMLoad = { indexOfCellToScrollTo in
             Task { @MainActor in
                 self.rootView.tableView.reloadData()
+                print(self.rootView.tableView.contentOffset.y)
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                 self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
                 self.updateMessageSeenStatusIfNeeded()
+//                Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { _ in
+//                }
             }
         }
         conversationViewModel.onNewMessageAdded = { [weak self] in
@@ -102,13 +111,13 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
             }
         }
-        conversationViewModel.messageWasModified = { indexPath, animationType in
+        conversationViewModel.messageWasModified = { indexPath, modificationType in
             Task { @MainActor in
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
                 
-                switch animationType {
-                case "left": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
-                case "none": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+                switch modificationType {
+                case "text": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
+                case "seenStatus": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
                 default: break
                 }
                 
@@ -137,15 +146,15 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     }
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            if rootView.containerView.frame.origin.y > 760 {
-                handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
+            if rootView.containerView.frame.origin.y > 580 {
+                handleTableViewOffSet(usingKeyboardSize: keyboardSize)
                 isKeyboardHidden = false
             }
         }
     }
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
+            handleTableViewOffSet(usingKeyboardSize: keyboardSize)
             isKeyboardHidden = true
         }
     }
@@ -174,9 +183,36 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     @objc func sendMessageBtnWasTapped() {
         let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
+            
+           
+            
+//            rootView.tableView.contentInset.top -= self.rootView.messageTextView.contentSize.height - self.rootView.messageTextView.font!.lineHeight * 2
+//            self.view.layoutIfNeeded()
+//            rootView.tableView.setContentOffset(CGPoint(x: 0, y: rootView.tableView.contentOffset.y - rootView.messageTextView.contentSize.height), animated: false)
+            
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+//                self.rootView.tableView.contentInset.top -= 100
+//            self.view.layoutIfNeeded()
+//                self.rootView.tableView.setContentOffset(CGPoint(x: 0, y: self.rootView.tableView.contentOffset.y - 100), animated: false)
+//                self.rootView.tableView.setContentOffset(CGPoint(x: 0, y: self.rootView.tableView.contentOffset.y - self.rootView.messageTextView.contentSize.height), animated: false)
+//            })
             rootView.messageTextView.text.removeAll()
+            
+            rootView.layoutIfNeeded()
+            let numberOfLines = Int(rootView.messageTextView.contentSize.height / rootView.messageTextView.font!.lineHeight)
+            
+            rootView.adjustTableViewContent(using: rootView.messageTextView, numberOfLines: numberOfLines)
+//            rootView.tableView.setContentOffset(CGPoint(x: 0, y: rootView.tableView.contentOffset.y - rootView.messageTextView.contentSize.height), animated: false)
+            
+//            rootView.messageTextView.delegate?.textViewDidChange!(rootView.messageTextView)
             handleMessageBubbleCreation(messageText: trimmedString)
         }
+//        Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
+//              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+//                  self.rootView.tableView.contentInset.top -= self.rootView.messageTextView.contentSize.height - self.rootView.messageTextView.font!.lineHeight * 2
+//                  self.rootView.tableView.setContentOffset(CGPoint(x: 0, y: self.rootView.tableView.contentOffset.y - self.rootView.messageTextView.contentSize.height * 2), animated: false)
+//              })
+      //        }
     }
     
     //MARK: - MESSAGE BUBBLE CREATION
@@ -360,19 +396,25 @@ extension ConversationViewController {
 
 //MARK: - COLLETION VIEW OFFSET HANDLER
 extension ConversationViewController {
-    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
-        let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
-        let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
+    private func handleTableViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
+        
+        // if number of lines inside textView is bigger than 1, it will expand
+        // and origin.y of containerView that holds textView will change
+        // so we check if maximum allowed number of line is reached (containerView origin.y will be 584)
+        let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
+        let keyboardHeight = rootView.containerView.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
+        let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootView.currentNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
+        let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight : 0 + textViewHeight
 
         self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-
+        
         let currentOffSet = rootView.tableView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
 
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.contentInset.top = customCollectionViewInset
         rootView.tableView.verticalScrollIndicatorInsets.top = customCollectionViewInset
-
+        rootView.tableViewInitialContentOffset = offSet
 //        if keyboardHeight > 0 {
 //            view.layoutSubviews()
 //        } else {
