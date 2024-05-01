@@ -7,47 +7,79 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "80A37AD5-BA9A-4E3F-9C22-3F67D6669E4F"
+            uuid = "3E00EE0A-F0DB-4D1A-99F7-F6F588DE6845"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "313"
+            endingLineNumber = "313"
+            landmarkName = "adjustTableViewContent(using:numberOfLines:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8F2EEF05-01D8-4358-83B5-FDD953BE8609"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "314"
+            endingLineNumber = "314"
+            landmarkName = "adjustTableViewContent(using:numberOfLines:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1D826BDA-D457-462F-8E17-1CE6365CAEF2"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "416"
-            endingLineNumber = "416"
-            landmarkName = "handleTableViewOffSet(usingKeyboardSize:)"
+            startingLineNumber = "312"
+            endingLineNumber = "312"
+            landmarkName = "adjustTableViewContent(using:numberOfLines:)"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "80A37AD5-BA9A-4E3F-9C22-3F67D6669E4F - f7c9c550b7dc1749"
+                  uuid = "1D826BDA-D457-462F-8E17-1CE6365CAEF2 - d4fa924a6a3ba3bc"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.handleTableViewOffSet(usingKeyboardSize: __C.CGRect) -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewControllerUI.adjustTableViewContent(using: __C.UITextView, numberOfLines: Swift.Int) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "416"
-                  endingLineNumber = "416"
-                  offsetFromSymbolStart = "1612">
+                  startingLineNumber = "315"
+                  endingLineNumber = "315"
+                  offsetFromSymbolStart = "1352">
                </Location>
                <Location
-                  uuid = "80A37AD5-BA9A-4E3F-9C22-3F67D6669E4F - f7c9c550b7dc1749"
+                  uuid = "1D826BDA-D457-462F-8E17-1CE6365CAEF2 - d4fa924a6a3ba220"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.handleTableViewOffSet(usingKeyboardSize: __C.CGRect) -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewControllerUI.adjustTableViewContent(using: __C.UITextView, numberOfLines: Swift.Int) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "416"
-                  endingLineNumber = "416"
-                  offsetFromSymbolStart = "2084">
+                  startingLineNumber = "311"
+                  endingLineNumber = "311"
+                  offsetFromSymbolStart = "1316">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -55,49 +87,96 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "E617B451-2DB1-4653-ABCE-03757F7CDD9E"
+            uuid = "73D38E6F-0EED-44CA-9968-600480026394"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "263"
+            endingLineNumber = "263"
+            landmarkName = "textViewDidChange(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "76414AA5-8DF8-4E66-8711-7C5938A3D843"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "414"
-            endingLineNumber = "414"
-            landmarkName = "handleTableViewOffSet(usingKeyboardSize:)"
+            startingLineNumber = "283"
+            endingLineNumber = "283"
+            landmarkName = "textViewDidChange(_:)"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "E617B451-2DB1-4653-ABCE-03757F7CDD9E - f7c9c550b7dc170b"
+                  uuid = "76414AA5-8DF8-4E66-8711-7C5938A3D843 - e201c3770964006a"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.handleTableViewOffSet(usingKeyboardSize: __C.CGRect) -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewControllerUI.textViewDidChange(__C.UITextView) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "414"
-                  endingLineNumber = "414"
-                  offsetFromSymbolStart = "1204">
+                  startingLineNumber = "283"
+                  endingLineNumber = "283"
+                  offsetFromSymbolStart = "1260">
                </Location>
                <Location
-                  uuid = "E617B451-2DB1-4653-ABCE-03757F7CDD9E - f7c9c550b7dc170b"
+                  uuid = "76414AA5-8DF8-4E66-8711-7C5938A3D843 - e201c37709640195"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.handleTableViewOffSet(usingKeyboardSize: __C.CGRect) -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewControllerUI.textViewDidChange(__C.UITextView) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "414"
-                  endingLineNumber = "414"
-                  offsetFromSymbolStart = "1728">
+                  startingLineNumber = "282"
+                  endingLineNumber = "282"
+                  offsetFromSymbolStart = "1188">
+               </Location>
+               <Location
+                  uuid = "76414AA5-8DF8-4E66-8711-7C5938A3D843 - e201c37709640195"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationViewControllerUI.textViewDidChange(__C.UITextView) -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "282"
+                  endingLineNumber = "282"
+                  offsetFromSymbolStart = "1172">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "74A684CE-AC6E-43D4-A7FB-DA8766C2529A"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewControllerUI.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "294"
+            endingLineNumber = "294"
+            landmarkName = "textViewDidChange(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
