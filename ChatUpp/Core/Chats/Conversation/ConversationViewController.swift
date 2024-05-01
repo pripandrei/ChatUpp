@@ -179,14 +179,9 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
             rootView.messageTextView.text.removeAll()
-//            rootView.layoutIfNeeded()
  
             rootView.textViewDidChange(rootView.messageTextView)
-//            rootView.textViewHeightConstraint.constant = 32
-//            rootView.textViewHeightConstraint.priority = .required
-//            rootView.layoutIfNeeded()
             handleMessageBubbleCreation(messageText: trimmedString)
-//            rootView.textViewHeightConstraint.priority = .defaultLow
         }
     }
     

@@ -245,77 +245,51 @@ final class ConversationCustomNavigationBar {
 }
 
 extension ConversationViewControllerUI: UITextViewDelegate {
-
-    func textViewDidChange(_ textView: UITextView) {
-//        print("messageTextView.contentSize", messageTextView.contentSize)
-//        print("self.messageTextView.bounds.size", self.messageTextView.bounds.size)
-//
-        
+    
+    private func calculateTextViewFrameSize(_ textView: UITextView) -> CGSize {
         let fixedWidth = textView.frame.size.width
         let newSize = textView.sizeThatFits(CGSize.init(width: fixedWidth, height: CGFloat(MAXFLOAT)))
-        var newFrame = textView.frame
-        newFrame.size = CGSize.init(width: CGFloat(fmaxf(Float(newSize.width), Float(fixedWidth))), height: newSize.height)
-//        self.textViewHeightConstraint.constant = newSize.height
-//
-        self.layoutIfNeeded()
-//
-        var testNumberOfLines = Int(newFrame.size.height / textView.font!.lineHeight)
-//        var numberOfLines = Int(textView.contentSize.height / textView.font!.lineHeight)
-        
-////        numberOfLines = numberOfLines > 4 ? 5 : numberOfLines
-////        textViewHeightConstraint.constant =  textViewHeightConstraint.constant * CGFloat(numberOfLines)
-////        if numberOfLines > 4 {
-////            numberOfLines = 5
-////            textViewHeightConstraint.constant =  textViewHeightConstraint.constant + (textView.font!.lineHeight * CGFloat(numberOfLines - 1))
-////            textViewHeightConstraint.priority = .required
-////        } else if numberOfLines < 4 && num {
-//////            if textViewHeightConstraint.priority == .required {
-////                textViewHeightConstraint.priority = .defaultLow
-//////            }
-////        }
-//
-//
-////        adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
-//        textViewHeightConstraint.constant = 32 + messageTextView.textBoundingRect.height
-        if testNumberOfLines > 4 && !self.messageTextView.isScrollEnabled {
-////            self.textViewHeightConstraint.constant = textView.contentSize.height
-            testNumberOfLines = 5
-            textViewHeightConstraint.constant = 32 + (textView.font!.lineHeight * CGFloat(testNumberOfLines - 1))
-////            textViewHeightConstraint.priority = .required
-            adjustTableViewContent(using: textView, numberOfLines: testNumberOfLines)
+        return CGSize.init(width: CGFloat(fmaxf(Float(newSize.width), Float(fixedWidth))), height: newSize.height)
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+
+        // because textView height constraint priority is .required
+        // new line will not occur and height will not change
+        // so we need to calculate height ourselves
+        let textViewFrameSize = calculateTextViewFrameSize(textView)
+
+//        self.layoutIfNeeded()
+
+        var numberOfLines = Int(textViewFrameSize.height / textView.font!.lineHeight)
+
+        if numberOfLines > 4 && !self.messageTextView.isScrollEnabled {
+            
+            // in case user paste text that exceeds 5 lines
+            numberOfLines = 5
+            let initialTextViewHeight = 32.0
+            
+            textViewHeightConstraint.constant = initialTextViewHeight + (textView.font!.lineHeight * CGFloat(numberOfLines - 1))
+            adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
             self.messageTextView.isScrollEnabled = true
         }
-        if testNumberOfLines <= 4 {
-////            self.textViewHeightConstraint.constant = textView.contentSize.height
-//            //                self.layoutIfNeeded()
-////            textViewHeightConstraint.priority = .defaultLow
-            adjustTableViewContent(using: textView, numberOfLines: testNumberOfLines)
+        if numberOfLines <= 4 {
+            adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
             textView.isScrollEnabled = false
-            self.textViewHeightConstraint.constant = newSize.height
+            self.textViewHeightConstraint.constant = textViewFrameSize.height
         }
-//        print(numberOfLines)
     }
     
     func adjustTableViewContent(using textView: UITextView, numberOfLines: Int) {
-        let numberOfAddedLines = CGFloat(numberOfLines - self.messageTextViewNumberOfLines)
-        let updatedContentOffset =  self.tableView.contentOffset.y - textView.font!.lineHeight * numberOfAddedLines
-//        let secondMeasure = tableViewInitialContentOffset.y - textView.font!.lineHeight * CGFloat((numberOfLines - 1))
-        
+        let numberOfAddedLines     = CGFloat(numberOfLines - self.messageTextViewNumberOfLines)
+        let updatedContentOffset   = self.tableView.contentOffset.y - textView.font!.lineHeight * numberOfAddedLines
         let updatedContentTopInset = tableViewInitialTopInset() + (textView.font!.lineHeight * CGFloat((numberOfLines - 1)))
 
         self.tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
         self.tableView.contentInset.top = updatedContentTopInset
         self.tableView.verticalScrollIndicatorInsets.top += textView.font!.lineHeight * numberOfAddedLines
-//        messageTextView.contentSize.height = updatedContentTopInset
-//        messageTextView.bounds.size.height = updatedContentTopInset
         
         self.messageTextViewNumberOfLines = numberOfLines
-//        let test = (textView.font!.lineHeight * (numberOfAddedLines != 0 ? numberOfAddedLines : 1))
-//        self.textViewHeightConstraint.constant = messageTextView.bounds.height - (textView.font!.lineHeight * (numberOfAddedLines != 0 ? numberOfAddedLines : 1))
-//        self.textViewHeightConstraint.constant = messageTextView.contentSize.height
-//        self.messageTextView.bounds.size = messageTextView.contentSize
-        self.layoutIfNeeded()
-        
     }
 }
 
