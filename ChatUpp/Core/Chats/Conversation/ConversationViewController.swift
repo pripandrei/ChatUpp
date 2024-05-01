@@ -172,6 +172,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         conversationViewModel.shouldEditMessage?(editedMessage)
         rootView.editMessageButton.isHidden = true
         rootView.messageTextView.text.removeAll()
+        rootView.textViewDidChange(rootView.messageTextView)
         rootView.messageTextView.resignFirstResponder()
     }
     
@@ -489,6 +490,7 @@ extension ConversationViewController: UITableViewDelegate
                         self.rootView.editMessageButton.isHidden = false
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageContainer.text
+                        self.rootView.textViewDidChange(self.rootView.messageTextView)
 
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
                             self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
