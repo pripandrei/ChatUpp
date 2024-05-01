@@ -22,6 +22,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     private var isKeyboardHidden: Bool = true
     private var isNewSectionAdded: Bool = false
+    private var isContextMenuPresented: Bool = false
     
     //MARK: - LIFECYCLE
     convenience init(conversationViewModel: ConversationViewModel) {
@@ -138,7 +139,14 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func addKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
     }
+    @objc func keyboardDidHide(notification: NSNotification) {
+//        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardDidHideNotification] as? NSValue)?.cgRectValue {
+//            print("is keyboard first responder?: ", self.rootView.messageTextView.isFirstResponder)
+//        }
+    }
+    
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if rootView.containerView.frame.origin.y > 580 {
@@ -149,7 +157,11 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     }
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+            if !isContextMenuPresented {
+                handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+            } else if isContextMenuPresented {
+                isContextMenuPresented = false
+            }
             isKeyboardHidden = true
         }
     }
@@ -488,6 +500,7 @@ extension ConversationViewController: UITableViewDelegate
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble")) { action in
                     DispatchQueue.main.async {
                         self.rootView.editMessageButton.isHidden = false
+                        self.rootView.activateEditView()
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageContainer.text
                         self.rootView.textViewDidChange(self.rootView.messageTextView)
@@ -513,7 +526,12 @@ extension ConversationViewController: UITableViewDelegate
     }
 
     func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        makeConversationMessagePreview(for: configuration)
+        isContextMenuPresented = false
+        return makeConversationMessagePreview(for: configuration)
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
+        isContextMenuPresented = true
     }
     
     private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {

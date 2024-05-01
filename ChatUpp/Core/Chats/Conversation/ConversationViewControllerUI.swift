@@ -16,9 +16,10 @@ class ConversationViewControllerUI: UIView {
     let pictureAddButton = UIButton()
     let editMessageButton = UIButton()
     
-    var messageTextViewNumberOfLines: Int = 1
+     var messageTextViewNumberOfLines: Int = 1
     var holderViewBottomConstraint: NSLayoutConstraint!
     var tableViewInitialContentOffset = CGPoint(x: 0, y: 0)
+    private var editeView: UIView?
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -66,6 +67,96 @@ class ConversationViewControllerUI: UIView {
         setupSendMessageBtn()
         setupAddPictureButton()
         setupEditMessageButton()
+    }
+    
+    private func setupEditView() {
+        editeView = UIView()
+        addSubview(editeView!)
+        
+        editeView?.backgroundColor = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
+        
+        
+        editeView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        editeView?.bottomAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
+        editeView?.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+        editeView?.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        editeView?.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        
+        
+        func setupEditLabel() {
+            let editLabel = UILabel()
+            editeView?.addSubview(editLabel)
+            
+            editLabel.text = "Edit Message"
+            editLabel.textColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+            editLabel.font = UIFont.boldSystemFont(ofSize: 15)
+            
+            editLabel.translatesAutoresizingMaskIntoConstraints = false
+            
+            editLabel.topAnchor.constraint(equalTo: editeView!.topAnchor, constant: 8).isActive = true
+            editLabel.leadingAnchor.constraint(equalTo: editeView!.leadingAnchor, constant: self.bounds.width / 5).isActive = true
+        }
+        func setupEditMessage() {
+            let editMessage = UILabel()
+            editeView?.addSubview(editMessage)
+            
+            editMessage.text = "Test Message here for testing purposes only test test"
+            editMessage.textColor = .white
+            editMessage.font = UIFont(name: "Helvetica", size: 13.5)
+//            editMessage.numberOfLines = 1
+            editMessage.lineBreakMode = .byTruncatingTail
+            editMessage.adjustsFontSizeToFitWidth = false
+            
+            editMessage.translatesAutoresizingMaskIntoConstraints = false
+            
+            editMessage.bottomAnchor.constraint(equalTo: editeView!.bottomAnchor, constant: -2).isActive = true
+            editMessage.trailingAnchor.constraint(equalTo: editeView!.trailingAnchor, constant: -90).isActive = true
+            editMessage.leadingAnchor.constraint(equalTo: editeView!.leadingAnchor, constant:  self.bounds.width / 5).isActive = true
+        }
+        func setupSeparator() {
+            let separatorLabel = UILabel()
+            editeView?.addSubview(separatorLabel)
+            
+            separatorLabel.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+            
+            separatorLabel.translatesAutoresizingMaskIntoConstraints = false
+            
+            separatorLabel.topAnchor.constraint(equalTo: editeView!.topAnchor, constant: 8).isActive = true
+            separatorLabel.widthAnchor.constraint(equalToConstant: 3).isActive = true
+            separatorLabel.bottomAnchor.constraint(equalTo: editeView!.bottomAnchor, constant: -1).isActive = true
+            separatorLabel.leadingAnchor.constraint(equalTo: editeView!.leadingAnchor, constant: self.bounds.width / 6).isActive = true
+        }
+        
+        func setupEditePenIcon() {
+//            let editPen = UIButton()
+            let editPen = UIImageView()
+            editeView?.addSubview(editPen)
+            editPen.tintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+//            editPen.configuration = .plain()
+//            editPen.configuration?.image = UIImage(systemName: "pencil")
+////            editPen.configuration?.baseBackgroundColor = .clear
+//            editPen.imageView?.contentMode = .scaleToFill
+//            editPen.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+            editPen.image = UIImage(systemName: "pencil")
+            
+            editPen.translatesAutoresizingMaskIntoConstraints = false
+            
+            editPen.leadingAnchor.constraint(equalTo: editeView!.leadingAnchor, constant: 20).isActive = true
+            editPen.centerYAnchor.constraint(equalTo: editeView!.centerYAnchor, constant: 2).isActive = true
+            editPen.heightAnchor.constraint(equalToConstant: 27).isActive = true
+            editPen.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        }
+        
+        setupEditLabel()
+        setupEditMessage()
+        setupSeparator()
+        setupEditePenIcon()
+        self.layoutIfNeeded()
+    }
+    
+    func activateEditView() {
+        setupEditView()
     }
     
     private func setupAddPictureButton() {
