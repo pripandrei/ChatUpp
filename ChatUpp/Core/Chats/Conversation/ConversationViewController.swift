@@ -496,6 +496,9 @@ extension ConversationViewController: UITableViewDelegate
                     DispatchQueue.main.async {
                         self.rootView.editMessageButton.isHidden = false
                         self.rootView.activateEditView()
+//                        UIView.transition(with: self.rootView.editeView!, duration: 1.0, options: .transitionCrossDissolve) {
+//                            self.rootView.editeView!.isHidden = false
+//                        }
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageContainer.text
                         self.rootView.textViewDidChange(self.rootView.messageTextView)
