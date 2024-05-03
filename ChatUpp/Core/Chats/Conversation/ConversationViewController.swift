@@ -22,7 +22,11 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     private var isKeyboardHidden: Bool = true
     private var isNewSectionAdded: Bool = false
-    private var isContextMenuPresented: Bool = false
+    private var isContextMenuPresented: Bool = false {
+        didSet {
+            print("isContextMenuPresented changed")
+        }
+    }
     
     //MARK: - LIFECYCLE
     convenience init(conversationViewModel: ConversationViewModel) {
@@ -46,6 +50,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         addKeyboardNotificationObservers()
         setNavigationBarItems()
 //        setupHeader()
+        
+        
     }
     
 //    func setupHeader() {
@@ -139,28 +145,34 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func addKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
     }
-    @objc func keyboardDidHide(notification: NSNotification) {
-//        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardDidHideNotification] as? NSValue)?.cgRectValue {
-//            print("is keyboard first responder?: ", self.rootView.messageTextView.isFirstResponder)
-//        }
-    }
-    
+
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if rootView.containerView.frame.origin.y > 580 {
-                handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+                if isContextMenuPresented {
+                    let keyboardHeight = -336.0
+                    self.rootView.holderViewBottomConstraint.constant = keyboardHeight
+                    self.isContextMenuPresented = false
+                    view.layoutIfNeeded()
+                } else {
+                    handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+                }
                 isKeyboardHidden = false
             }
         }
     }
     @objc func keyboardWillHide(notification: NSNotification) {
+//        print("hide keyboard")
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if !isContextMenuPresented {
                 handleTableViewOffSet(usingKeyboardSize: keyboardSize)
             } else if isContextMenuPresented {
-                isContextMenuPresented = false
+                let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
+                let keyboardHeight = rootView.containerView.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
+
+                self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+                view.layoutIfNeeded()
             }
             isKeyboardHidden = true
         }
@@ -380,7 +392,6 @@ extension ConversationViewController {
 //MARK: - COLLETION VIEW OFFSET HANDLER
 extension ConversationViewController {
     private func handleTableViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
-        
         // if number of lines inside textView is bigger than 1, it will expand
         // and origin.y of containerView that holds textView will change
         // so we check if maximum allowed number of line is reached (containerView origin.y will be 584)
@@ -520,36 +531,33 @@ extension ConversationViewController: UITableViewDelegate
         }
         return nil
     }
-//    
+
     func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        makeConversationMessagePreview(for: configuration)
+        return makeConversationMessagePreview(for: configuration)
     }
 
     func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        isContextMenuPresented = false
         return makeConversationMessagePreview(for: configuration)
     }
     
+    
+    
     func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
-        isContextMenuPresented = true
+        if rootView.holderViewBottomConstraint.constant != 0.0 {
+            isContextMenuPresented = true
+        }
     }
     
     private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         guard let indexPath = configuration.identifier as? IndexPath,
               let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
-
+        
         let parameter = UIPreviewParameters()
         parameter.backgroundColor = .clear
         
         let preview = UITargetedPreview(view: cell.messageContainer, parameters: parameter)
-        
         return preview
     }
-//    
-//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-//        print(scrollView as? UITableView)
-////        rootView.tableView.tableFooterView?.isHidden = true
-//    }
 }
 
 
@@ -618,3 +626,8 @@ extension ConversationViewController: UITableViewDelegate
 ////            cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 50)
 ////        })
 //}
+
+
+class UITransitionView: UIView {
+    
+}

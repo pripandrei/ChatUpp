@@ -342,6 +342,8 @@ extension ConversationViewControllerUI: UITextViewDelegate {
         let newSize = textView.sizeThatFits(CGSize.init(width: fixedWidth, height: CGFloat(MAXFLOAT)))
         return CGSize.init(width: CGFloat(fmaxf(Float(newSize.width), Float(fixedWidth))), height: newSize.height)
     }
+    
+    
 
     func textViewDidChange(_ textView: UITextView) {
 
