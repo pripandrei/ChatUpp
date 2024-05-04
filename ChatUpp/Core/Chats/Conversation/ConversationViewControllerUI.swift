@@ -16,10 +16,10 @@ class ConversationViewControllerUI: UIView {
     let pictureAddButton = UIButton()
     let editMessageButton = UIButton()
     
-     var messageTextViewNumberOfLines: Int = 1
+    var messageTextViewNumberOfLines: Int = 1
     var holderViewBottomConstraint: NSLayoutConstraint!
     var tableViewInitialContentOffset = CGPoint(x: 0, y: 0)
-     var editeView: UIView?
+    var editeView: UIView?
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -146,7 +146,7 @@ class ConversationViewControllerUI: UIView {
     
     func activateEditView() {
         setupEditView()
-//        self.layoutIfNeeded()
+        self.layoutIfNeeded()
     }
     
     private func setupAddPictureButton() {
@@ -238,7 +238,7 @@ class ConversationViewControllerUI: UIView {
         ])
     }
     
-    lazy var textViewHeightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: containerView.bounds.height * 0.4)
+    lazy var textViewHeightConstraint = messageTextView.heightAnchor.constraint(equalToConstant: 31)
     
     private func setupSendMessageBtn() {
         containerView.addSubview(sendMessageButton)
@@ -332,8 +332,6 @@ extension ConversationViewControllerUI: UITextViewDelegate {
         let newSize = textView.sizeThatFits(CGSize.init(width: fixedWidth, height: CGFloat(MAXFLOAT)))
         return CGSize.init(width: CGFloat(fmaxf(Float(newSize.width), Float(fixedWidth))), height: newSize.height)
     }
-    
-    
 
     func textViewDidChange(_ textView: UITextView) {
 
@@ -350,7 +348,7 @@ extension ConversationViewControllerUI: UITextViewDelegate {
             
             // in case user paste text that exceeds 5 lines
             numberOfLines = 5
-            let initialTextViewHeight = 32.0
+            let initialTextViewHeight = 31.0
             
             textViewHeightConstraint.constant = initialTextViewHeight + (textView.font!.lineHeight * CGFloat(numberOfLines - 1))
             adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
@@ -365,8 +363,9 @@ extension ConversationViewControllerUI: UITextViewDelegate {
     
     func adjustTableViewContent(using textView: UITextView, numberOfLines: Int) {
         let numberOfAddedLines     = CGFloat(numberOfLines - self.messageTextViewNumberOfLines)
-        let updatedContentOffset   = self.tableView.contentOffset.y - textView.font!.lineHeight * numberOfAddedLines
-        let updatedContentTopInset = tableViewInitialTopInset() + (textView.font!.lineHeight * CGFloat((numberOfLines - 1)))
+        let editViewHeight         = editeView?.bounds.height != nil ? editeView!.bounds.height : 0
+        let updatedContentOffset   = self.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines) 
+        let updatedContentTopInset = tableViewInitialTopInset() + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) 
 
         self.tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
         self.tableView.contentInset.top = updatedContentTopInset

@@ -135,6 +135,20 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+    
+    
+    private func addEditedViewHeightToTableViewContent() {
+        guard let heightValueToAdd = rootView.editeView?.bounds.height else {return}
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+            self.rootView.tableView.contentInset.top += heightValueToAdd
+
+            self.rootView.tableView.setContentOffset(CGPoint(x: self.rootView.tableView.contentOffset.x,
+                                                             y: self.rootView.tableView.contentOffset.y - heightValueToAdd), animated: true)
+            self.rootView.tableView.verticalScrollIndicatorInsets.top += heightValueToAdd
+            
+            print("entered")
+        })
+    }
 
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
@@ -143,24 +157,25 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                     let keyboardHeight = -336.0
                     self.rootView.holderViewBottomConstraint.constant = keyboardHeight
                     self.isContextMenuPresented = false
+                    //                    if self.rootView.editeView != nil {addEditedViewHeightToTableViewContent()}
                     view.layoutIfNeeded()
                 } else {
                     handleTableViewOffSet(usingKeyboardSize: keyboardSize)
                 }
                 isKeyboardHidden = false
             }
+            //            addEditedViewHeightToTableViewContent()
         }
     }
+    
     @objc func keyboardWillHide(notification: NSNotification) {
 //        print("hide keyboard")
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if !isContextMenuPresented {
+//                addEditedViewHeightToTableViewContent()
                 handleTableViewOffSet(usingKeyboardSize: keyboardSize)
             } else if isContextMenuPresented {
-                let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
-                let keyboardHeight = rootView.containerView.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
-
-                self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+                self.rootView.holderViewBottomConstraint.constant = 0
                 view.layoutIfNeeded()
             }
             isKeyboardHidden = true
@@ -171,11 +186,9 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func addTargetToSendMessageBtn() {
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
-    
     private func addTargetToAddPictureBtn() {
         rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
     }
-    
     private func addTargetToEditMessageBtn() {
         rootView.editMessageButton.addTarget(self, action: #selector(editMessageBtnWasTapped), for: .touchUpInside)
     }
@@ -381,16 +394,20 @@ extension ConversationViewController {
 //MARK: - COLLETION VIEW OFFSET HANDLER
 extension ConversationViewController {
     private func handleTableViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
+        
         // if number of lines inside textView is bigger than 1, it will expand
         // and origin.y of containerView that holds textView will change
         // so we check if maximum allowed number of line is reached (containerView origin.y will be 584)
         let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
         let keyboardHeight = rootView.containerView.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
         
+        let editViewHeight = rootView.editeView?.bounds.height != nil ? rootView.editeView!.bounds.height : 0
+        
         // if there is more than one line, textView height should be added to table view inset
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootView.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
-        let customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight : 0 + textViewHeight
-
+        var customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight : 0 + textViewHeight
+//        customTableViewInset += editViewHeight
+        
         self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         
         let currentOffSet = rootView.tableView.contentOffset
@@ -400,6 +417,7 @@ extension ConversationViewController {
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
         rootView.tableViewInitialContentOffset = offSet
+//        addEditedViewHeightToTableViewContent()
         view.layoutSubviews()
 //        view.layoutIfNeeded()
     }
@@ -496,13 +514,11 @@ extension ConversationViewController: UITableViewDelegate
                     DispatchQueue.main.async {
                         self.rootView.editMessageButton.isHidden = false
                         self.rootView.activateEditView()
-//                        UIView.transition(with: self.rootView.editeView!, duration: 1.0, options: .transitionCrossDissolve) {
-//                            self.rootView.editeView!.isHidden = false
-//                        }
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageContainer.text
                         self.rootView.textViewDidChange(self.rootView.messageTextView)
-
+                        self.addEditedViewHeightToTableViewContent()
+                        
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
                             self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
                         }
