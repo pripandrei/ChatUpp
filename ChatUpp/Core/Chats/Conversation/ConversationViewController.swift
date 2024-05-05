@@ -139,14 +139,12 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     private func addEditedViewHeightToTableViewContent() {
         guard let heightValueToAdd = rootView.editeView?.bounds.height else {return}
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
             self.rootView.tableView.contentInset.top += heightValueToAdd
 
             self.rootView.tableView.setContentOffset(CGPoint(x: self.rootView.tableView.contentOffset.x,
-                                                             y: self.rootView.tableView.contentOffset.y - heightValueToAdd), animated: true)
+                                                             y: self.rootView.tableView.contentOffset.y - heightValueToAdd), animated: false)
             self.rootView.tableView.verticalScrollIndicatorInsets.top += heightValueToAdd
-            
-            print("entered")
         })
     }
 
@@ -156,6 +154,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 if isContextMenuPresented {
                     let keyboardHeight = -336.0
                     self.rootView.holderViewBottomConstraint.constant = keyboardHeight
+//                    addEditedViewHeightToTableViewContent()
+//                    handleTableViewOffSet(usingKeyboardSize: CGRect(origin: CGPoint(), size: CGSize()))
                     self.isContextMenuPresented = false
                     //                    if self.rootView.editeView != nil {addEditedViewHeightToTableViewContent()}
                     view.layoutIfNeeded()
@@ -405,7 +405,7 @@ extension ConversationViewController {
         
         // if there is more than one line, textView height should be added to table view inset
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootView.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
-        var customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight : 0 + textViewHeight
+        let customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight + editViewHeight : 0 + textViewHeight + editViewHeight
 //        customTableViewInset += editViewHeight
         
         self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
