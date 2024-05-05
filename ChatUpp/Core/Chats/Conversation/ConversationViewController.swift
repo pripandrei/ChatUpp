@@ -140,11 +140,14 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func addEditedViewHeightToTableViewContent() {
         guard let heightValueToAdd = rootView.editeView?.bounds.height else {return}
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
-            self.rootView.tableView.contentInset.top += heightValueToAdd
-
+            
+            if self.isContextMenuPresented {
+                self.rootView.tableView.contentInset.top += heightValueToAdd
+                self.rootView.tableView.verticalScrollIndicatorInsets.top += heightValueToAdd
+            }
             self.rootView.tableView.setContentOffset(CGPoint(x: self.rootView.tableView.contentOffset.x,
-                                                             y: self.rootView.tableView.contentOffset.y - heightValueToAdd), animated: false)
-            self.rootView.tableView.verticalScrollIndicatorInsets.top += heightValueToAdd
+                                                             y: self.rootView.tableView.contentOffset.y - heightValueToAdd), animated: true)
+            self.isContextMenuPresented = false
         })
     }
 
@@ -156,7 +159,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                     self.rootView.holderViewBottomConstraint.constant = keyboardHeight
 //                    addEditedViewHeightToTableViewContent()
 //                    handleTableViewOffSet(usingKeyboardSize: CGRect(origin: CGPoint(), size: CGSize()))
-                    self.isContextMenuPresented = false
+//                    self.isContextMenuPresented = false
                     //                    if self.rootView.editeView != nil {addEditedViewHeightToTableViewContent()}
                     view.layoutIfNeeded()
                 } else {
@@ -540,6 +543,9 @@ extension ConversationViewController: UITableViewDelegate
     }
 
     func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.isContextMenuPresented = false
+        }
         return makeConversationMessagePreview(for: configuration)
     }
     

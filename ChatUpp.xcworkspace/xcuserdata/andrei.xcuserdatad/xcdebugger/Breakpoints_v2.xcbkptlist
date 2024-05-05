@@ -7,61 +7,110 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "2A722C1D-15A7-44AA-A659-02633EAE7866"
+            uuid = "74C452FC-BC7B-412D-A52F-AE9B441A3364"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
-            landmarkName = "keyboardWillHide(notification:)"
+            startingLineNumber = "148"
+            endingLineNumber = "148"
+            landmarkName = "addEditedViewHeightToTableViewContent()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "2A722C1D-15A7-44AA-A659-02633EAE7866 - 4368515775f70389"
+                  uuid = "74C452FC-BC7B-412D-A52F-AE9B441A3364 - 3e79dbbb122d153"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.keyboardWillHide(notification: __C.NSNotification) -&gt; ()"
+                  symbolName = "closure #1 @Swift.MainActor () -&gt; () in ChatUpp.ConversationViewController.addEditedViewHeightToTableViewContent() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "176"
-                  endingLineNumber = "176"
-                  offsetFromSymbolStart = "912">
+                  startingLineNumber = "145"
+                  endingLineNumber = "145"
+                  offsetFromSymbolStart = "60">
                </Location>
                <Location
-                  uuid = "2A722C1D-15A7-44AA-A659-02633EAE7866 - 4368515775f703e8"
+                  uuid = "74C452FC-BC7B-412D-A52F-AE9B441A3364 - 3e79dbbb122d153"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.keyboardWillHide(notification: __C.NSNotification) -&gt; ()"
+                  symbolName = "closure #1 @Swift.MainActor () -&gt; () in ChatUpp.ConversationViewController.addEditedViewHeightToTableViewContent() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "175"
-                  endingLineNumber = "175"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145"
+                  offsetFromSymbolStart = "296">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1E814F5D-8057-4FCE-939E-B7074E163B2E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "141"
+            endingLineNumber = "141"
+            landmarkName = "addEditedViewHeightToTableViewContent()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4B777979-BB56-4437-BD13-7C6F6143DEC1"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "156"
+            endingLineNumber = "156"
+            landmarkName = "keyboardWillShow(notification:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "4B777979-BB56-4437-BD13-7C6F6143DEC1 - c31ec87f5461454d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationViewController.keyboardWillShow(notification: __C.NSNotification) -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "153"
+                  endingLineNumber = "153"
                   offsetFromSymbolStart = "824">
                </Location>
                <Location
-                  uuid = "2A722C1D-15A7-44AA-A659-02633EAE7866 - 4368515775f70389"
+                  uuid = "4B777979-BB56-4437-BD13-7C6F6143DEC1 - c31ec87f546144ee"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.keyboardWillHide(notification: __C.NSNotification) -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewController.keyboardWillShow(notification: __C.NSNotification) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "176"
-                  endingLineNumber = "176"
+                  startingLineNumber = "156"
+                  endingLineNumber = "156"
                   offsetFromSymbolStart = "824">
                </Location>
             </Locations>
@@ -70,62 +119,62 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "4F5081DE-5102-44E7-89C2-15F1DF736BD6"
+            uuid = "8D1F4014-4C00-45B7-9AB9-E8B65A5830E7"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "548"
-            endingLineNumber = "548"
-            landmarkName = "tableView(_:willDisplayContextMenu:animator:)"
+            startingLineNumber = "416"
+            endingLineNumber = "416"
+            landmarkName = "handleTableViewOffSet(usingKeyboardSize:)"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "4F5081DE-5102-44E7-89C2-15F1DF736BD6 - 2fe8344306d79733"
+                  uuid = "8D1F4014-4C00-45B7-9AB9-E8B65A5830E7 - f7c9c550b7dc170b"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.tableView(_: __C.UITableView, willDisplayContextMenu: __C.UIContextMenuConfiguration, animator: Swift.Optional&lt;__C.UIContextMenuInteractionAnimating&gt;) -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewController.handleTableViewOffSet(usingKeyboardSize: __C.CGRect) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "549"
-                  endingLineNumber = "549"
-                  offsetFromSymbolStart = "384">
+                  startingLineNumber = "414"
+                  endingLineNumber = "414"
+                  offsetFromSymbolStart = "2584">
                </Location>
                <Location
-                  uuid = "4F5081DE-5102-44E7-89C2-15F1DF736BD6 - 2fe8344306d79733"
+                  uuid = "8D1F4014-4C00-45B7-9AB9-E8B65A5830E7 - f7c9c550b7dc17ea"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.tableView(_: __C.UITableView, willDisplayContextMenu: __C.UIContextMenuConfiguration, animator: Swift.Optional&lt;__C.UIContextMenuInteractionAnimating&gt;) -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewController.handleTableViewOffSet(usingKeyboardSize: __C.CGRect) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "549"
-                  endingLineNumber = "549"
-                  offsetFromSymbolStart = "52">
+                  startingLineNumber = "413"
+                  endingLineNumber = "413"
+                  offsetFromSymbolStart = "2420">
                </Location>
                <Location
-                  uuid = "4F5081DE-5102-44E7-89C2-15F1DF736BD6 - 2fe8344306d788d2"
+                  uuid = "8D1F4014-4C00-45B7-9AB9-E8B65A5830E7 - f7c9c550b7dc1749"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewController.tableView(_: __C.UITableView, willDisplayContextMenu: __C.UIContextMenuConfiguration, animator: Swift.Optional&lt;__C.UIContextMenuInteractionAnimating&gt;) -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewController.handleTableViewOffSet(usingKeyboardSize: __C.CGRect) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "550"
-                  endingLineNumber = "550"
-                  offsetFromSymbolStart = "384">
+                  startingLineNumber = "416"
+                  endingLineNumber = "416"
+                  offsetFromSymbolStart = "2420">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -133,20 +182,20 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "AEB677E9-C210-4F2B-BB5E-68CB95FE5F93"
+            uuid = "80E7B4B9-3AB3-437F-98C8-6292B17B0221"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "515"
-            endingLineNumber = "515"
+            startingLineNumber = "522"
+            endingLineNumber = "522"
             landmarkName = "tableView(_:contextMenuConfigurationForRowAt:point:)"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "AEB677E9-C210-4F2B-BB5E-68CB95FE5F93 - dc752e94b194fc65"
+                  uuid = "80E7B4B9-3AB3-437F-98C8-6292B17B0221 - dc752e94b194fbbf"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -156,12 +205,27 @@
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "516"
-                  endingLineNumber = "516"
-                  offsetFromSymbolStart = "108">
+                  startingLineNumber = "522"
+                  endingLineNumber = "522"
+                  offsetFromSymbolStart = "928">
                </Location>
                <Location
-                  uuid = "AEB677E9-C210-4F2B-BB5E-68CB95FE5F93 - dc752e94b194fc1a"
+                  uuid = "80E7B4B9-3AB3-437F-98C8-6292B17B0221 - 305257e31abd5cbb"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.String) -&gt; () in closure #1 @Swift.MainActor () -&gt; () in closure #2 (__C.UIAction) -&gt; () in closure #1 (Swift.Array&lt;__C.UIMenuElement&gt;) -&gt; Swift.Optional&lt;__C.UIMenu&gt; in ChatUpp.ConversationViewController.tableView(_: __C.UITableView, contextMenuConfigurationForRowAt: Foundation.IndexPath, point: __C.CGPoint) -&gt; Swift.Optional&lt;__C.UIContextMenuConfiguration&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "523"
+                  endingLineNumber = "523"
+                  offsetFromSymbolStart = "168">
+               </Location>
+               <Location
+                  uuid = "80E7B4B9-3AB3-437F-98C8-6292B17B0221 - dc752e94b194fbbf"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -171,9 +235,9 @@
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "517"
-                  endingLineNumber = "517"
-                  offsetFromSymbolStart = "108">
+                  startingLineNumber = "522"
+                  endingLineNumber = "522"
+                  offsetFromSymbolStart = "916">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -181,17 +245,49 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "2D9F9EA9-4740-4878-9A56-C2A212A93791"
+            uuid = "4881B11B-B4BD-4325-885D-527EA6F69FB5"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "404"
-            endingLineNumber = "404"
-            landmarkName = "handleTableViewOffSet(usingKeyboardSize:)"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
+            landmarkName = "addEditedViewHeightToTableViewContent()"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "4881B11B-B4BD-4325-885D-527EA6F69FB5 - 3e79dbbb122d153"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Swift.MainActor () -&gt; () in ChatUpp.ConversationViewController.addEditedViewHeightToTableViewContent() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145"
+                  offsetFromSymbolStart = "60">
+               </Location>
+               <Location
+                  uuid = "4881B11B-B4BD-4325-885D-527EA6F69FB5 - 3e79dbbb122d153"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Swift.MainActor () -&gt; () in ChatUpp.ConversationViewController.addEditedViewHeightToTableViewContent() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145"
+                  offsetFromSymbolStart = "136">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
