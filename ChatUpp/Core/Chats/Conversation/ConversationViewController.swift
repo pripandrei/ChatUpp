@@ -516,7 +516,9 @@ extension ConversationViewController: UITableViewDelegate
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble")) { action in
                     DispatchQueue.main.async {
                         self.rootView.editMessageButton.isHidden = false
-                        self.rootView.activateEditView()
+                        if self.rootView.editeView == nil {
+                            self.rootView.activateEditView()                            
+                        }
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageContainer.text
                         self.rootView.textViewDidChange(self.rootView.messageTextView)
