@@ -146,7 +146,20 @@ class ConversationViewControllerUI: UIView {
     
     func activateEditView() {
         setupEditView()
+        applyEditViewHeightToTableViewContent()
+        editViewAddedToTableViewContent = true
         self.layoutIfNeeded()
+    }
+    
+    func applyEditViewHeightToTableViewContent() {
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+//            self.layoutIfNeeded()
+//            let editViewHeight = self.editeView!.bounds.height
+//            self.tableView.contentInset.top += editViewHeight
+//            self.tableView.verticalScrollIndicatorInsets.top += editViewHeight
+//            self.tableView.setContentOffset(CGPoint(x: self.tableView.contentOffset.x,
+//                                                    y: self.tableView.contentOffset.y - editViewHeight), animated: true)
+//        })
     }
     
     private func setupAddPictureButton() {
@@ -286,6 +299,7 @@ class ConversationViewControllerUI: UIView {
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         tableView.layoutIfNeeded()
     }
+    var editViewAddedToTableViewContent: Bool = false
 }
 
 // MARK: - SETUP NAVIGATION BAR ITEMS
@@ -364,8 +378,15 @@ extension ConversationViewControllerUI: UITextViewDelegate {
     func adjustTableViewContent(using textView: UITextView, numberOfLines: Int) {
         let numberOfAddedLines     = CGFloat(numberOfLines - self.messageTextViewNumberOfLines)
         let editViewHeight         = editeView?.bounds.height != nil ? editeView!.bounds.height : 0
-        let updatedContentOffset   = self.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines) 
-        let updatedContentTopInset = tableViewInitialTopInset() + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) 
+        var updatedContentOffset   = self.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
+        
+        // Add height only once when editedView first shows
+        if editViewAddedToTableViewContent {
+            updatedContentOffset -= editViewHeight
+            editViewAddedToTableViewContent = false
+        }
+        let updatedContentTopInset = tableViewInitialTopInset() + (textView.font!.lineHeight * CGFloat((numberOfLines - 1)))
+        + editViewHeight
 
         self.tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
         self.tableView.contentInset.top = updatedContentTopInset

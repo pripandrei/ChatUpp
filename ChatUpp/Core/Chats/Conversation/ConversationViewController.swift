@@ -520,7 +520,7 @@ extension ConversationViewController: UITableViewDelegate
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageContainer.text
                         self.rootView.textViewDidChange(self.rootView.messageTextView)
-                        self.addEditedViewHeightToTableViewContent()
+//                        self.addEditedViewHeightToTableViewContent()
                         
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
                             self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
