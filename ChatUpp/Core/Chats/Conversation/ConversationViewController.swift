@@ -49,6 +49,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
+//        addTargetToCloseBtn()
+//        addGestureToCloseBtn()
 //        setupHeader()
     }
     
@@ -135,21 +137,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-    
-    
-    private func addEditedViewHeightToTableViewContent() {
-        guard let heightValueToAdd = rootView.editeView?.bounds.height else {return}
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: {
-            
-            if self.isContextMenuPresented {
-                self.rootView.tableView.contentInset.top += heightValueToAdd
-                self.rootView.tableView.verticalScrollIndicatorInsets.top += heightValueToAdd
-            }
-            self.rootView.tableView.setContentOffset(CGPoint(x: self.rootView.tableView.contentOffset.x,
-                                                             y: self.rootView.tableView.contentOffset.y - heightValueToAdd), animated: true)
-            self.isContextMenuPresented = false
-        })
-    }
 
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
@@ -157,25 +144,18 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 if isContextMenuPresented {
                     let keyboardHeight = -336.0
                     self.rootView.holderViewBottomConstraint.constant = keyboardHeight
-//                    addEditedViewHeightToTableViewContent()
-//                    handleTableViewOffSet(usingKeyboardSize: CGRect(origin: CGPoint(), size: CGSize()))
-//                    self.isContextMenuPresented = false
-                    //                    if self.rootView.editeView != nil {addEditedViewHeightToTableViewContent()}
                     view.layoutIfNeeded()
                 } else {
                     handleTableViewOffSet(usingKeyboardSize: keyboardSize)
                 }
                 isKeyboardHidden = false
             }
-            //            addEditedViewHeightToTableViewContent()
         }
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
-//        print("hide keyboard")
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if !isContextMenuPresented {
-//                addEditedViewHeightToTableViewContent()
                 handleTableViewOffSet(usingKeyboardSize: keyboardSize)
             } else if isContextMenuPresented {
                 self.rootView.holderViewBottomConstraint.constant = 0
@@ -185,7 +165,23 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
+    //MARK: - EDIT VIEW CONTAINER GESTURE
+    
+    @objc func closeEditView() {
+        print("close!")
+    }
+    
     //MARK: - SEND MESSAGE BUTTON CONFIGURATION
+    
+    private func addGestureToCloseBtn() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeEditView))
+        rootView.close?.addGestureRecognizer(tapGesture)
+   }
+    
+    
+    private func addTargetToCloseBtn() {
+//        rootView.close.addTarget(self, action: #selector(closeEditView), for: .touchUpInside)
+    }
     private func addTargetToSendMessageBtn() {
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
@@ -404,12 +400,11 @@ extension ConversationViewController {
         let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
         let keyboardHeight = rootView.containerView.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
         
-        let editViewHeight = rootView.editeView?.bounds.height != nil ? rootView.editeView!.bounds.height : 0
+        let editViewHeight = rootView.editeViewContainer?.bounds.height != nil ? rootView.editeViewContainer!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootView.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
         let customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight + editViewHeight : 0 + textViewHeight + editViewHeight
-//        customTableViewInset += editViewHeight
         
         self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         
@@ -420,7 +415,6 @@ extension ConversationViewController {
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
         rootView.tableViewInitialContentOffset = offSet
-//        addEditedViewHeightToTableViewContent()
         view.layoutSubviews()
 //        view.layoutIfNeeded()
     }
@@ -508,6 +502,7 @@ extension ConversationViewController: UITableViewDelegate
         
         if cell.messageContainer.frame.contains(tapLocationInCell) {
             let identifire = indexPath as NSCopying
+            
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
                 let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
                     let pastBoard = UIPasteboard.general
@@ -515,14 +510,13 @@ extension ConversationViewController: UITableViewDelegate
                 }
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble")) { action in
                     DispatchQueue.main.async {
-                        self.rootView.editMessageButton.isHidden = false
-                        if self.rootView.editeView == nil {
-                            self.rootView.activateEditView()                            
+                        if self.rootView.editeViewContainer == nil {
+                            self.rootView.activateEditView()
                         }
+                        self.addGestureToCloseBtn()
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageContainer.text
                         self.rootView.textViewDidChange(self.rootView.messageTextView)
-//                        self.addEditedViewHeightToTableViewContent()
                         
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
                             self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
