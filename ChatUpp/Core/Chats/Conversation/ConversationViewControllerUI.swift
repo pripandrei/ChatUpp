@@ -8,10 +8,10 @@
 import Foundation
 import UIKit
 
-
 class ContainerView: UIView
 {
-    
+    // since closeImageView frame is not insed it's super view (editViewContainer)
+    // we need to override point to return true in case it matches the location of close view
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         if super.point(inside: point, with: event) {return true}
 
@@ -101,32 +101,32 @@ class ConversationViewControllerUI: UIView {
     
     // MARK: - SETUP EDIT VIEW
     
-    var editeViewContainer: UIView?
+    var editViewContainer: UIView?
     var editLabel: UILabel?
     var editMessageText: UILabel?
     var separatorLabel: UILabel?
     var editPen: UIImageView?
-    var close: UIImageView?
+    var closeEditView: UIImageView?
     
     private func setupEditView() {
-        editeViewContainer = UIView()
-//        self.addSubview(editeViewContainer!)
-        containerView.addSubview(editeViewContainer!)
-//        editeView?.isHidden = true
-        editeViewContainer?.backgroundColor = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
-//        editeViewContainer?.isUserInteractionEnabled = true
+        editViewContainer = UIView()
+        containerView.addSubview(editViewContainer!)
+        containerView.sendSubviewToBack(editViewContainer!)
+        editViewContainer?.backgroundColor = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
         
-        editeViewContainer?.translatesAutoresizingMaskIntoConstraints = false
-        editeViewContainer?.bottomAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
-        editeViewContainer?.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-        editeViewContainer?.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
-        editeViewContainer?.heightAnchor.constraint(equalToConstant: 45).isActive = true
-        
+        editViewContainer?.translatesAutoresizingMaskIntoConstraints = false
+        editViewContainer?.bottomAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
+        editViewContainer?.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+        editViewContainer?.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        editeViewContainerHeightConstraint = editViewContainer?.heightAnchor.constraint(equalToConstant: 45)
+        editeViewContainerHeightConstraint?.isActive = true
     }
+    
+    var editeViewContainerHeightConstraint: NSLayoutConstraint?
     
     func setupEditLabel() {
         editLabel = UILabel()
-        editeViewContainer?.addSubview(editLabel!)
+        editViewContainer?.addSubview(editLabel!)
 
         editLabel?.text = "Edit Message"
         editLabel?.textColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
@@ -134,12 +134,12 @@ class ConversationViewControllerUI: UIView {
         
         editLabel?.translatesAutoresizingMaskIntoConstraints = false
         
-        editLabel?.topAnchor.constraint(equalTo: editeViewContainer!.topAnchor, constant: 8).isActive = true
-        editLabel?.leadingAnchor.constraint(equalTo: editeViewContainer!.leadingAnchor, constant: self.bounds.width / 5).isActive = true
+        editLabel?.topAnchor.constraint(equalTo: editViewContainer!.topAnchor, constant: 8).isActive = true
+        editLabel?.leadingAnchor.constraint(equalTo: editViewContainer!.leadingAnchor, constant: self.bounds.width / 5).isActive = true
     }
     func setupEditMessage() {
         editMessageText = UILabel()
-        editeViewContainer?.addSubview(editMessageText!)
+        editViewContainer?.addSubview(editMessageText!)
         
         editMessageText?.text = "Test Message here for testing purposes only test test"
         editMessageText?.textColor = .white
@@ -150,53 +150,59 @@ class ConversationViewControllerUI: UIView {
         
         editMessageText?.translatesAutoresizingMaskIntoConstraints = false
         
-        editMessageText?.bottomAnchor.constraint(equalTo: editeViewContainer!.bottomAnchor, constant: -2).isActive = true
-        editMessageText?.trailingAnchor.constraint(equalTo: editeViewContainer!.trailingAnchor, constant: -90).isActive = true
-        editMessageText?.leadingAnchor.constraint(equalTo: editeViewContainer!.leadingAnchor, constant:  self.bounds.width / 5).isActive = true
+        editMessageText?.topAnchor.constraint(equalTo: editLabel!.topAnchor, constant: 18).isActive = true
+//        editMessageText?.widthAnchor.constraint(equalToConstant: 100).isActive = true
+//        editMessageText?.heightAnchor.constraint(equalToConstant: 10).isActive = true
+//        editMessageText?.leadingAnchor.constraint(equalTo: editeViewContainer!.leadingAnchor, constant: 40).isActive = true
+        editMessageText?.trailingAnchor.constraint(equalTo: editViewContainer!.trailingAnchor, constant: -90).isActive = true
+        editMessageText?.leadingAnchor.constraint(equalTo: editViewContainer!.leadingAnchor, constant:  self.bounds.width / 5).isActive = true
     }
     func setupSeparator() {
         separatorLabel = UILabel()
-        editeViewContainer?.addSubview(separatorLabel!)
+        editViewContainer?.addSubview(separatorLabel!)
         
         separatorLabel?.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
         
         separatorLabel?.translatesAutoresizingMaskIntoConstraints = false
         
-        separatorLabel?.topAnchor.constraint(equalTo: editeViewContainer!.topAnchor, constant: 8).isActive = true
+        separatorLabel?.topAnchor.constraint(equalTo: editViewContainer!.topAnchor, constant: 10).isActive = true
         separatorLabel?.widthAnchor.constraint(equalToConstant: 3).isActive = true
-        separatorLabel?.bottomAnchor.constraint(equalTo: editeViewContainer!.bottomAnchor, constant: -1).isActive = true
-        separatorLabel?.leadingAnchor.constraint(equalTo: editeViewContainer!.leadingAnchor, constant: self.bounds.width / 6).isActive = true
+        separatorLabel?.heightAnchor.constraint(equalToConstant: 32).isActive = true
+//        separatorLabel?.bottomAnchor.constraint(equalTo: editeViewContainer!.bottomAnchor, constant: -1).isActive = true
+        separatorLabel?.leadingAnchor.constraint(equalTo: editViewContainer!.leadingAnchor, constant: self.bounds.width / 6).isActive = true
     }
     
     func setupEditePenIcon() {
         editPen = UIImageView()
-        editeViewContainer?.addSubview(editPen!)
+        editViewContainer?.addSubview(editPen!)
         editPen?.tintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
         editPen?.image = UIImage(systemName: "pencil")
         
         editPen?.translatesAutoresizingMaskIntoConstraints = false
-        editPen?.leadingAnchor.constraint(equalTo: editeViewContainer!.leadingAnchor, constant: 20).isActive = true
-        editPen?.centerYAnchor.constraint(equalTo: editeViewContainer!.centerYAnchor, constant: 2).isActive = true
+        editPen?.leadingAnchor.constraint(equalTo: editViewContainer!.leadingAnchor, constant: 20).isActive = true
+//        editPen?.centerYAnchor.constraint(equalTo: editeViewContainer!.centerYAnchor, constant: 2).isActive = true
         editPen?.heightAnchor.constraint(equalToConstant: 27).isActive = true
         editPen?.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        editPen?.topAnchor.constraint(equalTo: editViewContainer!.topAnchor, constant: 10).isActive = true
     }
     
     func setupCloseButton() {
-        close = UIImageView()
+        closeEditView = UIImageView()
         
-        editeViewContainer?.addSubview(close!)
+        editViewContainer?.addSubview(closeEditView!)
         
-        close?.tintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        closeEditView?.tintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
 //        close?.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-        close?.image = UIImage(systemName: "xmark")
-        close?.isUserInteractionEnabled = true
+        closeEditView?.image = UIImage(systemName: "xmark")
+        closeEditView?.isUserInteractionEnabled = true
         
-        close?.translatesAutoresizingMaskIntoConstraints = false
+        closeEditView?.translatesAutoresizingMaskIntoConstraints = false
         
-        close?.trailingAnchor.constraint(equalTo: editeViewContainer!.trailingAnchor, constant: -23).isActive = true
-        close?.centerYAnchor.constraint(equalTo: editeViewContainer!.centerYAnchor, constant: 2).isActive = true
-        close?.heightAnchor.constraint(equalToConstant: 23).isActive = true
-        close?.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        closeEditView?.trailingAnchor.constraint(equalTo: editViewContainer!.trailingAnchor, constant: -23).isActive = true
+//        closeEditView?.centerYAnchor.constraint(equalTo: editeViewContainer!.centerYAnchor, constant: 2).isActive = true
+        closeEditView?.heightAnchor.constraint(equalToConstant: 23).isActive = true
+        closeEditView?.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        closeEditView?.topAnchor.constraint(equalTo: editViewContainer!.topAnchor, constant: 14).isActive = true
     }
     
     func activateEditView() {
@@ -208,16 +214,28 @@ class ConversationViewControllerUI: UIView {
         setupCloseButton()
         
         editMessageButton.isHidden = false
-        editViewHeightAddedToTableViewContent = true
+//        editViewHeightAddedToTableViewContent = true
+//        tableView.setContentOffset(CGPoint(x: 0, y: tableView.contentOffset.y - 45), animated: false)
+        updateTableViewContentOffset(shouldAddEditViewHeight: false)
         self.layoutIfNeeded()
     }
+    func updateTableViewContentOffset(shouldAddEditViewHeight: Bool) {
+        let height = shouldAddEditViewHeight ? 45.0 : -45.0
+        tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
+    }
     
-    private func destroyEditedView() {
-       editeViewContainer?.subviews.forEach({ view in
+    func destroyEditedView() {
+       editViewContainer?.subviews.forEach({ view in
            view.removeFromSuperview()
        })
-       editeViewContainer?.removeFromSuperview()
-       editeViewContainer = nil
+       editViewContainer?.removeFromSuperview()
+       editViewContainer = nil
+//       editeViewContainer = nil
+//       editLabel          = nil
+//       editMessageText    = nil
+//       separatorLabel     = nil
+//       editPen            = nil
+//       closeEditView      = nil
    }
 
     //.////
@@ -357,7 +375,7 @@ class ConversationViewControllerUI: UIView {
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         tableView.layoutIfNeeded()
     }
-    var editViewHeightAddedToTableViewContent: Bool = false
+//    var editViewHeightAddedToTableViewContent: Bool = false
 }
 
 // MARK: - SETUP NAVIGATION BAR ITEMS
@@ -435,21 +453,20 @@ extension ConversationViewControllerUI: UITextViewDelegate {
     
     func adjustTableViewContent(using textView: UITextView, numberOfLines: Int) {
         let numberOfAddedLines     = CGFloat(numberOfLines - self.messageTextViewNumberOfLines)
-        let editViewHeight         = editeViewContainer?.bounds.height != nil ? editeViewContainer!.bounds.height : 0
+        let editViewHeight         = editViewContainer?.bounds.height != nil ? editViewContainer!.bounds.height : 0
         var updatedContentOffset   = self.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
         
-        // Add height only once when editedView first shows
-        if editViewHeightAddedToTableViewContent {
-            updatedContentOffset -= editViewHeight
-            editViewHeightAddedToTableViewContent = false
-        }
-        let updatedContentTopInset = tableViewInitialTopInset() + (textView.font!.lineHeight * CGFloat((numberOfLines - 1)))
-        + editViewHeight
+//        // Add height only once when editedView first shows
+//        if editViewHeightAddedToTableViewContent {
+//            updatedContentOffset -= editViewHeight
+//            editViewHeightAddedToTableViewContent = false
+//        }
+        let updatedContentTopInset = tableViewInitialTopInset() + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) + editViewHeight
 
-        UIView.animate(withDuration: 0.4) {
+        UIView.animate(withDuration: 0.15) {
             self.tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
             self.tableView.contentInset.top = updatedContentTopInset
-            self.tableView.verticalScrollIndicatorInsets.top += textView.font!.lineHeight * numberOfAddedLines
+            self.tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
         }
         self.messageTextViewNumberOfLines = numberOfLines
     }

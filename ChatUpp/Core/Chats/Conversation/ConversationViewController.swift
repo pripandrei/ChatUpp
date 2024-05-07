@@ -167,21 +167,52 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     //MARK: - EDIT VIEW CONTAINER GESTURE
     
+    private func addGestureToCloseBtn() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeEditView))
+        rootView.closeEditView?.addGestureRecognizer(tapGesture)
+   }
+    
     @objc func closeEditView() {
         print("close!")
+//        self.rootView.destroyEditedView()
+//        rootView.editMessageButton.isHidden = true
+//        rootView.messageTextView.text.removeAll()
+//        rootView.textViewDidChange(rootView.messageTextView)
+        animateEditViewDestruction()
+    }
+//    func animateEditViewDestruction() {
+//        UIView.transition(with: self.rootView.containerView, duration: 0.3, animations: {
+//            self.rootView.editeViewContainerHeightConstraint?.constant = 0
+//            self.rootView.layoutIfNeeded()
+//        })
+//    }
+    
+    func animateEditViewDestruction() {
+        self.rootView.messageTextView.text.removeAll()
+        UIView.animate(withDuration: 0.2) {
+            self.rootView.editeViewContainerHeightConstraint?.constant = 0
+            self.rootView.editViewContainer?.subviews.forEach({ view in
+                view.layer.opacity = 0.0
+            })
+            self.rootView.editMessageButton.layer.opacity = 0.0
+            self.rootView.updateTableViewContentOffset(shouldAddEditViewHeight: true)
+            DispatchQueue.main.async {
+                self.rootView.textViewDidChange(self.rootView.messageTextView)                
+            }
+            self.rootView.layoutIfNeeded()
+        } completion: { complition in
+            if complition {
+                self.rootView.destroyEditedView()
+                self.rootView.editMessageButton.isHidden = true
+    //            self.rootView.textViewDidChange(self.rootView.messageTextView)
+                self.rootView.editMessageButton.layer.opacity = 1.0
+    //            self.rootView.textViewDidChange(self.rootView.messageTextView)
+            }
+        }
     }
     
     //MARK: - SEND MESSAGE BUTTON CONFIGURATION
     
-    private func addGestureToCloseBtn() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeEditView))
-        rootView.close?.addGestureRecognizer(tapGesture)
-   }
-    
-    
-    private func addTargetToCloseBtn() {
-//        rootView.close.addTarget(self, action: #selector(closeEditView), for: .touchUpInside)
-    }
     private func addTargetToSendMessageBtn() {
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
@@ -400,7 +431,7 @@ extension ConversationViewController {
         let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
         let keyboardHeight = rootView.containerView.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
         
-        let editViewHeight = rootView.editeViewContainer?.bounds.height != nil ? rootView.editeViewContainer!.bounds.height : 0
+        let editViewHeight = rootView.editViewContainer?.bounds.height != nil ? rootView.editViewContainer!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootView.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
@@ -510,7 +541,7 @@ extension ConversationViewController: UITableViewDelegate
                 }
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble")) { action in
                     DispatchQueue.main.async {
-                        if self.rootView.editeViewContainer == nil {
+                        if self.rootView.editViewContainer == nil {
                             self.rootView.activateEditView()
                         }
                         self.addGestureToCloseBtn()
