@@ -22,11 +22,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     private var isKeyboardHidden: Bool = true
     private var isNewSectionAdded: Bool = false
-    private var isContextMenuPresented: Bool = false {
-        didSet {
-            print("isContextMenuPresented changed")
-        }
-    }
+    private var isContextMenuPresented: Bool = false
     
     //MARK: - LIFECYCLE
     convenience init(conversationViewModel: ConversationViewModel) {
@@ -49,22 +45,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
-//        addTargetToCloseBtn()
-//        addGestureToCloseBtn()
-//        setupHeader()
     }
-    
-//    func setupHeader() {
-//        let headerView = DateHeaderLabel()
-//
-//        view.addSubview(headerView)
-//
-//        NSLayoutConstraint.activate([
-//            headerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            headerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 100)
-//        ])
-//    }
-//
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
@@ -143,8 +124,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             if rootView.containerView.frame.origin.y > 580 {
                 if isContextMenuPresented {
                     let keyboardHeight = -336.0
-                    self.rootView.holderViewBottomConstraint.constant = keyboardHeight
-                    view.layoutIfNeeded()
+                    updateHolderViewBottomConstraint(toSize: keyboardHeight)
                 } else {
                     handleTableViewOffSet(usingKeyboardSize: keyboardSize)
                 }
@@ -152,42 +132,23 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             }
         }
     }
+    func updateHolderViewBottomConstraint(toSize size: CGFloat) {
+        self.rootView.holderViewBottomConstraint.constant = size
+        view.layoutIfNeeded()
+    }
     
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if !isContextMenuPresented {
                 handleTableViewOffSet(usingKeyboardSize: keyboardSize)
             } else if isContextMenuPresented {
-                self.rootView.holderViewBottomConstraint.constant = 0
-                view.layoutIfNeeded()
+                updateHolderViewBottomConstraint(toSize: 0)
             }
             isKeyboardHidden = true
         }
     }
-    
-    //MARK: - EDIT VIEW CONTAINER GESTURE
-    
-    private func addGestureToCloseBtn() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeEditView))
-        rootView.closeEditView?.addGestureRecognizer(tapGesture)
-   }
-    
-    @objc func closeEditView() {
-        print("close!")
-//        self.rootView.destroyEditedView()
-//        rootView.editMessageButton.isHidden = true
-//        rootView.messageTextView.text.removeAll()
-//        rootView.textViewDidChange(rootView.messageTextView)
-        animateEditViewDestruction()
-    }
-//    func animateEditViewDestruction() {
-//        UIView.transition(with: self.rootView.containerView, duration: 0.3, animations: {
-//            self.rootView.editeViewContainerHeightConstraint?.constant = 0
-//            self.rootView.layoutIfNeeded()
-//        })
-//    }
-    
-    func animateEditViewDestruction() {
+
+    private func animateEditViewDestruction() {
         self.rootView.messageTextView.text.removeAll()
         UIView.animate(withDuration: 0.2) {
             self.rootView.editeViewContainerHeightConstraint?.constant = 0
@@ -195,7 +156,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 view.layer.opacity = 0.0
             })
             self.rootView.editMessageButton.layer.opacity = 0.0
-            self.rootView.updateTableViewContentOffset(shouldAddEditViewHeight: true)
+            self.rootView.updateTableViewContentOffset(isEditViewRemoved: true)
             DispatchQueue.main.async {
                 self.rootView.textViewDidChange(self.rootView.messageTextView)                
             }
@@ -204,41 +165,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             if complition {
                 self.rootView.destroyEditedView()
                 self.rootView.editMessageButton.isHidden = true
-    //            self.rootView.textViewDidChange(self.rootView.messageTextView)
                 self.rootView.editMessageButton.layer.opacity = 1.0
-    //            self.rootView.textViewDidChange(self.rootView.messageTextView)
             }
-        }
-    }
-    
-    //MARK: - SEND MESSAGE BUTTON CONFIGURATION
-    
-    private func addTargetToSendMessageBtn() {
-        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
-    }
-    private func addTargetToAddPictureBtn() {
-        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
-    }
-    private func addTargetToEditMessageBtn() {
-        rootView.editMessageButton.addTarget(self, action: #selector(editMessageBtnWasTapped), for: .touchUpInside)
-    }
-    
-    @objc func editMessageBtnWasTapped() {
-        guard let editedMessage = rootView.messageTextView.text else {return}
-        conversationViewModel.shouldEditMessage?(editedMessage)
-        rootView.editMessageButton.isHidden = true
-        rootView.messageTextView.text.removeAll()
-        rootView.textViewDidChange(rootView.messageTextView)
-        rootView.messageTextView.resignFirstResponder()
-    }
-    
-    @objc func sendMessageBtnWasTapped() {
-        let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedString.isEmpty {
-            rootView.messageTextView.text.removeAll()
- 
-            rootView.textViewDidChange(rootView.messageTextView)
-            handleMessageBubbleCreation(messageText: trimmedString)
         }
     }
     
@@ -268,7 +196,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         isNewSectionAdded = false
     }
     
-    func handleSectionAnimation() {
+    private func handleSectionAnimation() {
         guard let footerView = rootView.tableView.footerView(forSection: 0) else {return}
         
         footerView.alpha = 0.0
@@ -279,14 +207,14 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    func checkIfNewSectionWasAdded() -> Bool {
+    private func checkIfNewSectionWasAdded() -> Bool {
         if rootView.tableView.numberOfSections < conversationViewModel.cellMessageGroups.count {
             return true
         }
         return false
     }
     
-    func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
+    private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
         let currentOffSet = self.rootView.tableView.contentOffset
         let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
         
@@ -316,7 +244,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    func setCellOffset(cellIndexPath indexPath: IndexPath) {
+    private func setCellOffset(cellIndexPath indexPath: IndexPath) {
         let currentOffSet = self.rootView.tableView.contentOffset
         guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
         
@@ -378,10 +306,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         pickerVC.delegate = self
         present(pickerVC, animated: true)
     }
-
-    @objc func pictureAddBtnWasTapped() {
-        configurePhotoPicker()
-    }
 }
 
 //MARK: - PHOTO PICKER CONTROLLER DELEGATE
@@ -413,15 +337,60 @@ extension ConversationViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
         rootView.tableView.addGestureRecognizer(tap)
     }
+    private func addGestureToCloseBtn() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeEditView))
+        rootView.closeEditView?.addGestureRecognizer(tapGesture)
+   }
     
     @objc func resignKeyboard() {
         if rootView.messageTextView.isFirstResponder {
             rootView.messageTextView.resignFirstResponder()
         }
     }
+    
+    @objc func closeEditView() {
+        animateEditViewDestruction()
+    }
 }
 
-//MARK: - COLLETION VIEW OFFSET HANDLER
+//MARK: - BUTTON'S TARGET CONFIGURATION
+extension  ConversationViewController {
+    
+    private func addTargetToSendMessageBtn() {
+        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
+    }
+    private func addTargetToAddPictureBtn() {
+        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
+    }
+    private func addTargetToEditMessageBtn() {
+        rootView.editMessageButton.addTarget(self, action: #selector(editMessageBtnWasTapped), for: .touchUpInside)
+    }
+    
+    @objc func editMessageBtnWasTapped() {
+        guard let editedMessage = rootView.messageTextView.text else {return}
+        conversationViewModel.shouldEditMessage?(editedMessage)
+        rootView.editMessageButton.isHidden = true
+        rootView.messageTextView.text.removeAll()
+        rootView.textViewDidChange(rootView.messageTextView)
+        rootView.messageTextView.resignFirstResponder()
+    }
+    
+    @objc func sendMessageBtnWasTapped() {
+        let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedString.isEmpty {
+            rootView.messageTextView.text.removeAll()
+ 
+            rootView.textViewDidChange(rootView.messageTextView)
+            handleMessageBubbleCreation(messageText: trimmedString)
+        }
+    }
+    
+    @objc func pictureAddBtnWasTapped() {
+        configurePhotoPicker()
+    }
+}
+
+//MARK: - TABLE OFFSET HANDLER
 extension ConversationViewController {
     private func handleTableViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         
@@ -464,7 +433,7 @@ extension ConversationViewController
     }
 }
 
-//MARK: - TABLE VIEW DELEGATE
+//MARK: - TABLE  DELEGATE
 extension ConversationViewController: UITableViewDelegate
 {
     class DateHeaderLabel: UILabel {
