@@ -18,9 +18,9 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private var conversationViewModel :ConversationViewModel!
     private var collectionViewDataSource :ConversationViewDataSource!
     private var customNavigationBar :ConversationCustomNavigationBar!
-    private var rootView = ConversationViewControllerUI()
+    private var rootView = ConversationRootView()
 //    lazy private var rootViewTextViewDelegate = ConversationViewControllerUITextViewDelegate(view: self.view)
-    private var rootViewTextViewDelegate: ConversationViewControllerUITextViewDelegate!
+    private var rootViewTextViewDelegate: ConversationTextViewDelegate!
     
     private var isKeyboardHidden: Bool = true
     private var isNewSectionAdded: Bool = false
@@ -34,7 +34,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     override func loadView() {
         view = rootView
-        rootViewTextViewDelegate = ConversationViewControllerUITextViewDelegate(view: rootView)
+        rootViewTextViewDelegate = ConversationTextViewDelegate(view: rootView)
     }
 
     override func viewDidLoad() {
