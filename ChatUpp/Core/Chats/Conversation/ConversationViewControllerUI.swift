@@ -247,20 +247,33 @@ class ConversationViewControllerUI: UIView {
         messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
         messageTextView.textColor                                 = .white
         messageTextView.isScrollEnabled                           = false
-        messageTextView.delegate                                  = self
+//        messageTextView.delegate                                  = self
         messageTextView.textContainer.maximumNumberOfLines        = 0
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
         
+//        textViewHeightConstraint.isActive                         = true
+//        textViewHeightConstraint.priority                         = .required
+//
+////        let messageTextViewHeightConstraint                       = messageTextView.heightAnchor.constraint(equalToConstant: 31)
+////        messageTextViewHeightConstraint.priority                  = .required
+//
+//        NSLayoutConstraint.activate([
+//            messageTextView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -containerView.bounds.height * 0.45),
+//            messageTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 55),
+//            messageTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -55),
+//            messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+////            messageTextViewHeightConstraint,
+//        ])
+//
+   
         textViewHeightConstraint.isActive                         = true
         textViewHeightConstraint.priority                         = .required
         
-        let topConstraint                                         = messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10)
-        topConstraint.isActive                                    = true
-        
         NSLayoutConstraint.activate([
             messageTextView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -containerView.bounds.height * 0.45),
-            messageTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 55),
             messageTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -55),
+            messageTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 55),
+            messageTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
         ])
     }
     
@@ -307,7 +320,14 @@ class ConversationViewControllerUI: UIView {
         tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
         tableView.layoutIfNeeded()
     }
+    func updateNumberOfLines(_ number: Int) {
+        messageTextViewNumberOfLines = number
+    }
+    func setTextViewDelegate(to delegate: UITextViewDelegate) {
+        messageTextView.delegate = delegate
+    }
 }
+
 
 // MARK: - SETUP NAVIGATION BAR ITEMS
 final class ConversationCustomNavigationBar {
@@ -346,7 +366,24 @@ final class ConversationCustomNavigationBar {
     }
 }
 
-extension ConversationViewControllerUI: UITextViewDelegate {
+class ConversationViewControllerUITextViewDelegate: UIView, UITextViewDelegate {
+
+    private var conversationView: ConversationViewControllerUI!
+    
+//    convenience init?(view: UIView) {
+//        self.init(frame: .zero)
+//        guard let view = view as? ConversationViewControllerUI else {return nil}
+//        conversationView = view
+//    }
+    convenience init(view: ConversationViewControllerUI) {
+        self.init(frame: .zero)
+        conversationView = view
+        setupDelegate()
+    }
+    
+    private func setupDelegate() {
+        conversationView.setTextViewDelegate(to: self)
+    }
     
     private func calculateTextViewFrameSize(_ textView: UITextView) -> CGSize {
         let fixedWidth = textView.frame.size.width
@@ -362,45 +399,95 @@ extension ConversationViewControllerUI: UITextViewDelegate {
         let textViewFrameSize = calculateTextViewFrameSize(textView)
         var numberOfLines     = Int(textViewFrameSize.height / textView.font!.lineHeight)
         
-        if numberOfLines > 4 && !self.messageTextView.isScrollEnabled
+        if numberOfLines > 4 && !textView.isScrollEnabled
         {
             // in case user paste text that exceeds 5 lines
             let initialTextViewHeight = 31.0
             numberOfLines             = 5
+            let hightConstraintConstant = initialTextViewHeight + (textView.font!.lineHeight * CGFloat(numberOfLines - 1))
             
-            self.messageTextView.isScrollEnabled = true
-            textViewHeightConstraint.constant    = initialTextViewHeight + (textView.font!.lineHeight * CGFloat(numberOfLines - 1))
+            textView.isScrollEnabled                                                    = true
+            conversationView.textViewHeightConstraint.constant = hightConstraintConstant
             adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
         }
         if numberOfLines <= 4 {
             adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
-            self.textViewHeightConstraint.constant = textViewFrameSize.height
-            textView.isScrollEnabled               = false
+            conversationView.textViewHeightConstraint.constant = textViewFrameSize.height
+            textView.isScrollEnabled                                                    = false
         }
     }
     
     func adjustTableViewContent(using textView: UITextView, numberOfLines: Int) {
-        let numberOfAddedLines     = CGFloat(numberOfLines - self.messageTextViewNumberOfLines)
-        let editViewHeight         = editViewContainer?.bounds.height != nil ? editViewContainer!.bounds.height : 0
-        let updatedContentOffset   = self.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
-        let updatedContentTopInset = tableViewInitialTopInset + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) + editViewHeight
+        let numberOfAddedLines     = CGFloat(numberOfLines - conversationView.messageTextViewNumberOfLines)
+        let editViewHeight         = conversationView.editViewContainer?.bounds.height != nil ? conversationView.editViewContainer!.bounds.height : 0
+        let updatedContentOffset   = conversationView.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
+        let updatedContentTopInset = conversationView.tableViewInitialTopInset + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) + editViewHeight
 
         UIView.animate(withDuration: 0.15) {
-            self.tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
-            self.tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
-            self.tableView.contentInset.top                  = updatedContentTopInset
+            self.conversationView.tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
+            self.conversationView.tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
+            self.conversationView.tableView.contentInset.top                  = updatedContentTopInset
         }
-        self.messageTextViewNumberOfLines = numberOfLines
+        conversationView.updateNumberOfLines(numberOfLines)
     }
 }
+//
+//extension ConversationViewControllerUI: UITextViewDelegate {
+//
+//    private func calculateTextViewFrameSize(_ textView: UITextView) -> CGSize {
+//        let fixedWidth = textView.frame.size.width
+//        let newSize    = textView.sizeThatFits(CGSize.init(width: fixedWidth, height: CGFloat(MAXFLOAT)))
+//        return CGSize.init(width: CGFloat(fmaxf(Float(newSize.width), Float(fixedWidth))), height: newSize.height)
+//    }
+//
+//    func textViewDidChange(_ textView: UITextView)
+//    {
+//        // because textView height constraint priority is .required
+//        // new line will not occur and height will not change
+//        // so we need to calculate height ourselves
+//        let textViewFrameSize = calculateTextViewFrameSize(textView)
+//        var numberOfLines     = Int(textViewFrameSize.height / textView.font!.lineHeight)
+//
+//        if numberOfLines > 4 && !messageTextView.isScrollEnabled
+//        {
+//            // in case user paste text that exceeds 5 lines
+//            let initialTextViewHeight = 31.0
+//            numberOfLines             = 5
+//
+//            adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
+//            textView.constraints.first(where: {$0.firstAttribute == .height})?.constant = initialTextViewHeight + (textView.font!.lineHeight * CGFloat(numberOfLines - 1))
+//            textView.isScrollEnabled                                                    = true
+//        }
+//        if numberOfLines <= 4 {
+//            adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
+//            textView.constraints.first(where: {$0.firstAttribute == .height})?.constant = textViewFrameSize.height
+//            textView.isScrollEnabled                                                    = false
+//        }
+//    }
+//
+//    func adjustTableViewContent(using textView: UITextView, numberOfLines: Int) {
+//        let numberOfAddedLines     = CGFloat(numberOfLines - messageTextViewNumberOfLines)
+//        let updatedContentOffset   = tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
+//        let editViewHeight         = editViewContainer?.bounds.height != nil ? editViewContainer!.bounds.height : 0
+//        let updatedContentTopInset = tableViewInitialTopInset + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) + editViewHeight
+//
+//        UIView.animate(withDuration: 0.15) {
+//            self.tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
+//            self.tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
+//            self.tableView.contentInset.top                  = updatedContentTopInset
+//        }
+//        self.messageTextViewNumberOfLines = numberOfLines
+//    }
+//}
 
 // MARK: - Modified container for gesture trigger
 
 class ContainerView: UIView
 {
     // since closeImageView frame is not inside it's super view (editViewContainer)
-    // we need to override point to return true in case it matches the location of close view
-    // so that gesture recognizer get's triggered
+    // gesture recognizer attached to it will not get triggered
+    // so we need to override point to return true in case it matches the location in coordinate of closeImageView
+    
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool
     {
         if super.point(inside: point, with: event) {return true}

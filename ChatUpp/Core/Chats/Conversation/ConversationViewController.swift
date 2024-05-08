@@ -19,6 +19,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private var collectionViewDataSource :ConversationViewDataSource!
     private var customNavigationBar :ConversationCustomNavigationBar!
     private var rootView = ConversationViewControllerUI()
+//    lazy private var rootViewTextViewDelegate = ConversationViewControllerUITextViewDelegate(view: self.view)
+    private var rootViewTextViewDelegate: ConversationViewControllerUITextViewDelegate!
     
     private var isKeyboardHidden: Bool = true
     private var isNewSectionAdded: Bool = false
@@ -32,6 +34,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     override func loadView() {
         view = rootView
+        rootViewTextViewDelegate = ConversationViewControllerUITextViewDelegate(view: rootView)
     }
 
     override func viewDidLoad() {
@@ -158,7 +161,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             self.rootView.editMessageButton.layer.opacity = 0.0
             self.rootView.updateTableViewContentOffset(isEditViewRemoved: true)
             DispatchQueue.main.async {
-                self.rootView.textViewDidChange(self.rootView.messageTextView)                
+//                self.rootView.textViewDidChange(self.rootView.messageTextView)
+                self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
             }
             self.rootView.layoutIfNeeded()
         } completion: { complition in
@@ -371,7 +375,7 @@ extension  ConversationViewController {
         conversationViewModel.shouldEditMessage?(editedMessage)
         rootView.editMessageButton.isHidden = true
         rootView.messageTextView.text.removeAll()
-        rootView.textViewDidChange(rootView.messageTextView)
+        rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
         rootView.messageTextView.resignFirstResponder()
     }
     
@@ -380,7 +384,7 @@ extension  ConversationViewController {
         if !trimmedString.isEmpty {
             rootView.messageTextView.text.removeAll()
  
-            rootView.textViewDidChange(rootView.messageTextView)
+            rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
             handleMessageBubbleCreation(messageText: trimmedString)
         }
     }
@@ -399,24 +403,20 @@ extension ConversationViewController {
         // so we check if maximum allowed number of line is reached (containerView origin.y will be 584)
         let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
         let keyboardHeight = rootView.containerView.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
-        
         let editViewHeight = rootView.editViewContainer?.bounds.height != nil ? rootView.editViewContainer!.bounds.height : 0
         
-        // if there is more than one line, textView height should be added to table view inset
+        // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootView.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
         let customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight + editViewHeight : 0 + textViewHeight + editViewHeight
-        
-        self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-        
         let currentOffSet = rootView.tableView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
-
+        
+        rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
         rootView.tableViewInitialContentOffset = offSet
         view.layoutSubviews()
-//        view.layoutIfNeeded()
     }
 }
 
@@ -516,7 +516,7 @@ extension ConversationViewController: UITableViewDelegate
                         self.addGestureToCloseBtn()
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageContainer.text
-                        self.rootView.textViewDidChange(self.rootView.messageTextView)
+                        self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
                         
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
                             self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
