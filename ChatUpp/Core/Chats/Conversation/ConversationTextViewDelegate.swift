@@ -66,6 +66,6 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
             self.conversationView.tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
             self.conversationView.tableView.contentInset.top                  = updatedContentTopInset
         }
-        conversationView.updateNumberOfLines(numberOfLines)
+        conversationView.updateTextViewNumberOfLines(numberOfLines)
     }
 }

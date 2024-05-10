@@ -10,47 +10,93 @@ import UIKit
 
 final class ConversationRootView: UIView {
     
-    private(set) var messageTextViewNumberOfLines  = 1
-    private(set) var inputBarContainer             = InputBarContainer()
-    private(set) var messageTextView               = UITextView()
-    private(set) var sendMessageButton             = UIButton()
-    private(set) var addPictureButton              = UIButton()
-    private(set) var sendEditMessageButton         = UIButton()
-    private(set) var editView                      : EditView?
-    private(set) var inputBarBottomConstraint      : NSLayoutConstraint!
+    // MARK: - UI Elements
+
+    private(set) var inputBarContainer: InputBarContainer = {
+        let inputBarContainer = InputBarContainer()
+        inputBarContainer.backgroundColor                           = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
+        inputBarContainer.bounds.size.height                        = 80
+        inputBarContainer.translatesAutoresizingMaskIntoConstraints = false
+        
+        return inputBarContainer
+    }()
     
-    var tableViewInitialContentOffset              = CGPoint(x: 0, y: 0)
-    lazy var textViewHeightConstraint              = messageTextView.heightAnchor.constraint(equalToConstant: 31)
-    
-    let tableView: UITableView = {
+    private(set) var tableView: UITableView = {
         let tableView                           = UITableView()
+        tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1) // Revert table view upside down
         tableView.backgroundColor               = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1)
         tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
         tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -10, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
         tableView.register(ConversationTableViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationMessageCell)
+        
         return tableView
     }()
     
+    private(set) lazy var messageTextView: UITextView = {
+        let messageTextView = UITextView()
+        let height                                                = inputBarContainer.bounds.height * 0.4
+        messageTextView.backgroundColor                           = .systemBlue
+        messageTextView.layer.cornerRadius                        = 15
+        messageTextView.font                                      = UIFont(name: "HelveticaNeue", size: 17)
+        messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
+        messageTextView.textColor                                 = .white
+        messageTextView.isScrollEnabled                           = false
+        messageTextView.textContainer.maximumNumberOfLines        = 0
+        messageTextView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return messageTextView
+    }()
+    
+    private(set) var sendMessageButton: UIButton = {
+        let sendMessageButton = UIButton()
+        sendMessageButton.frame.size                                = CGSize(width: 35, height: 35)  // size is used only for radius calculation
+        sendMessageButton.configuration                             = .filled()
+        sendMessageButton.configuration?.image                      = UIImage(systemName: "paperplane.fill")
+        sendMessageButton.configuration?.baseBackgroundColor        = UIColor.purple
+        sendMessageButton.layer.cornerRadius                        = sendMessageButton.frame.size.width / 2.0
+        sendMessageButton.clipsToBounds                             =  true
+        sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        return sendMessageButton
+    }()
+    
+    private(set) var addPictureButton: UIButton = {
+        let addPictureButton = UIButton()
+        addPictureButton.frame.size                                = CGSize(width: 35, height: 35)  // size is used only for radius calculation
+        addPictureButton.configuration                             = .plain()
+        addPictureButton.configuration?.baseForegroundColor        = UIColor.purple
+        addPictureButton.layer.cornerRadius                        = addPictureButton.frame.size.width / 2.0
+        addPictureButton.configuration?.image                      = UIImage(systemName: "photo")
+        addPictureButton.clipsToBounds                             = true
+        addPictureButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        return addPictureButton
+    }()
+    
+    private(set) var sendEditMessageButton: UIButton = {
+        let sendEditMessageButton = UIButton()
+        sendEditMessageButton.frame.size                                = CGSize(width: 35, height: 35)
+        sendEditMessageButton.configuration                             = .filled()
+        sendEditMessageButton.configuration?.image                      = UIImage(systemName: "checkmark")
+        sendEditMessageButton.configuration?.baseBackgroundColor        = UIColor.blue
+        sendEditMessageButton.layer.cornerRadius                        = sendEditMessageButton.frame.size.width / 2.0
+        sendEditMessageButton.clipsToBounds                             = true
+        sendEditMessageButton.isHidden                                  = true
+        sendEditMessageButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        return sendEditMessageButton
+    }()
+    
+    private(set) var editView                      : EditView?
+    private(set) var inputBarBottomConstraint      : NSLayoutConstraint!
+    private(set) var textViewHeightConstraint      : NSLayoutConstraint!
+    
+    private(set) var messageTextViewNumberOfLines  = 1
+//    var tableViewInitialContentOffset              = CGPoint(x: 0, y: 0)
     var tableViewInitialTopInset: CGFloat {
         return isKeyboardShown() ? CGFloat(336) : CGFloat(0)
-    }
-    
-    // MARK: - VIEW LAYOUT SETUP
-    
-    private func setupLayout() {
-        setupTableView()
-        setupHolderView()
-        setupMessageTextView()
-        setupSendMessageBtn()
-        setupAddPictureButton()
-        setupSendEditMessageButton()
-    }
-
-    private func isKeyboardShown() -> Bool {
-        return messageTextView.isFirstResponder
     }
     
     // MARK: - LIFECYCLE
@@ -59,115 +105,50 @@ final class ConversationRootView: UIView {
         super.init(frame: frame)
         setupLayout()
     }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - SETUP EDIT VIEW
+    // MARK: - SETUP CONSTRAINTS
     
-//    private(set) var editViewContainer : UIView?
-//    private(set) var closeEditView     : UIImageView?
-//    private var editLabel              : UILabel?
-//    private var editMessageText        : UILabel?
-//    private var separatorLabel         : UILabel?
-//    private var editPenIcon            : UIImageView?
-//
-//    private func setupEditView() {
-//        editViewContainer                  = UIView()
-//        editViewContainer?.backgroundColor = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
-//
-//        inputBarContainer.addSubview(editViewContainer!)
-//        inputBarContainer.sendSubviewToBack(editViewContainer!)
-//
-//        editViewContainer?.translatesAutoresizingMaskIntoConstraints                          = false
-//        editViewContainer?.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive   = true
-//        editViewContainer?.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive     = true
-//        editViewContainer?.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor).isActive = true
-//
-//        editeViewContainerHeightConstraint           = editViewContainer?.heightAnchor.constraint(equalToConstant: 45)
-//        editeViewContainerHeightConstraint?.isActive = true
-//    }
-//
-//    var editeViewContainerHeightConstraint: NSLayoutConstraint?
-//
-//    private func setupEditLabel() {
-//        editLabel = UILabel()
-//
-//        editLabel?.text                                      = "Edit Message"
-//        editLabel?.textColor                                 = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-//        editLabel?.font                                      = UIFont.boldSystemFont(ofSize: 15)
-//        editLabel?.translatesAutoresizingMaskIntoConstraints = false
-//        editViewContainer?.addSubview(editLabel!)
-//
-//        editLabel?.topAnchor.constraint(equalTo: editViewContainer!.topAnchor, constant: 8).isActive                             = true
-//        editLabel?.leadingAnchor.constraint(equalTo: editViewContainer!.leadingAnchor, constant: self.bounds.width / 5).isActive = true
-//    }
-//    private func setupEditMessage() {
-//        editMessageText                                            = UILabel()
-//        editMessageText?.text                                      = "Test Message here for testing purposes only test test"
-//        editMessageText?.textColor                                 = .white
-//        editMessageText?.font                                      = UIFont(name: "Helvetica", size: 13.5)
-//        editMessageText?.lineBreakMode                             = .byTruncatingTail
-//        editMessageText?.adjustsFontSizeToFitWidth                 = false
-//        editMessageText?.translatesAutoresizingMaskIntoConstraints = false
-//        editViewContainer?.addSubview(editMessageText!)
-//
-//        editMessageText?.topAnchor.constraint(equalTo: editLabel!.topAnchor, constant: 18).isActive                                     = true
-//        editMessageText?.leadingAnchor.constraint(equalTo: editViewContainer!.leadingAnchor, constant:  self.bounds.width / 5).isActive = true
-//        editMessageText?.trailingAnchor.constraint(equalTo: editViewContainer!.trailingAnchor, constant: -90).isActive                  = true
-//    }
-//    private func setupSeparator() {
-//        separatorLabel                                            = UILabel()
-//        separatorLabel?.backgroundColor                           = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-//        separatorLabel?.translatesAutoresizingMaskIntoConstraints = false
-//        editViewContainer?.addSubview(separatorLabel!)
-//
-//        separatorLabel?.topAnchor.constraint(equalTo: editViewContainer!.topAnchor, constant: 10).isActive = true
-//        separatorLabel?.widthAnchor.constraint(equalToConstant: 3).isActive                                = true
-//        separatorLabel?.heightAnchor.constraint(equalToConstant: 32).isActive                              = true
-//        separatorLabel?.leadingAnchor.constraint(equalTo: editViewContainer!.leadingAnchor, constant: self.bounds.width / 6).isActive = true
-//    }
-//
-//    private func setupEditePenIcon() {
-//        editPenIcon                                            = UIImageView()
-//        editPenIcon?.tintColor                                 = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-//        editPenIcon?.image                                     = UIImage(systemName: "pencil")
-//        editPenIcon?.translatesAutoresizingMaskIntoConstraints = false
-//        editViewContainer?.addSubview(editPenIcon!)
-//
-//        editPenIcon?.leadingAnchor.constraint(equalTo: editViewContainer!.leadingAnchor, constant: 20).isActive = true
-//        editPenIcon?.heightAnchor.constraint(equalToConstant: 27).isActive                                      = true
-//        editPenIcon?.widthAnchor.constraint(equalToConstant: 25).isActive                                       = true
-//        editPenIcon?.topAnchor.constraint(equalTo: editViewContainer!.topAnchor, constant: 10).isActive         = true
-//    }
-//
-//    private func setupCloseButton() {
-//        closeEditView                                            = UIImageView()
-//        closeEditView?.tintColor                                 = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-//        closeEditView?.image                                     = UIImage(systemName: "xmark")
-//        closeEditView?.isUserInteractionEnabled                  = true
-//        closeEditView?.translatesAutoresizingMaskIntoConstraints = false
-//        editViewContainer?.addSubview(closeEditView!)
-//
-//        closeEditView?.trailingAnchor.constraint(equalTo: editViewContainer!.trailingAnchor, constant: -23).isActive = true
-//        closeEditView?.topAnchor.constraint(equalTo: editViewContainer!.topAnchor, constant: 14).isActive            = true
-//        closeEditView?.heightAnchor.constraint(equalToConstant: 23).isActive                                         = true
-//        closeEditView?.widthAnchor.constraint(equalToConstant: 20).isActive                                          = true
-//    }
-//
-////    func activateEditView() {
-////        setupEditView()
-////        setupEditLabel()
-////        setupEditMessage()
-////        setupSeparator()
-////        setupEditePenIcon()
-////        setupCloseButton()
-////
-////        updateTableViewContentOffset(isEditViewRemoved: false)
-////        sendEditMessageButton.isHidden = false
-////        self.layoutIfNeeded()
-////    }
+    private func setupLayout() {
+        setupTableViewConstraints()
+        setupInputBarContainerConstraints()
+        setupMessageTextViewConstraints()
+        setupSendMessageBtnConstraints()
+        setupAddPictureButtonConstrains()
+        setupSendEditMessageButtonConstraints()
+    }
+    
+    // MARK: Private functions
+    
+    private func isKeyboardShown() -> Bool {
+        return messageTextView.isFirstResponder
+    }
+    
+    // MARK: - Internal functions
+    
+    func updateTableViewContentOffset(isEditViewRemoved: Bool) {
+        //because tableview is inverted we should perform operations vice versa
+        let height = isEditViewRemoved ? 45.0 : -45.0
+        tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
+    }
+    func updateTextViewNumberOfLines(_ number: Int) {
+        messageTextViewNumberOfLines = number
+    }
+    func setTextViewDelegate(to delegate: UITextViewDelegate) {
+        messageTextView.delegate = delegate
+    }
+}
+
+// MARK: - SETUP EDIT VIEW
+extension ConversationRootView {
+    private func setupEditView() {
+        editView = EditView()
+        
+        setupEditViewConstraints()
+        editView!.setupSubviews()
+    }
     
     func activateEditView() {
         setupEditView()
@@ -177,8 +158,33 @@ final class ConversationRootView: UIView {
         self.layoutIfNeeded()
     }
     
-    private func setupEditView() {
-        editView = EditView()
+    func destroyEditedView() {
+        editView?.removeSubviews()
+        editView?.removeFromSuperview()
+        editView = nil
+    }
+}
+
+// MARK: - SETUP SUBVIEW'S CONSTRAINTS
+extension ConversationRootView {
+    
+    private func setupInputBarContainerConstraints() {
+        self.addSubviews(inputBarContainer)
+        
+        inputBarBottomConstraint          = inputBarContainer.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+        inputBarBottomConstraint.isActive = true
+        
+        let heightConstraint              = inputBarContainer.heightAnchor.constraint(equalToConstant: 80)
+        heightConstraint.isActive         = true
+        heightConstraint.priority         = .defaultLow
+        
+        NSLayoutConstraint.activate([
+            inputBarContainer.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            inputBarContainer.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+        ])
+    }
+    
+    private func setupEditViewConstraints() {
         inputBarContainer.addSubview(editView!)
         inputBarContainer.sendSubviewToBack(editView!)
         
@@ -186,32 +192,10 @@ final class ConversationRootView: UIView {
         editView!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive         = true
         editView!.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive       = true
         editView!.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor).isActive = true
-        
-        editView!.setupSubviews()
     }
-    
-    func destroyEditedView() {
-        editView?.removeSubviews()
-        editView?.removeFromSuperview()
-        editView = nil
-   }
-    
-    func updateTableViewContentOffset(isEditViewRemoved: Bool) {
-        //because tableview is inverted we should perform operations vice versa
-        let height = isEditViewRemoved ? 45.0 : -45.0
-        tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
-    }
-
-    private func setupAddPictureButton() {
+ 
+    private func setupAddPictureButtonConstrains() {
         self.addSubviews(addPictureButton)
-        // frmame size is used only for radius calculation
-        addPictureButton.frame.size                                = CGSize(width: 35, height: 35)
-        addPictureButton.configuration                             = .plain()
-        addPictureButton.configuration?.baseForegroundColor        = UIColor.purple
-        addPictureButton.layer.cornerRadius                        = addPictureButton.frame.size.width / 2.0
-        addPictureButton.configuration?.image                      = UIImage(systemName: "photo")
-        addPictureButton.clipsToBounds                             = true
-        addPictureButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             addPictureButton.trailingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: -10),
@@ -221,7 +205,7 @@ final class ConversationRootView: UIView {
         ])
     }
     
-    private func setupTableView() {
+    private func setupTableViewConstraints() {
         self.addSubview(tableView)
         
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -233,44 +217,12 @@ final class ConversationRootView: UIView {
         ])
     }
     
-    private func setupHolderView() {
-        self.addSubviews(inputBarContainer)
-        
-        inputBarContainer.backgroundColor                           = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
-        inputBarContainer.bounds.size.height                        = 80
-        inputBarContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        inputBarBottomConstraint                              = inputBarContainer.bottomAnchor.constraint(equalTo: self.bottomAnchor)
-        inputBarBottomConstraint.isActive                     = true
-        
-        let heightConstraint                                    = inputBarContainer.heightAnchor.constraint(equalToConstant: 80)
-        heightConstraint.isActive                               = true
-        heightConstraint.priority                               = .defaultLow
-        
-        NSLayoutConstraint.activate([
-            inputBarContainer.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            inputBarContainer.trailingAnchor.constraint(equalTo: self.trailingAnchor)
-        ])
-    }
-    
-    private func setupMessageTextView() {
+    private func setupMessageTextViewConstraints() {
         inputBarContainer.addSubview(messageTextView)
         
-        let height                                                = inputBarContainer.bounds.height * 0.4
-        messageTextView.backgroundColor                           = .systemBlue
-        messageTextView.layer.cornerRadius                        = 15
-        messageTextView.font                                      = UIFont(name: "HelveticaNeue", size: 17)
-        messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
-        messageTextView.textColor                                 = .white
-        messageTextView.isScrollEnabled                           = false
-        messageTextView.textContainer.maximumNumberOfLines        = 0
-        messageTextView.translatesAutoresizingMaskIntoConstraints = false
-        
-////        let messageTextViewHeightConstraint                       = messageTextView.heightAnchor.constraint(equalToConstant: 31)
-////        messageTextViewHeightConstraint.priority                  = .required
-
-        textViewHeightConstraint.isActive                         = true
-        textViewHeightConstraint.priority                         = .required
+        textViewHeightConstraint          = messageTextView.heightAnchor.constraint(equalToConstant: 31)
+        textViewHeightConstraint.isActive = true
+        textViewHeightConstraint.priority = .required
         
         NSLayoutConstraint.activate([
             messageTextView.bottomAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -inputBarContainer.bounds.height * 0.45),
@@ -280,17 +232,10 @@ final class ConversationRootView: UIView {
         ])
     }
     
-    private func setupSendMessageBtn() {
+    private func setupSendMessageBtnConstraints() {
         inputBarContainer.addSubview(sendMessageButton)
         // size is used only for radius calculation
-        sendMessageButton.frame.size                                = CGSize(width: 35, height: 35)
-        sendMessageButton.configuration                             = .filled()
-        sendMessageButton.configuration?.image                      = UIImage(systemName: "paperplane.fill")
-        sendMessageButton.configuration?.baseBackgroundColor        = UIColor.purple
-        sendMessageButton.layer.cornerRadius                        = sendMessageButton.frame.size.width / 2.0
-        sendMessageButton.clipsToBounds                             =  true
-        sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
-        
+
         NSLayoutConstraint.activate([
             sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
             sendMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: 8),
@@ -299,17 +244,8 @@ final class ConversationRootView: UIView {
         ])
     }
     
-    private func setupSendEditMessageButton() {
+    private func setupSendEditMessageButtonConstraints() {
         self.addSubviews(sendEditMessageButton)
-        
-        sendEditMessageButton.frame.size                                = CGSize(width: 35, height: 35)
-        sendEditMessageButton.configuration                             = .filled()
-        sendEditMessageButton.configuration?.image                      = UIImage(systemName: "checkmark")
-        sendEditMessageButton.configuration?.baseBackgroundColor        = UIColor.blue
-        sendEditMessageButton.layer.cornerRadius                        = sendEditMessageButton.frame.size.width / 2.0
-        sendEditMessageButton.clipsToBounds                             =  true
-        sendEditMessageButton.isHidden                                  = true
-        sendEditMessageButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             sendEditMessageButton.heightAnchor.constraint(equalToConstant: 35),
@@ -317,17 +253,6 @@ final class ConversationRootView: UIView {
             sendEditMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: 8),
             sendEditMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
         ])
-    }
-    
-    private func revertCollectionflowLayout() {
-        tableView.transform = CGAffineTransform(scaleX: 1, y: -1)
-        tableView.layoutIfNeeded()
-    }
-    func updateNumberOfLines(_ number: Int) {
-        messageTextViewNumberOfLines = number
-    }
-    func setTextViewDelegate(to delegate: UITextViewDelegate) {
-        messageTextView.delegate = delegate
     }
 }
 

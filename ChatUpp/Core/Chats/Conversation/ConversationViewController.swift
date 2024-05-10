@@ -418,7 +418,7 @@ extension ConversationViewController {
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
-        rootView.tableViewInitialContentOffset = offSet
+//        rootView.tableViewInitialContentOffset = offSet
         view.layoutSubviews()
     }
 }

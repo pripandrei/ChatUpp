@@ -23,6 +23,9 @@ final class EditView: UIView {
         editeViewHeightConstraint?.isActive = true
     }
     
+    
+    // MARK: - Setup subviews
+    
     func setupSubviews() {
         backgroundColor = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
         setupSelfHeightConstraint()
