@@ -11,6 +11,7 @@ import UIKit
 final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
 
     private var conversationView: ConversationRootView!
+    private(set) var messageTextViewNumberOfLines = 1
     
     convenience init(view: ConversationRootView) {
         self.init(frame: .zero)
@@ -32,31 +33,32 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
     {
         // because textView height constraint priority is .required
         // new line will not occur and height will not change
-        // so we need to calculate height ourselves
+        // so we need to calculate height ourselves using calculateTextViewFrameSize
         let textViewFrameSize = calculateTextViewFrameSize(textView)
+        
         var numberOfLines     = Int(textViewFrameSize.height / textView.font!.lineHeight)
         
         if numberOfLines > 4 && !textView.isScrollEnabled
         {
             // in case user paste text that exceeds 5 lines
-            let initialTextViewHeight = 31.0
-            numberOfLines             = 5
+            let initialTextViewHeight   = 31.0
+            numberOfLines               = 5
             let hightConstraintConstant = initialTextViewHeight + (textView.font!.lineHeight * CGFloat(numberOfLines - 1))
             
-            textView.isScrollEnabled                                                    = true
+            textView.isScrollEnabled                           = true
             conversationView.textViewHeightConstraint.constant = hightConstraintConstant
             adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
         }
 //        textView.constraints.first(where: {$0.firstAttribute == .height})?.constant 
         if numberOfLines <= 4 {
-            adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
+            textView.isScrollEnabled                           = false
             conversationView.textViewHeightConstraint.constant = textViewFrameSize.height
-            textView.isScrollEnabled                                                    = false
+            adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
         }
     }
     
     func adjustTableViewContent(using textView: UITextView, numberOfLines: Int) {
-        let numberOfAddedLines     = CGFloat(numberOfLines - conversationView.messageTextViewNumberOfLines)
+        let numberOfAddedLines     = CGFloat(numberOfLines - messageTextViewNumberOfLines)
         let editViewHeight         = conversationView.editView?.bounds.height != nil ? conversationView.editView!.bounds.height : 0
         let updatedContentOffset   = conversationView.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
         let updatedContentTopInset = conversationView.tableViewInitialTopInset + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) + editViewHeight
@@ -66,6 +68,6 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
             self.conversationView.tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
             self.conversationView.tableView.contentInset.top                  = updatedContentTopInset
         }
-        conversationView.updateTextViewNumberOfLines(numberOfLines)
+        messageTextViewNumberOfLines = numberOfLines
     }
 }

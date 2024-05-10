@@ -198,7 +198,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         DispatchQueue.main.async {
             if scrollToBottom {self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)}
         }
-        setCellOffset(cellIndexPath: indexPath)
+        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath)
         isNewSectionAdded = false
     }
     
@@ -250,7 +250,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    private func setCellOffset(cellIndexPath indexPath: IndexPath) {
+    private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath) {
         let currentOffSet = self.rootView.tableView.contentOffset
         guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
         
@@ -408,7 +408,7 @@ extension ConversationViewController {
         let editViewHeight = rootView.editView?.bounds.height != nil ? rootView.editView!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
-        let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootView.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
+        let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
         
         let customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight + editViewHeight : 0 + textViewHeight + editViewHeight
         let currentOffSet = rootView.tableView.contentOffset
@@ -418,7 +418,6 @@ extension ConversationViewController {
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
-//        rootView.tableViewInitialContentOffset = offSet
         view.layoutSubviews()
     }
 }

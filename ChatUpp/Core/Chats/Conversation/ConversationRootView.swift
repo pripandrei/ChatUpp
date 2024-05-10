@@ -11,6 +11,10 @@ import UIKit
 final class ConversationRootView: UIView {
     
     // MARK: - UI Elements
+    
+    private(set) var editView                     : EditView?
+    private(set) var inputBarBottomConstraint     : NSLayoutConstraint!
+    private(set) var textViewHeightConstraint     : NSLayoutConstraint!
 
     private(set) var inputBarContainer: InputBarContainer = {
         let inputBarContainer = InputBarContainer()
@@ -88,13 +92,8 @@ final class ConversationRootView: UIView {
         
         return sendEditMessageButton
     }()
-    
-    private(set) var editView                      : EditView?
-    private(set) var inputBarBottomConstraint      : NSLayoutConstraint!
-    private(set) var textViewHeightConstraint      : NSLayoutConstraint!
-    
-    private(set) var messageTextViewNumberOfLines  = 1
-//    var tableViewInitialContentOffset              = CGPoint(x: 0, y: 0)
+
+    // MARK: Internal variables
     var tableViewInitialTopInset: CGFloat {
         return isKeyboardShown() ? CGFloat(336) : CGFloat(0)
     }
@@ -133,9 +132,7 @@ final class ConversationRootView: UIView {
         let height = isEditViewRemoved ? 45.0 : -45.0
         tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
     }
-    func updateTextViewNumberOfLines(_ number: Int) {
-        messageTextViewNumberOfLines = number
-    }
+    
     func setTextViewDelegate(to delegate: UITextViewDelegate) {
         messageTextView.delegate = delegate
     }
@@ -193,7 +190,7 @@ extension ConversationRootView {
         editView!.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive       = true
         editView!.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor).isActive = true
     }
- 
+    
     private func setupAddPictureButtonConstrains() {
         self.addSubviews(addPictureButton)
         
@@ -235,7 +232,7 @@ extension ConversationRootView {
     private func setupSendMessageBtnConstraints() {
         inputBarContainer.addSubview(sendMessageButton)
         // size is used only for radius calculation
-
+        
         NSLayoutConstraint.activate([
             sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
             sendMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: 8),
@@ -256,6 +253,26 @@ extension ConversationRootView {
     }
 }
 
+// MARK: - Modified container for gesture trigger
+final class InputBarContainer: UIView
+{
+    // since closeImageView frame is not inside it's super view (editViewContainer)
+    // gesture recognizer attached to it will not get triggered
+    // so we need to override point to return true in case it matches the location in coordinate of closeImageView
+    
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool
+    {
+        if super.point(inside: point, with: event) {return true}
+        
+        for subview in subviews {
+            let subviewPoint = subview.convert(point, from: self)
+            if subview.point(inside: subviewPoint, with: event) {
+                return true
+            }
+        }
+        return false
+    }
+}
 
 // MARK: - SETUP NAVIGATION BAR ITEMS
 final class ConversationCustomNavigationBar {
@@ -293,28 +310,3 @@ final class ConversationCustomNavigationBar {
         }
     }
 }
-
-
-// MARK: - Modified container for gesture trigger
-
-final class InputBarContainer: UIView
-{
-    // since closeImageView frame is not inside it's super view (editViewContainer)
-    // gesture recognizer attached to it will not get triggered
-    // so we need to override point to return true in case it matches the location in coordinate of closeImageView
-    
-    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool
-    {
-        if super.point(inside: point, with: event) {return true}
-        
-        for subview in subviews {
-            let subviewPoint = subview.convert(point, from: self)
-            if subview.point(inside: subviewPoint, with: event) {
-                return true
-            }
-        }
-        return false
-    }
-}
-
-
