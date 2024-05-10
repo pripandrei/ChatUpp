@@ -47,6 +47,7 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
             conversationView.textViewHeightConstraint.constant = hightConstraintConstant
             adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
         }
+//        textView.constraints.first(where: {$0.firstAttribute == .height})?.constant 
         if numberOfLines <= 4 {
             adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
             conversationView.textViewHeightConstraint.constant = textViewFrameSize.height
@@ -56,7 +57,7 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
     
     func adjustTableViewContent(using textView: UITextView, numberOfLines: Int) {
         let numberOfAddedLines     = CGFloat(numberOfLines - conversationView.messageTextViewNumberOfLines)
-        let editViewHeight         = conversationView.editViewContainer?.bounds.height != nil ? conversationView.editViewContainer!.bounds.height : 0
+        let editViewHeight         = conversationView.editView?.bounds.height != nil ? conversationView.editView!.bounds.height : 0
         let updatedContentOffset   = conversationView.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
         let updatedContentTopInset = conversationView.tableViewInitialTopInset + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) + editViewHeight
 

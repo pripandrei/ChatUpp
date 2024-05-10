@@ -80,6 +80,7 @@
 		75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */; };
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
 		75F608842BEC2F560065DA83 /* ConversationTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */; };
+		75F608862BEC33400065DA83 /* EditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* EditView.swift */; };
 		75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */; };
 		75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F12AC3106700C2743A /* LoginViewModel.swift */; };
 		75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */; };
@@ -179,6 +180,7 @@
 		75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSignInViewController.swift; sourceTree = "<group>"; };
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
 		75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTextViewDelegate.swift; sourceTree = "<group>"; };
+		75F608852BEC33400065DA83 /* EditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditView.swift; sourceTree = "<group>"; };
 		75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
 		75FB78F12AC3106700C2743A /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewModel.swift; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 				75B48B562AF6837700A5FBFC /* ConversationRootView.swift */,
 				75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */,
 				7563F87D2ADE2C1A006FA374 /* ConversationCollectionView */,
+				75F608852BEC33400065DA83 /* EditView.swift */,
 			);
 			path = Conversation;
 			sourceTree = "<group>";
@@ -674,6 +677,7 @@
 				7563F8802ADF6E31006FA374 /* FirestoreCollectionName.swift in Sources */,
 				755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */,
 				7543BE2A2ACB0EDA003001BF /* ChatsManager.swift in Sources */,
+				75F608862BEC33400065DA83 /* EditView.swift in Sources */,
 				756525D52AB50079005DC594 /* UserManager.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
