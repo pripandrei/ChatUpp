@@ -24,8 +24,7 @@ final class ConversationViewModel {
     private(set) var memberID: String
     private(set) var memberName: String
     private(set) var memberProfileImage: Data?
-//    private(set) var messages: [Message] = []
-    var cellMessageGroups: [ConversationMessageGroups] = []
+    private(set) var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: ListenerRegistration?
     var shouldEditMessage: ((String) -> Void)?
     

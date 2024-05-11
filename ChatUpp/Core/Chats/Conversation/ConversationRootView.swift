@@ -12,9 +12,9 @@ final class ConversationRootView: UIView {
     
     // MARK: - UI Elements
     
-    private(set) var editView                     : EditView?
-    private(set) var inputBarBottomConstraint     : NSLayoutConstraint!
-    private(set) var textViewHeightConstraint     : NSLayoutConstraint!
+    private(set) var editView                : EditView?
+    private(set) var inputBarBottomConstraint: NSLayoutConstraint!
+    private(set) var textViewHeightConstraint: NSLayoutConstraint!
 
     private(set) var inputBarContainer: InputBarContainer = {
         let inputBarContainer = InputBarContainer()
