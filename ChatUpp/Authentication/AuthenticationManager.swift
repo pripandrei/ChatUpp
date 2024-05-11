@@ -178,18 +178,15 @@ extension AuthenticationManager {
     }
     
     func signinWithPhoneSMS(using verificationID:String, verificationCode: String) async throws -> AuthDataResultModel {
-        
         let credentials = createOTPCredentials(with: verificationID, verificationCode: verificationCode)
         let result = try await Auth.auth().signIn(with: credentials)
         let authDataModel = AuthDataResultModel(user: result.user)
-        print("Success Credentials!: ", credentials)
         return authDataModel
     }
 }
 
 //MARK: - Delete user
 extension AuthenticationManager {
-    
     func deleteAuthUser() async throws {
         guard let authUser = Auth.auth().currentUser else {return}
         try await authUser.delete()

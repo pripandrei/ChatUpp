@@ -15,7 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
 //        IQKeyboardManager.shared.enable = true
         FirebaseApp.configure()
-        
         Utilities.setupNavigationBarAppearance()
         
         return true

@@ -20,6 +20,7 @@ struct Message: Codable {
     let timestamp: Date
     let messageSeen: Bool
     let receivedBy: String?
+    let isEdited: Bool
     
     var imageSize: MessageImageSize?
     
@@ -32,6 +33,7 @@ struct Message: Codable {
         case messageSeen = "message_seen"
         case receivedBy = "received_by"
         case imageSize = "image_size"
+        case isEdited = "is_edited"
     }
     
     init(from decoder: Decoder) throws {
@@ -44,6 +46,7 @@ struct Message: Codable {
         self.messageSeen = try container.decode(Bool.self, forKey: .messageSeen)
         self.receivedBy = try container.decodeIfPresent(String.self, forKey: .receivedBy)
         self.imageSize = try container.decodeIfPresent(MessageImageSize.self, forKey: .imageSize)
+        self.isEdited = try container.decode(Bool.self, forKey: .isEdited)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -56,6 +59,7 @@ struct Message: Codable {
         try container.encode(self.messageSeen, forKey: .messageSeen)
         try container.encodeIfPresent(self.receivedBy, forKey: .receivedBy)
         try container.encodeIfPresent(self.imageSize, forKey: .imageSize)
+        try container.encode(self.isEdited, forKey: .isEdited)
     }
     
     init(id: String,
@@ -65,7 +69,8 @@ struct Message: Codable {
          timestamp: Date,
          messageSeen: Bool,
          receivedBy: String?,
-         imageSize: MessageImageSize?
+         imageSize: MessageImageSize?,
+         isEdited: Bool
     )
     {
         self.id = id
@@ -76,10 +81,11 @@ struct Message: Codable {
         self.messageSeen = messageSeen
         self.receivedBy = receivedBy
         self.imageSize = imageSize
+        self.isEdited = isEdited
     }
     
     func updateMessageSeenStatus() -> Message {
-        return Message(id: self.id, messageBody: self.messageBody, senderId: self.senderId, imagePath: self.imagePath, timestamp: self.timestamp, messageSeen: !self.messageSeen, receivedBy: self.receivedBy, imageSize: self.imageSize)
+        return Message(id: self.id, messageBody: self.messageBody, senderId: self.senderId, imagePath: self.imagePath, timestamp: self.timestamp, messageSeen: !self.messageSeen, receivedBy: self.receivedBy, imageSize: self.imageSize, isEdited: self.isEdited)
     }
 }
 

@@ -8,6 +8,11 @@
 import Foundation
 import FirebaseFirestore
 
+struct CurrentlyOpenedConversation {
+    static var id: String?
+    private init() {}
+}
+
 final class ConversationViewModel {
     
     struct ConversationMessageGroups {
@@ -19,15 +24,15 @@ final class ConversationViewModel {
     private(set) var memberID: String
     private(set) var memberName: String
     private(set) var memberProfileImage: Data?
-//    private(set) var messages: [Message] = []
-    var cellMessageGroups: [ConversationMessageGroups] = []
+    private(set) var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: ListenerRegistration?
+    var shouldEditMessage: ((String) -> Void)?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
     var onCellVMLoad: ((IndexPath?) -> Void)?
     var onNewMessageAdded: (() -> Void)?
-    var messageWasModified: ((IndexPath) -> Void)?
+    var messageWasModified: ((IndexPath, String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     
     init(memberID: String ,memberName: String, conversation: Chat? = nil, imageData: Data?) {
@@ -60,18 +65,20 @@ final class ConversationViewModel {
     }
     
     private func createMessageGroups(_ messages: [Message]) {
+        var tempMessageGroup: [ConversationMessageGroups] = cellMessageGroups
         messages.forEach { message in
             let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-            
+
             guard let date = message.timestamp.formatToYearMonthDay() else {return}
 
-            if let index = self.cellMessageGroups.firstIndex(where: {$0.date == date})  {
-                cellMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+            if let index = tempMessageGroup.firstIndex(where: {$0.date == date})  {
+                tempMessageGroup[index].cellViewModels.insert(conversationCellVM, at: 0)
             } else {
                 let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
-                cellMessageGroups.insert(newGroup, at: 0)
+                tempMessageGroup.insert(newGroup, at: 0)
             }
         }
+        self.cellMessageGroups = tempMessageGroup
     }
     
     private func fetchConversationMessages() {
@@ -127,18 +134,46 @@ final class ConversationViewModel {
         guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
         guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
         let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
-
+        let oldMessage = cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage
+        var modificationType: String = ""
+        
         cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage = message
-        messageWasModified?(indexPath)
+        
+        // animation of cell reload based on what field of message was mofidied
+        if oldMessage.messageBody != message.messageBody {
+            modificationType = "text"
+        } else if oldMessage.messageSeen != message.messageSeen {
+            modificationType = "seenStatus"
+        }
+        messageWasModified?(indexPath, modificationType)
     }
     
+    var onMessageRemoved: ((IndexPath) -> Void)?
+    
     private func handleRemovedMessage(_ message: Message) {
-
+        guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
+        guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
+        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
+        
+        cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
+        
+        // if section doesn't contain any messages, remove it
+        if cellMessageGroups[messageGroupIndex].cellViewModels.isEmpty {
+            cellMessageGroups.remove(at: messageGroupIndex)
+        }
+        
+        // if last message was deleted, update last message for chat
+        if messageGroupIndex == 0 && messageIndex == 0 {
+            Task {
+                await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
+            }
+        }
+        onMessageRemoved?(indexPath)
     }
     
     private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
-    
+        
         return Message(id: messageID,
                        messageBody: messageBody,
                        senderId: authenticatedUserID,
@@ -146,7 +181,8 @@ final class ConversationViewModel {
                        timestamp: Date(),
                        messageSeen: false,
                        receivedBy: nil,
-                       imageSize: nil)
+                       imageSize: nil,
+                       isEdited: false)
     }
     
     private func addMessageToDB(_ message: Message) async  {
@@ -218,7 +254,25 @@ final class ConversationViewModel {
             print("Success saving image: \(path) \(name)")
         }
     }
+    
+    func deleteMessageFromDB(messageID: String) {
+        Task {
+            do {
+                try await ChatsManager.shared.removeMessageFromDB(messageID: messageID, conversationID: conversation!.id)
+            } catch {
+                print("Error deleting message: ",error.localizedDescription)
+            }
+        }
+    }
+    
+    func editMessageTextFromDB(_ messageText: String, messageID: String) {
+        Task {
+            try await ChatsManager.shared.updateMessageFromDB(messageText, messageID: messageID, chatID: conversation!.id)
+        }
+    }
 }
+
+
 
 
 
@@ -256,3 +310,57 @@ final class ConversationViewModel {
 
 
 
+//private func createMessageGroups(_ messages: [Message]) {
+//    for message in self.messages {
+//        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+//        
+//        guard let date = message.timestamp.formatToYearMonthDay() else {
+//            return
+//            
+//        }
+//        
+//        if cellMessageGroups.isEmpty {
+//            let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+//            cellMessageGroups.append(newGroup)
+//            continue
+//        }
+//        
+//        for (index, group) in cellMessageGroups.enumerated() {
+//            if group.date == date {
+//                cellMessageGroups[index].cellViewModels.append(conversationCellVM)
+//                break
+//            }
+//            if index == cellMessageGroups.endIndex - 1 {
+//                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+//                cellMessageGroups.append(newGroup)
+//            }
+//        }
+//
+////            if let index = self.cellMessageGroups.firstIndex(where: {$0.date == date})  {
+////                print("Before In: ", cellMessageGroups[index].cellViewModels.count)
+////                cellMessageGroups[index].cellViewModels.append(conversationCellVM)
+////                print("After In: ", cellMessageGroups[index].cellViewModels.count)
+////            } else {
+////                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+////                print("Before Else: ", cellMessageGroups.count)
+////                cellMessageGroups.append(newGroup)
+////                print("After Else: ", cellMessageGroups.count)
+////            }
+//    }
+////        messages.forEach { message in
+////            let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+////
+////            guard let date = message.timestamp.formatToYearMonthDay() else {return}
+////
+////            if let index = self.cellMessageGroups.firstIndex(where: {$0.date == date})  {
+////                print("Before In: ", cellMessageGroups[index].cellViewModels.count)
+////                cellMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+////                print("After In: ", cellMessageGroups[index].cellViewModels.count)
+////            } else {
+////                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+////                print("Before Else: ", cellMessageGroups.count)
+////                cellMessageGroups.insert(newGroup, at: 0)
+////                print("After Else: ", cellMessageGroups.count)
+////            }
+////        }
+//}

@@ -18,10 +18,13 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private var conversationViewModel :ConversationViewModel!
     private var collectionViewDataSource :ConversationViewDataSource!
     private var customNavigationBar :ConversationCustomNavigationBar!
-    private var rootView = ConversationViewControllerUI()
+    private var rootView = ConversationRootView()
+//    lazy private var rootViewTextViewDelegate = ConversationViewControllerUITextViewDelegate(view: self.view)
+    private var rootViewTextViewDelegate: ConversationTextViewDelegate!
     
     private var isKeyboardHidden: Bool = true
     private var isNewSectionAdded: Bool = false
+    private var isContextMenuPresented: Bool = false
     
     //MARK: - LIFECYCLE
     convenience init(conversationViewModel: ConversationViewModel) {
@@ -31,31 +34,20 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     override func loadView() {
         view = rootView
+        rootViewTextViewDelegate = ConversationTextViewDelegate(view: rootView)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         setupBinding()
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
+        addTargetToEditMessageBtn()
         configureTableView()
         setTepGesture()
         addKeyboardNotificationObservers()
         setNavigationBarItems()
-//        setupHeader()
-    }
-    
-    func setupHeader() {
-        let headerView = DateHeaderLabel()
-        
-        view.addSubview(headerView)
-//        guard let navigationBarBottomConstraint = navigationController?.navigationBar.bottomAnchor else {return}
-        
-        NSLayoutConstraint.activate([
-            headerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            headerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 100)
-        ])
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -91,6 +83,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         conversationViewModel.onCellVMLoad = { indexOfCellToScrollTo in
             Task { @MainActor in
                 self.rootView.tableView.reloadData()
+                print(self.rootView.tableView.contentOffset.y)
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                 self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
                 self.updateMessageSeenStatusIfNeeded()
@@ -102,13 +95,23 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
             }
         }
-        conversationViewModel.messageWasModified = { indexPath in
+        conversationViewModel.messageWasModified = { indexPath, modificationType in
             Task { @MainActor in
-//                let indexPath = IndexPath(item: index, section: 0)
-                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
+                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
                 
-                //TODO: MANAGE THIS WHEN MESSAGE MODIFICATION FEATURE WILL BE ADDED
-//                self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+                switch modificationType {
+                case "text": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
+                case "seenStatus": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+                default: break
+                }
+            }
+        }
+        conversationViewModel.onMessageRemoved = { [weak self] indexPath in
+            Task { @MainActor in
+                UIView.transition(with: self!.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
+                    self?.rootView.tableView.reloadData()
+                }
+//                self?.rootView.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
             }
         }
     }
@@ -118,35 +121,58 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            if rootView.containerView.frame.origin.y > 760 {
-                handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
+            if rootView.inputBarContainer.frame.origin.y > 580 {
+                if isContextMenuPresented {
+                    let keyboardHeight = -336.0
+                    updateHolderViewBottomConstraint(toSize: keyboardHeight)
+                } else {
+                    handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+                }
                 isKeyboardHidden = false
             }
         }
     }
+    func updateHolderViewBottomConstraint(toSize size: CGFloat) {
+        self.rootView.inputBarBottomConstraint.constant = size
+        view.layoutIfNeeded()
+    }
+    
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            handleCollectionViewOffSet(usingKeyboardSize: keyboardSize)
+            if !isContextMenuPresented {
+                handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+            } else if isContextMenuPresented {
+                updateHolderViewBottomConstraint(toSize: 0)
+            }
             isKeyboardHidden = true
         }
     }
-    
-    //MARK: - SEND MESSAGE BUTTON CONFIGURATION
-    private func addTargetToSendMessageBtn() {
-        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
-    }
-    
-    private func addTargetToAddPictureBtn() {
-        rootView.pictureAddButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
-    }
-    
-    @objc func sendMessageBtnWasTapped() {
-        let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedString.isEmpty {
-            rootView.messageTextView.text.removeAll()
-            handleMessageBubbleCreation(messageText: trimmedString)
+
+    private func animateEditViewDestruction() {
+        guard let editView = rootView.editView else {return}
+
+        self.rootView.messageTextView.text.removeAll()
+        UIView.animate(withDuration: 0.2) {
+            editView.editeViewHeightConstraint?.constant = 0
+            editView.subviews.forEach({ view in
+                view.layer.opacity = 0.0
+            })
+            self.rootView.sendEditMessageButton.layer.opacity = 0.0
+            self.rootView.updateTableViewContentOffset(isEditViewRemoved: true)
+            DispatchQueue.main.async {
+//                self.rootView.textViewDidChange(self.rootView.messageTextView)
+                self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
+            }
+            self.rootView.layoutIfNeeded()
+        } completion: { complition in
+            if complition {
+                self.rootView.destroyEditedView()
+                self.rootView.sendEditMessageButton.isHidden = true
+                self.rootView.sendEditMessageButton.layer.opacity = 1.0
+            }
         }
     }
     
@@ -156,7 +182,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         
 //        self.conversationViewModel.cellMessageGroups.insert(ConversationViewModel.ConversationMessageGroups(date: Date(), cellViewModels: [ConversationCellViewModel(cellMessage: Message(id: messageText, messageBody: messageText, senderId: "", imagePath: "", timestamp: Date(), messageSeen: false, receivedBy: "", imageSize: nil))]), at: 0)
         
-                self.conversationViewModel.createMessageBubble(messageText)
+        self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
             self.handleTableViewCellInsertion(with: indexPath, scrollToBottom: true)
         }
@@ -167,16 +193,16 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     {
         isNewSectionAdded = checkIfNewSectionWasAdded()
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-//        if isNewSectionAdded {handleSectionAnimation()}
+
         // Schedules scrolling execution in order for proper animation scrolling
         DispatchQueue.main.async {
             if scrollToBottom {self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)}
         }
-        setCellOffset(cellIndexPath: indexPath)
+        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath)
         isNewSectionAdded = false
     }
     
-    func handleSectionAnimation() {
+    private func handleSectionAnimation() {
         guard let footerView = rootView.tableView.footerView(forSection: 0) else {return}
         
         footerView.alpha = 0.0
@@ -187,14 +213,14 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    func checkIfNewSectionWasAdded() -> Bool {
+    private func checkIfNewSectionWasAdded() -> Bool {
         if rootView.tableView.numberOfSections < conversationViewModel.cellMessageGroups.count {
             return true
         }
         return false
     }
     
-    func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
+    private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
         let currentOffSet = self.rootView.tableView.contentOffset
         let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
         
@@ -224,9 +250,9 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
     }
     
-    func setCellOffset(cellIndexPath indexPath: IndexPath) {
+    private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath) {
         let currentOffSet = self.rootView.tableView.contentOffset
-        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
+        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
         
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
@@ -246,7 +272,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else {return}
         
         for indexPath in visibleIndices {
-            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else {
+            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {
                 continue
             }
             if checkIfCellMessageIsCurrentlyVisible(indexPath: indexPath) {
@@ -269,7 +295,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
         return false
     }
-    func updateMessageSeenStatus(_ cell: ConversationCollectionViewCell) {
+    func updateMessageSeenStatus(_ cell: ConversationTableViewCell) {
         guard let chatID = conversationViewModel.conversation else {return}
         let messageId = cell.cellViewModel.cellMessage.id
         
@@ -285,10 +311,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         let pickerVC = PHPickerViewController(configuration: configuration)
         pickerVC.delegate = self
         present(pickerVC, animated: true)
-    }
-
-    @objc func pictureAddBtnWasTapped() {
-        configurePhotoPicker()
     }
 }
 
@@ -321,45 +343,82 @@ extension ConversationViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
         rootView.tableView.addGestureRecognizer(tap)
     }
+    private func addGestureToCloseBtn() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeEditView))
+        rootView.editView?.closeEditView?.addGestureRecognizer(tapGesture)
+   }
     
     @objc func resignKeyboard() {
         if rootView.messageTextView.isFirstResponder {
             rootView.messageTextView.resignFirstResponder()
         }
     }
+    
+    @objc func closeEditView() {
+        animateEditViewDestruction()
+    }
 }
 
-//MARK: - COLLETION VIEW OFFSET HANDLER
+//MARK: - BUTTON'S TARGET CONFIGURATION
+extension  ConversationViewController {
+    
+    private func addTargetToSendMessageBtn() {
+        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
+    }
+    private func addTargetToAddPictureBtn() {
+        rootView.addPictureButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
+    }
+    private func addTargetToEditMessageBtn() {
+        rootView.sendEditMessageButton.addTarget(self, action: #selector(editMessageBtnWasTapped), for: .touchUpInside)
+    }
+    
+    @objc func editMessageBtnWasTapped() {
+        guard let editedMessage = rootView.messageTextView.text else {return}
+        conversationViewModel.shouldEditMessage?(editedMessage)
+        rootView.sendEditMessageButton.isHidden = true
+        rootView.messageTextView.text.removeAll()
+        rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
+        rootView.messageTextView.resignFirstResponder()
+    }
+    
+    @objc func sendMessageBtnWasTapped() {
+        let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedString.isEmpty {
+            rootView.messageTextView.text.removeAll()
+ 
+            rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
+            handleMessageBubbleCreation(messageText: trimmedString)
+        }
+    }
+    
+    @objc func pictureAddBtnWasTapped() {
+        configurePhotoPicker()
+    }
+}
+
+//MARK: - TABLE OFFSET HANDLER
 extension ConversationViewController {
-    private func handleCollectionViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
-        let keyboardHeight = rootView.containerView.frame.origin.y > 760 ? -keyboardSize.height : keyboardSize.height
-        let customCollectionViewInset = keyboardHeight < 0 ? abs(keyboardHeight) : 0
-
-        self.rootView.holderViewBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-
+    private func handleTableViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
+        
+        // if number of lines inside textView is bigger than 1, it will expand
+        // and origin.y of containerView that holds textView will change
+        // so we check if maximum allowed number of line is reached (containerView origin.y will be 584)
+        let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
+        let keyboardHeight = rootView.inputBarContainer.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
+        let editViewHeight = rootView.editView?.bounds.height != nil ? rootView.editView!.bounds.height : 0
+        
+        // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
+        let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
+        
+        let customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight + editViewHeight : 0 + textViewHeight + editViewHeight
         let currentOffSet = rootView.tableView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
-
+        
+        rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+        rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
-        rootView.tableView.contentInset.top = customCollectionViewInset
-        rootView.tableView.verticalScrollIndicatorInsets.top = customCollectionViewInset
-
-        // This is ugly but i don't have other solution for canceling cell resizing when keyboard goes down
-        // Exaplanation:
-        // while trying to use only view.layoutIfNeeded(),
-        // cells from top will resize while animate
-        // Steps to reproduce:
-        // 1.initiate keyboard
-        // 2.scroll up
-        // 3.dismiss keyboard
-        // Result: cells from top will animate while resizing
-        // So to ditch this, we use layoutSubviews and layoutIfNeeded
-
-//        if keyboardHeight > 0 {
-//            view.layoutSubviews()
-//        } else {
-            view.layoutIfNeeded()
-//        }
+        rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
+        view.layoutSubviews()
     }
 }
 
@@ -376,7 +435,7 @@ extension ConversationViewController
     }
 }
 
-//MARK: - TABLE VIEW DELEGATE
+//MARK: - TABLE  DELEGATE
 extension ConversationViewController: UITableViewDelegate
 {
     class DateHeaderLabel: UILabel {
@@ -432,84 +491,82 @@ extension ConversationViewController: UITableViewDelegate
             }
         }
     }
-    
-    func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        false
-    }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateMessageSeenStatusIfNeeded()
     }
     
-//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-//        print(scrollView as? UITableView)
-////        rootView.tableView.tableFooterView?.isHidden = true
-//    }
+    // MARK: - CONTEXT MENU CONFIGURATION
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        guard let cell = tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+        let tapLocationInCell = cell.contentView.convert(point, from: tableView)
+        
+        if cell.messageContainer.frame.contains(tapLocationInCell) {
+            let identifire = indexPath as NSCopying
+            
+            return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
+                let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
+                    let pastBoard = UIPasteboard.general
+                    pastBoard.string = cell.messageContainer.text
+                }
+                
+                // display edit/delete actions only on messages that authenticated user sent
+                let messageBelongsToAuthenticatedUser = cell.cellViewModel.cellMessage.senderId == self.conversationViewModel.authenticatedUserID
+                let attributesForEditAction = messageBelongsToAuthenticatedUser ? [] : UIMenuElement.Attributes.hidden
+                let attributesForDeleteAction = messageBelongsToAuthenticatedUser ? .destructive : UIMenuElement.Attributes.hidden
+
+                let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble"), attributes: attributesForEditAction) { action in
+                    DispatchQueue.main.async {
+                        if self.rootView.editView == nil {
+                            self.rootView.activateEditView()
+                        }
+                        self.addGestureToCloseBtn()
+                        self.rootView.messageTextView.becomeFirstResponder()
+                        self.rootView.messageTextView.text = cell.messageContainer.text
+                        self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
+                        
+                        self.conversationViewModel.shouldEditMessage = { edditedMessage in
+                            self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
+                        }
+                    }
+                }
+                let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: attributesForDeleteAction) { [weak self] action in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        self?.conversationViewModel.deleteMessageFromDB(messageID: cell.cellViewModel.cellMessage.id)
+                    }
+                }
+                return UIMenu(title: "", children: [editAction, copyAction, deleteAction])
+            })
+        }
+        return nil
+    }
+
+    func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        return makeConversationMessagePreview(for: configuration)
+    }
+
+    func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.isContextMenuPresented = false
+        }
+        return makeConversationMessagePreview(for: configuration)
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
+        if rootView.inputBarBottomConstraint.constant != 0.0 {
+            isContextMenuPresented = true
+        }
+    }
+    
+    private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard let indexPath = configuration.identifier as? IndexPath,
+              let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+        
+        let parameter = UIPreviewParameters()
+        parameter.backgroundColor = .clear
+        
+        let preview = UITargetedPreview(view: cell.messageContainer, parameters: parameter)
+        return preview
+    }
 }
-
-
-
-
-
-//
-//private func handleContentMessageOffset(with indexPath: IndexPath, scrollToBottom: Bool)
-//{
-//    // We disable insertion animation because we need to both animate
-//    // insertion of message and scroll to bottom at the same time.
-//    // If we dont do this, conflict occurs and results in glitches
-//    // Instead we will animate contentOffset
-//
-//    let currentOffSet = self.rootView.tableView.contentOffset
-//    let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
-//
-//    if !scrollToBottom && contentIsScrolled {
-//        UIView.animate(withDuration: 0.0) {
-//            self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-//            self.rootView.tableView.reloadData()
-//        }
-//        return
-//    } else {
-////            UIView.performWithoutAnimation {
-////                if self.rootView.tableView.visibleCells.isEmpty {
-////                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-////                    self.rootView.tableView.reloadData()
-////                } else {
-//////                    self.rootView.tableView.reloadData()
-//////                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-////                    self.rootView.tableView.reloadSections(IndexSet(integer: 0), with: .none)
-//////                    self.rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
-////                }
-////            }
-//        UIView.animate(withDuration: 0.0) {
-//            self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-//            self.rootView.tableView.reloadData()
-//        }
-//    }
-//
-//    // Schedules scrolling execution in order for proper animation scrolling
-//    DispatchQueue.main.async {
-//        if scrollToBottom {
-////                self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
-//        }
-//    }
-//    // Offset collection view content by cells (message) height contentSize
-//    // without animation, so that cell appears under the textView
-//
-//    guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationCollectionViewCell else { return }
-//
-//    cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: -50)
-//
-//    let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height)
-////        self.rootView.tableView.setContentOffset(offSet, animated: false)
-//
-//    // Animate collection content back so that the cell (message) will go up
-//
-//    UIView.animate(withDuration: 2.2, delay: 0.0, options: .curveLinear, animations: {
-//        cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 50)
-////            self.rootView.tableView.setContentOffset(currentOffSet, animated: false)
-//       //            self.rootView.tableView.layoutIfNeeded()
-//    })
-////        UIView.transition(with: cell, duration: 2.2, animations: {
-////            cell.frame = cell.frame.offsetBy(dx: cell.frame.origin.x, dy: 50)
-////        })
-//}

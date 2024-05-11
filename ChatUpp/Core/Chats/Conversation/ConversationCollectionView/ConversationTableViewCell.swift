@@ -10,7 +10,15 @@ import YYText
 //import ImageIO
 //import AVFoundation
 
-final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegate {
+protocol MenuIdentifiable {
+    var indexPath: IndexPath {get}
+}
+
+extension Array where Element: MenuIdentifiable {
+    
+}
+
+final class ConversationTableViewCell: UITableViewCell {
     
     enum BubbleMessageSide {
         case left
@@ -36,11 +44,13 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     var mainCellContainer = UIView()
     var messageContainer = YYLabel()
     private var timeStamp = YYLabel()
-    var cellViewModel: ConversationCellViewModel!
+    var seenStatusMark = YYLabel()
     private var messageImage: UIImage?
-    var sennStatusMark = YYLabel()
+    var editedLabel: UILabel?
+    var cellViewModel: ConversationCellViewModel!
+//    var contextMenuInteraction: MessageContextMenuInteractionHandler!
     
-    var maxMessageWidth: CGFloat {
+    private var maxMessageWidth: CGFloat {
         return 290.0
     }
     private let cellSpacing = 3.0
@@ -56,6 +66,37 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
                 return paragraphStyle
             }()
         ])
+    }
+    
+  
+    
+    //MARK: - LIFECYCLE
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+
+        // Invert cell upside down
+        transform = CGAffineTransform(scaleX: 1, y: -1)
+        
+        backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        setupContentViewConstraints()
+        setupBackgroundSelectionView()
+        setupMainCellContainer()
+        setupMessageTextLabel()
+        setupSeenStatusMark()
+        setupTimestamp()
+//        setupEditedLabel()
+//        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
+    }
+    
+    // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
+    private func setupBackgroundSelectionView() {
+        let selectedView = UIView()
+        selectedView.backgroundColor = UIColor.clear
+        selectedBackgroundView = selectedView
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     //MARK: - BINDER
@@ -75,8 +116,10 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         timeStamp.text = nil
         timeStamp.backgroundColor = .clear
         messageImage = nil
-        sennStatusMark.attributedText = nil
+        seenStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
+//        editedLabel = nil
+        editedLabel?.text = nil
         adjustMessagePadding(.initialSpacing)
         
         // Layout with no animation to hide resizing animation of cells on keyboard show/hide
@@ -92,6 +135,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         cleanupCellContent()
         
         self.cellViewModel = viewModel
+        setupEditedLabel()
         timeStamp.text = viewModel.timestamp
         setupBinding()
         adjustMessageSide(side)
@@ -111,44 +155,48 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
 
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
       
-        sennStatusMark.attributedText = imageAttributedString
-    }
-    
-    //MARK: - LIFECYCLE
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        // Invert cell upside down
-        transform = CGAffineTransform(scaleX: 1, y: -1)
-        
-        backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-//        setupContentViewConstraints()
-        setupMainCellContainer()
-        setupMessageTextLabel()
-        setupSeenStatusMark()
-        setupTimestamp()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        seenStatusMark.attributedText = imageAttributedString
     }
     
 // MARK: - UI INITIAL STEUP
     
+    private func setupEditedLabel() {
+        if cellViewModel.cellMessage.isEdited {
+            editedLabel = UILabel()
+            guard let editedLabel = editedLabel else {return}
+            
+            messageContainer.addSubviews(editedLabel)
+            
+            editedLabel.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
+            editedLabel.text = "edited"
+    //        editedLabel.layer.cornerRadius = 7
+    //        editedLabel.clipsToBounds = true
+            editedLabel.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
+    //        editedLabel.isHidden = true
+            
+            editedLabel.translatesAutoresizingMaskIntoConstraints = false
+            
+            NSLayoutConstraint.activate([
+                editedLabel.trailingAnchor.constraint(equalTo: timeStamp.leadingAnchor, constant: -2),
+                editedLabel.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
+            ])
+        }
+    }
+    
     private func setupSeenStatusMark() {
-        mainCellContainer.addSubview(sennStatusMark)
+        messageContainer.addSubview(seenStatusMark)
         
-        sennStatusMark.font = UIFont(name: "Helvetica", size: 4)
-        sennStatusMark.translatesAutoresizingMaskIntoConstraints = false
+        seenStatusMark.font = UIFont(name: "Helvetica", size: 4)
+        seenStatusMark.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            sennStatusMark.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
-            sennStatusMark.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
+            seenStatusMark.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -8),
+            seenStatusMark.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
         ])
     }
     
     private func setupTimestamp() {
-        mainCellContainer.addSubview(timeStamp)
+        messageContainer.addSubview(timeStamp)
         
         timeStamp.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
         timeStamp.layer.cornerRadius = 7
@@ -157,7 +205,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            timeStamp.trailingAnchor.constraint(equalTo: sennStatusMark.leadingAnchor, constant: -2),
+            timeStamp.trailingAnchor.constraint(equalTo: seenStatusMark.leadingAnchor, constant: -2),
             timeStamp.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -5)
         ])
     }
@@ -182,6 +230,8 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
     private func setupMessageTextLabel() {
         mainCellContainer.addSubview(messageContainer)
 
+        //TODO: - review implementing a main container for message,timestamp,seenstatus
+        
         messageContainer.backgroundColor = .blue
         messageContainer.numberOfLines = 0
         messageContainer.preferredMaxLayoutWidth = maxMessageWidth
@@ -194,8 +244,8 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
 
         NSLayoutConstraint.activate([
 //            widthConstraint,
-            messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor, constant: cellSpacing),
-            messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor),
+            messageContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor),
+            messageContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor, constant: -cellSpacing),
 //            messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth)
         ])
     }
@@ -213,7 +263,7 @@ final class ConversationCollectionViewCell: UITableViewCell, UIScrollViewDelegat
 }
 
 // MARK: - MESSAGE BUBBLE LAYOUT HANDLER
-extension ConversationCollectionViewCell
+extension ConversationTableViewCell
 {
     func handleMessageBubbleLayout(forSide side: BubbleMessageSide) {
         createMessageTextLayout()
@@ -227,7 +277,7 @@ extension ConversationCollectionViewCell
         
         let widthForSide = side == .right ? seenStatusMarkWidth : 0
         
-        let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding
+        let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding + editedMessageWidth()
         let messageRectWidth = messageContainer.intrinsicContentSize.width
         
         if lastLineMessageAndTimestampWidth > maxMessageWidth  {
@@ -283,17 +333,22 @@ extension ConversationCollectionViewCell
     private func adjustMessagePadding(_ messagePadding: BubbleMessagePadding) {
         switch messagePadding {
         case .initialSpacing: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + sennStatusMark.intrinsicContentSize.width + 15)
-        case .outgoingMessageRightSapce: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 15)
+        case .incomingMessageRightSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + seenStatusMark.intrinsicContentSize.width + 15 + editedMessageWidth())
+        case .outgoingMessageRightSapce: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 15 + editedMessageWidth())
         case .bottomSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
         case .imageSpace: messageContainer.textContainerInset = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
         }
         messageContainer.invalidateIntrinsicContentSize()
     }
+    
+    private func editedMessageWidth() -> Double {
+        guard let editedLabel = editedLabel else {return 0}
+        return editedLabel.intrinsicContentSize.width
+    }
 }
 
 // MARK: - HANDLE IMAGE OF MESSAGE SETUP
-extension ConversationCollectionViewCell {
+extension ConversationTableViewCell {
     
     private func configureImageAttachment(data: Data?) {
         if let imageData = data, let image = convertDataToImage(imageData) {

@@ -22,6 +22,8 @@ class ChatCellViewModel {
     
     init(chat: Chat) {
         self.chat = chat
+//        ChatsManager.shared.testUpdateEditedFiled()
+//        ChatsManager.shared.updateAllMessagesFields()
     }
     
     func updateUnreadMessagesCount(_ count: Int) {

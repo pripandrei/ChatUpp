@@ -7,7 +7,7 @@
 
 import UIKit
 import SkeletonView
-import YYText
+//import YYText
 
 class ChatsCell: UITableViewCell {
     
