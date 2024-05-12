@@ -40,6 +40,7 @@
 		757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */; };
 		7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */; };
 		7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */; };
+		757900762BF1768D00DE5A2F /* ConversationTableViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757900752BF1768D00DE5A2F /* ConversationTableViewHeader.swift */; };
 		757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */; };
 		757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0E12BB9D70C00A64DA4 /* FirebaseAuthCombine-Community */; };
 		757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0E32BB9D70D00A64DA4 /* FirebaseDatabase */; };
@@ -172,6 +173,7 @@
 		757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewShadowConfigurable.swift; sourceTree = "<group>"; };
 		7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewController.swift; sourceTree = "<group>"; };
 		7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewModel.swift; sourceTree = "<group>"; };
+		757900752BF1768D00DE5A2F /* ConversationTableViewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewHeader.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
 		75B48B562AF6837700A5FBFC /* ConversationRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRootView.swift; sourceTree = "<group>"; };
 		75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableController.swift; sourceTree = "<group>"; };
@@ -262,7 +264,7 @@
 				75B48B562AF6837700A5FBFC /* ConversationRootView.swift */,
 				75F608852BEC33400065DA83 /* EditView.swift */,
 				75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */,
-				7563F87D2ADE2C1A006FA374 /* ConversationCollectionView */,
+				7563F87D2ADE2C1A006FA374 /* ConversationTableView */,
 			);
 			path = Conversation;
 			sourceTree = "<group>";
@@ -293,14 +295,15 @@
 			path = Coordinator;
 			sourceTree = "<group>";
 		};
-		7563F87D2ADE2C1A006FA374 /* ConversationCollectionView */ = {
+		7563F87D2ADE2C1A006FA374 /* ConversationTableView */ = {
 			isa = PBXGroup;
 			children = (
 				75D7C5942AD72DBC00F6D4B9 /* ConversationTableViewCell.swift */,
 				7563F87B2ADE25E6006FA374 /* ConversationViewDataSource.swift */,
 				75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */,
+				757900752BF1768D00DE5A2F /* ConversationTableViewHeader.swift */,
 			);
-			path = ConversationCollectionView;
+			path = ConversationTableView;
 			sourceTree = "<group>";
 		};
 		756525C02A7E821C005DC594 /* Authentication */ = {
@@ -753,6 +756,7 @@
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
 				75FB78F82AC311D000C2743A /* ChatsViewModel.swift in Sources */,
 				755A3F7B2AD0689500739861 /* ChatsTableViewDataSource.swift in Sources */,
+				757900762BF1768D00DE5A2F /* ConversationTableViewHeader.swift in Sources */,
 				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
 				7543BE332ACC87CA003001BF /* ConversationViewController.swift in Sources */,
 				75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */,

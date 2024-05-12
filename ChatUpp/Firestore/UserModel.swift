@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+// MARK: - User model
 struct DBUser: Codable
 {
     let userId: String
@@ -17,6 +17,8 @@ struct DBUser: Codable
     let photoUrl: String?
     let phoneNumber: String?
     var nickname: String?
+    let isActive: Bool?
+    var lastSeen: Date?
         
         enum CodingKeys: String, CodingKey {
             case userId = "user_id"
@@ -26,15 +28,18 @@ struct DBUser: Codable
             case photoUrl = "photo_url"
             case phoneNumber = "phone_number"
             case nickname = "nickname"
+            case isActive = "is_active"
+            case lastSeen = "last_seen"
         }
     
     init(auth: AuthDataResultModel) {
         self.userId = auth.uid
         self.name = auth.name
-        self.dateCreated = Date()
         self.email = auth.email
         self.photoUrl = auth.photoURL
         self.phoneNumber = auth.phoneNumber
+        self.dateCreated = Date()
+        self.isActive = true
     }
     
     init(from decoder: Decoder) throws {
@@ -46,6 +51,8 @@ struct DBUser: Codable
         self.photoUrl = try container.decodeIfPresent(String.self, forKey: .photoUrl)
         self.phoneNumber = try container.decodeIfPresent(String.self, forKey: .phoneNumber)
         self.nickname = try container.decodeIfPresent(String.self, forKey: .nickname)
+        self.isActive = try container.decodeIfPresent(Bool.self, forKey: .isActive)
+        self.lastSeen = try container.decodeIfPresent(Date.self, forKey: .lastSeen)
     }
     
     
@@ -58,5 +65,7 @@ struct DBUser: Codable
         try container.encodeIfPresent(self.photoUrl, forKey: .photoUrl)
         try container.encodeIfPresent(self.phoneNumber, forKey: .phoneNumber)
         try container.encodeIfPresent(self.nickname, forKey: .nickname)
+        try container.encodeIfPresent(self.isActive, forKey: .isActive)
+        try container.encodeIfPresent(self.lastSeen, forKey: .lastSeen)
     }
 }
