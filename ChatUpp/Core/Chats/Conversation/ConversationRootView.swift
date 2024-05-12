@@ -111,24 +111,7 @@ final class ConversationRootView: UIView {
 
         return scrollToBottomBtn
     }()
-    
-//    lazy private(set) var scrollToBottomBtn: UIImageView = {
-//        let scrollToBottomBtn                                       = UIImageView()
-//        scrollToBottomBtn.bounds.size                               = CGSize(width: 35, height: 35) // size is used only for radius calculation
-//        let image = UIImage(systemName: "arrow.down")?.withTintColor(.white, renderingMode: .alwaysOriginal)
-////        let image = UIImage(systemName: "arrow.down")?.resizableImage(withCapInsets: UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5), resizingMode: .tile)
-//        let newimage = resizeImage(image: image!, targetSize: CGSize(width: 22, height: 22))
-//        scrollToBottomBtn.image = image
-//        scrollToBottomBtn.layer.cornerRadius                        = scrollToBottomBtn.bounds.size.width / 2
-//        scrollToBottomBtn.clipsToBounds                             = true
-//        scrollToBottomBtn.backgroundColor                           = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
-//        scrollToBottomBtn.translatesAutoresizingMaskIntoConstraints = false
-//        scrollToBottomBtn.layer.borderWidth = 0.25
-//        scrollToBottomBtn.layer.borderColor = #colorLiteral(red: 0.2599526346, green: 0.5381836295, blue: 0.7432311773, alpha: 1)
-//        scrollToBottomBtn.isUserInteractionEnabled = true
-//        scrollToBottomBtn.contentMode = .center
-//        return scrollToBottomBtn
-//    }()
+
     private func setupScrollToBottomBtn() {
         addSubview(scrollToBottomBtn)
         

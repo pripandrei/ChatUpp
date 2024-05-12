@@ -49,7 +49,6 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
             conversationView.textViewHeightConstraint.constant = hightConstraintConstant
             adjustTableViewContent(using: textView, numberOfLines: numberOfLines)
         }
-//        textView.constraints.first(where: {$0.firstAttribute == .height})?.constant 
         if numberOfLines <= 4 {
             textView.isScrollEnabled                           = false
             conversationView.textViewHeightConstraint.constant = textViewFrameSize.height

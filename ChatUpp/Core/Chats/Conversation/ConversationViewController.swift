@@ -515,10 +515,11 @@ extension ConversationViewController: UITableViewDelegate
     private func updateScrollToBottomBtnIfNeeded() {
         let lastCellIndexPath = IndexPath(row: 0, section: 0)
         
-        // check if first cell indexPath is visible before proceeding further
+        /// check if first cell indexPath is visible before proceeding further
         guard let containsIndexPathZero = rootView.tableView.indexPathsForVisibleRows?.contains(where: {$0 == lastCellIndexPath}) else {return}
         guard containsIndexPathZero == true else {return}
 
+        /// activate scrollBottomBtn if first cell is no longer visible or covered with inputBar 
         if let lastCell = rootView.tableView.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell {
             let lastCellRect = rootView.tableView.convert(lastCell.frame, to: rootView.tableView.superview)
             let holderViewRect = rootView.inputBarContainer.frame
