@@ -19,7 +19,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private var collectionViewDataSource :ConversationViewDataSource!
     private var customNavigationBar :ConversationCustomNavigationBar!
     private var rootView = ConversationRootView()
-//    lazy private var rootViewTextViewDelegate = ConversationViewControllerUITextViewDelegate(view: self.view)
     private var rootViewTextViewDelegate: ConversationTextViewDelegate!
     
     private var isKeyboardHidden: Bool = true
@@ -127,15 +126,13 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if rootView.inputBarContainer.frame.origin.y > 580 {
-                
                 if isContextMenuPresented {
                     let keyboardHeight = -336.0
                     updateHolderViewBottomConstraint(toSize: keyboardHeight)
                 } else {
                     handleTableViewOffSet(usingKeyboardSize: keyboardSize)
                 }
-                
-//                updateScrollToBottomBtnIfNeeded()
+                isKeyboardHidden = false
             }
         }
     }
@@ -146,14 +143,12 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            isKeyboardHidden = true
             if !isContextMenuPresented {
                 handleTableViewOffSet(usingKeyboardSize: keyboardSize)
             } else if isContextMenuPresented {
                 updateHolderViewBottomConstraint(toSize: 0)
             }
-            
-//            updateScrollToBottomBtnIfNeeded()
+            isKeyboardHidden = true
         }
     }
 
@@ -360,7 +355,6 @@ extension ConversationViewController {
             rootView.messageTextView.resignFirstResponder()
         }
     }
-    
     @objc func closeEditView() {
         animateEditViewDestruction()
     }
@@ -372,11 +366,6 @@ extension  ConversationViewController {
     private func addTargetToScrollToBottomBtn() {
         rootView.scrollToBottomBtn.addTarget(self, action: #selector(scrollToBottomBtnWasTapped), for: .touchUpInside)
     }
-//    private func addTargetToScrollToBottomBtn() {
-//        let tap = UITapGestureRecognizer(target: self, action: #selector(scrollToBottomBtnWasTapped))
-//        rootView.scrollToBottomBtn.addGestureRecognizer(tap)
-//    }
-    
     private func addTargetToSendMessageBtn() {
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
@@ -522,44 +511,27 @@ extension ConversationViewController: UITableViewDelegate
         }
     }
     
+    // MARK: - Scroll to bottom btn functions
     private func updateScrollToBottomBtnIfNeeded() {
         let lastCellIndexPath = IndexPath(row: 0, section: 0)
         
-        //        rootView.layoutIfNeeded()
+        // check if first cell indexPath is visible before proceeding further
+        guard let containsIndexPathZero = rootView.tableView.indexPathsForVisibleRows?.contains(where: {$0 == lastCellIndexPath}) else {return}
+        guard containsIndexPathZero == true else {return}
+
         if let lastCell = rootView.tableView.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell {
             let lastCellRect = rootView.tableView.convert(lastCell.frame, to: rootView.tableView.superview)
             let holderViewRect = rootView.inputBarContainer.frame
             
             if lastCellRect.maxY - 30 > holderViewRect.minY {
-                print("holderView covers the last cell.")
                 animateScrollToBottomBtn(shouldBeHidden: false)
             } else {
-                print("holderView does not cover the last cell.")
                 animateScrollToBottomBtn(shouldBeHidden: true)
             }
         }
     }
-    
-//    private func updateScrollToBottomBtnIfNeeded() {
-//        if rootView.tableView.contentOffset.y > -40 && isKeyboardHidden {
-////            rootView.scrollToBottomBtn.isHidden = false
-//            animateScrollToBottomBtn(shouldBeHidden: false)
-//        } else if rootView.tableView.contentOffset.y > -380 && !isKeyboardHidden {
-////            rootView.scrollToBottomBtn.isHidden = false
-//            animateScrollToBottomBtn(shouldBeHidden: false)
-//        } else {
-////            rootView.scrollToBottomBtn.isHidden = true
-//            animateScrollToBottomBtn(shouldBeHidden: true)
-//        }
-//    }
     private func animateScrollToBottomBtn(shouldBeHidden: Bool) {
         UIView.animate(withDuration: 0.3) {
-//            let currentScrollToBottomBtnOpacity = self.rootView.scrollToBottomBtn.layer.opacity
-//            if shouldBeHidden && currentScrollToBottomBtnOpacity != 0.0  {
-//                self.rootView.scrollToBottomBtn.layer.opacity = 0.0
-//            } else if !shouldBeHidden && currentScrollToBottomBtnOpacity != 1.0 {
-//                self.rootView.scrollToBottomBtn.layer.opacity = 1.0
-//            }
             self.rootView.scrollToBottomBtn.layer.opacity = shouldBeHidden ? 0.0 : 1.0
         }
     }
