@@ -25,6 +25,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private var isKeyboardHidden: Bool = true
     private var isNewSectionAdded: Bool = false
     private var isContextMenuPresented: Bool = false
+    private var shouldIgnoreScrollToBottomBtnUpdate: Bool = false
     
     //MARK: - LIFECYCLE
     convenience init(conversationViewModel: ConversationViewModel) {
@@ -126,7 +127,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if rootView.inputBarContainer.frame.origin.y > 580 {
-                isKeyboardHidden = false
+                
                 if isContextMenuPresented {
                     let keyboardHeight = -336.0
                     updateHolderViewBottomConstraint(toSize: keyboardHeight)
@@ -434,10 +435,12 @@ extension ConversationViewController {
         let currentOffSet = rootView.tableView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
+        shouldIgnoreScrollToBottomBtnUpdate = true
         rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
+        shouldIgnoreScrollToBottomBtnUpdate = false
         view.layoutSubviews()
     }
 }
@@ -514,22 +517,41 @@ extension ConversationViewController: UITableViewDelegate
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateMessageSeenStatusIfNeeded()
-        print("content Offset: ", rootView.tableView.contentOffset)
-        updateScrollToBottomBtnIfNeeded()
+        if !shouldIgnoreScrollToBottomBtnUpdate {
+            updateScrollToBottomBtnIfNeeded()
+        }
     }
     
     private func updateScrollToBottomBtnIfNeeded() {
-        if rootView.tableView.contentOffset.y > -40 && isKeyboardHidden {
-//            rootView.scrollToBottomBtn.isHidden = false
-            animateScrollToBottomBtn(shouldBeHidden: false)
-        } else if rootView.tableView.contentOffset.y > -380 && !isKeyboardHidden {
-//            rootView.scrollToBottomBtn.isHidden = false
-            animateScrollToBottomBtn(shouldBeHidden: false)
-        } else {
-//            rootView.scrollToBottomBtn.isHidden = true
-            animateScrollToBottomBtn(shouldBeHidden: true)
+        let lastCellIndexPath = IndexPath(row: 0, section: 0)
+        
+        //        rootView.layoutIfNeeded()
+        if let lastCell = rootView.tableView.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell {
+            let lastCellRect = rootView.tableView.convert(lastCell.frame, to: rootView.tableView.superview)
+            let holderViewRect = rootView.inputBarContainer.frame
+            
+            if lastCellRect.maxY - 30 > holderViewRect.minY {
+                print("holderView covers the last cell.")
+                animateScrollToBottomBtn(shouldBeHidden: false)
+            } else {
+                print("holderView does not cover the last cell.")
+                animateScrollToBottomBtn(shouldBeHidden: true)
+            }
         }
     }
+    
+//    private func updateScrollToBottomBtnIfNeeded() {
+//        if rootView.tableView.contentOffset.y > -40 && isKeyboardHidden {
+////            rootView.scrollToBottomBtn.isHidden = false
+//            animateScrollToBottomBtn(shouldBeHidden: false)
+//        } else if rootView.tableView.contentOffset.y > -380 && !isKeyboardHidden {
+////            rootView.scrollToBottomBtn.isHidden = false
+//            animateScrollToBottomBtn(shouldBeHidden: false)
+//        } else {
+////            rootView.scrollToBottomBtn.isHidden = true
+//            animateScrollToBottomBtn(shouldBeHidden: true)
+//        }
+//    }
     private func animateScrollToBottomBtn(shouldBeHidden: Bool) {
         UIView.animate(withDuration: 0.3) {
 //            let currentScrollToBottomBtnOpacity = self.rootView.scrollToBottomBtn.layer.opacity
