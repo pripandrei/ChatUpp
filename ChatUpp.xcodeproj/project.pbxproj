@@ -260,9 +260,9 @@
 				7543BE322ACC87CA003001BF /* ConversationViewController.swift */,
 				7543BE342ACC87E1003001BF /* ConversationViewModel.swift */,
 				75B48B562AF6837700A5FBFC /* ConversationRootView.swift */,
+				75F608852BEC33400065DA83 /* EditView.swift */,
 				75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */,
 				7563F87D2ADE2C1A006FA374 /* ConversationCollectionView */,
-				75F608852BEC33400065DA83 /* EditView.swift */,
 			);
 			path = Conversation;
 			sourceTree = "<group>";

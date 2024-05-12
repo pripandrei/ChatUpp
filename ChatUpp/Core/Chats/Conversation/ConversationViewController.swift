@@ -44,6 +44,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
         addTargetToEditMessageBtn()
+        addTargetToScrollToBottomBtn()
         configureTableView()
         setTepGesture()
         addKeyboardNotificationObservers()
@@ -125,13 +126,15 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if rootView.inputBarContainer.frame.origin.y > 580 {
+                isKeyboardHidden = false
                 if isContextMenuPresented {
                     let keyboardHeight = -336.0
                     updateHolderViewBottomConstraint(toSize: keyboardHeight)
                 } else {
                     handleTableViewOffSet(usingKeyboardSize: keyboardSize)
                 }
-                isKeyboardHidden = false
+                
+//                updateScrollToBottomBtnIfNeeded()
             }
         }
     }
@@ -142,12 +145,14 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     @objc func keyboardWillHide(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            isKeyboardHidden = true
             if !isContextMenuPresented {
                 handleTableViewOffSet(usingKeyboardSize: keyboardSize)
             } else if isContextMenuPresented {
                 updateHolderViewBottomConstraint(toSize: 0)
             }
-            isKeyboardHidden = true
+            
+//            updateScrollToBottomBtnIfNeeded()
         }
     }
 
@@ -166,6 +171,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //                self.rootView.textViewDidChange(self.rootView.messageTextView)
                 self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
             }
+            self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
             self.rootView.layoutIfNeeded()
         } completion: { complition in
             if complition {
@@ -362,6 +368,14 @@ extension ConversationViewController {
 //MARK: - BUTTON'S TARGET CONFIGURATION
 extension  ConversationViewController {
     
+    private func addTargetToScrollToBottomBtn() {
+        rootView.scrollToBottomBtn.addTarget(self, action: #selector(scrollToBottomBtnWasTapped), for: .touchUpInside)
+    }
+//    private func addTargetToScrollToBottomBtn() {
+//        let tap = UITapGestureRecognizer(target: self, action: #selector(scrollToBottomBtnWasTapped))
+//        rootView.scrollToBottomBtn.addGestureRecognizer(tap)
+//    }
+    
     private func addTargetToSendMessageBtn() {
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
     }
@@ -372,13 +386,19 @@ extension  ConversationViewController {
         rootView.sendEditMessageButton.addTarget(self, action: #selector(editMessageBtnWasTapped), for: .touchUpInside)
     }
     
+    @objc func scrollToBottomBtnWasTapped() {
+        rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+    }
+    
+    
     @objc func editMessageBtnWasTapped() {
         guard let editedMessage = rootView.messageTextView.text else {return}
         conversationViewModel.shouldEditMessage?(editedMessage)
         rootView.sendEditMessageButton.isHidden = true
         rootView.messageTextView.text.removeAll()
-        rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
-        rootView.messageTextView.resignFirstResponder()
+        animateEditViewDestruction()
+//        rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
+//        rootView.messageTextView.resignFirstResponder()
     }
     
     @objc func sendMessageBtnWasTapped() {
@@ -494,6 +514,32 @@ extension ConversationViewController: UITableViewDelegate
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateMessageSeenStatusIfNeeded()
+        print("content Offset: ", rootView.tableView.contentOffset)
+        updateScrollToBottomBtnIfNeeded()
+    }
+    
+    private func updateScrollToBottomBtnIfNeeded() {
+        if rootView.tableView.contentOffset.y > -40 && isKeyboardHidden {
+//            rootView.scrollToBottomBtn.isHidden = false
+            animateScrollToBottomBtn(shouldBeHidden: false)
+        } else if rootView.tableView.contentOffset.y > -380 && !isKeyboardHidden {
+//            rootView.scrollToBottomBtn.isHidden = false
+            animateScrollToBottomBtn(shouldBeHidden: false)
+        } else {
+//            rootView.scrollToBottomBtn.isHidden = true
+            animateScrollToBottomBtn(shouldBeHidden: true)
+        }
+    }
+    private func animateScrollToBottomBtn(shouldBeHidden: Bool) {
+        UIView.animate(withDuration: 0.3) {
+//            let currentScrollToBottomBtnOpacity = self.rootView.scrollToBottomBtn.layer.opacity
+//            if shouldBeHidden && currentScrollToBottomBtnOpacity != 0.0  {
+//                self.rootView.scrollToBottomBtn.layer.opacity = 0.0
+//            } else if !shouldBeHidden && currentScrollToBottomBtnOpacity != 1.0 {
+//                self.rootView.scrollToBottomBtn.layer.opacity = 1.0
+//            }
+            self.rootView.scrollToBottomBtn.layer.opacity = shouldBeHidden ? 0.0 : 1.0
+        }
     }
     
     // MARK: - CONTEXT MENU CONFIGURATION
