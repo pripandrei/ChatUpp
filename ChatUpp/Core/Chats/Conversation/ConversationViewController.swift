@@ -12,9 +12,9 @@ import UIKit
 import Photos
 import PhotosUI
 
+
 final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
-
     weak var coordinatorDelegate :Coordinator?
     private var collectionViewDataSource :ConversationViewDataSource!
     private var customNavigationBar :ConversationCustomNavigationBar!
@@ -74,12 +74,14 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 self.updateMessageSeenStatusIfNeeded()
             }
         }
+        
         conversationViewModel.onNewMessageAdded = { [weak self] in
             Task { @MainActor in
                 let indexPath = IndexPath(row: 0, section: 0)
                 self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
             }
         }
+        
         conversationViewModel.messageWasModified = { indexPath, modificationType in
             Task { @MainActor in
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
@@ -91,6 +93,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 }
             }
         }
+        
         conversationViewModel.onMessageRemoved = { [weak self] indexPath in
             Task { @MainActor in
                 UIView.transition(with: self!.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {

@@ -34,6 +34,7 @@ final class ConversationViewModel {
     var onNewMessageAdded: (() -> Void)?
     var messageWasModified: ((IndexPath, String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
+    var onMessageRemoved: ((IndexPath) -> Void)?
     
     init(memberID: String ,memberName: String, conversation: Chat? = nil, imageData: Data?) {
         self.memberName = memberName
@@ -147,8 +148,6 @@ final class ConversationViewModel {
         }
         messageWasModified?(indexPath, modificationType)
     }
-    
-    var onMessageRemoved: ((IndexPath) -> Void)?
     
     private func handleRemovedMessage(_ message: Message) {
         guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}

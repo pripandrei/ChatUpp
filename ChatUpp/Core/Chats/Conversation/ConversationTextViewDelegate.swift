@@ -70,3 +70,10 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
         messageTextViewNumberOfLines = numberOfLines
     }
 }
+
+//
+//extension Array where Self == [ConversationViewModel.ConversationMessageGroups] {
+//    func sad() {
+//        firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) })
+//    }
+//}
