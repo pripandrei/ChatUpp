@@ -37,6 +37,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         navigationController.setNavigationBarHidden(false, animated: false)
     }
 
+    
 //    override func viewWillDisappear(_ animated: Bool) {
 //        super.viewWillDisappear(animated)
 //        Utilities.clearNavigationBarAppearance()
