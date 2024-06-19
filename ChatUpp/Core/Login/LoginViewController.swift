@@ -15,8 +15,9 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     private let loginViewModel = LoginViewModel()
     private let signUpLable: UILabel = UILabel()
     private let signUpButton = UIButton()
-    private var mailSignInButton = UIButton(type: .system)
-    private let phoneButton = UIButton()
+    private var mailSignInButton = CustomizedShadowButton(type: .system)
+    private let phoneButton = CustomizedShadowButton()
+    private var googleSignInButton = CustomizedShadowButton()
 
     // MARK: - VC LIFEC YCLE
     override func viewDidLoad()
@@ -75,16 +76,18 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     private func setupMailButton() {
         view.addSubview(mailSignInButton)
 
-        mailSignInButton.configuration = .filled()
+        mailSignInButton.configuration = .bordered()
         mailSignInButton.configuration?.title = "Sign in with email"
-        mailSignInButton.configuration?.baseBackgroundColor = .link
+        mailSignInButton.configuration?.baseBackgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
+        mailSignInButton.configuration?.baseForegroundColor = .white
+        mailSignInButton.configuration?.cornerStyle = .capsule
         mailSignInButton.addTarget(self, action: #selector(mailSignInButtonTapped), for: .touchUpInside)
         mailSignInButton.configuration?.image = UIImage(systemName: "envelope.fill")
         mailSignInButton.imageView?.contentMode = .scaleAspectFit
         
         mailSignInButton.configuration?.imagePadding = 30
         mailSignInButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -50, bottom: 0, trailing: 0)
-
+       
         mailSignInButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -94,6 +97,10 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
             mailSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             mailSignInButton.heightAnchor.constraint(equalToConstant: 40)
         ])
+        
+//        mailSignInButton.layoutIfNeeded()
+//        mailSignInButton.topShadow()
+//        mailSignInButton.bottomShadow()
     }
     
     @objc func mailSignInButtonTapped() {
@@ -104,9 +111,10 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     private func setupPhoneButton() {
         view.addSubview(phoneButton)
         
-        phoneButton.configuration = .filled()
+        phoneButton.configuration = .bordered()
+        phoneButton.configuration?.cornerStyle = .capsule
         phoneButton.configuration?.title = "Sign in with phone"
-        phoneButton.configuration?.baseBackgroundColor = .link
+        phoneButton.configuration?.baseBackgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
         phoneButton.addTarget(self, action: #selector(phoneButtonTapped), for: .touchUpInside)
         phoneButton.configuration?.image = UIImage(systemName: "phone.fill")
         
@@ -128,15 +136,13 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         coordinatorDelegate?.pushPhoneSingInVC()
     }
     
-    private var googleSignInButton = UIButton()
-    
     private func configureSignInGoogleButton() {
         view.addSubview(googleSignInButton)
     
-        googleSignInButton.configuration = .filled()
+        googleSignInButton.configuration = .bordered()
         googleSignInButton.configuration?.title = "Sign in with google"
-        
-        googleSignInButton.configuration?.baseBackgroundColor = .link
+        googleSignInButton.configuration?.cornerStyle = .capsule
+        googleSignInButton.configuration?.baseBackgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
         googleSignInButton.addTarget(self, action: #selector(handleSignInWithGoogle), for: .touchUpInside)
         
         googleSignInButton.configuration?.imagePadding = 30
@@ -208,3 +214,4 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         coordinatorDelegate?.pushSignUpVC()
     }
 }
+

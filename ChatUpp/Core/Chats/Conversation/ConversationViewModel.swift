@@ -277,8 +277,6 @@ final class ConversationViewModel {
 
 
 
-
-
 //    var unreadMessageUpdateTimer: Timer = Timer()
 //
 //    func shouldSubtractFromUnreadMessageCount() async {
