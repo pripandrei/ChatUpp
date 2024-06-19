@@ -14,7 +14,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     weak var coordinatorDelegate: Coordinator?
     private let loginViewModel = LoginViewModel()
     private let signUpLable: UILabel = UILabel()
-    private let signUpButton = UIButton()
+    private let signUpButton = UILabel()
     private var mailSignInButton = CustomizedShadowButton(type: .system)
     private let phoneButton = CustomizedShadowButton()
     private var googleSignInButton = CustomizedShadowButton()
@@ -76,15 +76,9 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     private func setupMailButton() {
         view.addSubview(mailSignInButton)
 
-        mailSignInButton.configuration = .bordered()
         mailSignInButton.configuration?.title = "Sign in with email"
-        mailSignInButton.configuration?.baseBackgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
-        mailSignInButton.configuration?.baseForegroundColor = .white
-        mailSignInButton.configuration?.cornerStyle = .capsule
         mailSignInButton.addTarget(self, action: #selector(mailSignInButtonTapped), for: .touchUpInside)
         mailSignInButton.configuration?.image = UIImage(systemName: "envelope.fill")
-        mailSignInButton.imageView?.contentMode = .scaleAspectFit
-        
         mailSignInButton.configuration?.imagePadding = 30
         mailSignInButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -50, bottom: 0, trailing: 0)
        
@@ -97,10 +91,6 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
             mailSignInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             mailSignInButton.heightAnchor.constraint(equalToConstant: 40)
         ])
-        
-//        mailSignInButton.layoutIfNeeded()
-//        mailSignInButton.topShadow()
-//        mailSignInButton.bottomShadow()
     }
     
     @objc func mailSignInButtonTapped() {
@@ -111,10 +101,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     private func setupPhoneButton() {
         view.addSubview(phoneButton)
         
-        phoneButton.configuration = .bordered()
-        phoneButton.configuration?.cornerStyle = .capsule
         phoneButton.configuration?.title = "Sign in with phone"
-        phoneButton.configuration?.baseBackgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
         phoneButton.addTarget(self, action: #selector(phoneButtonTapped), for: .touchUpInside)
         phoneButton.configuration?.image = UIImage(systemName: "phone.fill")
         
@@ -139,10 +126,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     private func configureSignInGoogleButton() {
         view.addSubview(googleSignInButton)
     
-        googleSignInButton.configuration = .bordered()
         googleSignInButton.configuration?.title = "Sign in with google"
-        googleSignInButton.configuration?.cornerStyle = .capsule
-        googleSignInButton.configuration?.baseBackgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
         googleSignInButton.addTarget(self, action: #selector(handleSignInWithGoogle), for: .touchUpInside)
         
         googleSignInButton.configuration?.imagePadding = 30
@@ -172,15 +156,13 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         view.addSubview(signUpLable)
         
         signUpLable.text = "Don't have an account?"
-        signUpLable.font = UIFont(name: "MalayalamSangamMN", size: 16.0)
-        setSignUpLableConstraints()
-    }
-    
-    private func setSignUpLableConstraints() {
+        signUpLable.font = UIFont(name: "Arial", size: 15.5)
+        signUpLable.textColor = #colorLiteral(red: 0.7414833691, green: 0.7236128613, blue: 0.6889627277, alpha: 1)
+        
         signUpLable.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            signUpLable.topAnchor.constraint(equalTo: mailSignInButton.bottomAnchor, constant: 12),
+            signUpLable.topAnchor.constraint(equalTo: mailSignInButton.bottomAnchor, constant: 22),
             signUpLable.leadingAnchor.constraint(equalTo: mailSignInButton.leadingAnchor, constant: 40)
         ])
     }
@@ -189,22 +171,21 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     {
         view.addSubview(signUpButton)
         
-        signUpButton.configuration = .plain()
-        signUpButton.configuration?.title = "Sign Up"
-        signUpButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-        signUpButton.addTarget(self, action: #selector(pushSignUpVC), for: .touchUpInside)
-        signUpButton.configuration?.buttonSize = .small
+//        signUpButton.text = "Sign Up"
+//        signUpButton.font = UIFont(name: "Helvetica", size: 16)
+        signUpButton.attributedText = NSAttributedString(string: "Sign Up", attributes: [.underlineStyle: NSUnderlineStyle.single.rawValue])
+        signUpButton.font = UIFont.boldSystemFont(ofSize: 15)
+        signUpButton.textColor = #colorLiteral(red: 0.4100970866, green: 0.7637808476, blue: 0.09740843836, alpha: 1)
+        signUpButton.isUserInteractionEnabled = true
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(pushSignUpVC))
+        signUpButton.addGestureRecognizer(tapGesture)
         
-        setSignUpButtonConstraints()
-    }
-    
-    private func setSignUpButtonConstraints() {
         signUpButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             signUpButton.leadingAnchor.constraint(equalTo: signUpLable.trailingAnchor, constant: 5),
-            signUpButton.topAnchor.constraint(equalTo: mailSignInButton.bottomAnchor, constant: 10.5)
+            signUpButton.topAnchor.constraint(equalTo: mailSignInButton.bottomAnchor, constant: 20)
         ])
     }
 

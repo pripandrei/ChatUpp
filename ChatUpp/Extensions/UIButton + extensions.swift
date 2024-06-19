@@ -54,6 +54,8 @@ class CustomizedShadowButton: UIButton {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        appearanceConfiguration()
+        layerConfiguration()
     }
     
     required init?(coder: NSCoder) {
@@ -64,10 +66,17 @@ class CustomizedShadowButton: UIButton {
         super.layoutSubviews()
         
         if topShadowLayer == nil {
-            layerConfiguration()
             topShadow()
             bottomShadow()
         }
+    }
+    
+    private func appearanceConfiguration() {
+        configuration = .bordered()
+        configuration?.baseBackgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
+        configuration?.baseForegroundColor = .white
+        configuration?.cornerStyle = .capsule
+        imageView?.contentMode = .scaleAspectFit
     }
     
     private func layerConfiguration() {
