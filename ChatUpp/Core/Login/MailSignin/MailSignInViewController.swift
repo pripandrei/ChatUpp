@@ -11,8 +11,8 @@ final class MailSignInViewController: UIViewController {
     
     private var loginViewModel: LoginViewModel!
     private let stackView = UIStackView()
-    private var mailLogInField = UITextField()
-    private var passwordLogInField = UITextField()
+    private var mailLogInField = CustomizedShadowTextField()
+    private var passwordLogInField = CustomizedShadowTextField()
     private let logInButton = CustomizedShadowButton()
     lazy private var textFieldValidator = EmailCredentialsValidator(mailField: mailLogInField,
                                                                     passwordField: passwordLogInField,
@@ -37,7 +37,7 @@ final class MailSignInViewController: UIViewController {
         setupPasswordTextField()
         setupLogInButton()
     }
-    
+
     
     private func configureStackView() {
         view.addSubview(stackView)
@@ -63,6 +63,7 @@ final class MailSignInViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
+        
     }
     
     private func setupMailTextField() {

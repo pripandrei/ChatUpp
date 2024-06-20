@@ -13,7 +13,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     
     private var phoneViewModel: PhoneSignInViewModel!
     
-    private let smsTextField = UITextField()
+    private let smsTextField = CustomizedShadowTextField()
     private let verifyMessageButton = CustomizedShadowButton()
     
     convenience init(viewModel: PhoneSignInViewModel) {
@@ -22,7 +22,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     }
 
     override func viewDidLoad() {
-        view.backgroundColor = .white
+        view.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         setupSmsTextField()
         setupVerifySMSButton()
         setupBinder()
@@ -48,7 +48,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         
         smsTextField.delegate = self
         smsTextField.placeholder = "enter code"
-        smsTextField.borderStyle = .roundedRect
+//        smsTextField.borderStyle = .roundedRect
         
         smsTextField.translatesAutoresizingMaskIntoConstraints = false
         
@@ -58,10 +58,11 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
 //            smsTextField.widthAnchor.constraint(equalToConstant: 200),
 //            smsTextField.heightAnchor.constraint(equalToConstant: 30)
             
-            smsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
-            smsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
-            smsTextField.heightAnchor.constraint(equalToConstant: 40)
+//            smsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
+//            smsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
             
+            smsTextField.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.7),
+            smsTextField.heightAnchor.constraint(equalToConstant: 45)
         ])
     }
     

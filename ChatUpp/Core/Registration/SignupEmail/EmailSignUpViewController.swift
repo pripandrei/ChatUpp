@@ -15,8 +15,8 @@ class EmailSignUpViewController: UIViewController {
     private var signUpViewModel = EmailSignupViewModel()
     private let stackView = UIStackView()
     private let signUpButton = CustomizedShadowButton()
-    private var emailSignupField = UITextField()
-    private var passwordSignupField = UITextField()
+    private var emailSignupField = CustomizedShadowTextField()
+    private var passwordSignupField = CustomizedShadowTextField()
     lazy private var textFieldValidator = EmailCredentialsValidator(mailField: emailSignupField,
                                                                     passwordField: passwordSignupField,
                                                                     viewModel: signUpViewModel)
@@ -39,7 +39,7 @@ class EmailSignUpViewController: UIViewController {
     {
         emailSignupField.delegate = textFieldValidator
         emailSignupField.placeholder = "Provide an email"
-        emailSignupField.borderStyle = .roundedRect
+//        emailSignupField.borderStyle = .roundedRect
         emailSignupField.translatesAutoresizingMaskIntoConstraints = false
     }
     
@@ -47,7 +47,7 @@ class EmailSignUpViewController: UIViewController {
     {
         passwordSignupField.delegate = textFieldValidator
         passwordSignupField.placeholder = "Provide a password"
-        passwordSignupField.borderStyle = .roundedRect
+//        passwordSignupField.borderStyle = .roundedRect
         passwordSignupField.translatesAutoresizingMaskIntoConstraints = false
     }
     

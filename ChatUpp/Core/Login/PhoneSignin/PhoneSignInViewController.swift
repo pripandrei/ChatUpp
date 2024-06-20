@@ -54,9 +54,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
             customizedFPNTextField.heightAnchor.constraint(equalToConstant: 45)
         ])
         
-        customizedFPNTextField.layoutIfNeeded()
-        customizedFPNTextField.setupTopShadow()
-        customizedFPNTextField.setupBottomShadow()
+//        customizedFPNTextField.applyShadows()
     }
     
     @objc func handleTap(_ sender: UITapGestureRecognizer) {
@@ -128,12 +126,22 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
 //MARK: - CUSTOMIZED FLAG PHONE NUMBER TEXTFIELD
 class CustomFPNTextField: FPNTextField, TextViewShadowConfigurable {
     
+    var innerTopShadowLayer: CALayer!
+    var innerBottomShadowLayer: CALayer!
+    
     private let separatorBetweenDialCodeAndTextPhone: UIView = UIView()
     
     var dialCodeAndFlagButtonMainContainer: UIView? {
         return flagButton.superview
     }
     
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if innerTopShadowLayer == nil {
+            applyShadows()
+        }
+    }
     convenience init() {
         self.init(frame: .zero)
         
@@ -209,6 +217,4 @@ extension FPNCountryListViewController {
         cell.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
     }
 }
-
-
 

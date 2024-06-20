@@ -12,7 +12,7 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     var coordinator: Coordinator!
     
     private let usernameRegistrationViewModel = UsernameRegistrationViewModel()
-    private let usernameTextField: UITextField = UITextField()
+    private let usernameTextField: UITextField = CustomizedShadowTextField()
     private let continueButton: UIButton = CustomizedShadowButton()
     
     
@@ -72,7 +72,7 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         usernameTextField.delegate = self
         
         usernameTextField.placeholder = "Enter Your name"
-        usernameTextField.borderStyle = .roundedRect
+//        usernameTextField.borderStyle = .roundedRect
         
         setUsernameTextFieldConstraints()
     }
