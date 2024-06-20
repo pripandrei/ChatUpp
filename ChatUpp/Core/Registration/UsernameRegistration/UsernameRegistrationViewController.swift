@@ -13,7 +13,7 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     
     private let usernameRegistrationViewModel = UsernameRegistrationViewModel()
     private let usernameTextField: UITextField = UITextField()
-    private let continueButton: UIButton = UIButton()
+    private let continueButton: UIButton = CustomizedShadowButton()
     
     
     // MARK: VC LIFE CYCLE
@@ -42,12 +42,22 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     private func configureContinueButton() {
         view.addSubview(continueButton)
         
-        continueButton.configuration = .filled()
         continueButton.configuration?.title = "Continue"
-        continueButton.configuration?.baseBackgroundColor = .systemPink
         continueButton.addTarget(self, action: #selector(manageContinueButtonTap), for: .touchUpInside)
         
         setContinueButtonConstraints()
+    }
+    
+    private func setContinueButtonConstraints() {
+        continueButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            continueButton.topAnchor.constraint(equalTo: usernameTextField.bottomAnchor, constant: 30),
+            continueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
+            continueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
+            continueButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
     }
     
     @objc private func manageContinueButtonTap() {
@@ -55,19 +65,6 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         if usernameRegistrationViewModel.validateName() == .valid {
             usernameRegistrationViewModel.updateUser()
         }
-    }
-    
-
-    
-    private func setContinueButtonConstraints() {
-        continueButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            continueButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -110),
-            continueButton.widthAnchor.constraint(equalToConstant: 200),
-            continueButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
     }
     
     private func configureUsernameTextField() {
@@ -85,9 +82,11 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         
         NSLayoutConstraint.activate([
             usernameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            usernameTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+//            usernameTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             usernameTextField.widthAnchor.constraint(equalToConstant: 300),
-            usernameTextField.heightAnchor.constraint(equalToConstant: 50)
+            usernameTextField.heightAnchor.constraint(equalToConstant: 50),
+            usernameTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 200)
+            
         ])
     }
 }

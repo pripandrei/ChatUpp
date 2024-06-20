@@ -14,7 +14,7 @@ class EmailSignUpViewController: UIViewController {
     
     private var signUpViewModel = EmailSignupViewModel()
     private let stackView = UIStackView()
-    private let signUpButton = UIButton()
+    private let signUpButton = CustomizedShadowButton()
     private var emailSignupField = UITextField()
     private var passwordSignupField = UITextField()
     lazy private var textFieldValidator = EmailCredentialsValidator(mailField: emailSignupField,
@@ -80,17 +80,18 @@ class EmailSignUpViewController: UIViewController {
     private func setSignUpButton() {
         view.addSubview(signUpButton)
         
-        signUpButton.configuration = .filled()
         signUpButton.configuration?.title = "Sign Up"
-        signUpButton.configuration?.baseBackgroundColor = .systemPink
-        signUpButton.translatesAutoresizingMaskIntoConstraints = false
         signUpButton.addTarget(self, action: #selector(finishRegistration), for: .touchUpInside)
+        
+        signUpButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             signUpButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 50.0),
             signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            signUpButton.widthAnchor.constraint(equalToConstant: 200),
-            signUpButton.heightAnchor.constraint(equalToConstant: 50)
+            signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
+            signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
+//            signUpButton.widthAnchor.constraint(equalToConstant: 200),
+            signUpButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     

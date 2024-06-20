@@ -14,7 +14,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     
     let phoneViewModel = PhoneSignInViewModel()
     let customizedFPNTextField = CustomFPNTextField()
-    let receiveMessageButton = UIButton()
+    let receiveMessageButton = CustomizedShadowButton()
     var isPhoneNumberValid: Bool = false
     
     let listController: FPNCountryListViewController = FPNCountryListViewController(style: .grouped)
@@ -66,7 +66,6 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     func setupReceiveMessageButton() {
         view.addSubview(receiveMessageButton)
        
-        receiveMessageButton.configuration = .filled()
         receiveMessageButton.configuration?.title = "Receive message"
         receiveMessageButton.addTarget(self, action: #selector(receiveMessageButtonWasTapped), for: .touchUpInside)
         
@@ -75,8 +74,8 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         NSLayoutConstraint.activate([
             receiveMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             receiveMessageButton.topAnchor.constraint(equalTo: customizedFPNTextField.bottomAnchor, constant: 30),
-            receiveMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
-            receiveMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
+            receiveMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
+            receiveMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
             receiveMessageButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }

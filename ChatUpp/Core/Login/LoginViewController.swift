@@ -170,9 +170,6 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     private func setupSignUpButton()
     {
         view.addSubview(signUpButton)
-        
-//        signUpButton.text = "Sign Up"
-//        signUpButton.font = UIFont(name: "Helvetica", size: 16)
         signUpButton.attributedText = NSAttributedString(string: "Sign Up", attributes: [.underlineStyle: NSUnderlineStyle.single.rawValue])
         signUpButton.font = UIFont.boldSystemFont(ofSize: 15)
         signUpButton.textColor = #colorLiteral(red: 0.4100970866, green: 0.7637808476, blue: 0.09740843836, alpha: 1)

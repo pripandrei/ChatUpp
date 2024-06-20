@@ -113,23 +113,3 @@ class CustomizedShadowButton: UIButton {
         layer.insertSublayer(bottomShadowLayer, at: 0)
     }
 }
-
-//
-//var topShadowLayer = CAShapeLayer()
-//
-//var shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 20)
-////        topShadowLayer.path = shadowPath
-//topShadowLayer.fillColor = UIColor.white.cgColor
-//topShadowLayer.shadowColor = UIColor.white.cgColor
-////        topShadowLayer.borderWidth = 1.5
-//topShadowLayer.shadowPath = topShadowLayer.path
-//topShadowLayer.shadowOffset = CGSize(width: -1.0, height: -1.0)
-//topShadowLayer.shadowOpacity = 1
-//topShadowLayer.shadowRadius = 0.6
-//
-//let boundss = CGRect(x: self.bounds.origin.x, y: self.bounds.origin.y, width: topShadowLayer.bounds.width / 2 , height: topShadowLayer.bounds.height / 2)
-//let cutout = UIBezierPath(roundedRect: boundss, cornerRadius: 20).reversing()
-//shadowPath.append(cutout)
-//topShadowLayer.shadowPath = shadowPath.cgPath
-//
-//layer.insertSublayer(topShadowLayer, at: 0)

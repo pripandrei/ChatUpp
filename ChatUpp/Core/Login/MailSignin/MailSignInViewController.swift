@@ -13,7 +13,7 @@ final class MailSignInViewController: UIViewController {
     private let stackView = UIStackView()
     private var mailLogInField = UITextField()
     private var passwordLogInField = UITextField()
-    private let logInButton = UIButton()
+    private let logInButton = CustomizedShadowButton()
     lazy private var textFieldValidator = EmailCredentialsValidator(mailField: mailLogInField,
                                                                     passwordField: passwordLogInField,
                                                                     viewModel: loginViewModel)
@@ -88,9 +88,7 @@ final class MailSignInViewController: UIViewController {
     {
         view.addSubview(logInButton)
         
-        logInButton.configuration = .filled()
         logInButton.configuration?.title = "Log in"
-        logInButton.configuration?.baseBackgroundColor = .systemPink
         logInButton.addTarget(self, action: #selector(logInButtonTap), for: .touchUpInside)
         
         setLogInConstraints()
@@ -101,10 +99,12 @@ final class MailSignInViewController: UIViewController {
         logInButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             logInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
+            logInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
             //            logIn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
             logInButton.topAnchor.constraint(equalTo: passwordLogInField.bottomAnchor, constant: 40.0),
-            logInButton.widthAnchor.constraint(equalToConstant: 200),
-            logInButton.heightAnchor.constraint(equalToConstant: 50)
+//            logInButton.widthAnchor.constraint(equalToConstant: 200),
+            logInButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     

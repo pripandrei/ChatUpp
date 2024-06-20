@@ -14,7 +14,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     private var phoneViewModel: PhoneSignInViewModel!
     
     private let smsTextField = UITextField()
-    private let verifyMessageButton = UIButton()
+    private let verifyMessageButton = CustomizedShadowButton()
     
     convenience init(viewModel: PhoneSignInViewModel) {
         self.init()
@@ -68,8 +68,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     func setupVerifySMSButton() {
         view.addSubview(verifyMessageButton)
        
-        verifyMessageButton.configuration = .filled()
-        verifyMessageButton.configuration?.title = "Verify"
+        verifyMessageButton.configuration?.title = "Verify code"
         verifyMessageButton.addTarget(self, action: #selector(verifySMSButtonWasTapped), for: .touchUpInside)
         
         verifyMessageButton.translatesAutoresizingMaskIntoConstraints = false
@@ -80,8 +79,8 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
 //            verifyMessageButton.widthAnchor.constraint(equalToConstant: 200),
 //            verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
             
-            verifyMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
-            verifyMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
+            verifyMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
+            verifyMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
             verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
