@@ -24,18 +24,22 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     {
         super.viewDidLoad()
         navigationController?.delegate = self
-        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         controllerMainSetup()
+        Utilities.clearNavigationBarAppearance()
+        Utilities.setGradientBackground(forView: view)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
+//        navigationController?.setNavigationBarHidden(true, animated: false)
+//        setGradientBackground()
+//        Utilities.setGradientBackground(forView: view)
     }
     
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-        Utilities.clearNavigationBarAppearance()
-        navigationController.setNavigationBarHidden(false, animated: false)
+//        Utilities.clearNavigationBarAppearance()
+//        navigationController.setNavigationBarHidden(false, animated: false)
     }
 
     
@@ -190,6 +194,23 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     
     @objc func pushSignUpVC() {
         coordinatorDelegate?.pushSignUpVC()
+    }
+}
+
+
+// MARK: - Gradient
+extension LoginViewController {
+    
+    func setGradientBackground() {
+        let colorTop = #colorLiteral(red: 0.6000000238, green: 0.5585549503, blue: 0.5448982104, alpha: 1).cgColor
+        let colorBottom = #colorLiteral(red: 0.5186259388, green: 0.4503372039, blue: 0.5165727111, alpha: 1).cgColor
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [colorTop, colorBottom]
+        gradientLayer.locations = [0.0, 1.0]
+        gradientLayer.frame = self.view.bounds
+        
+        self.view.layer.insertSublayer(gradientLayer, at: 0)
     }
 }
 

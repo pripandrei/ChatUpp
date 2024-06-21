@@ -8,45 +8,6 @@
 import Foundation
 import UIKit
 
-
-//extension UIButton {
-//
-//
-//    func topShadow() {
-//        layer.borderWidth = 1
-//        layer.borderColor = #colorLiteral(red: 0.1995372854, green: 0.1759320898, blue: 0.1743296959, alpha: 1)
-//        layer.cornerRadius = 20
-//        var topShadowLayer = CAShapeLayer()
-//
-//        let customBounds = CGRect(x: bounds.origin.x, y: bounds.origin.y, width: bounds.width , height: bounds.height )
-//
-//        topShadowLayer.path = UIBezierPath(roundedRect: customBounds, cornerRadius: 20).cgPath
-////        topShadowLayer.fillColor = UIColor.white.cgColor
-//        topShadowLayer.shadowColor = UIColor.white.cgColor
-////        topShadowLayer.borderWidth = 1.5
-//        topShadowLayer.shadowPath = topShadowLayer.path
-//        topShadowLayer.shadowOffset = CGSize(width: -2.0, height: -2.0)
-//        topShadowLayer.shadowOpacity = 0.6
-//        topShadowLayer.shadowRadius = 1.6
-//
-//        layer.insertSublayer(topShadowLayer, at: 0)
-//    }
-//
-//    func bottomShadow() {
-//        var bottomShadowLayer = CAShapeLayer()
-//        bottomShadowLayer.path = UIBezierPath(roundedRect: bounds, cornerRadius: 20).cgPath
-//        bottomShadowLayer.fillColor = UIColor.white.cgColor
-//
-//        bottomShadowLayer.shadowColor = UIColor.black.cgColor
-////        bottomShadowLayer.shadowPath = bottomShadowLayer.path
-//        bottomShadowLayer.shadowOffset = CGSize(width: 4.0, height: 4.0)
-//        bottomShadowLayer.shadowOpacity = 0.8
-//        bottomShadowLayer.shadowRadius = 5
-//
-//        layer.insertSublayer(bottomShadowLayer, at: 0)
-//    }
-//}
-
 class CustomizedShadowButton: UIButton {
     
     private var topShadowLayer: CAShapeLayer!

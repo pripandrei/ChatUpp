@@ -45,7 +45,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         let tabBarAppearance = UITabBarAppearance()
         let tabBarItemAppearance = UITabBarItemAppearance()
 
-        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.9)
+//        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.9)
         tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)]
         tabBarItemAppearance.selected.iconColor = #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)
         tabBarItemAppearance.normal.iconColor = #colorLiteral(red: 0.4879326224, green: 0.617406249, blue: 0.6558095217, alpha: 1)

@@ -45,13 +45,13 @@ struct Utilities {
     static public func setupNavigationBarAppearance() {
         if #available(iOS 13.0, *) {
             let appearance = UINavigationBarAppearance()
-            
+
             appearance.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.8)
             appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
             appearance.shadowColor = .white.withAlphaComponent(0.5)
-            
+
             appearance.titleTextAttributes = [.foregroundColor: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), .font: UIFont(name: "HelveticaNeue-bold", size: 17)!]
-            
+
             UINavigationBar.appearance().standardAppearance = appearance
             UINavigationBar.appearance().compactAppearance = appearance
             UINavigationBar.appearance().scrollEdgeAppearance = appearance
@@ -62,11 +62,20 @@ struct Utilities {
     
     // Adjust Navigation Bar color to be clear
     static public func clearNavigationBarAppearance() {
-        let appearance = UINavigationBarAppearance()
-        appearance.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        appearance.shadowColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+//        let appearance = UINavigationBarAppearance()
+////        appearance.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+////        appearance.backgroundColor = .clear
+////        appearance.shadowColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+////        appearance.shadowColor = .clear
+//        UINavigationBar.appearance().standardAppearance = appearance
+//        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        
+        
+        UINavigationBar.appearance().standardAppearance.backgroundColor = .clear
+        UINavigationBar.appearance().compactAppearance = nil
+        UINavigationBar.appearance().scrollEdgeAppearance = nil
+        UINavigationBar.appearance().backgroundColor = .clear
+        
     }
 
     static var windowRoot: TabBarViewController? {
@@ -81,6 +90,18 @@ struct Utilities {
     
     static var defaultProfileImage: UIImage {
         return UIImage(named: "default_profile_photo") ?? UIImage()
+    }
+    
+    static func setGradientBackground(forView view: UIView) {
+        let colorTop = #colorLiteral(red: 0.6000000238, green: 0.5585549503, blue: 0.5448982104, alpha: 1).cgColor
+        let colorBottom = #colorLiteral(red: 0.5186259388, green: 0.4503372039, blue: 0.5165727111, alpha: 1).cgColor
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [colorTop, colorBottom]
+        gradientLayer.locations = [0.0, 1.0]
+        gradientLayer.frame = view.bounds
+        
+        view.layer.insertSublayer(gradientLayer, at: 0)
     }
 }
 

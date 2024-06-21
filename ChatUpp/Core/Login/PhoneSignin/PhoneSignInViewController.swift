@@ -31,7 +31,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        Utilities.setGradientBackground(forView: view)
 //        navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
@@ -135,11 +135,12 @@ class CustomFPNTextField: FPNTextField, TextViewShadowConfigurable {
         return flagButton.superview
     }
     
-    
     override func layoutSubviews() {
         super.layoutSubviews()
         if innerTopShadowLayer == nil {
             applyShadows()
+            textColor = .black
+            attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])   
         }
     }
     convenience init() {

@@ -81,13 +81,14 @@ class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        borderStyle = .roundedRect
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
         if innerTopShadowLayer == nil {
             applyShadows()
+            textColor = .black
+            attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])   
         }
     }
     
