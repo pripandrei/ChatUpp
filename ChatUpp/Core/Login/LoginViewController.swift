@@ -18,6 +18,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     private var mailSignInButton = CustomizedShadowButton(type: .system)
     private let phoneButton = CustomizedShadowButton()
     private var googleSignInButton = CustomizedShadowButton()
+    private let logoImage = UIImageView()
 
     // MARK: - VC LIFEC YCLE
     override func viewDidLoad()
@@ -41,6 +42,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         setupBinder()
         setupSignUpLable()
         setupSignUpButton()
+        setupLogoImage()
     }
     
     //MARK: - Binder
@@ -51,6 +53,22 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
                 self?.coordinatorDelegate?.dismissNaviagtionController()
             }
         }
+    }
+    
+    private func setupLogoImage() {
+        view.addSubview(logoImage)
+        
+        let image = UIImage(named: "paper_plane_mountain_1")
+        logoImage.image = image
+        
+        logoImage.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            logoImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 70),
+            logoImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            logoImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+            logoImage.heightAnchor.constraint(equalToConstant: 320),
+        ])
     }
 
     

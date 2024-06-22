@@ -15,6 +15,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     
     private let smsTextField = CustomizedShadowTextField()
     private let verifyMessageButton = CustomizedShadowButton()
+    private let messageCodeImage = UIImageView()
     
     convenience init(viewModel: PhoneSignInViewModel) {
         self.init()
@@ -26,6 +27,8 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         setupSmsTextField()
         setupVerifySMSButton()
         setupBinder()
+        setupPhoneImage()
+        Utilities.setGradientBackground(forView: view)
     }
     
     //MARK: - Binding
@@ -41,6 +44,22 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
                 }
             }
         }
+    }
+    
+    private func setupPhoneImage() {
+        view.addSubview(messageCodeImage)
+        
+        let image = UIImage(named: "message_code_2")
+        messageCodeImage.image = image
+        
+        messageCodeImage.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            messageCodeImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+            messageCodeImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 70),
+            messageCodeImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -70),
+            messageCodeImage.heightAnchor.constraint(equalToConstant: 230),
+        ])
     }
     
     func setupSmsTextField() {

@@ -16,6 +16,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     let customizedFPNTextField = CustomFPNTextField()
     let receiveMessageButton = CustomizedShadowButton()
     var isPhoneNumberValid: Bool = false
+    private var phoneImage: UIImageView = UIImageView()
     
     let listController: FPNCountryListViewController = FPNCountryListViewController(style: .grouped)
     
@@ -27,12 +28,29 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         setupListController()
         setupListControllerNavigationBarAppearance()
         setupReceiveMessageButton()
+        setupPhoneImage()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         Utilities.setGradientBackground(forView: view)
 //        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+    
+    private func setupPhoneImage() {
+        view.addSubview(phoneImage)
+        
+        let image = UIImage(named: "phone_logo_4")
+        phoneImage.image = image
+        
+        phoneImage.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            phoneImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
+            phoneImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 70),
+            phoneImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -70),
+            phoneImage.heightAnchor.constraint(equalToConstant: 230),
+        ])
     }
     
     func setupPhoneTextField() {
