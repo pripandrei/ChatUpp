@@ -70,12 +70,10 @@ struct Utilities {
 //        UINavigationBar.appearance().standardAppearance = appearance
 //        UINavigationBar.appearance().scrollEdgeAppearance = appearance
         
-        
         UINavigationBar.appearance().standardAppearance.backgroundColor = .clear
         UINavigationBar.appearance().compactAppearance = nil
         UINavigationBar.appearance().scrollEdgeAppearance = nil
         UINavigationBar.appearance().backgroundColor = .clear
-        
     }
 
     static var windowRoot: TabBarViewController? {

@@ -29,28 +29,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         Utilities.clearNavigationBarAppearance()
         Utilities.setGradientBackground(forView: view)
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-//        navigationController?.setNavigationBarHidden(true, animated: false)
-//        setGradientBackground()
-//        Utilities.setGradientBackground(forView: view)
-    }
-    
-    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
-//        Utilities.clearNavigationBarAppearance()
-//        navigationController.setNavigationBarHidden(false, animated: false)
-    }
-
-    
-//    override func viewWillDisappear(_ animated: Bool) {
-//        super.viewWillDisappear(animated)
-//        Utilities.clearNavigationBarAppearance()
-//        navigationController?.setNavigationBarHidden(false, animated: false)
-//    }
-//
-    
-    
+  
     deinit {
         print("Login WAS DEINIT +++")
     }

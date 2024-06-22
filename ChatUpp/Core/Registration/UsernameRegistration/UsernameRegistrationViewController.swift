@@ -19,7 +19,8 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
     // MARK: VC LIFE CYCLE
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+//        view.backgroundColor = .white
+        Utilities.setGradientBackground(forView: view)
         configureUsernameTextField()
         configureContinueButton()
         configureBinding()
