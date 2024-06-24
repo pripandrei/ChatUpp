@@ -15,6 +15,7 @@ final class MailSignInViewController: UIViewController {
     private var passwordLogInField = CustomizedShadowTextField()
     private let logInButton = CustomizedShadowButton()
     private let envelopeLogo = UIImageView()
+    private let signInWithEmailLabel = UILabel()
     lazy private var textFieldValidator = EmailCredentialsValidator(mailField: mailLogInField,
                                                                     passwordField: passwordLogInField,
                                                                     viewModel: loginViewModel)
@@ -38,9 +39,42 @@ final class MailSignInViewController: UIViewController {
         setupPasswordTextField()
         setupLogInButton()
         setupEnvelopeImage()
+        configureSignInWithEmailLabel()
         Utilities.setGradientBackground(forView: view)
     }
 
+    
+    private func setupEnvelopeImage() {
+        view.addSubview(envelopeLogo)
+        
+        let image = UIImage(named: "envelope_4")
+        envelopeLogo.image = image
+        
+        envelopeLogo.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            envelopeLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 35),
+            envelopeLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            envelopeLogo.heightAnchor.constraint(equalToConstant: 180),
+            envelopeLogo.widthAnchor.constraint(equalToConstant: 210),
+        ])
+    }
+    
+    private func configureSignInWithEmailLabel() {
+        view.addSubview(signInWithEmailLabel)
+        
+        signInWithEmailLabel.text = "Sign in with email"
+        signInWithEmailLabel.textColor = #colorLiteral(red: 0.8817898337, green: 0.8124251547, blue: 0.8326097798, alpha: 1)
+        signInWithEmailLabel.font =  UIFont.boldSystemFont(ofSize: 20)
+        
+        signInWithEmailLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            signInWithEmailLabel.topAnchor.constraint(equalTo: envelopeLogo.bottomAnchor, constant: -3),
+//            signInWithEmailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 65),
+            signInWithEmailLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        ])        
+    }
     
     private func configureStackView() {
         view.addSubview(stackView)
@@ -55,34 +89,17 @@ final class MailSignInViewController: UIViewController {
         setStackViewConstraints()
     }
     
-    private func setupEnvelopeImage() {
-        view.addSubview(envelopeLogo)
-        
-        let image = UIImage(named: "envelope_4")
-        envelopeLogo.image = image
-        
-        envelopeLogo.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            envelopeLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
-            envelopeLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 80),
-            envelopeLogo.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -80),
-            envelopeLogo.heightAnchor.constraint(equalToConstant: 200),
-        ])
-    }
-    
     private func setStackViewConstraints() {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 230),
+            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 260),
 //            stackView.widthAnchor.constraint(equalToConstant: 300),
             stackView.heightAnchor.constraint(equalToConstant: 120),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
-        
     }
     
     private func setupMailTextField() {
@@ -119,10 +136,10 @@ final class MailSignInViewController: UIViewController {
         logInButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             logInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            logInButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 35),
             logInButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
             logInButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
             //            logIn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100.0),
-            logInButton.topAnchor.constraint(equalTo: passwordLogInField.bottomAnchor, constant: 40.0),
 //            logInButton.widthAnchor.constraint(equalToConstant: 200),
             logInButton.heightAnchor.constraint(equalToConstant: 40)
         ])

@@ -50,9 +50,8 @@ class EmailSignUpViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             doorLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 35),
-            doorLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 75),
-//            doorLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 70),
-//            doorLogo.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -70),
+//            doorLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 75),
+            doorLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             doorLogo.heightAnchor.constraint(equalToConstant: 200),
             doorLogo.widthAnchor.constraint(equalToConstant: 230),
         ])
@@ -69,7 +68,8 @@ class EmailSignUpViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             provideEmailLabel.topAnchor.constraint(equalTo: doorLogo.bottomAnchor, constant: 0),
-            provideEmailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 65),
+//            provideEmailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 65),
+            provideEmailLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
 
