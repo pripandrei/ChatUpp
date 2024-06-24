@@ -71,7 +71,6 @@ final class MailSignInViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             signInWithEmailLabel.topAnchor.constraint(equalTo: envelopeLogo.bottomAnchor, constant: -3),
-//            signInWithEmailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 65),
             signInWithEmailLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])        
     }
@@ -95,7 +94,6 @@ final class MailSignInViewController: UIViewController {
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 260),
-//            stackView.widthAnchor.constraint(equalToConstant: 300),
             stackView.heightAnchor.constraint(equalToConstant: 120),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)

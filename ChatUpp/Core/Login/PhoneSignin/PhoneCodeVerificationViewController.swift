@@ -15,7 +15,8 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     
     private let smsTextField = CustomizedShadowTextField()
     private let verifyMessageButton = CustomizedShadowButton()
-    private let messageCodeImage = UIImageView()
+    private let messageCodeLogo = UIImageView()
+    private let codeTextLabel = UILabel()
     
     convenience init(viewModel: PhoneSignInViewModel) {
         self.init()
@@ -28,6 +29,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         setupVerifySMSButton()
         setupBinder()
         setupPhoneImage()
+        configureCodeTextLabel()
         Utilities.setGradientBackground(forView: view)
     }
     
@@ -47,18 +49,33 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     }
     
     private func setupPhoneImage() {
-        view.addSubview(messageCodeImage)
+        view.addSubview(messageCodeLogo)
         
         let image = UIImage(named: "message_code_2")
-        messageCodeImage.image = image
+        messageCodeLogo.image = image
         
-        messageCodeImage.translatesAutoresizingMaskIntoConstraints = false
+        messageCodeLogo.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            messageCodeImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            messageCodeImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 70),
-            messageCodeImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -70),
-            messageCodeImage.heightAnchor.constraint(equalToConstant: 230),
+            messageCodeLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 35),
+            messageCodeLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            messageCodeLogo.heightAnchor.constraint(equalToConstant: 190),
+            messageCodeLogo.widthAnchor.constraint(equalToConstant: 220),
+        ])
+    }
+    
+    private func configureCodeTextLabel() {
+        view.addSubview(codeTextLabel)
+        
+        codeTextLabel.text = "Enter code that you received"
+        codeTextLabel.textColor = #colorLiteral(red: 0.8817898337, green: 0.8124251547, blue: 0.8326097798, alpha: 1)
+        codeTextLabel.font =  UIFont.boldSystemFont(ofSize: 20)
+        
+        codeTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            codeTextLabel.topAnchor.constraint(equalTo: messageCodeLogo.bottomAnchor, constant: -3),
+            codeTextLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
     
@@ -66,22 +83,17 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         view.addSubview(smsTextField)
         
         smsTextField.delegate = self
-        smsTextField.placeholder = "enter code"
+        smsTextField.placeholder = "code number"
 //        smsTextField.borderStyle = .roundedRect
         
         smsTextField.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             smsTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            smsTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 250),
-//            smsTextField.widthAnchor.constraint(equalToConstant: 200),
-//            smsTextField.heightAnchor.constraint(equalToConstant: 30)
-            
-//            smsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 43),
-//            smsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -43),
-            
-            smsTextField.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.7),
-            smsTextField.heightAnchor.constraint(equalToConstant: 45)
+            smsTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 270),
+            smsTextField.heightAnchor.constraint(equalToConstant: 45),
+            smsTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            smsTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
     }
     
@@ -96,9 +108,6 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         NSLayoutConstraint.activate([
             verifyMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             verifyMessageButton.topAnchor.constraint(equalTo: smsTextField.bottomAnchor, constant: 30),
-//            verifyMessageButton.widthAnchor.constraint(equalToConstant: 200),
-//            verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)
-            
             verifyMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
             verifyMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
             verifyMessageButton.heightAnchor.constraint(equalToConstant: 40)

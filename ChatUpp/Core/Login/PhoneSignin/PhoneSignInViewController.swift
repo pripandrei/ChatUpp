@@ -52,7 +52,6 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             phoneTextLabel.topAnchor.constraint(equalTo: phoneLogo.bottomAnchor, constant: -20),
-//            provideEmailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 65),
             phoneTextLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
@@ -67,8 +66,6 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             phoneLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 35),
-//            phoneLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 70),
-//            phoneLogo.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -70),
             phoneLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -20),
             phoneLogo.heightAnchor.constraint(equalToConstant: 210),
             phoneLogo.widthAnchor.constraint(equalToConstant: 220),
