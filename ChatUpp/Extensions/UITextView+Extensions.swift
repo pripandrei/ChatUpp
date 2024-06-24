@@ -22,8 +22,9 @@ class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
         if innerTopShadowLayer == nil {
             configureLayer()
             applyShadows()
-            textColor = .black
-            attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+            textColor = #colorLiteral(red: 0.9970493562, green: 0.9588443194, blue: 0.9372033194, alpha: 1)
+            font = .boldSystemFont(ofSize: 16)
+            attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.8415537822, green: 0.7419982449, blue: 0.7352401063, alpha: 1)])
         }
     }
     
@@ -72,8 +73,8 @@ class CustomFPNTextField: FPNTextField, TextViewShadowConfigurable {
         if innerTopShadowLayer == nil {
             configureLayer()
             applyShadows()
-            textColor = .black
-            attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+            textColor = #colorLiteral(red: 0.9970493562, green: 0.9588443194, blue: 0.9372033194, alpha: 1)
+            attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.8415537822, green: 0.7419982449, blue: 0.7352401063, alpha: 1)])
         }
     }
     convenience init() {
@@ -91,10 +92,10 @@ class CustomFPNTextField: FPNTextField, TextViewShadowConfigurable {
     
     private func configureLayer() {
         self.borderStyle = .none
-        self.backgroundColor = #colorLiteral(red: 0.7896713614, green: 0.7896713614, blue: 0.7896713614, alpha: 1)
+        self.backgroundColor = #colorLiteral(red: 0.6334663358, green: 0.5882036454, blue: 0.5727719872, alpha: 1)
         self.layer.cornerRadius = self.intrinsicContentSize.height/2
         self.layer.borderWidth = 1.5
-        self.layer.borderColor = #colorLiteral(red: 0.822324276, green: 0.8223242164, blue: 0.8223242164, alpha: 1)
+        self.layer.borderColor = #colorLiteral(red: 0.6480519045, green: 0.6017470402, blue: 0.5859600679, alpha: 1)
     }
     
     // GESTURES

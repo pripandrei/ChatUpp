@@ -16,7 +16,8 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     let customizedFPNTextField = CustomFPNTextField()
     let receiveMessageButton = CustomizedShadowButton()
     var isPhoneNumberValid: Bool = false
-    private var phoneImage: UIImageView = UIImageView()
+    private var phoneLogo: UIImageView = UIImageView()
+    private var phoneTextLabel: UILabel = UILabel()
     
     let listController: FPNCountryListViewController = FPNCountryListViewController(style: .grouped)
     
@@ -29,6 +30,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         setupListControllerNavigationBarAppearance()
         setupReceiveMessageButton()
         setupPhoneImage()
+        setupProvideEmailLabel()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -37,19 +39,39 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
 //        navigationController?.setNavigationBarHidden(false, animated: true)
     }
     
-    private func setupPhoneImage() {
-        view.addSubview(phoneImage)
+    private func setupProvideEmailLabel() {
+        view.addSubview(phoneTextLabel)
         
-        let image = UIImage(named: "phone_logo_4")
-        phoneImage.image = image
-        
-        phoneImage.translatesAutoresizingMaskIntoConstraints = false
+        phoneTextLabel.text = "Enter your phone number \n to get started"
+        phoneTextLabel.textColor = #colorLiteral(red: 0.8817898337, green: 0.8124251547, blue: 0.8326097798, alpha: 1)
+        phoneTextLabel.numberOfLines = 2
+        phoneTextLabel.textAlignment = .center
+        phoneTextLabel.font =  UIFont.boldSystemFont(ofSize: 20)
+       
+        phoneTextLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            phoneImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
-            phoneImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 70),
-            phoneImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -70),
-            phoneImage.heightAnchor.constraint(equalToConstant: 230),
+            phoneTextLabel.topAnchor.constraint(equalTo: phoneLogo.bottomAnchor, constant: -20),
+//            provideEmailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 65),
+            phoneTextLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        ])
+    }
+    
+    private func setupPhoneImage() {
+        view.addSubview(phoneLogo)
+        
+        let image = UIImage(named: "phone_logo_4")
+        phoneLogo.image = image
+        
+        phoneLogo.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            phoneLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 35),
+//            phoneLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 70),
+//            phoneLogo.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -70),
+            phoneLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -20),
+            phoneLogo.heightAnchor.constraint(equalToConstant: 210),
+            phoneLogo.widthAnchor.constraint(equalToConstant: 220),
         ])
     }
     
@@ -67,7 +89,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             customizedFPNTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            customizedFPNTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 250),
+            customizedFPNTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 300),
             customizedFPNTextField.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.7),
             customizedFPNTextField.heightAnchor.constraint(equalToConstant: 45)
         ])
@@ -89,7 +111,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             receiveMessageButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            receiveMessageButton.topAnchor.constraint(equalTo: customizedFPNTextField.bottomAnchor, constant: 30),
+            receiveMessageButton.topAnchor.constraint(equalTo: customizedFPNTextField.bottomAnchor, constant: 35),
             receiveMessageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
             receiveMessageButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
             receiveMessageButton.heightAnchor.constraint(equalToConstant: 40)
