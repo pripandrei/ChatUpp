@@ -14,6 +14,7 @@ final class MailSignInViewController: UIViewController {
     private var mailLogInField = CustomizedShadowTextField()
     private var passwordLogInField = CustomizedShadowTextField()
     private let logInButton = CustomizedShadowButton()
+    private let envelopeLogo = UIImageView()
     lazy private var textFieldValidator = EmailCredentialsValidator(mailField: mailLogInField,
                                                                     passwordField: passwordLogInField,
                                                                     viewModel: loginViewModel)
@@ -36,6 +37,7 @@ final class MailSignInViewController: UIViewController {
         setupMailTextField()
         setupPasswordTextField()
         setupLogInButton()
+        setupEnvelopeImage()
         Utilities.setGradientBackground(forView: view)
     }
 
@@ -51,6 +53,22 @@ final class MailSignInViewController: UIViewController {
         stackView.addArrangedSubview(passwordLogInField)
         
         setStackViewConstraints()
+    }
+    
+    private func setupEnvelopeImage() {
+        view.addSubview(envelopeLogo)
+        
+        let image = UIImage(named: "envelope_4")
+        envelopeLogo.image = image
+        
+        envelopeLogo.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            envelopeLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
+            envelopeLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 80),
+            envelopeLogo.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -80),
+            envelopeLogo.heightAnchor.constraint(equalToConstant: 200),
+        ])
     }
     
     private func setStackViewConstraints() {

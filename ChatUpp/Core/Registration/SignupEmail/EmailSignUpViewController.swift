@@ -17,6 +17,8 @@ class EmailSignUpViewController: UIViewController {
     private let signUpButton = CustomizedShadowButton()
     private var emailSignupField = CustomizedShadowTextField()
     private var passwordSignupField = CustomizedShadowTextField()
+    private let doorLogo = UIImageView()
+    private let provideEmailLabel = UILabel()
     lazy private var textFieldValidator = EmailCredentialsValidator(mailField: emailSignupField,
                                                                     passwordField: passwordSignupField,
                                                                     viewModel: signUpViewModel)
@@ -34,6 +36,41 @@ class EmailSignUpViewController: UIViewController {
         setPasswordSignupField()
         configureStackView()
         setSignUpButton()
+        setupEnvelopeImage()
+        setupProvideEmailLabel()
+    }
+    
+    private func setupEnvelopeImage() {
+        view.addSubview(doorLogo)
+        
+        let image = UIImage(named: "door_logo_2")
+        doorLogo.image = image
+        
+        doorLogo.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            doorLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 35),
+            doorLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 75),
+//            doorLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 70),
+//            doorLogo.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -70),
+            doorLogo.heightAnchor.constraint(equalToConstant: 200),
+            doorLogo.widthAnchor.constraint(equalToConstant: 230),
+        ])
+    }
+    
+    private func setupProvideEmailLabel() {
+        view.addSubview(provideEmailLabel)
+        
+        provideEmailLabel.text = "What's your email address?"
+        provideEmailLabel.textColor = #colorLiteral(red: 0.8817898337, green: 0.8124251547, blue: 0.8326097798, alpha: 1)
+        provideEmailLabel.font =  UIFont.boldSystemFont(ofSize: 20)
+       
+        provideEmailLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            provideEmailLabel.topAnchor.constraint(equalTo: doorLogo.bottomAnchor, constant: 0),
+            provideEmailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 65),
+        ])
     }
 
     private func setEmailSignupField()
@@ -70,7 +107,7 @@ class EmailSignUpViewController: UIViewController {
 
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 230),
+            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 280),
 //            stackView.widthAnchor.constraint(equalToConstant: 300),
             stackView.heightAnchor.constraint(equalToConstant: 120),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
@@ -87,7 +124,7 @@ class EmailSignUpViewController: UIViewController {
         signUpButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            signUpButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 50.0),
+            signUpButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 35.0),
             signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
             signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
