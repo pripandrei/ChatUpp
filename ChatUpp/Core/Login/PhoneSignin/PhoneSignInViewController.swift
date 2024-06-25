@@ -87,8 +87,10 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         NSLayoutConstraint.activate([
             customizedFPNTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             customizedFPNTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 300),
-            customizedFPNTextField.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.7),
-            customizedFPNTextField.heightAnchor.constraint(equalToConstant: 45)
+//            customizedFPNTextField.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.7),
+            customizedFPNTextField.heightAnchor.constraint(equalToConstant: 45),
+            customizedFPNTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            customizedFPNTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
         ])
         
 //        customizedFPNTextField.applyShadows()
