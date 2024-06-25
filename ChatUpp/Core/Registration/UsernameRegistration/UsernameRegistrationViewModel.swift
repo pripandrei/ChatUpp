@@ -17,6 +17,8 @@ enum ValidationStatus {
 final class UsernameRegistrationViewModel {
     
     var username: String = ""
+    var profileImageData: Data?
+    let finishRegistration: ObservableObject<Bool?> = ObservableObject(nil)
     
 //    var userPhoto: UIImage?
     
@@ -27,16 +29,32 @@ final class UsernameRegistrationViewModel {
         return .invalid
     }
     
-    let finishRegistration: ObservableObject<Bool?> = ObservableObject(nil)
+    private var authUser: AuthDataResultModel {
+        if let user = try? AuthenticationManager.shared.getAuthenticatedUser() {
+            return user
+        }
+        fatalError("user is missing")
+    }
+    
+    private func saveProfileImageToStorage() async throws -> String? {
+        if let profileImageData = profileImageData {
+            let (_, name) = try await StorageManager.shared.saveUserImage(data: profileImageData, userId: authUser.uid)
+            return name
+        }
+        return nil
+    }
     
     func updateUser() {
-        guard let id = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {
-            print("error updading user: authUser is nil")
-            return
-        }
+//        guard let id = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {
+//            print("error updading user: authUser is nil")
+//            return
+//        }
         Task {
             do {
-                try await UserManager.shared.updateUser(with: id, usingName: username)
+                // if user will not add profile photo saveProfileImageToStorage will return nil
+                // and default profile picture will be used
+                let profilePhotoURL = try await saveProfileImageToStorage()
+                try await UserManager.shared.updateUser(with: authUser.uid, usingName: username, profilePhotoURL: profilePhotoURL)
                 finishRegistration.value = true
             } catch {
                 print("Error updating user on creation: ", error)

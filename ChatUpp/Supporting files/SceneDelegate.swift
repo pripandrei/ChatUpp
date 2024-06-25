@@ -24,7 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         coordinator = MainCoordinator(tabBar: tabBarController)
         
-        window?.rootViewController = UsernameRegistrationViewController()
+        window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
         
         coordinator?.start()

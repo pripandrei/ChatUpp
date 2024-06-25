@@ -160,6 +160,8 @@ extension SettingsViewController {
             supplementaryView.additionalCredentials.text = "\(user.phoneNumber ?? "") \u{25CF} \(user.nickname ?? "")"
             if let image = self?.settingsViewModel.imageData {
                 supplementaryView.imageView.image = UIImage(data: image)
+            } else {
+                supplementaryView.imageView.image = UIImage(named: "default_profile_photo")
             }
         }
         
@@ -212,7 +214,11 @@ extension SettingsViewController {
     
     private func createprofileEditingViewModel() -> ProfileEditingViewModel {
         guard let user = settingsViewModel.dbUser else {fatalError("dbUser is missing")}
-        guard let profilePicutre = settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
+        UIImage(named: "asd")?.pngData()
+        
+        // if imageData is nil, local default image will be used as profile picture
+        guard let profilePicutre = settingsViewModel.imageData == nil ? UIImage(named: "default_profile_photo")?.pngData() : settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
+//        guard let profilePicutre = settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
         let profileVM = ProfileEditingViewModel(dbUser: user, profilePicutre: profilePicutre)
         
         profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in

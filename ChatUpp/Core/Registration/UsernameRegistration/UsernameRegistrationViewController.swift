@@ -29,20 +29,20 @@ class UsernameRegistrationViewController: UIViewController {
         configureContinueButton()
         setupProfileImage()
         setupNameAndPhotoLabel()
-//        configureBinding()
+        configureBinding()
     }
     
     // MARK: - BINDING
     
-//    private func configureBinding() {
-//        usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
-//            if let finish = finishRegistration, finish == true {
-//                Task { @MainActor in
-//                    self.coordinator.dismissNaviagtionController()                    
-//                }
-//            }
-//        }
-//    }
+    private func configureBinding() {
+        usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
+            if let finish = finishRegistration, finish == true {
+                Task { @MainActor in
+                    self.coordinator.dismissNaviagtionController()
+                }
+            }
+        }
+    }
     
     // MARK: - UI SETUP
     
@@ -154,13 +154,14 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
         picker.dismiss(animated: true)
         
         results.forEach { result in
-            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
                 guard let image = reading as? UIImage, error == nil else { print("Could not read image"); return }
-                
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
+                self?.usernameRegistrationViewModel.profileImageData = data
+                
                 Task { @MainActor in
-                    self.profileImage.image = image
+                    self?.profileImage.image = image
                 }
             }
         }
