@@ -45,10 +45,6 @@ final class UsernameRegistrationViewModel {
     }
     
     func updateUser() {
-//        guard let id = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {
-//            print("error updading user: authUser is nil")
-//            return
-//        }
         Task {
             do {
                 // if user will not add profile photo saveProfileImageToStorage will return nil
