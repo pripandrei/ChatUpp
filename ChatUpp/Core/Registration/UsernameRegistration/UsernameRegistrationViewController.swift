@@ -6,14 +6,18 @@
 //
 
 import UIKit
+import Photos
+import PhotosUI
 
-class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate {
+class UsernameRegistrationViewController: UIViewController {
     
     var coordinator: Coordinator!
     
     private let usernameRegistrationViewModel = UsernameRegistrationViewModel()
     private let usernameTextField: UITextField = CustomizedShadowTextField()
     private let continueButton: UIButton = CustomizedShadowButton()
+    private let profileImage: UIImageView = UIImageView()
+    private let nameAndPhotoTextLabel: UILabel = UILabel()
     
     
     // MARK: VC LIFE CYCLE
@@ -23,22 +27,45 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
         Utilities.setGradientBackground(forView: view)
         configureUsernameTextField()
         configureContinueButton()
-        configureBinding()
+        setupProfileImage()
+        setupNameAndPhotoLabel()
+//        configureBinding()
     }
     
     // MARK: - BINDING
     
-    private func configureBinding() {
-        usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
-            if let finish = finishRegistration, finish == true {
-                Task { @MainActor in
-                    self.coordinator.dismissNaviagtionController()                    
-                }
-            }
-        }
-    }
+//    private func configureBinding() {
+//        usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
+//            if let finish = finishRegistration, finish == true {
+//                Task { @MainActor in
+//                    self.coordinator.dismissNaviagtionController()                    
+//                }
+//            }
+//        }
+//    }
     
     // MARK: - UI SETUP
+    
+    private func setupProfileImage() {
+        view.addSubview(profileImage)
+        
+        profileImage.backgroundColor = .carrot
+        profileImage.image = UIImage(named: "default_profile_photo")
+//        profileImage.contentMode = .scaleAspectFill
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(addProfilePhoto))
+        profileImage.addGestureRecognizer(tapGesture)
+        profileImage.isUserInteractionEnabled = true
+        
+        profileImage.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            profileImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 70),
+            profileImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            profileImage.heightAnchor.constraint(equalToConstant: 120),
+            profileImage.widthAnchor.constraint(equalToConstant: 120),
+        ])
+    }
     
     private func configureContinueButton() {
         view.addSubview(continueButton)
@@ -86,15 +113,62 @@ class UsernameRegistrationViewController: UIViewController, UITextFieldDelegate 
 //            usernameTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             usernameTextField.widthAnchor.constraint(equalToConstant: 300),
             usernameTextField.heightAnchor.constraint(equalToConstant: 50),
-            usernameTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 200)
+            usernameTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 290)
             
+        ])
+    }
+    
+    private func setupNameAndPhotoLabel() {
+        view.addSubview(nameAndPhotoTextLabel)
+        
+        nameAndPhotoTextLabel.text = "Enter your name and \n add a profile photo"
+        nameAndPhotoTextLabel.textColor = #colorLiteral(red: 0.8817898337, green: 0.8124251547, blue: 0.8326097798, alpha: 1)
+        nameAndPhotoTextLabel.numberOfLines = 2
+        nameAndPhotoTextLabel.textAlignment = .center
+        nameAndPhotoTextLabel.font =  UIFont.boldSystemFont(ofSize: 19)
+       
+        nameAndPhotoTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            nameAndPhotoTextLabel.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 30),
+            nameAndPhotoTextLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
 }
 
-//MARK: - TextFieldDelegate
+//MARK: - Photo Picker setup
+extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
+    @objc func addProfilePhoto() {
+        initiatePhotoPicker()
+    }
+    private func initiatePhotoPicker() {
+        var pickerConfiguration = PHPickerConfiguration()
+        pickerConfiguration.selectionLimit = 1
+        pickerConfiguration.filter = .images
+        let pickerVC = PHPickerViewController(configuration: pickerConfiguration)
+        pickerVC.delegate = self
+        present(pickerVC, animated: true)
+    }
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        results.forEach { result in
+            result.itemProvider.loadObject(ofClass: UIImage.self) { reading, error in
+                guard let image = reading as? UIImage, error == nil else { print("Could not read image"); return }
+                
+                guard let data = image.jpegData(compressionQuality: 0.5) else {return}
+                
+                Task { @MainActor in
+                    self.profileImage.image = image
+                }
+            }
+        }
+    }
+}
 
-extension UsernameRegistrationViewController {
+//MARK: - TextFieldDelegate
+extension UsernameRegistrationViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         usernameTextField.resignFirstResponder()
     }
