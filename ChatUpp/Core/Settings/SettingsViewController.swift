@@ -79,7 +79,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
                 Task {
                     do {
                         try await self.settingsViewModel.deleteUser()
-                        self.settingsViewModel.signOut()
+                        await self.settingsViewModel.signOut()
                     } catch {
                         print("Error while deleting User!: ", error.localizedDescription)
                     }
@@ -197,7 +197,7 @@ extension SettingsViewController {
         case 1: print("item 2")
         case 2:
             handleDeletionProviderPresentation(settingsViewModel.authProvider)
-        case 3: settingsViewModel.signOut()
+        case 3: Task { await settingsViewModel.signOut() }
         default: break
         }
     }

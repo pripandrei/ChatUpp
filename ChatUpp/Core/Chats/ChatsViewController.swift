@@ -7,6 +7,8 @@
 
 import UIKit
 import SkeletonView
+import Network
+import Alamofire
 
 // MARK: - CELL IDENTIFIER
 
@@ -34,6 +36,34 @@ class ChatsViewController: UIViewController {
     
     private var lastSearchedText: String?
     private var searchTimer: Timer?
+    private var monitor = NWPathMonitor()
+    
+    let reachability = NetworkReachabilityManager()
+    
+    private func setupNetworkReachability() {
+        reachability?.startListening(onUpdatePerforming: { status in
+            self.handleNetworkChange(status: status)
+        })
+    }
+    private func handleNetworkChange(status: NetworkReachabilityManager.NetworkReachabilityStatus) {
+        switch status {
+        case .notReachable:
+            Task {
+                print("SEND!!!++++++")
+                try await chatsViewModel.updateUserOnlineStatus(false)
+            }
+            makeAllertForNetworkStatus(statusActive: false)
+            print("No Network")
+        case .reachable(.ethernetOrWiFi):
+            makeAllertForNetworkStatus(statusActive: true)
+            print("Connected via WiFi or Ethernet")
+        case .reachable(.cellular):
+            makeAllertForNetworkStatus(statusActive: true)
+            print("Connected via Cellular")
+        case .unknown:
+            print("Unknown network status")
+        }
+    }
     
     // MARK: - UI SETUP
 
@@ -45,6 +75,54 @@ class ChatsViewController: UIViewController {
         setupSearchController()
         chatsViewModel.setupChatListener()
         self.toggleSkeletonAnimation(.initiate)
+//        Task {
+            UserManager.shared.testDatabase()
+//        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+//        checkNetworkConnection()
+//        setupNetworkReachability()
+        Task {
+            try await chatsViewModel.updateUserOnlineStatus(true)
+        }
+    }
+    
+    private func checkNetworkConnection() {
+//        monitor = NWPathMonitor()
+        let queue = DispatchQueue.main
+        monitor.start(queue: queue)
+        monitor.pathUpdateHandler = { (path) in
+            if path.status == .satisfied {
+//                print("Connected")
+                Task {@MainActor in
+                    self.makeAllertForNetworkStatus(statusActive: true)
+                }
+            } else {
+//                print("Not Connected")
+                Task {@MainActor in
+                    self.makeAllertForNetworkStatus(statusActive: false)
+                }
+            }
+//            self.monitor.cancel()
+        }
+    }
+    
+    private func makeAllertForNetworkStatus(statusActive: Bool) {
+        var alert: UIAlertController?
+        if statusActive {
+            alert = UIAlertController(title: "Connected", message: "Network is on", preferredStyle: .alert)
+            let action = UIAlertAction(title: "Ok", style: .cancel)
+            alert?.addAction(action)
+        } else {
+            alert = UIAlertController(title: "Not Connected", message: "Network is off", preferredStyle: .alert)
+            let action = UIAlertAction(title: "Ok", style: .cancel)
+            alert?.addAction(action)
+        }
+        
+//        present(alertConnectionOn, animated: true)
+        present(alert!, animated: true)
     }
     
     deinit {

@@ -22,9 +22,10 @@ final class SettingsViewModel {
         }
     }
     
-    @objc func signOut() {
+    @objc func signOut() async {
         do {
             try AuthenticationManager.shared.signOut()
+            try await updateUserOnlineStatus()
             userIsSignedOut.value = true
         } catch {
             print("Error signing out", error.localizedDescription)
@@ -60,5 +61,10 @@ final class SettingsViewModel {
         try await ChatsManager.shared.replaceUserId(userID, with: deletedUserID)
         try await StorageManager.shared.deleteProfileImage(ofUser: userID, path: dbUser!.photoUrl!)
         try await UserManager.shared.deleteUserFromDB(userID: userID)
+    }
+    
+    private func updateUserOnlineStatus() async throws {
+        guard let userId = dbUser?.userId else {return}
+        try await UserManager.shared.updateUser(with: userId, usingName: nil, onlineStatus: false)
     }
 }

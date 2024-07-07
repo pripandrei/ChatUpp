@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		750F26762C38922500378BC7 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 750F26752C38922500378BC7 /* Alamofire */; };
 		753185E92C22123300C4F9F4 /* UIButton + extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753185E82C22123300C4F9F4 /* UIButton + extensions.swift */; };
 		753186132C26F8B900C4F9F4 /* UITextView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */; };
 		7533D9B82B1659210057EBC7 /* PhoneSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */; };
@@ -220,6 +221,7 @@
 				757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */,
 				757AB0E62BB9D70D00A64DA4 /* FirebaseDatabaseSwift in Frameworks */,
 				757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */,
+				750F26762C38922500378BC7 /* Alamofire in Frameworks */,
 				757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */,
 				757AB0F02BB9D70D00A64DA4 /* FirebaseFunctions in Frameworks */,
 				757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */,
@@ -631,6 +633,7 @@
 				757AB0FB2BB9D81B00A64DA4 /* GoogleSignIn */,
 				757AB0FD2BB9D81B00A64DA4 /* GoogleSignInSwift */,
 				757AB1002BB9D85100A64DA4 /* SkeletonView */,
+				750F26752C38922500378BC7 /* Alamofire */,
 			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
@@ -665,6 +668,7 @@
 				757AB0F72BB9D7DD00A64DA4 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 				757AB0FA2BB9D81B00A64DA4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				757AB0FF2BB9D85100A64DA4 /* XCRemoteSwiftPackageReference "SkeletonView" */,
+				750F26742C38922500378BC7 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
@@ -1012,6 +1016,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		750F26742C38922500378BC7 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = exactVersion;
+				version = 5.9.1;
+			};
+		};
 		757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -1047,6 +1059,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		750F26752C38922500378BC7 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 750F26742C38922500378BC7 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
 		757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

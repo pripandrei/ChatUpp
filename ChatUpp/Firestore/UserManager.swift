@@ -8,7 +8,9 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreSwift
-
+import FirebaseDatabase
+//import FirebaseDatabaseSwift
+//import FirebaseDatabaseInternal
 
 enum ResponseStatus {
     case success
@@ -29,6 +31,14 @@ final class UserManager {
     
     private func userDocument(userID: String) -> DocumentReference {
         userCollection.document(userID)
+//        presenceRef.onDisconnectSetValue(<#T##value: Any?##Any?#>)
+    }
+    
+    let presenceRef = Database.database().reference(withPath: "users")
+    // Write a string when this client loses connection
+//    presenceRef.onDisconnectSetValue("I disconnected!")
+    func testDatabase() {
+        print(presenceRef)
     }
     
     // MARK: - CREATE NEW USER
@@ -80,7 +90,8 @@ final class UserManager {
                     usingName name: String?,
                     profilePhotoURL: String? = nil,
                     phoneNumber: String? = nil,
-                    nickname: String? = nil) async throws
+                    nickname: String? = nil,
+                    onlineStatus: Bool? = nil) async throws
     {
         var userData: [String: Any] = [:]
 
@@ -95,6 +106,9 @@ final class UserManager {
         }
         if let username = nickname {
             userData[DBUser.CodingKeys.nickname.rawValue] = username
+        }
+        if let activeStatus = onlineStatus {
+            userData[DBUser.CodingKeys.isActive.rawValue] = activeStatus
         }
         try await userDocument(userID: userID).setData(userData, merge: true)
     }
