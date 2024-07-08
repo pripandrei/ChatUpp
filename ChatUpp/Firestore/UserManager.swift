@@ -27,10 +27,10 @@ final class UserManager {
     
     private init() {}
     
-    private let userCollection = Firestore.firestore().collection(FirestoreCollection.users.rawValue)
+    private let usersCollection = Firestore.firestore().collection(FirestoreCollection.users.rawValue)
     
     private func userDocument(userID: String) -> DocumentReference {
-        userCollection.document(userID)
+        usersCollection.document(userID)
 //        presenceRef.onDisconnectSetValue(<#T##value: Any?##Any?#>)
     }
     

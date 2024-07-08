@@ -83,6 +83,7 @@
 		75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */; };
 		75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */; };
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
+		75E2F2F12C3C17BE0058DC88 /* UserManagerRealtimeDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */; };
 		75F608842BEC2F560065DA83 /* ConversationTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */; };
 		75F608862BEC33400065DA83 /* EditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* EditView.swift */; };
 		75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */; };
@@ -202,6 +203,7 @@
 		75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneCodeVerificationViewController.swift; sourceTree = "<group>"; };
 		75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSignInViewController.swift; sourceTree = "<group>"; };
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
+		75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManagerRealtimeDB.swift; sourceTree = "<group>"; };
 		75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTextViewDelegate.swift; sourceTree = "<group>"; };
 		75F608852BEC33400065DA83 /* EditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditView.swift; sourceTree = "<group>"; };
 		75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
@@ -420,6 +422,7 @@
 		75B5C4B82A49AB0A00F63A5A /* ChatUpp */ = {
 			isa = PBXGroup;
 			children = (
+				75E2F2EF2C3C17620058DC88 /* Realtime Database */,
 				757033A32BC2D829002732B5 /* Protocols */,
 				75FB79022AC31AEA00C2743A /* Core */,
 				75FB78FF2AC3188C00C2743A /* Extensions */,
@@ -518,6 +521,14 @@
 				75E054272B04290100828B9D /* AlgoliaSearchManager.swift */,
 			);
 			path = AlgoliaSearch;
+			sourceTree = "<group>";
+		};
+		75E2F2EF2C3C17620058DC88 /* Realtime Database */ = {
+			isa = PBXGroup;
+			children = (
+				75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */,
+			);
+			path = "Realtime Database";
 			sourceTree = "<group>";
 		};
 		75FB78F92AC315D200C2743A /* Tabbar */ = {
@@ -757,6 +768,7 @@
 				7543BE2A2ACB0EDA003001BF /* ChatsManager.swift in Sources */,
 				75F608862BEC33400065DA83 /* EditView.swift in Sources */,
 				756525D52AB50079005DC594 /* UserManager.swift in Sources */,
+				75E2F2F12C3C17BE0058DC88 /* UserManagerRealtimeDB.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
 				7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */,

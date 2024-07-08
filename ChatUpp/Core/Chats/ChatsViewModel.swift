@@ -26,6 +26,12 @@ final class ChatsViewModel {
         }
     }
     
+    func activateOnDisconnect() {
+        Task {
+            try await UserManagerRealtimeDB.shared.setupOnDisconnect()
+        }
+    }
+    
     func setupChatListener() {
         addChatsListener()
     }

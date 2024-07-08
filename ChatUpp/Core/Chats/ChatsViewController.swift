@@ -85,6 +85,8 @@ class ChatsViewController: UIViewController {
 //        checkNetworkConnection()
 //        setupNetworkReachability()
         Task {
+            try await UserManagerRealtimeDB.shared.setupOnDisconnect()
+//            UserManagerRealtimeDB.shared.checkConnection()
             try await chatsViewModel.updateUserOnlineStatus(true)
         }
     }
