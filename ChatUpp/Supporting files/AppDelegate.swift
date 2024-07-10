@@ -13,7 +13,6 @@ import FirebaseDatabase
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-//    var monitor: NWPathMonitor?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 //        IQKeyboardManager.shared.enable = true
         FirebaseApp.configure()
@@ -37,7 +36,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func applicationWillTerminate(_ application: UIApplication) {
-        print("App Terminated")
     }
 }
 

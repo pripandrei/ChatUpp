@@ -313,6 +313,7 @@ final class InputBarContainer: UIView
 final class ConversationCustomNavigationBar {
     
     private let viewController: UIViewController!
+    var onlineStatusLabel: UILabel!
     
     init(viewController: UIViewController) {
         self.viewController = viewController
@@ -333,13 +334,22 @@ final class ConversationCustomNavigationBar {
             customTitleView.addSubview(imageView)
             
             let titleLabel           = UILabel()
-            titleLabel.frame         = CGRect(x: 0, y: 0, width: 200, height: 20)
+            titleLabel.frame         = CGRect(x: 0, y: 10, width: 200, height: 22)
             titleLabel.center        = titleLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
             titleLabel.text          = memberName
             titleLabel.textAlignment = .center
             titleLabel.textColor     = UIColor.white
             titleLabel.font          = UIFont(name:"HelveticaNeue-Bold", size: 17)
             customTitleView.addSubview(titleLabel)
+            
+            onlineStatusLabel               = UILabel()
+            onlineStatusLabel.frame         = CGRect(origin: CGPoint(x: 0, y: -9), size: CGSize(width: 200, height: 20))
+            onlineStatusLabel.center        = onlineStatusLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
+            onlineStatusLabel.text          = "2/10/2024"
+            onlineStatusLabel.textAlignment = .center
+            onlineStatusLabel.textColor     = .white
+            onlineStatusLabel.font          = UIFont(name:"HelveticaNeue", size: 13)
+            customTitleView.addSubview(onlineStatusLabel)
             
             viewController.navigationItem.titleView = customTitleView
         }

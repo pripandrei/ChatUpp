@@ -14,6 +14,7 @@ enum FirestoreCollection: String {
 }
 
 enum FirestoreField: String {
+    case id
     case members
     case name
 }

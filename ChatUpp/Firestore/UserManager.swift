@@ -152,9 +152,28 @@ final class UserManager {
         }.resume()
     }
     
+    // MARK: - Delete user form DB
+    
     func deleteUserFromDB(userID: String) async throws {
         try await userDocument(userID: userID).delete()
         print("deleteUserFromDB")
+    }
+    
+    // MARK: - Add listener to users
+    
+    func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([DBUser], [DocumentChangeType]) -> Void) {
+        usersCollection.whereField(FirestoreField.id.rawValue, arrayContainsAny: usersID).addSnapshotListener { snapshot, error in
+            guard error == nil else { print(error!.localizedDescription); return }
+            guard let documents = snapshot?.documentChanges else { print("No user to listen to"); return }
+            
+            var docType = [DocumentChangeType]()
+            
+            let users = documents.compactMap { userDocument in
+                docType.append(userDocument.type)
+                return try? userDocument.document.data(as: DBUser.self)
+            }
+            complitionHandler(users, docType)
+        }
     }
 }
 
