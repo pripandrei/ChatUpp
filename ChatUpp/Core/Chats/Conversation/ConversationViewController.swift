@@ -196,7 +196,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     /// - Navigation bar items setup
     private func setNavigationBarItems() {
-        guard let imageData = conversationViewModel.memberProfileImage else {return}
+//        guard let imageData = conversationViewModel.memberProfileImage else {return}
+        let imageData = conversationViewModel.memberProfileImage 
         let memberName = conversationViewModel.memberName
         
         customNavigationBar = ConversationCustomNavigationBar(viewController: self)

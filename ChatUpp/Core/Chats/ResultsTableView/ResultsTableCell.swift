@@ -34,14 +34,17 @@ final class ResultsTableCell: UITableViewCell {
         setupBinding()
         
         userNameLabel.text = cellViewModel.userName
+        if cellViewModel.userName == "Andrei test" {
+            print("stop")
+        }
+        if cellViewModel.userImageURL == nil {
+            self.userImage.image = UIImage(named: "default_profile_photo")
+            return
+        }
         
         if self.userImageURL != cellViewModel.userImageURL {
-            
-            //...
             self.userImage.image = nil
-            cellViewModel.fetchImageData()
-            
-            //...
+            self.cellViewModel.fetchImageData()
             self.userImageURL = cellViewModel.userImageURL
         }
     }

@@ -8,9 +8,6 @@
 import Foundation
 import FirebaseDatabase
 import FirebaseDatabaseSwift
-//import FirebaseCore
-//import FirebaseFirestore
-//import FirebaseAuth
 
 final class UserManagerRealtimeDB {
     

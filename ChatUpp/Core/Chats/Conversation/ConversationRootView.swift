@@ -319,39 +319,38 @@ final class ConversationCustomNavigationBar {
         self.viewController = viewController
     }
     
-    func setupNavigationBarItems(with imageData: Data, memberName: String) {
+    func setupNavigationBarItems(with imageData: Data?, memberName: String) {
         let customTitleView = UIView()
         
-        if let image = UIImage(data: imageData)
-        {
-            let imageView                = UIImageView(image: image)
-            imageView.contentMode        = .scaleAspectFit
-            imageView.frame              = CGRect(x: 0, y: 0, width: 40, height: 40)
-            imageView.layer.cornerRadius = 20
-            imageView.clipsToBounds      = true
-            imageView.center             = imageView.convert(CGPoint(x: ((viewController.navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0),
-                                                             from: viewController.view)
-            customTitleView.addSubview(imageView)
-            
-            let titleLabel           = UILabel()
-            titleLabel.frame         = CGRect(x: 0, y: 10, width: 200, height: 22)
-            titleLabel.center        = titleLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
-            titleLabel.text          = memberName
-            titleLabel.textAlignment = .center
-            titleLabel.textColor     = UIColor.white
-            titleLabel.font          = UIFont(name:"HelveticaNeue-Bold", size: 17)
-            customTitleView.addSubview(titleLabel)
-            
-            onlineStatusLabel               = UILabel()
-            onlineStatusLabel.frame         = CGRect(origin: CGPoint(x: 0, y: -9), size: CGSize(width: 200, height: 20))
-            onlineStatusLabel.center        = onlineStatusLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
-            onlineStatusLabel.text          = "2/10/2024"
-            onlineStatusLabel.textAlignment = .center
-            onlineStatusLabel.textColor     = .white
-            onlineStatusLabel.font          = UIFont(name:"HelveticaNeue", size: 13)
-            customTitleView.addSubview(onlineStatusLabel)
-            
-            viewController.navigationItem.titleView = customTitleView
-        }
+        guard let image = (imageData != nil) ? UIImage(data: imageData!) : UIImage(named: "default_profile_photo") else {return}
+        
+        let imageView                   = UIImageView(image: image)
+        imageView.contentMode           = .scaleAspectFit
+        imageView.frame                 = CGRect(x: 0, y: 0, width: 40, height: 40)
+        imageView.layer.cornerRadius    = 20
+        imageView.clipsToBounds         = true
+        imageView.center                = imageView.convert(CGPoint(x: ((viewController.navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0),
+                                                         from: viewController.view)
+        customTitleView.addSubview(imageView)
+        
+        let titleLabel                  = UILabel()
+        titleLabel.frame                = CGRect(x: 0, y: 10, width: 200, height: 22)
+        titleLabel.center               = titleLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
+        titleLabel.text                 = memberName
+        titleLabel.textAlignment        = .center
+        titleLabel.textColor            = UIColor.white
+        titleLabel.font                 = UIFont(name:"HelveticaNeue-Bold", size: 17)
+        customTitleView.addSubview(titleLabel)
+        
+        onlineStatusLabel               = UILabel()
+        onlineStatusLabel.frame         = CGRect(origin: CGPoint(x: 0, y: -9), size: CGSize(width: 200, height: 20))
+        onlineStatusLabel.center        = onlineStatusLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
+        onlineStatusLabel.text          = "2/10/2024"
+        onlineStatusLabel.textAlignment = .center
+        onlineStatusLabel.textColor     = .white
+        onlineStatusLabel.font          = UIFont(name:"HelveticaNeue", size: 13)
+        customTitleView.addSubview(onlineStatusLabel)
+        
+        viewController.navigationItem.titleView = customTitleView
     }
 }

@@ -161,8 +161,8 @@ final class UserManager {
     
     // MARK: - Add listener to users
     
-    func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([DBUser], [DocumentChangeType]) -> Void) {
-        usersCollection.whereField(FirestoreField.id.rawValue, arrayContainsAny: usersID).addSnapshotListener { snapshot, error in
+    func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([DBUser], [DocumentChangeType]) -> Void) -> ListenerRegistration {
+        return usersCollection.whereField(FirestoreField.id.rawValue, arrayContainsAny: usersID).addSnapshotListener { snapshot, error in
             guard error == nil else { print(error!.localizedDescription); return }
             guard let documents = snapshot?.documentChanges else { print("No user to listen to"); return }
             

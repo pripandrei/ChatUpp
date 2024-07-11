@@ -18,7 +18,7 @@ final class AlgoliaSearchManager {
     
     private init() {}
     
-    func performSearch(_ searchText: String) async -> [AlgoliaResultData] {
+    func performSearch(_ searchText: String) async -> [DBUser] {
         let text = Query(searchText)
         do {
             let settings = Settings().set(\.typoTolerance, to: false)
@@ -26,20 +26,25 @@ final class AlgoliaSearchManager {
             
             let result = try index.search(query: text)
             
-            return result.hits.compactMap { hitJson in
-                if let name = hitJson.object["name"]?.object() as? String,
-                   let profileImage = hitJson.object["photo_url"]?.object() as? String,
-                   let userID = hitJson.object["user_id"]?.object() as? String
-                {
-                    return AlgoliaResultData(userID: userID, name: name, profileImageLink: profileImage)
+            var users: [DBUser] = []
+            
+            for hitJson in result.hits {
+                if let userID = hitJson.object["user_id"]?.object() as? String {
+                    do {
+                        let user = try await UserManager.shared.getUserFromDB(userID: userID)
+                        users.append(user)
+                    } catch {
+                        print("Error fetching user for ID \(userID): \(error)")
+                    }
                 }
-                return nil
             }
+            return users
         } catch {
             print("Error while searching for index field: ", error)
+            return []
         }
-        return []
     }
+
 }
 
 struct AlgoliaResultData {

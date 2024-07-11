@@ -215,11 +215,13 @@ class ChatsViewController: UIViewController {
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    return ResultsCellViewModel(userID: user.userId, userName: userName, userImageURL: userProfilePhotoURL, chat: conversation, imageData: chatCell.memberProfileImage.value)
+//                    return ResultsCellViewModel(userID: user.userId, userName: userName, userImageURL: userProfilePhotoURL, chat: conversation, imageData: chatCell.memberProfileImage.value)
+                    return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage.value)
                 }
             }
             if userName.lowercased().hasPrefix(trimmedSearchText) {
-                return ResultsCellViewModel(userID: user.userId, userName: userName, userImageURL: userProfilePhotoURL, chat: conversation)
+//                return ResultsCellViewModel(userID: user.userId, userName: userName, userImageURL: userProfilePhotoURL, chat: conversation)
+                return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage.value)
             }
             return nil
         })
@@ -283,7 +285,8 @@ extension ChatsViewController: UISearchResultsUpdating {
             let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
             if text == lastSearchedText {
                 let filteredResults = searchResultData.compactMap { resultData in
-                    return ResultsCellViewModel(userID: resultData.userID, userName: resultData.name, userImageURL: resultData.profileImageLink)
+//                    return ResultsCellViewModel(userID: resultData.userID, userName: resultData.name, userImageURL: resultData.profileImageLink)
+                    return ResultsCellViewModel(memberUser: resultData)
                 }
                 await MainActor.run {
                     resultsTableController.userSearch = .global

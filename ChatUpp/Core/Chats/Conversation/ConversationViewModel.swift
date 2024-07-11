@@ -26,6 +26,7 @@ final class ConversationViewModel {
     private(set) var memberProfileImage: Data?
     private(set) var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: ListenerRegistration?
+    private(set) var userListener: ListenerRegistration?
     var shouldEditMessage: ((String) -> Void)?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
@@ -96,79 +97,7 @@ final class ConversationViewModel {
             }
         }
     }
-    
-    func addListenerToMessages() {
-        guard let conversation = conversation else {return}
-        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
-            guard let self = self else {return}
-            
-            if self.cellMessageGroups.isEmpty {
-                self.fetchConversationMessages()
-                return
-            }
-
-            docTypes.enumerated().forEach { index, type in
-                switch type {
-                case .added: self.handleAddedMessage(messages[index])
-                case .removed: self.handleRemovedMessage(messages[index])
-                case .modified: self.handleModifiedMessage(messages[index])
-                }
-            }
-        }
-    }
-    
-    private func handleAddedMessage(_ message: Message) {
-        if !checkIfCellMessageGroupsContainsMessage([message]) {
-            createMessageGroups([message])
-            self.onNewMessageAdded?()
-        }
-    }
-    
-    private func checkIfCellMessageGroupsContainsMessage(_ messages: [Message]) -> Bool {
-        if self.cellMessageGroups.contains(where: {$0.cellViewModels.contains(where: {$0.cellMessage.id == messages.last?.id})}) {
-            return true
-        }
-        return false
-    }
-    
-    private func handleModifiedMessage(_ message: Message) {
-        guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
-        guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
-        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
-        let oldMessage = cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage
-        var modificationType: String = ""
-        
-        cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage = message
-        
-        // animation of cell reload based on what field of message was mofidied
-        if oldMessage.messageBody != message.messageBody {
-            modificationType = "text"
-        } else if oldMessage.messageSeen != message.messageSeen {
-            modificationType = "seenStatus"
-        }
-        messageWasModified?(indexPath, modificationType)
-    }
-    
-    private func handleRemovedMessage(_ message: Message) {
-        guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
-        guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
-        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
-        
-        cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
-        
-        // if section doesn't contain any messages, remove it
-        if cellMessageGroups[messageGroupIndex].cellViewModels.isEmpty {
-            cellMessageGroups.remove(at: messageGroupIndex)
-        }
-        
-        // if last message was deleted, update last message for chat
-        if messageGroupIndex == 0 && messageIndex == 0 {
-            Task {
-                await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
-            }
-        }
-        onMessageRemoved?(indexPath)
-    }
+   
     
     private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
@@ -268,5 +197,111 @@ final class ConversationViewModel {
         Task {
             try await ChatsManager.shared.updateMessageFromDB(messageText, messageID: messageID, chatID: conversation!.id)
         }
+    }
+}
+
+//MARK: - Messages listener
+extension ConversationViewModel {
+    
+    /// - Messages listener
+    func addListenerToMessages() {
+        guard let conversation = conversation else {return}
+        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
+            guard let self = self else {return}
+            
+            if self.cellMessageGroups.isEmpty {
+                self.fetchConversationMessages()
+                return
+            }
+
+            docTypes.enumerated().forEach { index, type in
+                switch type {
+                case .added: self.handleAddedMessage(messages[index])
+                case .removed: self.handleRemovedMessage(messages[index])
+                case .modified: self.handleModifiedMessage(messages[index])
+                }
+            }
+        }
+    }
+    
+    /// - Listener helper functions
+    private func handleAddedMessage(_ message: Message) {
+        if !checkIfCellMessageGroupsContainsMessage([message]) {
+            createMessageGroups([message])
+            self.onNewMessageAdded?()
+        }
+    }
+
+    private func checkIfCellMessageGroupsContainsMessage(_ messages: [Message]) -> Bool {
+        if self.cellMessageGroups.contains(where: {$0.cellViewModels.contains(where: {$0.cellMessage.id == messages.last?.id})}) {
+            return true
+        }
+        return false
+    }
+    
+    private func handleModifiedMessage(_ message: Message) {
+        guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
+        guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
+        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
+        let oldMessage = cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage
+        var modificationType: String = ""
+        
+        cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex].cellMessage = message
+        
+        // animation of cell reload based on what field of message was mofidied
+        if oldMessage.messageBody != message.messageBody {
+            modificationType = "text"
+        } else if oldMessage.messageSeen != message.messageSeen {
+            modificationType = "seenStatus"
+        }
+        messageWasModified?(indexPath, modificationType)
+    }
+    
+    private func handleRemovedMessage(_ message: Message) {
+        guard let messageGroupIndex = cellMessageGroups.firstIndex(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) else {return}
+        guard let messageIndex = cellMessageGroups[messageGroupIndex].cellViewModels.firstIndex(where: {$0.cellMessage.id == message.id}) else {return}
+        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
+        
+        cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
+        
+        // if section doesn't contain any messages, remove it
+        if cellMessageGroups[messageGroupIndex].cellViewModels.isEmpty {
+            cellMessageGroups.remove(at: messageGroupIndex)
+        }
+        
+        // if last message was deleted, update last message for chat
+        if messageGroupIndex == 0 && messageIndex == 0 {
+            Task {
+                await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
+            }
+        }
+        onMessageRemoved?(indexPath)
+    }
+}
+
+//MARK: - Users listener
+extension ConversationViewModel {
+    
+//    var
+    
+    func addUsersListener() {
+        
+        self.userListener = UserManager.shared.addListenerToUsers([memberID]) { [weak self] users, documentsTypes in
+            
+            // since we are listening only for one user here
+            // we can just get the first user and docType
+            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
+            self?.handleModifiedUsers(user)
+            
+//            documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
+//                if docChangeType == .modified {
+//                    self?.handleModifiedUsers(users[index])
+//                }
+//            }
+        }
+    }
+    
+    private func handleModifiedUsers(_ user: DBUser) {
+        
     }
 }
