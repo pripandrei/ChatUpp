@@ -33,24 +33,24 @@ final class ResultsTableCell: UITableViewCell {
         self.cellViewModel = viewModel
         setupBinding()
         
-        userNameLabel.text = cellViewModel.userName
-        if cellViewModel.userName == "Andrei test" {
+        userNameLabel.text = cellViewModel.memberUser.name!
+        if cellViewModel.memberUser.name == "Andrei test" {
             print("stop")
         }
-        if cellViewModel.userImageURL == nil {
+        if cellViewModel.memberUser.photoUrl == nil {
             self.userImage.image = UIImage(named: "default_profile_photo")
             return
         }
         
-        if self.userImageURL != cellViewModel.userImageURL {
+        if self.userImageURL != cellViewModel.memberUser.photoUrl {
             self.userImage.image = nil
             self.cellViewModel.fetchImageData()
-            self.userImageURL = cellViewModel.userImageURL
+            self.userImageURL = cellViewModel.memberUser.photoUrl
         }
     }
     
     private func setupBinding() {
-        cellViewModel.userImageData.bind { [weak self, url = cellViewModel.userImageURL] data in
+        cellViewModel.userImageData.bind { [weak self, url = cellViewModel.memberUser.photoUrl] data in
             if let imageData = data
                 , url == self?.userImageURL
             {

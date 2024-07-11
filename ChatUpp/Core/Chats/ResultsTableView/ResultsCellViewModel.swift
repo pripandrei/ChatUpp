@@ -12,40 +12,34 @@ import Foundation
 final class ResultsCellViewModel {
     
     let chat: Chat?
-    let userName: String
-    let userID: String
-    let userImageURL: String?
+//    let userName: String
+//    let userID: String
+//    let userImageURL: String?
     var userImageData: ObservableObject<Data?> = ObservableObject(nil)
     
-    var memberUser: DBUser!
+    let memberUser: DBUser
     
-    init(userID: String, userName: String, userImageURL: String?, chat: Chat? = nil, imageData: Data? = nil) {
-        self.userName = userName
-        self.userID = userID
-        self.userImageURL = userImageURL
-        self.chat = chat
-        self.userImageData.value = imageData
-//        fetchImageData()
-    }
-    
-    convenience init(memberUser: DBUser, chat: Chat? = nil, imageData: Data? = nil) {
-        self.init(userID: memberUser.userId, userName: memberUser.name!, userImageURL: memberUser.photoUrl, chat: chat)
-        self.memberUser = memberUser
+//    init(userID: String, userName: String, userImageURL: String?, chat: Chat? = nil, imageData: Data? = nil) {
+//        self.userName = userName
+//        self.userID = userID
+//        self.userImageURL = userImageURL
 //        self.chat = chat
+//        self.userImageData.value = imageData
+////        fetchImageData()
+//    }
+    
+    init(memberUser: DBUser, chat: Chat? = nil, imageData: Data? = nil) {
+//        self.init(userID: memberUser.userId, userName: memberUser.name!, userImageURL: memberUser.photoUrl, chat: chat)
+        self.memberUser = memberUser
+        self.chat = chat
         self.userImageData.value = imageData
     }
 
     func fetchImageData() {
-        guard let imageURL = userImageURL else {return}
+        guard let imageURL = memberUser.photoUrl else {return}
         Task {
             do {
-//                if userName == "Andrei Pretty Sure " {
-//                    print("Stopr")
-//                }
-                print("dodo")
-                userImageData.value = try await StorageManager.shared.getUserImage(userID: userID, path: imageURL)
-                print("data-=====",userImageData.value)
-                
+                userImageData.value = try await StorageManager.shared.getUserImage(userID: memberUser.userId, path: imageURL)
             } catch {
                 print("Error getting user image form storage: ", error)
             }

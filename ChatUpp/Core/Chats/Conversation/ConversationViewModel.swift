@@ -21,8 +21,9 @@ final class ConversationViewModel {
     }
     
     private(set) var conversation: Chat?
-    private(set) var memberID: String
-    private(set) var memberName: String
+    private(set) var userMember: DBUser
+//    private(set) var memberID: String
+//    private(set) var memberName: String
     private(set) var memberProfileImage: Data?
     private(set) var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: ListenerRegistration?
@@ -37,17 +38,18 @@ final class ConversationViewModel {
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var onMessageRemoved: ((IndexPath) -> Void)?
     
-    init(memberID: String ,memberName: String, conversation: Chat? = nil, imageData: Data?) {
-        self.memberName = memberName
+    init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?) {
+//        self.memberName = memberName
+//        self.memberID = memberID
+        self.userMember = userMember
         self.conversation = conversation
         self.memberProfileImage = imageData
-        self.memberID = memberID
         addListenerToMessages()
     }
     
     private func createConversation() async {
         let chatId = UUID().uuidString
-        let members = [authenticatedUserID, memberID]
+        let members = [authenticatedUserID, userMember.userId]
         let chat = Chat(id: chatId, members: members, lastMessage: cellMessageGroups.first?.cellViewModels.first?.cellMessage.id)
         self.conversation = chat
         do {
@@ -286,7 +288,7 @@ extension ConversationViewModel {
     
     func addUsersListener() {
         
-        self.userListener = UserManager.shared.addListenerToUsers([memberID]) { [weak self] users, documentsTypes in
+        self.userListener = UserManager.shared.addListenerToUsers([userMember.userId]) { [weak self] users, documentsTypes in
             
             // since we are listening only for one user here
             // we can just get the first user and docType

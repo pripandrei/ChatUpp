@@ -312,7 +312,7 @@ extension ChatsViewController: UITableViewDelegate
         let chat = cellVM.chat
         let memberPhoto = cellVM.memberProfileImage.value
         
-        let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
+        let conversationViewModel = ConversationViewModel(userMember: user, conversation: chat, imageData: memberPhoto)
         conversationViewModel.updateUnreadMessagesCount = {
             try await cellVM.fetchUnreadMessagesCount()
         }

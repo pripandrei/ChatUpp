@@ -46,9 +46,9 @@
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "41"
-            endingLineNumber = "41"
-            landmarkName = "init(memberID:memberName:conversation:imageData:)"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
+            landmarkName = "init(userMember:conversation:imageData:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -62,8 +62,8 @@
             filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsTableController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "167"
-            endingLineNumber = "167"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
             landmarkName = "tableView(_:didSelectRowAt:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -119,69 +119,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "2F6B8B71-95A4-4E36-B956-CBB9475DF10E"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "47"
-            endingLineNumber = "47"
-            landmarkName = "fetchImageData()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "2F6B8B71-95A4-4E36-B956-CBB9475DF10E - f65d3862121ec3c7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ResultsCellViewModel.fetchImageData() -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "46"
-                  endingLineNumber = "46"
-                  offsetFromSymbolStart = "136">
-               </Location>
-               <Location
-                  uuid = "2F6B8B71-95A4-4E36-B956-CBB9475DF10E - 8b9682da70f99dc2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ResultsCellViewModel.fetchImageData() -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "46"
-                  endingLineNumber = "46"
-                  offsetFromSymbolStart = "144">
-               </Location>
-               <Location
-                  uuid = "2F6B8B71-95A4-4E36-B956-CBB9475DF10E - f65d3862121ec3c7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ResultsCellViewModel.fetchImageData() -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "46"
-                  endingLineNumber = "46"
-                  offsetFromSymbolStart = "224">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "243D1B58-F9EF-4524-8364-256831DD24F6"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -205,8 +142,8 @@
             filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "46"
-            endingLineNumber = "46"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
             landmarkName = "fetchImageData()"
             landmarkType = "7">
             <Locations>

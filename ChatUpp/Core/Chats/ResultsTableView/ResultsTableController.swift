@@ -160,11 +160,12 @@ extension ResultsTableController
         searchBar?.resignFirstResponder()
         
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
+            let userMember = self.filteredUsers[indexPath.item].memberUser
             let chat = self.filteredUsers[indexPath.item].chat
-            let memberID = self.filteredUsers[indexPath.item].userID
-            let memberName = self.filteredUsers[indexPath.item].userName
+//            let memberID = self.filteredUsers[indexPath.item].userID
+//            let memberName = self.filteredUsers[indexPath.item].userName
             let memberPhoto = self.filteredUsers[indexPath.item].userImageData.value
-            let conversationViewModel = ConversationViewModel(memberID: memberID, memberName: memberName, conversation: chat, imageData: memberPhoto)
+            let conversationViewModel = ConversationViewModel(userMember: userMember, conversation: chat, imageData: memberPhoto)
             
             self.coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
         }
