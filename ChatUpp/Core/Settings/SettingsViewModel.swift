@@ -25,6 +25,7 @@ final class SettingsViewModel {
     @objc func signOut() async {
         do {
             try AuthenticationManager.shared.signOut()
+            try await UserManagerRealtimeDB.shared.cancelOnDisconnect()
             try await updateUserOnlineStatus()
             userIsSignedOut.value = true
         } catch {

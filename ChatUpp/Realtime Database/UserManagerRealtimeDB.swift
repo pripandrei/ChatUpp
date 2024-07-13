@@ -16,20 +16,28 @@ final class UserManagerRealtimeDB {
     private init() {}
     
     private let usersRef = Database.database(url: "https://chatupp-e5b6c-default-rtdb.europe-west1.firebasedatabase.app").reference(withPath: "users")
-    
-    private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
+    private var onDisconnectRefListener: DatabaseReference?
+//    private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     func setupOnDisconnect() async throws
     {
-        let userData = ["is_active": false]
+        let userData: [String: Any] = [
+            "is_active": false,
+            "last_seen": Date().timeIntervalSince1970
+        ]
         do {
+            let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
 //            try await usersRef.child(authUser.uid).updateChildValues(userData)
 //            let data = try await usersRef.child(authUser.uid).getData()
 //            print("DATA:====", data)
-            try await usersRef.child(authUser.uid).onDisconnectUpdateChildValues(userData)
+            self.onDisconnectRefListener = try await usersRef.child(authUser.uid).onDisconnectUpdateChildValues(userData)
         } catch {
             print(error.localizedDescription)
         }
+    }
+    
+    func cancelOnDisconnect() async throws {
+        try await onDisconnectRefListener?.cancelDisconnectOperations()
     }
     
     let connectedRef = Database.database().reference(withPath: ".info/connected")
@@ -41,5 +49,18 @@ final class UserManagerRealtimeDB {
                 print("Not connected to Firebase")
             }
         })
+    }
+    
+    func createUser(user: DBUser) {
+        let userData: [String: Any] = [
+            "user_id": user.userId,
+            "is_active": user.isActive,
+            "last_seen": user.lastSeen!.timeIntervalSince1970
+        ]
+//        do{
+            usersRef.child(user.userId).setValue(userData)
+//        } catch {
+//            print("Error while creating user inside Realtime database: ", error.localizedDescription)
+//        }
     }
 }

@@ -17,8 +17,8 @@ struct DBUser: Codable
     let photoUrl: String?
     let phoneNumber: String?
     var nickname: String?
-    let isActive: Bool?
-    var lastSeen: Date?
+    let isActive: Bool
+    let lastSeen: Date?
         
         enum CodingKeys: String, CodingKey {
             case userId = "user_id"
@@ -39,6 +39,7 @@ struct DBUser: Codable
         self.photoUrl = auth.photoURL
         self.phoneNumber = auth.phoneNumber
         self.dateCreated = Date()
+        self.lastSeen = Date()
         self.isActive = true
     }
     
@@ -51,7 +52,7 @@ struct DBUser: Codable
         self.photoUrl = try container.decodeIfPresent(String.self, forKey: .photoUrl)
         self.phoneNumber = try container.decodeIfPresent(String.self, forKey: .phoneNumber)
         self.nickname = try container.decodeIfPresent(String.self, forKey: .nickname)
-        self.isActive = try container.decodeIfPresent(Bool.self, forKey: .isActive)
+        self.isActive = try container.decode(Bool.self, forKey: .isActive)
         self.lastSeen = try container.decodeIfPresent(Date.self, forKey: .lastSeen)
     }
     

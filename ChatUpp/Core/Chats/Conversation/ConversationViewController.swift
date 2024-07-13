@@ -102,6 +102,15 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //                self?.rootView.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
             }
         }
+        
+        /// - user online status update
+        conversationViewModel.updateUserActiveStatus = { [weak self] isOnline, lastSeenDate in
+            if isOnline {
+                self?.customNavigationBar.onlineStatusLabel.text = "Online"
+            } else {
+                self?.customNavigationBar.onlineStatusLabel.text = "last seen \(lastSeenDate.formatToYearMonthDayCustomString())"
+            }
+        }
     }
     
     //MARK: - Keyboard notification observers
@@ -199,9 +208,12 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //        guard let imageData = conversationViewModel.memberProfileImage else {return}
         let imageData = conversationViewModel.memberProfileImage 
         let memberName = conversationViewModel.userMember.name!
+        var memberActiveStatus: String
+        
+        memberActiveStatus = conversationViewModel.userMember.isActive ? "online" : conversationViewModel.userMember.lastSeen!.formatToYearMonthDayCustomString()
         
         customNavigationBar = ConversationCustomNavigationBar(viewController: self)
-        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName)
+        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName, memberActiveStatus: memberActiveStatus)
     }
     
     /// - Scroll to bottom btn functions

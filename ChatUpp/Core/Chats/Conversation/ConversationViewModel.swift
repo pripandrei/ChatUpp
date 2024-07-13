@@ -22,29 +22,27 @@ final class ConversationViewModel {
     
     private(set) var conversation: Chat?
     private(set) var userMember: DBUser
-//    private(set) var memberID: String
-//    private(set) var memberName: String
     private(set) var memberProfileImage: Data?
     private(set) var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: ListenerRegistration?
     private(set) var userListener: ListenerRegistration?
-    var shouldEditMessage: ((String) -> Void)?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
+    var shouldEditMessage: ((String) -> Void)?
     var onCellVMLoad: ((IndexPath?) -> Void)?
     var onNewMessageAdded: (() -> Void)?
     var messageWasModified: ((IndexPath, String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var onMessageRemoved: ((IndexPath) -> Void)?
+    var updateUserActiveStatus: ((Bool,Date) -> Void)?
     
     init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?) {
-//        self.memberName = memberName
-//        self.memberID = memberID
         self.userMember = userMember
         self.conversation = conversation
         self.memberProfileImage = imageData
         addListenerToMessages()
+        addUsersListener()
     }
     
     private func createConversation() async {
@@ -284,8 +282,6 @@ extension ConversationViewModel {
 //MARK: - Users listener
 extension ConversationViewModel {
     
-//    var
-    
     func addUsersListener() {
         
         self.userListener = UserManager.shared.addListenerToUsers([userMember.userId]) { [weak self] users, documentsTypes in
@@ -305,5 +301,16 @@ extension ConversationViewModel {
     
     private func handleModifiedUsers(_ user: DBUser) {
         
+        /// - check if online status changed
+        if user.isActive != userMember.isActive {
+            self.userMember = user
+            let status = userMember.isActive
+            if let date = user.lastSeen {
+                let status = userMember.isActive
+                let date = user.lastSeen
+            }
+//            self.updateUserActiveStatus?(status, date)
+            
+        }
     }
 }

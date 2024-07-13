@@ -37,10 +37,7 @@ final class UserManager {
     let presenceRef = Database.database().reference(withPath: "users")
     // Write a string when this client loses connection
 //    presenceRef.onDisconnectSetValue("I disconnected!")
-    func testDatabase() {
-        print(presenceRef)
-    }
-    
+  
     // MARK: - CREATE NEW USER
     
 //    
@@ -162,7 +159,7 @@ final class UserManager {
     // MARK: - Add listener to users
     
     func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([DBUser], [DocumentChangeType]) -> Void) -> ListenerRegistration {
-        return usersCollection.whereField(FirestoreField.id.rawValue, arrayContainsAny: usersID).addSnapshotListener { snapshot, error in
+        return usersCollection.whereField("user_id", in: usersID).addSnapshotListener { snapshot, error in
             guard error == nil else { print(error!.localizedDescription); return }
             guard let documents = snapshot?.documentChanges else { print("No user to listen to"); return }
             

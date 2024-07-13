@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
 /* eslint-disable max-len */
 /**
@@ -92,6 +93,11 @@ exports.syncRealtimeToFirestore = functions.database.ref("/users")
       if (afterData) {
         const updates = Object.keys(afterData).map(async (key) => {
           const data = afterData[key];
+
+          if (data.last_seen) {
+            data.last_seen = admin.firestore.Timestamp.fromMillis(data.last_seen * 1000);
+          }
+
           await firestore.collection("users").doc(key).update(data);
         });
         await Promise.all(updates);
@@ -109,3 +115,28 @@ exports.syncRealtimeToFirestore = functions.database.ref("/users")
 
       return null;
     });
+
+// exports.createUserInRealtimeDB = functions.firestore
+//     .document("users/{docId}")
+//     .onCreate((snap, context) => {
+//       // Get the newly created document's data
+//       const newValue = snap.data();
+
+//       // Destructure the required fields from the new document
+//       const {user_id, is_active, last_seen} = newValue;
+
+//       // Get the document ID from the context parameter
+//       const docId = context.params.docId;
+
+//       // Define the reference to the new document in the Realtime Database
+//       const ref = admin.database().ref("users/" + docId);
+
+//       const lastSeenNumber = last_seen ? last_seen.toMillis() / 1000 : null;
+
+//       // Set the new document in the Realtime Database with the specified fields
+//       return ref.set({
+//         user_id,
+//         is_active,
+//         last_seen: lastSeenNumber,
+//       });
+//     });

@@ -319,7 +319,7 @@ final class ConversationCustomNavigationBar {
         self.viewController = viewController
     }
     
-    func setupNavigationBarItems(with imageData: Data?, memberName: String) {
+    func setupNavigationBarItems(with imageData: Data?, memberName: String, memberActiveStatus: String) {
         let customTitleView = UIView()
         
         guard let image = (imageData != nil) ? UIImage(data: imageData!) : UIImage(named: "default_profile_photo") else {return}
@@ -345,7 +345,7 @@ final class ConversationCustomNavigationBar {
         onlineStatusLabel               = UILabel()
         onlineStatusLabel.frame         = CGRect(origin: CGPoint(x: 0, y: -9), size: CGSize(width: 200, height: 20))
         onlineStatusLabel.center        = onlineStatusLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
-        onlineStatusLabel.text          = "2/10/2024"
+        onlineStatusLabel.text          = memberActiveStatus
         onlineStatusLabel.textAlignment = .center
         onlineStatusLabel.textColor     = .white
         onlineStatusLabel.font          = UIFont(name:"HelveticaNeue", size: 13)
