@@ -116,6 +116,8 @@ exports.syncRealtimeToFirestore = functions.database.ref("/users")
       return null;
     });
 
+// - creates user doc inside realtime database when a doc is created inside firestore database
+
 // exports.createUserInRealtimeDB = functions.firestore
 //     .document("users/{docId}")
 //     .onCreate((snap, context) => {

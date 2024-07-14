@@ -47,6 +47,7 @@ class ChatsViewController: UIViewController {
         configureTableView()
         setupSearchController()
         chatsViewModel.setupChatListener()
+        chatsViewModel.activateOnDisconnect()
         self.toggleSkeletonAnimation(.initiate)
 //        try? AuthenticationManager.shared.signOut()
     }
@@ -54,9 +55,13 @@ class ChatsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Task {
-            try await UserManagerRealtimeDB.shared.setupOnDisconnect()
             try await chatsViewModel.updateUserOnlineStatus(true)
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
     }
 
     deinit {
@@ -80,6 +85,7 @@ class ChatsViewController: UIViewController {
     
     private func setupBinding() {
         chatsViewModel.onInitialChatsFetched = { [weak self] in
+            self?.chatsViewModel.addUsersListiner()
             Task { @MainActor in
                 self?.tableView.reloadData()
                 self?.toggleSkeletonAnimation(.terminate)

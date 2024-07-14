@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import FirebaseFirestore
 
 final class ChatsViewModel {
 
@@ -14,6 +14,7 @@ final class ChatsViewModel {
 //    private(set) var otherMembers: [DBUser] = []
 //    private(set) var recentMessages: [Message?] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
+    private var userListener: ListenerRegistration?
     
     var onInitialChatsFetched: (() -> Void)?
     var reloadCell: (() -> Void)?
@@ -34,6 +35,23 @@ final class ChatsViewModel {
     
     func setupChatListener() {
         addChatsListener()
+    }
+    
+    func addUsersListiner() {
+        let usersID = cellViewModels.compactMap { chatCellVM in
+            chatCellVM.member?.userId
+        }
+        self.userListener = UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
+            documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
+                if docChangeType == .modified {
+                    self?.handleModifiedUser(users[index])
+                }
+            }
+        }
+    }
+    
+    private func handleModifiedUser(_ user: DBUser) {
+        print("User updated!!!===")
     }
     
     // Fetch all data at once

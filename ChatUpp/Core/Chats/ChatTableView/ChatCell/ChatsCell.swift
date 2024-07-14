@@ -64,7 +64,10 @@ class ChatsCell: UITableViewCell {
     
     private func handleImageSetup()
     {
-        guard let imageData = cellViewModel.memberProfileImage.value else { return }
+        guard let imageData = cellViewModel.memberProfileImage.value else {
+            self.profileImage.image = UIImage(named: "default_profile_photo")
+            return
+        }
         setImage(imageData)
     }
     
