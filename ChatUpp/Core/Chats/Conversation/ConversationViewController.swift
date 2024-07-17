@@ -61,6 +61,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //        print( navigationItem.titleView?.subviews.first(where: {$0 is UIImageView}))
     }
     deinit {
+        conversationViewModel.cancelUsersListener()
         print("====ConversationVC Deinit")
     }
     

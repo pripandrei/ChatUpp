@@ -17,6 +17,7 @@ class ChatsCell: UITableViewCell {
     private var dateLable = UILabel()
     private var cellViewModel: ChatCellViewModel!
     private var unreadMessagesCountLabel = UILabel()
+    private var onlineStatusCircleView = UIView()
     
 //MARK: - LIFECYCLE
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -35,6 +36,7 @@ class ChatsCell: UITableViewCell {
         setProfileImage()
         setDateLable()
         setupUnreadMessagesCountLabel()
+        createOnlineStatusView()
 //        contentView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     }
 
@@ -48,6 +50,8 @@ class ChatsCell: UITableViewCell {
         self.cellViewModel = viewModel
         setupBinding()
         handleImageSetup()
+        
+        self.onlineStatusCircleView.isHidden = cellViewModel.userActiveStatus.value ? false : true
         
         unreadMessagesCountLabel.isHidden = true
         self.nameLabel.text = cellViewModel.member?.name
@@ -116,6 +120,17 @@ class ChatsCell: UITableViewCell {
                 self.animateUnreadMessageCounterOnReceive()
             }
         }
+        
+        /// - update user active status
+        cellViewModel.userActiveStatus.bind { isActive in
+            if isActive {
+                self.onlineStatusCircleView.isHidden = false
+                print("Green")
+            } else {
+                self.onlineStatusCircleView.isHidden = true
+                print("Red")
+            }
+        }
     }
     
     //MARK: - Animate new message counter
@@ -154,6 +169,26 @@ class ChatsCell: UITableViewCell {
     }
     
 //MARK: - UI SETUP
+    
+    func createOnlineStatusView() {
+        
+        contentView.addSubview(onlineStatusCircleView)
+        
+        onlineStatusCircleView.backgroundColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
+        onlineStatusCircleView.layer.cornerRadius = 12 / 2
+        onlineStatusCircleView.clipsToBounds = true
+        onlineStatusCircleView.translatesAutoresizingMaskIntoConstraints = false
+        onlineStatusCircleView.isHidden = true
+        
+        NSLayoutConstraint.activate([
+            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 12),
+            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 12),
+//            onlineStatusCircleView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+//            onlineStatusCircleView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            onlineStatusCircleView.trailingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: -3),
+            onlineStatusCircleView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -3),
+        ])
+    }
     
     func setupUnreadMessagesCountLabel() {
         contentView.addSubview(unreadMessagesCountLabel)

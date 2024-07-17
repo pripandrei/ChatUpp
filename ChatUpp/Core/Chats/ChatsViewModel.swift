@@ -14,7 +14,7 @@ final class ChatsViewModel {
 //    private(set) var otherMembers: [DBUser] = []
 //    private(set) var recentMessages: [Message?] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
-    private var userListener: ListenerRegistration?
+    private var usersListener: ListenerRegistration?
     
     var onInitialChatsFetched: (() -> Void)?
     var reloadCell: (() -> Void)?
@@ -24,6 +24,12 @@ final class ChatsViewModel {
     private func createCellViewModel(with chats: [Chat]) -> [ChatCellViewModel] {
         return chats.map { chat in
             return ChatCellViewModel(chat: chat)
+        }
+    }
+    
+    func cancelUsersListener() {
+        Task {
+            try await UserManagerRealtimeDB.shared.cancelOnDisconnect()
         }
     }
     
@@ -41,7 +47,8 @@ final class ChatsViewModel {
         let usersID = cellViewModels.compactMap { chatCellVM in
             chatCellVM.member?.userId
         }
-        self.userListener = UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
+        guard !usersID.isEmpty else {return}
+        self.usersListener = UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
             documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
                 if docChangeType == .modified {
                     self?.handleModifiedUser(users[index])
@@ -52,6 +59,21 @@ final class ChatsViewModel {
     
     private func handleModifiedUser(_ user: DBUser) {
         print("User updated!!!===")
+        
+        guard let oldCellVM = cellViewModels.first(where: {$0.member?.userId == user.userId} ) else {return}
+        
+        /// if active status changes
+        
+        if oldCellVM.member?.isActive != user.isActive {
+            oldCellVM.updateUserMember(user)
+            oldCellVM.updateUserActiveStatus(isActive: user.isActive)
+        }
+        
+        for (index, cellVM) in cellViewModels.enumerated() {
+            if cellVM.member?.userId == user.userId {
+                cellViewModels[index]
+            }
+        }
     }
     
     // Fetch all data at once

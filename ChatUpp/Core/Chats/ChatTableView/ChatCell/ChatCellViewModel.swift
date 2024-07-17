@@ -13,6 +13,7 @@ class ChatCellViewModel {
     private(set) var member: DBUser?
     var memberProfileImage: ObservableObject<Data?> = ObservableObject(nil)
     var recentMessage: ObservableObject<Message?> = ObservableObject(nil)
+    var userActiveStatus: ObservableObject<Bool> = ObservableObject(false)
     var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     var onUserModified: (() -> Void)?
@@ -24,6 +25,14 @@ class ChatCellViewModel {
         self.chat = chat
 //        ChatsManager.shared.testUpdateEditedFiled()
 //        ChatsManager.shared.updateAllMessagesFields()
+    }
+    
+    func updateUserActiveStatus(isActive: Bool) {
+        userActiveStatus.value = isActive
+    }
+    
+    func updateUserMember(_ member: DBUser) {
+        self.member = member
     }
     
     func updateUnreadMessagesCount(_ count: Int) {
@@ -38,6 +47,7 @@ class ChatCellViewModel {
         self.recentMessage.value = message
     }
     
+    /// - updated user after deletion
     func updateUser(_ modifiedUserID: String) async {
         do {
             let updatedUser = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
@@ -54,6 +64,7 @@ class ChatCellViewModel {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else { return nil }
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
         self.member = member
+        self.userActiveStatus.value = member.isActive
         return member
     }
     
@@ -80,16 +91,16 @@ class ChatCellViewModel {
         return unreadMessageCount
     }
     
-    func fetchUserData() async throws -> (DBUser?, Message?, Data?) {
-        let member = try await loadOtherMemberOfChat()
-        self.member = member
-        let recentMessage = try await loadRecentMessage()
-        self.recentMessage.value = recentMessage
-        let imageData = try await fetchImageData()
-
-        self.memberProfileImage.value = imageData
-
-        return (member,recentMessage,imageData)
-    }
+//    func fetchUserData() async throws -> (DBUser?, Message?, Data?) {
+//        let member = try await loadOtherMemberOfChat()
+//        self.member = member
+//        let recentMessage = try await loadRecentMessage()
+//        self.recentMessage.value = recentMessage
+//        let imageData = try await fetchImageData()
+//
+//        self.memberProfileImage.value = imageData
+//
+//        return (member,recentMessage,imageData)
+//    }
 }
 

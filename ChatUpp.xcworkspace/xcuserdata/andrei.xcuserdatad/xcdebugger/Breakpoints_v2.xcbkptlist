@@ -7,47 +7,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "AEA29A50-C9C9-41A8-ABE4-43DD67DFEA7F"
-            shouldBeEnabled = "Yes"
+            uuid = "31ABCB87-21AE-4E60-A957-9B6C721956E9"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "63"
-            endingLineNumber = "63"
-            landmarkName = "viewDidDisappear(_:)"
+            startingLineNumber = "54"
+            endingLineNumber = "54"
+            landmarkName = "configure(viewModel:)"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "AEA29A50-C9C9-41A8-ABE4-43DD67DFEA7F - 437d7e7847ed35a9"
+                  uuid = "31ABCB87-21AE-4E60-A957-9B6C721956E9 - bfdcb2b3947dbf63"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewController.__deallocating_deinit"
+                  symbolName = "ChatUpp.ChatsCell.configure(viewModel: ChatUpp.ChatCellViewModel) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "63"
-                  endingLineNumber = "63"
-                  offsetFromSymbolStart = "80">
+                  startingLineNumber = "54"
+                  endingLineNumber = "54"
+                  offsetFromSymbolStart = "392">
                </Location>
                <Location
-                  uuid = "AEA29A50-C9C9-41A8-ABE4-43DD67DFEA7F - 8ec6633911e7cea6"
+                  uuid = "31ABCB87-21AE-4E60-A957-9B6C721956E9 - bfdcb2b3947dbf63"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewController.viewDidDisappear(Swift.Bool) -&gt; ()"
+                  symbolName = "ChatUpp.ChatsCell.configure(viewModel: ChatUpp.ChatCellViewModel) -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "63"
-                  endingLineNumber = "63"
-                  offsetFromSymbolStart = "48">
+                  startingLineNumber = "54"
+                  endingLineNumber = "54"
+                  offsetFromSymbolStart = "504">
                </Location>
             </Locations>
          </BreakpointContent>

@@ -65,6 +65,7 @@ class ChatsViewController: UIViewController {
     }
 
     deinit {
+        chatsViewModel.cancelUsersListener()
         print("ChatsVC was DEINITED!==")
     }
     

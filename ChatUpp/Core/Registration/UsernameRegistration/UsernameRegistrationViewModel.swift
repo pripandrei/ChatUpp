@@ -48,7 +48,7 @@ final class UsernameRegistrationViewModel {
         Task {
             do {
                 // if user will not add profile photo saveProfileImageToStorage will return nil
-                // and default profile picture will be used
+                // and default profile picture, form assets, will be used
                 let profilePhotoURL = try await saveProfileImageToStorage()
                 try await UserManager.shared.updateUser(with: authUser.uid, usingName: username, profilePhotoURL: profilePhotoURL)
                 finishRegistration.value = true
