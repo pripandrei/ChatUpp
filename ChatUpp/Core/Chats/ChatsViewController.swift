@@ -22,8 +22,8 @@ class ChatsViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?
     
-    private let tableView = UITableView()
-    private var chatsViewModel = ChatsViewModel()
+    private var tableView: UITableView!
+    private var chatsViewModel: ChatsViewModel!
     private var tableViewDataSource: UITableViewDataSource!
 
     lazy private var resultsTableController = {
@@ -37,12 +37,24 @@ class ChatsViewController: UIViewController {
     private var lastSearchedText: String?
     private var searchTimer: Timer?
     
+    func cleanup() {
+        coordinatorDelegate = nil
+        tableViewDataSource = nil
+        searchController = nil
+        lastSearchedText = nil
+        searchTimer = nil
+////        chatsViewModel.cancelUsersListener()
+        chatsViewModel.chatsListiner?.remove()
+        chatsViewModel = nil
+        tableView = nil
+    }
 
     // MARK: - UI SETUP
 
     override func viewDidLoad() {
         super.viewDidLoad()
 //        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        self.chatsViewModel = ChatsViewModel()
         setupBinding()
         configureTableView()
         setupSearchController()
@@ -65,10 +77,11 @@ class ChatsViewController: UIViewController {
 
     deinit {
         print("ChatsVC was DEINITED!==")
-        chatsViewModel.cancelUsersListener()
+//        chatsViewModel.cancelUsersListener()
     }
     
     private func configureTableView() {
+        tableView = UITableView()
         tableView.register(ChatsCell.self, forCellReuseIdentifier: CellIdentifire.chatCell)
         view.addSubview(tableView)
         tableView.delegate = self

@@ -86,7 +86,10 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         return false
     }
     
-    deinit {
+    deinit { 
+        self.chatsVC?.cleanup()
+//        self.chatsNavigationController = nil
+//        self.chatsVC = nil
         print("TABBAR Deninit")
     }
 }

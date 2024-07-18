@@ -158,6 +158,7 @@ final class UserManager {
     
     // MARK: - Add listener to users
     
+    @discardableResult
     func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([DBUser], [DocumentChangeType]) -> Void) -> ListenerRegistration {
         return usersCollection.whereField("user_id", in: usersID).addSnapshotListener { snapshot, error in
             guard error == nil else { print(error!.localizedDescription); return }

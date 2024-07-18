@@ -248,7 +248,7 @@ final class ChatsManager {
     
     //MARK: - LISTENERS
     
-    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void)
+    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> ListenerRegistration
     {
         // get only the added or removed doc with diff option.
         // use compliciton to get the doc and find if the doc is in array of chats remove it, if not add it

@@ -14,7 +14,8 @@ final class ChatsViewModel {
 //    private(set) var otherMembers: [DBUser] = []
 //    private(set) var recentMessages: [Message?] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
-    private var usersListener: ListenerRegistration?
+//    private var usersListener: ListenerRegistration?
+    private(set) var chatsListiner: ListenerRegistration?
     
     var onInitialChatsFetched: (() -> Void)?
     var reloadCell: (() -> Void)?
@@ -27,11 +28,11 @@ final class ChatsViewModel {
         }
     }
     
-    func cancelUsersListener() {
-        Task {
-            try await UserManagerRealtimeDB.shared.cancelOnDisconnect()
-        }
-    }
+//    func cancelUsersListener() {
+//        Task {
+//            try await UserManagerRealtimeDB.shared.cancelOnDisconnect()
+//        }
+//    }
     
     func activateOnDisconnect() {
         Task {
@@ -49,7 +50,7 @@ final class ChatsViewModel {
         }
         guard !usersID.isEmpty else { return }
         
-        self.usersListener = UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
+        UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
             documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
                 if docChangeType == .modified {
                     self?.handleModifiedUser(users[index])
@@ -89,7 +90,7 @@ final class ChatsViewModel {
     }
     
     private func addChatsListener()  {
-        ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
+        self.chatsListiner = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
             guard let self = self else {return}
 
             if self.chats.isEmpty {
