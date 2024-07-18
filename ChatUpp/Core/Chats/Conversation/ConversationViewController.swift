@@ -62,7 +62,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     }
     deinit {
         print("dodo")
-//        conversationViewModel.cancelUsersListener()
         print("====ConversationVC Deinit")
     }
     
@@ -151,7 +150,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     private func cleanUp() {
         NotificationCenter.default.removeObserver(self)
-        conversationViewModel.cancelUsersListener()
         conversationViewModel.messageListener?.remove()
         coordinatorDelegate = nil
         conversationViewModel = nil

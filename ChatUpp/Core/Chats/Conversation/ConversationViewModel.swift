@@ -310,10 +310,4 @@ extension ConversationViewModel {
             }
         }
     }
-    
-    func cancelUsersListener() {
-        Task {
-            try await UserManagerRealtimeDB.shared.cancelOnDisconnect()
-        }
-    }
 }

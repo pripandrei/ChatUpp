@@ -47,7 +47,8 @@ final class ChatsViewModel {
         let usersID = cellViewModels.compactMap { chatCellVM in
             chatCellVM.member?.userId
         }
-        guard !usersID.isEmpty else {return}
+        guard !usersID.isEmpty else { return }
+        
         self.usersListener = UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
             documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
                 if docChangeType == .modified {
