@@ -10,31 +10,20 @@ import Foundation
 final class ChatsViewModel {
 
     private(set) var chats: [Chat] = []
-//    private(set) var otherMembers: [DBUser] = []
-//    private(set) var recentMessages: [Message?] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
-//    private var usersListener: ListenerRegistration?
-//    private(set) var chatsListiner: ListenerRegistration?
+    private(set) var usersListener: Listener?
     private(set) var chatsListener: Listener?
     
-//    private var chatsListenerIdentifire: ListenerIdentifier?
+    private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     var onInitialChatsFetched: (() -> Void)?
     var reloadCell: (() -> Void)?
-    
-    private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     private func createCellViewModel(with chats: [Chat]) -> [ChatCellViewModel] {
         return chats.map { chat in
             return ChatCellViewModel(chat: chat)
         }
     }
-    
-//    func cancelUsersListener() {
-//        Task {
-//            try await UserManagerRealtimeDB.shared.cancelOnDisconnect()
-//        }
-//    }
     
     func activateOnDisconnect() {
         Task {
@@ -52,7 +41,7 @@ final class ChatsViewModel {
         }
         guard !usersID.isEmpty else { return }
         
-        UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
+        self.usersListener = UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
             documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
                 if docChangeType == .modified {
                     self?.handleModifiedUser(users[index])
