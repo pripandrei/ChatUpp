@@ -61,7 +61,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //        print( navigationItem.titleView?.subviews.first(where: {$0 is UIImageView}))
     }
     deinit {
-        conversationViewModel.cancelUsersListener()
+        print("dodo")
+//        conversationViewModel.cancelUsersListener()
         print("====ConversationVC Deinit")
     }
     
@@ -150,6 +151,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     private func cleanUp() {
         NotificationCenter.default.removeObserver(self)
+        conversationViewModel.cancelUsersListener()
         conversationViewModel.messageListener?.remove()
         coordinatorDelegate = nil
         conversationViewModel = nil

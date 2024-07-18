@@ -306,11 +306,8 @@ extension ConversationViewModel {
             self.userMember = user
             let status = userMember.isActive
             if let date = user.lastSeen {
-                let status = userMember.isActive
-                let date = user.lastSeen
+                self.updateUserActiveStatus?(status, date)
             }
-//            self.updateUserActiveStatus?(status, date)
-            
         }
     }
     
