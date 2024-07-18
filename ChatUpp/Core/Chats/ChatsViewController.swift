@@ -61,7 +61,6 @@ class ChatsViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
     }
 
     deinit {
