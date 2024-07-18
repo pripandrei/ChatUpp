@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseFirestore
 
 final class ChatsViewModel {
 
@@ -15,7 +14,10 @@ final class ChatsViewModel {
 //    private(set) var recentMessages: [Message?] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
 //    private var usersListener: ListenerRegistration?
-    private(set) var chatsListiner: ListenerRegistration?
+//    private(set) var chatsListiner: ListenerRegistration?
+    private(set) var chatsListener: Listener?
+    
+//    private var chatsListenerIdentifire: ListenerIdentifier?
     
     var onInitialChatsFetched: (() -> Void)?
     var reloadCell: (() -> Void)?
@@ -89,8 +91,9 @@ final class ChatsViewModel {
         }
     }
     
-    private func addChatsListener()  {
-        self.chatsListiner = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
+    private func addChatsListener() {
+        
+        self.chatsListener = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
             guard let self = self else {return}
 
             if self.chats.isEmpty {

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseFirestore
 
 struct CurrentlyOpenedConversation {
     static var id: String?
@@ -24,8 +23,8 @@ final class ConversationViewModel {
     private(set) var userMember: DBUser
     private(set) var memberProfileImage: Data?
     private(set) var cellMessageGroups: [ConversationMessageGroups] = []
-    private(set) var messageListener: ListenerRegistration?
-    private(set) var userListener: ListenerRegistration?
+    private(set) var messageListener: Listener?
+    private(set) var userListener: Listener?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     

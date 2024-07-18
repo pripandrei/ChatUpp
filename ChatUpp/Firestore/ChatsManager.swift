@@ -10,6 +10,9 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 
 
+//typealias ListenerIdentifier = String
+typealias Listener = ListenerRegistration
+
 final class ChatsManager {
     
     static let shared = ChatsManager()
@@ -248,12 +251,13 @@ final class ChatsManager {
     
     //MARK: - LISTENERS
     
-    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> ListenerRegistration
+    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
     {
         // get only the added or removed doc with diff option.
         // use compliciton to get the doc and find if the doc is in array of chats remove it, if not add it
+        let listenerIdentifire = UUID().uuidString
         
-        chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
+       return chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
 
@@ -265,9 +269,10 @@ final class ChatsManager {
             }
             complition(chats,docChangeType)
         }
+//        return listenerIdentifire
     }
     
-    func addListenerToChatMessages(_ chatId: String, complition: @escaping ([Message], [DocumentChangeType]) -> Void) -> ListenerRegistration
+    func addListenerToChatMessages(_ chatId: String, complition: @escaping ([Message], [DocumentChangeType]) -> Void) -> Listener
     {
         return chatDocument(documentPath: chatId).collection(FirestoreCollection.messages.rawValue).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
