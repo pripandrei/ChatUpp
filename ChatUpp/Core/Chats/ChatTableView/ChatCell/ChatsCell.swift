@@ -44,7 +44,12 @@ class ChatsCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-//MARK: - CELL CONFIGURATION
+    
+    deinit {
+        print("chatCellVM was deinit =====")
+    }
+    
+    //MARK: - CELL CONFIGURATION
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
@@ -86,24 +91,25 @@ class ChatsCell: UITableViewCell {
 //MARK: - BINDING
     
     private func setupBinding() {
+        
+        /// - currently memberProfileImage and onUserModified are called only when member user is deleted
         cellViewModel.memberProfileImage.bind { [weak self, url = cellViewModel.member?.photoUrl] data in
             if let imageData = data {
-//                if self?.cellViewModel.userProfilePhotoURL == url {
-                    self?.setImage(imageData)
-                }
-//            }
+                self?.setImage(imageData)
+            }
         }
+        cellViewModel.onUserModified = {
+            Task{ @MainActor in
+                self.nameLabel.text = self.cellViewModel.member?.name
+            }
+        }
+        
         cellViewModel.recentMessage.bind { [weak self] message in
             if let message = message {
                 Task { @MainActor in
                     self?.messageLable.text = message.messageBody
                     self?.dateLable.text = message.timestamp.formatToHoursAndMinutes()
                 }
-            }
-        }
-        cellViewModel.onUserModified = {
-            Task{ @MainActor in
-                self.nameLabel.text = self.cellViewModel.member?.name
             }
         }
         cellViewModel.unreadMessageCount.bind { [weak self] count in

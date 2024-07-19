@@ -38,6 +38,7 @@ final class UserManagerRealtimeDB {
         do {
             let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
             self.onDisconnectRefListener = try await usersRef.child(authUser.uid).onDisconnectUpdateChildValues(userData)
+            print("authID: = = =2",authUser.uid)
         } catch {
             print(error.localizedDescription)
         }

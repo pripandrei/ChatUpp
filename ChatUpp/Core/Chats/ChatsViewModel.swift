@@ -98,7 +98,9 @@ final class ChatsViewModel {
             }
         })
     }
-    
+    deinit {
+        print("chatsViewModel deinit!!!===")
+    }
     func handleInitialChatsFetch(_ chats: [Chat]) {
         self.chats = chats
         self.cellViewModels = createCellViewModel(with: chats)

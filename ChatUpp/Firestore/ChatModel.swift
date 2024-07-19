@@ -41,6 +41,4 @@ struct Chat: Codable {
         self.members = members
         self.recentMessageID = lastMessage
     }
-    
-   
 }

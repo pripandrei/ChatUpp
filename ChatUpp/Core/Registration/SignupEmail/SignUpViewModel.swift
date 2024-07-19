@@ -47,7 +47,7 @@ final class EmailSignupViewModel: EmailValidator {
                     print("Error creating user during sign up")
                 }
             }
-            UserManagerRealtimeDB.shared.createUser(user: dbUser)
+//            UserManagerRealtimeDB.shared.createUser(user: dbUser)
             complition(.success)
         }
     }

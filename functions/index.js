@@ -118,27 +118,55 @@ exports.syncRealtimeToFirestore = functions.database.ref("/users")
 
 // - creates user doc inside realtime database when a doc is created inside firestore database
 
-// exports.createUserInRealtimeDB = functions.firestore
-//     .document("users/{docId}")
-//     .onCreate((snap, context) => {
-//       // Get the newly created document's data
-//       const newValue = snap.data();
+exports.createUserInRealtimeDB = functions.firestore
+    .document("users/{docId}")
+    .onCreate((snap, context) => {
+      // Get the newly created document's data
+      const newValue = snap.data();
 
-//       // Destructure the required fields from the new document
-//       const {user_id, is_active, last_seen} = newValue;
+      // Destructure the required fields from the new document
+      const {user_id, is_active, last_seen} = newValue;
 
-//       // Get the document ID from the context parameter
-//       const docId = context.params.docId;
+      // Get the document ID from the context parameter
+      const docId = context.params.docId;
 
-//       // Define the reference to the new document in the Realtime Database
-//       const ref = admin.database().ref("users/" + docId);
+      // Define the reference to the new document in the Realtime Database
+      const ref = admin.database().ref("users/" + docId);
 
-//       const lastSeenNumber = last_seen ? last_seen.toMillis() / 1000 : null;
+      const lastSeenNumber = last_seen ? last_seen.toMillis() / 1000 : null;
 
-//       // Set the new document in the Realtime Database with the specified fields
-//       return ref.set({
-//         user_id,
-//         is_active,
-//         last_seen: lastSeenNumber,
-//       });
-//     });
+      // Set the new document in the Realtime Database with the specified fields
+      return ref.set({
+        user_id,
+        is_active,
+        last_seen: lastSeenNumber,
+      });
+    });
+
+    // - Sync realtime db with firestore on update
+    
+    exports.syncFirestoreToRTDB = functions.firestore
+    .document('users/{docId}')  // Replace 'yourCollection' with your Firestore collection name
+    .onUpdate((change, context) => {
+        const newValue = change.after.data();
+        const previousValue = change.before.data();
+        
+        // Check if the specific fields are updated
+        const isActiveChanged = newValue.is_active !== previousValue.is_active;
+        const lastSeenChanged = newValue.last_seen !== previousValue.last_seen;
+
+        if (isActiveChanged || lastSeenChanged) {
+            const updates = {};
+            if (isActiveChanged) {
+                updates['is_active'] = newValue.is_active;
+            }
+            if (lastSeenChanged) {
+                updates['last_seen'] = newValue.last_seen.toMillis() / 1000;  // Convert Firestore timestamp to milliseconds
+            }
+            
+            // Update the corresponding entry in the Realtime Database
+            return rtdb.ref(`users/${context.params.docId}`).update(updates);
+        } else {
+            return null;
+        }
+    });
