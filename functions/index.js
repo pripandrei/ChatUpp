@@ -84,33 +84,23 @@ const rtdb = admin.database();
 //     });
 
 
-exports.syncRealtimeToFirestore = functions.database.ref("/users")
+exports.syncRealtimeToFirestore = functions.database.ref("/users/{userId}")
     .onWrite(async (change, context) => {
+      const userId = context.params.userId;
       const afterData = change.after.val(); // Data after the change
       const beforeData = change.before.val(); // Data before the change
 
-      // Handle create or update for all child nodes
       if (afterData) {
-        const updates = Object.keys(afterData).map(async (key) => {
-          const data = afterData[key];
+        if (afterData.last_seen) {
+          const nowInMillis = Date.now();
+          afterData.last_seen = admin.firestore.Timestamp.fromMillis(nowInMillis);
+        }
 
-          if (data.last_seen) {
-            data.last_seen = admin.firestore.Timestamp.fromMillis(data.last_seen * 1000);
-          }
-
-          await firestore.collection("users").doc(key).update(data);
-        });
-        await Promise.all(updates);
+        await firestore.collection("users").doc(userId).set(afterData, { merge: true });
       }
 
-      // Handle delete for all child nodes
-      if (beforeData) {
-        const deletes = Object.keys(beforeData)
-            .filter((key) => !afterData || !afterData[key])
-            .map(async (key) => {
-              await firestore.collection("users").doc(key).delete();
-            });
-        await Promise.all(deletes);
+      if (!afterData && beforeData) {
+        await firestore.collection("users").doc(userId).delete();
       }
 
       return null;
@@ -118,55 +108,116 @@ exports.syncRealtimeToFirestore = functions.database.ref("/users")
 
 // - creates user doc inside realtime database when a doc is created inside firestore database
 
-exports.createUserInRealtimeDB = functions.firestore
-    .document("users/{docId}")
-    .onCreate((snap, context) => {
-      // Get the newly created document's data
-      const newValue = snap.data();
+// exports.createUserInRealtimeDB = functions.firestore
+//     .document("users/{docId}")
+//     .onCreate((snap, context) => {
+//       // Get the newly created document's data
+//       const newValue = snap.data();
 
-      // Destructure the required fields from the new document
-      const {user_id, is_active, last_seen} = newValue;
+//       // Destructure the required fields from the new document
+//       const {user_id, is_active, last_seen} = newValue;
 
-      // Get the document ID from the context parameter
-      const docId = context.params.docId;
+//       // Get the document ID from the context parameter
+//       const docId = context.params.docId;
 
-      // Define the reference to the new document in the Realtime Database
-      const ref = admin.database().ref("users/" + docId);
+//       // Define the reference to the new document in the Realtime Database
+//       const ref = admin.database().ref("users/" + docId);
 
-      const lastSeenNumber = last_seen ? last_seen.toMillis() / 1000 : null;
+//       const lastSeenNumber = last_seen ? last_seen.toMillis() / 1000 : null;
 
-      // Set the new document in the Realtime Database with the specified fields
-      return ref.set({
-        user_id,
-        is_active,
-        last_seen: lastSeenNumber,
-      });
-    });
+//       // Set the new document in the Realtime Database with the specified fields
+//       return ref.set({
+//         user_id,
+//         is_active,
+//         last_seen: lastSeenNumber,
+//       });
+//     });
 
     // - Sync realtime db with firestore on update
     
-    exports.syncFirestoreToRTDB = functions.firestore
-    .document('users/{docId}')  // Replace 'yourCollection' with your Firestore collection name
-    .onUpdate((change, context) => {
-        const newValue = change.after.data();
-        const previousValue = change.before.data();
+    // exports.syncFirestoreToRTDB = functions.firestore
+    // .document('users/{docId}')  // Replace 'yourCollection' with your Firestore collection name
+    // .onUpdate((change, context) => {
+    //     const newValue = change.after.data();
+    //     const previousValue = change.before.data();
         
-        // Check if the specific fields are updated
-        const isActiveChanged = newValue.is_active !== previousValue.is_active;
-        const lastSeenChanged = newValue.last_seen !== previousValue.last_seen;
+    //     // Check if the specific fields are updated
+    //     const isActiveChanged = newValue.is_active !== previousValue.is_active;
+    //     const lastSeenChanged = newValue.last_seen !== previousValue.last_seen;
 
-        if (isActiveChanged || lastSeenChanged) {
-            const updates = {};
-            if (isActiveChanged) {
-                updates['is_active'] = newValue.is_active;
-            }
-            if (lastSeenChanged) {
-                updates['last_seen'] = newValue.last_seen.toMillis() / 1000;  // Convert Firestore timestamp to milliseconds
-            }
+    //     if (isActiveChanged || lastSeenChanged) {
+    //         const updates = {};
+    //         if (isActiveChanged) {
+    //             updates['is_active'] = newValue.is_active;
+    //         }
+    //         if (lastSeenChanged) {
+    //             updates['last_seen'] = newValue.last_seen.toMillis() / 1000;  // Convert Firestore timestamp to milliseconds
+    //         }
             
-            // Update the corresponding entry in the Realtime Database
-            return rtdb.ref(`users/${context.params.docId}`).update(updates);
-        } else {
-            return null;
-        }
-    });
+    //         // Update the corresponding entry in the Realtime Database
+    //         return rtdb.ref(`users/${context.params.docId}`).update(updates);
+    //     } else {
+    //         return null;
+    //     }
+    // });
+
+
+
+
+
+
+
+// // Function to sync Realtime Database to Firestore
+// exports.syncRealtimeToFirestore = functions.database.ref("/users")
+// .onWrite(async (change, context) => {
+//     const id = context.params.id;
+//     const data = change.after.val();
+
+//     if (!data || data._syncedFromFirestore) {
+//         // Ignore if this update is from Firestore sync
+//         return null;
+//     }
+
+//     if (!change.after.exists()) {
+//         // Handle delete
+//         return firestore.collection('users').doc(id).delete();
+//     }
+
+//     // Add metadata to indicate the change originated from Realtime Database
+//     data._syncedFromRealtime = true;
+//     await firestore.collection('users').doc(id).set(data, { merge: true });
+
+//     // Remove the metadata
+//     await firestore.collection('users').doc(id).update({
+//         _syncedFromRealtime: admin.firestore.FieldValue.delete()
+//     });
+
+//     return null;
+// });
+
+// exports.syncFirestoreToRealtime = functions.firestore.document('users/{docId}')
+//     .onWrite(async (change, context) => {
+//         const id = context.params.id;
+//         const data = change.after.exists ? change.after.data() : null;
+//         const docId = context.params.id
+//         if (!data || data._syncedFromRealtime) {
+//             // Ignore if this update is from Realtime Database sync
+//             return null;
+//         }
+
+//         if (!data) {
+//             // Handle delete
+//             return rtdb.ref('users/' + docId).remove();
+//         }
+
+//         // Add metadata to indicate the change originated from Firestore
+//         data._syncedFromFirestore = true;
+//         await rtdb.ref('users/' + docId).set(data);
+
+//         // Remove the metadata
+//         await rtdb.ref('users/' + docId).update({
+//             _syncedFromFirestore: null
+//         });
+
+//         return null;
+//     });
