@@ -108,30 +108,30 @@ exports.syncRealtimeToFirestore = functions.database.ref("/users/{userId}")
 
 // - creates user doc inside realtime database when a doc is created inside firestore database
 
-// exports.createUserInRealtimeDB = functions.firestore
-//     .document("users/{docId}")
-//     .onCreate((snap, context) => {
-//       // Get the newly created document's data
-//       const newValue = snap.data();
+exports.createUserInRealtimeDB = functions.firestore
+    .document("users/{docId}")
+    .onCreate((snap, context) => {
+      // Get the newly created document's data
+      const newValue = snap.data();
 
-//       // Destructure the required fields from the new document
-//       const {user_id, is_active, last_seen} = newValue;
+      // Destructure the required fields from the new document
+      const {user_id, is_active, last_seen} = newValue;
 
-//       // Get the document ID from the context parameter
-//       const docId = context.params.docId;
+      // Get the document ID from the context parameter
+      const docId = context.params.docId;
 
-//       // Define the reference to the new document in the Realtime Database
-//       const ref = admin.database().ref("users/" + docId);
+      // Define the reference to the new document in the Realtime Database
+      const ref = admin.database().ref("users/" + docId);
 
-//       const lastSeenNumber = last_seen ? last_seen.toMillis() / 1000 : null;
+      const lastSeenNumber = last_seen ? last_seen.toMillis() / 1000 : null;
 
-//       // Set the new document in the Realtime Database with the specified fields
-//       return ref.set({
-//         user_id,
-//         is_active,
-//         last_seen: lastSeenNumber,
-//       });
-//     });
+      // Set the new document in the Realtime Database with the specified fields
+      return ref.set({
+        user_id,
+        is_active,
+        last_seen: lastSeenNumber,
+      });
+    });
 
     // - Sync realtime db with firestore on update
     
