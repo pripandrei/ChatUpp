@@ -104,9 +104,9 @@ final class UserManager {
         if let username = nickname {
             userData[DBUser.CodingKeys.nickname.rawValue] = username
         }
-        if let activeStatus = onlineStatus {
-            userData[DBUser.CodingKeys.isActive.rawValue] = activeStatus
-        }
+//        if let activeStatus = onlineStatus {
+//            userData[DBUser.CodingKeys.isActive.rawValue] = activeStatus
+//        }
         try await userDocument(userID: userID).setData(userData, merge: true)
     }
     

@@ -151,9 +151,9 @@ final class ChatsViewModel {
         self.chats.removeAll(where: {$0.id == chat.id})
     }
     
-    func updateUserOnlineStatus(_ activeStatus: Bool) async throws {
-        try await UserManager.shared.updateUser(with: authUser.uid, usingName: nil, onlineStatus: activeStatus)
-    }
+//    func updateUserOnlineStatus(_ activeStatus: Bool) async throws {
+//        try await UserManager.shared.updateUser(with: authUser.uid, usingName: nil, onlineStatus: activeStatus)
+//    }
     
 //    private func loadRecentMessages(_ chats: [Chat]) async throws -> [Message?]  {
 //        try await ChatsManager.shared.getRecentMessageFromChats(chats)

@@ -7,8 +7,6 @@
 
 import UIKit
 import SkeletonView
-import Network
-import Alamofire
 
 // MARK: - CELL IDENTIFIER
 
@@ -36,19 +34,6 @@ class ChatsViewController: UIViewController {
     
     private var lastSearchedText: String?
     private var searchTimer: Timer?
-    
-    func cleanup() {
-        coordinatorDelegate = nil
-        tableViewDataSource = nil
-        searchController = nil
-        lastSearchedText = nil
-        searchTimer = nil
-////        chatsViewModel.cancelUsersListener()
-        chatsViewModel.chatsListener?.remove()
-        chatsViewModel.usersListener?.remove()
-        chatsViewModel = nil
-        tableView = nil
-    }
 
     // MARK: - UI SETUP
 
@@ -67,9 +52,7 @@ class ChatsViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Task {
-            try await chatsViewModel.updateUserOnlineStatus(true)
-        }
+        UserManagerRealtimeDB.shared.updateUserActiveStatus(isActive: true)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -187,6 +170,20 @@ class ChatsViewController: UIViewController {
             print("Error creating regular expression: \(error)")
             return input
         }
+    }
+    
+    /// - cleanup 
+    func cleanup() {
+        coordinatorDelegate = nil
+        tableViewDataSource = nil
+        searchController = nil
+        lastSearchedText = nil
+        searchTimer = nil
+////        chatsViewModel.cancelUsersListener()
+        chatsViewModel.chatsListener?.remove()
+        chatsViewModel.usersListener?.remove()
+        chatsViewModel = nil
+        tableView = nil
     }
 }
 

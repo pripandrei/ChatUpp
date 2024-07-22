@@ -24,9 +24,10 @@ final class SettingsViewModel {
     
     @objc func signOut() async {
         do {
-            try AuthenticationManager.shared.signOut()
+            UserManagerRealtimeDB.shared.updateUserActiveStatus(isActive: false)
+            //            try await updateUserOnlineStatus()
             try await UserManagerRealtimeDB.shared.cancelOnDisconnect()
-            try await updateUserOnlineStatus()
+            try AuthenticationManager.shared.signOut()
             userIsSignedOut.value = true
         } catch {
             print("Error signing out", error.localizedDescription)
@@ -64,8 +65,8 @@ final class SettingsViewModel {
         try await UserManager.shared.deleteUserFromDB(userID: userID)
     }
     
-    private func updateUserOnlineStatus() async throws {
-        guard let userId = dbUser?.userId else {return}
-        try await UserManager.shared.updateUser(with: userId, usingName: nil, onlineStatus: false)
-    }
+//    private func updateUserOnlineStatus() async throws {
+//        guard let userId = dbUser?.userId else {return}
+//        try await UserManager.shared.updateUser(with: userId, usingName: nil, onlineStatus: false)
+//    }
 }

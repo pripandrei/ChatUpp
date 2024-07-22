@@ -61,7 +61,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //        print( navigationItem.titleView?.subviews.first(where: {$0 is UIImageView}))
     }
     deinit {
-        print("dodo")
         print("====ConversationVC Deinit")
     }
     
@@ -144,7 +143,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             isKeyboardHidden = true
         }
     }
-    
     
     //MARK: - Private functions
     
