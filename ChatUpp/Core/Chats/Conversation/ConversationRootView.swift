@@ -291,7 +291,7 @@ extension ConversationRootView {
 // MARK: - Modified container for gesture trigger
 final class InputBarContainer: UIView
 {
-    // since closeImageView frame is not inside it's super view (editViewContainer)
+    // since closeImageView frame is not inside it's super view (inputBarContainer)
     // gesture recognizer attached to it will not get triggered
     // so we need to override point to return true in case it matches the location in coordinate of closeImageView
     
@@ -313,44 +313,165 @@ final class InputBarContainer: UIView
 final class ConversationCustomNavigationBar {
     
     private let viewController: UIViewController!
-    var onlineStatusLabel: UILabel!
+    var navigationItemsContainer: NavigationItemsContainer!
     
     init(viewController: UIViewController) {
         self.viewController = viewController
     }
     
     func setupNavigationBarItems(with imageData: Data?, memberName: String, memberActiveStatus: String) {
-        let customTitleView = UIView()
         
         guard let image = (imageData != nil) ? UIImage(data: imageData!) : UIImage(named: "default_profile_photo") else {return}
-        
-        let imageView                   = UIImageView(image: image)
-        imageView.contentMode           = .scaleAspectFit
-        imageView.frame                 = CGRect(x: 0, y: 0, width: 40, height: 40)
-        imageView.layer.cornerRadius    = 20
-        imageView.clipsToBounds         = true
-        imageView.center                = imageView.convert(CGPoint(x: ((viewController.navigationController?.navigationBar.frame.width)! / 2) - 40, y: 0),
-                                                         from: viewController.view)
-        customTitleView.addSubview(imageView)
-        
-        let titleLabel                  = UILabel()
-        titleLabel.frame                = CGRect(x: 0, y: 10, width: 200, height: 22)
-        titleLabel.center               = titleLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
-        titleLabel.text                 = memberName
-        titleLabel.textAlignment        = .center
-        titleLabel.textColor            = UIColor.white
-        titleLabel.font                 = UIFont(name:"HelveticaNeue-Bold", size: 17)
-        customTitleView.addSubview(titleLabel)
-        
-        onlineStatusLabel               = UILabel()
-        onlineStatusLabel.frame         = CGRect(origin: CGPoint(x: 0, y: -9), size: CGSize(width: 200, height: 20))
-        onlineStatusLabel.center        = onlineStatusLabel.convert(CGPoint(x: 0, y: 0), from: viewController.view)
-        onlineStatusLabel.text          = memberActiveStatus
-        onlineStatusLabel.textAlignment = .center
-        onlineStatusLabel.textColor     = .white
-        onlineStatusLabel.font          = UIFont(name:"HelveticaNeue", size: 13)
-        customTitleView.addSubview(onlineStatusLabel)
-        
-        viewController.navigationItem.titleView = customTitleView
+        navigationItemsContainer = NavigationItemsContainer(name: memberName, lastSeen: memberActiveStatus, image: image)
+    
+        viewController.navigationItem.titleView = navigationItemsContainer
     }
 }
+
+//MARK: - Navigation items conteiner view
+
+extension ConversationCustomNavigationBar 
+{
+    final class NavigationItemsContainer: UIView {
+        let nameLabel: UILabel
+        let lastSeenLabel: UILabel
+        let profileImage: UIImageView
+        
+        private var temporaryDimmView: UIView!
+        private var temporaryImageView: UIView!
+        
+        init(name: String, lastSeen: String, image: UIImage) {
+            nameLabel = UILabel()
+            lastSeenLabel = UILabel()
+            profileImage = UIImageView()
+            
+            super.init(frame: .zero)
+            
+            setupViews(name: name, lastSeen: lastSeen, image: image)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        private func setupViews(name: String, lastSeen: String, image: UIImage) {
+            nameLabel.text = name
+            nameLabel.textColor = .white
+            nameLabel.font = UIFont(name:"HelveticaNeue-Bold", size: 17)
+            
+            let profileImageSize = 38.0
+            lastSeenLabel.text = lastSeen
+            lastSeenLabel.font = UIFont(name:"HelveticaNeue", size: 13)
+            lastSeenLabel.textColor = .white
+            
+            profileImage.layer.cornerRadius       = profileImageSize / 2
+            profileImage.clipsToBounds            = true
+            profileImage.translatesAutoresizingMaskIntoConstraints = false
+            profileImage.isUserInteractionEnabled = true
+        
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(animateProfileImage))
+            profileImage.addGestureRecognizer(tapGesture)
+            profileImage.image = image
+            
+            let stackView = UIStackView(arrangedSubviews: [nameLabel, lastSeenLabel])
+            
+            stackView.axis = .vertical
+            stackView.alignment = .center
+//            stackView.distribution = .fillEqually
+            
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            
+            addSubview(stackView)
+            addSubview(profileImage)
+            
+            guard let windowWidth = UIApplication.shared.keyWindow?.frame.width else {return}
+            
+            NSLayoutConstraint.activate([
+                stackView.topAnchor.constraint(equalTo: topAnchor),
+                stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
+                stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
+                
+                profileImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: windowWidth / 5),
+                profileImage.widthAnchor.constraint(equalToConstant: profileImageSize),
+                profileImage.heightAnchor.constraint(equalToConstant: profileImageSize),
+                profileImage.centerYAnchor.constraint(equalTo: centerYAnchor),
+                widthAnchor.constraint(equalToConstant: 200)
+            ])
+        }
+        
+        /// profileImage is constraint to be outside of its parent bound, so gesture in this situation does not triggerd
+        /// override point(inside:,with) should solve this issue, however, it does not, for some reason
+        /// so this function is called dirrectly from point(inside:,with)
+    
+        @objc func animateProfileImage() {
+            print("tapped")
+            guard let window = window else { return }
+            temporaryDimmView = setupTemporaryDimmView(withFrame: window.frame)
+            temporaryImageView = setupTemporaryImageView()
+            
+            UIView.animate(withDuration: 0.5, animations: {
+                self.profileImage.isHidden = true
+                self.temporaryImageView.center = window.center
+                self.temporaryImageView.transform = CGAffineTransform(scaleX: 8, y: 8)
+                self.temporaryDimmView.alpha = 0.85
+            })
+        }
+        
+        private func setupTemporaryImageView() -> UIView {
+            let imageFrame = profileImage.convert(profileImage.bounds, to: window)
+            let animatedImageView = UIImageView(frame: imageFrame)
+            animatedImageView.layer.cornerRadius       = 19
+            animatedImageView.clipsToBounds            = true
+            animatedImageView.image = profileImage.image
+            animatedImageView.contentMode = .scaleAspectFill
+            window?.addSubview(animatedImageView)
+            
+            return animatedImageView
+        }
+        
+        private func setupTemporaryDimmView(withFrame frame: CGRect) -> UIView {
+            let dimmView = UIView(frame: frame)
+            dimmView.backgroundColor = .black
+            dimmView.alpha = 0
+            window?.addSubview(dimmView)
+            
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissProfileImage))
+            dimmView.addGestureRecognizer(tapGesture)
+            
+            return dimmView
+        }
+        
+        @objc func dismissProfileImage(_ sender: UITapGestureRecognizer) {
+            let imageFrame = profileImage.convert(profileImage.bounds, to: window)
+            
+            UIView.animate(withDuration: 0.5) {
+                self.temporaryDimmView.alpha = 0
+                self.temporaryImageView.transform.a = 1
+                self.temporaryImageView.transform.d = 1
+                self.temporaryImageView.frame.origin = imageFrame.origin
+            } completion: { _ in
+                self.temporaryDimmView.removeFromSuperview()
+                self.temporaryImageView.removeFromSuperview()
+                self.temporaryDimmView = nil
+                self.temporaryImageView = nil
+                self.profileImage.isHidden = false
+            }
+        }
+        override func point(inside point: CGPoint, with event: UIEvent?) -> Bool
+        {
+            if super.point(inside: point, with: event) {return true}
+            
+            for subview in subviews {
+   
+                let subviewPoint = subview.convert(point, from: self)
+                if subview.point(inside: subviewPoint, with: event) {
+                    animateProfileImage()
+                    return true
+                }
+            }
+            return false
+        }
+    }
+}
+

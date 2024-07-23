@@ -106,9 +106,9 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         /// - user online status update
         conversationViewModel.updateUserActiveStatus = { [weak self] isOnline, lastSeenDate in
             if isOnline {
-                self?.customNavigationBar.onlineStatusLabel.text = "Online"
+                self?.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "Online"
             } else {
-                self?.customNavigationBar.onlineStatusLabel.text = "last seen \(lastSeenDate.formatToYearMonthDayCustomString())"
+                self?.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "last seen \(lastSeenDate.formatToYearMonthDayCustomString())"
             }
         }
     }
