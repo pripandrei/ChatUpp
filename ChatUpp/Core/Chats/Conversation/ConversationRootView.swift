@@ -313,7 +313,7 @@ final class InputBarContainer: UIView
 final class ConversationCustomNavigationBar {
     
     private let viewController: UIViewController!
-    var navigationItemsContainer: NavigationItemsContainer!
+    var navigationItemsContainer: NavigationTitleContainer!
     
     init(viewController: UIViewController) {
         self.viewController = viewController
@@ -322,8 +322,14 @@ final class ConversationCustomNavigationBar {
     func setupNavigationBarItems(with imageData: Data?, memberName: String, memberActiveStatus: String) {
         
         guard let image = (imageData != nil) ? UIImage(data: imageData!) : UIImage(named: "default_profile_photo") else {return}
-        navigationItemsContainer = NavigationItemsContainer(name: memberName, lastSeen: memberActiveStatus, image: image)
-    
+        navigationItemsContainer = NavigationTitleContainer(name: memberName, lastSeen: memberActiveStatus, image: image)
+        
+        let imageView = NavigationProfileImageView(image: image)
+
+        let barButtonItem = UIBarButtonItem(customView: imageView)
+        
+        viewController.navigationItem.rightBarButtonItem = barButtonItem
+        
         viewController.navigationItem.titleView = navigationItemsContainer
     }
 }
@@ -332,10 +338,9 @@ final class ConversationCustomNavigationBar {
 
 extension ConversationCustomNavigationBar 
 {
-    final class NavigationItemsContainer: UIView {
+    final class NavigationTitleContainer: UIView {
         let nameLabel: UILabel
         let lastSeenLabel: UILabel
-        let profileImage: UIImageView
         
         private var temporaryDimmView: UIView!
         private var temporaryImageView: UIView!
@@ -343,36 +348,26 @@ extension ConversationCustomNavigationBar
         init(name: String, lastSeen: String, image: UIImage) {
             nameLabel = UILabel()
             lastSeenLabel = UILabel()
-            profileImage = UIImageView()
             
             super.init(frame: .zero)
             
-            setupViews(name: name, lastSeen: lastSeen, image: image)
+            setupViews(name: name, lastSeen: lastSeen)
         }
         
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
         
-        private func setupViews(name: String, lastSeen: String, image: UIImage) {
+        private func setupViews(name: String, lastSeen: String) {
             nameLabel.text = name
             nameLabel.textColor = .white
             nameLabel.font = UIFont(name:"HelveticaNeue-Bold", size: 17)
+            nameLabel.textAlignment = .center
             
-            let profileImageSize = 38.0
             lastSeenLabel.text = lastSeen
             lastSeenLabel.font = UIFont(name:"HelveticaNeue", size: 13)
             lastSeenLabel.textColor = .white
-            
-            profileImage.layer.cornerRadius       = profileImageSize / 2
-            profileImage.clipsToBounds            = true
-            profileImage.translatesAutoresizingMaskIntoConstraints = false
-            profileImage.isUserInteractionEnabled = true
-        
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(animateProfileImage))
-            profileImage.addGestureRecognizer(tapGesture)
-            profileImage.image = image
-            
+
             let stackView = UIStackView(arrangedSubviews: [nameLabel, lastSeenLabel])
             
             stackView.axis = .vertical
@@ -380,9 +375,7 @@ extension ConversationCustomNavigationBar
 //            stackView.distribution = .fillEqually
             
             stackView.translatesAutoresizingMaskIntoConstraints = false
-            
             addSubview(stackView)
-            addSubview(profileImage)
             
             guard let windowWidth = UIApplication.shared.keyWindow?.frame.width else {return}
             
@@ -391,87 +384,94 @@ extension ConversationCustomNavigationBar
                 stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
                 stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
                 stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
-                
-                profileImage.trailingAnchor.constraint(equalTo: trailingAnchor, constant: windowWidth / 5),
-                profileImage.widthAnchor.constraint(equalToConstant: profileImageSize),
-                profileImage.heightAnchor.constraint(equalToConstant: profileImageSize),
-                profileImage.centerYAnchor.constraint(equalTo: centerYAnchor),
                 widthAnchor.constraint(equalToConstant: 200)
             ])
         }
-        
-        /// profileImage is constraint to be outside of its parent bound, so gesture in this situation does not triggerd
-        /// override point(inside:,with) should solve this issue, however, it does not, for some reason
-        /// so this function is called dirrectly from point(inside:,with)
+    }
     
-        @objc func animateProfileImage() {
-            print("tapped")
-            guard let window = window else { return }
-            temporaryDimmView = setupTemporaryDimmView(withFrame: window.frame)
-            temporaryImageView = setupTemporaryImageView()
+    class NavigationProfileImageView: UIImageView {
+        
+        private var temporaryDimmView:  UIView!
+        private var temporaryImageView: UIView!
+        private var initialImageFrame:  CGRect!
+        private let profileImageSize:   CGFloat = 38.0
+        
+        override init(image: UIImage?) {
+            super.init(image: image)
+            setupSelf()
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        private func setupSelf() {
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(animateProfileImage))
+            addGestureRecognizer(tapGesture)
             
+            contentMode                               = .scaleAspectFit
+            layer.cornerRadius                        = profileImageSize / 2
+            clipsToBounds                             = true
+            translatesAutoresizingMaskIntoConstraints = false
+            
+            widthAnchor.constraint(equalToConstant: profileImageSize).isActive  = true
+            heightAnchor.constraint(equalToConstant: profileImageSize).isActive = true
+        }
+        
+        @objc func animateProfileImage() {
+            guard let window                      = window else { return }
+            temporaryDimmView                     = setupTemporaryDimmView(withFrame: window.frame)
+            temporaryImageView                    = setupTemporaryImageView()
+            
+            self.isHidden = true
             UIView.animate(withDuration: 0.5, animations: {
-                self.profileImage.isHidden = true
-                self.temporaryImageView.center = window.center
+                self.temporaryImageView.center    = window.center
                 self.temporaryImageView.transform = CGAffineTransform(scaleX: 8, y: 8)
-                self.temporaryDimmView.alpha = 0.85
+                self.temporaryDimmView.alpha      = 0.85
             })
         }
         
         private func setupTemporaryImageView() -> UIView {
-            let imageFrame = profileImage.convert(profileImage.bounds, to: window)
-            let animatedImageView = UIImageView(frame: imageFrame)
-            animatedImageView.layer.cornerRadius       = 19
-            animatedImageView.clipsToBounds            = true
-            animatedImageView.image = profileImage.image
-            animatedImageView.contentMode = .scaleAspectFill
+            initialImageFrame                    = self.convert(self.bounds, to: window)
+            
+            let animatedImageView                = UIImageView(frame: initialImageFrame)
+            animatedImageView.layer.cornerRadius = profileImageSize / 2
+            animatedImageView.clipsToBounds      = true
+            animatedImageView.image              = self.image
+            animatedImageView.contentMode        = .scaleAspectFit
             window?.addSubview(animatedImageView)
             
             return animatedImageView
         }
         
         private func setupTemporaryDimmView(withFrame frame: CGRect) -> UIView {
-            let dimmView = UIView(frame: frame)
+            let dimmView             = UIView(frame: frame)
             dimmView.backgroundColor = .black
-            dimmView.alpha = 0
+            dimmView.alpha           = 0
             window?.addSubview(dimmView)
             
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissProfileImage))
+            let tapGesture           = UITapGestureRecognizer(target: self, action: #selector(dismissProfileImage))
             dimmView.addGestureRecognizer(tapGesture)
             
             return dimmView
         }
         
         @objc func dismissProfileImage(_ sender: UITapGestureRecognizer) {
-            let imageFrame = profileImage.convert(profileImage.bounds, to: window)
-            
             UIView.animate(withDuration: 0.5) {
-                self.temporaryDimmView.alpha = 0
+                self.temporaryDimmView.alpha        = 0
                 self.temporaryImageView.transform.a = 1
                 self.temporaryImageView.transform.d = 1
-                self.temporaryImageView.frame.origin = imageFrame.origin
+                self.temporaryImageView.frame       = self.initialImageFrame
             } completion: { _ in
                 self.temporaryDimmView.removeFromSuperview()
                 self.temporaryImageView.removeFromSuperview()
-                self.temporaryDimmView = nil
+                self.temporaryDimmView  = nil
                 self.temporaryImageView = nil
-                self.profileImage.isHidden = false
+                self.isHidden           = false
             }
-        }
-        override func point(inside point: CGPoint, with event: UIEvent?) -> Bool
-        {
-            if super.point(inside: point, with: event) {return true}
-            
-            for subview in subviews {
-   
-                let subviewPoint = subview.convert(point, from: self)
-                if subview.point(inside: subviewPoint, with: event) {
-                    animateProfileImage()
-                    return true
-                }
-            }
-            return false
         }
     }
 }
+
+
 
