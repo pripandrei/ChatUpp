@@ -328,6 +328,11 @@ final class ConversationCustomNavigationBar {
 
         let barButtonItem = UIBarButtonItem(customView: imageView)
         
+//        imageView.topAnchor.constraint(equalTo: barButtonItem.customView!.topAnchor).isActive = true
+//        imageView.bottomAnchor.constraint(equalTo: barButtonItem.customView!.bottomAnchor).isActive = true
+//        imageView.trailingAnchor.constraint(equalTo: barButtonItem.customView!.trailingAnchor).isActive = true
+//        imageView.leadingAnchor.constraint(equalTo: barButtonItem.customView!.leadingAnchor).isActive = true
+        
         viewController.navigationItem.rightBarButtonItem = barButtonItem
         
         viewController.navigationItem.titleView = navigationItemsContainer
@@ -394,7 +399,7 @@ extension ConversationCustomNavigationBar
         private var temporaryDimmView:  UIView!
         private var temporaryImageView: UIView!
         private var initialImageFrame:  CGRect!
-        private let profileImageSize:   CGFloat = 38.0
+        private let profileImageSize:   CGFloat = 38
         
         override init(image: UIImage?) {
             super.init(image: image)
@@ -408,8 +413,8 @@ extension ConversationCustomNavigationBar
         private func setupSelf() {
             let tapGesture = UITapGestureRecognizer(target: self, action: #selector(animateProfileImage))
             addGestureRecognizer(tapGesture)
-            
-            contentMode                               = .scaleAspectFit
+
+            contentMode                               = .scaleToFill
             layer.cornerRadius                        = profileImageSize / 2
             clipsToBounds                             = true
             translatesAutoresizingMaskIntoConstraints = false
@@ -435,10 +440,10 @@ extension ConversationCustomNavigationBar
             initialImageFrame                    = self.convert(self.bounds, to: window)
             
             let animatedImageView                = UIImageView(frame: initialImageFrame)
-            animatedImageView.layer.cornerRadius = profileImageSize / 2
-            animatedImageView.clipsToBounds      = true
             animatedImageView.image              = self.image
-            animatedImageView.contentMode        = .scaleAspectFit
+            animatedImageView.layer.cornerRadius = profileImageSize / 2
+            animatedImageView.contentMode        = .scaleToFill
+            animatedImageView.clipsToBounds      = true
             window?.addSubview(animatedImageView)
             
             return animatedImageView
