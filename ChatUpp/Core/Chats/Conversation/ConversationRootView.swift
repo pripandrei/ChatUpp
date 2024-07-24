@@ -325,16 +325,9 @@ final class ConversationCustomNavigationBar {
         navigationItemsContainer = NavigationTitleContainer(name: memberName, lastSeen: memberActiveStatus, image: image)
         
         let imageView = NavigationProfileImageView(image: image)
-
         let barButtonItem = UIBarButtonItem(customView: imageView)
         
-//        imageView.topAnchor.constraint(equalTo: barButtonItem.customView!.topAnchor).isActive = true
-//        imageView.bottomAnchor.constraint(equalTo: barButtonItem.customView!.bottomAnchor).isActive = true
-//        imageView.trailingAnchor.constraint(equalTo: barButtonItem.customView!.trailingAnchor).isActive = true
-//        imageView.leadingAnchor.constraint(equalTo: barButtonItem.customView!.leadingAnchor).isActive = true
-        
         viewController.navigationItem.rightBarButtonItem = barButtonItem
-        
         viewController.navigationItem.titleView = navigationItemsContainer
     }
 }
@@ -381,8 +374,6 @@ extension ConversationCustomNavigationBar
             
             stackView.translatesAutoresizingMaskIntoConstraints = false
             addSubview(stackView)
-            
-            guard let windowWidth = UIApplication.shared.keyWindow?.frame.width else {return}
             
             NSLayoutConstraint.activate([
                 stackView.topAnchor.constraint(equalTo: topAnchor),
@@ -432,7 +423,7 @@ extension ConversationCustomNavigationBar
             UIView.animate(withDuration: 0.5, animations: {
                 self.temporaryImageView.center    = window.center
                 self.temporaryImageView.transform = CGAffineTransform(scaleX: 8, y: 8)
-                self.temporaryDimmView.alpha      = 0.85
+                self.temporaryDimmView.alpha      = 1
             })
         }
         
@@ -451,9 +442,14 @@ extension ConversationCustomNavigationBar
         
         private func setupTemporaryDimmView(withFrame frame: CGRect) -> UIView {
             let dimmView             = UIView(frame: frame)
-            dimmView.backgroundColor = .black
+//            dimmView.backgroundColor = .black
             dimmView.alpha           = 0
             window?.addSubview(dimmView)
+            
+            let blurEffect = UIBlurEffect(style: .systemThickMaterialDark)
+            let blurEffectView = UIVisualEffectView(effect: blurEffect)
+            blurEffectView.frame = dimmView.bounds
+            dimmView.addSubview(blurEffectView)
             
             let tapGesture           = UITapGestureRecognizer(target: self, action: #selector(dismissProfileImage))
             dimmView.addGestureRecognizer(tapGesture)

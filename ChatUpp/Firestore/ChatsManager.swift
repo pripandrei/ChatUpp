@@ -84,10 +84,7 @@ final class ChatsManager {
             }
     }
     
-
-
-    // Assuming you've already configured Firebase in your project
-
+    /// For testing purposes only
     func updateAllMessagesFields() {
         
         // Query the "Chats" collection
