@@ -537,13 +537,13 @@ extension ConversationViewController: UITableViewDelegate
         guard let cell = tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
         let tapLocationInCell = cell.contentView.convert(point, from: tableView)
         
-        if cell.messageContainer.frame.contains(tapLocationInCell) {
+        if cell.messageLabel.frame.contains(tapLocationInCell) {
             let identifire = indexPath as NSCopying
             
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
                 let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
                     let pastBoard = UIPasteboard.general
-                    pastBoard.string = cell.messageContainer.text
+                    pastBoard.string = cell.messageLabel.text
                 }
                 
                 /// display edit/delete actions only on messages that authenticated user sent
@@ -558,7 +558,7 @@ extension ConversationViewController: UITableViewDelegate
                         }
                         self.addGestureToCloseBtn()
                         self.rootView.messageTextView.becomeFirstResponder()
-                        self.rootView.messageTextView.text = cell.messageContainer.text
+                        self.rootView.messageTextView.text = cell.messageLabel.text
                         self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
                         
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
@@ -601,7 +601,7 @@ extension ConversationViewController: UITableViewDelegate
         let parameter = UIPreviewParameters()
         parameter.backgroundColor = .clear
         
-        let preview = UITargetedPreview(view: cell.messageContainer, parameters: parameter)
+        let preview = UITargetedPreview(view: cell.messageLabel, parameters: parameter)
         return preview
     }
 }
