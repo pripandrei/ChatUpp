@@ -34,6 +34,7 @@ final class ConversationTableViewCell: UITableViewCell {
     var mainCellContainer = UIView()
     var messageBubbleContainer = UIView()
     var messageLabel = YYLabel()
+    var replyMessage = UILabel()
     private var timeStamp = YYLabel()
     var seenStatusMark = YYLabel()
     private var messageImage: UIImage?
@@ -72,7 +73,8 @@ final class ConversationTableViewCell: UITableViewCell {
 //        setupContentViewConstraints()
         setupBackgroundSelectionView()
         setupMainCellContainer()
-        setupReplyMessageContainer()
+        setupMessageBubbleContainer()
+        setupReplyMessage()
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
@@ -220,7 +222,7 @@ final class ConversationTableViewCell: UITableViewCell {
     }
     
     private func setupMessageTextLabel() {
-        messageBubbleContainer.addSubview(messageLabel)
+//        messageBubbleContainer.addSubview(messageLabel)
 
         //TODO: - review implementing a main container for message,timestamp,seenstatus
         
@@ -236,7 +238,7 @@ final class ConversationTableViewCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
 //            widthConstraint,
-            messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor),
+            messageLabel.topAnchor.constraint(equalTo: replyMessage.bottomAnchor),
             messageLabel.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor, constant: -cellSpacing),
             messageLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor),
             messageLabel.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor),
@@ -371,11 +373,13 @@ extension ConversationTableViewCell {
     }
 }
 
-
 extension ConversationTableViewCell {
     
-    func setupReplyMessageContainer() {
+    private func setupMessageBubbleContainer() {
         mainCellContainer.addSubview(messageBubbleContainer)
+        
+        messageBubbleContainer.addSubview(replyMessage)
+        messageBubbleContainer.addSubview(messageLabel)
         
         messageBubbleContainer.backgroundColor = .brown
         messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -383,5 +387,18 @@ extension ConversationTableViewCell {
         messageBubbleContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor).isActive = true
         messageBubbleContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor).isActive = true
 //        replayMessageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
+    }
+    
+    private func setupReplyMessage() {
+//        messageBubbleContainer.addSubview(replyMessage)
+        
+        replyMessage.text = "This is a test reply message"
+        replyMessage.font = UIFont(name: "HelveticaNeue", size: 16)
+        replyMessage.backgroundColor = .peterRiver
+        replyMessage.translatesAutoresizingMaskIntoConstraints = false
+        
+        replyMessage.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor, constant: 10).isActive = true
+        replyMessage.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor, constant: -10).isActive = true
+        replyMessage.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
     }
 }
