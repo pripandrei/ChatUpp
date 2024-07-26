@@ -34,7 +34,7 @@ final class ConversationTableViewCell: UITableViewCell {
     var mainCellContainer = UIView()
     var messageBubbleContainer = UIView()
     var messageLabel = YYLabel()
-    var replyMessage = UILabel()
+    var replyMessage = ReplyMessage()
     private var timeStamp = YYLabel()
     var seenStatusMark = YYLabel()
     private var messageImage: UIImage?
@@ -223,10 +223,8 @@ final class ConversationTableViewCell: UITableViewCell {
     
     private func setupMessageTextLabel() {
 //        messageBubbleContainer.addSubview(messageLabel)
-
-        //TODO: - review implementing a main container for message,timestamp,seenstatus
         
-        messageLabel.backgroundColor = .blue
+//        messageLabel.backgroundColor = .blue
         messageLabel.numberOfLines = 0
         messageLabel.preferredMaxLayoutWidth = maxMessageWidth
         messageLabel.contentMode = .redraw
@@ -239,10 +237,10 @@ final class ConversationTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
 //            widthConstraint,
             messageLabel.topAnchor.constraint(equalTo: replyMessage.bottomAnchor),
-            messageLabel.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor, constant: -cellSpacing),
+            messageLabel.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor),
             messageLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor),
             messageLabel.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor),
-//            messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth)
+//            messageLabel.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth)
         ])
     }
     
@@ -318,13 +316,13 @@ extension ConversationTableViewCell
             messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor, constant: -10)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
-            messageLabel.backgroundColor = #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
+            messageBubbleContainer.backgroundColor = #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
         case .left:
             messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 10)
             messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(lessThanOrEqualTo: mainCellContainer.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
-            messageLabel.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
+            messageBubbleContainer.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
         }
     }
     // MARK: - MESSAGE BUBBLE PADDING
@@ -381,24 +379,68 @@ extension ConversationTableViewCell {
         messageBubbleContainer.addSubview(replyMessage)
         messageBubbleContainer.addSubview(messageLabel)
         
-        messageBubbleContainer.backgroundColor = .brown
+//        messageBubbleContainer.backgroundColor = .brown
+        messageBubbleContainer.layer.cornerRadius = 15
         messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
         
         messageBubbleContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor).isActive = true
-        messageBubbleContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor).isActive = true
-//        replayMessageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
+        messageBubbleContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor, constant: -cellSpacing).isActive = true
+        messageBubbleContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
     }
     
     private func setupReplyMessage() {
 //        messageBubbleContainer.addSubview(replyMessage)
+//        let testLabel = ReplyMessage()
         
-        replyMessage.text = "This is a test reply message"
-        replyMessage.font = UIFont(name: "HelveticaNeue", size: 16)
+        let testName = "John Melburn"
+        replyMessage.text = "\(testName) \nThis is a test reply message This is a test reply message This is a test reply message"
+        replyMessage.font = UIFont(name: "HelveticaNeue", size: 13)
+        replyMessage.numberOfLines = 2
+//        replyMessage.textContainerInset = UIEdgeInsets(top: 4, left: 5, bottom: 4, right: 5)
+        replyMessage.layer.cornerRadius = 4
+        replyMessage.clipsToBounds = true
         replyMessage.backgroundColor = .peterRiver
         replyMessage.translatesAutoresizingMaskIntoConstraints = false
+//        replyMessage.contentMode = .redraw
         
         replyMessage.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor, constant: 10).isActive = true
         replyMessage.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor, constant: -10).isActive = true
         replyMessage.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
+        
+//        replyMessage.setNeedsDisplay()
+//        replyMessage.setNeedsLayout()
+        
+//        replyMessage.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor, constant: 10).isActive = true
+    }
+    
+    
+    /// Customized reply message to simplify left side indentation color fill and text inset
+    class ReplyMessage: UILabel {
+        
+        private let textInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 8)
+        
+        override var intrinsicContentSize: CGSize {
+            get {
+                var contentSize = super.intrinsicContentSize
+                contentSize.height += textInset.top + textInset.bottom
+                contentSize.width += textInset.left + textInset.right
+                return contentSize
+            }
+        }
+        
+        override func drawText(in rect: CGRect) {
+            super.drawText(in: rect.inset(by: textInset))
+        }
+
+        override func draw(_ rect: CGRect) {
+            super.draw(rect)
+            self.fillColor(with: .cyan, width: 5)
+        }
+        
+        private func fillColor(with color: UIColor, width: CGFloat) {
+            let topRect = CGRect(x:0, y:0, width : width, height: self.bounds.height);
+            color.setFill()
+            UIRectFill(topRect)
+        }
     }
 }

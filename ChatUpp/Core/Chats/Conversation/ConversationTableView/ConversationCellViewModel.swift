@@ -11,7 +11,8 @@ final class ConversationCellViewModel {
     
     var cellMessage: Message
     var imageData: ObservableObject<Data?> = ObservableObject(nil)
-
+//    var messageSenderName: String!
+    
     init(cellMessage: Message) {
         self.cellMessage = cellMessage
     }

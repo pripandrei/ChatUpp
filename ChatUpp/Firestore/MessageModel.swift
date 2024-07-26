@@ -16,11 +16,11 @@ struct Message: Codable {
     let id: String
     let messageBody: String
     let senderId: String
-    let imagePath: String?
     let timestamp: Date
     let messageSeen: Bool
-    let receivedBy: String?
     let isEdited: Bool
+    let receivedBy: String?
+    let imagePath: String?
     
     var imageSize: MessageImageSize?
     
