@@ -60,8 +60,6 @@ final class ConversationTableViewCell: UITableViewCell {
         ])
     }
     
-  
-    
     //MARK: - LIFECYCLE
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -70,7 +68,6 @@ final class ConversationTableViewCell: UITableViewCell {
         transform = CGAffineTransform(scaleX: 1, y: -1)
         
         backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-//        setupContentViewConstraints()
         setupBackgroundSelectionView()
         setupMainCellContainer()
         setupMessageBubbleContainer()
@@ -78,7 +75,6 @@ final class ConversationTableViewCell: UITableViewCell {
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
-//        setupEditedLabel()
 //        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
     }
     
@@ -112,7 +108,6 @@ final class ConversationTableViewCell: UITableViewCell {
         messageImage = nil
         seenStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
-//        editedLabel = nil
         editedLabel?.text = nil
         adjustMessagePadding(.initialSpacing)
         
@@ -222,9 +217,6 @@ final class ConversationTableViewCell: UITableViewCell {
     }
     
     private func setupMessageTextLabel() {
-//        messageBubbleContainer.addSubview(messageLabel)
-        
-//        messageLabel.backgroundColor = .blue
         messageLabel.numberOfLines = 0
         messageLabel.preferredMaxLayoutWidth = maxMessageWidth
         messageLabel.contentMode = .redraw
@@ -232,28 +224,14 @@ final class ConversationTableViewCell: UITableViewCell {
         messageLabel.clipsToBounds = true
         
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
-//        widthConstraint = messageContainer.widthAnchor.constraint(equalToConstant: maxMessageWidth)
 
         NSLayoutConstraint.activate([
-//            widthConstraint,
             messageLabel.topAnchor.constraint(equalTo: replyMessage.bottomAnchor),
             messageLabel.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor),
             messageLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor),
             messageLabel.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor),
-//            messageLabel.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth)
         ])
     }
-    
-//    private func setupContentViewConstraints() {
-//        contentView.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        NSLayoutConstraint.activate([
-//           contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-//           contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-//           contentView.topAnchor.constraint(equalTo: topAnchor),
-//           contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-//        ])
-//    }
 }
 
 // MARK: - MESSAGE BUBBLE LAYOUT HANDLER
@@ -305,9 +283,7 @@ extension ConversationTableViewCell
     func adjustMessageSide(_ side: BubbleMessageSide) {
         if messageContainerLeadingConstraint != nil { messageContainerLeadingConstraint.isActive = false }
         if messageContainerTrailingConstraint != nil { messageContainerTrailingConstraint.isActive = false }
-        if side == .left {
-            print("Side: ",side)
-        }
+
         switch side {
         case .right:
             configureMessageSeenStatus()
@@ -379,7 +355,6 @@ extension ConversationTableViewCell {
         messageBubbleContainer.addSubview(replyMessage)
         messageBubbleContainer.addSubview(messageLabel)
         
-//        messageBubbleContainer.backgroundColor = .brown
         messageBubbleContainer.layer.cornerRadius = 15
         messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
         
@@ -389,28 +364,19 @@ extension ConversationTableViewCell {
     }
     
     private func setupReplyMessage() {
-//        messageBubbleContainer.addSubview(replyMessage)
-//        let testLabel = ReplyMessage()
         
         let testName = "John Melburn"
         replyMessage.text = "\(testName) \nThis is a test reply message This is a test reply message This is a test reply message"
         replyMessage.font = UIFont(name: "HelveticaNeue", size: 13)
         replyMessage.numberOfLines = 2
-//        replyMessage.textContainerInset = UIEdgeInsets(top: 4, left: 5, bottom: 4, right: 5)
         replyMessage.layer.cornerRadius = 4
         replyMessage.clipsToBounds = true
         replyMessage.backgroundColor = .peterRiver
         replyMessage.translatesAutoresizingMaskIntoConstraints = false
-//        replyMessage.contentMode = .redraw
         
         replyMessage.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor, constant: 10).isActive = true
         replyMessage.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor, constant: -10).isActive = true
         replyMessage.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
-        
-//        replyMessage.setNeedsDisplay()
-//        replyMessage.setNeedsLayout()
-        
-//        replyMessage.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor, constant: 10).isActive = true
     }
     
     
