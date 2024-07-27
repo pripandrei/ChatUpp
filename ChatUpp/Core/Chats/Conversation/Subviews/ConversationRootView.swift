@@ -12,7 +12,7 @@ final class ConversationRootView: UIView {
     
     // MARK: - UI Elements
     
-    private(set) var editView                : EditView?
+    private(set) var inputBarHeader          : InputBarHeaderView?
     private(set) var inputBarBottomConstraint: NSLayoutConstraint!
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
 
@@ -173,15 +173,15 @@ final class ConversationRootView: UIView {
 
 // MARK: - SETUP EDIT VIEW
 extension ConversationRootView {
-    private func setupEditView() {
-        editView = EditView()
+    private func setupInputBarHeaderView(mode: InputBarHeaderView.Mode) {
+        inputBarHeader = InputBarHeaderView(mode: mode)
         
         setupEditViewConstraints()
-        editView!.setupSubviews()
+        inputBarHeader!.setupSubviews()
     }
     
-    func activateEditView() {
-        setupEditView()
+    func activateInputBarHeaderView(mode: InputBarHeaderView.Mode) {
+        setupInputBarHeaderView(mode: mode)
         
         updateTableViewContentOffset(isEditViewRemoved: false)
         sendEditMessageButton.isHidden = false
@@ -191,9 +191,9 @@ extension ConversationRootView {
     }
     
     func destroyEditedView() {
-        editView?.removeSubviews()
-        editView?.removeFromSuperview()
-        editView = nil
+        inputBarHeader?.removeSubviews()
+        inputBarHeader?.removeFromSuperview()
+        inputBarHeader = nil
     }
 }
 
@@ -217,13 +217,13 @@ extension ConversationRootView {
     }
     
     private func setupEditViewConstraints() {
-        inputBarContainer.addSubview(editView!)
-        inputBarContainer.sendSubviewToBack(editView!)
+        inputBarContainer.addSubview(inputBarHeader!)
+        inputBarContainer.sendSubviewToBack(inputBarHeader!)
         
-        editView!.translatesAutoresizingMaskIntoConstraints                              = false
-        editView!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive         = true
-        editView!.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive       = true
-        editView!.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor).isActive = true
+        inputBarHeader!.translatesAutoresizingMaskIntoConstraints                              = false
+        inputBarHeader!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive         = true
+        inputBarHeader!.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive       = true
+        inputBarHeader!.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor).isActive = true
     }
     
     private func setupAddPictureButtonConstrains() {

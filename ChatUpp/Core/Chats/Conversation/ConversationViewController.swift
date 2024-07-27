@@ -167,7 +167,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func animateEditViewDestruction() {
-        guard let editView = rootView.editView else {return}
+        guard let editView = rootView.inputBarHeader else {return}
 
         self.rootView.messageTextView.text.removeAll()
         UIView.animate(withDuration: 0.2) {
@@ -424,7 +424,7 @@ extension ConversationViewController {
         // so we check if maximum allowed number of line is reached (containerView origin.y will be 584)
         let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
         let keyboardHeight = rootView.inputBarContainer.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
-        let editViewHeight = rootView.editView?.bounds.height != nil ? rootView.editView!.bounds.height : 0
+        let editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
@@ -474,7 +474,7 @@ extension ConversationViewController {
     }
     private func addGestureToCloseBtn() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeEditView))
-        rootView.editView?.closeEditView?.addGestureRecognizer(tapGesture)
+        rootView.inputBarHeader?.closeEditView?.addGestureRecognizer(tapGesture)
    }
     
     @objc func resignKeyboard() {
@@ -541,6 +541,30 @@ extension ConversationViewController: UITableViewDelegate
             let identifire = indexPath as NSCopying
             
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
+                
+                let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
+                    DispatchQueue.main.async {
+                        if self.rootView.inputBarHeader == nil {
+                            self.rootView.activateInputBarHeaderView(mode: .reply)
+                        }
+//                        else {
+//                            self.rootView.editView = SelectedMessageActionView(mode: .reply)
+//                        }
+                        self.addGestureToCloseBtn()
+                        self.rootView.messageTextView.becomeFirstResponder()
+                        self.rootView.inputBarHeader?.setEditMessageText(cell.messageLabel.text)
+
+//                        if cell.cellViewModel.cellMessage.id == authMemberId {
+//                            return member?.name
+//                        } else {
+//                            return dbuser.name
+//                        }
+                        
+                        self.rootView.inputBarHeader?.updateTitleLabel(usingText: "name here to return above logic")
+                        
+                        self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
+                    }
+                }
             
                 let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
                     let pastBoard = UIPasteboard.general
@@ -554,13 +578,13 @@ extension ConversationViewController: UITableViewDelegate
 
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble"), attributes: attributesForEditAction) { action in
                     DispatchQueue.main.async {
-                        if self.rootView.editView == nil {
-                            self.rootView.activateEditView()
+                        if self.rootView.inputBarHeader == nil {
+                            self.rootView.activateInputBarHeaderView(mode: .edit)
                         }
                         self.addGestureToCloseBtn()
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageLabel.text
-                        self.rootView.editView?.setEditMessageText(cell.messageLabel.text)
+                        self.rootView.inputBarHeader?.setEditMessageText(cell.messageLabel.text)
                         self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
                         
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
@@ -573,7 +597,7 @@ extension ConversationViewController: UITableViewDelegate
                         self?.conversationViewModel.deleteMessageFromDB(messageID: cell.cellViewModel.cellMessage.id)
                     }
                 }
-                return UIMenu(title: "", children: [ editAction, copyAction, deleteAction])
+                return UIMenu(title: "", children: [replyAction, editAction, copyAction, deleteAction])
             })
         }
         return nil

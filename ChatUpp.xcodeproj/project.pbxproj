@@ -85,7 +85,7 @@
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
 		75E2F2F12C3C17BE0058DC88 /* UserManagerRealtimeDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */; };
 		75F608842BEC2F560065DA83 /* ConversationTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */; };
-		75F608862BEC33400065DA83 /* EditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* EditView.swift */; };
+		75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* InputBarHeaderView.swift */; };
 		75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */; };
 		75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F12AC3106700C2743A /* LoginViewModel.swift */; };
 		75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */; };
@@ -205,7 +205,7 @@
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
 		75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManagerRealtimeDB.swift; sourceTree = "<group>"; };
 		75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTextViewDelegate.swift; sourceTree = "<group>"; };
-		75F608852BEC33400065DA83 /* EditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditView.swift; sourceTree = "<group>"; };
+		75F608852BEC33400065DA83 /* InputBarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarHeaderView.swift; sourceTree = "<group>"; };
 		75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
 		75FB78F12AC3106700C2743A /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewModel.swift; sourceTree = "<group>"; };
@@ -245,6 +245,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		75007AF02C5564CF006B1D6E /* Subviews */ = {
+			isa = PBXGroup;
+			children = (
+				75B48B562AF6837700A5FBFC /* ConversationRootView.swift */,
+				75F608852BEC33400065DA83 /* InputBarHeaderView.swift */,
+			);
+			path = Subviews;
+			sourceTree = "<group>";
+		};
 		7533D9B92B167E7F0057EBC7 /* PhoneSignin */ = {
 			isa = PBXGroup;
 			children = (
@@ -269,8 +278,7 @@
 			children = (
 				7543BE322ACC87CA003001BF /* ConversationViewController.swift */,
 				7543BE342ACC87E1003001BF /* ConversationViewModel.swift */,
-				75B48B562AF6837700A5FBFC /* ConversationRootView.swift */,
-				75F608852BEC33400065DA83 /* EditView.swift */,
+				75007AF02C5564CF006B1D6E /* Subviews */,
 				75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */,
 				7563F87D2ADE2C1A006FA374 /* ConversationTableView */,
 			);
@@ -766,7 +774,7 @@
 				7563F8802ADF6E31006FA374 /* FirestoreCollectionName.swift in Sources */,
 				755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */,
 				7543BE2A2ACB0EDA003001BF /* ChatsManager.swift in Sources */,
-				75F608862BEC33400065DA83 /* EditView.swift in Sources */,
+				75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */,
 				756525D52AB50079005DC594 /* UserManager.swift in Sources */,
 				75E2F2F12C3C17BE0058DC88 /* UserManagerRealtimeDB.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
