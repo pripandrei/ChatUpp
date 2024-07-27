@@ -23,7 +23,6 @@ final class EditView: UIView {
         editeViewHeightConstraint?.isActive = true
     }
     
-    
     // MARK: - Setup subviews
     
     func setupSubviews() {
@@ -35,6 +34,10 @@ final class EditView: UIView {
         setupSeparator()
         setupEditePenIcon()
         setupCloseButton()
+    }
+    
+    func setEditMessageText(_ text: String?) {
+        editMessageText?.text = text
     }
     
     private func setupEditLabel() {
@@ -51,7 +54,6 @@ final class EditView: UIView {
     }
     private func setupEditMessage() {
         editMessageText                                            = UILabel()
-        editMessageText?.text                                      = "Test Message here for testing purposes only test test"
         editMessageText?.textColor                                 = .white
         editMessageText?.font                                      = UIFont(name: "Helvetica", size: 13.5)
         editMessageText?.lineBreakMode                             = .byTruncatingTail

@@ -541,6 +541,7 @@ extension ConversationViewController: UITableViewDelegate
             let identifire = indexPath as NSCopying
             
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
+            
                 let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
                     let pastBoard = UIPasteboard.general
                     pastBoard.string = cell.messageLabel.text
@@ -559,6 +560,7 @@ extension ConversationViewController: UITableViewDelegate
                         self.addGestureToCloseBtn()
                         self.rootView.messageTextView.becomeFirstResponder()
                         self.rootView.messageTextView.text = cell.messageLabel.text
+                        self.rootView.editView?.setEditMessageText(cell.messageLabel.text)
                         self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
                         
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
@@ -571,7 +573,7 @@ extension ConversationViewController: UITableViewDelegate
                         self?.conversationViewModel.deleteMessageFromDB(messageID: cell.cellViewModel.cellMessage.id)
                     }
                 }
-                return UIMenu(title: "", children: [editAction, copyAction, deleteAction])
+                return UIMenu(title: "", children: [ editAction, copyAction, deleteAction])
             })
         }
         return nil
