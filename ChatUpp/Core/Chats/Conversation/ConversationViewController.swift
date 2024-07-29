@@ -166,7 +166,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         view.layoutIfNeeded()
     }
 
-    private func animateEditViewDestruction() {
+    private func animateInputBarHeaderViewDestruction() {
         guard let editView = rootView.inputBarHeader else {return}
 
         self.rootView.messageTextView.text.removeAll()
@@ -176,7 +176,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 view.layer.opacity = 0.0
             })
             self.rootView.sendEditMessageButton.layer.opacity = 0.0
-            self.rootView.updateTableViewContentOffset(isEditViewRemoved: true)
+            self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
             DispatchQueue.main.async {
 //                self.rootView.textViewDidChange(self.rootView.messageTextView)
                 self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
@@ -185,7 +185,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             self.rootView.layoutIfNeeded()
         } completion: { complition in
             if complition {
-                self.rootView.destroyEditedView()
+                self.rootView.destroyinputBarHeaderView()
                 self.rootView.sendEditMessageButton.isHidden = true
                 self.rootView.sendEditMessageButton.layer.opacity = 1.0
             }
@@ -397,7 +397,7 @@ extension ConversationViewController {
         conversationViewModel.shouldEditMessage?(editedMessage)
         rootView.sendEditMessageButton.isHidden = true
         rootView.messageTextView.text.removeAll()
-        animateEditViewDestruction()
+        animateInputBarHeaderViewDestruction()
     }
     
     @objc func sendMessageBtnWasTapped() {
@@ -473,8 +473,8 @@ extension ConversationViewController {
         rootView.tableView.addGestureRecognizer(tap)
     }
     private func addGestureToCloseBtn() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeEditView))
-        rootView.inputBarHeader?.closeEditView?.addGestureRecognizer(tapGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeInputBarHeaderView))
+        rootView.inputBarHeader?.closeInputBarHeaderView?.addGestureRecognizer(tapGesture)
    }
     
     @objc func resignKeyboard() {
@@ -482,8 +482,8 @@ extension ConversationViewController {
             rootView.messageTextView.resignFirstResponder()
         }
     }
-    @objc func closeEditView() {
-        animateEditViewDestruction()
+    @objc func closeInputBarHeaderView() {
+        animateInputBarHeaderViewDestruction()
     }
 }
 
@@ -542,27 +542,13 @@ extension ConversationViewController: UITableViewDelegate
             
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
                 
+                let selectedCellMessageText = cell.messageLabel.text
+                
                 let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
                     DispatchQueue.main.async {
-                        if self.rootView.inputBarHeader == nil {
-                            self.rootView.activateInputBarHeaderView(mode: .reply)
-                        }
-//                        else {
-//                            self.rootView.editView = SelectedMessageActionView(mode: .reply)
-//                        }
-                        self.addGestureToCloseBtn()
-                        self.rootView.messageTextView.becomeFirstResponder()
-                        self.rootView.inputBarHeader?.setEditMessageText(cell.messageLabel.text)
-
-//                        if cell.cellViewModel.cellMessage.id == authMemberId {
-//                            return member?.name
-//                        } else {
-//                            return dbuser.name
-//                        }
-                        
-                        self.rootView.inputBarHeader?.updateTitleLabel(usingText: "name here to return above logic")
-                        
-                        self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
+                        self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
+                        let messageSenderName = self.conversationViewModel.getMessageSenderName(usingSenderID: cell.cellViewModel.cellMessage.senderId)
+                        self.rootView.inputBarHeader?.updateTitleLabel(usingText: messageSenderName)
                     }
                 }
             
@@ -578,15 +564,8 @@ extension ConversationViewController: UITableViewDelegate
 
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble"), attributes: attributesForEditAction) { action in
                     DispatchQueue.main.async {
-                        if self.rootView.inputBarHeader == nil {
-                            self.rootView.activateInputBarHeaderView(mode: .edit)
-                        }
-                        self.addGestureToCloseBtn()
-                        self.rootView.messageTextView.becomeFirstResponder()
+                        self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
                         self.rootView.messageTextView.text = cell.messageLabel.text
-                        self.rootView.inputBarHeader?.setEditMessageText(cell.messageLabel.text)
-                        self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
-                        
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
                             self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
                         }
@@ -602,7 +581,7 @@ extension ConversationViewController: UITableViewDelegate
         }
         return nil
     }
-
+    
     func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         return makeConversationMessagePreview(for: configuration)
     }
@@ -629,6 +608,14 @@ extension ConversationViewController: UITableViewDelegate
         
         let preview = UITargetedPreview(view: cell.messageLabel, parameters: parameter)
         return preview
+    }
+    
+    private func handleContextMenuSelectedAction(actionOption: InputBarHeaderView.Mode, selectedMessageText text: String?) {
+        self.rootView.activateInputBarHeaderView(mode: actionOption)
+        self.addGestureToCloseBtn()
+        self.rootView.messageTextView.becomeFirstResponder()
+        self.rootView.inputBarHeader?.setInputBarHeaderMessageText(text)
+        self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
     }
 }
 

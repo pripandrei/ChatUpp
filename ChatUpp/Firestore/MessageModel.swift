@@ -21,6 +21,7 @@ struct Message: Codable {
     let isEdited: Bool
     let receivedBy: String?
     let imagePath: String?
+    let repliedTo: String?
     
     var imageSize: MessageImageSize?
     
@@ -34,6 +35,7 @@ struct Message: Codable {
         case receivedBy = "received_by"
         case imageSize = "image_size"
         case isEdited = "is_edited"
+        case repliedTo = "replied_to"
     }
     
     init(from decoder: Decoder) throws {
@@ -44,9 +46,10 @@ struct Message: Codable {
         self.imagePath = try container.decodeIfPresent(String.self, forKey: .imagePath)
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
         self.messageSeen = try container.decode(Bool.self, forKey: .messageSeen)
-        self.receivedBy = try container.decodeIfPresent(String.self, forKey: .receivedBy)
-        self.imageSize = try container.decodeIfPresent(MessageImageSize.self, forKey: .imageSize)
         self.isEdited = try container.decode(Bool.self, forKey: .isEdited)
+        self.imageSize = try container.decodeIfPresent(MessageImageSize.self, forKey: .imageSize)
+        self.receivedBy = try container.decodeIfPresent(String.self, forKey: .receivedBy)
+        self.repliedTo = try container.decodeIfPresent(String.self, forKey: .repliedTo)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -57,20 +60,22 @@ struct Message: Codable {
         try container.encodeIfPresent(self.imagePath, forKey: .imagePath)
         try container.encode(self.timestamp, forKey: .timestamp)
         try container.encode(self.messageSeen, forKey: .messageSeen)
+        try container.encode(self.isEdited, forKey: .isEdited)
         try container.encodeIfPresent(self.receivedBy, forKey: .receivedBy)
         try container.encodeIfPresent(self.imageSize, forKey: .imageSize)
-        try container.encode(self.isEdited, forKey: .isEdited)
+        try container.encodeIfPresent(self.repliedTo, forKey: .repliedTo)
     }
     
     init(id: String,
          messageBody: String,
          senderId: String,
-         imagePath: String?,
          timestamp: Date,
          messageSeen: Bool,
+         isEdited: Bool,
+         imagePath: String?,
          receivedBy: String?,
          imageSize: MessageImageSize?,
-         isEdited: Bool
+         repliedTo: String?
     )
     {
         self.id = id
@@ -82,10 +87,11 @@ struct Message: Codable {
         self.receivedBy = receivedBy
         self.imageSize = imageSize
         self.isEdited = isEdited
+        self.repliedTo = repliedTo
     }
     
     func updateMessageSeenStatus() -> Message {
-        return Message(id: self.id, messageBody: self.messageBody, senderId: self.senderId, imagePath: self.imagePath, timestamp: self.timestamp, messageSeen: !self.messageSeen, receivedBy: self.receivedBy, imageSize: self.imageSize, isEdited: self.isEdited)
+        return Message(id: self.id, messageBody: self.messageBody, senderId: self.senderId, timestamp: self.timestamp, messageSeen: !self.messageSeen, isEdited: self.isEdited, imagePath: self.imagePath, receivedBy: self.receivedBy, imageSize: self.imageSize, repliedTo: self.repliedTo)
     }
 }
 

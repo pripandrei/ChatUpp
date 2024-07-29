@@ -20,11 +20,11 @@ final class InputBarHeaderView: UIView {
     var editeViewHeightConstraint: NSLayoutConstraint?
     private var mode: Mode?
     
-    private(set) var closeEditView     : UIImageView?
-    private var titleLabel             : UILabel?
-    private var messageText            : UILabel?
-    private var separatorLabel         : UILabel?
-    private var symbolIcon             : UIImageView?
+    private(set) var closeInputBarHeaderView : UIImageView?
+    private var titleLabel                   : UILabel?
+    private var messageText                  : UILabel?
+    private var separatorLabel               : UILabel?
+    private var symbolIcon                   : UIImageView?
     
     convenience init(mode: Mode) {
         self.init()
@@ -49,7 +49,7 @@ final class InputBarHeaderView: UIView {
         setupCloseButton()
     }
     
-    func setEditMessageText(_ text: String?) {
+    func setInputBarHeaderMessageText(_ text: String?) {
         messageText?.text = text
     }
     
@@ -110,17 +110,17 @@ final class InputBarHeaderView: UIView {
     }
     
     private func setupCloseButton() {
-        closeEditView                                            = UIImageView()
-        closeEditView?.tintColor                                 = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-        closeEditView?.image                                     = UIImage(systemName: "xmark")
-        closeEditView?.isUserInteractionEnabled                  = true
-        closeEditView?.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(closeEditView!)
+        closeInputBarHeaderView                                            = UIImageView()
+        closeInputBarHeaderView?.tintColor                                 = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        closeInputBarHeaderView?.image                                     = UIImage(systemName: "xmark")
+        closeInputBarHeaderView?.isUserInteractionEnabled                  = true
+        closeInputBarHeaderView?.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(closeInputBarHeaderView!)
         
-        closeEditView?.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -23).isActive = true
-        closeEditView?.topAnchor.constraint(equalTo: self.topAnchor, constant: 14).isActive            = true
-        closeEditView?.heightAnchor.constraint(equalToConstant: 23).isActive                           = true
-        closeEditView?.widthAnchor.constraint(equalToConstant: 20).isActive                            = true
+        closeInputBarHeaderView?.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -23).isActive = true
+        closeInputBarHeaderView?.topAnchor.constraint(equalTo: self.topAnchor, constant: 14).isActive            = true
+        closeInputBarHeaderView?.heightAnchor.constraint(equalToConstant: 23).isActive                           = true
+        closeInputBarHeaderView?.widthAnchor.constraint(equalToConstant: 20).isActive                            = true
     }
     
     func removeSubviews() {
@@ -131,6 +131,6 @@ final class InputBarHeaderView: UIView {
         messageText = nil
         separatorLabel  = nil
         symbolIcon     = nil
-        closeEditView   = nil
+        closeInputBarHeaderView   = nil
     }
 }

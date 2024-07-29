@@ -160,9 +160,9 @@ final class ConversationRootView: UIView {
     
     // MARK: - Internal functions
     
-    func updateTableViewContentOffset(isEditViewRemoved: Bool) {
+    func updateTableViewContentOffset(isInputBarHeaderRemoved: Bool) {
         //because tableview is inverted we should perform operations vice versa
-        let height = isEditViewRemoved ? 45.0 : -45.0
+        let height = isInputBarHeaderRemoved ? 45.0 : -45.0
         tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
     }
     
@@ -174,23 +174,24 @@ final class ConversationRootView: UIView {
 // MARK: - SETUP EDIT VIEW
 extension ConversationRootView {
     private func setupInputBarHeaderView(mode: InputBarHeaderView.Mode) {
+        destroyinputBarHeaderView()
         inputBarHeader = InputBarHeaderView(mode: mode)
         
-        setupEditViewConstraints()
+        setupInputBarHeaderConstraints()
         inputBarHeader!.setupSubviews()
     }
     
     func activateInputBarHeaderView(mode: InputBarHeaderView.Mode) {
+        if inputBarHeader == nil {
+            updateTableViewContentOffset(isInputBarHeaderRemoved: false)
+        }
+        scrollToBottomBtnBottomConstraint.constant -= inputBarHeader == nil ? 45 : 0
+        sendEditMessageButton.isHidden = !(mode == .edit)
         setupInputBarHeaderView(mode: mode)
-        
-        updateTableViewContentOffset(isEditViewRemoved: false)
-        sendEditMessageButton.isHidden = false
-        scrollToBottomBtnBottomConstraint.constant -= 45
-        
         self.layoutIfNeeded()
     }
     
-    func destroyEditedView() {
+    func destroyinputBarHeaderView() {
         inputBarHeader?.removeSubviews()
         inputBarHeader?.removeFromSuperview()
         inputBarHeader = nil
@@ -216,7 +217,7 @@ extension ConversationRootView {
         ])
     }
     
-    private func setupEditViewConstraints() {
+    private func setupInputBarHeaderConstraints() {
         inputBarContainer.addSubview(inputBarHeader!)
         inputBarContainer.sendSubviewToBack(inputBarHeader!)
         

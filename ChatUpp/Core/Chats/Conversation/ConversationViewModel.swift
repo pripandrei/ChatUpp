@@ -66,20 +66,20 @@ final class ConversationViewModel {
     }
     
     private func createMessageGroups(_ messages: [Message]) {
-        var tempMessageGroup: [ConversationMessageGroups] = cellMessageGroups
+        var tempMessageGroups: [ConversationMessageGroups] = cellMessageGroups
         messages.forEach { message in
             let conversationCellVM = ConversationCellViewModel(cellMessage: message)
 
             guard let date = message.timestamp.formatToYearMonthDay() else {return}
 
-            if let index = tempMessageGroup.firstIndex(where: {$0.date == date})  {
-                tempMessageGroup[index].cellViewModels.insert(conversationCellVM, at: 0)
+            if let index = tempMessageGroups.firstIndex(where: {$0.date == date})  {
+                tempMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
             } else {
                 let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
-                tempMessageGroup.insert(newGroup, at: 0)
+                tempMessageGroups.insert(newGroup, at: 0)
             }
         }
-        self.cellMessageGroups = tempMessageGroup
+        self.cellMessageGroups = tempMessageGroups
     }
     
     private func fetchConversationMessages() {
@@ -104,12 +104,13 @@ final class ConversationViewModel {
         return Message(id: messageID,
                        messageBody: messageBody,
                        senderId: authenticatedUserID,
-                       imagePath: nil,
                        timestamp: Date(),
                        messageSeen: false,
+                       isEdited: false,
+                       imagePath: nil,
                        receivedBy: nil,
                        imageSize: nil,
-                       isEdited: false)
+                       repliedTo: "")
     }
     
     private func addMessageToDB(_ message: Message) async  {
@@ -307,6 +308,15 @@ extension ConversationViewModel {
             if let date = user.lastSeen {
                 self.updateUserActiveStatus?(status, date)
             }
+        }
+    }
+    
+    func getMessageSenderName(usingSenderID id: String) -> String? {
+        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else {return nil}
+        if id == user.uid {
+            return user.name
+        } else {
+            return userMember.name
         }
     }
 }
