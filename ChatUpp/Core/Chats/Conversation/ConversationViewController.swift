@@ -167,29 +167,37 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func animateInputBarHeaderViewDestruction() {
-        guard let editView = rootView.inputBarHeader else {return}
+        guard let inputBarHeaderView = rootView.inputBarHeader else {return}
 
-        self.rootView.messageTextView.text.removeAll()
         UIView.animate(withDuration: 0.2) {
-            editView.editeViewHeightConstraint?.constant = 0
-            editView.subviews.forEach({ view in
-                view.layer.opacity = 0.0
-            })
-            self.rootView.sendEditMessageButton.layer.opacity = 0.0
-            self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
-            DispatchQueue.main.async {
-//                self.rootView.textViewDidChange(self.rootView.messageTextView)
-                self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
-            }
-            self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
-            self.rootView.layoutIfNeeded()
+            self.startInputBarHeaderViewDestruction(inputBarHeaderView)
         } completion: { complition in
             if complition {
-                self.rootView.destroyinputBarHeaderView()
-                self.rootView.sendEditMessageButton.isHidden = true
-                self.rootView.sendEditMessageButton.layer.opacity = 1.0
+                self.endInputBarHeaderViewDestruction()
             }
         }
+    }
+    
+    private func startInputBarHeaderViewDestruction(_ inputBarHeaderView: InputBarHeaderView) {
+        self.rootView.messageTextView.text.removeAll()
+        inputBarHeaderView.editeViewHeightConstraint?.constant = 0
+        inputBarHeaderView.subviews.forEach({ view in
+            view.layer.opacity = 0.0
+        })
+        self.rootView.sendEditMessageButton.layer.opacity = 0.0
+        self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
+        
+        DispatchQueue.main.async {
+            self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
+        }
+        self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
+        self.rootView.layoutIfNeeded()
+    }
+    
+    private func endInputBarHeaderViewDestruction() {
+        self.rootView.destroyinputBarHeaderView()
+        self.rootView.sendEditMessageButton.isHidden = true
+        self.rootView.sendEditMessageButton.layer.opacity = 1.0
     }
 
     /// - Photo picker setup

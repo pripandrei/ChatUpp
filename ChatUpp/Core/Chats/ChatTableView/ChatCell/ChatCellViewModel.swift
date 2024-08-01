@@ -91,7 +91,7 @@ class ChatCellViewModel {
         return unreadMessageCount
     }
     deinit {
-        print("chatCellViewModel deinit !!!")
+//        print("chatCellViewModel deinit !!!")
     }
 //    func fetchUserData() async throws -> (DBUser?, Message?, Data?) {
 //        let member = try await loadOtherMemberOfChat()
