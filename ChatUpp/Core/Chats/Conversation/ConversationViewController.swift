@@ -185,7 +185,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             view.layer.opacity = 0.0
         })
         self.rootView.sendEditMessageButton.layer.opacity = 0.0
-        self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
+//        self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
         
         DispatchQueue.main.async {
             self.rootViewTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
@@ -410,6 +410,8 @@ extension ConversationViewController {
         animateInputBarHeaderViewDestruction()
     }
     
+    // ============ ============ ============ ============
+    
     @objc func sendMessageBtnWasTapped() {
         let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedString.isEmpty {
@@ -417,7 +419,7 @@ extension ConversationViewController {
  
             rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
             handleMessageBubbleCreation(messageText: trimmedString)
-            closeInputBarHeaderView()
+            if rootView.inputBarHeader != nil { closeInputBarHeaderView() }
         }
     }
 
