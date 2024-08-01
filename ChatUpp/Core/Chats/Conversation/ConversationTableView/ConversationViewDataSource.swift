@@ -32,23 +32,15 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
         let cellSide = message.senderId == authUserID ?
         ConversationTableViewCell.BubbleMessageSide.right : ConversationTableViewCell.BubbleMessageSide.left
         
+        
         /// set sender name and text of message messageToBeReplied if any
         if let repliedToMessageID = message.repliedTo {
-            if let messageToBeReplied = conversationViewModel.getRepliedToMessage(messageID: repliedToMessageID) {
-                let senderNameOfMessageToBeReplied = conversationViewModel.getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
-                (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
-            }
+            conversationViewModel.setReplyMessageData(fromReplyMessageID: repliedToMessageID, toViewModel: viewModel)
         }
-        
-//        let messageToBeReplied: Message? = (message.repliedTo != nil) ? conversationViewModel.getRepliedToMessage(messageID: message.repliedTo!) : nil
-//        let senderNameOfMessageToBeReplied = conversationViewModel.getMessageSenderName(usingSenderID: messageToBeReplied?.senderId)
-//        
-//        viewModel.messageToBeReplied = messageToBeReplied
         cell.configureCell(usingViewModel: viewModel, forSide: cellSide)
         
         return cell
     }
-    
 }
 
 

@@ -332,4 +332,11 @@ extension ConversationViewModel {
         }
         return repliedMessage
     }
+    
+    func setReplyMessageData(fromReplyMessageID id: String, toViewModel viewModel: ConversationCellViewModel) {
+        if let messageToBeReplied = getRepliedToMessage(messageID: id) {
+            let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
+            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
+        }
+    }
 }
