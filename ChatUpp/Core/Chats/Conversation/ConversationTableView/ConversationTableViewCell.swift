@@ -375,8 +375,8 @@ extension ConversationTableViewCell {
             return
         }
         
-        replyMessageLabel.text = "\(messageSenderName) \n\(messageText)"
-        replyMessageLabel.font = UIFont(name: "HelveticaNeue", size: 13)
+//        replyMessageLabel.font = UIFont(name: "HelveticaNeue", size: 13)
+        replyMessageLabel.attributedText = createReplyMessageAttributedText(with: messageSenderName, messageText: messageText)
         replyMessageLabel.numberOfLines = 2
         replyMessageLabel.layer.cornerRadius = 4
         replyMessageLabel.clipsToBounds = true
@@ -389,6 +389,16 @@ extension ConversationTableViewCell {
         replyMessageLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
         messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor)
         messageLabelTopConstraints.isActive = true
+    }
+    
+    private func createReplyMessageAttributedText(with senderName: String, messageText: String) -> NSMutableAttributedString  {
+        let boldAttributeForName = [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 13)]
+        let boldAttributeForText = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13)]
+        let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
+        let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
+        attributedText.append(replyMessageAttributedText)
+        
+        return attributedText
     }
     
     

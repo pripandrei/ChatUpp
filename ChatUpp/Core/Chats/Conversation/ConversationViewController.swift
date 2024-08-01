@@ -562,9 +562,9 @@ extension ConversationViewController: UITableViewDelegate
                     DispatchQueue.main.async {
                         let replyMessageId = cell.cellViewModel.cellMessage.id
                         let replyMessageSenderID = cell.cellViewModel.cellMessage.senderId
+                        let messageSenderName = self.conversationViewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
                         self.conversationViewModel.currentlyReplyToMessageID = replyMessageId
                         self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
-                        let messageSenderName = self.conversationViewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
                         self.rootView.inputBarHeader?.updateTitleLabel(usingText: messageSenderName)
                     }
                 }
@@ -581,8 +581,8 @@ extension ConversationViewController: UITableViewDelegate
 
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble"), attributes: attributesForEditAction) { action in
                     DispatchQueue.main.async {
-                        self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
                         self.rootView.messageTextView.text = cell.messageLabel.text
+                        self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
                         self.conversationViewModel.shouldEditMessage = { edditedMessage in
                             self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
                         }
