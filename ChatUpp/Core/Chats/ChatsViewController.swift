@@ -250,11 +250,9 @@ extension ChatsViewController: UITableViewDelegate
         tableView.deselectRow(at: indexPath, animated: false)
         
         let cellVM = self.chatsViewModel.cellViewModels[indexPath.item]
+
+        guard let user = cellVM.member else {return}
         
-        guard let user = cellVM.member,
-              let memberName = user.name else {return}
-        
-        let memberID = user.userId
         let chat = cellVM.chat
         let memberPhoto = cellVM.memberProfileImage.value
         

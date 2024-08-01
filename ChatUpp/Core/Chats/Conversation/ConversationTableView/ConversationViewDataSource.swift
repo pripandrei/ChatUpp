@@ -25,14 +25,25 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationTableViewCell else { fatalError("Could not dequeu custom collection cell") }
-        
-//        let messageContextMenuInteractionHandler = MessageContextMenuInteractionHandler(message: cell.messageContainer, conversationID: conversationViewModel.conversation!.id)
+    
         let viewModel = conversationViewModel.cellMessageGroups[indexPath.section].cellViewModels[indexPath.row]
         let message = viewModel.cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         let cellSide = message.senderId == authUserID ?
         ConversationTableViewCell.BubbleMessageSide.right : ConversationTableViewCell.BubbleMessageSide.left
         
+        /// set sender name and text of message messageToBeReplied if any
+        if let repliedToMessageID = message.repliedTo {
+            if let messageToBeReplied = conversationViewModel.getRepliedToMessage(messageID: repliedToMessageID) {
+                let senderNameOfMessageToBeReplied = conversationViewModel.getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
+                (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
+            }
+        }
+        
+//        let messageToBeReplied: Message? = (message.repliedTo != nil) ? conversationViewModel.getRepliedToMessage(messageID: message.repliedTo!) : nil
+//        let senderNameOfMessageToBeReplied = conversationViewModel.getMessageSenderName(usingSenderID: messageToBeReplied?.senderId)
+//        
+//        viewModel.messageToBeReplied = messageToBeReplied
         cell.configureCell(usingViewModel: viewModel, forSide: cellSide)
         
         return cell

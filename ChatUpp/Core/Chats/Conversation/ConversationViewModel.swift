@@ -36,6 +36,8 @@ final class ConversationViewModel {
     var onMessageRemoved: ((IndexPath) -> Void)?
     var updateUserActiveStatus: ((Bool,Date) -> Void)?
     
+    var currentlyReplyToMessageID: String?
+    
     init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?) {
         self.userMember = userMember
         self.conversation = conversation
@@ -68,9 +70,9 @@ final class ConversationViewModel {
     private func createMessageGroups(_ messages: [Message]) {
         var tempMessageGroups: [ConversationMessageGroups] = cellMessageGroups
         messages.forEach { message in
-            let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-
             guard let date = message.timestamp.formatToYearMonthDay() else {return}
+            
+            let conversationCellVM = ConversationCellViewModel(cellMessage: message)
 
             if let index = tempMessageGroups.firstIndex(where: {$0.date == date})  {
                 tempMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
@@ -110,7 +112,7 @@ final class ConversationViewModel {
                        imagePath: nil,
                        receivedBy: nil,
                        imageSize: nil,
-                       repliedTo: "")
+                       repliedTo: currentlyReplyToMessageID)
     }
     
     private func addMessageToDB(_ message: Message) async  {
@@ -144,7 +146,12 @@ final class ConversationViewModel {
     
     func createMessageBubble(_ messageText: String) {
         let message = createNewMessage(messageText)
+        resetCurrentReplyMessage()
         insertNewMessage(message)
+    }
+    
+    func resetCurrentReplyMessage() {
+        if currentlyReplyToMessageID != nil {currentlyReplyToMessageID = nil}
     }
     
     private func findFirstNotSeenMessageIndex() -> IndexPath? {
@@ -290,12 +297,6 @@ extension ConversationViewModel {
             // we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
             self?.handleModifiedUsers(user)
-            
-//            documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
-//                if docChangeType == .modified {
-//                    self?.handleModifiedUsers(users[index])
-//                }
-//            }
         }
     }
     
@@ -318,5 +319,17 @@ extension ConversationViewModel {
         } else {
             return userMember.name
         }
+    }
+    
+    func getRepliedToMessage(messageID: String) -> Message? {
+        var repliedMessage: Message?
+        cellMessageGroups.forEach { conversationGroups in
+            conversationGroups.cellViewModels.forEach { conversationCellViewModel in
+                if conversationCellViewModel.cellMessage.id == messageID {
+                    repliedMessage = conversationCellViewModel.cellMessage
+                }
+            }
+        }
+        return repliedMessage
     }
 }

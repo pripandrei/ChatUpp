@@ -340,8 +340,10 @@ extension ConversationViewController {
         let cellMessage = conversationViewModel.cellMessageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
-        if !cellMessage.messageSeen && cellMessage.senderId != authUserID {
-            if let cell = rootView.tableView.cellForRow(at: indexPath) {
+        if !cellMessage.messageSeen && cellMessage.senderId != authUserID 
+        {
+            if let cell = rootView.tableView.cellForRow(at: indexPath)
+            {
                 let cellFrame = cell.frame
                 let tableRect = rootView.tableView.bounds.offsetBy(dx: 0, dy: 65)
                 let isCellFullyVisible = tableRect.contains(cellFrame)
@@ -407,6 +409,7 @@ extension ConversationViewController {
  
             rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
             handleMessageBubbleCreation(messageText: trimmedString)
+            closeInputBarHeaderView()
         }
     }
 
@@ -483,6 +486,7 @@ extension ConversationViewController {
         }
     }
     @objc func closeInputBarHeaderView() {
+        conversationViewModel.resetCurrentReplyMessage()
         animateInputBarHeaderViewDestruction()
     }
 }
@@ -537,7 +541,7 @@ extension ConversationViewController: UITableViewDelegate
         guard let cell = tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
         let tapLocationInCell = cell.contentView.convert(point, from: tableView)
         
-        if cell.messageLabel.frame.contains(tapLocationInCell) {
+        if cell.messageBubbleContainer.frame.contains(tapLocationInCell) {
             let identifire = indexPath as NSCopying
             
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
@@ -546,8 +550,11 @@ extension ConversationViewController: UITableViewDelegate
                 
                 let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
                     DispatchQueue.main.async {
+                        let replyMessageId = cell.cellViewModel.cellMessage.id
+                        let replyMessageSenderID = cell.cellViewModel.cellMessage.senderId
+                        self.conversationViewModel.currentlyReplyToMessageID = replyMessageId
                         self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
-                        let messageSenderName = self.conversationViewModel.getMessageSenderName(usingSenderID: cell.cellViewModel.cellMessage.senderId)
+                        let messageSenderName = self.conversationViewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
                         self.rootView.inputBarHeader?.updateTitleLabel(usingText: messageSenderName)
                     }
                 }
