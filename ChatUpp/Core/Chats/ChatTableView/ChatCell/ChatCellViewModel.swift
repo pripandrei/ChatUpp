@@ -23,10 +23,28 @@ class ChatCellViewModel {
     
     init(chat: Chat) {
         self.chat = chat
-//        ChatsManager.shared.testUpdateEditedFiled()
-//        ChatsManager.shared.updateAllMessagesFields()
     }
     
+    /// - updated user after deletion
+    func updateUser(_ modifiedUserID: String) async {
+        do {
+            let updatedUser = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
+            self.member = updatedUser
+            self.memberProfileImage.value = try await self.fetchImageData()
+            self.onUserModified?()
+        } catch {
+            print("Error updating user while listening: ", error.localizedDescription)
+        }
+    }
+    
+    deinit {
+//        print("chatCellViewModel deinit !!!")
+    }
+}
+
+//MARK: - Update cell data
+
+extension ChatCellViewModel {
     func updateUserActiveStatus(isActive: Bool) {
         userActiveStatus.value = isActive
     }
@@ -46,19 +64,11 @@ class ChatCellViewModel {
     func updateRecentMessage(_ message: Message?) {
         self.recentMessage.value = message
     }
-    
-    /// - updated user after deletion
-    func updateUser(_ modifiedUserID: String) async {
-        do {
-            let updatedUser = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
-            self.member = updatedUser
-            self.memberProfileImage.value = try await self.fetchImageData()
-            self.onUserModified?()
-        } catch {
-            print("Error updating user while listening: ", error.localizedDescription)
-        }
-    }
-    
+}
+
+//MARK: - Fetch cell data
+
+extension ChatCellViewModel {
     @discardableResult
     func loadOtherMemberOfChat() async throws -> DBUser? {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else { return nil }
@@ -90,19 +100,4 @@ class ChatCellViewModel {
         self.unreadMessageCount.value = unreadMessageCount
         return unreadMessageCount
     }
-    deinit {
-//        print("chatCellViewModel deinit !!!")
-    }
-//    func fetchUserData() async throws -> (DBUser?, Message?, Data?) {
-//        let member = try await loadOtherMemberOfChat()
-//        self.member = member
-//        let recentMessage = try await loadRecentMessage()
-//        self.recentMessage.value = recentMessage
-//        let imageData = try await fetchImageData()
-//
-//        self.memberProfileImage.value = imageData
-//
-//        return (member,recentMessage,imageData)
-//    }
 }
-

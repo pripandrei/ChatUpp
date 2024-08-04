@@ -187,6 +187,8 @@ class ChatsViewController: UIViewController {
     }
 }
 
+//MARK: - Search controller results update
+
 extension ChatsViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
@@ -243,6 +245,7 @@ extension ChatsViewController: UISearchResultsUpdating {
     }
 }
 
+//MARK: - Table view delegate
 extension ChatsViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)

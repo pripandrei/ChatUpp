@@ -25,17 +25,49 @@ final class ChatsViewModel {
         }
     }
     
+    // Fetch all data at once
+    func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws 
+    {
+        return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?, Int?)?.self) { group in
+            for cellViewModel in cellViewModels {
+                group.addTask {
+                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage(), cellViewModel.fetchUnreadMessagesCount())
+                }
+            }
+        }
+    }
+
+    func handleInitialChatsFetch(_ chats: [Chat]) 
+    {
+        self.chats = chats
+        self.cellViewModels = createCellViewModel(with: chats)
+        Task {
+            try await self.fetchCellVMData(self.cellViewModels)
+            self.onInitialChatsFetched?()
+        }
+    }
+    
     func activateOnDisconnect() {
         Task {
             try await UserManagerRealtimeDB.shared.setupOnDisconnect()
         }
     }
+//    func updateUserOnlineStatus(_ activeStatus: Bool) async throws {
+//        try await UserManager.shared.updateUser(with: authUser.uid, usingName: nil, onlineStatus: activeStatus)
+//    }
+}
+
+
+//MARK: - Listeners
+
+extension ChatsViewModel {
     
     func setupChatListener() {
         addChatsListener()
     }
     
-    func addUsersListiner() {
+    func addUsersListiner() 
+    {
         let usersID = cellViewModels.compactMap { chatCellVM in
             chatCellVM.member?.userId
         }
@@ -50,38 +82,8 @@ final class ChatsViewModel {
         }
     }
     
-    private func handleModifiedUser(_ user: DBUser) {
-        print("User updated!!!===")
-        
-        guard let oldCellVM = cellViewModels.first(where: {$0.member?.userId == user.userId} ) else {return}
-        
-        /// if active status changes
-        
-        if oldCellVM.member?.isActive != user.isActive {
-            oldCellVM.updateUserMember(user)
-            oldCellVM.updateUserActiveStatus(isActive: user.isActive)
-        }
-        
-        for (index, cellVM) in cellViewModels.enumerated() {
-            if cellVM.member?.userId == user.userId {
-                cellViewModels[index]
-            }
-        }
-    }
-    
-    // Fetch all data at once
-    func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws {
-        return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?, Int?)?.self) { group in
-            for cellViewModel in cellViewModels {
-                group.addTask {
-                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage(), cellViewModel.fetchUnreadMessagesCount())
-                }
-            }
-        }
-    }
-    
-    private func addChatsListener() {
-        
+    private func addChatsListener()
+    {
         self.chatsListener = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
             guard let self = self else {return}
 
@@ -98,18 +100,34 @@ final class ChatsViewModel {
             }
         })
     }
-    deinit {
-        print("chatsViewModel deinit!!!===")
-    }
-    func handleInitialChatsFetch(_ chats: [Chat]) {
-        self.chats = chats
-        self.cellViewModels = createCellViewModel(with: chats)
-        Task {
-            try await self.fetchCellVMData(self.cellViewModels)
-            self.onInitialChatsFetched?()
+}
+
+//MARK: - User updates
+
+extension ChatsViewModel {
+    private func handleModifiedUser(_ user: DBUser) {
+        guard let oldCellVM = cellViewModels.first(where: {$0.member?.userId == user.userId} ) else {return}
+        
+        /// if active status changes
+        if oldCellVM.member?.isActive != user.isActive {
+            oldCellVM.updateUserMember(user)
+            oldCellVM.updateUserActiveStatus(isActive: user.isActive)
         }
     }
     
+    private func handleDeletedUserUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
+        let deletedUserID = UserManager.mainDeletedUserID
+        if chat.members.contains(where: {$0 == deletedUserID}) {
+            Task {
+                await chatCellVM.updateUser(deletedUserID)
+            }
+        }
+    }
+}
+
+//MARK: - Chat updates
+
+extension ChatsViewModel {
     private func handleAddedChat(_ chat: Chat)
     {
         self.chats.insert(chat, at: 0)
@@ -128,34 +146,26 @@ final class ChatsViewModel {
     private func handleModifiedChat(_ chat: Chat) {
         guard let oldViewModel = self.cellViewModels.first(where: {$0.chat.id == chat.id}) else {return}
         
-        // If recent message modified
-        if oldViewModel.recentMessage.value?.id != chat.recentMessageID {
-            oldViewModel.updateChat(chat)
-            Task {
-                try await oldViewModel.loadRecentMessage()
-                try await oldViewModel.fetchUnreadMessagesCount()
-            }
-        }
-        // If other User was deleted
-        let deletedUserID = UserManager.mainDeletedUserID
-        if chat.members.contains(where: {$0 == deletedUserID}) {
-            Task {
-                await oldViewModel.updateUser(deletedUserID)
-            }
-        }
-        // User swiped to delete the Chat cell
+        // check if recent message modified
+        handleRecentMessageUpdate(from: oldViewModel, using: chat)
         
+        // check If other User was deleted
+        handleDeletedUserUpdate(from: oldViewModel, using: chat)
+
+        // User swiped to delete the Chat cell
+    }
+    
+    private func handleRecentMessageUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
+        if chatCellVM.recentMessage.value?.id != chat.recentMessageID {
+            chatCellVM.updateChat(chat)
+            Task {
+                try await chatCellVM.loadRecentMessage()
+                try await chatCellVM.fetchUnreadMessagesCount()
+            }
+        }
     }
     
     private func handleRemovedChat(_ chat: Chat) {
         self.chats.removeAll(where: {$0.id == chat.id})
     }
-    
-//    func updateUserOnlineStatus(_ activeStatus: Bool) async throws {
-//        try await UserManager.shared.updateUser(with: authUser.uid, usingName: nil, onlineStatus: activeStatus)
-//    }
-    
-//    private func loadRecentMessages(_ chats: [Chat]) async throws -> [Message?]  {
-//        try await ChatsManager.shared.getRecentMessageFromChats(chats)
-//    }
 }
