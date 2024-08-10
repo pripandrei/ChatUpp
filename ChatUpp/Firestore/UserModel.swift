@@ -90,7 +90,7 @@ struct DBUser: Codable
         try container.encodeIfPresent(self.lastSeen, forKey: .lastSeen)
     }
     
-    func updateActiveStatus() -> DBUser {
-        return DBUser(userId: self.userId, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: Date(), isActive: !self.isActive)
+    func updateActiveStatus(lastSeenDate: Date) -> DBUser {
+        return DBUser(userId: self.userId, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeenDate.toLocalTime(), isActive: !self.isActive)
     }
 }

@@ -26,6 +26,8 @@ final class ConversationViewModel {
     private(set) var messageListener: Listener?
     private(set) var userListener: Listener?
     
+    private(set) var userObserver: RealtimeDBObserver?
+    
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
     var shouldEditMessage: ((String) -> Void)?
@@ -44,6 +46,8 @@ final class ConversationViewModel {
         self.memberProfileImage = imageData
         addListenerToMessages()
         addUsersListener()
+        
+        addUserObserver()
     }
     
     private func createConversation() async {
@@ -205,6 +209,34 @@ final class ConversationViewModel {
             try await ChatsManager.shared.updateMessageFromDB(messageText, messageID: messageID, chatID: conversation!.id)
         }
     }
+    
+    func getMessageSenderName(usingSenderID id: String) -> String? {
+        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else {return nil}
+        if id == user.uid {
+            return user.name
+        } else {
+            return userMember.name
+        }
+    }
+    
+    func getRepliedToMessage(messageID: String) -> Message? {
+        var repliedMessage: Message?
+        cellMessageGroups.forEach { conversationGroups in
+            conversationGroups.cellViewModels.forEach { conversationCellViewModel in
+                if conversationCellViewModel.cellMessage.id == messageID {
+                    repliedMessage = conversationCellViewModel.cellMessage
+                }
+            }
+        }
+        return repliedMessage
+    }
+    
+    func setReplyMessageData(fromReplyMessageID id: String, toViewModel viewModel: ConversationCellViewModel) {
+        if let messageToBeReplied = getRepliedToMessage(messageID: id) {
+            let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
+            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
+        }
+    }
 }
 
 //MARK: - Messages listener
@@ -230,8 +262,10 @@ extension ConversationViewModel {
             }
         }
     }
-    
-    /// - Listener helper functions
+}
+
+//MARK: - Message listener helper functions
+extension ConversationViewModel {
     private func handleAddedMessage(_ message: Message) {
         if !checkIfCellMessageGroupsContainsMessage([message]) {
             createMessageGroups([message])
@@ -289,6 +323,20 @@ extension ConversationViewModel {
 //MARK: - Users listener
 extension ConversationViewModel {
     
+    /// - Temporary fix while firebase functions are deactivated
+    
+    func addUserObserver() {
+        userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(userMember.userId) { [weak self] realtimeDBUser in
+            guard let self = self else {return}
+            if realtimeDBUser.isActive != self.userMember.isActive
+            {
+                let date = Date(timeIntervalSince1970: realtimeDBUser.lastSeen)
+                let user = self.userMember.updateActiveStatus(lastSeenDate: date)
+                self.handleModifiedUsers(user)
+            }
+        }
+    }
+    
     func addUsersListener() {
         
         self.userListener = UserManager.shared.addListenerToUsers([userMember.userId]) { [weak self] users, documentsTypes in
@@ -300,6 +348,8 @@ extension ConversationViewModel {
         }
     }
     
+    /// - Users listener helper functions
+
     private func handleModifiedUsers(_ user: DBUser) {
         
         /// - check if online status changed
@@ -309,34 +359,6 @@ extension ConversationViewModel {
             if let date = user.lastSeen {
                 self.updateUserActiveStatus?(status, date)
             }
-        }
-    }
-    
-    func getMessageSenderName(usingSenderID id: String) -> String? {
-        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else {return nil}
-        if id == user.uid {
-            return user.name
-        } else {
-            return userMember.name
-        }
-    }
-    
-    func getRepliedToMessage(messageID: String) -> Message? {
-        var repliedMessage: Message?
-        cellMessageGroups.forEach { conversationGroups in
-            conversationGroups.cellViewModels.forEach { conversationCellViewModel in
-                if conversationCellViewModel.cellMessage.id == messageID {
-                    repliedMessage = conversationCellViewModel.cellMessage
-                }
-            }
-        }
-        return repliedMessage
-    }
-    
-    func setReplyMessageData(fromReplyMessageID id: String, toViewModel viewModel: ConversationCellViewModel) {
-        if let messageToBeReplied = getRepliedToMessage(messageID: id) {
-            let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
-            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
         }
     }
 }

@@ -8,6 +8,12 @@
 import Foundation
 
 extension Date {
+    func toLocalTime() -> Date {
+           let timeZone = TimeZone.current
+           let seconds = TimeInterval(timeZone.secondsFromGMT(for: self))
+           return Date(timeInterval: seconds, since: self)
+       }
+    
     func formatToHoursAndMinutes() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat  = "hh:mm"
@@ -30,6 +36,12 @@ extension DateFormatter {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
         dateFormatter.timeZone = TimeZone(identifier: "UTC")
+        return dateFormatter
+    }
+    
+    static var currentTimeZoneDateFormatter: DateFormatter {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = .current
         return dateFormatter
     }
 }

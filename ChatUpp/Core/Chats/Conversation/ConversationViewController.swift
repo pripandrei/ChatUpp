@@ -149,6 +149,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private func cleanUp() {
         NotificationCenter.default.removeObserver(self)
         conversationViewModel.messageListener?.remove()
+        conversationViewModel.userListener?.remove()
+//        conversationViewModel.userObserver?.removeAllObservers()
         coordinatorDelegate = nil
         conversationViewModel = nil
         collectionViewDataSource = nil
@@ -409,8 +411,6 @@ extension ConversationViewController {
         rootView.messageTextView.text.removeAll()
         animateInputBarHeaderViewDestruction()
     }
-    
-    // ============ ============ ============ ============
     
     @objc func sendMessageBtnWasTapped() {
         let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -15,6 +15,8 @@ class ChatCellViewModel {
     @Published var recentMessage: Message?
     @Published private(set) var unreadMessageCount: Int?
     
+    private(set) var userObserver: RealtimeDBObserver?
+    
     private(set) var chat: Chat
     var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
@@ -32,15 +34,6 @@ class ChatCellViewModel {
         }
     }
 
-    /// Temporary fix while firebase functions are deactivated
-    private func addObserverToUser() {
-        guard let member = member else {return}
-        UserManagerRealtimeDB.shared.addObserverToUsers(member.userId) { relatimeDBUser in
-            if relatimeDBUser.isActive != self.member?.isActive {
-                self.member = self.member?.updateActiveStatus()
-            }
-        }
-    }
 }
 
 //MARK: - Update cell data
@@ -97,5 +90,22 @@ extension ChatCellViewModel {
         let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chat.id)
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
+    }
+}
+
+//MARK: - Temporary fix while firebase functions are deactivated
+
+extension ChatCellViewModel {
+   
+    private func addObserverToUser() {
+        guard let member = member else {return}
+        
+        self.userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(member.userId) { [weak self] realtimeDBUser in
+            if realtimeDBUser.isActive != self?.member?.isActive
+            {
+                let date = Date(timeIntervalSince1970: realtimeDBUser.lastSeen)
+                self?.member = self?.member?.updateActiveStatus(lastSeenDate: date)
+            }
+        }
     }
 }

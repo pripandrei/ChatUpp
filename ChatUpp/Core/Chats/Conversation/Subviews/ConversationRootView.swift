@@ -363,7 +363,7 @@ extension ConversationCustomNavigationBar
             nameLabel.font = UIFont(name:"HelveticaNeue-Bold", size: 17)
             nameLabel.textAlignment = .center
             
-            lastSeenLabel.text = lastSeen
+            lastSeenLabel.text = lastSeen == "online" ? lastSeen : "last seen \(lastSeen)"
             lastSeenLabel.font = UIFont(name:"HelveticaNeue", size: 13)
             lastSeenLabel.textColor = .white
 

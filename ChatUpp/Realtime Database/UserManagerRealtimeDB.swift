@@ -15,6 +15,8 @@ import Foundation
 import FirebaseDatabase
 import FirebaseDatabaseSwift
 
+typealias RealtimeDBObserver = DatabaseReference
+
 final class UserManagerRealtimeDB {
 
     private init() {}
@@ -61,9 +63,9 @@ final class UserManagerRealtimeDB {
         try await onDisconnectRefListener?.cancelDisconnectOperations()
     }
     
-    func addObserverToUsers(_ userID: String, complition: @escaping (RealtimeDBUser) -> Void) {
+    func addObserverToUsers(_ userID: String, complition: @escaping (RealtimeDBUser) -> Void) -> RealtimeDBObserver {
         let userRef = usersRef.child(userID)
-        
+
         userRef.observe(.value) { snapshot in
             do {
                 let user = try snapshot.data(as: RealtimeDBUser.self)
@@ -73,6 +75,7 @@ final class UserManagerRealtimeDB {
                 print("Could not decode RealTimeDBUser: ", error.localizedDescription)
             }
         }
+        return userRef
     }
 }
 
