@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 final class ChatsViewModel {
 
     private(set) var chats: [Chat] = []
@@ -16,8 +17,8 @@ final class ChatsViewModel {
     
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-    var onInitialChatsFetched: (() -> Void)?
-    var reloadCell: (() -> Void)?
+    @Published var initialChatsDoneFetching: Bool = false
+    @Published var shouldReloadCell: Bool = false
     
     private func createCellViewModel(with chats: [Chat]) -> [ChatCellViewModel] {
         return chats.map { chat in
@@ -43,7 +44,7 @@ final class ChatsViewModel {
         self.cellViewModels = createCellViewModel(with: chats)
         Task {
             try await self.fetchCellVMData(self.cellViewModels)
-            self.onInitialChatsFetched?()
+            initialChatsDoneFetching = true
         }
     }
     
@@ -52,9 +53,6 @@ final class ChatsViewModel {
             try await UserManagerRealtimeDB.shared.setupOnDisconnect()
         }
     }
-//    func updateUserOnlineStatus(_ activeStatus: Bool) async throws {
-//        try await UserManager.shared.updateUser(with: authUser.uid, usingName: nil, onlineStatus: activeStatus)
-//    }
 }
 
 
@@ -72,7 +70,7 @@ extension ChatsViewModel {
             chatCellVM.member?.userId
         }
         guard !usersID.isEmpty else { return }
-        
+
         self.usersListener = UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
             documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
                 if docChangeType == .modified {
@@ -108,18 +106,14 @@ extension ChatsViewModel {
     private func handleModifiedUser(_ user: DBUser) {
         guard let oldCellVM = cellViewModels.first(where: {$0.member?.userId == user.userId} ) else {return}
         
-        /// if active status changes
-        if oldCellVM.member?.isActive != user.isActive {
-            oldCellVM.updateUserMember(user)
-            oldCellVM.updateUserActiveStatus(isActive: user.isActive)
-        }
+        oldCellVM.updateUserMember(user)
     }
     
     private func handleDeletedUserUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
         let deletedUserID = UserManager.mainDeletedUserID
         if chat.members.contains(where: {$0 == deletedUserID}) {
             Task {
-                await chatCellVM.updateUser(deletedUserID)
+                await chatCellVM.updateUserAfterDeletion(deletedUserID)
             }
         }
     }
@@ -139,7 +133,7 @@ extension ChatsViewModel {
             try await cellVM.loadRecentMessage()
             try await cellVM.fetchImageData()
             try await cellVM.fetchUnreadMessagesCount()
-            reloadCell?()
+            shouldReloadCell = true
         }
     }
     
@@ -156,7 +150,7 @@ extension ChatsViewModel {
     }
     
     private func handleRecentMessageUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
-        if chatCellVM.recentMessage.value?.id != chat.recentMessageID {
+        if chatCellVM.recentMessage?.id != chat.recentMessageID {
             chatCellVM.updateChat(chat)
             Task {
                 try await chatCellVM.loadRecentMessage()

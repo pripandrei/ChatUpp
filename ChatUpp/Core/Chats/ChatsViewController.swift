@@ -7,6 +7,7 @@
 
 import UIKit
 import SkeletonView
+import Combine
 
 // MARK: - CELL IDENTIFIER
 
@@ -23,6 +24,7 @@ class ChatsViewController: UIViewController {
     private var tableView: UITableView!
     private var chatsViewModel: ChatsViewModel!
     private var tableViewDataSource: UITableViewDataSource!
+    private var subscriptions = Set<AnyCancellable>()
 
     lazy private var resultsTableController = {
         let resultsTableController = ResultsTableController()
@@ -80,21 +82,27 @@ class ChatsViewController: UIViewController {
     
     // MARK: - Binding
     
-    private func setupBinding() {
-        chatsViewModel.onInitialChatsFetched = { [weak self] in
-            self?.chatsViewModel.addUsersListiner()
-            Task { @MainActor in
-                self?.tableView.reloadData()
-                self?.toggleSkeletonAnimation(.terminate)
-            }
-        }
+    private func setupBinding()
+    {
+        chatsViewModel.$initialChatsDoneFetching
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isFetched in
+                if isFetched {
+                    self?.chatsViewModel.addUsersListiner()
+                    self?.tableView.reloadData()
+                    self?.toggleSkeletonAnimation(.terminate)
+                    
+                }
+            }.store(in: &subscriptions)
         
-        chatsViewModel.reloadCell = {
-            DispatchQueue.main.async {
-                let indexPath = IndexPath(row: 0, section: 0)
-                self.tableView.insertRows(at: [indexPath], with: .automatic)
-            }
-        }
+        chatsViewModel.$shouldReloadCell
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] shouldReload in
+                if shouldReload {
+                    let indexPath = IndexPath(row: 0, section: 0)
+                    self?.tableView.insertRows(at: [indexPath], with: .automatic)
+                }
+            }.store(in: &subscriptions)
     }
     
     func toggleSkeletonAnimation(_ value: Skeletonanimation) {
@@ -128,10 +136,11 @@ class ChatsViewController: UIViewController {
         navigationItem.searchController = searchController
         definesPresentationContext = true
         navigationItem.hidesSearchBarWhenScrolling = true
+        
     }
     
     func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
-       
+        
         return chatsViewModel.cellViewModels.enumerated().compactMap ({ index, chatCell in
            
             let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
@@ -143,18 +152,17 @@ class ChatsViewController: UIViewController {
             let conversation = chatsViewModel.chats[index]
             
             guard let user = chatCell.member,
-                  let userName = user.name,
-                  let userProfilePhotoURL = user.photoUrl else {return nil}
+                  let userName = user.name else {return nil}
             
             let nameSubstrings = userName.lowercased().components(separatedBy: delimiters)
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage.value)
+                    return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage)
                 }
             }
             if userName.lowercased().hasPrefix(trimmedSearchText) {
-                return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage.value)
+                return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage)
             }
             return nil
         })
@@ -257,7 +265,7 @@ extension ChatsViewController: UITableViewDelegate
         guard let user = cellVM.member else {return}
         
         let chat = cellVM.chat
-        let memberPhoto = cellVM.memberProfileImage.value
+        let memberPhoto = cellVM.memberProfileImage
         
         let conversationViewModel = ConversationViewModel(userMember: user, conversation: chat, imageData: memberPhoto)
         conversationViewModel.updateUnreadMessagesCount = {

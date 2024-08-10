@@ -43,6 +43,27 @@ struct DBUser: Codable
         self.isActive = true
     }
     
+    init(userId: String,
+         name: String?,
+         email: String?,
+         photoUrl: String?,
+         phoneNumber: String?,
+         nickName: String?,
+         dateCreated: Date?,
+         lastSeen: Date?,
+         isActive: Bool
+    )
+    {
+        self.userId = userId
+        self.name = name
+        self.email = email
+        self.photoUrl = photoUrl
+        self.phoneNumber = phoneNumber
+        self.dateCreated = dateCreated
+        self.lastSeen = lastSeen
+        self.isActive = isActive
+    }
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.userId = try container.decode(String.self, forKey: .userId)
@@ -56,7 +77,6 @@ struct DBUser: Codable
         self.lastSeen = try container.decodeIfPresent(Date.self, forKey: .lastSeen)
     }
     
-    
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.userId, forKey: .userId)
@@ -68,5 +88,9 @@ struct DBUser: Codable
         try container.encodeIfPresent(self.nickname, forKey: .nickname)
         try container.encodeIfPresent(self.isActive, forKey: .isActive)
         try container.encodeIfPresent(self.lastSeen, forKey: .lastSeen)
+    }
+    
+    func updateActiveStatus() -> DBUser {
+        return DBUser(userId: self.userId, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: Date(), isActive: !self.isActive)
     }
 }

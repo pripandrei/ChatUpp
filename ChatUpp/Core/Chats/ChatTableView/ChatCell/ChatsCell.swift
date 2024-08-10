@@ -7,6 +7,7 @@
 
 import UIKit
 import SkeletonView
+import Combine
 //import YYText
 
 class ChatsCell: UITableViewCell {
@@ -18,6 +19,8 @@ class ChatsCell: UITableViewCell {
     private var cellViewModel: ChatCellViewModel!
     private var unreadMessagesCountLabel = UILabel()
     private var onlineStatusCircleView = UIView()
+    
+    private var subscriptions = Set<AnyCancellable>()
     
 //MARK: - LIFECYCLE
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -56,24 +59,24 @@ class ChatsCell: UITableViewCell {
         setupBinding()
         handleImageSetup()
         
-        self.onlineStatusCircleView.isHidden = cellViewModel.userActiveStatus.value ? false : true
+        self.onlineStatusCircleView.isHidden = ((cellViewModel.member?.isActive) != nil) ? false : true
         
         unreadMessagesCountLabel.isHidden = true
         self.nameLabel.text = cellViewModel.member?.name
         self.dateLable.adjustsFontSizeToFitWidth = true
         
-        guard let message = cellViewModel.recentMessage.value else {return}
+        guard let message = cellViewModel.recentMessage else {return}
         self.messageLable.text = message.messageBody
         self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
     
-        guard let unreadMessageCount = cellViewModel.unreadMessageCount.value, unreadMessageCount != 0, cellViewModel.authUser.uid != message.senderId else {return}
+        guard let unreadMessageCount = cellViewModel.unreadMessageCount, unreadMessageCount != 0, cellViewModel.authUser.uid != message.senderId else {return}
         unreadMessagesCountLabel.isHidden = false
         self.unreadMessagesCountLabel.text = "\(unreadMessageCount)"
     }
     
     private func handleImageSetup()
     {
-        guard let imageData = cellViewModel.memberProfileImage.value else {
+        guard let imageData = cellViewModel.memberProfileImage else {
             self.profileImage.image = UIImage(named: "default_profile_photo")
             return
         }
@@ -92,87 +95,86 @@ class ChatsCell: UITableViewCell {
     
     private func setupBinding() {
         
-        /// - currently memberProfileImage and onUserModified are called only when member user is deleted
-        cellViewModel.memberProfileImage.bind { [weak self, url = cellViewModel.member?.photoUrl] data in
-            if let imageData = data {
-                self?.setImage(imageData)
-            }
-        }
-        cellViewModel.onUserModified = {
-            Task{ @MainActor in
-                self.nameLabel.text = self.cellViewModel.member?.name
-            }
-        }
+        /// - currently memberProfileImage are called only when member user is deleted
+        cellViewModel.$memberProfileImage
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self, url = cellViewModel.member?.photoUrl] imageData in
+                if let imageData = imageData {
+                    self?.setImage(imageData)
+                }
+        }.store(in: &subscriptions)
         
-        cellViewModel.recentMessage.bind { [weak self] message in
-            if let message = message {
-                Task { @MainActor in
+        cellViewModel.$member
+            .receive(on: DispatchQueue.main)
+            .sink { member in
+            if let member = member {
+                if self.nameLabel.text != member.name {
+                    self.nameLabel.text = member.name
+                }
+                self.onlineStatusCircleView.isHidden = !member.isActive
+            }
+            }.store(in: &subscriptions)
+
+        cellViewModel.$recentMessage
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                if let message = message {
                     self?.messageLable.text = message.messageBody
                     self?.dateLable.text = message.timestamp.formatToHoursAndMinutes()
                 }
-            }
-        }
-        cellViewModel.unreadMessageCount.bind { [weak self] count in
-            guard let self = self else {return}
-            guard let count = count else {return}
-            Task { @MainActor in
-                guard self.cellViewModel.authUser.uid != self.cellViewModel.recentMessage.value?.senderId else {return}
+            }.store(in: &subscriptions)
+        
+        cellViewModel.$unreadMessageCount
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] count in
+                guard let self = self else {return}
+                guard let count = count else {return}
+                guard self.cellViewModel.authUser.uid != self.cellViewModel.recentMessage?.senderId else {return}
+                
                 self.unreadMessagesCountLabel.text = "\(count)"
                 if count == 0 {
                     self.unreadMessagesCountLabel.isHidden = true
                     return
                 }
                 self.unreadMessagesCountLabel.isHidden = false
-                self.animateUnreadMessageCounterOnReceive()
-            }
-        }
-        
-        /// - update user active status
-        cellViewModel.userActiveStatus.bind { isActive in
-            if isActive {
-                self.onlineStatusCircleView.isHidden = false
-                print("Green")
-            } else {
-                self.onlineStatusCircleView.isHidden = true
-                print("Red")
-            }
-        }
+//                self.animateUnreadMessageCounterOnReceive()
+            }.store(in: &subscriptions)
     }
     
     //MARK: - Animate new message counter
     
-    func animateUnreadMessageCounterOnReceive() {
-        UIView.animate(withDuration: 0.2, animations: {
-        }, completion: { _ in
-            UIView.animate(withDuration: 0.09, animations: {
-                self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 5, dy: 0)
-            }) { _ in
-                UIView.animate(withDuration: 0.05, animations: {
-                    self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -10, dy: 0)
-                }) { _ in
-                    UIView.animate(withDuration: 0.05, animations: {
-                        self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 8, dy: 0)
-                    }) { _ in
-                        UIView.animate(withDuration: 0.05, animations: {
-                            self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -6, dy: 0)
-                        }) { _ in
-                            UIView.animate(withDuration: 0.05, animations: {
-                                self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 5, dy: 0)
-                            }) { _ in
-                                UIView.animate(withDuration: 0.05, animations: {
-                                    self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -3, dy: 0)
-                                }) { _ in
-                                    UIView.animate(withDuration: 0.05, animations: {
-                                        self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 1, dy: 0)
-                                    })
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        })
-    }
+//    func animateUnreadMessageCounterOnReceive() {
+//        UIView.animate(withDuration: 0.2, animations: {
+//        }, completion: { _ in
+//            UIView.animate(withDuration: 0.09, animations: {
+//                self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 5, dy: 0)
+//            }) { _ in
+//                UIView.animate(withDuration: 0.05, animations: {
+//                    self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -10, dy: 0)
+//                }) { _ in
+//                    UIView.animate(withDuration: 0.05, animations: {
+//                        self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 8, dy: 0)
+//                    }) { _ in
+//                        UIView.animate(withDuration: 0.05, animations: {
+//                            self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -6, dy: 0)
+//                        }) { _ in
+//                            UIView.animate(withDuration: 0.05, animations: {
+//                                self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 5, dy: 0)
+//                            }) { _ in
+//                                UIView.animate(withDuration: 0.05, animations: {
+//                                    self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -3, dy: 0)
+//                                }) { _ in
+//                                    UIView.animate(withDuration: 0.05, animations: {
+//                                        self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 1, dy: 0)
+//                                    })
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        })
+//    }
     
 //MARK: - UI SETUP
     
