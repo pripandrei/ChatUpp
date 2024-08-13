@@ -177,7 +177,7 @@ final class ChatsManager {
     
     func updateChatRecentMessage(recentMessageID: String ,chatID: String) async throws {
         let data: [String: Any] = [
-            Chat.CodingKeys.recentMessage.rawValue : recentMessageID
+            Chat.CodingKeys.recentMessageID.rawValue : recentMessageID
         ]
         try await chatDocument(documentPath: chatID).updateData(data)
     }
