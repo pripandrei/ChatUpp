@@ -20,7 +20,7 @@ final class ConversationViewModel {
     }
     
     private(set) var conversation: Chat?
-    private(set) var userMember: DBUser
+    @Published private(set) var userMember: DBUser
     private(set) var memberProfileImage: Data?
     private(set) var cellMessageGroups: [ConversationMessageGroups] = []
     private(set) var messageListener: Listener?
@@ -36,7 +36,7 @@ final class ConversationViewModel {
     var messageWasModified: ((IndexPath, String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var onMessageRemoved: ((IndexPath) -> Void)?
-    var updateUserActiveStatus: ((Bool,Date) -> Void)?
+//    var updateUserActiveStatus: ((Bool,Date) -> Void)?
     
     var currentlyReplyToMessageID: String?
     
@@ -331,34 +331,51 @@ extension ConversationViewModel {
             if realtimeDBUser.isActive != self.userMember.isActive
             {
                 let date = Date(timeIntervalSince1970: realtimeDBUser.lastSeen)
-                let user = self.userMember.updateActiveStatus(lastSeenDate: date)
-                self.handleModifiedUsers(user)
+                self.userMember = self.userMember.updateActiveStatus(lastSeenDate: date,isActive: realtimeDBUser.isActive)
             }
         }
     }
     
+    /// This listener belongs to Firestore DB,
+    /// and currently updates only user name
+    /// (becouse RealTime DB is implemented as temporarily solution for online updates)
+    /// Remove self.userMember.updateUserName(name: user.name) 
+    /// when decide to transition back form Realtime db to Firestore DB
     func addUsersListener() {
         
         self.userListener = UserManager.shared.addListenerToUsers([userMember.userId]) { [weak self] users, documentsTypes in
-            
+            guard let self = self else {return}
             // since we are listening only for one user here
             // we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self?.handleModifiedUsers(user)
+            
+//            self.userMember = self.userMember.updateUserName(name: user.name)
+            self.userMember = user
         }
     }
     
     /// - Users listener helper functions
 
-    private func handleModifiedUsers(_ user: DBUser) {
-        
-        /// - check if online status changed
-        if user.isActive != userMember.isActive {
-            self.userMember = user
-            let status = userMember.isActive
-            if let date = user.lastSeen {
-                self.updateUserActiveStatus?(status, date)
-            }
-        }
-    }
+//    private func handleModifiedUsers(_ user: DBUser) {
+//        
+//        /// - check if online status changed
+//        if user.isActive != userMember.isActive {
+//            var value = ""
+//            if user.isActive {
+//                value = "Online"
+//            } else {
+//                value = user.lastSeen?.formatToYearMonthDayCustomString() ?? ""
+//            }
+//            self.userMember = user
+////            let status = userMember.isActive
+////            if let date = user.lastSeen {
+////                self.updateUserActiveStatus?(status, date)
+////            }
+//        }
+//        
+//        if user.name != userMember.name {
+//            
+//        }
+//        
+//    }
 }

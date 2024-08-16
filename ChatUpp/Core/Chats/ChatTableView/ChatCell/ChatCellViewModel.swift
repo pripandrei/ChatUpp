@@ -104,7 +104,7 @@ extension ChatCellViewModel {
             if realtimeDBUser.isActive != self?.member?.isActive
             {
                 let date = Date(timeIntervalSince1970: realtimeDBUser.lastSeen)
-                self?.member = self?.member?.updateActiveStatus(lastSeenDate: date)
+                self?.member = self?.member?.updateActiveStatus(lastSeenDate: date,isActive: realtimeDBUser.isActive)
             }
         }
     }

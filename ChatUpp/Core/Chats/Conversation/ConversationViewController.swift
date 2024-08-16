@@ -11,6 +11,7 @@
 import UIKit
 import Photos
 import PhotosUI
+import Combine
 
 
 final class ConversationViewController: UIViewController, UIScrollViewDelegate {
@@ -26,6 +27,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     private var isContextMenuPresented: Bool = false
     private var isNewSectionAdded: Bool = false
     private var isKeyboardHidden: Bool = true
+    
+    private var subscriptions = Set<AnyCancellable>()
     
     //MARK: - Lifecycle
     convenience init(conversationViewModel: ConversationViewModel) {
@@ -104,13 +107,38 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         }
         
         /// - user online status update
-        conversationViewModel.updateUserActiveStatus = { [weak self] isOnline, lastSeenDate in
-            if isOnline {
-                self?.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "Online"
-            } else {
-                self?.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "last seen \(lastSeenDate.formatToYearMonthDayCustomString())"
-            }
-        }
+//        conversationViewModel.updateUserActiveStatus = { [weak self] isOnline, lastSeenDate in
+//            if isOnline {
+//                self?.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "Online"
+//            } else {
+//                self?.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "last seen \(lastSeenDate.formatToYearMonthDayCustomString())"
+//            }
+//        }
+        
+        /// Combine
+        ///
+        conversationViewModel.$userMember
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] user in
+                guard let self = self else {return}
+                
+                if self.customNavigationBar.navigationItemsContainer.nameLabel.text != user.name {
+                    self.customNavigationBar.navigationItemsContainer.nameLabel.text = user.name
+                    return
+                }
+                
+                self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = user.isActive ?? false ?
+                "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "")"
+                
+                //            if user.isActive {
+                //                self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "Online"
+                //            } else {
+                //                self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "")"
+                //            }
+                
+               
+            }.store(in: &subscriptions)
+        
     }
     
     //MARK: - Keyboard notification observers
@@ -219,7 +247,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         let memberName = conversationViewModel.userMember.name!
         var memberActiveStatus: String
         
-        memberActiveStatus = conversationViewModel.userMember.isActive ? "online" : conversationViewModel.userMember.lastSeen!.formatToYearMonthDayCustomString()
+        memberActiveStatus = conversationViewModel.userMember.isActive ?? false ? "online" : conversationViewModel.userMember.lastSeen!.formatToYearMonthDayCustomString()
         
         customNavigationBar = ConversationCustomNavigationBar(viewController: self)
         customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName, memberActiveStatus: memberActiveStatus)

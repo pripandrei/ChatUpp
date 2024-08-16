@@ -111,7 +111,10 @@ class ChatsCell: UITableViewCell {
                 if self.nameLabel.text != member.name {
                     self.nameLabel.text = member.name
                 }
-                self.onlineStatusCircleView.isHidden = !member.isActive
+                if let status = member.isActive {
+                    self.onlineStatusCircleView.isHidden = !status
+                }
+//                self.onlineStatusCircleView.isHidden = !member.isActive
             }
             }.store(in: &subscriptions)
 

@@ -17,7 +17,7 @@ struct DBUser: Codable
     let photoUrl: String?
     let phoneNumber: String?
     var nickname: String?
-    let isActive: Bool
+    let isActive: Bool?
     let lastSeen: Date?
         
         enum CodingKeys: String, CodingKey {
@@ -73,7 +73,7 @@ struct DBUser: Codable
         self.photoUrl = try container.decodeIfPresent(String.self, forKey: .photoUrl)
         self.phoneNumber = try container.decodeIfPresent(String.self, forKey: .phoneNumber)
         self.nickname = try container.decodeIfPresent(String.self, forKey: .nickname)
-        self.isActive = try container.decode(Bool.self, forKey: .isActive)
+        self.isActive = try container.decodeIfPresent(Bool.self, forKey: .isActive)
         self.lastSeen = try container.decodeIfPresent(Date.self, forKey: .lastSeen)
     }
     
@@ -89,8 +89,16 @@ struct DBUser: Codable
         try container.encodeIfPresent(self.isActive, forKey: .isActive)
         try container.encodeIfPresent(self.lastSeen, forKey: .lastSeen)
     }
-    
-    func updateActiveStatus(lastSeenDate: Date) -> DBUser {
-        return DBUser(userId: self.userId, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeenDate.toLocalTime(), isActive: !self.isActive)
+}
+
+
+//MARK: - Temporary methods while firebase functions are deactivated
+extension DBUser {
+    func updateActiveStatus(lastSeenDate: Date, isActive: Bool) -> DBUser {
+        return DBUser(userId: self.userId, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeenDate.toLocalTime(), isActive: isActive)
     }
+    
+//    func updateUserName(name: String?) -> DBUser {
+//        return DBUser(userId: self.userId, name: name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeen, isActive: self.isActive)
+//    }
 }
