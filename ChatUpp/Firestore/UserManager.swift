@@ -175,3 +175,36 @@ final class UserManager {
     }
 }
 
+// MARK: - Testing functions
+extension UserManager {
+    
+    
+    ///Remove all is_active fields
+    func deleteAllIsActiveFieldsOnUsers() {
+        usersCollection.getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Error fetching users: \(error)")
+                return
+            }
+            
+            // Iterate through each document in the collection
+            for document in querySnapshot?.documents ?? [] {
+                let userData = document.data()
+                
+                // Check if the "is_active" field exists
+                if userData["is_active"] != nil {
+                    // Delete the "is_active" field from the document
+                    document.reference.updateData([
+                        "is_active": FieldValue.delete()
+                    ]) { err in
+                        if let err = err {
+                            print("Error removing 'is_active' field: \(err)")
+                        } else {
+                            print("Successfully removed 'is_active' field for document \(document.documentID)")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
