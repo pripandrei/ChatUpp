@@ -80,14 +80,13 @@ final class AuthenticationManager
         return authToken.signInProvider
     }
     
-    func initiateReauthentication() async throws {
-//        let providerString = try await getAuthProvider()
+    // Email signin reauthenticate
     
-//        switch providerString {
-//        case "phone":
-//        }
+    func emailAuthReauthenticate(with verificationID: String, verificationCode: String) async throws {
+      /// implement
     }
     
+    // Phone signin reauthenticate
     func phoneAuthReauthenticate(with verificationID: String, verificationCode: String) async throws {
         if let user = Auth.auth().currentUser {
             let phoneCredentials = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)

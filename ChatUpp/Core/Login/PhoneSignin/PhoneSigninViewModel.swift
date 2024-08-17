@@ -33,7 +33,7 @@ final class PhoneSignInViewModel {
                     userCreationStatus.value = .userExists
                 } else {
                     try UserManager.shared.createNewUser(user: dbUser)
-//                    UserManagerRealtimeDB.shared.createUser(user: dbUser)
+                    UserManagerRealtimeDB.shared.createUser(user: dbUser)
                     userCreationStatus.value = .userIsCreated
                 }
             } catch {

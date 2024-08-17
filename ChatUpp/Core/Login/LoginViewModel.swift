@@ -61,7 +61,7 @@ extension LoginViewModel {
                 UserManager.shared.createNewUser(user: dbUser) { isCreated in
                    isCreated ? (self?.loginStatus.value = .userIsAuthenticated) : nil
                 }
-//                UserManagerRealtimeDB.shared.createUser(user: dbUser)
+                UserManagerRealtimeDB.shared.createUser(user: dbUser)
             }
         }
     }

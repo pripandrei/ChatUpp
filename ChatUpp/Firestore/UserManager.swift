@@ -31,29 +31,11 @@ final class UserManager {
     
     private func userDocument(userID: String) -> DocumentReference {
         usersCollection.document(userID)
-//        presenceRef.onDisconnectSetValue(<#T##value: Any?##Any?#>)
     }
     
     let presenceRef = Database.database().reference(withPath: "users")
-    // Write a string when this client loses connection
-//    presenceRef.onDisconnectSetValue("I disconnected!")
   
     // MARK: - CREATE NEW USER
-    
-//    
-//    func createNewUser(user: DBUser) async throws -> UserCreationStatus {
-//        if let _ = try? await getUserFromDB(userID: user.userId) {
-//            return .userExists
-//        }
-//        
-//        do {
-//            try userDocument(userID: user.userId).setData(from: user, merge: false)
-//            return .userIsCreated
-//        } catch {
-//            throw error
-//        }
-//    }
-//    
     
     func createNewUser(user: DBUser) throws {
         try userDocument(userID: user.userId).setData(from: user, merge: false)
@@ -178,7 +160,6 @@ final class UserManager {
 // MARK: - Testing functions
 extension UserManager {
     
-    
     ///Remove all is_active fields
     func deleteAllIsActiveFieldsOnUsers() {
         usersCollection.getDocuments { (querySnapshot, error) in
@@ -187,13 +168,10 @@ extension UserManager {
                 return
             }
             
-            // Iterate through each document in the collection
             for document in querySnapshot?.documents ?? [] {
                 let userData = document.data()
                 
-                // Check if the "is_active" field exists
                 if userData["is_active"] != nil {
-                    // Delete the "is_active" field from the document
                     document.reference.updateData([
                         "is_active": FieldValue.delete()
                     ]) { err in

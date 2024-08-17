@@ -63,7 +63,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     
     private func handleDeletionProviderPresentation(_ provider: String) {
         switch provider {
-        case "google.com": self.createDeletionAlertController()
+        case "google.com", "password": self.createDeletionAlertController()
         case "phone": self.coordinatorDelegate?.showProfileDeletionVC(viewModel: self.createProfileDeletionViewModel())
         default: break
         }

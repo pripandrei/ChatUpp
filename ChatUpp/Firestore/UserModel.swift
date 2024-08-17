@@ -40,7 +40,7 @@ struct DBUser: Codable
         self.phoneNumber = auth.phoneNumber
         self.dateCreated = Date()
         self.lastSeen = Date()
-        self.isActive = true
+        self.isActive = nil
     }
     
     init(userId: String,
@@ -93,12 +93,9 @@ struct DBUser: Codable
 
 
 //MARK: - Temporary methods while firebase functions are deactivated
+
 extension DBUser {
     func updateActiveStatus(lastSeenDate: Date, isActive: Bool) -> DBUser {
         return DBUser(userId: self.userId, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeenDate.toLocalTime(), isActive: isActive)
     }
-    
-//    func updateUserName(name: String?) -> DBUser {
-//        return DBUser(userId: self.userId, name: name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeen, isActive: self.isActive)
-//    }
 }

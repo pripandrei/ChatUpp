@@ -58,12 +58,25 @@ final class SettingsViewModel {
         guard let userID = dbUser?.userId else {return}
         let deletedUserID = UserManager.mainDeletedUserID
 
-        try await AuthenticationManager.shared.googleAuthReauthenticate()
+        if authProvider == "google" {
+            try await AuthenticationManager.shared.googleAuthReauthenticate()
+        }
         try await AuthenticationManager.shared.deleteAuthUser()
         try await ChatsManager.shared.replaceUserId(userID, with: deletedUserID)
         try await StorageManager.shared.deleteProfileImage(ofUser: userID, path: dbUser!.photoUrl!)
         try await UserManager.shared.deleteUserFromDB(userID: userID)
     }
+    
+//    func deleteUser() async throws {
+//        let deletedUserID = UserManager.mainDeletedUserID
+//    
+//        try await AuthenticationManager.shared.deleteAuthUser()
+//        try await ChatsManager.shared.replaceUserId(dbUser.userId, with: deletedUserID)
+//        if let photoURL = dbUser.photoUrl {
+//            try await StorageManager.shared.deleteProfileImage(ofUser: dbUser.userId, path: photoURL)
+//        }
+//        try await UserManager.shared.deleteUserFromDB(userID: dbUser.userId)
+//    }
     
 //    private func updateUserOnlineStatus() async throws {
 //        guard let userId = dbUser?.userId else {return}

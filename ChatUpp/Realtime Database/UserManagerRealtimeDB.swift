@@ -11,6 +11,16 @@
 //  and after that, Firebase functions will take care of mirroring update to Firestore DB
 //  You can find them inside ChatUpp/functions/index.js
 
+/// UPDATE!: Firebase functions are currently disabled (Firebase plan was modified to Spark Plan)
+/// Aditional functionallity was implemented inside project to cover all Firebase functions functionality
+/// Firebase functions will be automatically enabled when plan will be updated to Blaze Plan
+
+// TODO: Things to remove after transitioning back to listening for is_active and "last_seen" fields from Firebase DB:
+/// - DBUser.updateActiveStatus
+/// - UserManagerRealtimeDB.shared.addObserverToUsers everywhere in code
+/// - DBUser.isActive change from optional
+/// - UserManagerRealtimeDB.shared.addObserverToUsers everywhere in code
+
 import Foundation
 import FirebaseDatabase
 import FirebaseDatabaseSwift
@@ -34,6 +44,19 @@ final class UserManagerRealtimeDB {
         ]
             usersRef.child(user.userId).setValue(userData)
     }
+    
+//    func createUser(user: DBUser) {
+//        var userData: [String: Any] = [:]
+//        
+//        if let isActive = user.isActive {
+//            userData["is_active"] = isActive
+//        }
+//        userData = [
+//            "user_id": user.userId,
+//            "last_seen": user.lastSeen!.timeIntervalSince1970
+//        ]
+//            usersRef.child(user.userId).setValue(userData)
+//    }
     
     /// - update active status
     func updateUserActiveStatus(isActive: Bool) {

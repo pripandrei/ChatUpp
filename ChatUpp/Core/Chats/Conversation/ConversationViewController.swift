@@ -106,15 +106,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             }
         }
         
-        /// - user online status update
-//        conversationViewModel.updateUserActiveStatus = { [weak self] isOnline, lastSeenDate in
-//            if isOnline {
-//                self?.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "Online"
-//            } else {
-//                self?.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "last seen \(lastSeenDate.formatToYearMonthDayCustomString())"
-//            }
-//        }
-        
         /// Combine
         ///
         conversationViewModel.$userMember
@@ -129,14 +120,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 
                 self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = user.isActive ?? false ?
                 "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "")"
-                
-                //            if user.isActive {
-                //                self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "Online"
-                //            } else {
-                //                self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "")"
-                //            }
-                
-               
             }.store(in: &subscriptions)
         
     }
@@ -242,7 +225,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     
     /// - Navigation bar items setup
     private func setNavigationBarItems() {
-//        guard let imageData = conversationViewModel.memberProfileImage else {return}
         let imageData = conversationViewModel.memberProfileImage 
         let memberName = conversationViewModel.userMember.name!
         var memberActiveStatus: String

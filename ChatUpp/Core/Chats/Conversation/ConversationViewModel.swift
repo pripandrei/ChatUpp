@@ -36,7 +36,6 @@ final class ConversationViewModel {
     var messageWasModified: ((IndexPath, String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var onMessageRemoved: ((IndexPath) -> Void)?
-//    var updateUserActiveStatus: ((Bool,Date) -> Void)?
     
     var currentlyReplyToMessageID: String?
     
@@ -336,11 +335,6 @@ extension ConversationViewModel {
         }
     }
     
-    /// This listener belongs to Firestore DB,
-    /// and currently updates only user name
-    /// (becouse RealTime DB is implemented as temporarily solution for online updates)
-    /// Remove self.userMember.updateUserName(name: user.name) 
-    /// when decide to transition back form Realtime db to Firestore DB
     func addUsersListener() {
         
         self.userListener = UserManager.shared.addListenerToUsers([userMember.userId]) { [weak self] users, documentsTypes in
@@ -348,34 +342,7 @@ extension ConversationViewModel {
             // since we are listening only for one user here
             // we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            
-//            self.userMember = self.userMember.updateUserName(name: user.name)
             self.userMember = user
         }
     }
-    
-    /// - Users listener helper functions
-
-//    private func handleModifiedUsers(_ user: DBUser) {
-//        
-//        /// - check if online status changed
-//        if user.isActive != userMember.isActive {
-//            var value = ""
-//            if user.isActive {
-//                value = "Online"
-//            } else {
-//                value = user.lastSeen?.formatToYearMonthDayCustomString() ?? ""
-//            }
-//            self.userMember = user
-////            let status = userMember.isActive
-////            if let date = user.lastSeen {
-////                self.updateUserActiveStatus?(status, date)
-////            }
-//        }
-//        
-//        if user.name != userMember.name {
-//            
-//        }
-//        
-//    }
 }
