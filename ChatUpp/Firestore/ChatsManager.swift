@@ -15,6 +15,8 @@ typealias Listener = ListenerRegistration
 
 final class ChatsManager {
     
+    static var openedChatID = ""
+    
     static let shared = ChatsManager()
     
     private init() {}
@@ -282,6 +284,27 @@ final class ChatsManager {
             }
             complition(messages,docChangeType)
         }
+    }
+    
+    /// One message listener
+    
+    func addListenerToMessage(messageID: String, fromChatWithID chatID: String, complition: @escaping (Message?) -> Void) -> Listener {
+        return chatDocument(documentPath: chatID)
+            .collection(FirestoreCollection.messages.rawValue)
+            .document(messageID)
+            .addSnapshotListener { querySnapshot, error in
+                guard error == nil else { print(error!.localizedDescription); return}
+                guard let document = querySnapshot else { print("No Message Documents to listen"); return}
+                
+                if document.exists {
+                    do {
+                        let message = try document.data(as: Message.self)
+                        complition(message)
+                    } catch {
+                        print("Error while decoding message from listener: ", error.localizedDescription)
+                    }
+                } else { complition(nil) }
+            }
     }
     
     //MARK: - REMOVE MESSAGE FROM DB

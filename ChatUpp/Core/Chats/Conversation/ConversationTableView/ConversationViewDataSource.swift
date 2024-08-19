@@ -37,6 +37,12 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
             conversationViewModel.setReplyMessageData(fromReplyMessageID: repliedToMessageID, toViewModel: viewModel)
         }
         cell.configureCell(usingViewModel: viewModel, forSide: cellSide)
+//        
+//        viewModel.$messageWasModefied.sink { wasModified in
+//            if wasModified {
+//                tableView.reloadRows(at: [indexPath], with: .automatic)
+//            }
+//        }
         
         return cell
     }

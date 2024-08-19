@@ -78,12 +78,12 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             }
         }
         
-        conversationViewModel.onNewMessageAdded = { [weak self] in
-            Task { @MainActor in
-                let indexPath = IndexPath(row: 0, section: 0)
-                self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
-            }
-        }
+//        conversationViewModel.onNewMessageAdded = { [weak self] in
+//            Task { @MainActor in
+//                let indexPath = IndexPath(row: 0, section: 0)
+//                self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
+//            }
+//        }
         
         conversationViewModel.messageWasModified = { indexPath, modificationType in
             Task { @MainActor in
@@ -120,6 +120,15 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 
                 self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = user.isActive ?? false ?
                 "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "")"
+            }.store(in: &subscriptions)
+        
+        conversationViewModel.$newMessageAdded
+            .receive(on: DispatchQueue.main)
+            .sink { [ weak self] added in
+                if added {
+                    let indexPath = IndexPath(row: 0, section: 0)
+                    self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
+                }
             }.store(in: &subscriptions)
         
     }

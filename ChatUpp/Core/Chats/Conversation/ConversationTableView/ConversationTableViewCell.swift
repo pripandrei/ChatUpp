@@ -32,6 +32,8 @@ final class ConversationTableViewCell: UITableViewCell {
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     private var messageLabelTopConstraints: NSLayoutConstraint!
     
+    var cellIndexPath: IndexPath!
+    
     var mainCellContainer = UIView()
     var messageBubbleContainer = UIView()
     var messageLabel = YYLabel()

@@ -24,6 +24,18 @@ final class ConversationCellViewModel {
         return hoursAndMinutes
     }
     
+    func updateMessage(_ newMessage: Message) -> String {
+        let oldMessage = cellMessage
+        cellMessage = newMessage
+        
+        if oldMessage.messageBody != newMessage.messageBody {
+            return "text"
+        } else if oldMessage.messageSeen != newMessage.messageSeen {
+            return "seenStatus"
+        }
+        return ""
+    }
+    
     func fetchImageData() {
         Task {
             do {
