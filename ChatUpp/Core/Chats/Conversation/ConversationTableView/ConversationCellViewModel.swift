@@ -52,6 +52,19 @@ final class ConversationCellViewModel {
             
         }
     }
+    
+//    var messageListener: Listener?
+//    
+//    func addListenerToMessage() {
+//        guard let conversationID = CurrentlyOpenedConversation.id else {return}
+//        messageListener = ChatsManager.shared.addListenerToMessage(messageID: cellMessage.id, fromChatWithID: conversationID, complition: { message in
+//            if let message = message {
+//                self.updateMessage(message)
+//            } else {
+////                requestMessageDeletion()
+//            }
+//        })
+//    }
 }
 
 extension ConversationCellViewModel {

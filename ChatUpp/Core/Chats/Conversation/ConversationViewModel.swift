@@ -6,11 +6,7 @@
 //
 
 import Foundation
-
-struct CurrentlyOpenedConversation {
-    static var id: String?
-    private init() {}
-}
+import Combine
 
 final class ConversationViewModel {
     
@@ -20,14 +16,15 @@ final class ConversationViewModel {
     }
     
     private(set) var conversation: Chat?
-    @Published private(set) var userMember: DBUser
-    @Published private(set) var newMessageAdded: Bool = false
     private(set) var memberProfileImage: Data?
     private(set) var cellMessageGroups: [ConversationMessageGroups] = []
-    private(set) var messageListener: Listener?
-    private(set) var userListener: Listener?
-    
+    private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
+    
+    @Published private(set) var userMember: DBUser
+    @Published private(set) var newMessageAdded: Bool = false
+    @Published private(set) var removedMessageIndexPath: IndexPath?
+    private(set) var messageModificationSubject: PassthroughSubject<(IndexPath, String), Never>?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
@@ -36,7 +33,6 @@ final class ConversationViewModel {
    
     var messageWasModified: ((IndexPath, String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
-    var onMessageRemoved: ((IndexPath) -> Void)?
     
     var currentlyReplyToMessageID: String?
     
@@ -46,7 +42,6 @@ final class ConversationViewModel {
         self.memberProfileImage = imageData
         addListenerToMessages()
         addUsersListener()
-
         addUserObserver()
     }
     
@@ -95,7 +90,6 @@ final class ConversationViewModel {
         }
     }
    
-    
     private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
         
@@ -226,6 +220,7 @@ final class ConversationViewModel {
     func setReplyMessageData(fromReplyMessageID id: String, toViewModel viewModel: ConversationCellViewModel) {
         if let messageToBeReplied = getRepliedToMessage(messageID: id) {
             let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
+            
             (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
         }
     }
@@ -257,19 +252,14 @@ extension ConversationViewModel {
 }
 
 //MARK: - Message listener helper functions
-extension ConversationViewModel {
+extension ConversationViewModel 
+{
+    
     private func handleAddedMessage(_ message: Message) {
-        if !checkIfCellMessageGroupsContainsMessage([message]) {
+        if !cellMessageGroups.contains(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) {
             createMessageGroups([message])
-            self.newMessageAdded = true
+            newMessageAdded = true
         }
-    }
-
-    private func checkIfCellMessageGroupsContainsMessage(_ messages: [Message]) -> Bool {
-        if self.cellMessageGroups.contains(where: {$0.cellViewModels.contains(where: {$0.cellMessage.id == messages.last?.id})}) {
-            return true
-        }
-        return false
     }
     
     private func handleModifiedMessage(_ message: Message) {
@@ -282,6 +272,7 @@ extension ConversationViewModel {
     }
     
     private func handleRemovedMessage(_ message: Message) {
+        
         guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message.id) else { return }
         let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
         
@@ -296,7 +287,7 @@ extension ConversationViewModel {
                 await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
             }
         }
-        onMessageRemoved?(indexPath)
+        removedMessageIndexPath = indexPath
     }
     
     private func findMessageIndices(for messageId: String) -> (Int, Int)? {

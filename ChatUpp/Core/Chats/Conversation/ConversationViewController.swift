@@ -77,14 +77,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 self.updateMessageSeenStatusIfNeeded()
             }
         }
-        
-//        conversationViewModel.onNewMessageAdded = { [weak self] in
-//            Task { @MainActor in
-//                let indexPath = IndexPath(row: 0, section: 0)
-//                self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
-//            }
-//        }
-        
+
         conversationViewModel.messageWasModified = { indexPath, modificationType in
             Task { @MainActor in
                 guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
@@ -97,17 +90,32 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             }
         }
         
-        conversationViewModel.onMessageRemoved = { [weak self] indexPath in
-            Task { @MainActor in
-                UIView.transition(with: self!.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
-                    self?.rootView.tableView.reloadData()
-                }
-//                self?.rootView.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .automatic)
-            }
-        }
-        
         /// Combine
         ///
+        ///
+//        conversationViewModel.messageModificationSubject?
+//            .receive(on: DispatchQueue.main)
+//            .sink(receiveValue: { [weak self] indexPath, modificationType in
+//                guard let self = self else {return}
+//                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
+//                
+//                switch modificationType {
+//                case "text": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
+//                case "seenStatus": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+//                default: break
+//                }
+//            }).store(in: &subscriptions)
+      
+        conversationViewModel.$removedMessageIndexPath
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] indexPath in
+                if let indexPath = indexPath {
+                    UIView.transition(with: self!.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
+                        self?.rootView.tableView.reloadData()
+                    }
+                }
+            }.store(in: &subscriptions)
+        
         conversationViewModel.$userMember
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
