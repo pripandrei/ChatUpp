@@ -168,7 +168,7 @@ final class ConversationViewModel {
     }
     
     func handleImageDrop(imageData: Data, size: MessageImageSize) {
-        self.cellMessageGroups.first?.cellViewModels.first?.imageData.value = imageData
+        self.cellMessageGroups.first?.cellViewModels.first?.imageData = imageData
         self.cellMessageGroups.first?.cellViewModels.first?.cellMessage.imageSize = size
         self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
     }

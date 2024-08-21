@@ -10,7 +10,7 @@ import Foundation
 final class ConversationCellViewModel {
     
     var cellMessage: Message
-    var imageData: ObservableObject<Data?> = ObservableObject(nil)
+    @Published var imageData: Data?
     var messageToBeReplied: Message?
     
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
@@ -40,7 +40,7 @@ final class ConversationCellViewModel {
     func fetchImageData() {
         Task {
             do {
-                self.imageData.value = try await StorageManager.shared.getMessageImage(messageId: cellMessage.id, path: cellMessage.imagePath!)
+                self.imageData = try await StorageManager.shared.getMessageImage(messageId: cellMessage.id, path: cellMessage.imagePath!)
             } catch {
                 print("Error fetching image from storage: ", error)
             }
