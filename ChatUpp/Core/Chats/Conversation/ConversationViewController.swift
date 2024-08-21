@@ -66,9 +66,11 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     deinit {
         print("====ConversationVC Deinit")
     }
+
     
     //MARK: - Binding
-    private func setupBinding() {
+    private func setupBinding() 
+    {
         conversationViewModel.onCellVMLoad = { indexOfCellToScrollTo in
             Task { @MainActor in
                 self.rootView.tableView.reloadData()
@@ -77,44 +79,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 self.updateMessageSeenStatusIfNeeded()
             }
         }
-
-        conversationViewModel.messageWasModified = { indexPath, modificationType in
-            Task { @MainActor in
-                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
-                
-                switch modificationType {
-                case "text": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
-                case "seenStatus": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
-                default: break
-                }
-            }
-        }
-        
-        /// Combine
-        ///
-        ///
-//        conversationViewModel.messageModificationSubject?
-//            .receive(on: DispatchQueue.main)
-//            .sink(receiveValue: { [weak self] indexPath, modificationType in
-//                guard let self = self else {return}
-//                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
-//                
-//                switch modificationType {
-//                case "text": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
-//                case "seenStatus": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
-//                default: break
-//                }
-//            }).store(in: &subscriptions)
-      
-        conversationViewModel.$removedMessageIndexPath
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] indexPath in
-                if let indexPath = indexPath {
-                    UIView.transition(with: self!.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
-                        self?.rootView.tableView.reloadData()
-                    }
-                }
-            }.store(in: &subscriptions)
         
         conversationViewModel.$userMember
             .receive(on: DispatchQueue.main)
@@ -130,14 +94,74 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "")"
             }.store(in: &subscriptions)
         
-        conversationViewModel.$newMessageAdded
+        
+//        conversationViewModel.messageWasModified = { indexPath, modificationType in
+//            Task { @MainActor in
+//                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
+//                
+//                switch modificationType {
+//                case "text": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
+//                case "seenStatus": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+//                default: break
+//                }
+//            }
+//        }
+        
+        /// Combine
+        ///
+        
+        conversationViewModel.$messageChangedType
             .receive(on: DispatchQueue.main)
-            .sink { [ weak self] added in
-                if added {
+            .sink { [weak self] changeType in
+                guard let self = self else {return}
+            
+                switch changeType {
+                case .modified(let indexPath, let modifiedValue):
+                    let animationType = getAnimationType(from: modifiedValue)
+                    reloadCellRow(at: indexPath, with: animationType)
+                case .added:
                     let indexPath = IndexPath(row: 0, section: 0)
-                    self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
+                    self.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
+                case .removed:
+                    UIView.transition(with: self.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
+                        self.rootView.tableView.reloadData()
+                    }
+                default: break
                 }
             }.store(in: &subscriptions)
+        
+//        conversationViewModel.messageModificationSubject?
+//            .receive(on: DispatchQueue.main)
+//            .sink(receiveValue: { [weak self] indexPath, modificationType in
+//                guard let self = self else {return}
+//                guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
+//                
+//                switch modificationType {
+//                case "text": self.rootView.tableView.reloadRows(at: [indexPath], with: .left)
+//                case "seenStatus": self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+//                default: break
+//                }
+//            }).store(in: &subscriptions)
+
+        
+//          conversationViewModel.$removedMessageIndexPath
+//              .receive(on: DispatchQueue.main)
+//              .sink { [weak self] indexPath in
+//                  if let indexPath = indexPath {
+//                      UIView.transition(with: self!.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
+//                          self?.rootView.tableView.reloadData()
+//                      }
+//                  }
+//              }.store(in: &subscriptions)
+//  
+//        conversationViewModel.$newMessageAdded
+//            .receive(on: DispatchQueue.main)
+//            .sink { [ weak self] added in
+//                if added {
+//                    let indexPath = IndexPath(row: 0, section: 0)
+//                    self?.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
+//                }
+//            }.store(in: &subscriptions)
         
     }
     
@@ -276,6 +300,19 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         UIView.animate(withDuration: 0.3) {
             self.rootView.scrollToBottomBtn.layer.opacity = shouldBeHidden ? 0.0 : 1.0
         }
+    }
+    
+    private func getAnimationType(from valueModification: MessageValueModification) -> UITableView.RowAnimation {
+        switch valueModification {
+        case .seenStatus: return .none
+        case .text: return .left
+        }
+    }
+    
+    private func reloadCellRow(at indexPath: IndexPath, with animation: UITableView.RowAnimation)
+    {
+        guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
+        self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
     }
 }
 

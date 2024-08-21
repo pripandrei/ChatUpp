@@ -8,7 +8,20 @@
 import Foundation
 import Combine
 
+enum MessageValueModification {
+    case text
+    case seenStatus
+}
+
+enum MessageChangeType {
+    case modified(IndexPath, MessageValueModification)
+    case added
+    case removed
+}
+
 final class ConversationViewModel {
+    
+    @Published var messageChangedType: MessageChangeType?
     
     struct ConversationMessageGroups {
         let date: Date
@@ -22,8 +35,8 @@ final class ConversationViewModel {
     private(set) var userObserver: RealtimeDBObserver?
     
     @Published private(set) var userMember: DBUser
-    @Published private(set) var newMessageAdded: Bool = false
-    @Published private(set) var removedMessageIndexPath: IndexPath?
+//    @Published private(set) var newMessageAdded: Bool = false
+//    @Published private(set) var removedMessageIndexPath: IndexPath?
     private(set) var messageModificationSubject: PassthroughSubject<(IndexPath, String), Never>?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
@@ -258,7 +271,8 @@ extension ConversationViewModel
     private func handleAddedMessage(_ message: Message) {
         if !cellMessageGroups.contains(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) {
             createMessageGroups([message])
-            newMessageAdded = true
+            messageChangedType = .added
+//            newMessageAdded = true
         }
     }
     
@@ -267,8 +281,10 @@ extension ConversationViewModel
         let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
         let cellVM = cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex]
         
-        let modificationType = cellVM.updateMessage(message)
-        messageWasModified?(indexPath, modificationType)
+        guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else {return}
+        cellVM.updateMessage(message)
+        messageChangedType = .modified(indexPath, modificationValue)
+//        messageWasModified?(indexPath, modificationType)
     }
     
     private func handleRemovedMessage(_ message: Message) {
@@ -287,7 +303,8 @@ extension ConversationViewModel
                 await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
             }
         }
-        removedMessageIndexPath = indexPath
+        messageChangedType = .removed
+//        removedMessageIndexPath = indexPath
     }
     
     private func findMessageIndices(for messageId: String) -> (Int, Int)? {

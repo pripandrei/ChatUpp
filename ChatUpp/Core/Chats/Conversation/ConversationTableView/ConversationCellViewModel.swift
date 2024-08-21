@@ -24,16 +24,17 @@ final class ConversationCellViewModel {
         return hoursAndMinutes
     }
     
-    func updateMessage(_ newMessage: Message) -> String {
-        let oldMessage = cellMessage
+    func updateMessage(_ newMessage: Message) {
         cellMessage = newMessage
-        
-        if oldMessage.messageBody != newMessage.messageBody {
-            return "text"
-        } else if oldMessage.messageSeen != newMessage.messageSeen {
-            return "seenStatus"
-        }
-        return ""
+    }
+    
+    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification? {
+        if cellMessage.messageBody != newMessage.messageBody {
+            return .text
+        } else if cellMessage.messageSeen != newMessage.messageSeen {
+            return .seenStatus
+        } 
+        return nil
     }
     
     func fetchImageData() {
