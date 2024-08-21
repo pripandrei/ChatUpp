@@ -21,8 +21,6 @@ enum MessageChangeType {
 
 final class ConversationViewModel {
     
-    @Published var messageChangedType: MessageChangeType?
-    
     struct ConversationMessageGroups {
         let date: Date
         var cellViewModels: [ConversationCellViewModel]
@@ -35,16 +33,13 @@ final class ConversationViewModel {
     private(set) var userObserver: RealtimeDBObserver?
     
     @Published private(set) var userMember: DBUser
-//    @Published private(set) var newMessageAdded: Bool = false
-//    @Published private(set) var removedMessageIndexPath: IndexPath?
-    private(set) var messageModificationSubject: PassthroughSubject<(IndexPath, String), Never>?
+    @Published var messageChangedType: MessageChangeType?
     
     let authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
     var shouldEditMessage: ((String) -> Void)?
     var onCellVMLoad: ((IndexPath?) -> Void)?
    
-    var messageWasModified: ((IndexPath, String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     
     var currentlyReplyToMessageID: String?
@@ -272,7 +267,6 @@ extension ConversationViewModel
         if !cellMessageGroups.contains(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) {
             createMessageGroups([message])
             messageChangedType = .added
-//            newMessageAdded = true
         }
     }
     
@@ -284,14 +278,12 @@ extension ConversationViewModel
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else {return}
         cellVM.updateMessage(message)
         messageChangedType = .modified(indexPath, modificationValue)
-//        messageWasModified?(indexPath, modificationType)
     }
     
     private func handleRemovedMessage(_ message: Message) {
         
         guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message.id) else { return }
-        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
-        
+
         cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
         
         if cellMessageGroups[messageGroupIndex].cellViewModels.isEmpty {
@@ -304,7 +296,6 @@ extension ConversationViewModel
             }
         }
         messageChangedType = .removed
-//        removedMessageIndexPath = indexPath
     }
     
     private func findMessageIndices(for messageId: String) -> (Int, Int)? {
