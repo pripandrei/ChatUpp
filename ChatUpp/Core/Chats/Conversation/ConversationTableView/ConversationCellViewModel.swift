@@ -9,10 +9,9 @@ import Foundation
 
 final class ConversationCellViewModel {
     
-    var cellMessage: Message
     @Published var imageData: Data?
+    var cellMessage: Message
     var messageToBeReplied: Message?
-    
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
     
     init(cellMessage: Message) {

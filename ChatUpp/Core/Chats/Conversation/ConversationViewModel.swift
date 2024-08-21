@@ -283,7 +283,6 @@ extension ConversationViewModel
     private func handleRemovedMessage(_ message: Message) {
         
         guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message) else { return }
-
         cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
         
         if cellMessageGroups[messageGroupIndex].cellViewModels.isEmpty {
@@ -302,7 +301,7 @@ extension ConversationViewModel
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
                
         for groupIndex in 0..<cellMessageGroups.count {
-            var group = cellMessageGroups[groupIndex]
+            let group = cellMessageGroups[groupIndex]
             
             if group.date == date {
                 if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage.id == message.id }) {

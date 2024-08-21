@@ -43,6 +43,10 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupController()
+    }
+    
+    private func setupController() {
         setupBinding()
         setNavigationBarItems()
         configureTableView()
