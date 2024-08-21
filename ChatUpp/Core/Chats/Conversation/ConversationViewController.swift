@@ -103,8 +103,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                     let animationType = getAnimationType(from: modifiedValue)
                     reloadCellRow(at: indexPath, with: animationType)
                 case .added:
-                    let indexPath = IndexPath(row: 0, section: 0)
-                    self.handleTableViewCellInsertion(with: indexPath, scrollToBottom: false)
+                    self.handleTableViewCellInsertion(scrollToBottom: false)
                 case .removed:
                     UIView.transition(with: self.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
                         self.rootView.tableView.reloadData()
@@ -268,16 +267,15 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
 //MARK: - Handle cell message insertion
 extension ConversationViewController {
     
-    private func handleMessageBubbleCreation(messageText: String = "") {
-        let indexPath = IndexPath(row: 0, section: 0)
-
+    private func handleMessageBubbleCreation(messageText: String = "")
+    {
         self.conversationViewModel.createMessageBubble(messageText)
         Task { @MainActor in
-            self.handleTableViewCellInsertion(with: indexPath, scrollToBottom: true)
+            self.handleTableViewCellInsertion(scrollToBottom: true)
         }
     }
     
-    private func handleTableViewCellInsertion(with indexPath: IndexPath, scrollToBottom: Bool)
+    private func handleTableViewCellInsertion(with indexPath: IndexPath = IndexPath(row: 0, section: 0), scrollToBottom: Bool)
     {
         isNewSectionAdded = checkIfNewSectionWasAdded()
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)

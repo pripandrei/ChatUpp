@@ -271,7 +271,7 @@ extension ConversationViewModel
     }
     
     private func handleModifiedMessage(_ message: Message) {
-        guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message.id) else { return }
+        guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message) else { return }
         let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
         let cellVM = cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex]
         
@@ -282,7 +282,7 @@ extension ConversationViewModel
     
     private func handleRemovedMessage(_ message: Message) {
         
-        guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message.id) else { return }
+        guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message) else { return }
 
         cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
         
@@ -298,10 +298,16 @@ extension ConversationViewModel
         messageChangedType = .removed
     }
     
-    private func findMessageIndices(for messageId: String) -> (Int, Int)? {
-        for (groupIndex, group) in cellMessageGroups.enumerated() {
-            if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage.id == messageId }) {
-                return (groupIndex, messageIndex)
+    private func findMessageIndices(for message: Message) -> (Int, Int)? {
+        guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
+               
+        for groupIndex in 0..<cellMessageGroups.count {
+            var group = cellMessageGroups[groupIndex]
+            
+            if group.date == date {
+                if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage.id == message.id }) {
+                   return (groupIndex, messageIndex)
+                }
             }
         }
         return nil
