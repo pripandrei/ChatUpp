@@ -9,8 +9,6 @@ import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseDatabase
-//import FirebaseDatabaseSwift
-//import FirebaseDatabaseInternal
 
 enum ResponseStatus {
     case success
