@@ -171,7 +171,7 @@ final class ChatsManager {
     
     func getAllMessages(fromChatDocumentPath documentID: String) async throws -> [Message] {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
-        return try await messagesReference.order(by: "timestamp", descending: true).getDocuments(as: Message.self)
+        return try await messagesReference.order(by: "timestamp", descending: false).getDocuments(as: Message.self)
     }
     
     //MARK: - UPDATE RECENT MESSAGE OF CHAT

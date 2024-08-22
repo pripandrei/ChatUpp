@@ -10,20 +10,22 @@ import Foundation
 final class ConversationCellViewModel {
     
     @Published var imageData: Data?
-    var cellMessage: Message { willSet {setModifiedValueOfMessage(newValue)} }
+//    @Published var messageModifiedValue: MessageValueModification?
+    var cellMessage: Message 
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
-    @Published var messageModifiedValue: MessageValueModification?
-    @Published var shouldDeleteSelf: Bool = false
     
     init(cellMessage: Message) {
         self.cellMessage = cellMessage
-        addListenerToMessage()
     }
     
     var timestamp: String {
         let hoursAndMinutes = cellMessage.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
+    }
+    
+    func updateMessage(_ updatedMessage: Message) {
+        cellMessage = updatedMessage
     }
 
     func fetchImageData() {
@@ -43,25 +45,13 @@ final class ConversationCellViewModel {
         }
     }
     
-    var messageListener: Listener?
-    
-    func addListenerToMessage() {
-        guard let conversationID = ChatsManager.openedChatID else {return}
-        messageListener = ChatsManager.shared.addListenerToMessage(messageID: cellMessage.id, fromChatWithID: conversationID, complition: { [weak self] updatedMessage in
-            if let updatedMessage = updatedMessage {
-                self?.cellMessage = updatedMessage
-            } else {
-                self?.shouldDeleteSelf = true
-            }
-        })
-    }
-    
-    func setModifiedValueOfMessage(_ newMessage: Message) {
+    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification? {
         if cellMessage.messageBody != newMessage.messageBody {
-            self.messageModifiedValue = .text
+            return .text
         } else if cellMessage.messageSeen != newMessage.messageSeen {
-            messageModifiedValue = .seenStatus
+            return .seenStatus
         }
+        return nil
     }
 }
 
