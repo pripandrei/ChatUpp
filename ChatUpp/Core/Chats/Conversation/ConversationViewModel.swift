@@ -269,7 +269,7 @@ extension ConversationViewModel
     }
     
     private func handleModifiedMessage(_ message: Message) {
-        guard let indexPath = findMessageIndices(for: message) else { return }
+        guard let indexPath = findIndexPath(for: message) else { return }
         let cellVM = cellMessageGroups[indexPath.section].cellViewModels[indexPath.row]
         
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else {return}
@@ -279,22 +279,18 @@ extension ConversationViewModel
     
     private func handleRemovedMessage(_ message: Message) {
         
-        guard let indexPath = findMessageIndices(for: message) else { return }
+        guard let indexPath = findIndexPath(for: message) else { return }
         cellMessageGroups[indexPath.section].cellViewModels.remove(at: indexPath.row)
         
         if cellMessageGroups[indexPath.section].cellViewModels.isEmpty {
             cellMessageGroups.remove(at: indexPath.section)
         }
         
-        if indexPath.row == 0 && indexPath.section == 0 {
-            Task {
-                await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
-            }
-        }
+        updateLastMessageFromDBChatIfNeeded(with: indexPath)
         messageChangedType = .removed
     }
     
-    private func findMessageIndices(for message: Message) -> IndexPath? {
+    private func findIndexPath(for message: Message) -> IndexPath? {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
         for groupIndex in 0..<cellMessageGroups.count {
@@ -307,6 +303,14 @@ extension ConversationViewModel
             }
         }
         return nil
+    }
+    
+    private func updateLastMessageFromDBChatIfNeeded(with indexPath: IndexPath) {
+        if indexPath.row == 0 && indexPath.section == 0 {
+            Task {
+                await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
+            }
+        }
     }
 }
 

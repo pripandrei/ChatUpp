@@ -65,9 +65,6 @@ extension ChatCellViewModel {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else { return nil }
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
         self.member = member
-        if member.name == "Keiz" {
-            print("Stop")
-        }
         self.addObserverToUser()
         return member
     }

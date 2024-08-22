@@ -95,13 +95,14 @@ final class ConversationTableViewCell: UITableViewCell {
     //MARK: - binding
     private func setupBinding()
     {
-//        cellViewModel.$imageData
-//            .receive(on: DispatchQueue.main)
-//            .sink(receiveValue: { [weak self] data in
-//                if data == self?.cellViewModel.imageData {
-//                    self?.configureImageAttachment(data: data)
-//                }
-//            }).store(in: &subscribers)
+        cellViewModel.$imageData
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] data in
+                guard let data = data else {return}
+                if data == self?.cellViewModel.imageData {
+                    self?.configureImageAttachment(data: data)
+                }
+            }).store(in: &subscribers)
     }
 
     //MARK: - CELL PREPARE CLEANUP

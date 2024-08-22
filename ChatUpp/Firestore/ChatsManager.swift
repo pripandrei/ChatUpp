@@ -15,8 +15,6 @@ typealias Listener = ListenerRegistration
 
 final class ChatsManager {
     
-    static var openedChatID: String?
-    
     static let shared = ChatsManager()
     
     private init() {}
