@@ -46,6 +46,10 @@ final class ConversationViewModel {
         self.userMember = userMember
         self.conversation = conversation
         self.memberProfileImage = imageData
+        addListeners()
+    }
+    
+    private func addListeners() {
         addListenerToMessages()
         addUsersListener()
         addUserObserver()
