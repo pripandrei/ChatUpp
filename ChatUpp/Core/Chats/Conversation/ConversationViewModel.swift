@@ -202,7 +202,7 @@ final class ConversationViewModel {
     
     func editMessageTextFromDB(_ messageText: String, messageID: String) {
         Task {
-            try await ChatsManager.shared.updateMessageFromDB(messageText, messageID: messageID, chatID: conversation!.id)
+            try await ChatsManager.shared.updateDBMessageText(messageText, messageID: messageID, chatID: conversation!.id)
         }
     }
     
