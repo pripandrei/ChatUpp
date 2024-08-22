@@ -10,32 +10,22 @@ import Foundation
 final class ConversationCellViewModel {
     
     @Published var imageData: Data?
-    var cellMessage: Message
+    var cellMessage: Message { willSet {setModifiedValueOfMessage(newValue)} }
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
+    @Published var messageModifiedValue: MessageValueModification?
+    @Published var shouldDeleteSelf: Bool = false
     
     init(cellMessage: Message) {
         self.cellMessage = cellMessage
+        addListenerToMessage()
     }
     
     var timestamp: String {
         let hoursAndMinutes = cellMessage.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
     }
-    
-    func updateMessage(_ newMessage: Message) {
-        cellMessage = newMessage
-    }
-    
-    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification? {
-        if cellMessage.messageBody != newMessage.messageBody {
-            return .text
-        } else if cellMessage.messageSeen != newMessage.messageSeen {
-            return .seenStatus
-        } 
-        return nil
-    }
-    
+
     func fetchImageData() {
         Task {
             do {
@@ -53,18 +43,26 @@ final class ConversationCellViewModel {
         }
     }
     
-//    var messageListener: Listener?
-//    
-//    func addListenerToMessage() {
-//        guard let conversationID = CurrentlyOpenedConversation.id else {return}
-//        messageListener = ChatsManager.shared.addListenerToMessage(messageID: cellMessage.id, fromChatWithID: conversationID, complition: { message in
-//            if let message = message {
-//                self.updateMessage(message)
-//            } else {
-////                requestMessageDeletion()
-//            }
-//        })
-//    }
+    var messageListener: Listener?
+    
+    func addListenerToMessage() {
+        guard let conversationID = ChatsManager.openedChatID else {return}
+        messageListener = ChatsManager.shared.addListenerToMessage(messageID: cellMessage.id, fromChatWithID: conversationID, complition: { [weak self] updatedMessage in
+            if let updatedMessage = updatedMessage {
+                self?.cellMessage = updatedMessage
+            } else {
+                self?.shouldDeleteSelf = true
+            }
+        })
+    }
+    
+    func setModifiedValueOfMessage(_ newMessage: Message) {
+        if cellMessage.messageBody != newMessage.messageBody {
+            self.messageModifiedValue = .text
+        } else if cellMessage.messageSeen != newMessage.messageSeen {
+            messageModifiedValue = .seenStatus
+        }
+    }
 }
 
 extension ConversationCellViewModel {

@@ -6,8 +6,8 @@
 //
 
 import UIKit
-import Combine
 import YYText
+import Combine
 
 final class ConversationTableViewCell: UITableViewCell {
     
@@ -33,20 +33,18 @@ final class ConversationTableViewCell: UITableViewCell {
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     private var messageLabelTopConstraints: NSLayoutConstraint!
     
-    private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var messageImage: UIImage?
+    private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
-    private var subscriptions = Set<AnyCancellable>()
+    private var subscribers = Set<AnyCancellable>()
     
-    var cellIndexPath: IndexPath!
     var mainCellContainer = UIView()
     var messageBubbleContainer = UIView()
     var messageLabel = YYLabel()
     var seenStatusMark = YYLabel()
     var editedLabel: UILabel?
     var cellViewModel: ConversationCellViewModel!
-    
-    
+
     private var maxMessageWidth: CGFloat {
         return 290.0
     }
@@ -94,15 +92,16 @@ final class ConversationTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    //MARK: - BINDER
-    private func setupBinding() {
-        cellViewModel.$imageData
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: {  [weak self] data in
-                if data == self?.cellViewModel.imageData {
-                    self?.configureImageAttachment(data: data)
-                }
-            }).store(in: &subscriptions)
+    //MARK: - binding
+    private func setupBinding()
+    {
+//        cellViewModel.$imageData
+//            .receive(on: DispatchQueue.main)
+//            .sink(receiveValue: { [weak self] data in
+//                if data == self?.cellViewModel.imageData {
+//                    self?.configureImageAttachment(data: data)
+//                }
+//            }).store(in: &subscribers)
     }
 
     //MARK: - CELL PREPARE CLEANUP
@@ -328,7 +327,7 @@ extension ConversationTableViewCell
 
 // MARK: - HANDLE IMAGE OF MESSAGE SETUP
 extension ConversationTableViewCell {
-    
+
     private func configureImageAttachment(data: Data?) {
         setMessageImage(imageData: data)
         setMessageImageSize()
@@ -336,7 +335,7 @@ extension ConversationTableViewCell {
         setupTimestampBackgroundForImage()
         adjustMessagePadding(.imageSpace)
     }
-    
+
     private func setMessageImage(imageData: Data?) {
         if let imageData = imageData, let image = convertDataToImage(imageData) {
             messageImage = image
@@ -345,7 +344,7 @@ extension ConversationTableViewCell {
             cellViewModel.fetchImageData()
         }
     }
-    
+
     private func setMessageImageSize() {
         if let cellImageSize = cellViewModel.cellMessage.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
@@ -353,13 +352,13 @@ extension ConversationTableViewCell {
             messageImage = messageImage?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
         }
     }
-    
+
     private func setMessageLabelAttributedTextImage() {
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: messageImage, contentMode: .center, attachmentSize: messageImage!.size, alignTo: UIFont(name: "Helvetica", size: 17)!, alignment: .center)
-        
+
         messageLabel.attributedText = imageAttributedString
     }
-    
+
     private func convertDataToImage(_ data: Data) -> UIImage? {
         guard let image = UIImage(data: data) else { return nil }
         return image
@@ -416,6 +415,7 @@ extension ConversationTableViewCell {
         
         return attributedText
     }
+    
     
     /// Customized reply message to simplify left side indentation color fill and text inset
     class ReplyMessageLabel: UILabel {

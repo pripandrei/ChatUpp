@@ -51,6 +51,8 @@ final class ConversationViewModel {
         addListenerToMessages()
         addUsersListener()
         addUserObserver()
+        
+        ChatsManager.openedChatID = conversation?.id
     }
     
     private func createConversation() async {
@@ -72,16 +74,44 @@ final class ConversationViewModel {
             guard let date = message.timestamp.formatToYearMonthDay() else {return}
             
             let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-            
+           
             if let index = tempMessageGroups.firstIndex(where: {$0.date == date})  {
-                tempMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+                tempMessageGroups[index].cellViewModels.append(conversationCellVM)
+                let indexRow = tempMessageGroups[index].cellViewModels.firstIndex(where: { $0.cellMessage.id == message.id })!
             } else {
                 let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
-                tempMessageGroups.insert(newGroup, at: 0)
+                tempMessageGroups.append(newGroup)
             }
+            setupBinding(for: conversationCellVM)
         }
         self.cellMessageGroups = tempMessageGroups
     }
+    
+    /// Bindings
+    ///
+    private func setupBinding(for conversationCellVM: ConversationCellViewModel) {
+
+        conversationCellVM.$messageModifiedValue
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] modificationValue in
+                if let modificationValue = modificationValue {
+                    guard let indexPath = self?.findMessageIndices(for: conversationCellVM.cellMessage) else {return}
+                    self?.messageChangedType = .modified(indexPath, modificationValue)
+                }
+            }.store(in: &subscribers)
+        
+        conversationCellVM.$shouldDeleteSelf
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] shouldDelete in
+                if shouldDelete {
+                    guard let indexPath = self?.findMessageIndices(for: conversationCellVM.cellMessage) else {return}
+                    self?.handleRemovedMessage2(at: indexPath)
+                }
+            }.store(in: &subscribers)
+        
+    }
+    
+    private var subscribers = Set<AnyCancellable>()
  
     private func fetchConversationMessages() {
         guard let conversation = conversation else {return}
@@ -251,8 +281,7 @@ extension ConversationViewModel {
             docTypes.enumerated().forEach { index, type in
                 switch type {
                 case .added: self.handleAddedMessage(messages[index])
-                case .removed: self.handleRemovedMessage(messages[index])
-                case .modified: self.handleModifiedMessage(messages[index])
+                default: break
                 }
             }
         }
@@ -270,26 +299,15 @@ extension ConversationViewModel
         }
     }
     
-    private func handleModifiedMessage(_ message: Message) {
-        guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message) else { return }
-        let indexPath = IndexPath(row: messageIndex, section: messageGroupIndex)
-        let cellVM = cellMessageGroups[messageGroupIndex].cellViewModels[messageIndex]
-        
-        guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else {return}
-        cellVM.updateMessage(message)
-        messageChangedType = .modified(indexPath, modificationValue)
-    }
+    private func handleRemovedMessage2(at indexPath: IndexPath) {
     
-    private func handleRemovedMessage(_ message: Message) {
+        cellMessageGroups[indexPath.section].cellViewModels.remove(at: indexPath.row)
         
-        guard let (messageGroupIndex, messageIndex) = findMessageIndices(for: message) else { return }
-        cellMessageGroups[messageGroupIndex].cellViewModels.remove(at: messageIndex)
-        
-        if cellMessageGroups[messageGroupIndex].cellViewModels.isEmpty {
-            cellMessageGroups.remove(at: messageGroupIndex)
+        if cellMessageGroups[indexPath.section].cellViewModels.isEmpty {
+            cellMessageGroups.remove(at: indexPath.section)
         }
         
-        if messageGroupIndex == 0 && messageIndex == 0 {
+        if indexPath.row == 0 && indexPath.section == 0 {
             Task {
                 await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
             }
@@ -297,7 +315,7 @@ extension ConversationViewModel
         messageChangedType = .removed
     }
     
-    private func findMessageIndices(for message: Message) -> (Int, Int)? {
+    private func findMessageIndices(for message: Message) -> IndexPath? {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
                
         for groupIndex in 0..<cellMessageGroups.count {
@@ -305,7 +323,7 @@ extension ConversationViewModel
             
             if group.date == date {
                 if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage.id == message.id }) {
-                   return (groupIndex, messageIndex)
+                   return IndexPath(row: messageIndex, section: groupIndex)
                 }
             }
         }
