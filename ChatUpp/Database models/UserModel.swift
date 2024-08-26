@@ -34,7 +34,7 @@ class DBUser: Object, Codable
         }
     
     init(auth: AuthDataResultModel) {
-        self.init()
+        super.init()
         
         self.userId = auth.uid
         self.name = auth.name
@@ -57,7 +57,7 @@ class DBUser: Object, Codable
          isActive: Bool
     )
     {
-        self.init()
+        super.init()
         
         self.userId = userId
         self.name = name
@@ -70,7 +70,7 @@ class DBUser: Object, Codable
     }
     
     required init(from decoder: Decoder) throws {
-        self.init()
+        super.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.userId = try container.decode(String.self, forKey: .userId)

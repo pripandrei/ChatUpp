@@ -37,7 +37,7 @@ final class UserManagerRealtimeDB {
     
     /// - create user
     func createUser(user: DBUser) {
-        let userData: [String: Any] = [
+        let userData: [String: Any?] = [
             "user_id": user.userId,
             "is_active": user.isActive,
             "last_seen": user.lastSeen!.timeIntervalSince1970

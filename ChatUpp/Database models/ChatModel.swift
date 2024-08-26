@@ -9,7 +9,7 @@ import Foundation
 import RealmSwift
 
 class Chat: Object, Codable {
-    @Persisted var id: String
+    @Persisted(primaryKey: true) var id: String
     @Persisted var members: List<String>
     @Persisted var recentMessageID: String?
     
@@ -20,7 +20,7 @@ class Chat: Object, Codable {
     }
     
     required init(from decoder: Decoder) throws {
-        self.init()
+        super.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -37,10 +37,11 @@ class Chat: Object, Codable {
     }
     
     init(id: String, members: [String], lastMessage: String?) {
-//        self.init()
+        super.init()
         
         self.id = id
         self.members.append(objectsIn: members)
+//        self.members = members
         self.recentMessageID = lastMessage
     }
 }

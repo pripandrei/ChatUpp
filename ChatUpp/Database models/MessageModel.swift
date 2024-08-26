@@ -20,16 +20,16 @@ class MessageImageSize: Object, Codable {
 }
 
 class Message: Object, Codable {
-    var id: String
-    var messageBody: String
-    var senderId: String
-    var timestamp: Date
-    var messageSeen: Bool
-    var isEdited: Bool
-    var imagePath: String?
-    var repliedTo: String?
+    @Persisted(primaryKey: true) var id: String
+    @Persisted var messageBody: String
+    @Persisted var senderId: String
+    @Persisted var timestamp: Date
+    @Persisted var messageSeen: Bool
+    @Persisted var isEdited: Bool
+    @Persisted var imagePath: String?
+    @Persisted var repliedTo: String?
     
-    var imageSize: MessageImageSize?
+    @Persisted var imageSize: MessageImageSize?
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
@@ -44,6 +44,8 @@ class Message: Object, Codable {
     }
     
     required init(from decoder: Decoder) throws {
+        super.init()
+        
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.messageBody = try container.decode(String.self, forKey: .messageBody)
@@ -80,6 +82,8 @@ class Message: Object, Codable {
          repliedTo: String?
     )
     {
+        
+        super.init()
         self.id = id
     
         self.messageBody = messageBody
