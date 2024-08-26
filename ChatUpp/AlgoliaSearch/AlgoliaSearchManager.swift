@@ -21,8 +21,7 @@ final class AlgoliaSearchManager {
     func performSearch(_ searchText: String) async -> [DBUser] {
         let text = Query(searchText)
         do {
-            let settings = Settings().set(\.typoTolerance, to: false)
-            try index.setSettings(settings)
+            index.setupSettings()
             
             let result = try index.search(query: text)
             
@@ -51,4 +50,16 @@ struct AlgoliaResultData {
     let userID: String
     let name: String
     let profileImageLink: String
+}
+
+
+extension Index {
+    func setupSettings() {
+        let settings = Settings().set(\.typoTolerance, to: false)
+        do {
+            try self.setSettings(settings)
+        } catch {
+            print("Could not set index settings", error.localizedDescription)
+        }
+    }
 }

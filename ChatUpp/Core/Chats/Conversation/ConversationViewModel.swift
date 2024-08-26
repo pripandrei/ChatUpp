@@ -264,7 +264,6 @@ extension ConversationViewModel {
 //MARK: - Message listener helper functions
 extension ConversationViewModel
 {
-    
     private func handleAddedMessage(_ message: Message) {
         if !cellMessageGroups.contains(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) {
             createMessageGroups([message])

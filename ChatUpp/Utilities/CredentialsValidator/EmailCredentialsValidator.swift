@@ -5,8 +5,7 @@
 //  Created by Andrei Pripa on 9/22/23.
 //
 
-//import Foundation
-
+import Foundation
 import UIKit
 
 enum CredentialsError: Error {

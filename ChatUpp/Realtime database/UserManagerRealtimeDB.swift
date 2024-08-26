@@ -32,7 +32,7 @@ final class UserManagerRealtimeDB {
     private init() {}
     
     static let shared = UserManagerRealtimeDB()
-    private let usersRef = Database.database(url: "https://chatupp-e5b6c-default-rtdb.europe-west1.firebasedatabase.app").reference(withPath: "users")
+    private let usersReference = Database.database(url: "https://chatupp-e5b6c-default-rtdb.europe-west1.firebasedatabase.app").reference(withPath: "users")
     private var onDisconnectRefListener: DatabaseReference?
     
     /// - create user
@@ -42,7 +42,7 @@ final class UserManagerRealtimeDB {
             "is_active": user.isActive,
             "last_seen": user.lastSeen!.timeIntervalSince1970
         ]
-            usersRef.child(user.userId).setValue(userData)
+            usersReference.child(user.userId).setValue(userData)
     }
     
 //    func createUser(user: DBUser) {
@@ -64,7 +64,7 @@ final class UserManagerRealtimeDB {
         let userData: [String: Any] = [
             "is_active": isActive
         ]
-        usersRef.child(authUser.uid).updateChildValues(userData)
+        usersReference.child(authUser.uid).updateChildValues(userData)
     }
     
     /// - user on disconnect setup
@@ -76,7 +76,7 @@ final class UserManagerRealtimeDB {
         ]
         do {
             let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
-            self.onDisconnectRefListener = try await usersRef.child(authUser.uid).onDisconnectUpdateChildValues(userData)
+            self.onDisconnectRefListener = try await usersReference.child(authUser.uid).onDisconnectUpdateChildValues(userData)
         } catch {
             print(error.localizedDescription)
         }
@@ -87,7 +87,7 @@ final class UserManagerRealtimeDB {
     }
     
     func addObserverToUsers(_ userID: String, complition: @escaping (RealtimeDBUser) -> Void) -> RealtimeDBObserver {
-        let userRef = usersRef.child(userID)
+        let userRef = usersReference.child(userID)
 
         userRef.observe(.value) { snapshot in
             do {
