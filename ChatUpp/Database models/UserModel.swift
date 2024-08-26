@@ -6,19 +6,20 @@
 //
 
 import Foundation
+import RealmSwift
 
 // MARK: - User model
-struct DBUser: Codable
+class DBUser: Object, Codable
 {
-    let userId: String
-    let name: String?
-    let dateCreated: Date?
-    let email: String?
-    let photoUrl: String?
-    let phoneNumber: String?
+    @Persisted(primaryKey: true) var userId: String
+    @Persisted var name: String?
+    @Persisted var dateCreated: Date?
+    @Persisted var email: String?
+    @Persisted var photoUrl: String?
+    @Persisted var phoneNumber: String?
+    @Persisted var isActive: Bool?
+    @Persisted var lastSeen: Date?
     var nickname: String?
-    let isActive: Bool?
-    let lastSeen: Date?
         
         enum CodingKeys: String, CodingKey {
             case userId = "user_id"
@@ -33,6 +34,8 @@ struct DBUser: Codable
         }
     
     init(auth: AuthDataResultModel) {
+        self.init()
+        
         self.userId = auth.uid
         self.name = auth.name
         self.email = auth.email
@@ -54,6 +57,8 @@ struct DBUser: Codable
          isActive: Bool
     )
     {
+        self.init()
+        
         self.userId = userId
         self.name = name
         self.email = email
@@ -64,7 +69,9 @@ struct DBUser: Codable
         self.isActive = isActive
     }
     
-    init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
+        self.init()
+        
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.userId = try container.decode(String.self, forKey: .userId)
         self.name = try container.decodeIfPresent(String.self, forKey: .name)

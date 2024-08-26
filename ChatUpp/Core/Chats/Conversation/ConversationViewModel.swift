@@ -110,7 +110,6 @@ final class ConversationViewModel {
                        messageSeen: false,
                        isEdited: false,
                        imagePath: nil,
-                       receivedBy: nil,
                        imageSize: nil,
                        repliedTo: currentlyReplyToMessageID)
     }

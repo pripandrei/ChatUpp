@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import RealmSwift
 
-struct Chat: Codable {
-    let id: String
-    let members: [String]
-    let recentMessageID: String?
+class Chat: Object, Codable {
+    @Persisted var id: String
+    @Persisted var members: List<String>
+    @Persisted var recentMessageID: String?
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
@@ -18,11 +19,14 @@ struct Chat: Codable {
         case recentMessageID = "recent_message"
     }
     
-    init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
+        self.init()
+        
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
-        self.members = try container.decode([String].self, forKey: .members)
         self.recentMessageID = try container.decodeIfPresent(String.self, forKey: .recentMessageID)
+        let members = try container.decode([String].self, forKey: .members)
+        self.members.append(objectsIn: members)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -32,13 +36,11 @@ struct Chat: Codable {
         try container.encode(self.recentMessageID, forKey: .recentMessageID)
     }
     
-    init(id: String,
-         members: [String],
-         lastMessage: String?
-    )
-    {
+    init(id: String, members: [String], lastMessage: String?) {
+//        self.init()
+        
         self.id = id
-        self.members = members
+        self.members.append(objectsIn: members)
         self.recentMessageID = lastMessage
     }
 }
