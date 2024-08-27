@@ -33,8 +33,8 @@ class DBUser: Object, Codable
             case lastSeen = "last_seen"
         }
     
-    init(auth: AuthDataResultModel) {
-        super.init()
+    convenience init(auth: AuthDataResultModel) {
+        self.init()
         
         self.userId = auth.uid
         self.name = auth.name
@@ -46,7 +46,7 @@ class DBUser: Object, Codable
         self.isActive = nil
     }
     
-    init(userId: String,
+    convenience init(userId: String,
          name: String?,
          email: String?,
          photoUrl: String?,
@@ -57,7 +57,7 @@ class DBUser: Object, Codable
          isActive: Bool
     )
     {
-        super.init()
+        self.init()
         
         self.userId = userId
         self.name = name
@@ -69,8 +69,8 @@ class DBUser: Object, Codable
         self.isActive = isActive
     }
     
-    required init(from decoder: Decoder) throws {
-        super.init()
+    convenience required init(from decoder: Decoder) throws {
+        self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.userId = try container.decode(String.self, forKey: .userId)

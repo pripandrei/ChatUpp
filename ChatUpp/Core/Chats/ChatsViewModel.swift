@@ -20,6 +20,19 @@ final class ChatsViewModel {
     @Published var initialChatsDoneFetching: Bool = false
     @Published var shouldReloadCell: Bool = false
     
+    init() {
+        tryCreateCellVM()
+//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
+    }
+    
+    private func tryCreateCellVM() {
+        if let chats = RealmDBManager.shared.retrieveObjectsFromRealmDB(ofType: Chat.self) {
+            self.chats = chats
+            cellViewModels = createCellViewModel(with: chats)
+            initialChatsDoneFetching = true
+        }
+    }
+    
     private func createCellViewModel(with chats: [Chat]) -> [ChatCellViewModel] {
         return chats.map { chat in
             return ChatCellViewModel(chat: chat)
@@ -44,6 +57,7 @@ final class ChatsViewModel {
         self.cellViewModels = createCellViewModel(with: chats)
         Task {
             try await self.fetchCellVMData(self.cellViewModels)
+            addChatsToRealmDB(self.chats)
             initialChatsDoneFetching = true
         }
     }
@@ -80,22 +94,32 @@ extension ChatsViewModel {
         }
     }
     
+    private func addChatsToRealmDB(_ chats: [Chat]) {
+        Task { @MainActor in
+            for chat in chats {
+                RealmDBManager.shared.createRealmDBObject(object: chat)
+            }
+        }
+    }
+    
     private func addChatsListener()
     {
         self.chatsListener = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
             guard let self = self else {return}
-
+            
+//            self.addChatsToRealmDB(chats)
             if self.chats.isEmpty {
                 handleInitialChatsFetch(chats)
                 return
             }
             docTypes.enumerated().forEach { index, type in
                 switch type {
-                case .added: self.handleAddedChat(chats[index])
+                case .added: print("RealmDBManager.shared.createRealmDBObject(object: chats[index])")
                 case .removed: self.handleRemovedChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
             }
+//            self.addChatsToRealmDB(chats)
         })
     }
 }

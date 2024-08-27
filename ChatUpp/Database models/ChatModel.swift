@@ -19,8 +19,8 @@ class Chat: Object, Codable {
         case recentMessageID = "recent_message"
     }
     
-    required init(from decoder: Decoder) throws {
-        super.init()
+    required convenience init(from decoder: Decoder) throws {
+        self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -36,8 +36,8 @@ class Chat: Object, Codable {
         try container.encode(self.recentMessageID, forKey: .recentMessageID)
     }
     
-    init(id: String, members: [String], lastMessage: String?) {
-        super.init()
+    convenience init(id: String, members: [String], lastMessage: String?) {
+        self.init()
         
         self.id = id
         self.members.append(objectsIn: members)

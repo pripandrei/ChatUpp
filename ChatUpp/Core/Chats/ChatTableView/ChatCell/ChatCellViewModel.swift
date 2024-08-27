@@ -8,6 +8,10 @@
 import Foundation
 import Firebase
 
+enum RealmRetrieveError: Error {
+    case objectNotPresent
+}
+
 class ChatCellViewModel {
     
     @Published private(set) var member: DBUser?
@@ -22,6 +26,7 @@ class ChatCellViewModel {
     
     init(chat: Chat) {
         self.chat = chat
+        tryRetrieveChatDataFromRealmDB()
     }
     
     /// - updated user after deletion
@@ -57,6 +62,42 @@ extension ChatCellViewModel {
     }
 }
 
+//MARK: - Retrieve Realm db data
+
+extension ChatCellViewModel {
+    
+    func tryRetrieveChatDataFromRealmDB() {
+        do {
+            try retrieveMember()
+            try retrieveRecentMessage()
+            try retrieveMemberImageData()
+        } catch {
+            print("Could not retrieve realm object: ",error.localizedDescription)
+        }
+    }
+    
+    func retrieveMember() throws {
+        guard let memberID = chat.members.first(where: { $0 != authUser.uid} ),
+              let member = RealmDBManager.shared.retrieveSingleObjectFromRealmDB(ofType: DBUser.self, primaryKey: memberID) else { throw RealmRetrieveError.objectNotPresent }
+        self.member = member
+        self.addObserverToUser()
+    }
+    
+    func retrieveRecentMessage() throws {
+        guard let messageID = chat.recentMessageID,
+              let message = RealmDBManager.shared.retrieveSingleObjectFromRealmDB(ofType: Message.self, primaryKey: messageID) else { throw RealmRetrieveError.objectNotPresent }
+        self.recentMessage = message
+    }
+    
+    func retrieveMemberImageData() throws {
+        guard let member = self.member,
+              let userProfilePhotoURL = member.photoUrl,
+              let imageURL = RealmDBManager.shared.retrieveSingleObjectFromRealmDB(ofType: DBUser.self, primaryKey: member.userId)?.photoUrl else {throw RealmRetrieveError.objectNotPresent}
+        
+        //TODO: Retrieve image from FileManager cach with imageURL
+    }
+}
+
 //MARK: - Fetch cell data
 
 extension ChatCellViewModel {
@@ -65,14 +106,17 @@ extension ChatCellViewModel {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else { return nil }
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
         self.member = member
+        Task { @MainActor in RealmDBManager.shared.createRealmDBObject(object: member)}
         self.addObserverToUser()
         return member
     }
     
     @discardableResult
     func loadRecentMessage() async throws -> Message?  {
-        guard let message = try await ChatsManager.shared.getRecentMessageFromChats([chat]).first else { return nil }
+        guard let message = try await ChatsManager.shared.getRecentMessageFromChats([chat]).first,
+              let message = message else { return nil }
         self.recentMessage = message
+        Task { @MainActor in RealmDBManager.shared.createRealmDBObject(object: message)}
         return message
     }
     

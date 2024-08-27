@@ -17,6 +17,9 @@ class MessageImageSize: Object, Codable {
         self.width = width
         self.height = height
     }
+    override init() {
+        super.init()
+    }
 }
 
 class Message: Object, Codable {
@@ -43,8 +46,8 @@ class Message: Object, Codable {
         case repliedTo = "replied_to"
     }
     
-    required init(from decoder: Decoder) throws {
-        super.init()
+    convenience required init(from decoder: Decoder) throws {
+        self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
@@ -71,7 +74,7 @@ class Message: Object, Codable {
         try container.encodeIfPresent(self.repliedTo, forKey: .repliedTo)
     }
     
-    init(id: String,
+    convenience init(id: String,
          messageBody: String,
          senderId: String,
          timestamp: Date,
@@ -83,7 +86,7 @@ class Message: Object, Codable {
     )
     {
         
-        super.init()
+        self.init()
         self.id = id
     
         self.messageBody = messageBody
