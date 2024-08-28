@@ -93,9 +93,8 @@ final class UserManagerRealtimeDB {
             do {
                 let user = try snapshot.data(as: RealtimeDBUser.self)
                 complition(user)
-                print("success")
             } catch {
-                print("Could not decode RealTimeDBUser: ", error.localizedDescription)
+                print("Could not decode Realtime DBUser: ", error.localizedDescription)
             }
         }
         return userRef

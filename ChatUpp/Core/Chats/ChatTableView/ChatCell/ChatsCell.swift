@@ -40,7 +40,15 @@ class ChatsCell: UITableViewCell {
         setDateLable()
         setupUnreadMessagesCountLabel()
         createOnlineStatusView()
-//        contentView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        initiateSkeletonAnimation()
+    }
+    
+    private func initiateSkeletonAnimation() {
+        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
+        showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.7))
+        
+//        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), transition: .crossDissolve(.signalingNaN))
     }
 
     required init?(coder: NSCoder) {
@@ -76,17 +84,36 @@ class ChatsCell: UITableViewCell {
     
     private func handleImageSetup()
     {
+        if let member = cellViewModel.member {
+            if member.photoUrl == nil {
+                setImage()
+                return
+            }
+        }
+
         guard let imageData = cellViewModel.memberProfileImage else {
-            self.profileImage.image = UIImage(named: "default_profile_photo")
             return
         }
         setImage(imageData)
     }
     
-    private func setImage(_ imageData: Data) {
-        let image = UIImage(data: imageData)
-        
-        DispatchQueue.main.async {
+    private func stopSkeletonAnimationFor(_ views: UIView...) {
+        for view in views {
+            view.stopSkeletonAnimation()
+            view.hideSkeleton(transition: .none)
+        }
+    }
+    
+    private func setImage(_ imageData: Data? = nil) {
+        Task { @MainActor in
+            stopSkeletonAnimationFor(profileImage)
+            guard let imageData = imageData else {
+                self.profileImage.image = UIImage(named: "default_profile_photo")
+                return
+            }
+            let image = UIImage(data: imageData)
+            
+            self.stopSkeletonAnimationFor(self.profileImage)
             self.profileImage.image = image
         }
     }
@@ -97,33 +124,46 @@ class ChatsCell: UITableViewCell {
         
         /// - currently memberProfileImage are called only when member user is deleted
         cellViewModel.$memberProfileImage
+            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self, url = cellViewModel.member?.photoUrl] imageData in
-                if let imageData = imageData {
-                    self?.setImage(imageData)
-                }
+                guard let self = self else {return}
+
+                self.stopSkeletonAnimationFor(self.profileImage)
+                self.setImage(imageData)
+//                if let imageData = imageData {
+//                    self.setImage(imageData)
+//                } else {
+//                    self.profileImage.image = UIImage(named: "default_profile_photo")
+//                }
         }.store(in: &subscriptions)
         
         cellViewModel.$member
             .receive(on: DispatchQueue.main)
             .sink { member in
-            if let member = member {
-                if self.nameLabel.text != member.name {
-                    self.nameLabel.text = member.name
+                if let member = member {
+                    
+                    self.stopSkeletonAnimationFor(self.nameLabel)
+                    
+                    if self.nameLabel.text != member.name {
+                        self.nameLabel.text = member.name
+                    }
+                    if let status = member.isActive {
+                        self.onlineStatusCircleView.isHidden = !status
+                    }
                 }
-                if let status = member.isActive {
-                    self.onlineStatusCircleView.isHidden = !status
-                }
-//                self.onlineStatusCircleView.isHidden = !member.isActive
-            }
             }.store(in: &subscriptions)
 
         cellViewModel.$recentMessage
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
                 if let message = message {
-                    self?.messageLable.text = message.messageBody
-                    self?.dateLable.text = message.timestamp.formatToHoursAndMinutes()
+                    guard let self = self else {return}
+                    
+                    self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
+                    
+                    self.messageLable.text = message.messageBody
+                    self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
                 }
             }.store(in: &subscriptions)
         
@@ -143,41 +183,6 @@ class ChatsCell: UITableViewCell {
 //                self.animateUnreadMessageCounterOnReceive()
             }.store(in: &subscriptions)
     }
-    
-    //MARK: - Animate new message counter
-    
-//    func animateUnreadMessageCounterOnReceive() {
-//        UIView.animate(withDuration: 0.2, animations: {
-//        }, completion: { _ in
-//            UIView.animate(withDuration: 0.09, animations: {
-//                self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 5, dy: 0)
-//            }) { _ in
-//                UIView.animate(withDuration: 0.05, animations: {
-//                    self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -10, dy: 0)
-//                }) { _ in
-//                    UIView.animate(withDuration: 0.05, animations: {
-//                        self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 8, dy: 0)
-//                    }) { _ in
-//                        UIView.animate(withDuration: 0.05, animations: {
-//                            self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -6, dy: 0)
-//                        }) { _ in
-//                            UIView.animate(withDuration: 0.05, animations: {
-//                                self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 5, dy: 0)
-//                            }) { _ in
-//                                UIView.animate(withDuration: 0.05, animations: {
-//                                    self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: -3, dy: 0)
-//                                }) { _ in
-//                                    UIView.animate(withDuration: 0.05, animations: {
-//                                        self.unreadMessagesCountLabel.frame = self.unreadMessagesCountLabel.frame.offsetBy(dx: 1, dy: 0)
-//                                    })
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        })
-//    }
     
 //MARK: - UI SETUP
     
@@ -211,7 +216,6 @@ class ChatsCell: UITableViewCell {
         unreadMessagesCountLabel.textAlignment = .center
         unreadMessagesCountLabel.clipsToBounds = true
         unreadMessagesCountLabel.layer.masksToBounds = true
-//        unreadMessagesCountLabel.isHidden = true
         unreadMessagesCountLabel.linesCornerRadius = 8
         unreadMessagesCountLabel.isSkeletonable = true
         unreadMessagesCountLabel.skeletonTextLineHeight = .fixed(25)
@@ -222,7 +226,6 @@ class ChatsCell: UITableViewCell {
         NSLayoutConstraint.activate([
             unreadMessagesCountLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
             unreadMessagesCountLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
-//            unreadMessagesCountLabel.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
             unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
             unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
         ])
@@ -231,7 +234,6 @@ class ChatsCell: UITableViewCell {
     private func setMessageLable() {
         contentView.addSubview(messageLable)
         messageLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title2), size: 14)
-        messageLable.text = "Temporary message here, for testing purposes only."
         messageLable.textColor = #colorLiteral(red: 0.5970802903, green: 0.5856198668, blue: 0.6014393568, alpha: 1)
         messageLable.backgroundColor = .clear
         messageLable.textAlignment = .left
@@ -253,14 +255,12 @@ class ChatsCell: UITableViewCell {
             messageLable.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 77),
             messageLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -55),
             messageLable.heightAnchor.constraint(equalToConstant: 37)
-//            messageLable.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -8)
         ])
     }
     
     private func setNameLabel() {
         contentView.addSubview(nameLabel)
         nameLabel.textColor = #colorLiteral(red: 0.8956019878, green: 1, blue: 1, alpha: 1)
-//        nameLabel.font = UIFont.boldSystemFont(ofSize: 16.5)
         nameLabel.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .headline), size: 17)
         
         
@@ -298,9 +298,7 @@ class ChatsCell: UITableViewCell {
         NSLayoutConstraint.activate([
             profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             profileImage.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-                   // Set a fixed width and height for the label (circular shape)
             profileImage.widthAnchor.constraint(equalTo: profileImage.heightAnchor),
-                   // Ensure the label's width and height are equal
             profileImage.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.15)
         ])
     }
@@ -325,7 +323,6 @@ class ChatsCell: UITableViewCell {
         NSLayoutConstraint.activate([
             dateLable.topAnchor.constraint(equalTo: self.topAnchor, constant: 8),
             dateLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
-//            dateLable.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
             dateLable.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
             dateLable.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.25)
         ])

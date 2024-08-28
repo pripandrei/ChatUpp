@@ -56,9 +56,13 @@ final class ChatsViewModel {
         self.chats = chats
         self.cellViewModels = createCellViewModel(with: chats)
 //        addChatsToRealmDB(chats)
+        self.initialChatsDoneFetching = true
 //        Task {
 //            try await self.fetchCellVMData(self.cellViewModels)
-            initialChatsDoneFetching = true
+//        Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { Timer in
+//            self.initialChatsDoneFetching = true
+//        }
+            
 //            Task {@MainActor in addChatsToRealmDB(chats)}
 //        }
     }

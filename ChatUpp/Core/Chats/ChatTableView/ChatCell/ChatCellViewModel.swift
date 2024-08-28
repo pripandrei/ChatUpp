@@ -33,7 +33,7 @@ class ChatCellViewModel {
            do {
                try tryRetrieveChatDataFromRealmDB()
            } catch {
-               print("Could not retrieve data from Realm: ", error.localizedDescription)
+//               print("Could not retrieve data from Realm: ", error.localizedDescription)
                fetchChatDataFromFirestore()
            }
        }
@@ -102,7 +102,6 @@ extension ChatCellViewModel {
     func retrieveMember() throws -> DBUser {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ),
               let member = RealmDBManager.shared.retrieveSingleObjectFromRealmDB(ofType: DBUser.self, primaryKey: memberID) else { throw RealmRetrieveError.objectNotPresent }
-//        self.addObserverToUser()
         return member
     }
     
@@ -127,21 +126,21 @@ extension ChatCellViewModel {
     func loadOtherMemberOfChat() async throws -> DBUser? {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else { return nil }
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
-//        Task { @MainActor in RealmDBManager.shared.createRealmDBObject(object: member)}
-//        self.addObserverToUser()
         return member
     }
     
     func loadRecentMessage() async throws -> Message?  {
         guard let message = try await ChatsManager.shared.getRecentMessageFromChats([chat]).first,
               let message = message else { return nil }
-//        Task { @MainActor in RealmDBManager.shared.createRealmDBObject(object: message)}
         return message
     }
     
     func fetchImageData() async throws -> Data? {
         guard let user = self.member,
-              let userProfilePhotoURL = self.member?.photoUrl else { print("Could not get User data to fetch imageData") ; return nil }
+              let userProfilePhotoURL = user.photoUrl else {
+//            print("Could not get User image url. Local image will be used")
+            return nil
+        }
         let photoData = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
         return photoData
     }

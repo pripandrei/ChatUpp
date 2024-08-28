@@ -48,7 +48,7 @@ class ChatsViewController: UIViewController {
         setupSearchController()
         chatsViewModel.setupChatListener()
         chatsViewModel.activateOnDisconnect()
-        self.toggleSkeletonAnimation(.initiate)
+//        self.toggleSkeletonAnimation(.initiate)
 //        try? AuthenticationManager.shared.signOut()
     }
     
@@ -90,7 +90,7 @@ class ChatsViewController: UIViewController {
                 if isFetched {
                     self?.chatsViewModel.addUsersListiner()
                     self?.tableView.reloadData()
-                    self?.toggleSkeletonAnimation(.terminate)
+//                    self?.toggleSkeletonAnimation(.terminate)
                     
                 }
             }.store(in: &subscriptions)
