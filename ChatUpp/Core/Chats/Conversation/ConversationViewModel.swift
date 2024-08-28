@@ -86,7 +86,7 @@ final class ConversationViewModel {
     }
  
     private func fetchConversationMessages() {
-        guard let conversation = conversation else {return}
+        guard let conversation = conversation?.freeze() else {return}
         Task {
             do {
                 let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)

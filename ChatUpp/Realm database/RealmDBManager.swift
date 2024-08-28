@@ -26,10 +26,8 @@ final class RealmDBManager {
     }
     
     public func createRealmDBObject<T: Object>(object: T) {
-        Task {@MainActor in
-            try? realmDB.write {
-                realmDB.add(object, update: .modified)
-            }            
+        try? realmDB.write {
+            realmDB.add(object, update: .modified)
         }
     }
     
@@ -52,28 +50,28 @@ final class RealmDBManager {
         })
     }
     
-    public func addObserverToObjects<T: Object>(objects: Results<T>) {
-        notificationToke = objects.observe { change in
-            switch change {
-            case .initial(let initialResults): print(initialResults)
-            case .update(let updateResults, let deletions, let insertions, let modifications): print("ads")
-            case .error(let error): print(error.localizedDescription)
-            }
-        }
-    }
-    
-    public func addObserverToObject<T: Object>(object: T) {
-        notificationToke = object.observe { change in
-            switch change {
-            case .change(_, let properties):
-                for property in properties {
-                    
-                }
-            case .deleted: print("ads")
-            case .error(let error): print(error.localizedDescription)
-            }
-        }
-    }
+//    public func addObserverToObjects<T: Object>(objects: Results<T>) {
+//        notificationToke = objects.observe { change in
+//            switch change {
+//            case .initial(let initialResults): print(initialResults)
+//            case .update(let updateResults, let deletions, let insertions, let modifications): print("ads")
+//            case .error(let error): print(error.localizedDescription)
+//            }
+//        }
+//    }
+//    
+//    public func addObserverToObject<T: Object>(object: T) {
+//        notificationToke = object.observe { change in
+//            switch change {
+//            case .change(_, let properties):
+//                for property in properties {
+//                    
+//                }
+//            case .deleted: print("ads")
+//            case .error(let error): print(error.localizedDescription)
+//            }
+//        }
+//    }
     
     func transformObjectToResults<T: Object>(object: T) {
         

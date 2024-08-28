@@ -21,7 +21,7 @@ final class ChatsViewModel {
     @Published var shouldReloadCell: Bool = false
     
     init() {
-        tryCreateCellVM()
+//        tryCreateCellVM()
 //        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
     }
     
@@ -55,10 +55,11 @@ final class ChatsViewModel {
     {
         self.chats = chats
         self.cellViewModels = createCellViewModel(with: chats)
+//        addChatsToRealmDB(chats)
         Task {
             try await self.fetchCellVMData(self.cellViewModels)
-            addChatsToRealmDB(self.chats)
             initialChatsDoneFetching = true
+            Task {@MainActor in addChatsToRealmDB(chats)}
         }
     }
     
@@ -95,10 +96,8 @@ extension ChatsViewModel {
     }
     
     private func addChatsToRealmDB(_ chats: [Chat]) {
-        Task { @MainActor in
-            for chat in chats {
-                RealmDBManager.shared.createRealmDBObject(object: chat)
-            }
+        for chat in chats {
+            RealmDBManager.shared.createRealmDBObject(object: chat)
         }
     }
     
