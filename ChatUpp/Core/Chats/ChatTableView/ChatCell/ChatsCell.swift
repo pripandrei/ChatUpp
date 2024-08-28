@@ -22,7 +22,7 @@ class ChatsCell: UITableViewCell {
     
     private var subscriptions = Set<AnyCancellable>()
     
-//MARK: - LIFECYCLE
+    //MARK: - LIFECYCLE
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -43,19 +43,9 @@ class ChatsCell: UITableViewCell {
         initiateSkeletonAnimation()
     }
     
-    private func initiateSkeletonAnimation() {
-        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-        showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.7))
-        
-//        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), transition: .crossDissolve(.signalingNaN))
-    }
-
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    
     deinit {
         print("chatCellVM was deinit =====")
     }
@@ -76,67 +66,25 @@ class ChatsCell: UITableViewCell {
         guard let message = cellViewModel.recentMessage else {return}
         self.messageLable.text = message.messageBody
         self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
-    
+        
         guard let unreadMessageCount = cellViewModel.unreadMessageCount, unreadMessageCount != 0, cellViewModel.authUser.uid != message.senderId else {return}
         unreadMessagesCountLabel.isHidden = false
         self.unreadMessagesCountLabel.text = "\(unreadMessageCount)"
     }
     
-    private func handleImageSetup()
+    //MARK: - Binding
+    
+    private func setupBinding()
     {
-        if let member = cellViewModel.member {
-            if member.photoUrl == nil {
-                setImage()
-                return
-            }
-        }
-
-        guard let imageData = cellViewModel.memberProfileImage else {
-            return
-        }
-        setImage(imageData)
-    }
-    
-    private func stopSkeletonAnimationFor(_ views: UIView...) {
-        for view in views {
-            view.stopSkeletonAnimation()
-            view.hideSkeleton(transition: .none)
-        }
-    }
-    
-    private func setImage(_ imageData: Data? = nil) {
-        Task { @MainActor in
-            stopSkeletonAnimationFor(profileImage)
-            guard let imageData = imageData else {
-                self.profileImage.image = UIImage(named: "default_profile_photo")
-                return
-            }
-            let image = UIImage(data: imageData)
-            
-            self.stopSkeletonAnimationFor(self.profileImage)
-            self.profileImage.image = image
-        }
-    }
-    
-//MARK: - BINDING
-    
-    private func setupBinding() {
-        
-        /// - currently memberProfileImage are called only when member user is deleted
         cellViewModel.$memberProfileImage
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self, url = cellViewModel.member?.photoUrl] imageData in
                 guard let self = self else {return}
-
+                
                 self.stopSkeletonAnimationFor(self.profileImage)
                 self.setImage(imageData)
-//                if let imageData = imageData {
-//                    self.setImage(imageData)
-//                } else {
-//                    self.profileImage.image = UIImage(named: "default_profile_photo")
-//                }
-        }.store(in: &subscriptions)
+            }.store(in: &subscriptions)
         
         cellViewModel.$member
             .receive(on: DispatchQueue.main)
@@ -153,7 +101,7 @@ class ChatsCell: UITableViewCell {
                     }
                 }
             }.store(in: &subscriptions)
-
+        
         cellViewModel.$recentMessage
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
@@ -180,11 +128,60 @@ class ChatsCell: UITableViewCell {
                     return
                 }
                 self.unreadMessagesCountLabel.isHidden = false
-//                self.animateUnreadMessageCounterOnReceive()
+                //                self.animateUnreadMessageCounterOnReceive()
             }.store(in: &subscriptions)
     }
     
+    //MARK: - Image setup
+    
+    private func handleImageSetup() {
+        guard let member = cellViewModel.member else { return }
+        
+        if member.photoUrl == nil {
+            /// set local image
+            setImage()
+            return
+        }
+        
+        if let imageData = cellViewModel.memberProfileImage {
+            /// set fetched image
+            setImage(imageData)
+        }
+    }
+    
+    private func setImage(_ imageData: Data? = nil) {
+        Task { @MainActor in
+            stopSkeletonAnimationFor(profileImage)
+            guard let imageData = imageData else {
+                self.profileImage.image = UIImage(named: "default_profile_photo")
+                return
+            }
+            let image = UIImage(data: imageData)
+            self.profileImage.image = image
+        }
+    }
+    
+}
+
+//MARK: - Skeleton animation handler
+extension ChatsCell {
+    private func stopSkeletonAnimationFor(_ views: UIView...) {
+        for view in views {
+            view.stopSkeletonAnimation()
+            view.hideSkeleton(transition: .none)
+        }
+    }
+    private func initiateSkeletonAnimation() {
+        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
+        showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.7))
+        
+        //        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), transition: .crossDissolve(.signalingNaN))
+    }
+}
+
 //MARK: - UI SETUP
+extension ChatsCell {
     
     func createOnlineStatusView() {
         
@@ -199,8 +196,6 @@ class ChatsCell: UITableViewCell {
         NSLayoutConstraint.activate([
             onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 12),
             onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 12),
-//            onlineStatusCircleView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-//            onlineStatusCircleView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             onlineStatusCircleView.trailingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: -3),
             onlineStatusCircleView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -3),
         ])
