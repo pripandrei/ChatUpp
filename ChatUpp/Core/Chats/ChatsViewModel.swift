@@ -40,27 +40,27 @@ final class ChatsViewModel {
     }
     
     // Fetch all data at once
-    func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws 
-    {
-        return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?, Int?)?.self) { group in
-            for cellViewModel in cellViewModels {
-                group.addTask {
-                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage(), cellViewModel.fetchUnreadMessagesCount())
-                }
-            }
-        }
-    }
+//    func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws 
+//    {
+//        return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?, Int?)?.self) { group in
+//            for cellViewModel in cellViewModels {
+//                group.addTask {
+//                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage(), cellViewModel.fetchUnreadMessagesCount())
+//                }
+//            }
+//        }
+//    }
 
     func handleInitialChatsFetch(_ chats: [Chat]) 
     {
         self.chats = chats
         self.cellViewModels = createCellViewModel(with: chats)
 //        addChatsToRealmDB(chats)
-        Task {
-            try await self.fetchCellVMData(self.cellViewModels)
+//        Task {
+//            try await self.fetchCellVMData(self.cellViewModels)
             initialChatsDoneFetching = true
-            Task {@MainActor in addChatsToRealmDB(chats)}
-        }
+//            Task {@MainActor in addChatsToRealmDB(chats)}
+//        }
     }
     
     func activateOnDisconnect() {
