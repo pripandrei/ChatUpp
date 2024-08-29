@@ -54,24 +54,35 @@ class ChatsCell: UITableViewCell {
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
+        
         setupBinding()
         handleImageSetup()
+        setOnlineStatusActivity()
         
-        self.onlineStatusCircleView.isHidden = ((cellViewModel.member?.isActive) != nil) ? false : true
+        nameLabel.text = cellViewModel.member?.name
         
-        unreadMessagesCountLabel.isHidden = true
-        self.nameLabel.text = cellViewModel.member?.name
-        self.dateLable.adjustsFontSizeToFitWidth = true
-        
-        guard let message = cellViewModel.recentMessage else {return}
-        self.messageLable.text = message.messageBody
-        self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
-        
-        guard let unreadMessageCount = cellViewModel.unreadMessageCount, unreadMessageCount != 0, cellViewModel.authUser.uid != message.senderId else {return}
-        unreadMessagesCountLabel.isHidden = false
-        self.unreadMessagesCountLabel.text = "\(unreadMessageCount)"
+        if let message = cellViewModel.recentMessage {
+            messageLable.text = message.messageBody
+            dateLable.text = message.timestamp.formatToHoursAndMinutes()
+            setUnreadMessageCount(message)
+        } else {
+            unreadMessagesCountLabel.isHidden = true
+        }
     }
     
+    private func setOnlineStatusActivity() {
+        onlineStatusCircleView.isHidden = ((cellViewModel.member?.isActive) != nil) ? false : true
+    }
+    
+    private func setUnreadMessageCount(_ message: Message) {
+        let shouldShowUnreadCount = cellViewModel.authUser.uid != message.senderId && cellViewModel.unreadMessageCount > 0
+        unreadMessagesCountLabel.isHidden = !shouldShowUnreadCount
+        
+        if shouldShowUnreadCount {
+            unreadMessagesCountLabel.text = "\(cellViewModel.unreadMessageCount)"
+        }
+    }
+
     //MARK: - Binding
     
     private func setupBinding()
@@ -88,9 +99,13 @@ class ChatsCell: UITableViewCell {
         
         cellViewModel.$member
             .receive(on: DispatchQueue.main)
+            .dropFirst()
             .sink { member in
                 if let member = member {
                     
+//                    print("self Cell: active",self.cellViewModel.member?.isActive)
+//                    print("member",member.isActive)
+//                    print("====")
                     self.stopSkeletonAnimationFor(self.nameLabel)
                     
                     if self.nameLabel.text != member.name {
@@ -99,6 +114,7 @@ class ChatsCell: UITableViewCell {
                     if let status = member.isActive {
                         self.onlineStatusCircleView.isHidden = !status
                     }
+//                    self.setOnlineStatusActivity()
                 }
             }.store(in: &subscriptions)
         
@@ -119,7 +135,8 @@ class ChatsCell: UITableViewCell {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] count in
                 guard let self = self else {return}
-                guard let count = count else {return}
+                self.stopSkeletonAnimationFor(unreadMessagesCountLabel)
+//                guard let count = count else {return}
                 guard self.cellViewModel.authUser.uid != self.cellViewModel.recentMessage?.senderId else {return}
                 
                 self.unreadMessagesCountLabel.text = "\(count)"
@@ -135,6 +152,9 @@ class ChatsCell: UITableViewCell {
     //MARK: - Image setup
     
     private func handleImageSetup() {
+        if cellViewModel.member?.name == "Mira later" {
+            print("mira")
+        }
         guard let member = cellViewModel.member else { return }
         
         if member.photoUrl == nil {
@@ -303,6 +323,7 @@ extension ChatsCell {
 
         dateLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title3), size: 14)
         dateLable.textColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1)
+        dateLable.adjustsFontSizeToFitWidth = true
         
         dateLable.isSkeletonable = true
         dateLable.linesCornerRadius = 4

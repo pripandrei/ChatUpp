@@ -20,12 +20,13 @@ enum MessageChangeType {
     case removed
 }
 
+struct ConversationMessageGroups {
+    let date: Date
+    var cellViewModels: [ConversationCellViewModel]
+}
+
+
 final class ConversationViewModel {
-    
-    struct ConversationMessageGroups {
-        let date: Date
-        var cellViewModels: [ConversationCellViewModel]
-    }
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
@@ -264,15 +265,15 @@ extension ConversationViewModel {
 extension ConversationViewModel
 {
     private func handleAddedMessage(_ message: Message) {
-        if !cellMessageGroups.contains(where: { $0.cellViewModels.contains(where: { $0.cellMessage.id == message.id }) }) {
+        if !cellMessageGroups.contains(elementWithID: message.id) {
             createMessageGroups([message])
             messageChangedType = .added
         }
     }
     
     private func handleModifiedMessage(_ message: Message) {
-        guard let indexPath = findIndexPath(for: message) else { return }
-        let cellVM = cellMessageGroups[indexPath.section].cellViewModels[indexPath.row]
+        guard let indexPath = indexPath(of: message) else { return }
+        let cellVM = cellMessageGroups.getCellViewModel(at: indexPath)
         
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else {return}
         cellVM.updateMessage(message)
@@ -281,18 +282,22 @@ extension ConversationViewModel
     
     private func handleRemovedMessage(_ message: Message) {
         
-        guard let indexPath = findIndexPath(for: message) else { return }
-        cellMessageGroups[indexPath.section].cellViewModels.remove(at: indexPath.row)
+        guard let indexPath = indexPath(of: message) else { return }
         
-        if cellMessageGroups[indexPath.section].cellViewModels.isEmpty {
-            cellMessageGroups.remove(at: indexPath.section)
-        }
+        cellMessageGroups.removeCellViewModel(at: indexPath)
+        removeMessageGroup(at: indexPath)
         
         updateLastMessageFromDBChatIfNeeded(with: indexPath)
         messageChangedType = .removed
     }
     
-    private func findIndexPath(for message: Message) -> IndexPath? {
+    private func removeMessageGroup(at indexPath: IndexPath) {
+        if cellMessageGroups[indexPath.section].cellViewModels.isEmpty {
+            cellMessageGroups.remove(at: indexPath.section)
+        }
+    }
+    
+    private func indexPath(of message: Message) -> IndexPath? {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
         for groupIndex in 0..<cellMessageGroups.count {
@@ -313,6 +318,26 @@ extension ConversationViewModel
                 await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
             }
         }
+    }
+    
+    func contains(_ message: Message) -> Bool {
+        let existingMessageIDs: Set<String> = Set(cellMessageGroups.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
+        return existingMessageIDs.contains(message.id)
+    }
+}
+
+extension Array where Element == ConversationMessageGroups {
+    mutating func removeCellViewModel(at indexPath: IndexPath) {
+        self[indexPath.section].cellViewModels.remove(at: indexPath.row)
+    }
+    
+    func getCellViewModel(at indexPath: IndexPath) -> ConversationCellViewModel {
+        return self[indexPath.section].cellViewModels[indexPath.row]
+    }
+    
+    func contains(elementWithID id: String) -> Bool {
+        let existingMessageIDs: Set<String> = Set(self.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
+        return existingMessageIDs.contains(id)
     }
 }
 

@@ -17,7 +17,7 @@ class ChatCellViewModel {
     @Published private(set) var member: DBUser? { didSet {self.addObserverToUser()} }
     @Published var memberProfileImage: Data?
     @Published var recentMessage: Message?
-    @Published private(set) var unreadMessageCount: Int?
+    @Published private(set) var unreadMessageCount: Int = 0
     
     private(set) var userObserver: RealtimeDBObserver?
     
@@ -51,8 +51,8 @@ class ChatCellViewModel {
     
     private func addDataToRealm() {
         Task { @MainActor in
-            RealmDBManager.shared.createRealmDBObject(object: member!)
-            RealmDBManager.shared.createRealmDBObject(object: recentMessage!)
+            RealmDBManager.shared.add(object: member!)
+            RealmDBManager.shared.add(object: recentMessage!)
         }
     }
     
@@ -101,20 +101,20 @@ extension ChatCellViewModel {
     
     func retrieveMember() throws -> DBUser {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ),
-              let member = RealmDBManager.shared.retrieveSingleObjectFromRealmDB(ofType: DBUser.self, primaryKey: memberID) else { throw RealmRetrieveError.objectNotPresent }
+              let member = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID) else { throw RealmRetrieveError.objectNotPresent }
         return member
     }
     
     func retrieveRecentMessage() throws -> Message {
         guard let messageID = chat.recentMessageID,
-              let message = RealmDBManager.shared.retrieveSingleObjectFromRealmDB(ofType: Message.self, primaryKey: messageID) else { throw RealmRetrieveError.objectNotPresent }
+              let message = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else { throw RealmRetrieveError.objectNotPresent }
         return message
     }
     
     func retrieveMemberImageData() throws {
         guard let member = self.member,
               let userProfilePhotoURL = member.photoUrl,
-              let imageURL = RealmDBManager.shared.retrieveSingleObjectFromRealmDB(ofType: DBUser.self, primaryKey: member.userId)?.photoUrl else {throw RealmRetrieveError.objectNotPresent}
+              let imageURL = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: member.userId)?.photoUrl else {throw RealmRetrieveError.objectNotPresent}
         
         //TODO: Retrieve image from FileManager cach with imageURL
     }
@@ -122,15 +122,24 @@ extension ChatCellViewModel {
 
 //MARK: - Fetch cell data
 
-extension ChatCellViewModel {
+extension ChatCellViewModel 
+{
+    private func fetchChatDataFromFirestoreDB() async throws
+    {
+        self.member             = try await loadOtherMemberOfChat()
+        self.recentMessage      =     await loadRecentMessage()
+        self.memberProfileImage = try await fetchImageData()
+        self.unreadMessageCount = try await fetchUnreadMessagesCount()
+    }
+    
     func loadOtherMemberOfChat() async throws -> DBUser? {
         guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else { return nil }
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
         return member
     }
     
-    func loadRecentMessage() async throws -> Message?  {
-        guard let message = try await ChatsManager.shared.getRecentMessageFromChats([chat]).first,
+    func loadRecentMessage() async -> Message?  {
+        guard let message = try? await ChatsManager.shared.getRecentMessageFromChats([chat]).first,
               let message = message else { return nil }
         return message
     }
@@ -145,18 +154,10 @@ extension ChatCellViewModel {
         return photoData
     }
     
-    func fetchUnreadMessagesCount() async throws -> Int? {
+    func fetchUnreadMessagesCount() async throws -> Int {
         let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chat.id)
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
-    }
-    
-    private func fetchChatDataFromFirestoreDB() async throws
-    {
-        self.member             = try await loadOtherMemberOfChat()
-        self.recentMessage      = try await loadRecentMessage()
-        self.memberProfileImage = try await fetchImageData()
-        self.unreadMessageCount = try await fetchUnreadMessagesCount()
     }
 }
 

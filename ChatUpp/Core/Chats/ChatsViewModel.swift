@@ -26,7 +26,7 @@ final class ChatsViewModel {
     }
     
     private func tryCreateCellVM() {
-        if let chats = RealmDBManager.shared.retrieveObjectsFromRealmDB(ofType: Chat.self) {
+        if let chats = RealmDBManager.shared.retrieveObjects(ofType: Chat.self) {
             self.chats = chats
             cellViewModels = createCellViewModel(with: chats)
             initialChatsDoneFetching = true
@@ -39,18 +39,6 @@ final class ChatsViewModel {
         }
     }
     
-    // Fetch all data at once
-//    func fetchCellVMData(_ cellViewModels: [ChatCellViewModel]) async throws 
-//    {
-//        return await withThrowingTaskGroup(of: (DBUser?, Data?, Message?, Int?)?.self) { group in
-//            for cellViewModel in cellViewModels {
-//                group.addTask {
-//                    try? await (cellViewModel.loadOtherMemberOfChat(), cellViewModel.fetchImageData(), cellViewModel.loadRecentMessage(), cellViewModel.fetchUnreadMessagesCount())
-//                }
-//            }
-//        }
-//    }
-
     func handleInitialChatsFetch(_ chats: [Chat]) 
     {
         self.chats = chats
@@ -101,7 +89,7 @@ extension ChatsViewModel {
     
     private func addChatsToRealmDB(_ chats: [Chat]) {
         for chat in chats {
-            RealmDBManager.shared.createRealmDBObject(object: chat)
+            RealmDBManager.shared.add(object: chat)
         }
     }
     

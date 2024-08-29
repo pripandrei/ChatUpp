@@ -25,13 +25,13 @@ final class RealmDBManager {
         return try! Realm()
     }
     
-    public func createRealmDBObject<T: Object>(object: T) {
+    public func add<T: Object>(object: T) {
         try? realmDB.write {
             realmDB.add(object, update: .modified)
         }
     }
     
-    public func retrieveObjectsFromRealmDB<T: Object>(ofType type: T.Type) -> [T]? {
+    public func retrieveObjects<T: Object>(ofType type: T.Type) -> [T]? {
         let objects = realmDB.objects(T.self)
         if objects.isEmpty {
             return nil
@@ -40,11 +40,11 @@ final class RealmDBManager {
         }
     }
     
-    public func retrieveSingleObjectFromRealmDB<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
+    public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
         return realmDB.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
-    public func updateObjectFromRealmDB<T: Object>(object: T, update: (T) -> Void) {
+    public func update<T: Object>(object: T, update: (T) -> Void) {
         try! realmDB.write({
             update(object)
         })
