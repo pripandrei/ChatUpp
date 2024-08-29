@@ -71,7 +71,12 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setOnlineStatusActivity() {
-        onlineStatusCircleView.isHidden = ((cellViewModel.member?.isActive) != nil) ? false : true
+        if cellViewModel.member?.name == "Vadim" {
+            print("stop")
+        }
+        if let activeStatus = cellViewModel.member?.isActive {
+            onlineStatusCircleView.isHidden = !activeStatus
+        }
     }
     
     private func setUnreadMessageCount(_ message: Message) {
@@ -111,10 +116,10 @@ class ChatsCell: UITableViewCell {
                     if self.nameLabel.text != member.name {
                         self.nameLabel.text = member.name
                     }
-                    if let status = member.isActive {
-                        self.onlineStatusCircleView.isHidden = !status
-                    }
-//                    self.setOnlineStatusActivity()
+//                    if let status = member.isActive {
+//                        self.onlineStatusCircleView.isHidden = !status
+//                    }
+                    self.setOnlineStatusActivity()
                 }
             }.store(in: &subscriptions)
         
