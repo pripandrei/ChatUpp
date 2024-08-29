@@ -59,6 +59,10 @@ class ChatsCell: UITableViewCell {
         handleImageSetup()
         setOnlineStatusActivity()
         
+        if self.cellViewModel.member?.name == "Mira later" {
+            print("stop")
+        }
+        
         nameLabel.text = cellViewModel.member?.name
         
         if let message = cellViewModel.recentMessage {
@@ -71,9 +75,6 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setOnlineStatusActivity() {
-        if cellViewModel.member?.name == "Vadim" {
-            print("stop")
-        }
         if let activeStatus = cellViewModel.member?.isActive {
             onlineStatusCircleView.isHidden = !activeStatus
         }
@@ -107,18 +108,11 @@ class ChatsCell: UITableViewCell {
             .dropFirst()
             .sink { member in
                 if let member = member {
-                    
-//                    print("self Cell: active",self.cellViewModel.member?.isActive)
-//                    print("member",member.isActive)
-//                    print("====")
                     self.stopSkeletonAnimationFor(self.nameLabel)
                     
                     if self.nameLabel.text != member.name {
                         self.nameLabel.text = member.name
                     }
-//                    if let status = member.isActive {
-//                        self.onlineStatusCircleView.isHidden = !status
-//                    }
                     self.setOnlineStatusActivity()
                 }
             }.store(in: &subscriptions)
