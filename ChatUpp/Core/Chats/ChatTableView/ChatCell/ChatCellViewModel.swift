@@ -17,7 +17,7 @@ class ChatCellViewModel {
     @Published private(set) var member: DBUser? { didSet {self.addObserverToUser()} }
     @Published var memberProfileImage: Data?
     @Published var recentMessage: Message?
-    @Published private(set) var unreadMessageCount: Int = 0
+    @Published private(set) var unreadMessageCount: Int?
     
     private(set) var userObserver: RealtimeDBObserver?
     

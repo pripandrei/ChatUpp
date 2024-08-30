@@ -34,13 +34,7 @@ class ChatsCell: UITableViewCell {
         self.selectedBackgroundView = cellBackground
         self.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         
-        setMessageLable()
-        setNameLabel()
-        setProfileImage()
-        setDateLable()
-        setupUnreadMessagesCountLabel()
-        createOnlineStatusView()
-        initiateSkeletonAnimation()
+        setupUI()
     }
     
     required init?(coder: NSCoder) {
@@ -54,24 +48,17 @@ class ChatsCell: UITableViewCell {
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
-        
+
         setupBinding()
         handleImageSetup()
-        setOnlineStatusActivity()
-        
-        if self.cellViewModel.member?.name == "Mira later" {
-            print("stop")
-        }
-        
-        nameLabel.text = cellViewModel.member?.name
-        
-        if let message = cellViewModel.recentMessage {
-            messageLable.text = message.messageBody
-            dateLable.text = message.timestamp.formatToHoursAndMinutes()
-            setUnreadMessageCount(message)
-        } else {
-            unreadMessagesCountLabel.isHidden = true
-        }
+
+//        if let message = cellViewModel.recentMessage {
+//            messageLable.text = message.messageBody
+//            dateLable.text = message.timestamp.formatToHoursAndMinutes()
+//            setUnreadMessageCount(message)
+//        } else {
+//            unreadMessagesCountLabel.isHidden = true
+//        }
     }
     
     private func setOnlineStatusActivity() {
@@ -80,12 +67,15 @@ class ChatsCell: UITableViewCell {
         }
     }
     
-    private func setUnreadMessageCount(_ message: Message) {
-        let shouldShowUnreadCount = cellViewModel.authUser.uid != message.senderId && cellViewModel.unreadMessageCount > 0
+    private func setUnreadMessageCount(_ count: Int) {
+        guard let message = cellViewModel.recentMessage else {return}
+        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
+        
+        let shouldShowUnreadCount = cellViewModel.authUser.uid != message.senderId && count > 0
         unreadMessagesCountLabel.isHidden = !shouldShowUnreadCount
         
         if shouldShowUnreadCount {
-            unreadMessagesCountLabel.text = "\(cellViewModel.unreadMessageCount)"
+            unreadMessagesCountLabel.text = "\(count)"
         }
     }
 
@@ -94,18 +84,16 @@ class ChatsCell: UITableViewCell {
     private func setupBinding()
     {
         cellViewModel.$memberProfileImage
-            .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self, url = cellViewModel.member?.photoUrl] imageData in
+            .dropFirst()
+            .sink { [weak self] imageData in
                 guard let self = self else {return}
-                
-                self.stopSkeletonAnimationFor(self.profileImage)
                 self.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$member
             .receive(on: DispatchQueue.main)
-            .dropFirst()
+//            .dropFirst()
             .sink { member in
                 if let member = member {
                     self.stopSkeletonAnimationFor(self.nameLabel)
@@ -127,23 +115,30 @@ class ChatsCell: UITableViewCell {
                     
                     self.messageLable.text = message.messageBody
                     self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
+//                    setUnreadMessageCount(message)
                 }
             }.store(in: &subscriptions)
         
         cellViewModel.$unreadMessageCount
+//            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] count in
                 guard let self = self else {return}
+                guard let count = count else {return}
                 self.stopSkeletonAnimationFor(unreadMessagesCountLabel)
-//                guard let count = count else {return}
-                guard self.cellViewModel.authUser.uid != self.cellViewModel.recentMessage?.senderId else {return}
                 
-                self.unreadMessagesCountLabel.text = "\(count)"
-                if count == 0 {
-                    self.unreadMessagesCountLabel.isHidden = true
-                    return
-                }
-                self.unreadMessagesCountLabel.isHidden = false
+                setUnreadMessageCount(count)
+//                guard self.cellViewModel.authUser.uid != self.cellViewModel.recentMessage?.senderId else {return}
+//                
+//                self.unreadMessagesCountLabel.text = "\(count)"
+//                if count == 0 {
+//                    self.unreadMessagesCountLabel.isHidden = true
+//                    return
+//                }
+//                self.unreadMessagesCountLabel.isHidden = false
+                
+                
+                
                 //                self.animateUnreadMessageCounterOnReceive()
             }.store(in: &subscriptions)
     }
@@ -151,9 +146,6 @@ class ChatsCell: UITableViewCell {
     //MARK: - Image setup
     
     private func handleImageSetup() {
-        if cellViewModel.member?.name == "Mira later" {
-            print("mira")
-        }
         guard let member = cellViewModel.member else { return }
         
         if member.photoUrl == nil {
@@ -202,7 +194,17 @@ extension ChatsCell {
 //MARK: - UI SETUP
 extension ChatsCell {
     
-    func createOnlineStatusView() {
+    private func setupUI() {
+        setMessageLable()
+        setNameLabel()
+        setProfileImage()
+        setDateLable()
+        setupUnreadMessagesCountLabel()
+        createOnlineStatusView()
+        initiateSkeletonAnimation()
+    }
+    
+    private func createOnlineStatusView() {
         
         contentView.addSubview(onlineStatusCircleView)
         
@@ -220,17 +222,22 @@ extension ChatsCell {
         ])
     }
     
-    func setupUnreadMessagesCountLabel() {
+    private func setupUnreadMessagesCountLabel() {
         contentView.addSubview(unreadMessagesCountLabel)
         
         unreadMessagesCountLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
         unreadMessagesCountLabel.font = UIFont(name: "Helvetica", size: 16)
-        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
+//        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         unreadMessagesCountLabel.layer.cornerRadius = 12
         unreadMessagesCountLabel.textAlignment = .center
         unreadMessagesCountLabel.clipsToBounds = true
         unreadMessagesCountLabel.layer.masksToBounds = true
         unreadMessagesCountLabel.linesCornerRadius = 8
+//        unreadMessagesCountLabel.isHidden = true
+//        unreadMessagesCountLabel.isSkeletonable = true
+//        unreadMessagesCountLabel.linesCornerRadius = 4
+//        unreadMessagesCountLabel.skeletonTextLineHeight = .fixed(10)
+//        unreadMessagesCountLabel.skeletonTextNumberOfLines = .custom(1)
         unreadMessagesCountLabel.isSkeletonable = true
         unreadMessagesCountLabel.skeletonTextLineHeight = .fixed(25)
         unreadMessagesCountLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
