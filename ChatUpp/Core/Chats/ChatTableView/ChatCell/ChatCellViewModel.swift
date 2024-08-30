@@ -26,26 +26,22 @@ class ChatCellViewModel {
     
     init(chat: Chat) {
         self.chat = chat
-        supplyViewModelWithData()
+        initiateChatDataLoad()
+//        loadData()
     }
     
-    private func supplyViewModelWithData() {
-           do {
-               try tryRetrieveChatDataFromRealmDB()
-           } catch {
-//               print("Could not retrieve data from Realm: ", error.localizedDescription)
-               fetchChatDataFromFirestore()
-           }
-       }
     
-    private func fetchChatDataFromFirestore() {
-        Task {
-            do {
-                try await fetchChatDataFromFirestoreDB()
-//                addDataToRealm()
-            } catch {
-                print("Could not fetch cellVM data from Firestore: ", error.localizedDescription)
-            }
+    var isAuthUserOwnerOfRecentMessage: Bool {
+        authUser.uid != recentMessage?.senderId
+    }
+    
+    private func initiateChatDataLoad() {
+        do {
+            try retrieveDataFromRealm()
+        } catch {
+            //               print("Could not retrieve data from Realm: ", error.localizedDescription)
+            //               try await fetchChatDataFromFirestoreDB()
+            Task { await fetchDataFromFirestore() }
         }
     }
     
@@ -93,7 +89,7 @@ extension ChatCellViewModel {
 
 extension ChatCellViewModel {
     
-    func tryRetrieveChatDataFromRealmDB() throws {
+    func retrieveDataFromRealm() throws {
         self.member = try retrieveMember()
         self.recentMessage = try retrieveRecentMessage()
         try retrieveMemberImageData()
@@ -124,12 +120,16 @@ extension ChatCellViewModel {
 
 extension ChatCellViewModel 
 {
-    private func fetchChatDataFromFirestoreDB() async throws
+    private func fetchDataFromFirestore() async
     {
-        self.member             = try await loadOtherMemberOfChat()
-        self.recentMessage      =     await loadRecentMessage()
-        self.memberProfileImage = try await fetchImageData()
-        self.unreadMessageCount = try await fetchUnreadMessagesCount()
+        do {
+            self.member             = try await loadOtherMemberOfChat()
+            self.recentMessage      =     await loadRecentMessage()
+            self.memberProfileImage = try await fetchImageData()
+            self.unreadMessageCount = try await fetchUnreadMessagesCount()
+        } catch {
+            print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
+        }
     }
     
     func loadOtherMemberOfChat() async throws -> DBUser? {
