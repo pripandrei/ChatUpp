@@ -351,8 +351,10 @@ extension ConversationViewModel {
             guard let self = self else {return}
             if realtimeDBUser.isActive != self.userMember.isActive
             {
-                let date = Date(timeIntervalSince1970: realtimeDBUser.lastSeen)
-                self.userMember = self.userMember.updateActiveStatus(lastSeenDate: date,isActive: realtimeDBUser.isActive)
+                if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive {
+                    self.userMember = self.userMember.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    
+                }
             }
         }
     }

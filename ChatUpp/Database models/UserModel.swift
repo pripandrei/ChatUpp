@@ -9,6 +9,7 @@ import Foundation
 import RealmSwift
 
 // MARK: - User model
+
 class DBUser: Object, Codable
 {
     @Persisted(primaryKey: true) var userId: String
@@ -81,7 +82,14 @@ class DBUser: Object, Codable
         self.phoneNumber = try container.decodeIfPresent(String.self, forKey: .phoneNumber)
         self.nickname = try container.decodeIfPresent(String.self, forKey: .nickname)
         self.isActive = try container.decodeIfPresent(Bool.self, forKey: .isActive)
-        self.lastSeen = try container.decodeIfPresent(Date.self, forKey: .lastSeen)
+        
+        /// if last seen is fetched from Realtime database, it will be of type double
+        /// if from Firestore it will be of type Date
+        if let timestamp = try? container.decodeIfPresent(Double.self, forKey: .lastSeen) {
+            self.lastSeen = Date(timeIntervalSince1970: timestamp)
+        } else {
+            self.lastSeen = try container.decodeIfPresent(Date.self, forKey: .lastSeen)
+        }
     }
     
     func encode(to encoder: Encoder) throws {

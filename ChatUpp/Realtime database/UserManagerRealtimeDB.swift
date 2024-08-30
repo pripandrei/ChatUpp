@@ -19,7 +19,6 @@
 /// - DBUser.updateActiveStatus
 /// - UserManagerRealtimeDB.shared.addObserverToUsers everywhere in code
 /// - DBUser.isActive change from optional
-/// - UserManagerRealtimeDB.shared.addObserverToUsers everywhere in code
 
 import Foundation
 import FirebaseDatabase
@@ -44,19 +43,6 @@ final class UserManagerRealtimeDB {
         ]
             usersReference.child(user.userId).setValue(userData)
     }
-    
-//    func createUser(user: DBUser) {
-//        var userData: [String: Any] = [:]
-//        
-//        if let isActive = user.isActive {
-//            userData["is_active"] = isActive
-//        }
-//        userData = [
-//            "user_id": user.userId,
-//            "last_seen": user.lastSeen!.timeIntervalSince1970
-//        ]
-//            usersRef.child(user.userId).setValue(userData)
-//    }
     
     /// - update active status
     func updateUserActiveStatus(isActive: Bool) {
@@ -86,12 +72,12 @@ final class UserManagerRealtimeDB {
         try await onDisconnectRefListener?.cancelDisconnectOperations()
     }
     
-    func addObserverToUsers(_ userID: String, complition: @escaping (RealtimeDBUser) -> Void) -> RealtimeDBObserver {
+    func addObserverToUsers(_ userID: String, complition: @escaping (DBUser) -> Void) -> RealtimeDBObserver {
         let userRef = usersReference.child(userID)
 
         userRef.observe(.value) { snapshot in
             do {
-                let user = try snapshot.data(as: RealtimeDBUser.self)
+                let user = try snapshot.data(as: DBUser.self)
                 complition(user)
             } catch {
                 print("Could not decode Realtime DBUser: ", error.localizedDescription)
@@ -101,28 +87,31 @@ final class UserManagerRealtimeDB {
     }
 }
 
-struct RealtimeDBUser: Codable {
-    let userId: String
-    let isActive: Bool
-    let lastSeen: Double
-    
-    enum CodingKeys: String, CodingKey {
-        case userId = "user_id"
-        case isActive = "is_active"
-        case lastSeen = "last_seen"
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.userId = try container.decode(String.self, forKey: .userId)
-        self.isActive = try container.decode(Bool.self, forKey: .isActive)
-        self.lastSeen = try container.decode(Double.self, forKey: .lastSeen)
-    }
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.userId, forKey: .userId)
-        try container.encode(self.isActive, forKey: .isActive)
-        try container.encode(self.lastSeen, forKey: .lastSeen)
-    }
-}
 
+
+//MARK: - Currently not in use (DBUser is used instead)
+//
+//struct RealtimeDBUser: Codable {
+//    let userId: String
+//    let isActive: Bool
+//    let lastSeen: Double
+//    
+//    enum CodingKeys: String, CodingKey {
+//        case userId = "user_id"
+//        case isActive = "is_active"
+//        case lastSeen = "last_seen"
+//    }
+//    
+//    init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.userId = try container.decode(String.self, forKey: .userId)
+//        self.isActive = try container.decode(Bool.self, forKey: .isActive)
+//        self.lastSeen = try container.decode(Double.self, forKey: .lastSeen)
+//    }
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(self.userId, forKey: .userId)
+//        try container.encode(self.isActive, forKey: .isActive)
+//        try container.encode(self.lastSeen, forKey: .lastSeen)
+//    }
+//}
