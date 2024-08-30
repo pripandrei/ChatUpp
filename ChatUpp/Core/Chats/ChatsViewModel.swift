@@ -6,35 +6,46 @@
 //
 
 import Foundation
-
+import Combine
 
 final class ChatsViewModel {
     
     private(set) var chats: [Chat] = [] {
         didSet {
-            handleChatUpdate(oldValue)
+//            chatsWereUpdated(oldValue)
         }
     }
+    var reloadCell: ((Bool) -> Void)?
     
-    private func handleChatUpdate(_ chats: [Chat]) {
-        //        if !areChatsEmpty {
-        self.chats.difference(from: chats).forEach { change in
-            switch change {
-            case .insert(_, let chat, _): createCellViewModel(from: chat)
-            case .remove(_, let chat, _): removeCellViewModel(containing: chat)
-            }
-            //                shouldReloadCell = true
-            //                self.initialChatsDoneFetching = true
-        }
-        
-//        shouldReloadCell = true
-        self.initialChatsDoneFetching = true
-        //        }
-    }
-    
-//    private var areChatsEmpty: Bool {
-//        return self.chats.isEmpty
+//    private func chatsWereUpdated(_ chats: [Chat]) {
+//        self.chats.difference(from: chats).forEach { change in
+//            switch change {
+//            case .insert(_, let chat, _): createCellViewModel(from: chat)
+//            case .remove(_, let chat, _): removeCellViewModel(containing: chat)
+//            }
+//            //                shouldReloadCell = true
+//        }
+//        
+//        self.initialChatsDoneFetching = true
 //    }
+    
+    private func removeCellViewModel(containing chat: Chat) {
+        cellViewModels.removeAll(where: {$0.chat.id == chat.id})
+    }
+    
+    private func createCellViewModel(from chat: Chat)
+    {
+        let cellVM = ChatCellViewModel(chat: chat)
+        self.cellViewModels.insert(cellVM, at: 0)
+    }
+    
+    private func addChat(_ chat: Chat) {
+        self.chats.insert(chat, at: 0)
+    }
+        
+    private func removeChat(_ chat: Chat) {
+        self.chats.removeAll(where: {$0.id == chat.id})
+    }
     
     private(set) var cellViewModels = [ChatCellViewModel]()
     private(set) var usersListener: Listener?
@@ -47,24 +58,23 @@ final class ChatsViewModel {
     
     init() {
         //        loadDataFromRealm()
+        addChatsListener()
         //        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
     }
-    
-//    private func retrieveDataFromRealm() {
-//        if let chats = RealmDBManager.shared.retrieveObjects(ofType: Chat.self) {
-//            self.chats = chats
-//            cellViewModels = createCellViewModel(with: chats)
-//            initialChatsDoneFetching = true
-//        }
-//    }
+
     
     private func loadDataFromRealm() {
-        self.chats = retrieveChatsFromRealm()
+        let chats = retrieveChatsFromRealm()
+        
+        if !chats.isEmpty {
+            self.chats = chats
+            self.cellViewModels = createCellViewModels(with: chats)
+            self.initialChatsDoneFetching = true
+        }
     }
     
     private func retrieveChatsFromRealm() -> [Chat] {
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
-      
     }
     
     private func createCellViewModels(with chats: [Chat]) -> [ChatCellViewModel] {
@@ -94,26 +104,6 @@ final class ChatsViewModel {
 
 extension ChatsViewModel {
     
-    func setupChatListener() {
-        addChatsListener()
-    }
-    
-    func addUsersListiner() 
-    {
-        let usersID = cellViewModels.compactMap { chatCellVM in
-            chatCellVM.member?.userId
-        }
-        guard !usersID.isEmpty else { return }
-
-        self.usersListener = UserManager.shared.addListenerToUsers(usersID) { [weak self] users, documentsTypes in
-            documentsTypes.enumerated().forEach { [weak self] index, docChangeType in
-                if docChangeType == .modified {
-                    self?.handleModifiedUser(users[index])
-                }
-            }
-        }
-    }
-    
     private func addChatsToRealmDB(_ chats: [Chat]) {
         for chat in chats {
             RealmDBManager.shared.add(object: chat)
@@ -134,14 +124,20 @@ extension ChatsViewModel {
                 switch type {
                 case .added: 
                     self.addChat(chats[index])
+                    self.createCellViewModel(from: chats[index])
+//                    self.shouldReloadCell.send(true)
+//                    self.reloadCell?(true)
 //                    print("RealmDBManager.shared.createRealmDBObject(object: chats[index])")
                 case .removed: self.removeChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
             }
+            self.initialChatsDoneFetching = true
 //            self.addChatsToRealmDB(chats)
         })
     }
+    
+   
 }
 
 //MARK: - User updates
@@ -166,21 +162,7 @@ extension ChatsViewModel {
 //MARK: - Chat updates
 
 extension ChatsViewModel {
-//    private func handleAddedChat(_ chat: Chat)
-//    {
-//        self.chats.insert(chat, at: 0)
-//        let cellVM = ChatCellViewModel(chat: chat)
-//        self.cellViewModels.insert(cellVM, at: 0)
-////        
-////        Task {
-////            try await cellVM.loadOtherMemberOfChat()
-////            try await cellVM.loadRecentMessage()
-////            try await cellVM.fetchImageData()
-////            try await cellVM.fetchUnreadMessagesCount()
-//            shouldReloadCell = true
-////        }
-//    }
-    
+
     private func handleModifiedChat(_ chat: Chat) {
         guard let oldViewModel = self.cellViewModels.first(where: {$0.chat.id == chat.id}) else {return}
         
@@ -206,22 +188,4 @@ extension ChatsViewModel {
     //... new =>>
     
     
-    
-    private func removeCellViewModel(containing chat: Chat) {
-        cellViewModels.removeAll(where: {$0.chat.id == chat.id})
-    }
-    
-    private func createCellViewModel(from chat: Chat)
-    {
-        let cellVM = ChatCellViewModel(chat: chat)
-        self.cellViewModels.insert(cellVM, at: 0)
-    }
-    
-    private func addChat(_ chat: Chat) {
-        self.chats.insert(chat, at: 0)
-    }
-        
-    private func removeChat(_ chat: Chat) {
-        self.chats.removeAll(where: {$0.id == chat.id})
-    }
 }

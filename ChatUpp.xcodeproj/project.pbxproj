@@ -89,6 +89,7 @@
 		75E2F2F12C3C17BE0058DC88 /* UserManagerRealtimeDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */; };
 		75F608842BEC2F560065DA83 /* ConversationTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */; };
 		75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* InputBarHeaderView.swift */; };
+		75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */; };
 		75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F12AC3106700C2743A /* LoginViewModel.swift */; };
 		75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */; };
@@ -136,6 +137,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */,
 				75D08BAA2BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Embed Frameworks */,
 				75D08B9D2BEFDCB1000AE1B5 /* YYText.framework in Embed Frameworks */,
 			);

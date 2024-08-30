@@ -14,10 +14,11 @@ enum RealmRetrieveError: Error {
 
 class ChatCellViewModel {
     
-    @Published private(set) var member: DBUser? { didSet {self.addObserverToUser()} }
+    @Published private(set) var member: DBUser? 
     @Published var memberProfileImage: Data?
     @Published var recentMessage: Message?
-    @Published  var unreadMessageCount: Int?
+    @Published var unreadMessageCount: Int?
+    private var usersListener: Listener?
     
     private(set) var userObserver: RealtimeDBObserver?
     
@@ -38,9 +39,12 @@ class ChatCellViewModel {
         do {
             try retrieveDataFromRealm()
         } catch {
-            //               print("Could not retrieve data from Realm: ", error.localizedDescription)
-            //               try await fetchChatDataFromFirestoreDB()
-            Task { await fetchDataFromFirestore() }
+//            print("Could not retrieve data from Realm: ", error.localizedDescription)
+            Task { 
+                await fetchDataFromFirestore()
+                self.addObserverToUser()
+                self.addListenerToUser()
+            }
         }
     }
     
@@ -160,10 +164,11 @@ extension ChatCellViewModel
     }
 }
 
-//MARK: - Temporary fix while firebase functions are deactivated
+//MARK: - Listeners
 
 extension ChatCellViewModel {
    
+    /// Observe user from Realtime db (Temporary fix while firebase functions are deactivated)
     private func addObserverToUser() {
         guard let member = member else {return}
         
@@ -173,6 +178,20 @@ extension ChatCellViewModel {
                 let date = Date(timeIntervalSince1970: realtimeDBUser.lastSeen)
                 self?.member = self?.member?.updateActiveStatus(lastSeenDate: date,isActive: realtimeDBUser.isActive)
             }
+        }
+    }
+    
+    /// Listen to user from Firestore db
+    private func addListenerToUser()
+    {
+        guard let memberID = member?.userId else {return}
+        
+        self.usersListener = UserManager.shared.addListenerToUsers([memberID]) { [weak self] users, documentsTypes in
+            guard let self = self else {return}
+            // since we are listening only for one user here
+            // we can just get the first user and docType
+            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
+            self.member = user
         }
     }
 }

@@ -46,10 +46,7 @@ class ChatsViewController: UIViewController {
         setupBinding()
         configureTableView()
         setupSearchController()
-        chatsViewModel.setupChatListener()
         chatsViewModel.activateOnDisconnect()
-//        self.toggleSkeletonAnimation(.initiate)
-//        try? AuthenticationManager.shared.signOut()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -88,31 +85,40 @@ class ChatsViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isFetched in
                 if isFetched {
-                    self?.chatsViewModel.addUsersListiner()
+//                    self?.chatsViewModel.addUsersListiner()
                     self?.tableView.reloadData()
 //                    self?.toggleSkeletonAnimation(.terminate)
                     
                 }
             }.store(in: &subscriptions)
         
+        
+        chatsViewModel.reloadCell = { [weak self] shouldReload in
+               if shouldReload {
+                   let indexPath = IndexPath(row: 0, section: 0)
+                   self?.tableView.insertRows(at: [indexPath], with: .automatic)
+               }
+        }
         chatsViewModel.$shouldReloadCell
             .receive(on: DispatchQueue.main)
             .sink { [weak self] shouldReload in
                 if shouldReload {
                     let indexPath = IndexPath(row: 0, section: 0)
                     self?.tableView.insertRows(at: [indexPath], with: .automatic)
+//                    self?.chatsViewModel.shouldReloadCell.send(false)
                 }
             }.store(in: &subscriptions)
     }
     
-    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
-        if value == .initiate {
-            initiateSkeletonAnimation()
-        } else {
-            terminateSkeletonAnimation()
-        }
-    }
     // MARK: - SkeletonView
+    
+//    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
+//        if value == .initiate {
+//            initiateSkeletonAnimation()
+//        } else {
+//            terminateSkeletonAnimation()
+//        }
+//    }
     
     private func initiateSkeletonAnimation() {
         let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)

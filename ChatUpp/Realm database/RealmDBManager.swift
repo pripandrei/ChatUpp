@@ -32,6 +32,7 @@ final class RealmDBManager {
     }
     
     public func retrieveObjects<T: Object>(ofType type: T.Type) -> [T] {
+        
 //        let objects = realmDB.objects(T.self)
         Array(realmDB.objects(T.self))
 //        if objects.isEmpty {
