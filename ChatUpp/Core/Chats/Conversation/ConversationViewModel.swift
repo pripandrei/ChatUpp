@@ -115,16 +115,16 @@ final class ConversationViewModel {
                        repliedTo: currentlyReplyToMessageID)
     }
     
-    private func addMessageToDB(_ message: Message) async  {
+    private func addMessageToFirestoreDataBase(_ message: Message) async  {
         guard let conversation = conversation else {return}
         do {
-            try await ChatsManager.shared.createNewMessageInDataBase(message: message, atChatPath: conversation.id)
+            try await ChatsManager.shared.createMessage(message: message, atChatPath: conversation.id)
         } catch {
             print("error occur while trying to create message in DB: ", error.localizedDescription)
         }
     }
     
-    private func updateLastMessageFromDBChat(chatID: String?, messageID: String) async {
+    func updateRecentMessageFromFirestoreChat(_ chatID: String? ,messageID: String ) async {
         guard let chatID = chatID else { print("chatID is nil") ; return}
         do {
             try await ChatsManager.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
@@ -139,8 +139,8 @@ final class ConversationViewModel {
             if self.conversation == nil {
                 await createConversation()
             }
-            await addMessageToDB(message)
-            await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: message.id)
+            await addMessageToFirestoreDataBase(message)
+            await updateRecentMessageFromFirestoreChat(conversation?.id, messageID: message.id)
         }
     }
     
@@ -193,7 +193,7 @@ final class ConversationViewModel {
     func deleteMessageFromDB(messageID: String) {
         Task {
             do {
-                try await ChatsManager.shared.removeMessageFromDB(messageID: messageID, conversationID: conversation!.id)
+                try await ChatsManager.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
             } catch {
                 print("Error deleting message: ",error.localizedDescription)
             }
@@ -287,7 +287,7 @@ extension ConversationViewModel
         cellMessageGroups.removeCellViewModel(at: indexPath)
         removeMessageGroup(at: indexPath)
         
-        updateLastMessageFromDBChatIfNeeded(with: indexPath)
+        if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
         messageChangedType = .removed
     }
     
@@ -296,7 +296,7 @@ extension ConversationViewModel
             cellMessageGroups.remove(at: indexPath.section)
         }
     }
-    
+
     private func indexPath(of message: Message) -> IndexPath? {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
@@ -312,12 +312,14 @@ extension ConversationViewModel
         return nil
     }
     
-    private func updateLastMessageFromDBChatIfNeeded(with indexPath: IndexPath) {
-        if indexPath.row == 0 && indexPath.section == 0 {
-            Task {
-                await updateLastMessageFromDBChat(chatID: conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
-            }
+    private func updateLastMessageFromFirestoreChat() {
+        Task {
+            await updateRecentMessageFromFirestoreChat(conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
         }
+    }
+    
+    private func isLastMessage(_ indexPath: IndexPath) -> Bool {
+        return indexPath.row == 0 && indexPath.section == 0
     }
     
     func contains(_ message: Message) -> Bool {

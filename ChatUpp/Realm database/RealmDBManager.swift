@@ -15,8 +15,7 @@ final class RealmDBManager {
     
     private init() {}
     
-    private let configuration = Realm.Configuration(
-        schemaVersion: 8)
+    private let configuration = Realm.Configuration(schemaVersion: 8)
     
     private var notificationToke: NotificationToken?
     
@@ -32,14 +31,7 @@ final class RealmDBManager {
     }
     
     public func retrieveObjects<T: Object>(ofType type: T.Type) -> [T] {
-        
-//        let objects = realmDB.objects(T.self)
         Array(realmDB.objects(T.self))
-//        if objects.isEmpty {
-//            return nil
-//        } else {
-//            return objects.toArray()
-//        }
     }
     
     public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {

@@ -14,15 +14,16 @@ enum RealmRetrieveError: Error {
 
 class ChatCellViewModel {
     
-    @Published private(set) var member: DBUser? 
+    private(set) var chat: Chat
+    
+    @Published private(set) var member: DBUser?
     @Published var memberProfileImage: Data?
     @Published var recentMessage: Message?
     @Published var unreadMessageCount: Int?
-    private var usersListener: Listener?
     
+    private var usersListener: Listener?
     private(set) var userObserver: RealtimeDBObserver?
     
-    private(set) var chat: Chat
     var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     init(chat: Chat) {
@@ -30,14 +31,10 @@ class ChatCellViewModel {
         initiateChatDataLoad()
     }
 
-    var isRecentMessagePresent: Bool? {
-        guard let member = member else {return nil}
-        if member.name == "Mira later" {
-            print("stop")
-        }
-        if let _ = chat.recentMessageID {
-            return true
-        }
+    var isRecentMessagePresent: Bool? 
+    {
+        guard member != nil else { return nil }
+        if let _ = chat.recentMessageID { return true }
         return false
     }
     
@@ -65,6 +62,24 @@ class ChatCellViewModel {
         }
     }
     
+    private func findMemberID() -> String? {
+        return chat.members.first(where: { $0 != authUser.uid} )
+    }
+}
+
+
+//MARK: - Update cell data
+
+extension ChatCellViewModel {
+
+    func updateChat(_ modifiedChat: Chat) {
+        self.chat = modifiedChat
+    }
+
+    func updateRecentMessage(_ message: Message?) {
+        self.recentMessage = message
+    }
+    
     /// - updated user after deletion
     func updateUserAfterDeletion(_ modifiedUserID: String) async {
         do {
@@ -73,28 +88,6 @@ class ChatCellViewModel {
         } catch {
             print("Error updating user while listening: ", error.localizedDescription)
         }
-    }
-
-}
-
-//MARK: - Update cell data
-
-extension ChatCellViewModel {
-    
-    func updateUserMember(_ member: DBUser) {
-        self.member = member
-    }
-    
-    func updateUnreadMessagesCount(_ count: Int) {
-        unreadMessageCount = count
-    }
-    
-    func updateChat(_ modifiedChat: Chat) {
-        self.chat = modifiedChat
-    }
-
-    func updateRecentMessage(_ message: Message?) {
-        self.recentMessage = message
     }
 }
 
@@ -109,7 +102,7 @@ extension ChatCellViewModel {
     }
     
     func retrieveMember() throws -> DBUser {
-        guard let memberID = chat.members.first(where: { $0 != authUser.uid} ),
+        guard let memberID = findMemberID(),
               let member = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID) else { throw RealmRetrieveError.objectNotPresent }
         return member
     }
@@ -146,7 +139,7 @@ extension ChatCellViewModel
     }
     
     func loadOtherMemberOfChat() async throws -> DBUser? {
-        guard let memberID = chat.members.first(where: { $0 != authUser.uid} ) else { return nil }
+        guard let memberID = findMemberID() else { return nil }
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
         return member
     }

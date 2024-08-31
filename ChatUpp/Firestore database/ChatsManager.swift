@@ -46,10 +46,10 @@ final class ChatsManager {
 
 extension ChatsManager
 {
-    func createNewMessageInDataBase(message: Message, atChatPath path: String) async throws {
+    func createMessage(message: Message, atChatPath path: String) async throws {
         try getMessageDocument(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
-    func removeMessageFromDB(messageID: String, conversationID: String) async throws {
+    func removeMessage(messageID: String, conversationID: String) async throws {
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: conversationID).delete()
     }
 }

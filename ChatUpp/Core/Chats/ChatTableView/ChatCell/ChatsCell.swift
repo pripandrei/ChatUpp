@@ -76,16 +76,16 @@ class ChatsCell: UITableViewCell {
     private func setupBinding()
     {
         cellViewModel.$memberProfileImage
-            .receive(on: DispatchQueue.main)
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in
                 guard let self = self else {return}
                 self.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$member
-            .receive(on: DispatchQueue.main)
         //            .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink { member in
                 if let member = member {
                     self.stopSkeletonAnimationFor(self.nameLabel)

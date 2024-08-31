@@ -29,14 +29,15 @@ final class ChatsViewModel {
 //        self.initialChatsDoneFetching = true
 //    }
     
-    private func removeCellViewModel(containing chat: Chat) {
-        cellViewModels.removeAll(where: {$0.chat.id == chat.id})
-    }
     
     private func createCellViewModel(from chat: Chat)
     {
         let cellVM = ChatCellViewModel(chat: chat)
         self.cellViewModels.insert(cellVM, at: 0)
+    }
+    
+    private func removeCellViewModel(containing chat: Chat) {
+        cellViewModels.removeAll(where: {$0.chat.id == chat.id})
     }
     
     private func addChat(_ chat: Chat) {
@@ -143,12 +144,6 @@ extension ChatsViewModel {
 //MARK: - User updates
 
 extension ChatsViewModel {
-    private func handleModifiedUser(_ user: DBUser) {
-        guard let oldCellVM = cellViewModels.first(where: {$0.member?.userId == user.userId} ) else {return}
-        
-        oldCellVM.updateUserMember(user)
-    }
-    
     private func handleDeletedUserUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
         let deletedUserID = UserManager.mainDeletedUserID
         if chat.members.contains(where: {$0 == deletedUserID}) {
@@ -162,9 +157,13 @@ extension ChatsViewModel {
 //MARK: - Chat updates
 
 extension ChatsViewModel {
+    
+    private func findCellViewModel(from chat: Chat) -> ChatCellViewModel? {
+        return cellViewModels.first(where: {$0.chat.id == chat.id})
+    }
 
     private func handleModifiedChat(_ chat: Chat) {
-        guard let oldViewModel = self.cellViewModels.first(where: {$0.chat.id == chat.id}) else {return}
+        guard let oldViewModel = findCellViewModel(from: chat) else {return}
         
         // check if recent message modified
         handleRecentMessageUpdate(from: oldViewModel, using: chat)
@@ -183,9 +182,16 @@ extension ChatsViewModel {
                 chatCellVM.unreadMessageCount = try await chatCellVM.fetchUnreadMessagesCount()
             }
         }
+        let success = Result.success(chat)
     }
     
     //... new =>>
     
     
 }
+public enum Result<T>
+{
+    case success(T)
+    case failure
+}
+
