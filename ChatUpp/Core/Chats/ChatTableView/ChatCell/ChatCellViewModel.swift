@@ -12,7 +12,7 @@ enum RealmRetrieveError: Error {
     case objectNotPresent
 }
 
-class ChatCellViewModel {
+class ChatCellViewModel: Equatable {
     
     private(set) var chat: Chat
     
@@ -39,7 +39,7 @@ class ChatCellViewModel {
     }
     
     var isAuthUserOwnerOfRecentMessage: Bool {
-        authUser.uid != recentMessage?.senderId
+        authUser.uid == recentMessage?.senderId
     }
     
     private func initiateChatDataLoad() {
@@ -122,7 +122,7 @@ extension ChatCellViewModel {
     }
 }
 
-//MARK: - Fetch cell data
+//MARK: - Fetch Firestore data
 
 extension ChatCellViewModel 
 {
@@ -197,5 +197,13 @@ extension ChatCellViewModel {
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
             self.member = user
         }
+    }
+}
+
+//MARK: - Equatable protocol subs
+
+extension ChatCellViewModel {
+    static func == (lhs: ChatCellViewModel, rhs: ChatCellViewModel) -> Bool {
+        lhs.chat == rhs.chat
     }
 }

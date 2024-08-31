@@ -10,25 +10,21 @@ import Combine
 
 final class ChatsViewModel {
     
-    private(set) var chats: [Chat] = [] {
-        didSet {
-//            chatsWereUpdated(oldValue)
-        }
+    private(set) var chats: [Chat] = []
+    private(set) var cellViewModels = [ChatCellViewModel]()
+    private(set) var usersListener: Listener?
+    private(set) var chatsListener: Listener?
+    private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
+    
+    @Published var modifiedChatIndex: Int = 0
+    
+    var onNewChatAdded: ((Bool) -> Void)?
+    
+    init() {
+//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
+//        loadDataFromRealm()
+        addChatsListener()
     }
-    var reloadCell: ((Bool) -> Void)?
-    
-//    private func chatsWereUpdated(_ chats: [Chat]) {
-//        self.chats.difference(from: chats).forEach { change in
-//            switch change {
-//            case .insert(_, let chat, _): createCellViewModel(from: chat)
-//            case .remove(_, let chat, _): removeCellViewModel(containing: chat)
-//            }
-//            //                shouldReloadCell = true
-//        }
-//        
-//        self.initialChatsDoneFetching = true
-//    }
-    
     
     private func createCellViewModel(from chat: Chat)
     {
@@ -47,49 +43,15 @@ final class ChatsViewModel {
     private func removeChat(_ chat: Chat) {
         self.chats.removeAll(where: {$0.id == chat.id})
     }
-    
-    private(set) var cellViewModels = [ChatCellViewModel]()
-    private(set) var usersListener: Listener?
-    private(set) var chatsListener: Listener?
-    
-    private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
-    
-    @Published var initialChatsDoneFetching: Bool = false
-    @Published var shouldReloadCell: Bool = false
-    
-    init() {
-        //        loadDataFromRealm()
-        addChatsListener()
-        //        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
-    }
 
-    
     private func loadDataFromRealm() {
         let chats = retrieveChatsFromRealm()
         
         if !chats.isEmpty {
             self.chats = chats
-            self.cellViewModels = createCellViewModels(with: chats)
-            self.initialChatsDoneFetching = true
+            self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
+//            self.initialChatsDoneFetching = true
         }
-    }
-    
-    private func retrieveChatsFromRealm() -> [Chat] {
-        return RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
-    }
-    
-    private func createCellViewModels(with chats: [Chat]) -> [ChatCellViewModel] {
-        return chats.map { chat in
-            return ChatCellViewModel(chat: chat)
-        }
-    }
-    
-    func handleInitialChatsFetch(_ chats: [Chat]) 
-    {
-        self.chats = chats
-//        self.cellViewModels = createCellViewModels(with: chats)
-//        addChatsToRealmDB(chats)
-        self.initialChatsDoneFetching = true
     }
     
     func activateOnDisconnect() {
@@ -97,7 +59,14 @@ final class ChatsViewModel {
             try await UserManagerRealtimeDB.shared.setupOnDisconnect()
         }
     }
-    
+}
+
+//MARK: - Realm functions
+
+extension ChatsViewModel {
+    private func retrieveChatsFromRealm() -> [Chat] {
+        return RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
+    }
 }
 
 
@@ -115,30 +84,19 @@ extension ChatsViewModel {
     {
         self.chatsListener = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
             guard let self = self else {return}
-            
-//            self.addChatsToRealmDB(chats)
-//            if self.chats.isEmpty {
-//                handleInitialChatsFetch(chats)
-//                return
-//            }
+        
             docTypes.enumerated().forEach { index, type in
                 switch type {
-                case .added: 
+                case .added:
                     self.addChat(chats[index])
                     self.createCellViewModel(from: chats[index])
-//                    self.shouldReloadCell.send(true)
-//                    self.reloadCell?(true)
-//                    print("RealmDBManager.shared.createRealmDBObject(object: chats[index])")
+                    self.onNewChatAdded?(true)
                 case .removed: self.removeChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
             }
-            self.initialChatsDoneFetching = true
-//            self.addChatsToRealmDB(chats)
         })
     }
-    
-   
 }
 
 //MARK: - User updates
@@ -158,12 +116,21 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     
-    private func findCellViewModel(from chat: Chat) -> ChatCellViewModel? {
+    private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
         return cellViewModels.first(where: {$0.chat.id == chat.id})
+    }
+    
+    private func findIndex(of element: ChatCellViewModel) -> Int? {
+        return cellViewModels.firstIndex(of: element)
     }
 
     private func handleModifiedChat(_ chat: Chat) {
-        guard let oldViewModel = findCellViewModel(from: chat) else {return}
+        guard let oldViewModel = findCellViewModel(containing: chat),
+              let viewModelIndex = findIndex(of: oldViewModel) else {return}
+        
+        modifiedChatIndex = viewModelIndex
+        
+        cellViewModels.move(element: oldViewModel, toIndex: 0)
         
         // check if recent message modified
         handleRecentMessageUpdate(from: oldViewModel, using: chat)
@@ -182,16 +149,27 @@ extension ChatsViewModel {
                 chatCellVM.unreadMessageCount = try await chatCellVM.fetchUnreadMessagesCount()
             }
         }
-        let success = Result.success(chat)
     }
-    
-    //... new =>>
-    
-    
-}
-public enum Result<T>
-{
-    case success(T)
-    case failure
 }
 
+extension Array where Element: Equatable 
+{
+    mutating func move(element: Element, toIndex destinationIndex: Int) {
+        guard let elementIndex = self.firstIndex(of: element) else {return}
+        let removedElement = self.remove(at: elementIndex)
+        insert(removedElement, at: destinationIndex)
+    }
+}
+
+
+//    private func chatsWereUpdated(_ chats: [Chat]) {
+//        self.chats.difference(from: chats).forEach { change in
+//            switch change {
+//            case .insert(_, let chat, _): createCellViewModel(from: chat)
+//            case .remove(_, let chat, _): removeCellViewModel(containing: chat)
+//            }
+//            //                shouldReloadCell = true
+//        }
+//
+//        self.initialChatsDoneFetching = true
+//    }

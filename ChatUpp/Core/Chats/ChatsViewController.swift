@@ -38,7 +38,6 @@ class ChatsViewController: UIViewController {
     private var searchTimer: Timer?
 
     // MARK: - UI SETUP
-
     override func viewDidLoad() {
         super.viewDidLoad()
 //        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
@@ -60,7 +59,6 @@ class ChatsViewController: UIViewController {
 
     deinit {
         print("ChatsVC was DEINITED!==")
-//        chatsViewModel.cancelUsersListener()
     }
     
     private func configureTableView() {
@@ -81,32 +79,19 @@ class ChatsViewController: UIViewController {
     
     private func setupBinding()
     {
-        chatsViewModel.$initialChatsDoneFetching
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isFetched in
-                if isFetched {
-//                    self?.chatsViewModel.addUsersListiner()
-                    self?.tableView.reloadData()
-//                    self?.toggleSkeletonAnimation(.terminate)
-                    
-                }
-            }.store(in: &subscriptions)
-        
-        
-        chatsViewModel.reloadCell = { [weak self] shouldReload in
-               if shouldReload {
-                   let indexPath = IndexPath(row: 0, section: 0)
-                   self?.tableView.insertRows(at: [indexPath], with: .automatic)
-               }
+        chatsViewModel.onNewChatAdded = { [weak self] isAdded in
+            if isAdded {
+                let indexPath = IndexPath(row: 0, section: 0)
+                self?.tableView.insertRows(at: [indexPath], with: .automatic)
+            }
         }
-        chatsViewModel.$shouldReloadCell
+        
+        chatsViewModel.$modifiedChatIndex
+            .filter({ $0 > 0 })
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] shouldReload in
-                if shouldReload {
-                    let indexPath = IndexPath(row: 0, section: 0)
-                    self?.tableView.insertRows(at: [indexPath], with: .automatic)
-//                    self?.chatsViewModel.shouldReloadCell.send(false)
-                }
+            .sink { [weak self] sourceIndex in
+                let destinationIndexPath = IndexPath(row: 0, section: 0)
+                self?.tableView.moveRow(at: IndexPath(row: sourceIndex, section: 0), to: destinationIndexPath)
             }.store(in: &subscriptions)
     }
     

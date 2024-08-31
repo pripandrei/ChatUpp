@@ -60,10 +60,11 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setUnreadMessageCount(_ count: Int) {
-        guard let message = cellViewModel.recentMessage else {return}
+        guard let _ = cellViewModel.recentMessage else {return}
+
         unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         
-        let shouldShowUnreadCount = cellViewModel.isAuthUserOwnerOfRecentMessage && count > 0
+        let shouldShowUnreadCount = !cellViewModel.isAuthUserOwnerOfRecentMessage && count > 0
         unreadMessagesCountLabel.isHidden = !shouldShowUnreadCount
         
         if shouldShowUnreadCount {
@@ -153,7 +154,6 @@ class ChatsCell: UITableViewCell {
             self.profileImage.image = image
         }
     }
-    
 }
 
 //MARK: - Skeleton animation handler
