@@ -100,11 +100,14 @@ class ChatsCell: UITableViewCell {
         cellViewModel.$recentMessage
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
-                if let message = message {
-                    guard let self = self else {return}
-                    
+                guard let self = self else {return}
+                
+                if let isPresent = cellViewModel.isRecentMessagePresent, !isPresent {
                     self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
-                    
+                    return
+                }
+                if let message = message {
+                    self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
                     self.messageLable.text = message.messageBody
                     self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
                 }

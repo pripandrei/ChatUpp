@@ -29,7 +29,17 @@ class ChatCellViewModel {
         self.chat = chat
         initiateChatDataLoad()
     }
-    
+
+    var isRecentMessagePresent: Bool? {
+        guard let member = member else {return nil}
+        if member.name == "Mira later" {
+            print("stop")
+        }
+        if let _ = chat.recentMessageID {
+            return true
+        }
+        return false
+    }
     
     var isAuthUserOwnerOfRecentMessage: Bool {
         authUser.uid != recentMessage?.senderId
@@ -150,7 +160,6 @@ extension ChatCellViewModel
     func fetchImageData() async throws -> Data? {
         guard let user = self.member,
               let userProfilePhotoURL = user.photoUrl else {
-//            print("Could not get User image url. Local image will be used")
             return nil
         }
         let photoData = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
