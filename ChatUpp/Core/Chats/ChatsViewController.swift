@@ -1,5 +1,5 @@
 //
-//  ConversationsViewController.swift
+//  ChatsViewController.swift
 //  ChatUpp
 //
 //  Created by Andrei Pripa on 8/6/23.

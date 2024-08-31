@@ -34,9 +34,7 @@ final class ResultsTableCell: UITableViewCell {
         setupBinding()
         
         userNameLabel.text = cellViewModel.memberUser.name!
-        if cellViewModel.memberUser.name == "Andrei test" {
-            print("stop")
-        }
+
         if cellViewModel.memberUser.photoUrl == nil {
             self.userImage.image = UIImage(named: "default_profile_photo")
             return

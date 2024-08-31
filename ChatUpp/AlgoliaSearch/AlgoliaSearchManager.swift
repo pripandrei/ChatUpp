@@ -14,9 +14,10 @@ final class AlgoliaSearchManager {
     
     //TODO: ID, apiKEY should not be here 
     private let client = SearchClient(appID: "TRVTKK4YUR", apiKey: "5ba2aee5ee2c0879fcd16f112a66e821")
+  
     private lazy var index = client.index(withName: "Users")
     
-    private init() {}
+    private init() { }
     
     func performSearch(_ searchText: String) async -> [DBUser] {
         let text = Query(searchText)

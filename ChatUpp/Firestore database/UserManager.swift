@@ -130,7 +130,6 @@ final class UserManager {
     
     func deleteUserFromDB(userID: String) async throws {
         try await userDocument(userID: userID).delete()
-        print("deleteUserFromDB")
     }
     
     // MARK: - Add listener to users

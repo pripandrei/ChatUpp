@@ -15,17 +15,12 @@ enum Skeletonanimation {
 
 final class ResultsTableController: UITableViewController {
     
-    weak var coordinatorDelegate: Coordinator?
-    
     enum UsersSearch {
         case local
         case global
     }
     
-//    convenience init(coordinator: Coordinator) {
-//        self.init(nibName: nil, bundle: nil)
-//        self.coordinatorDelegate = coordinator
-//    }
+    weak var coordinatorDelegate: Coordinator?
     
     var searchBar: UISearchBar?
     
@@ -85,6 +80,7 @@ final class ResultsTableController: UITableViewController {
         tableView.rowHeight = 55
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         tableView.isSkeletonable = true
+        
         // Omit tableView to automatically go behind navigation bar
         // when Skeleton view is running
         edgesForExtendedLayout = []
@@ -153,8 +149,6 @@ extension ResultsTableController
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("ITEM",indexPath.item)
-        
         tableView.deselectRow(at: indexPath, animated: false)
         
         searchBar?.resignFirstResponder()
@@ -162,8 +156,6 @@ extension ResultsTableController
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
             let userMember = self.filteredUsers[indexPath.item].memberUser
             let chat = self.filteredUsers[indexPath.item].chat
-//            let memberID = self.filteredUsers[indexPath.item].userID
-//            let memberName = self.filteredUsers[indexPath.item].userName
             let memberPhoto = self.filteredUsers[indexPath.item].userImageData.value
             let conversationViewModel = ConversationViewModel(userMember: userMember, conversation: chat, imageData: memberPhoto)
             

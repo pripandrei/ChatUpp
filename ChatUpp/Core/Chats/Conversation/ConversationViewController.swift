@@ -94,7 +94,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
                 }
                 
                 self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = user.isActive ?? false ?
-                "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "")"
+                "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
             }.store(in: &subscriptions)
         
         conversationViewModel.$messageChangedType
@@ -219,13 +219,14 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     /// - Navigation bar items setup
     private func setNavigationBarItems() {
         let imageData = conversationViewModel.memberProfileImage 
-        let memberName = conversationViewModel.userMember.name!
+        let member = conversationViewModel.userMember
         var memberActiveStatus: String
         
-        memberActiveStatus = conversationViewModel.userMember.isActive ?? false ? "online" : conversationViewModel.userMember.lastSeen!.formatToYearMonthDayCustomString()
-        
+        memberActiveStatus = member.isActive ?? false ?
+        "Online" : "last seen \(member.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
+
         customNavigationBar = ConversationCustomNavigationBar(viewController: self)
-        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: memberName, memberActiveStatus: memberActiveStatus)
+        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: member.name ?? "unknow", memberActiveStatus: memberActiveStatus)
     }
     
     /// - Scroll to bottom btn functions
