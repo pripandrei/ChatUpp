@@ -13,6 +13,7 @@ class Chat: Object, Codable {
     @Persisted var members: List<String>
     @Persisted var recentMessageID: String?
     
+    
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case members = "members"

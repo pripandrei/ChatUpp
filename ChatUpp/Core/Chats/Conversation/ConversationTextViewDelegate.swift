@@ -23,7 +23,8 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
         conversationView.setTextViewDelegate(to: self)
     }
     
-    private func calculateTextViewFrameSize(_ textView: UITextView) -> CGSize {
+    private func calculateTextViewFrameSize(_ textView: UITextView) -> CGSize 
+    {
         let fixedWidth = textView.frame.size.width
         let newSize    = textView.sizeThatFits(CGSize.init(width: fixedWidth, height: CGFloat(MAXFLOAT)))
         return CGSize.init(width: CGFloat(fmaxf(Float(newSize.width), Float(fixedWidth))), height: newSize.height)

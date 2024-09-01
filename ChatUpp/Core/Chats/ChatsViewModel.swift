@@ -83,6 +83,7 @@ extension ChatsViewModel {
     private func addChatsListener()
     {
         self.chatsListener = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
+                
             guard let self = self else {return}
         
             docTypes.enumerated().forEach { index, type in

@@ -177,8 +177,8 @@ extension ChatCellViewModel {
         self.userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(member.userId) { [weak self] realtimeDBUser in
             if realtimeDBUser.isActive != self?.member?.isActive
             {
-//                let date = Date(timeIntervalSince1970: realtimeDBUser.lastSeen)
-                if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive {
+                if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive 
+                {
                     self?.member = self?.member?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
                 }
             }

@@ -221,6 +221,7 @@ final class ConversationViewModel {
             conversationGroups.cellViewModels.forEach { conversationCellViewModel in
                 if conversationCellViewModel.cellMessage.id == messageID {
                     repliedMessage = conversationCellViewModel.cellMessage
+                    return
                 }
             }
         }

@@ -18,22 +18,9 @@ final class AlgoliaSearchManager {
     private lazy var index = client.index(withName: "Users")
     
     private init() {  }
-    
-//    let settings = Settings()
-//    
-//      .set(\.unretrievableAttributes, to: [
-//        "Method"
-//      ])
-//
-//    func setupSettings() {
-//        index.setSettings(settings) { result in
-//          if case .success(let response) = result {
-//            print("Response: \(response)")
-//          }
-//        }
-//    }
-    
-    func performSearch(_ searchText: String) async -> [DBUser] {
+
+    func performSearch(_ searchText: String) async -> [DBUser] 
+    {
         let text = Query(searchText)
         
         do {
@@ -61,14 +48,16 @@ final class AlgoliaSearchManager {
     }
 }
 
-struct AlgoliaResultData {
+struct AlgoliaResultData 
+{
     let userID: String
     let name: String
     let profileImageLink: String
 }
 
 
-extension Index {
+extension Index 
+{
     func setupSettings() {
         let settings = Settings().set(\.typoTolerance, to: false)
         do {
