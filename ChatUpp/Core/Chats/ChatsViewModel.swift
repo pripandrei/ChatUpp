@@ -21,7 +21,7 @@ final class ChatsViewModel {
     var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
-//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
 //        loadDataFromRealm()
         addChatsListener()
     }
@@ -67,6 +67,10 @@ extension ChatsViewModel {
     private func retrieveChatsFromRealm() -> [Chat] {
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
     }
+    
+    private func addChatToRealm(_ chat: Chat) {
+        RealmDBManager.shared.add(object: chat)
+    }
 }
 
 
@@ -74,11 +78,11 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     
-    private func addChatsToRealmDB(_ chats: [Chat]) {
-        for chat in chats {
-            RealmDBManager.shared.add(object: chat)
-        }
-    }
+//    private func addChatsToRealmDB(_ chats: [Chat]) {
+//        for chat in chats {
+//            RealmDBManager.shared.add(object: chat)
+//        }
+//    }
     
     private func addChatsListener()
     {
@@ -88,10 +92,7 @@ extension ChatsViewModel {
         
             docTypes.enumerated().forEach { index, type in
                 switch type {
-                case .added:
-                    self.addChat(chats[index])
-                    self.createCellViewModel(from: chats[index])
-                    self.onNewChatAdded?(true)
+                case .added: self.handleAddedChat(chats[index])
                 case .removed: self.removeChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
@@ -117,12 +118,10 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     
-    private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
-        return cellViewModels.first(where: {$0.chat.id == chat.id})
-    }
-    
-    private func findIndex(of element: ChatCellViewModel) -> Int? {
-        return cellViewModels.firstIndex(of: element)
+    private func handleAddedChat(_ chat: Chat) {
+        addChat(chat)
+        createCellViewModel(from: chat)
+        onNewChatAdded?(true)
     }
 
     private func handleModifiedChat(_ chat: Chat) {
@@ -150,6 +149,14 @@ extension ChatsViewModel {
                 chatCellVM.unreadMessageCount = try await chatCellVM.fetchUnreadMessagesCount()
             }
         }
+    }
+    
+    private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
+        return cellViewModels.first(where: {$0.chat.id == chat.id})
+    }
+    
+    private func findIndex(of element: ChatCellViewModel) -> Int? {
+        return cellViewModels.firstIndex(of: element)
     }
 }
 

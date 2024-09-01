@@ -13,6 +13,7 @@ class Chat: Object, Codable {
     @Persisted var members: List<String>
     @Persisted var recentMessageID: String?
     
+    @Persisted var conversationMessages: List<Message>
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
@@ -42,7 +43,10 @@ class Chat: Object, Codable {
         
         self.id = id
         self.members.append(objectsIn: members)
-//        self.members = members
         self.recentMessageID = lastMessage
+    }
+    
+    func appendConversationMessage(_ message: Message) {
+        conversationMessages.append(message)
     }
 }

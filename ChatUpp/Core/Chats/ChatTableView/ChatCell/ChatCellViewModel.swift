@@ -18,8 +18,14 @@ class ChatCellViewModel: Equatable {
     
     @Published private(set) var member: DBUser?
     @Published var memberProfileImage: Data?
-    @Published var recentMessage: Message?
-    @Published var unreadMessageCount: Int?
+    @Published var unreadMessageCount: Int? 
+    @Published var recentMessage: Message? {
+        didSet {
+            guard let message = recentMessage else {return}
+            chat.conversationMessages.append(message)
+        }
+    }
+    
     
     private var usersListener: Listener?
     private(set) var userObserver: RealtimeDBObserver?
@@ -51,14 +57,22 @@ class ChatCellViewModel: Equatable {
                 await fetchDataFromFirestore()
                 self.addObserverToUser()
                 self.addListenerToUser()
+                self.addDataToRealm()
             }
         }
     }
     
     private func addDataToRealm() {
+        guard let member = member, let recentMessage = recentMessage else {return}
         Task { @MainActor in
-            RealmDBManager.shared.add(object: member!)
-            RealmDBManager.shared.add(object: recentMessage!)
+            guard let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {
+                return
+            }
+            RealmDBManager.shared.add(object: member)
+            RealmDBManager.shared.add(object: chat)
+//            RealmDBManager.shared.update(object: chat) { chat in
+//                chat.conversationMessages.append(recentMessage)
+//            }
         }
     }
     

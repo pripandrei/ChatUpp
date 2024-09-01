@@ -109,6 +109,51 @@
                   endingLineNumber = "46"
                   offsetFromSymbolStart = "1844">
                </Location>
+               <Location
+                  uuid = "92426FEE-9918-441F-85A8-BCD6F18D16EA - c8f8d7a1ddbb965"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "33"
+                  endingLineNumber = "33"
+                  offsetFromSymbolStart = "436">
+               </Location>
+               <Location
+                  uuid = "92426FEE-9918-441F-85A8-BCD6F18D16EA - fb370de8fad87527"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "33"
+                  endingLineNumber = "33"
+                  offsetFromSymbolStart = "1396">
+               </Location>
+               <Location
+                  uuid = "92426FEE-9918-441F-85A8-BCD6F18D16EA - 526b72502a5953d8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "33"
+                  endingLineNumber = "33"
+                  offsetFromSymbolStart = "1844">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -217,6 +262,81 @@
                   endingLineNumber = "49"
                   offsetFromSymbolStart = "204">
                </Location>
+               <Location
+                  uuid = "6D47D4A1-D7F5-452B-B46B-B3D08F157A10 - c8f8d7a1ddbb8c6"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "1812">
+               </Location>
+               <Location
+                  uuid = "6D47D4A1-D7F5-452B-B46B-B3D08F157A10 - 432d5e5ba972ccea"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "52">
+               </Location>
+               <Location
+                  uuid = "6D47D4A1-D7F5-452B-B46B-B3D08F157A10 - fb370de8fad87484"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "136">
+               </Location>
+               <Location
+                  uuid = "6D47D4A1-D7F5-452B-B46B-B3D08F157A10 - 526b72502a595239"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "34"
+                  endingLineNumber = "34"
+                  offsetFromSymbolStart = "172">
+               </Location>
+               <Location
+                  uuid = "6D47D4A1-D7F5-452B-B46B-B3D08F157A10 - 526b72502a59527b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36"
+                  offsetFromSymbolStart = "204">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -278,6 +398,21 @@
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "50"
                   endingLineNumber = "50"
+                  offsetFromSymbolStart = "188">
+               </Location>
+               <Location
+                  uuid = "C020F969-234C-455B-AA65-553B52FBD092 - fb370de8fad874ab"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "37"
+                  endingLineNumber = "37"
                   offsetFromSymbolStart = "188">
                </Location>
             </Locations>
@@ -343,6 +478,21 @@
                   startingLineNumber = "42"
                   endingLineNumber = "42"
                   offsetFromSymbolStart = "516">
+               </Location>
+               <Location
+                  uuid = "C3A09E17-DC68-4712-93A5-EC427ABDF2B1 - c8f8d7a1ddbb9e1"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "29"
+                  endingLineNumber = "29"
+                  offsetFromSymbolStart = "296">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -422,6 +572,21 @@
                   endingLineNumber = "44"
                   offsetFromSymbolStart = "624">
                </Location>
+               <Location
+                  uuid = "86F37699-D4F5-4C54-A6C7-4E7B5ABF94B7 - c8f8d7a1ddbb923"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "31"
+                  endingLineNumber = "31"
+                  offsetFromSymbolStart = "404">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -470,7 +635,102 @@
                   endingLineNumber = "40"
                   offsetFromSymbolStart = "488">
                </Location>
+               <Location
+                  uuid = "CBB9AA8B-7F6E-457F-90F4-82AE5082AA94 - c8f8d7a1ddbb9bf"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for ChatUpp.AlgoliaSearchManager.performSearch(Swift.String) async -&gt; Swift.Array&lt;ChatUpp.DBUser&gt;"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "27"
+                  endingLineNumber = "27"
+                  offsetFromSymbolStart = "268">
+               </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F6E987B0-624B-4E55-9648-B36D5BCF7445"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "66"
+            endingLineNumber = "66"
+            landmarkName = "addDataToRealm()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8CF7D6FA-4C77-4E65-8646-BD7FB8348EE5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "68"
+            endingLineNumber = "68"
+            landmarkName = "addDataToRealm()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "01531AC9-3DD5-4953-B650-C2FF550DA548"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "addDataToRealm()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DB470457-2E98-4077-B205-7332CD5C8702"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
+            landmarkName = "addDataToRealm()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A15CE7B4-C50A-42A8-BC82-124FD4887280"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "74"
+            endingLineNumber = "74"
+            landmarkName = "addDataToRealm()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

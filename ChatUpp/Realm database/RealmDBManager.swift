@@ -15,7 +15,7 @@ final class RealmDBManager {
     
     private init() {}
     
-    private let configuration = Realm.Configuration(schemaVersion: 8)
+    private let configuration = Realm.Configuration(schemaVersion: 9)
     
     private var notificationToke: NotificationToken?
     
@@ -39,7 +39,7 @@ final class RealmDBManager {
     }
     
     public func update<T: Object>(object: T, update: (T) -> Void) {
-        try! realmDB.write({
+        try? realmDB.write({
             update(object)
         })
     }
