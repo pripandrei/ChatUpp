@@ -1,5 +1,5 @@
 //
-//  ConversationsViewModel.swift
+//  ChatsViewModel.swift
 //  ChatUpp
 //
 //  Created by Andrei Pripa on 9/26/23.
