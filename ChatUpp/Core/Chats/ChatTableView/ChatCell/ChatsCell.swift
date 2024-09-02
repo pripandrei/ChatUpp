@@ -117,7 +117,6 @@ class ChatsCell: UITableViewCell {
 //        }
         
         cellViewModel.$member
-        //            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { member in
                 if let member = member {
@@ -147,7 +146,6 @@ class ChatsCell: UITableViewCell {
             }.store(in: &subscriptions)
         
         cellViewModel.$unreadMessageCount
-        //            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] count in
                 guard let self = self else {return}

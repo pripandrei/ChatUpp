@@ -9,23 +9,7 @@ import Foundation
 import Firebase
 import RealmSwift
 
-enum RealmRetrieveError: Error, LocalizedError {
-    case objectNotPresent
-    case chatNotPresent
-    case memberNotPresent
-    case messageNotPresent
-    case imageNotPresent
-    
-    var errorDescription: String? {
-        switch self {
-        case .objectNotPresent: return "object not present"
-        case .chatNotPresent: return "chat not present"
-        case .memberNotPresent: return "member not present"
-        case .messageNotPresent: return "message not present"
-        case .imageNotPresent: return "image not present"
-        }
-    }
-}
+
 
 class ChatCellViewModel: Equatable {
     
@@ -48,15 +32,11 @@ class ChatCellViewModel: Equatable {
             }
             return RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID)
         } set {
-            guard let member = newValue else {return}
-            RealmDBManager.shared.add(object: member)
-            guard let asd = freezedMember?.freeze() else {return}
             Task { @MainActor in
-            self.member = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: asd.userId)
-//            onMemberSet?(freezedMember?.freeze())
-//            self.member = freezedMember?.freeze()
+                guard let member = newValue else {return}
+                RealmDBManager.shared.add(object: member)
+//                self.member = member
             }
-            //            self.member = nil
         }
     }
     
@@ -68,24 +48,16 @@ class ChatCellViewModel: Equatable {
     private(set) var freezedMessage: Message?
     {
         get {
-            guard let message = freezedChat?.recentMessageID else {
+            guard let message = freezedChat?.freeze().recentMessageID else {
                 return nil
             }
             return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message)
         } set {
-            guard let message = newValue else {return}
-            RealmDBManager.shared.add(object: message)
             Task { @MainActor in
-            self.recentMessage = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: freezedMessage!.id)
-//            onMemberSet?(freezedMember?.freeze())
-//            self.member = freezedMember?.freeze()
+                guard let message = newValue else {return}
+                RealmDBManager.shared.add(object: message)
+//                self.recentMessage = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
             }
-//            Task { @MainActor in
-//                self.recentMessage = message
-//            onMessageSet?(freezedMessage?.freeze())
-//            self.recentMessage = freezedMessage?.freeze()
-//            }
-//            self.member = nil
         }
     }
     
@@ -116,19 +88,19 @@ class ChatCellViewModel: Equatable {
     var isRecentMessagePresent: Bool? 
     {
         guard freezedMember != nil else { return nil }
-        if let _ = freezedChat?.recentMessageID { return true }
+        if let _ = freezedChat?.freeze().recentMessageID { return true }
         return false
     }
     
     var isAuthUserOwnerOfRecentMessage: Bool {
-        authUser.uid == freezedMessage?.senderId
+        authUser.uid == freezedMessage?.freeze().senderId
     }
     
     private func initiateChatDataLoad() {
         do {
             Task {
                 try? retrieveDataFromRealmSecondOption()
-//                await fetchDataFromFirestore()
+                await fetchDataFromFirestore()
 //                self.addObserverToUser()
 //                self.addListenerToUser()
 //                self.addDataToRealm()
@@ -160,7 +132,7 @@ class ChatCellViewModel: Equatable {
     }
     
     private func findMemberID() -> String? {
-        return freezedChat?.members.first(where: { $0 != authUser.uid} )
+        return freezedChat?.freeze().members.first(where: { $0 != authUser.uid} )
     }
 
 }
@@ -194,12 +166,16 @@ extension ChatCellViewModel {
 extension ChatCellViewModel {
     
     func retrieveDataFromRealmSecondOption() throws {
-        guard let member = freezedMember else {throw RealmRetrieveError.memberNotPresent}
-        self.freezedMember = member
-        guard let recentMessage = freezedMessage else {throw RealmRetrieveError.messageNotPresent}
-        self.freezedMessage = recentMessage
-//        self.recentMessage = try retrieveRecentMessage()
-        try retrieveMemberImageData()
+        
+//        Task { @MainActor in
+            guard let member = freezedMember?.freeze() else {throw RealmRetrieveError.memberNotPresent}
+            self.member = member
+            
+            guard let recentMessage = freezedMessage?.freeze() else {throw RealmRetrieveError.messageNotPresent}
+            self.recentMessage = recentMessage
+            //        self.recentMessage = try retrieveRecentMessage()
+            try retrieveMemberImageData()
+//        }
     }
     
 //    func retrieveDataFromRealm() throws {
@@ -211,7 +187,7 @@ extension ChatCellViewModel {
     func retrieveMember() throws -> DBUser {
         guard let memberID = findMemberID(),
               let member = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID) else {
-            print("member not ID", findMemberID())
+            print("member not ID", findMemberID() ?? "")
             throw
             RealmRetrieveError.memberNotPresent }
         return member
@@ -226,7 +202,7 @@ extension ChatCellViewModel {
     }
     
     func retrieveMemberImageData() throws {
-        guard let member = self.freezedMember,
+        guard let member = self.freezedMember?.freeze(),
               let userProfilePhotoURL = member.photoUrl,
               let imageURL = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: member.userId)?.photoUrl else {
             print("image not")
@@ -324,3 +300,41 @@ extension ChatCellViewModel {
         lhs.freezedChat == rhs.freezedChat
     }
 }
+
+
+enum RealmRetrieveError: Error, LocalizedError {
+    case objectNotPresent
+    case chatNotPresent
+    case memberNotPresent
+    case messageNotPresent
+    case imageNotPresent
+    
+    var errorDescription: String? {
+        switch self {
+        case .objectNotPresent: return "object not present"
+        case .chatNotPresent: return "chat not present"
+        case .memberNotPresent: return "member not present"
+        case .messageNotPresent: return "message not present"
+        case .imageNotPresent: return "image not present"
+        }
+    }
+}
+//
+//
+//enum RealmRetrieveError: Error, LocalizedError {
+//    case objectNotPresent
+//    case chatNotPresent
+//    case memberNotPresent
+//    case messageNotPresent
+//    case imageNotPresent
+//    
+//    var errorDescription: String? {
+//        switch self {
+//        case .objectNotPresent: return "object not present"
+//        case .chatNotPresent: return "chat not present"
+//        case .memberNotPresent: return "member not present"
+//        case .messageNotPresent: return "message not present"
+//        case .imageNotPresent: return "image not present"
+//        }
+//    }
+//}
