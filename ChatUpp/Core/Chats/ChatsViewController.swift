@@ -93,6 +93,13 @@ class ChatsViewController: UIViewController {
                 let destinationIndexPath = IndexPath(row: 0, section: 0)
                 self?.tableView.moveRow(at: IndexPath(row: sourceIndex, section: 0), to: destinationIndexPath)
             }.store(in: &subscriptions)
+        
+        chatsViewModel.$initialChatsDoneFetching
+            .filter({ $0 == true })
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.tableView.reloadData()
+            }.store(in: &subscriptions)
     }
     
     // MARK: - SkeletonView

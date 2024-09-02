@@ -17,6 +17,7 @@ final class ChatsViewModel {
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     @Published var modifiedChatIndex: Int = 0
+    @Published var initialChatsDoneFetching: Bool = false
     
     var onNewChatAdded: ((Bool) -> Void)?
     
@@ -50,7 +51,7 @@ final class ChatsViewModel {
         if !chats.isEmpty {
             self.chats = chats
             self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
-//            self.initialChatsDoneFetching = true
+            self.initialChatsDoneFetching = true
         }
     }
     
@@ -65,6 +66,11 @@ final class ChatsViewModel {
 
 extension ChatsViewModel {
     private func retrieveChatsFromRealm() -> [Chat] {
+//        let chats = RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
+//        let chatsV2 = chats.map { chat in
+//            Chat(value: chat)
+//        }
+//        return chatsV2
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
     }
     
@@ -118,7 +124,32 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     
+    private func retrieveChatFromRealm(_ chat: Chat) -> Chat? {
+        guard let chat =  RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {return nil}
+        return Chat(value: chat)
+//        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
+    }
+    
+    private func addChat2(_ chat: Chat) {
+        guard let chat = retrieveChatFromRealm(chat) else {return}
+        if let localChat = chats.first(where: {$0.id == chat.id}) {
+//            if localChat != chat {
+//                
+//            }
+        } else {
+            chats.insert(chat, at: 0)
+            createCellViewModel(from: chat)
+            onNewChatAdded?(true)
+        }
+    }
+    
     private func handleAddedChat(_ chat: Chat) {
+//        Task { @MainActor in
+//            addChatToRealm(chat)
+//            addChat2(chat)            
+//        }
+
+        addChatToRealm(chat)
         addChat(chat)
         createCellViewModel(from: chat)
         onNewChatAdded?(true)

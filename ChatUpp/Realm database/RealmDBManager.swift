@@ -31,18 +31,21 @@ final class RealmDBManager {
     }
     
     public func retrieveObjects<T: Object>(ofType type: T.Type) -> [T] {
-        Array(realmDB.objects(T.self))
+        return  Array(realmDB.objects(T.self).map { $0.freeze() })
+//        Array(realmDB.objects(T.self))
     }
     
     public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
         return realmDB.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
+    
     public func update<T: Object>(object: T, update: (T) -> Void) {
-        try? realmDB.write({
+        try? realmDB.write {
             update(object)
-        })
+        }
     }
+
     
 //    public func addObserverToObjects<T: Object>(objects: Results<T>) {
 //        notificationToke = objects.observe { change in
@@ -66,6 +69,7 @@ final class RealmDBManager {
 //            }
 //        }
 //    }
+
     
     func transformObjectToResults<T: Object>(object: T) {
         
@@ -82,4 +86,7 @@ extension Results {
         }
         return results
     }
+}
+extension Object {
+    
 }

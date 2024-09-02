@@ -49,4 +49,15 @@ class Chat: Object, Codable {
     func appendConversationMessage(_ message: Message) {
         conversationMessages.append(message)
     }
+
+}
+
+
+extension Chat {
+    static func == (lhs: Chat, rhs: Chat) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.members == rhs.members &&
+        lhs.recentMessageID == rhs.recentMessageID
+        
+    }
 }

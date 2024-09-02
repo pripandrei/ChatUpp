@@ -7,6 +7,7 @@
 
 import Foundation
 import Firebase
+import RealmSwift
 
 enum RealmRetrieveError: Error {
     case objectNotPresent
@@ -16,16 +17,21 @@ class ChatCellViewModel: Equatable {
     
     private(set) var chat: Chat
     
+    private var freezedChat: Chat
+    
     @Published private(set) var member: DBUser?
     @Published var memberProfileImage: Data?
     @Published var unreadMessageCount: Int? 
-    @Published var recentMessage: Message? {
+    @Published var recentMessage: Message? 
+    {
         didSet {
             guard let message = recentMessage else {return}
-            chat.conversationMessages.append(message)
+//            chat.conversationMessages.append(message)
+            RealmDBManager.shared.update(object: chat) { chat in
+                chat.conversationMessages.append(message)
+            }
         }
     }
-    
     
     private var usersListener: Listener?
     private(set) var userObserver: RealtimeDBObserver?
@@ -34,8 +40,10 @@ class ChatCellViewModel: Equatable {
     
     init(chat: Chat) {
         self.chat = chat
+        self.freezedChat = Chat(value: chat)
         initiateChatDataLoad()
     }
+
 
     var isRecentMessagePresent: Bool? 
     {
@@ -50,24 +58,30 @@ class ChatCellViewModel: Equatable {
     
     private func initiateChatDataLoad() {
         do {
-            try retrieveDataFromRealm()
-        } catch {
-//            print("Could not retrieve data from Realm: ", error.localizedDescription)
-            Task { 
+            Task {
+                try? await retrieveDataFromRealm()
                 await fetchDataFromFirestore()
-                self.addObserverToUser()
-                self.addListenerToUser()
-                self.addDataToRealm()
+//                self.addObserverToUser()
+//                self.addListenerToUser()
+//                self.addDataToRealm()
             }
+        } catch {
+            print("Could not retrieve data from Realm: ", error.localizedDescription)
+//            Task { 
+//                await fetchDataFromFirestore()
+//                self.addObserverToUser()
+//                self.addListenerToUser()
+//                self.addDataToRealm()
+//            }
         }
     }
     
     private func addDataToRealm() {
         guard let member = member, let recentMessage = recentMessage else {return}
         Task { @MainActor in
-            guard let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {
-                return
-            }
+//            guard let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {
+//                return
+//            }
             RealmDBManager.shared.add(object: member)
             RealmDBManager.shared.add(object: chat)
 //            RealmDBManager.shared.update(object: chat) { chat in
@@ -77,7 +91,7 @@ class ChatCellViewModel: Equatable {
     }
     
     private func findMemberID() -> String? {
-        return chat.members.first(where: { $0 != authUser.uid} )
+        return freezedChat.members.first(where: { $0 != authUser.uid} )
     }
 }
 
@@ -108,6 +122,7 @@ extension ChatCellViewModel {
 //MARK: - Retrieve Realm db data
 
 extension ChatCellViewModel {
+    
     
     func retrieveDataFromRealm() throws {
         self.member = try retrieveMember()
@@ -140,6 +155,7 @@ extension ChatCellViewModel {
 
 extension ChatCellViewModel 
 {
+    @MainActor
     private func fetchDataFromFirestore() async
     {
         do {
@@ -159,8 +175,9 @@ extension ChatCellViewModel
     }
     
     func loadRecentMessage() async -> Message?  {
-        guard let message = try? await ChatsManager.shared.getRecentMessageFromChats([chat]).first,
-              let message = message else { return nil }
+//        guard let chat = freezedChat,
+              guard let message = try? await ChatsManager.shared.getRecentMessage(from: freezedChat)
+        else { return nil }
         return message
     }
     
@@ -172,9 +189,10 @@ extension ChatCellViewModel
         let photoData = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
         return photoData
     }
-    
-    func fetchUnreadMessagesCount() async throws -> Int {
-        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chat.id)
+
+    func fetchUnreadMessagesCount() async throws -> Int? {
+//        guard let chat = freezedChat else {return nil}
+        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: freezedChat.id)
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
     }

@@ -73,15 +73,21 @@ extension ChatsManager
         return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).getDocuments().count
     }
     
-    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message?] {
-        var messages = [Message?]()
-        
-        for chat in chats {
-            guard let recentMessageID = chat.recentMessageID else {messages.append(nil) ; continue}
-            let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
-            messages.append(message)
-        }
-        return messages
+//    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message?] {
+//        var messages = [Message?]()
+//        
+//        for chat in chats {
+//            guard let recentMessageID = chat.recentMessageID else { messages.append(nil) ; continue }
+//            let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
+//            messages.append(message)
+//        }
+//        return messages
+//    }
+    
+    func getRecentMessage(from chat: Chat) async throws -> Message? {
+        guard let recentMessage = chat.recentMessageID else {return nil}
+        let message = try await getMessageDocument(messagePath: recentMessage, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
+        return message
     }
 }
 
