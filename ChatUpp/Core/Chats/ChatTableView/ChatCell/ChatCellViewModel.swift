@@ -25,10 +25,12 @@ class ChatCellViewModel: Equatable {
     @Published var recentMessage: Message? 
     {
         didSet {
-            guard let message = recentMessage else {return}
-//            chat.conversationMessages.append(message)
-            RealmDBManager.shared.update(object: chat) { chat in
-                chat.conversationMessages.append(message)
+            Task { @MainActor in
+                
+                guard let message = recentMessage else {return}
+                RealmDBManager.shared.update(object: chat) { chat in
+                    chat.conversationMessages.append(message)
+                }
             }
         }
     }
@@ -40,7 +42,7 @@ class ChatCellViewModel: Equatable {
     
     init(chat: Chat) {
         self.chat = chat
-        self.freezedChat = Chat(value: chat)
+        self.freezedChat = chat.freeze()
         initiateChatDataLoad()
     }
 
@@ -58,21 +60,21 @@ class ChatCellViewModel: Equatable {
     
     private func initiateChatDataLoad() {
         do {
-            Task {
-                try? await retrieveDataFromRealm()
-                await fetchDataFromFirestore()
-//                self.addObserverToUser()
-//                self.addListenerToUser()
-//                self.addDataToRealm()
-            }
-        } catch {
-            print("Could not retrieve data from Realm: ", error.localizedDescription)
-//            Task { 
+//            Task {
+                try retrieveDataFromRealm()
 //                await fetchDataFromFirestore()
 //                self.addObserverToUser()
 //                self.addListenerToUser()
 //                self.addDataToRealm()
 //            }
+        } catch {
+            print("Could not retrieve data from Realm: ", error.localizedDescription)
+            Task { 
+                await fetchDataFromFirestore()
+                self.addObserverToUser()
+                self.addListenerToUser()
+                self.addDataToRealm()
+            }
         }
     }
     
@@ -155,7 +157,7 @@ extension ChatCellViewModel {
 
 extension ChatCellViewModel 
 {
-    @MainActor
+
     private func fetchDataFromFirestore() async
     {
         do {

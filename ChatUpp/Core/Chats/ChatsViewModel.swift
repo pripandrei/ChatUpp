@@ -66,11 +66,6 @@ final class ChatsViewModel {
 
 extension ChatsViewModel {
     private func retrieveChatsFromRealm() -> [Chat] {
-//        let chats = RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
-//        let chatsV2 = chats.map { chat in
-//            Chat(value: chat)
-//        }
-//        return chatsV2
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
     }
     
@@ -125,22 +120,9 @@ extension ChatsViewModel {
 extension ChatsViewModel {
     
     private func retrieveChatFromRealm(_ chat: Chat) -> Chat? {
-        guard let chat =  RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {return nil}
-        return Chat(value: chat)
-//        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
-    }
-    
-    private func addChat2(_ chat: Chat) {
-        guard let chat = retrieveChatFromRealm(chat) else {return}
-        if let localChat = chats.first(where: {$0.id == chat.id}) {
-//            if localChat != chat {
-//                
-//            }
-        } else {
-            chats.insert(chat, at: 0)
-            createCellViewModel(from: chat)
-            onNewChatAdded?(true)
-        }
+//        guard let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {return nil}
+//        return Chat(value: chat)
+        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
     }
     
     private func handleAddedChat(_ chat: Chat) {
