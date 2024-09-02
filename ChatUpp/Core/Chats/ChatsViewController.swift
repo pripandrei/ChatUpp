@@ -149,7 +149,7 @@ class ChatsViewController: UIViewController {
             
             let conversation = chatsViewModel.chats[index]
             
-            guard let user = chatCell.member,
+            guard let user = chatCell.freezedMember,
                   let userName = user.name else {return nil}
             
             let nameSubstrings = userName.lowercased().components(separatedBy: delimiters)
@@ -260,9 +260,9 @@ extension ChatsViewController: UITableViewDelegate
         
         let cellVM = self.chatsViewModel.cellViewModels[indexPath.item]
 
-        guard let user = cellVM.member else {return}
+        guard let user = cellVM.freezedMember else {return}
         
-        let chat = cellVM.chat
+        let chat = cellVM.freezedChat
         let memberPhoto = cellVM.memberProfileImage
         
         let conversationViewModel = ConversationViewModel(userMember: user, conversation: chat, imageData: memberPhoto)

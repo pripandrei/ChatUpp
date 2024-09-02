@@ -23,7 +23,7 @@ final class ChatsViewModel {
     
     init() {
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
-//        loadDataFromRealm()
+        loadDataFromRealm()
         addChatsListener()
     }
     
@@ -34,7 +34,7 @@ final class ChatsViewModel {
     }
     
     private func removeCellViewModel(containing chat: Chat) {
-        cellViewModels.removeAll(where: {$0.chat.id == chat.id})
+        cellViewModels.removeAll(where: {$0.freezedChat?.id == chat.id})
     }
     
     private func addChat(_ chat: Chat) {
@@ -131,10 +131,10 @@ extension ChatsViewModel {
 //            addChat2(chat)            
 //        }
 
-        addChatToRealm(chat)
-        addChat(chat)
-        createCellViewModel(from: chat)
-        onNewChatAdded?(true)
+//        addChatToRealm(chat)
+//        addChat(chat)
+//        createCellViewModel(from: chat)
+//        onNewChatAdded?(true)
     }
 
     private func handleModifiedChat(_ chat: Chat) {
@@ -155,17 +155,17 @@ extension ChatsViewModel {
     }
     
     private func handleRecentMessageUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
-        if chatCellVM.recentMessage?.id != chat.recentMessageID {
+        if chatCellVM.freezedMessage?.id != chat.recentMessageID {
             chatCellVM.updateChat(chat)
             Task {
-                chatCellVM.recentMessage = try await chatCellVM.loadRecentMessage()
-                chatCellVM.unreadMessageCount = try await chatCellVM.fetchUnreadMessagesCount()
+//                chatCellVM.freezedMessage = try await chatCellVM.loadRecentMessage()
+//                chatCellVM.unreadMessageCount = try await chatCellVM.fetchUnreadMessagesCount()
             }
         }
     }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
-        return cellViewModels.first(where: {$0.chat.id == chat.id})
+        return cellViewModels.first(where: {$0.freezedChat?.id == chat.id})
     }
     
     private func findIndex(of element: ChatCellViewModel) -> Int? {
