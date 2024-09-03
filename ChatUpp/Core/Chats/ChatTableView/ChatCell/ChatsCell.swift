@@ -54,13 +54,13 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setOnlineStatusActivity() {
-        if let activeStatus = cellViewModel.freezedMember?.isActive {
+        if let activeStatus = cellViewModel.member?.isActive {
             onlineStatusCircleView.isHidden = !activeStatus
         }
     }
     
     private func setUnreadMessageCount(_ count: Int) {
-        guard let _ = cellViewModel.freezedMessage else {return}
+        guard let _ = cellViewModel.recentMessage else {return}
 
         unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         
@@ -159,8 +159,8 @@ class ChatsCell: UITableViewCell {
     //MARK: - Image setup
     
     private func setupMemberImage() {
-        guard let member = cellViewModel.freezedMember else { return }
-        
+        guard let member = cellViewModel.member else { return }
+//        
         if member.photoUrl == nil {
             /// set local image
             setImage()

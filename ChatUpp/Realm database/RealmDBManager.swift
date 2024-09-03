@@ -30,9 +30,15 @@ final class RealmDBManager {
         }
     }
     
+    public func create<T: Object>(object: T) {
+        try? realmDB.write {
+            realmDB.create(T.self, value: object, update: .modified)
+        }
+    }
+    
     public func retrieveObjects<T: Object>(ofType type: T.Type) -> [T] {
-        return  Array(realmDB.objects(T.self).map { $0.freeze() })
-//        Array(realmDB.objects(T.self))
+//        return  Array(realmDB.objects(T.self).map { $0.freeze() })
+        Array(realmDB.objects(T.self))
     }
     
     public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {

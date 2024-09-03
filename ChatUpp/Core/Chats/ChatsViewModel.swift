@@ -34,7 +34,7 @@ final class ChatsViewModel {
     }
     
     private func removeCellViewModel(containing chat: Chat) {
-        cellViewModels.removeAll(where: {$0.freezedChat?.id == chat.id})
+        cellViewModels.removeAll(where: {$0.member?.userId == chat.id})
     }
     
     private func addChat(_ chat: Chat) {
@@ -70,7 +70,9 @@ extension ChatsViewModel {
     }
     
     private func addChatToRealm(_ chat: Chat) {
-        RealmDBManager.shared.add(object: chat)
+        Task { @MainActor in
+            RealmDBManager.shared.add(object: chat)
+        }
     }
 }
 
@@ -131,10 +133,12 @@ extension ChatsViewModel {
 //            addChat2(chat)            
 //        }
 
-//        addChatToRealm(chat)
-//        addChat(chat)
-//        createCellViewModel(from: chat)
-//        onNewChatAdded?(true)
+//        Task { @MainActor in
+//            addChatToRealm(chat)
+//            addChat(chat)
+//            createCellViewModel(from: chat)
+//            onNewChatAdded?(true)            
+//        }
     }
 
     private func handleModifiedChat(_ chat: Chat) {
@@ -155,7 +159,7 @@ extension ChatsViewModel {
     }
     
     private func handleRecentMessageUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
-        if chatCellVM.freezedMessage?.id != chat.recentMessageID {
+        if chatCellVM.member?.userId != chat.recentMessageID {
             chatCellVM.updateChat(chat)
             Task {
 //                chatCellVM.freezedMessage = try await chatCellVM.loadRecentMessage()
@@ -165,7 +169,7 @@ extension ChatsViewModel {
     }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
-        return cellViewModels.first(where: {$0.freezedChat?.id == chat.id})
+        return cellViewModels.first(where: {$0.member?.userId == chat.id})
     }
     
     private func findIndex(of element: ChatCellViewModel) -> Int? {

@@ -13,64 +13,81 @@ import RealmSwift
 
 class ChatCellViewModel: Equatable {
     
-//    private(set) var chat: Chat
+    //    private(set) var freezedMember: DBUser? {
+    //        get {
+    //            guard let memberID = findMemberID() else {
+    //                return nil
+    //            }
+    //            return RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID)
+    //        } set {
+    //            Task { @MainActor in
+    //                guard let member = newValue else {return}
+    //                RealmDBManager.shared.add(object: member)
+    ////                self.member = member
+    //            }
+    //        }
+    //    }
+        
+    //    private(set) var freezedMessage: Message?
+    //    {
+    //        get {
+    //            guard let message = freezedChat?.freeze().recentMessageID else {
+    //                return nil
+    //            }
+    //            return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message)
+    //        } set {
+    //            Task { @MainActor in
+    //                guard let message = newValue else {return}
+    //                RealmDBManager.shared.add(object: message)
+    ////                self.recentMessage = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
+    //            }
+    //        }
+    //    }
+        
+    //    {
+    //        didSet {
+    ////            Task { @MainActor in
+    ////                guard let message = recentMessage, let chat = freezedChat else {return}
+    //////                RealmDBManager.shared.update(object: chat) { chat in
+    //////                    freezedChat?.conversationMessages.append(message)
+    //////                }
+    ////            }
+    //        }
+    //    }
+//    var freezedChat: Chat! {
+//        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
+//    }
+    
+    
     private(set) var chatID: String
     
-//    private var freezedChat: Chat
     var freezedChat: Chat? {
-        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
+        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)?.freeze()
     }
     
     @Published private(set) var member: DBUser?
-//     var onMemberSet: ((DBUser?) -> Void)?
-//     var onMessageSet: ((Message?) -> Void)?
-//    
-    private(set) var freezedMember: DBUser? {
-        get {
-            guard let memberID = findMemberID() else {
-                return nil
-            }
-            return RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID)
-        } set {
-            Task { @MainActor in
-                guard let member = newValue else {return}
-                RealmDBManager.shared.add(object: member)
-//                self.member = member
-            }
-        }
-    }
-    
+    @Published var recentMessage: Message?
     @Published var memberProfileImage: Data?
     @Published var unreadMessageCount: Int?
     
-    @Published var recentMessage: Message?
-    
-    private(set) var freezedMessage: Message?
-    {
+    var computedMessage: Message? {
         get {
-            guard let message = freezedChat?.freeze().recentMessageID else {
-                return nil
-            }
-            return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message)
-        } set {
-            Task { @MainActor in
-                guard let message = newValue else {return}
-                RealmDBManager.shared.add(object: message)
-//                self.recentMessage = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
-            }
+            return recentMessage
+        }
+        set {
+            self.recentMessage = newValue?.freeze()
         }
     }
     
-//    {
-//        didSet {
-////            Task { @MainActor in
-////                guard let message = recentMessage, let chat = freezedChat else {return}
-//////                RealmDBManager.shared.update(object: chat) { chat in
-//////                    freezedChat?.conversationMessages.append(message)
-//////                }
-////            }
-//        }
-//    }
+    var computedMember: DBUser? {
+        get {
+            return member
+        }
+        set {
+            self.member = newValue?.freeze()
+        }
+    }
+
     
     private var usersListener: Listener?
     private(set) var userObserver: RealtimeDBObserver?
@@ -78,32 +95,32 @@ class ChatCellViewModel: Equatable {
     var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     init(chat: Chat) {
-//        self.chat = chat
-        chatID = chat.id
 //        self.freezedChat = chat.freeze()
+        chatID = chat.id
         initiateChatDataLoad()
     }
 
 
     var isRecentMessagePresent: Bool? 
     {
-        guard freezedMember != nil else { return nil }
-        if let _ = freezedChat?.freeze().recentMessageID { return true }
+        guard member != nil else { return nil }
+        if let _ = freezedChat?.recentMessageID { return true }
         return false
     }
     
     var isAuthUserOwnerOfRecentMessage: Bool {
-        authUser.uid == freezedMessage?.freeze().senderId
+//        authUser.uid == recentMessage?.freeze().senderId
+        authUser.uid == computedMessage?.senderId
     }
     
     private func initiateChatDataLoad() {
+        try? retrieveDataFromRealm()
         do {
             Task {
-                try? retrieveDataFromRealmSecondOption()
                 await fetchDataFromFirestore()
 //                self.addObserverToUser()
 //                self.addListenerToUser()
-//                self.addDataToRealm()
+                self.addDataToRealm()
             }
         } catch {
             print("Could not retrieve data from Realm: ", error.localizedDescription)
@@ -117,24 +134,33 @@ class ChatCellViewModel: Equatable {
     }
     
     private func addDataToRealm() {
-        guard let member = freezedMember, let recentMessage = freezedMessage else {return}
+        guard let member = member,
+              let recentMessage = recentMessage
+        else {return}
+        
         Task { @MainActor in
-//            guard let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {
-//                return
-//            }
-            guard let chat = freezedChat else {return }
             RealmDBManager.shared.add(object: member)
-            RealmDBManager.shared.add(object: chat)
-//            RealmDBManager.shared.update(object: chat) { chat in
-//                chat.conversationMessages.append(recentMessage)
-//            }
+            if let chat = freezedChat?.thaw(), 
+                !chat.conversationMessages.contains(where: {$0.id == recentMessage.id}) {
+                RealmDBManager.shared.update(object: chat) { chat in
+                    chat.conversationMessages.append(recentMessage)
+                }
+            }
         }
+        //        Task { @MainActor in
+        ////            guard let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {
+        ////                return
+        ////            }
+        
+        ////            RealmDBManager.shared.update(object: freezedChat) { chat in
+        ////                freezedChat.conversationMessages.append(recentMessage)
+        ////            }
+        //        }
     }
     
     private func findMemberID() -> String? {
-        return freezedChat?.freeze().members.first(where: { $0 != authUser.uid} )
+        return freezedChat?.members.first(where: { $0 != authUser.uid} )
     }
-
 }
 
 
@@ -147,13 +173,13 @@ extension ChatCellViewModel {
     }
 
     func updateRecentMessage(_ message: Message?) {
-        self.freezedMessage = message
+        self.computedMessage = message
     }
     
     /// - updated user after deletion
     func updateUserAfterDeletion(_ modifiedUserID: String) async {
         do {
-            self.freezedMember = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
+            self.computedMember = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
             self.memberProfileImage = try await self.fetchImageData()
         } catch {
             print("Error updating user while listening: ", error.localizedDescription)
@@ -164,30 +190,29 @@ extension ChatCellViewModel {
 //MARK: - Retrieve Realm db data
 
 extension ChatCellViewModel {
-    
-    func retrieveDataFromRealmSecondOption() throws {
-        
-//        Task { @MainActor in
-            guard let member = freezedMember?.freeze() else {throw RealmRetrieveError.memberNotPresent}
-            self.member = member
-            
-            guard let recentMessage = freezedMessage?.freeze() else {throw RealmRetrieveError.messageNotPresent}
-            self.recentMessage = recentMessage
-            //        self.recentMessage = try retrieveRecentMessage()
-            try retrieveMemberImageData()
-//        }
-    }
-    
-//    func retrieveDataFromRealm() throws {
-//        self.freezedMember = try retrieveMember()
-//        self.recentMessage = try retrieveRecentMessage()
-//        try retrieveMemberImageData()
+//    
+//    func retrieveDataFromRealmSecondOption() throws {
+//        
+////        Task { @MainActor in
+//            guard let member = freezedMember?.freeze() else {throw RealmRetrieveError.memberNotPresent}
+//            self.member = member
+//            
+//            guard let recentMessage = freezedMessage?.freeze() else {throw RealmRetrieveError.messageNotPresent}
+//            self.recentMessage = recentMessage
+//            //        self.recentMessage = try retrieveRecentMessage()
+//            try retrieveMemberImageData()
+////        }
 //    }
+    
+    func retrieveDataFromRealm() throws {
+        self.computedMember = try retrieveMember()
+        self.computedMessage = try retrieveRecentMessage()
+        try retrieveMemberImageData()
+    }
     
     func retrieveMember() throws -> DBUser {
         guard let memberID = findMemberID(),
               let member = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID) else {
-            print("member not ID", findMemberID() ?? "")
             throw
             RealmRetrieveError.memberNotPresent }
         return member
@@ -195,14 +220,13 @@ extension ChatCellViewModel {
     
     func retrieveRecentMessage() throws -> Message {
         guard let messageID = freezedChat?.recentMessageID,
-              let message = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
-            print("message  not")
+        let message = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
             throw RealmRetrieveError.messageNotPresent }
         return message
     }
     
     func retrieveMemberImageData() throws {
-        guard let member = self.freezedMember?.freeze(),
+        guard let member = self.member,
               let userProfilePhotoURL = member.photoUrl,
               let imageURL = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: member.userId)?.photoUrl else {
             print("image not")
@@ -216,12 +240,11 @@ extension ChatCellViewModel {
 
 extension ChatCellViewModel 
 {
-
     private func fetchDataFromFirestore() async
     {
         do {
-            self.freezedMember      = try await loadOtherMemberOfChat()
-            self.freezedMessage     =     await loadRecentMessage()
+            self.member             = try await loadOtherMemberOfChat()
+            self.recentMessage      =     await loadRecentMessage()
             self.memberProfileImage = try await fetchImageData()
             self.unreadMessageCount = try await fetchUnreadMessagesCount()
         } catch {
@@ -237,13 +260,13 @@ extension ChatCellViewModel
     
     func loadRecentMessage() async -> Message?  {
         guard let chat = freezedChat,
-              let message = try? await ChatsManager.shared.getRecentMessage(from: chat)
+        let message = try? await ChatsManager.shared.getRecentMessage(from: chat)
         else { return nil }
         return message
     }
     
     func fetchImageData() async throws -> Data? {
-        guard let user = self.freezedMember,
+        guard let user = self.computedMember,
               let userProfilePhotoURL = user.photoUrl else {
             return nil
         }
@@ -252,8 +275,7 @@ extension ChatCellViewModel
     }
 
     func fetchUnreadMessagesCount() async throws -> Int? {
-        guard let chat = freezedChat else {return nil}
-        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chat.id)
+        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chatID)
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
     }
@@ -265,14 +287,14 @@ extension ChatCellViewModel {
    
     /// Observe user from Realtime db (Temporary fix while firebase functions are deactivated)
     private func addObserverToUser() {
-        guard let member = freezedMember else {return}
+        guard let member = member else {return}
         
         self.userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(member.userId) { [weak self] realtimeDBUser in
-            if realtimeDBUser.isActive != self?.freezedMember?.isActive
+            if realtimeDBUser.isActive != self?.member?.isActive
             {
                 if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive 
                 {
-                    self?.freezedMember = self?.freezedMember?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    self?.member = self?.member?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
                 }
             }
         }
@@ -281,14 +303,14 @@ extension ChatCellViewModel {
     /// Listen to user from Firestore db
     private func addListenerToUser()
     {
-        guard let memberID = freezedMember?.userId else {return}
+        guard let memberID = member?.userId else {return}
         
         self.usersListener = UserManager.shared.addListenerToUsers([memberID]) { [weak self] users, documentsTypes in
             guard let self = self else {return}
             // since we are listening only for one user here
             // we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self.freezedMember = user
+            self.member = user
         }
     }
 }
@@ -319,22 +341,3 @@ enum RealmRetrieveError: Error, LocalizedError {
         }
     }
 }
-//
-//
-//enum RealmRetrieveError: Error, LocalizedError {
-//    case objectNotPresent
-//    case chatNotPresent
-//    case memberNotPresent
-//    case messageNotPresent
-//    case imageNotPresent
-//    
-//    var errorDescription: String? {
-//        switch self {
-//        case .objectNotPresent: return "object not present"
-//        case .chatNotPresent: return "chat not present"
-//        case .memberNotPresent: return "member not present"
-//        case .messageNotPresent: return "message not present"
-//        case .imageNotPresent: return "image not present"
-//        }
-//    }
-//}
