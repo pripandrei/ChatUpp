@@ -103,7 +103,7 @@ class ChatCellViewModel: Equatable {
     }
     
     init(chat: Chat) {
-        self.freezedChat = chat.freeze()
+        self.freezedChat = chat
 //        chatID = chat.id
         initiateChatDataLoad()
     }
@@ -114,18 +114,16 @@ class ChatCellViewModel: Equatable {
             await fetchDataFromFirestore()
 //            self.addObserverToUser()
 //            self.addListenerToUser()
-            self.addDataToRealm()
+//            self.addDataToRealm()
         }
     }
     
     private func addDataToRealm() {
-        guard let member = member,
-              let recentMessage = recentMessage
-        else {return}
+        guard let member = member else {return}
         
         Task { @MainActor in
             RealmDBManager.shared.add(object: member)
-            if let chat = freezedChat?.thaw(), 
+            if let recentMessage = recentMessage, let chat = freezedChat?.thaw(),
                 !chat.conversationMessages.contains(where: {$0.id == recentMessage.id}) {
                 RealmDBManager.shared.update(object: chat) { chat in
                     chat.conversationMessages.append(recentMessage)
@@ -206,17 +204,21 @@ extension ChatCellViewModel
     private func fetchDataFromFirestore() async
     {
         do {
-            self.member             = try await loadOtherMemberOfChat()
-            self.recentMessage      =     await loadRecentMessage()
-            self.memberProfileImage = try await fetchImageData()
-            self.unreadMessageCount = try await fetchUnreadMessagesCount()
+            self.member                = try await loadOtherMemberOfChat()
+            async let loadMessage      = loadRecentMessage()
+            async let loadImage        = fetchImageData()
+            async let loadMessageCount = fetchUnreadMessagesCount()
+            
+            (recentMessage, memberProfileImage, unreadMessageCount) = await (loadMessage, try loadImage, try loadMessageCount)
         } catch {
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
     }
     
     func loadOtherMemberOfChat() async throws -> DBUser? {
-        guard let memberID = findMemberID() else { return nil }
+        guard let memberID = findMemberID() else {
+            return nil
+        }
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
         return member
     }
