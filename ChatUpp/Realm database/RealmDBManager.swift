@@ -9,6 +9,25 @@ import Foundation
 import RealmSwift
 import Realm
 
+
+enum RealmRetrieveError: Error, LocalizedError {
+    case objectNotPresent
+    case chatNotPresent
+    case memberNotPresent
+    case messageNotPresent
+    case imageNotPresent
+    
+    var errorDescription: String? {
+        switch self {
+        case .objectNotPresent: return "object not present"
+        case .chatNotPresent: return "chat not present"
+        case .memberNotPresent: return "member not present"
+        case .messageNotPresent: return "message not present"
+        case .imageNotPresent: return "image not present"
+        }
+    }
+}
+
 final class RealmDBManager {
     
     static var shared = RealmDBManager()
@@ -78,21 +97,6 @@ final class RealmDBManager {
 
     
     func transformObjectToResults<T: Object>(object: T) {
-        
-    }
-}
-
-
-extension Results {
     
-    func toArray() -> [Element] {
-        var results = [Element]()
-        for item in self {
-            results.append(item)
-        }
-        return results
     }
-}
-extension Object {
-    
 }

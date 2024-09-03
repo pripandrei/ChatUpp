@@ -65,14 +65,14 @@ class ChatCellViewModel: Equatable {
     @Published private(set) var unreadMessageCount: Int?
     private var usersListener: Listener?
     private var userObserver: RealtimeDBObserver?
-    private var chatID: String
+//    private var chatID: String
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-//    var freezedChat: Chat?
+    var freezedChat: Chat?
     
-    var freezedChat: Chat? {
-        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
-    }
+//    var freezedChat: Chat? {
+//        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
+//    }
     var computedMessage: Message? {
         get {
             return recentMessage
@@ -103,8 +103,8 @@ class ChatCellViewModel: Equatable {
     }
     
     init(chat: Chat) {
-//        self.freezedChat = chat.freeze()
-        chatID = chat.id
+        self.freezedChat = chat.freeze()
+//        chatID = chat.id
         initiateChatDataLoad()
     }
     
@@ -166,19 +166,6 @@ extension ChatCellViewModel {
 //MARK: - Retrieve Realm db data
 
 extension ChatCellViewModel {
-//    
-//    func retrieveDataFromRealmSecondOption() throws {
-//        
-////        Task { @MainActor in
-//            guard let member = freezedMember?.freeze() else {throw RealmRetrieveError.memberNotPresent}
-//            self.member = member
-//            
-//            guard let recentMessage = freezedMessage?.freeze() else {throw RealmRetrieveError.messageNotPresent}
-//            self.recentMessage = recentMessage
-//            //        self.recentMessage = try retrieveRecentMessage()
-//            try retrieveMemberImageData()
-////        }
-//    }
     
     func retrieveDataFromRealm() throws {
         self.computedMember = try retrieveMember()
@@ -297,24 +284,5 @@ extension ChatCellViewModel {
 extension ChatCellViewModel {
     static func == (lhs: ChatCellViewModel, rhs: ChatCellViewModel) -> Bool {
         lhs.freezedChat == rhs.freezedChat
-    }
-}
-
-
-enum RealmRetrieveError: Error, LocalizedError {
-    case objectNotPresent
-    case chatNotPresent
-    case memberNotPresent
-    case messageNotPresent
-    case imageNotPresent
-    
-    var errorDescription: String? {
-        switch self {
-        case .objectNotPresent: return "object not present"
-        case .chatNotPresent: return "chat not present"
-        case .memberNotPresent: return "member not present"
-        case .messageNotPresent: return "message not present"
-        case .imageNotPresent: return "image not present"
-        }
     }
 }
