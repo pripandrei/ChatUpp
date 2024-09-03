@@ -70,9 +70,7 @@ extension ChatsViewModel {
     }
     
     private func addChatToRealm(_ chat: Chat) {
-        Task { @MainActor in
-            RealmDBManager.shared.add(object: chat)
-        }
+        RealmDBManager.shared.add(object: chat)
     }
 }
 
@@ -134,10 +132,10 @@ extension ChatsViewModel {
 //        }
 
 //        Task { @MainActor in
-//            addChatToRealm(chat)
-//            addChat(chat)
-//            createCellViewModel(from: chat)
-//            onNewChatAdded?(true)            
+            addChatToRealm(chat)
+            addChat(chat)
+            createCellViewModel(from: chat)
+            onNewChatAdded?(true)            
 //        }
     }
 

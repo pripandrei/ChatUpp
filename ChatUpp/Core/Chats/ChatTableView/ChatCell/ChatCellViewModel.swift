@@ -59,17 +59,20 @@ class ChatCellViewModel: Equatable {
 //    }
     
     
-    private(set) var chatID: String
+    @Published private(set) var member: DBUser?
+    @Published private(set) var recentMessage: Message?
+    @Published private(set) var memberProfileImage: Data?
+    @Published private(set) var unreadMessageCount: Int?
+    private var usersListener: Listener?
+    private var userObserver: RealtimeDBObserver?
+    private var chatID: String
+    private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
+    
+//    var freezedChat: Chat?
     
     var freezedChat: Chat? {
-        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)?.freeze()
+        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
     }
-    
-    @Published private(set) var member: DBUser?
-    @Published var recentMessage: Message?
-    @Published var memberProfileImage: Data?
-    @Published var unreadMessageCount: Int?
-    
     var computedMessage: Message? {
         get {
             return recentMessage
@@ -88,19 +91,6 @@ class ChatCellViewModel: Equatable {
         }
     }
 
-    
-    private var usersListener: Listener?
-    private(set) var userObserver: RealtimeDBObserver?
-    
-    var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
-    
-    init(chat: Chat) {
-//        self.freezedChat = chat.freeze()
-        chatID = chat.id
-        initiateChatDataLoad()
-    }
-
-
     var isRecentMessagePresent: Bool? 
     {
         guard member != nil else { return nil }
@@ -109,27 +99,22 @@ class ChatCellViewModel: Equatable {
     }
     
     var isAuthUserOwnerOfRecentMessage: Bool {
-//        authUser.uid == recentMessage?.freeze().senderId
         authUser.uid == computedMessage?.senderId
+    }
+    
+    init(chat: Chat) {
+//        self.freezedChat = chat.freeze()
+        chatID = chat.id
+        initiateChatDataLoad()
     }
     
     private func initiateChatDataLoad() {
         try? retrieveDataFromRealm()
-        do {
-            Task {
-                await fetchDataFromFirestore()
-//                self.addObserverToUser()
-//                self.addListenerToUser()
-                self.addDataToRealm()
-            }
-        } catch {
-            print("Could not retrieve data from Realm: ", error.localizedDescription)
-//            Task {
-//                await fetchDataFromFirestore()
-//                self.addObserverToUser()
-//                self.addListenerToUser()
-//                self.addDataToRealm()
-//            }
+        Task {
+            await fetchDataFromFirestore()
+//            self.addObserverToUser()
+//            self.addListenerToUser()
+            self.addDataToRealm()
         }
     }
     
@@ -147,15 +132,6 @@ class ChatCellViewModel: Equatable {
                 }
             }
         }
-        //        Task { @MainActor in
-        ////            guard let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {
-        ////                return
-        ////            }
-        
-        ////            RealmDBManager.shared.update(object: freezedChat) { chat in
-        ////                freezedChat.conversationMessages.append(recentMessage)
-        ////            }
-        //        }
     }
     
     private func findMemberID() -> String? {
@@ -275,6 +251,7 @@ extension ChatCellViewModel
     }
 
     func fetchUnreadMessagesCount() async throws -> Int? {
+        guard let chatID = freezedChat?.id else {return nil}
         let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chatID)
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
