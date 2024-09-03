@@ -78,7 +78,7 @@ class ChatCellViewModel: Equatable {
             return recentMessage
         }
         set {
-            self.recentMessage = newValue?.freeze()
+            self.recentMessage = newValue
         }
     }
     
@@ -87,7 +87,7 @@ class ChatCellViewModel: Equatable {
             return member
         }
         set {
-            self.member = newValue?.freeze()
+            self.member = newValue
         }
     }
 
@@ -103,7 +103,7 @@ class ChatCellViewModel: Equatable {
     }
     
     init(chat: Chat) {
-        self.freezedChat = chat
+        self.freezedChat = chat.freeze()
 //        chatID = chat.id
         initiateChatDataLoad()
     }
@@ -112,19 +112,23 @@ class ChatCellViewModel: Equatable {
         try? retrieveDataFromRealm()
         Task {
             await fetchDataFromFirestore()
-//            self.addObserverToUser()
-//            self.addListenerToUser()
-//            self.addDataToRealm()
+            self.addObserverToUser()
+            self.addListenerToUser()
+            self.addDataToRealm()
         }
     }
     
     private func addDataToRealm() {
         guard let member = member else {return}
         
+        
         Task { @MainActor in
             RealmDBManager.shared.add(object: member)
-            if let recentMessage = recentMessage, let chat = freezedChat?.thaw(),
-                !chat.conversationMessages.contains(where: {$0.id == recentMessage.id}) {
+            
+            if let recentMessage = recentMessage,
+                let chat = freezedChat?.thaw(),
+                !chat.conversationMessages.contains(where: {$0.id == recentMessage.id}) 
+            {
                 RealmDBManager.shared.update(object: chat) { chat in
                     chat.conversationMessages.append(recentMessage)
                 }
@@ -146,8 +150,12 @@ extension ChatCellViewModel {
 //        self.chat = modifiedChat
     }
 
-    func updateRecentMessage(_ message: Message?) {
+    func updateRecentMessage(_ message: Message?, count: Int?) {
         self.computedMessage = message
+        self.unreadMessageCount = count
+    }
+    func updateMember(_ member: DBUser?) {
+        self.computedMember = member
     }
     
     /// - updated user after deletion

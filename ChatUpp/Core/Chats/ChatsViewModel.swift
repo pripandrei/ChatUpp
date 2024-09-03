@@ -133,15 +133,17 @@ extension ChatsViewModel {
 
 //        Task { @MainActor in
 //            addChatToRealm(chat)
-            addChat(chat)
-            createCellViewModel(from: chat)
-            onNewChatAdded?(true)            
+//            addChat(chat)
+//            createCellViewModel(from: chat)
+//            onNewChatAdded?(true)            
 //        }
     }
 
     private func handleModifiedChat(_ chat: Chat) {
         guard let oldViewModel = findCellViewModel(containing: chat),
-              let viewModelIndex = findIndex(of: oldViewModel) else {return}
+              let viewModelIndex = findIndex(of: oldViewModel) else {
+            return
+        }
         
         modifiedChatIndex = viewModelIndex
         
@@ -160,14 +162,15 @@ extension ChatsViewModel {
         if chatCellVM.member?.userId != chat.recentMessageID {
             chatCellVM.updateChat(chat)
             Task {
-//                chatCellVM.freezedMessage = try await chatCellVM.loadRecentMessage()
-//                chatCellVM.unreadMessageCount = try await chatCellVM.fetchUnreadMessagesCount()
+                let message = await chatCellVM.loadRecentMessage()
+                let count = try await chatCellVM.fetchUnreadMessagesCount()
+                chatCellVM.updateRecentMessage(message, count: count)
             }
         }
     }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
-        return cellViewModels.first(where: {$0.member?.userId == chat.id})
+        return cellViewModels.first(where: {$0.freezedChat?.id == chat.id})
     }
     
     private func findIndex(of element: ChatCellViewModel) -> Int? {
