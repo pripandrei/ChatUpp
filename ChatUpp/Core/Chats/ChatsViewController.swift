@@ -262,7 +262,7 @@ extension ChatsViewController: UITableViewDelegate
 
         guard let user = cellVM.member else {return}
         
-        let chat = cellVM.freezedChat
+        let chat = cellVM.chat
         let memberPhoto = cellVM.memberProfileImage
         
         let conversationViewModel = ConversationViewModel(userMember: user, conversation: chat, imageData: memberPhoto)

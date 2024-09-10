@@ -61,7 +61,8 @@ final class RealmDBManager {
     }
     
     public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
-        return realmDB.object(ofType: type, forPrimaryKey: primaryKey)
+        let realm = try? Realm()
+        return realm?.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
     
@@ -98,5 +99,18 @@ final class RealmDBManager {
     
     func transformObjectToResults<T: Object>(object: T) {
     
+    }
+}
+
+
+
+
+extension ThreadSafeReference {
+    func getThreadSafeResolvedObject() -> Confined? {
+        let realm = try? Realm()
+        if let resolvedObject = realm?.resolve(self) {
+            return resolvedObject
+        }
+        return nil
     }
 }

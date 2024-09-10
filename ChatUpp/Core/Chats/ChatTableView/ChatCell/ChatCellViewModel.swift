@@ -65,46 +65,51 @@ class ChatCellViewModel: Equatable {
     @Published private(set) var unreadMessageCount: Int?
     private var usersListener: Listener?
     private var userObserver: RealtimeDBObserver?
-//    private var chatID: String
+    private var chatID: String
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-    var freezedChat: Chat?
+//    var freezedChat: Chat?
     
-//    var freezedChat: Chat? {
+//    var chat: Chat? {
 //        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
 //    }
-    var computedMessage: Message? {
-        get {
-            return recentMessage
-        }
-        set {
-            self.recentMessage = newValue
-        }
-    }
     
-    var computedMember: DBUser? {
-        get {
-            return member
-        }
-        set {
-            self.member = newValue
-        }
-    }
+    @ThreadSafe var chat: Chat?
+//    private var computedMessage: Message? {
+//        get {
+//            guard let id = freezedChat?.recentMessageID else {return nil}
+//            return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: id)
+//        }
+//        set {
+//            self.recentMessage = newValue
+//        }
+//    }
+//    
+//    private var computedMember: DBUser? {
+//        get {
+//            guard let id = findMemberID() else {return nil}
+//            return RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: id)
+//        }
+//        set {
+//            self.member = newValue
+//        }
+//    }
 
     var isRecentMessagePresent: Bool? 
     {
         guard member != nil else { return nil }
-        if let _ = freezedChat?.recentMessageID { return true }
+        if let _ = chat?.recentMessageID { return true }
         return false
     }
     
     var isAuthUserOwnerOfRecentMessage: Bool {
-        authUser.uid == computedMessage?.senderId
+        authUser.uid == recentMessage?.senderId
     }
     
     init(chat: Chat) {
-        self.freezedChat = chat.freeze()
-//        chatID = chat.id
+//        self.freezedChat = chat.freeze()
+        chatID = chat.id
+        self.chat = chat
         initiateChatDataLoad()
     }
     
@@ -112,8 +117,10 @@ class ChatCellViewModel: Equatable {
         try? retrieveDataFromRealm()
         Task {
             await fetchDataFromFirestore()
-            self.addObserverToUser()
-            self.addListenerToUser()
+//           await MainActor.run {
+                self.addObserverToUser()
+                self.addListenerToUser()
+//            }
             self.addDataToRealm()
         }
     }
@@ -126,7 +133,7 @@ class ChatCellViewModel: Equatable {
             RealmDBManager.shared.add(object: member)
             
             if let recentMessage = recentMessage,
-                let chat = freezedChat?.thaw(),
+                let chat = chat,
                 !chat.conversationMessages.contains(where: {$0.id == recentMessage.id}) 
             {
                 RealmDBManager.shared.update(object: chat) { chat in
@@ -137,7 +144,7 @@ class ChatCellViewModel: Equatable {
     }
     
     private func findMemberID() -> String? {
-        return freezedChat?.members.first(where: { $0 != authUser.uid} )
+        return chat?.members.first(where: { $0 != authUser.uid} )
     }
 }
 
@@ -151,17 +158,17 @@ extension ChatCellViewModel {
     }
 
     func updateRecentMessage(_ message: Message?, count: Int?) {
-        self.computedMessage = message
+        self.recentMessage = message
         self.unreadMessageCount = count
     }
     func updateMember(_ member: DBUser?) {
-        self.computedMember = member
+        self.member = member
     }
     
     /// - updated user after deletion
     func updateUserAfterDeletion(_ modifiedUserID: String) async {
         do {
-            self.computedMember = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
+            self.member = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
             self.memberProfileImage = try await self.fetchImageData()
         } catch {
             print("Error updating user while listening: ", error.localizedDescription)
@@ -174,8 +181,8 @@ extension ChatCellViewModel {
 extension ChatCellViewModel {
     
     func retrieveDataFromRealm() throws {
-        self.computedMember = try retrieveMember()
-        self.computedMessage = try retrieveRecentMessage()
+        self.member = try retrieveMember().freeze()
+        self.recentMessage = try retrieveRecentMessage().freeze()
         try retrieveMemberImageData()
     }
     
@@ -188,7 +195,7 @@ extension ChatCellViewModel {
     }
     
     func retrieveRecentMessage() throws -> Message {
-        guard let messageID = freezedChat?.recentMessageID,
+        guard let messageID = chat?.recentMessageID,
         let message = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
             throw RealmRetrieveError.messageNotPresent }
         return message
@@ -232,14 +239,14 @@ extension ChatCellViewModel
     }
     
     func loadRecentMessage() async -> Message?  {
-        guard let chat = freezedChat,
+        guard let chat = chat,
         let message = try? await ChatsManager.shared.getRecentMessage(from: chat)
         else { return nil }
         return message
     }
     
     func fetchImageData() async throws -> Data? {
-        guard let user = self.computedMember,
+        guard let user = self.member,
               let userProfilePhotoURL = user.photoUrl else {
             return nil
         }
@@ -248,7 +255,7 @@ extension ChatCellViewModel
     }
 
     func fetchUnreadMessagesCount() async throws -> Int? {
-        guard let chatID = freezedChat?.id else {return nil}
+        guard let chatID = chat?.id else {return nil}
         let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chatID)
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
@@ -293,6 +300,6 @@ extension ChatCellViewModel {
 
 extension ChatCellViewModel {
     static func == (lhs: ChatCellViewModel, rhs: ChatCellViewModel) -> Bool {
-        lhs.freezedChat == rhs.freezedChat
+        lhs.chat == rhs.chat
     }
 }

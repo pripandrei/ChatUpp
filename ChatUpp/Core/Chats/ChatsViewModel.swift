@@ -22,7 +22,7 @@ final class ChatsViewModel {
     var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
-//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
         loadDataFromRealm()
         addChatsListener()
     }
@@ -51,7 +51,7 @@ final class ChatsViewModel {
         if !chats.isEmpty {
             self.chats = chats
             self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
-            self.initialChatsDoneFetching = true
+//            self.initialChatsDoneFetching = true
         }
     }
     
@@ -170,7 +170,7 @@ extension ChatsViewModel {
     }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
-        return cellViewModels.first(where: {$0.freezedChat?.id == chat.id})
+        return cellViewModels.first(where: {$0.chat?.id == chat.id})
     }
     
     private func findIndex(of element: ChatCellViewModel) -> Int? {
