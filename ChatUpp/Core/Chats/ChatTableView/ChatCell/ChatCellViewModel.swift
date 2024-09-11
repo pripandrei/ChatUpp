@@ -9,15 +9,15 @@ import Foundation
 
 class ChatCellViewModel: Equatable {
     
-    @Published private(set) var member: DBUser?
-    @Published private(set) var recentMessage: Message?
-    @Published private(set) var memberProfileImage: Data?
-    @Published private(set) var unreadMessageCount: Int?
+    private(set) var chat: Chat
     private var usersListener: Listener?
     private var userObserver: RealtimeDBObserver?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-    var chat: Chat
+    @Published private(set) var member: DBUser?
+    @Published private(set) var recentMessage: Message?
+    @Published private(set) var memberProfileImage: Data?
+    @Published private(set) var unreadMessageCount: Int?
 
     var isRecentMessagePresent: Bool? 
     {
@@ -87,9 +87,10 @@ extension ChatCellViewModel {
     }
     
     /// - updated user after deletion
-    func updateUserAfterDeletion(_ modifiedUserID: String) async {
+    func updateUserAfterDeletion() async {
+        let deletedUserID = UserManager.mainDeletedUserID
         do {
-            self.member = try await UserManager.shared.getUserFromDB(userID: modifiedUserID)
+            self.member = try await UserManager.shared.getUserFromDB(userID: deletedUserID)
             self.memberProfileImage = try await self.fetchImageData()
         } catch {
             print("Error updating user while listening: ", error.localizedDescription)
@@ -231,6 +232,16 @@ extension ChatCellViewModel {
 extension ChatCellViewModel 
 {
     private func addRealmObserverToChat(_ chat: Chat) {
-        RealmDBManager.shared.addObserverToObject(object: chat)
+        RealmDBManager.shared.addObserverToObject(object: chat) { propertyChange in
+            switch propertyChange {
+            case .member:
+                Task { await self.updateUserAfterDeletion() }
+            case .recentMessage:
+                Task {
+                    self.recentMessage = await self.loadRecentMessage()
+                    self.unreadMessageCount = try? await self.fetchUnreadMessagesCount()
+                }
+            }
+        }
     }
 }

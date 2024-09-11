@@ -35,7 +35,7 @@ final class RealmDBManager {
     
     private let configuration = Realm.Configuration(schemaVersion: 9)
     
-    private var notificationToke: NotificationToken?
+    private var notificationToken: [NotificationToken] = []
     
     var realmDB: Realm {
         Realm.Configuration.defaultConfiguration = configuration
@@ -89,16 +89,33 @@ final class RealmDBManager {
 //        }
 //    }
 //    
-    public func addObserverToObject<T: Object>(object: T) {
-        notificationToke = object.observe { change in
+    public func addObserverToObject<T: Object>(object: T, completion: @escaping (RealmPropertyChange) -> Void) {
+        let token = object.observe { change in
             switch change {
             case .change(_, let properties):
-                for property in properties {
+                properties.forEach { property in
+                    guard let newValue = property.newValue as? String else { return }
                     
+                    switch property.name {
+                    case "members":
+                        completion(.member)
+                    case "recentMessageID":
+                        completion(.recentMessage)
+                    default:
+                        break
+                    }
                 }
-            case .deleted: print("ads")
-            case .error(let error): print(error.localizedDescription)
+            case .deleted:
+                print("Object was deleted")
+            case .error(let error):
+                print(error.localizedDescription)
             }
         }
+        notificationToken.append(token)
     }
+}
+
+enum RealmPropertyChange {
+    case member
+    case recentMessage
 }

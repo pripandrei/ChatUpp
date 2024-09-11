@@ -10,7 +10,6 @@ import Combine
 
 final class ChatsViewModel {
     
-//    private(set) var chats: [Chat] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
     private(set) var usersListener: Listener?
     private(set) var chatsListener: Listener?
@@ -36,20 +35,11 @@ final class ChatsViewModel {
     private func removeCellViewModel(containing chat: Chat) {
         cellViewModels.removeAll(where: {$0.member?.userId == chat.id})
     }
-    
-//    private func addChat(_ chat: Chat) {
-//        self.chats.insert(chat, at: 0)
-//    }
-//        
-//    private func removeChat(_ chat: Chat) {
-//        self.chats.removeAll(where: {$0.id == chat.id})
-//    }
 
     private func loadDataFromRealm() {
         let chats = retrieveChatsFromRealm()
         
         if !chats.isEmpty {
-//            self.chats = chats
             self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
 //            self.initialChatsDoneFetching = true
         }
@@ -120,17 +110,17 @@ extension ChatsViewModel {
 }
 
 //MARK: - User updates
-
-extension ChatsViewModel {
-    private func handleDeletedUserUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
-        let deletedUserID = UserManager.mainDeletedUserID
-        if chat.members.contains(where: {$0 == deletedUserID}) {
-            Task {
-                await chatCellVM.updateUserAfterDeletion(deletedUserID)
-            }
-        }
-    }
-}
+//
+//extension ChatsViewModel {
+//    private func handleDeletedUserUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
+//        let deletedUserID = UserManager.mainDeletedUserID
+//        if chat.members.contains(where: {$0 == deletedUserID}) {
+//            Task {
+//                await chatCellVM.updateUserAfterDeletion(deletedUserID)
+//            }
+//        }
+//    }
+//}
 
 //MARK: - Chat updates
 
@@ -139,39 +129,17 @@ extension ChatsViewModel {
     private func handleAddedChat(_ chat: Chat)
     {
         Task { @MainActor in
-//            addChatToRealm(chat)
-//            
-//            guard let _ = findCellViewModel(containing: chat) else {
-//                guard let dbChat = retrieveSingleChatFromRealm(chat) else {return}
-////                addChat(dbChat)
-//                createCellViewModel(from: dbChat)
-//                onNewChatAdded?(true)
-//                return
-//            }
-            
             if let _ = retrieveSingleChatFromRealm(chat) {
                 updateRealmChat(chat)
             } else {
                 addChatToRealm(chat)
                 guard let dbChat = retrieveSingleChatFromRealm(chat) else {return}
-//                addChat(dbChat)
                 createCellViewModel(from: dbChat)
                 onNewChatAdded?(true)
             }
         }
     }
     
-    private func handleModifiedChat2(_ chat: Chat) {
-        addChatToRealm(chat)
-        
-        guard let oldViewModel = findCellViewModel(containing: chat),
-              let viewModelIndex = findIndex(of: oldViewModel) else {
-            return
-        }
-        
-        modifiedChatIndex = viewModelIndex
-    }
-
     private func handleModifiedChat(_ chat: Chat) {
         updateRealmChat(chat)
         
@@ -179,30 +147,41 @@ extension ChatsViewModel {
               let viewModelIndex = findIndex(of: oldViewModel) else {
             return
         }
-        
         modifiedChatIndex = viewModelIndex
-        
         cellViewModels.move(element: oldViewModel, toIndex: 0)
-        
-        // check if recent message modified
-        handleRecentMessageUpdate(from: oldViewModel, using: chat)
-        
-        // check If other User was deleted
-        handleDeletedUserUpdate(from: oldViewModel, using: chat)
+    }
 
-        // User swiped to delete the Chat cell
-    }
+//    private func handleModifiedChat(_ chat: Chat) {
+//        updateRealmChat(chat)
+//        
+//        guard let oldViewModel = findCellViewModel(containing: chat),
+//              let viewModelIndex = findIndex(of: oldViewModel) else {
+//            return
+//        }
+//        
+//        modifiedChatIndex = viewModelIndex
+//        
+//        cellViewModels.move(element: oldViewModel, toIndex: 0)
+//        
+//        // check if recent message modified
+//        handleRecentMessageUpdate(from: oldViewModel, using: chat)
+//        
+//        // check If other User was deleted
+//        handleDeletedUserUpdate(from: oldViewModel, using: chat)
+//
+//        // User swiped to delete the Chat cell
+//    }
     
-    private func handleRecentMessageUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
-        if chatCellVM.member?.userId != chat.recentMessageID {
-            chatCellVM.updateChat(chat)
-            Task {
-                let message = await chatCellVM.loadRecentMessage()
-                let count = try await chatCellVM.fetchUnreadMessagesCount()
-                chatCellVM.updateRecentMessage(message, count: count)
-            }
-        }
-    }
+//    private func handleRecentMessageUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
+//        if chatCellVM.member?.userId != chat.recentMessageID {
+//            chatCellVM.updateChat(chat)
+//            Task {
+//                let message = await chatCellVM.loadRecentMessage()
+//                let count = try await chatCellVM.fetchUnreadMessagesCount()
+//                chatCellVM.updateRecentMessage(message, count: count)
+//            }
+//        }
+//    }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
         return cellViewModels.first(where: {$0.chat.id == chat.id})
