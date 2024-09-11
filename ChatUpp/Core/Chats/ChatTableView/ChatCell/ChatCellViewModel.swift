@@ -17,12 +17,12 @@ class ChatCellViewModel: Equatable {
     private var userObserver: RealtimeDBObserver?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-    var chat: Chat?
+    var chat: Chat
 
     var isRecentMessagePresent: Bool? 
     {
         guard member != nil else { return nil }
-        if let _ = chat?.recentMessageID { return true }
+        if let _ = chat.recentMessageID { return true }
         return false
     }
     
@@ -34,11 +34,13 @@ class ChatCellViewModel: Equatable {
         self.chat = chat
 
         initiateChatDataLoad()
+        addRealmObserverToChat(chat)
     }
     
     private func initiateChatDataLoad() {
         try? retrieveDataFromRealm()
-        Task {
+        Task 
+        {
             await fetchDataFromFirestore()
             await self.addObserverToUser()
             await self.addListenerToUser()
@@ -54,7 +56,6 @@ class ChatCellViewModel: Equatable {
             RealmDBManager.shared.add(object: member)
             
             if let recentMessage = recentMessage,
-                let chat = chat,
                 !chat.conversationMessages.contains(where: {$0.id == recentMessage.id}) 
             {
                 RealmDBManager.shared.update(object: chat) { chat in
@@ -65,7 +66,7 @@ class ChatCellViewModel: Equatable {
     }
     
     private func findMemberID() -> String? {
-        return chat?.members.first(where: { $0 != authUser.uid} )
+        return chat.members.first(where: { $0 != authUser.uid} )
     }
 }
 
@@ -116,7 +117,7 @@ extension ChatCellViewModel {
     }
     
     func retrieveRecentMessage() throws -> Message {
-        guard let messageID = chat?.recentMessageID,
+        guard let messageID = chat.recentMessageID,
         let message = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
             throw RealmRetrieveError.messageNotPresent }
         return message
@@ -161,16 +162,14 @@ extension ChatCellViewModel
     
     @MainActor
     func loadRecentMessage() async -> Message?  {
-        guard let chat = chat,
-        let message = try? await ChatsManager.shared.getRecentMessage(from: chat)
+        guard let message = try? await ChatsManager.shared.getRecentMessage(from: chat)
         else { return nil }
         return message
     }
     
     @MainActor
     func fetchUnreadMessagesCount() async throws -> Int? {
-        guard let chatID = chat?.id else {return nil}
-        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chatID)
+        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chat.id)
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
     }
@@ -226,5 +225,13 @@ extension ChatCellViewModel {
 extension ChatCellViewModel {
     static func == (lhs: ChatCellViewModel, rhs: ChatCellViewModel) -> Bool {
         lhs.chat == rhs.chat
+    }
+}
+
+//MARK: - Realm observer functions
+extension ChatCellViewModel 
+{
+    private func addRealmObserverToChat(_ chat: Chat) {
+        RealmDBManager.shared.addObserverToObject(object: chat)
     }
 }

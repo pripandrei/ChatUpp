@@ -70,6 +70,14 @@ final class RealmDBManager {
             update(object)
         }
     }
+    
+    public func update<T: Object>(objectWithKey key: String, type: T.Type, update: (T) -> Void) {
+        guard let object = retrieveSingleObject(ofType: type, primaryKey: key) else {return}
+        
+        try? realmDB.write {
+            update(object)
+        }
+    }
 
 //    public func addObserverToObjects<T: Object>(objects: Results<T>) {
 //        notificationToke = objects.observe { change in
@@ -81,16 +89,16 @@ final class RealmDBManager {
 //        }
 //    }
 //    
-//    public func addObserverToObject<T: Object>(object: T) {
-//        notificationToke = object.observe { change in
-//            switch change {
-//            case .change(_, let properties):
-//                for property in properties {
-//                    
-//                }
-//            case .deleted: print("ads")
-//            case .error(let error): print(error.localizedDescription)
-//            }
-//        }
-//    }
+    public func addObserverToObject<T: Object>(object: T) {
+        notificationToke = object.observe { change in
+            switch change {
+            case .change(_, let properties):
+                for property in properties {
+                    
+                }
+            case .deleted: print("ads")
+            case .error(let error): print(error.localizedDescription)
+            }
+        }
+    }
 }

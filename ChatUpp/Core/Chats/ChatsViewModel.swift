@@ -69,8 +69,30 @@ extension ChatsViewModel {
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
     }
     
+    private func retrieveSingleChatFromRealm(_ chat: Chat) -> Chat? {
+        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
+    }
+    
     private func addChatToRealm(_ chat: Chat) {
         RealmDBManager.shared.add(object: chat)
+    }
+    
+    private func addRealmObserverToChat(_ chat: Chat) {
+        RealmDBManager.shared.addObserverToObject(object: chat)
+    }
+    
+//    private func updateRealmChat(_ chat: Chat) {
+//        RealmDBManager.shared.update(object: chat) { DBChat in
+//            DBChat.recentMessageID = chat.recentMessageID
+//            DBChat.members = chat.members
+//        }
+//    }
+    
+    private func updateRealmChat(_ chat: Chat) {
+        RealmDBManager.shared.update(objectWithKey: chat.id, type: Chat.self) { DBChat in
+            DBChat.recentMessageID = chat.recentMessageID
+            DBChat.members = chat.members
+        }
     }
 }
 
@@ -119,30 +141,35 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     
-    private func retrieveChatFromRealm(_ chat: Chat) -> Chat? {
-//        guard let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) else {return nil}
-//        return Chat(value: chat)
-        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
-    }
-    
-    private func handleAddedChat(_ chat: Chat) {
+    private func handleAddedChat(_ chat: Chat)
+    {
         Task { @MainActor in
-            if let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) 
-            {
-                RealmDBManager.shared.update(object: chat) { DBChat in
-                    DBChat.recentMessageID = chat.recentMessageID
-                    DBChat.members = chat.members
-                }
+            if let chat = retrieveSingleChatFromRealm(chat) {
+                updateRealmChat(chat)
             } else {
                 addChatToRealm(chat)
-                addChat(chat)
-                createCellViewModel(from: chat)
+                guard let dbChat = retrieveSingleChatFromRealm(chat) else {return}
+                addChat(dbChat)
+                createCellViewModel(from: dbChat)
                 onNewChatAdded?(true)
             }
         }
     }
+    
+    private func handleModifiedChat2(_ chat: Chat) {
+        addChatToRealm(chat)
+        
+        guard let oldViewModel = findCellViewModel(containing: chat),
+              let viewModelIndex = findIndex(of: oldViewModel) else {
+            return
+        }
+        
+        modifiedChatIndex = viewModelIndex
+    }
 
     private func handleModifiedChat(_ chat: Chat) {
+        updateRealmChat(chat)
+        
         guard let oldViewModel = findCellViewModel(containing: chat),
               let viewModelIndex = findIndex(of: oldViewModel) else {
             return
@@ -173,7 +200,7 @@ extension ChatsViewModel {
     }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
-        return cellViewModels.first(where: {$0.chat?.id == chat.id})
+        return cellViewModels.first(where: {$0.chat.id == chat.id})
     }
     
     private func findIndex(of element: ChatCellViewModel) -> Int? {
