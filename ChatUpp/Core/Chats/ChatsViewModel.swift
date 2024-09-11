@@ -126,17 +126,20 @@ extension ChatsViewModel {
     }
     
     private func handleAddedChat(_ chat: Chat) {
-//        Task { @MainActor in
-//            addChatToRealm(chat)
-//            addChat2(chat)            
-//        }
-
-//        Task { @MainActor in
-//            addChatToRealm(chat)
-//            addChat(chat)
-//            createCellViewModel(from: chat)
-//            onNewChatAdded?(true)            
-//        }
+        Task { @MainActor in
+            if let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) 
+            {
+                RealmDBManager.shared.update(object: chat) { DBChat in
+                    DBChat.recentMessageID = chat.recentMessageID
+                    DBChat.members = chat.members
+                }
+            } else {
+                addChatToRealm(chat)
+                addChat(chat)
+                createCellViewModel(from: chat)
+                onNewChatAdded?(true)
+            }
+        }
     }
 
     private func handleModifiedChat(_ chat: Chat) {

@@ -158,6 +158,7 @@ extension ChatCellViewModel
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
         return member
     }
+    
     @MainActor
     func loadRecentMessage() async -> Message?  {
         guard let chat = chat,
@@ -165,6 +166,7 @@ extension ChatCellViewModel
         else { return nil }
         return message
     }
+    
     @MainActor
     func fetchUnreadMessagesCount() async throws -> Int? {
         guard let chatID = chat?.id else {return nil}

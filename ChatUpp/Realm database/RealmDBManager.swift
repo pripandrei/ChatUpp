@@ -70,7 +70,7 @@ final class RealmDBManager {
             update(object)
         }
     }
-    
+
 //    public func addObserverToObjects<T: Object>(objects: Results<T>) {
 //        notificationToke = objects.observe { change in
 //            switch change {
