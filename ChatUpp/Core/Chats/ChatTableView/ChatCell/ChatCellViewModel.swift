@@ -51,7 +51,6 @@ class ChatCellViewModel: Equatable {
     private func addDataToRealm() {
         guard let member = member else {return}
         
-        
         Task { @MainActor in
             RealmDBManager.shared.add(object: member)
             

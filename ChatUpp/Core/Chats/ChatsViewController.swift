@@ -147,7 +147,7 @@ class ChatsViewController: UIViewController {
             let filteredSearchText = searchTextComponents.joined(separator: " ")
             let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
             
-            let conversation = chatsViewModel.chats[index]
+            let conversation = chatsViewModel.cellViewModels[index].chat
             
             guard let user = chatCell.member,
                   let userName = user.name else {return nil}

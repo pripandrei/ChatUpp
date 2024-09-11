@@ -10,7 +10,7 @@ import Combine
 
 final class ChatsViewModel {
     
-    private(set) var chats: [Chat] = []
+//    private(set) var chats: [Chat] = []
     private(set) var cellViewModels = [ChatCellViewModel]()
     private(set) var usersListener: Listener?
     private(set) var chatsListener: Listener?
@@ -37,19 +37,19 @@ final class ChatsViewModel {
         cellViewModels.removeAll(where: {$0.member?.userId == chat.id})
     }
     
-    private func addChat(_ chat: Chat) {
-        self.chats.insert(chat, at: 0)
-    }
-        
-    private func removeChat(_ chat: Chat) {
-        self.chats.removeAll(where: {$0.id == chat.id})
-    }
+//    private func addChat(_ chat: Chat) {
+//        self.chats.insert(chat, at: 0)
+//    }
+//        
+//    private func removeChat(_ chat: Chat) {
+//        self.chats.removeAll(where: {$0.id == chat.id})
+//    }
 
     private func loadDataFromRealm() {
         let chats = retrieveChatsFromRealm()
         
         if !chats.isEmpty {
-            self.chats = chats
+//            self.chats = chats
             self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
 //            self.initialChatsDoneFetching = true
         }
@@ -77,9 +77,9 @@ extension ChatsViewModel {
         RealmDBManager.shared.add(object: chat)
     }
     
-    private func addRealmObserverToChat(_ chat: Chat) {
-        RealmDBManager.shared.addObserverToObject(object: chat)
-    }
+//    private func addRealmObserverToChat(_ chat: Chat) {
+//        RealmDBManager.shared.addObserverToObject(object: chat)
+//    }
     
 //    private func updateRealmChat(_ chat: Chat) {
 //        RealmDBManager.shared.update(object: chat) { DBChat in
@@ -101,12 +101,6 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     
-//    private func addChatsToRealmDB(_ chats: [Chat]) {
-//        for chat in chats {
-//            RealmDBManager.shared.add(object: chat)
-//        }
-//    }
-    
     private func addChatsListener()
     {
         self.chatsListener = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
@@ -116,7 +110,8 @@ extension ChatsViewModel {
             docTypes.enumerated().forEach { index, type in
                 switch type {
                 case .added: self.handleAddedChat(chats[index])
-                case .removed: self.removeChat(chats[index])
+                case .removed: print("remove cellVM")
+//                    self.removeChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
             }
@@ -144,12 +139,22 @@ extension ChatsViewModel {
     private func handleAddedChat(_ chat: Chat)
     {
         Task { @MainActor in
-            if let chat = retrieveSingleChatFromRealm(chat) {
+//            addChatToRealm(chat)
+//            
+//            guard let _ = findCellViewModel(containing: chat) else {
+//                guard let dbChat = retrieveSingleChatFromRealm(chat) else {return}
+////                addChat(dbChat)
+//                createCellViewModel(from: dbChat)
+//                onNewChatAdded?(true)
+//                return
+//            }
+            
+            if let _ = retrieveSingleChatFromRealm(chat) {
                 updateRealmChat(chat)
             } else {
                 addChatToRealm(chat)
                 guard let dbChat = retrieveSingleChatFromRealm(chat) else {return}
-                addChat(dbChat)
+//                addChat(dbChat)
                 createCellViewModel(from: dbChat)
                 onNewChatAdded?(true)
             }
