@@ -22,7 +22,7 @@ final class ChatsViewModel {
     var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
+//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
         loadDataFromRealm()
         addChatsListener()
     }

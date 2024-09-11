@@ -83,7 +83,7 @@ extension ChatsManager
 //        }
 //        return messages
 //    }
-    
+    @MainActor
     func getRecentMessage(from chat: Chat) async throws -> Message? {
         guard let recentMessage = chat.recentMessageID else {return nil}
         let message = try await getMessageDocument(messagePath: recentMessage, fromChatDocumentPath: chat.id).getDocument(as: Message.self)

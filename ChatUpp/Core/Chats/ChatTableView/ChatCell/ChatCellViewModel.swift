@@ -6,58 +6,8 @@
 //
 
 import Foundation
-import Firebase
-import RealmSwift
-
-
 
 class ChatCellViewModel: Equatable {
-    
-    //    private(set) var freezedMember: DBUser? {
-    //        get {
-    //            guard let memberID = findMemberID() else {
-    //                return nil
-    //            }
-    //            return RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID)
-    //        } set {
-    //            Task { @MainActor in
-    //                guard let member = newValue else {return}
-    //                RealmDBManager.shared.add(object: member)
-    ////                self.member = member
-    //            }
-    //        }
-    //    }
-        
-    //    private(set) var freezedMessage: Message?
-    //    {
-    //        get {
-    //            guard let message = freezedChat?.freeze().recentMessageID else {
-    //                return nil
-    //            }
-    //            return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message)
-    //        } set {
-    //            Task { @MainActor in
-    //                guard let message = newValue else {return}
-    //                RealmDBManager.shared.add(object: message)
-    ////                self.recentMessage = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
-    //            }
-    //        }
-    //    }
-        
-    //    {
-    //        didSet {
-    ////            Task { @MainActor in
-    ////                guard let message = recentMessage, let chat = freezedChat else {return}
-    //////                RealmDBManager.shared.update(object: chat) { chat in
-    //////                    freezedChat?.conversationMessages.append(message)
-    //////                }
-    ////            }
-    //        }
-    //    }
-//    var freezedChat: Chat! {
-//        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
-//    }
-    
     
     @Published private(set) var member: DBUser?
     @Published private(set) var recentMessage: Message?
@@ -65,35 +15,9 @@ class ChatCellViewModel: Equatable {
     @Published private(set) var unreadMessageCount: Int?
     private var usersListener: Listener?
     private var userObserver: RealtimeDBObserver?
-    private var chatID: String
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-//    var freezedChat: Chat?
-    
-//    var chat: Chat? {
-//        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
-//    }
-    
-    @ThreadSafe var chat: Chat?
-//    private var computedMessage: Message? {
-//        get {
-//            guard let id = freezedChat?.recentMessageID else {return nil}
-//            return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: id)
-//        }
-//        set {
-//            self.recentMessage = newValue
-//        }
-//    }
-//    
-//    private var computedMember: DBUser? {
-//        get {
-//            guard let id = findMemberID() else {return nil}
-//            return RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: id)
-//        }
-//        set {
-//            self.member = newValue
-//        }
-//    }
+    var chat: Chat?
 
     var isRecentMessagePresent: Bool? 
     {
@@ -107,9 +31,8 @@ class ChatCellViewModel: Equatable {
     }
     
     init(chat: Chat) {
-//        self.freezedChat = chat.freeze()
-        chatID = chat.id
         self.chat = chat
+
         initiateChatDataLoad()
     }
     
@@ -117,10 +40,8 @@ class ChatCellViewModel: Equatable {
         try? retrieveDataFromRealm()
         Task {
             await fetchDataFromFirestore()
-//           await MainActor.run {
-                self.addObserverToUser()
-                self.addListenerToUser()
-//            }
+            await self.addObserverToUser()
+            await self.addListenerToUser()
             self.addDataToRealm()
         }
     }
@@ -181,8 +102,8 @@ extension ChatCellViewModel {
 extension ChatCellViewModel {
     
     func retrieveDataFromRealm() throws {
-        self.member = try retrieveMember().freeze()
-        self.recentMessage = try retrieveRecentMessage().freeze()
+        self.member = try retrieveMember()
+        self.recentMessage = try retrieveRecentMessage()
         try retrieveMemberImageData()
     }
     
@@ -229,7 +150,7 @@ extension ChatCellViewModel
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
     }
-    
+    @MainActor
     func loadOtherMemberOfChat() async throws -> DBUser? {
         guard let memberID = findMemberID() else {
             return nil
@@ -237,12 +158,19 @@ extension ChatCellViewModel
         let member = try await UserManager.shared.getUserFromDB(userID: memberID)
         return member
     }
-    
+    @MainActor
     func loadRecentMessage() async -> Message?  {
         guard let chat = chat,
         let message = try? await ChatsManager.shared.getRecentMessage(from: chat)
         else { return nil }
         return message
+    }
+    @MainActor
+    func fetchUnreadMessagesCount() async throws -> Int? {
+        guard let chatID = chat?.id else {return nil}
+        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chatID)
+        self.unreadMessageCount = unreadMessageCount
+        return unreadMessageCount
     }
     
     func fetchImageData() async throws -> Data? {
@@ -253,13 +181,6 @@ extension ChatCellViewModel
         let photoData = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
         return photoData
     }
-
-    func fetchUnreadMessagesCount() async throws -> Int? {
-        guard let chatID = chat?.id else {return nil}
-        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chatID)
-        self.unreadMessageCount = unreadMessageCount
-        return unreadMessageCount
-    }
 }
 
 //MARK: - Listeners
@@ -267,6 +188,7 @@ extension ChatCellViewModel
 extension ChatCellViewModel {
    
     /// Observe user from Realtime db (Temporary fix while firebase functions are deactivated)
+    @MainActor
     private func addObserverToUser() {
         guard let member = member else {return}
         
@@ -282,6 +204,7 @@ extension ChatCellViewModel {
     }
     
     /// Listen to user from Firestore db
+    @MainActor
     private func addListenerToUser()
     {
         guard let memberID = member?.userId else {return}

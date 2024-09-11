@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import FirebaseAuth
+//import FirebaseAuth
 
 
 class SettingsViewController: UIViewController, UICollectionViewDelegate {

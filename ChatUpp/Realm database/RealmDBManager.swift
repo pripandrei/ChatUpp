@@ -9,7 +9,6 @@ import Foundation
 import RealmSwift
 import Realm
 
-
 enum RealmRetrieveError: Error, LocalizedError {
     case objectNotPresent
     case chatNotPresent
@@ -71,7 +70,6 @@ final class RealmDBManager {
             update(object)
         }
     }
-
     
 //    public func addObserverToObjects<T: Object>(objects: Results<T>) {
 //        notificationToke = objects.observe { change in
@@ -95,22 +93,4 @@ final class RealmDBManager {
 //            }
 //        }
 //    }
-
-    
-    func transformObjectToResults<T: Object>(object: T) {
-    
-    }
-}
-
-
-
-
-extension ThreadSafeReference {
-    func getThreadSafeResolvedObject() -> Confined? {
-        let realm = try? Realm()
-        if let resolvedObject = realm?.resolve(self) {
-            return resolvedObject
-        }
-        return nil
-    }
 }
