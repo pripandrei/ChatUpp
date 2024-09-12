@@ -179,7 +179,7 @@ extension ChatCellViewModel
     
     @MainActor
     func fetchUnreadMessagesCount() async throws -> Int? {
-        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(for: chat.id)
+        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(from: chat.id, whereMessageSenderID: member!.userId)
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
     }

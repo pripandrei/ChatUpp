@@ -64,7 +64,7 @@ class ChatsCell: UITableViewCell {
 
         unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         
-        let shouldShowUnreadCount = !cellViewModel.isAuthUserOwnerOfRecentMessage && count > 0
+        let shouldShowUnreadCount = count > 0
         unreadMessagesCountLabel.isHidden = !shouldShowUnreadCount
         
         if shouldShowUnreadCount {

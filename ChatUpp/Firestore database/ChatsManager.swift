@@ -68,9 +68,9 @@ extension ChatsManager
         return try await messagesReference.order(by: "timestamp", descending: false).getDocuments(as: Message.self)
     }
     
-    func getUnreadMessagesCount(for chatID: String) async throws -> Int {
+    func getUnreadMessagesCount(from chatID: String, whereMessageSenderID senderID: String) async throws -> Int {
         let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
-        return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).getDocuments().count
+        return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID).getDocuments().count
     }
     
 //    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message?] {
