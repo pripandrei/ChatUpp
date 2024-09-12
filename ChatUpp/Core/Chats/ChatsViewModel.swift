@@ -59,24 +59,13 @@ extension ChatsViewModel {
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self)
     }
     
-    private func retrieveSingleChatFromRealm(_ chat: Chat) -> Chat? {
+    private func retrieveChatFromRealm(_ chat: Chat) -> Chat? {
         return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
     }
     
     private func addChatToRealm(_ chat: Chat) {
         RealmDBManager.shared.add(object: chat)
     }
-    
-//    private func addRealmObserverToChat(_ chat: Chat) {
-//        RealmDBManager.shared.addObserverToObject(object: chat)
-//    }
-    
-//    private func updateRealmChat(_ chat: Chat) {
-//        RealmDBManager.shared.update(object: chat) { DBChat in
-//            DBChat.recentMessageID = chat.recentMessageID
-//            DBChat.members = chat.members
-//        }
-//    }
     
     private func updateRealmChat(_ chat: Chat) {
         RealmDBManager.shared.update(objectWithKey: chat.id, type: Chat.self) { DBChat in
@@ -112,7 +101,7 @@ extension ChatsViewModel {
 //MARK: - User updates
 //
 //extension ChatsViewModel {
-//    private func handleDeletedUserUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
+//    private func c(from chatCellVM: ChatCellViewModel, using chat: Chat) {
 //        let deletedUserID = UserManager.mainDeletedUserID
 //        if chat.members.contains(where: {$0 == deletedUserID}) {
 //            Task {
@@ -129,11 +118,11 @@ extension ChatsViewModel {
     private func handleAddedChat(_ chat: Chat)
     {
         Task { @MainActor in
-            if let _ = retrieveSingleChatFromRealm(chat) {
+            if let _ = retrieveChatFromRealm(chat) {
                 updateRealmChat(chat)
             } else {
                 addChatToRealm(chat)
-                guard let dbChat = retrieveSingleChatFromRealm(chat) else {return}
+                guard let dbChat = retrieveChatFromRealm(chat) else {return}
                 createCellViewModel(from: dbChat)
                 onNewChatAdded?(true)
             }
@@ -147,41 +136,10 @@ extension ChatsViewModel {
               let viewModelIndex = findIndex(of: oldViewModel) else {
             return
         }
-        modifiedChatIndex = viewModelIndex
+        
         cellViewModels.move(element: oldViewModel, toIndex: 0)
+        modifiedChatIndex = viewModelIndex
     }
-
-//    private func handleModifiedChat(_ chat: Chat) {
-//        updateRealmChat(chat)
-//        
-//        guard let oldViewModel = findCellViewModel(containing: chat),
-//              let viewModelIndex = findIndex(of: oldViewModel) else {
-//            return
-//        }
-//        
-//        modifiedChatIndex = viewModelIndex
-//        
-//        cellViewModels.move(element: oldViewModel, toIndex: 0)
-//        
-//        // check if recent message modified
-//        handleRecentMessageUpdate(from: oldViewModel, using: chat)
-//        
-//        // check If other User was deleted
-//        handleDeletedUserUpdate(from: oldViewModel, using: chat)
-//
-//        // User swiped to delete the Chat cell
-//    }
-    
-//    private func handleRecentMessageUpdate(from chatCellVM: ChatCellViewModel, using chat: Chat) {
-//        if chatCellVM.member?.userId != chat.recentMessageID {
-//            chatCellVM.updateChat(chat)
-//            Task {
-//                let message = await chatCellVM.loadRecentMessage()
-//                let count = try await chatCellVM.fetchUnreadMessagesCount()
-//                chatCellVM.updateRecentMessage(message, count: count)
-//            }
-//        }
-//    }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
         return cellViewModels.first(where: {$0.chat.id == chat.id})
@@ -200,16 +158,3 @@ extension Array where Element: Equatable
         insert(removedElement, at: destinationIndex)
     }
 }
-
-
-//    private func chatsWereUpdated(_ chats: [Chat]) {
-//        self.chats.difference(from: chats).forEach { change in
-//            switch change {
-//            case .insert(_, let chat, _): createCellViewModel(from: chat)
-//            case .remove(_, let chat, _): removeCellViewModel(containing: chat)
-//            }
-//            //                shouldReloadCell = true
-//        }
-//
-//        self.initialChatsDoneFetching = true
-//    }

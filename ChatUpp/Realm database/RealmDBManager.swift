@@ -89,21 +89,16 @@ final class RealmDBManager {
 //        }
 //    }
 //    
-    public func addObserverToObject<T: Object>(object: T, completion: @escaping (RealmPropertyChange) -> Void) {
+    
+    @Published var objectPropertyChange: RealmPropertyChange?
+    
+    public func addObserverToObject<T: Object>(object: T) {
         let token = object.observe { change in
             switch change {
             case .change(_, let properties):
                 properties.forEach { property in
                     guard let newValue = property.newValue as? String else { return }
-                    
-                    switch property.name {
-                    case "members":
-                        completion(.member)
-                    case "recentMessageID":
-                        completion(.recentMessage)
-                    default:
-                        break
-                    }
+                    self.objectPropertyChange = RealmPropertyChange(rawValue: property.name)
                 }
             case .deleted:
                 print("Object was deleted")
@@ -115,7 +110,7 @@ final class RealmDBManager {
     }
 }
 
-enum RealmPropertyChange {
+enum RealmPropertyChange: String {
     case member
-    case recentMessage
+    case recentMessageID
 }

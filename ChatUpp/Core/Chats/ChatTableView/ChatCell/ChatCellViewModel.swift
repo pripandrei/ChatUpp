@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 class ChatCellViewModel: Equatable {
     
@@ -18,6 +19,7 @@ class ChatCellViewModel: Equatable {
     @Published private(set) var recentMessage: Message?
     @Published private(set) var memberProfileImage: Data?
     @Published private(set) var unreadMessageCount: Int?
+    private var subscriptions = Set<AnyCancellable>()
 
     var isRecentMessagePresent: Bool? 
     {
@@ -34,6 +36,7 @@ class ChatCellViewModel: Equatable {
         self.chat = chat
 
         initiateChatDataLoad()
+        setupBindings()
         addRealmObserverToChat(chat)
     }
     
@@ -220,28 +223,37 @@ extension ChatCellViewModel {
     }
 }
 
+//MARK: - Realm observer functions
+extension ChatCellViewModel 
+{
+    func setupBindings() {
+        RealmDBManager.shared.$objectPropertyChange
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { changeName in
+                if let changeName = changeName {
+                    switch changeName {
+                    case .member:
+                        Task { await self.updateUserAfterDeletion() }
+                    case .recentMessageID:
+                        Task {
+                            self.recentMessage = await self.loadRecentMessage()
+                            self.unreadMessageCount = try? await self.fetchUnreadMessagesCount()
+                        }
+                    }
+                }
+            }.store(in: &subscriptions)
+    }
+    
+    private func addRealmObserverToChat(_ chat: Chat) {
+        RealmDBManager.shared.addObserverToObject(object: chat)
+    }
+}
+
 //MARK: - Equatable protocol subs
 
 extension ChatCellViewModel {
     static func == (lhs: ChatCellViewModel, rhs: ChatCellViewModel) -> Bool {
         lhs.chat == rhs.chat
-    }
-}
-
-//MARK: - Realm observer functions
-extension ChatCellViewModel 
-{
-    private func addRealmObserverToChat(_ chat: Chat) {
-        RealmDBManager.shared.addObserverToObject(object: chat) { propertyChange in
-            switch propertyChange {
-            case .member:
-                Task { await self.updateUserAfterDeletion() }
-            case .recentMessage:
-                Task {
-                    self.recentMessage = await self.loadRecentMessage()
-                    self.unreadMessageCount = try? await self.fetchUnreadMessagesCount()
-                }
-            }
-        }
     }
 }
