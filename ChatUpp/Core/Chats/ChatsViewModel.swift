@@ -21,12 +21,29 @@ final class ChatsViewModel {
     var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
-//        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.path(percentEncoded: true))
-        loadDataFromRealm()
+        setupCellViewModels()
         addChatsListener()
     }
+
+    func activateOnDisconnect() 
+    {
+        Task { try await UserManagerRealtimeDB.shared.setupOnDisconnect() }
+    }
+}
+
+
+//MARK:  CellViewModel functions
+extension ChatsViewModel {
     
-    private func createCellViewModel(from chat: Chat)
+    /// initial setup on initialization
+    private func setupCellViewModels() {
+        let chats = retrieveChatsFromRealm()
+        
+        guard !chats.isEmpty else { return }
+        self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
+    }
+    
+    private func addCellViewModel(from chat: Chat)
     {
         let cellVM = ChatCellViewModel(chat: chat)
         self.cellViewModels.insert(cellVM, at: 0)
@@ -35,20 +52,13 @@ final class ChatsViewModel {
     private func removeCellViewModel(containing chat: Chat) {
         cellViewModels.removeAll(where: {$0.member?.userId == chat.id})
     }
-
-    private func loadDataFromRealm() {
-        let chats = retrieveChatsFromRealm()
-        
-        if !chats.isEmpty {
-            self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
-//            self.initialChatsDoneFetching = true
-        }
+    
+    private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
+        return cellViewModels.first(where: {$0.chat.id == chat.id})
     }
     
-    func activateOnDisconnect() {
-        Task {
-            try await UserManagerRealtimeDB.shared.setupOnDisconnect()
-        }
+    private func findIndex(of element: ChatCellViewModel) -> Int? {
+        return cellViewModels.firstIndex(of: element)
     }
 }
 
@@ -98,6 +108,46 @@ extension ChatsViewModel {
     }
 }
 
+//MARK: - Chat updates
+
+extension ChatsViewModel {
+    
+    private func handleAddedChat(_ chat: Chat)
+    {
+        Task { @MainActor in
+            guard let _ = retrieveChatFromRealm(chat) else {
+                addChatToRealm(chat)
+                guard let dbChat = retrieveChatFromRealm(chat) else {return}
+                addCellViewModel(from: dbChat)
+                onNewChatAdded?(true)
+                return
+            }
+        }
+    }
+    
+    private func handleModifiedChat(_ chat: Chat) {
+        updateRealmChat(chat)
+        
+        guard let cellVM = findCellViewModel(containing: chat),
+              let viewModelIndex = findIndex(of: cellVM) else { return }
+        
+        cellVM.updateChatParameters()
+        
+        cellViewModels.move(element: cellVM, toIndex: 0)
+        modifiedChatIndex = viewModelIndex
+    }
+}
+
+extension Array where Element: Equatable 
+{
+    mutating func move(element: Element, toIndex destinationIndex: Int) {
+        guard let elementIndex = self.firstIndex(of: element) else {return}
+        let removedElement = self.remove(at: elementIndex)
+        insert(removedElement, at: destinationIndex)
+    }
+}
+
+
 //MARK: - User updates
 //
 //extension ChatsViewModel {
@@ -110,61 +160,3 @@ extension ChatsViewModel {
 //        }
 //    }
 //}
-
-//MARK: - Chat updates
-
-extension ChatsViewModel {
-    
-    private func handleAddedChat(_ chat: Chat)
-    {
-        Task { @MainActor in
-            guard let _ = retrieveChatFromRealm(chat) else {
-                addChatToRealm(chat)
-                guard let dbChat = retrieveChatFromRealm(chat) else {return}
-                createCellViewModel(from: dbChat)
-                onNewChatAdded?(true)
-                return
-            }
-//            
-//            if let _ = retrieveChatFromRealm(chat) {
-//                updateRealmChat(chat)
-//            } else {
-//                addChatToRealm(chat)
-//                guard let dbChat = retrieveChatFromRealm(chat) else {return}
-//                createCellViewModel(from: dbChat)
-//                onNewChatAdded?(true)
-//            }
-        }
-    }
-    
-    private func handleModifiedChat(_ chat: Chat) {
-        updateRealmChat(chat)
-        
-        guard let cellVM = findCellViewModel(containing: chat),
-              let viewModelIndex = findIndex(of: cellVM) else {
-            return
-        }
-        
-        cellVM.updateChatParameters()
-        
-        cellViewModels.move(element: cellVM, toIndex: 0)
-        modifiedChatIndex = viewModelIndex
-    }
-    
-    private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
-        return cellViewModels.first(where: {$0.chat.id == chat.id})
-    }
-    
-    private func findIndex(of element: ChatCellViewModel) -> Int? {
-        return cellViewModels.firstIndex(of: element)
-    }
-}
-
-extension Array where Element: Equatable 
-{
-    mutating func move(element: Element, toIndex destinationIndex: Int) {
-        guard let elementIndex = self.firstIndex(of: element) else {return}
-        let removedElement = self.remove(at: elementIndex)
-        insert(removedElement, at: destinationIndex)
-    }
-}

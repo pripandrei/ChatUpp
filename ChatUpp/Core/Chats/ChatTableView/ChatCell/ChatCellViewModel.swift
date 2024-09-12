@@ -19,25 +19,11 @@ class ChatCellViewModel: Equatable {
     @Published private(set) var recentMessage: Message?
     @Published private(set) var memberProfileImage: Data?
     @Published private(set) var unreadMessageCount: Int?
-    private var subscriptions = Set<AnyCancellable>()
-
-    var isRecentMessagePresent: Bool? 
-    {
-        guard member != nil else { return nil }
-        if let _ = chat.recentMessageID { return true }
-        return false
-    }
-    
-    var isAuthUserOwnerOfRecentMessage: Bool {
-        authUser.uid == recentMessage?.senderId
-    }
     
     init(chat: Chat) {
         self.chat = chat
 
         initiateChatDataLoad()
-//        setupBindings()
-//        addRealmObserverToChat(chat)
     }
     
     private func initiateChatDataLoad() {
@@ -74,6 +60,17 @@ class ChatCellViewModel: Equatable {
     private func findMemberID() -> String? {
         return chat.members.first(where: { $0 != authUser.uid} )
     }
+    
+    var isRecentMessagePresent: Bool?
+    {
+        guard member != nil else { return nil }
+        if let _ = chat.recentMessageID { return true }
+        return false
+    }
+    
+//    var isAuthUserOwnerOfRecentMessage: Bool {
+//        authUser.uid == recentMessage?.senderId
+//    }
 }
 
 
@@ -228,63 +225,6 @@ extension ChatCellViewModel {
             self.member = user
         }
     }
-}
-
-//MARK: - Realm observer functions
-extension ChatCellViewModel 
-{
-    /// receive changes from realm object
-    ///
-    
-    func setupBindings() {
-//          RealmDBManager.shared.$objectPropertyChange
-//              .dropFirst()
-//              .receive(on: DispatchQueue.main)
-//              .compactMap { $0 }
-//              .sink { [weak self] changeName in
-//                  guard let self = self else {return}
-//                  
-//                  switch changeName.name {
-//                  case "member":
-//                      Task { await self.updateUserAfterDeletion() }
-//                  case "recentMessageID":
-//                      if let messageID = changeName.newValue as? String, 
-//                            messageID != self.recentMessage?.id {
-//                          Task {
-//                              self.recentMessage = await self.loadRecentMessage()
-//                              self.unreadMessageCount = try? await self.fetchUnreadMessagesCount()
-//                          }
-//                      }
-//                  default:
-//                      break
-//                  }
-//              }.store(in: &subscriptions)
-      }
-    
-    
-    
-//    func setupBindings() {
-//        RealmDBManager.shared.$objectPropertyChange
-//            .dropFirst()
-//            .receive(on: DispatchQueue.main)
-//            .sink { changeName in
-//                if let changeName = changeName {
-//                    switch changeName {
-//                    case .member:
-//                        Task { await self.updateUserAfterDeletion() }
-//                    case .recentMessageID:
-//                        Task {
-//                            self.recentMessage = await self.loadRecentMessage()
-//                            self.unreadMessageCount = try? await self.fetchUnreadMessagesCount()
-//                        }
-//                    }
-//                }
-//            }.store(in: &subscriptions)
-//    }
-//    
-//    private func addRealmObserverToChat(_ chat: Chat) {
-//        RealmDBManager.shared.addObserverToObject(object: chat)
-//    }
 }
 
 //MARK: - Equatable protocol subs
