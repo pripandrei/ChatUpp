@@ -36,8 +36,8 @@ class ChatCellViewModel: Equatable {
         self.chat = chat
 
         initiateChatDataLoad()
-        setupBindings()
-        addRealmObserverToChat(chat)
+//        setupBindings()
+//        addRealmObserverToChat(chat)
     }
     
     private func initiateChatDataLoad() {
@@ -57,12 +57,16 @@ class ChatCellViewModel: Equatable {
         Task { @MainActor in
             RealmDBManager.shared.add(object: member)
             
-            if let recentMessage = recentMessage,
-                !chat.conversationMessages.contains(where: {$0.id == recentMessage.id}) 
-            {
-                RealmDBManager.shared.update(object: chat) { chat in
-                    chat.conversationMessages.append(recentMessage)
-                }
+            addMessageToRealm()
+        }
+    }
+    
+    private func addMessageToRealm() {
+        if let recentMessage = recentMessage,
+            !chat.conversationMessages.contains(where: {$0.id == recentMessage.id})
+        {
+            RealmDBManager.shared.update(object: chat) { chat in
+                chat.conversationMessages.append(recentMessage)
             }
         }
     }
@@ -76,19 +80,22 @@ class ChatCellViewModel: Equatable {
 //MARK: - Update cell data
 
 extension ChatCellViewModel {
-
-    func updateChat(_ modifiedChat: Chat) {
-//        self.chat = modifiedChat
-    }
-
-    func updateRecentMessage(_ message: Message?, count: Int?) {
-        self.recentMessage = message
-        self.unreadMessageCount = count
-    }
-    func updateMember(_ member: DBUser?) {
-        self.member = member
-    }
     
+    func updateChatParameters() {
+        
+        /// chat was update in realm, so we check if it's properties match local one (member & recentMessage)
+        if findMemberID() != member?.userId {
+            Task { await updateUserAfterDeletion() }
+        }
+        if chat.recentMessageID != recentMessage?.id {
+            Task {
+                recentMessage = await loadRecentMessage()
+                unreadMessageCount = try await fetchUnreadMessagesCount()
+                await MainActor.run { addMessageToRealm() }
+            }
+        }
+    }
+
     /// - updated user after deletion
     func updateUserAfterDeletion() async {
         let deletedUserID = UserManager.mainDeletedUserID
@@ -226,28 +233,58 @@ extension ChatCellViewModel {
 //MARK: - Realm observer functions
 extension ChatCellViewModel 
 {
-    func setupBindings() {
-        RealmDBManager.shared.$objectPropertyChange
-            .dropFirst()
-            .receive(on: DispatchQueue.main)
-            .sink { changeName in
-                if let changeName = changeName {
-                    switch changeName {
-                    case .member:
-                        Task { await self.updateUserAfterDeletion() }
-                    case .recentMessageID:
-                        Task {
-                            self.recentMessage = await self.loadRecentMessage()
-                            self.unreadMessageCount = try? await self.fetchUnreadMessagesCount()
-                        }
-                    }
-                }
-            }.store(in: &subscriptions)
-    }
+    /// receive changes from realm object
+    ///
     
-    private func addRealmObserverToChat(_ chat: Chat) {
-        RealmDBManager.shared.addObserverToObject(object: chat)
-    }
+    func setupBindings() {
+//          RealmDBManager.shared.$objectPropertyChange
+//              .dropFirst()
+//              .receive(on: DispatchQueue.main)
+//              .compactMap { $0 }
+//              .sink { [weak self] changeName in
+//                  guard let self = self else {return}
+//                  
+//                  switch changeName.name {
+//                  case "member":
+//                      Task { await self.updateUserAfterDeletion() }
+//                  case "recentMessageID":
+//                      if let messageID = changeName.newValue as? String, 
+//                            messageID != self.recentMessage?.id {
+//                          Task {
+//                              self.recentMessage = await self.loadRecentMessage()
+//                              self.unreadMessageCount = try? await self.fetchUnreadMessagesCount()
+//                          }
+//                      }
+//                  default:
+//                      break
+//                  }
+//              }.store(in: &subscriptions)
+      }
+    
+    
+    
+//    func setupBindings() {
+//        RealmDBManager.shared.$objectPropertyChange
+//            .dropFirst()
+//            .receive(on: DispatchQueue.main)
+//            .sink { changeName in
+//                if let changeName = changeName {
+//                    switch changeName {
+//                    case .member:
+//                        Task { await self.updateUserAfterDeletion() }
+//                    case .recentMessageID:
+//                        Task {
+//                            self.recentMessage = await self.loadRecentMessage()
+//                            self.unreadMessageCount = try? await self.fetchUnreadMessagesCount()
+//                        }
+//                    }
+//                }
+//            }.store(in: &subscriptions)
+//    }
+//    
+//    private func addRealmObserverToChat(_ chat: Chat) {
+//        RealmDBManager.shared.addObserverToObject(object: chat)
+//    }
 }
 
 //MARK: - Equatable protocol subs

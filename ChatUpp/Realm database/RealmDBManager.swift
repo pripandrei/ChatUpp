@@ -80,37 +80,40 @@ final class RealmDBManager {
     }
 
 //    public func addObserverToObjects<T: Object>(objects: Results<T>) {
-//        notificationToke = objects.observe { change in
+//        let token = objects.observe { change in
 //            switch change {
 //            case .initial(let initialResults): print(initialResults)
 //            case .update(let updateResults, let deletions, let insertions, let modifications): print("ads")
 //            case .error(let error): print(error.localizedDescription)
 //            }
 //        }
+//        notificationToken.append(token)
 //    }
+    
+    
+//    @Published var objectPropertyChange: RealmPropertyChange?
+//    @Published var objectPropertyChange: PropertyChange?
 //    
-    
-    @Published var objectPropertyChange: RealmPropertyChange?
-    
-    public func addObserverToObject<T: Object>(object: T) {
-        let token = object.observe { change in
-            switch change {
-            case .change(_, let properties):
-                properties.forEach { property in
-                    guard let newValue = property.newValue as? String else { return }
-                    self.objectPropertyChange = RealmPropertyChange(rawValue: property.name)
-                }
-            case .deleted:
-                print("Object was deleted")
-            case .error(let error):
-                print(error.localizedDescription)
-            }
-        }
-        notificationToken.append(token)
-    }
+//    public func addObserverToObject<T: Object>(object: T) {
+//        let token = object.observe { change in
+//            switch change {
+//            case .change(_, let properties):
+//                properties.forEach { property in
+//                    guard let newValue = property.newValue as? String else { return }
+//                    self.objectPropertyChange = property
+//                }
+//            case .deleted:
+//                print("Object was deleted")
+//            case .error(let error):
+//                print(error.localizedDescription)
+//            }
+//        }
+//        notificationToken.append(token)
+//    }
 }
 
-enum RealmPropertyChange: String {
-    case member
-    case recentMessageID
-}
+
+//enum RealmPropertyChange {
+//    case member(String)
+//    case recentMessageID(String)
+//}
