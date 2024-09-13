@@ -44,6 +44,13 @@ class ChatCellViewModel: Equatable {
             RealmDBManager.shared.add(object: member)
             
             addMessageToRealm()
+            saveImageToCache()
+        }
+    }
+    
+    private func saveImageToCache() {
+        if let imageData = memberProfileImage, let path = member?.photoUrl {
+            CacheManager.shared.saveImageData(imageData, toPath: path)
         }
     }
     
@@ -131,13 +138,10 @@ extension ChatCellViewModel {
     }
     
     func retrieveMemberImageData() throws {
-        guard let member = self.member,
-              let userProfilePhotoURL = member.photoUrl,
-              let imageURL = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: member.userId)?.photoUrl else {
+        guard let userProfilePhotoURL = member?.photoUrl else {
             print("image not")
-            throw RealmRetrieveError.imageNotPresent}
-        
-        //TODO: Retrieve image from FileManager cach with imageURL
+            throw RealmRetrieveError.imageNotPresent }
+        memberProfileImage = CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
     }
 }
 

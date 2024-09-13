@@ -64,6 +64,7 @@
 		7587CE1E2C781425002D60CE /* RealmDBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1D2C781425002D60CE /* RealmDBManager.swift */; };
 		7587CE222C7CC403002D60CE /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; };
 		759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */; };
+		75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A9184A2C942E15006ED4CA /* CacheManager.swift */; };
 		75B48B572AF6837700A5FBFC /* ConversationRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B562AF6837700A5FBFC /* ConversationRootView.swift */; };
 		75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */; };
 		75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */; };
@@ -188,6 +189,7 @@
 		7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Query+Extensions.swift"; sourceTree = "<group>"; };
 		7587CE1D2C781425002D60CE /* RealmDBManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDBManager.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
+		75A9184A2C942E15006ED4CA /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		75B48B562AF6837700A5FBFC /* ConversationRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRootView.swift; sourceTree = "<group>"; };
 		75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableController.swift; sourceTree = "<group>"; };
 		75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatUpp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -432,6 +434,14 @@
 			path = ResultsTableView;
 			sourceTree = "<group>";
 		};
+		75A918492C942DEB006ED4CA /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				75A9184A2C942E15006ED4CA /* CacheManager.swift */,
+			);
+			name = Helpers;
+			sourceTree = "<group>";
+		};
 		75B5C4AD2A49AB0A00F63A5A = {
 			isa = PBXGroup;
 			children = (
@@ -453,6 +463,7 @@
 		75B5C4B82A49AB0A00F63A5A /* ChatUpp */ = {
 			isa = PBXGroup;
 			children = (
+				75A918492C942DEB006ED4CA /* Helpers */,
 				7587CE1F2C78176E002D60CE /* Database models */,
 				756525D32AB50035005DC594 /* Firestore database */,
 				75CB52192B0BF07D007F3AB6 /* Firebase storage */,
@@ -819,6 +830,7 @@
 				7587CE1B2C77DA7D002D60CE /* Query+Extensions.swift in Sources */,
 				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
 				7543BE332ACC87CA003001BF /* ConversationViewController.swift in Sources */,
+				75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */,
 				75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */,
 				75F608842BEC2F560065DA83 /* ConversationTextViewDelegate.swift in Sources */,
 				754439552B4134150044A84B /* ProfileEditingViewModel.swift in Sources */,

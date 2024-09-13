@@ -25,14 +25,16 @@ final class ChatsViewModel {
         addChatsListener()
     }
 
-    func activateOnDisconnect() 
-    {
-        Task { try await UserManagerRealtimeDB.shared.setupOnDisconnect() }
+    func activateOnDisconnect() {
+        Task {
+            try await UserManagerRealtimeDB.shared.setupOnDisconnect()
+        }
     }
 }
 
 
-//MARK:  CellViewModel functions
+//MARK: - CellViewModel functions
+
 extension ChatsViewModel {
     
     /// initial setup on initialization
@@ -84,7 +86,6 @@ extension ChatsViewModel {
         }
     }
 }
-
 
 //MARK: - Listeners
 
