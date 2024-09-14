@@ -49,6 +49,10 @@ class Chat: Object, Codable {
     func appendConversationMessage(_ message: Message) {
         conversationMessages.append(message)
     }
+    
+    func getMessages() -> [Message] {
+        Array(conversationMessages)
+    }
 
 }
 

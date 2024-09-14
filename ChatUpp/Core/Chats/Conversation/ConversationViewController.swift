@@ -74,14 +74,28 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
     //MARK: - Binding
     private func setupBinding() 
     {
-        conversationViewModel.onCellVMLoad = { indexOfCellToScrollTo in
-            Task { @MainActor in
-                self.rootView.tableView.reloadData()
-                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-                self.updateMessageSeenStatusIfNeeded()
-            }
-        }
+//        conversationViewModel.onMessageGroupsLoad = { indexOfCellToScrollTo in
+//            Task { @MainActor in
+//                self.rootView.tableView.reloadData()
+//                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+//                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
+//                self.updateMessageSeenStatusIfNeeded()
+//            }
+//        }
+        
+        conversationViewModel.$firstNotSeenMessageIndex
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] indexOfCellToScrollTo in
+                guard let self = self else {return}
+                
+                Task { @MainActor in
+                    /// table should be reloaded despites of indexOfCellToScrollTo being nil
+                    self.rootView.tableView.reloadData()
+                    guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+                    self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
+                    self.updateMessageSeenStatusIfNeeded()
+                }
+            }.store(in: &subscriptions)
         
         conversationViewModel.$userMember
             .receive(on: DispatchQueue.main)
@@ -340,7 +354,7 @@ extension ConversationViewController {
     }
     
     private func checkIfNewSectionWasAdded() -> Bool {
-        if rootView.tableView.numberOfSections < conversationViewModel.cellMessageGroups.count {
+        if rootView.tableView.numberOfSections < conversationViewModel.messageGroups.count {
             return true
         }
         return false
@@ -363,7 +377,7 @@ extension ConversationViewController {
         }
     }
     private func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool {
-        let cellMessage = conversationViewModel.cellMessageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
+        let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
         if !cellMessage.messageSeen && cellMessage.senderId != authUserID 
@@ -538,7 +552,7 @@ extension ConversationViewController: UITableViewDelegate
         
         containerView.addSubview(label)
         
-        let dateForSection = conversationViewModel.cellMessageGroups[section].date
+        let dateForSection = conversationViewModel.messageGroups[section].date
         label.text = dateForSection.formatToYearMonthDayCustomString()
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true

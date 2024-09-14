@@ -16,17 +16,17 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
     }
 //
     func numberOfSections(in tableView: UITableView) -> Int {
-        return conversationViewModel.cellMessageGroups.count
+        return conversationViewModel.messageGroups.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return conversationViewModel.cellMessageGroups[section].cellViewModels.count
+        return conversationViewModel.messageGroups[section].cellViewModels.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationTableViewCell else { fatalError("Could not dequeu custom collection cell") }
     
-        let viewModel = conversationViewModel.cellMessageGroups[indexPath.section].cellViewModels[indexPath.row]
+        let viewModel = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row]
         let message = viewModel.cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         let cellSide = message.senderId == authUserID ?

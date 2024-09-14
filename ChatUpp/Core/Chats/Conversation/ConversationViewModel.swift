@@ -25,21 +25,42 @@ struct ConversationMessageGroups {
     var cellViewModels: [ConversationCellViewModel]
 }
 
+//MARK: -
+
+extension ConversationViewModel {
+    
+//    func getMessagesFromConversation() -> [Message] {
+//        guard let messages = conversation?.conversationMessages else { return [] }
+//        return Array(messages)
+//    }
+    
+    //    func reloadCells() {
+    //        let indexOfNotSeenMessage = self.findFirstNotSeenMessageIndex()
+    //        self.onMessageGroupsLoad?(indexOfNotSeenMessage)
+    //    }
+    
+    func setupConversationMessageGroups() {
+        guard let messages = conversation?.getMessages() else { return }
+        createMessageGroups(messages)
+        firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+    }
+}
 
 final class ConversationViewModel {
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
-    private(set) var cellMessageGroups: [ConversationMessageGroups] = []
+    private(set) var messageGroups: [ConversationMessageGroups] = []
     private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
     @Published private(set) var userMember: DBUser
     @Published var messageChangedType: MessageChangeType?
+    @Published var firstNotSeenMessageIndex: IndexPath?
     
     var shouldEditMessage: ((String) -> Void)?
-    var onCellVMLoad: ((IndexPath?) -> Void)?
+    var onMessageGroupsLoad: ((IndexPath?) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var currentlyReplyToMessageID: String?
     
@@ -47,6 +68,9 @@ final class ConversationViewModel {
         self.userMember = userMember
         self.conversation = conversation
         self.memberProfileImage = imageData
+        
+        setupConversationMessageGroups()
+        
         addListeners()
     }
     
@@ -59,7 +83,7 @@ final class ConversationViewModel {
     private func createConversation() async {
         let chatId = UUID().uuidString
         let members = [authenticatedUserID, userMember.userId]
-        let chat = Chat(id: chatId, members: members, lastMessage: cellMessageGroups.first?.cellViewModels.first?.cellMessage.id)
+        let chat = Chat(id: chatId, members: members, lastMessage: messageGroups.first?.cellViewModels.first?.cellMessage.id)
         self.conversation = chat
         do {
             try await ChatsManager.shared.createNewChat(chat: chat)
@@ -70,7 +94,7 @@ final class ConversationViewModel {
     }
     
     private func createMessageGroups(_ messages: [Message]) {
-        var tempMessageGroups: [ConversationMessageGroups] = cellMessageGroups
+        var tempMessageGroups: [ConversationMessageGroups] = messageGroups
         messages.forEach { message in
             guard let date = message.timestamp.formatToYearMonthDay() else {return}
             
@@ -83,7 +107,7 @@ final class ConversationViewModel {
                 tempMessageGroups.insert(newGroup, at: 0)
             }
         }
-        self.cellMessageGroups = tempMessageGroups
+        self.messageGroups = tempMessageGroups
     }
  
     private func fetchConversationMessages() {
@@ -92,8 +116,8 @@ final class ConversationViewModel {
             do {
                 let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
                 createMessageGroups(messages)
-                let indexOfNotSeenMessageToScrollTo = self.findFirstNotSeenMessageIndex()
-                self.onCellVMLoad?(indexOfNotSeenMessageToScrollTo)
+                self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+//                self.onMessageGroupsLoad?(indexOfNotSeenMessageToScrollTo)
 //                delete()
             } catch {
                 print("Could not fetch messages from db: ", error.localizedDescription)
@@ -157,7 +181,7 @@ final class ConversationViewModel {
     private func findFirstNotSeenMessageIndex() -> IndexPath? {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
         
-        cellMessageGroups.forEach { messageGroup in
+        messageGroups.forEach { messageGroup in
             for (index,conversationVM) in messageGroup.cellViewModels.enumerated() {
                 if !conversationVM.cellMessage.messageSeen && conversationVM.cellMessage.senderId != authenticatedUserID {
                     indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
@@ -170,14 +194,14 @@ final class ConversationViewModel {
     }
     
     func handleImageDrop(imageData: Data, size: MessageImageSize) {
-        self.cellMessageGroups.first?.cellViewModels.first?.imageData = imageData
-        self.cellMessageGroups.first?.cellViewModels.first?.cellMessage.imageSize = size
+        self.messageGroups.first?.cellViewModels.first?.imageData = imageData
+        self.messageGroups.first?.cellViewModels.first?.cellMessage.imageSize = size
         self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
     }
     
     func saveImage(data: Data, size: CGSize) {
         guard let conversation = conversation else {return}
-        guard let messageID = cellMessageGroups.first?.cellViewModels.first?.cellMessage.id else {return}
+        guard let messageID = messageGroups.first?.cellViewModels.first?.cellMessage.id else {return}
         Task {
             let (path,name) = try await StorageManager.shared.saveMessageImage(data: data, messageID: messageID)
             try await ChatsManager.shared.updateMessageImagePath(messageID: messageID,
@@ -217,7 +241,7 @@ final class ConversationViewModel {
     
     func getRepliedToMessage(messageID: String) -> Message? {
         var repliedMessage: Message?
-        cellMessageGroups.forEach { conversationGroups in
+        messageGroups.forEach { conversationGroups in
             conversationGroups.cellViewModels.forEach { conversationCellViewModel in
                 if conversationCellViewModel.cellMessage.id == messageID {
                     repliedMessage = conversationCellViewModel.cellMessage
@@ -246,7 +270,7 @@ extension ConversationViewModel {
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
             guard let self = self else {return}
             
-            if self.cellMessageGroups.isEmpty {
+            if self.messageGroups.isEmpty {
                 self.fetchConversationMessages()
                 return
             }
@@ -266,7 +290,7 @@ extension ConversationViewModel {
 extension ConversationViewModel
 {
     private func handleAddedMessage(_ message: Message) {
-        if !cellMessageGroups.contains(elementWithID: message.id) {
+        if !messageGroups.contains(elementWithID: message.id) {
             createMessageGroups([message])
             messageChangedType = .added
         }
@@ -274,7 +298,7 @@ extension ConversationViewModel
     
     private func handleModifiedMessage(_ message: Message) {
         guard let indexPath = indexPath(of: message) else { return }
-        let cellVM = cellMessageGroups.getCellViewModel(at: indexPath)
+        let cellVM = messageGroups.getCellViewModel(at: indexPath)
         
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else {return}
         cellVM.updateMessage(message)
@@ -285,7 +309,7 @@ extension ConversationViewModel
         
         guard let indexPath = indexPath(of: message) else { return }
         
-        cellMessageGroups.removeCellViewModel(at: indexPath)
+        messageGroups.removeCellViewModel(at: indexPath)
         removeMessageGroup(at: indexPath)
         
         if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
@@ -293,16 +317,16 @@ extension ConversationViewModel
     }
     
     private func removeMessageGroup(at indexPath: IndexPath) {
-        if cellMessageGroups[indexPath.section].cellViewModels.isEmpty {
-            cellMessageGroups.remove(at: indexPath.section)
+        if messageGroups[indexPath.section].cellViewModels.isEmpty {
+            messageGroups.remove(at: indexPath.section)
         }
     }
 
     private func indexPath(of message: Message) -> IndexPath? {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
-        for groupIndex in 0..<cellMessageGroups.count {
-            let group = cellMessageGroups[groupIndex]
+        for groupIndex in 0..<messageGroups.count {
+            let group = messageGroups[groupIndex]
             
             if group.date == date {
                 if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage.id == message.id }) {
@@ -315,7 +339,7 @@ extension ConversationViewModel
     
     private func updateLastMessageFromFirestoreChat() {
         Task {
-            await updateRecentMessageFromFirestoreChat(conversation?.id, messageID: cellMessageGroups[0].cellViewModels[0].cellMessage.id)
+            await updateRecentMessageFromFirestoreChat(conversation?.id, messageID: messageGroups[0].cellViewModels[0].cellMessage.id)
         }
     }
     
@@ -324,7 +348,7 @@ extension ConversationViewModel
     }
     
     func contains(_ message: Message) -> Bool {
-        let existingMessageIDs: Set<String> = Set(cellMessageGroups.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
+        let existingMessageIDs: Set<String> = Set(messageGroups.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
         return existingMessageIDs.contains(message.id)
     }
 }
