@@ -84,38 +84,6 @@ class ChatsCell: UITableViewCell {
                 self.setImage(imageData)
             }.store(in: &subscriptions)
         
-//        cellViewModel.onMemberSet = { [weak self] member in
-//            guard let self = self else {return}
-//            Task { @MainActor in
-//                self.stopSkeletonAnimationFor(self.nameLabel)
-//                
-//                if let member = member {
-//                    
-//                    if self.nameLabel.text != member.name {
-//                        self.nameLabel.text = member.name
-//                    }
-//                    
-//                }
-//                self.setOnlineStatusActivity()
-//            }
-//        }
-        
-//        cellViewModel.onMessageSet = { [weak self] message in
-//            guard let self = self else {return}
-//            Task { @MainActor in
-//                if let isPresent = self.cellViewModel.isRecentMessagePresent, !isPresent {
-//                    self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
-//                    return
-//                }
-//                if let message = message {
-//                    
-//                    self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
-//                    self.messageLable.text = message.messageBody
-//                    self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
-//                }
-//            }
-//        }
-        
         cellViewModel.$member
             .receive(on: DispatchQueue.main)
             .sink { member in
