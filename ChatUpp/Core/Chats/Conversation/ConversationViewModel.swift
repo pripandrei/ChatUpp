@@ -27,18 +27,8 @@ struct ConversationMessageGroups {
 
 //MARK: -
 
-extension ConversationViewModel {
-    
-//    func getMessagesFromConversation() -> [Message] {
-//        guard let messages = conversation?.conversationMessages else { return [] }
-//        return Array(messages)
-//    }
-    
-    //    func reloadCells() {
-    //        let indexOfNotSeenMessage = self.findFirstNotSeenMessageIndex()
-    //        self.onMessageGroupsLoad?(indexOfNotSeenMessage)
-    //    }
-    
+extension ConversationViewModel
+{
     func setupConversationMessageGroups() {
         guard let messages = conversation?.getMessages() else { return }
         createMessageGroups(messages)
@@ -60,7 +50,6 @@ final class ConversationViewModel {
     @Published var firstNotSeenMessageIndex: IndexPath?
     
     var shouldEditMessage: ((String) -> Void)?
-    var onMessageGroupsLoad: ((IndexPath?) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var currentlyReplyToMessageID: String?
     
@@ -71,7 +60,7 @@ final class ConversationViewModel {
         
         setupConversationMessageGroups()
         
-        addListeners()
+//        addListeners()
     }
     
     private func addListeners() {
@@ -117,7 +106,6 @@ final class ConversationViewModel {
                 let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
                 createMessageGroups(messages)
                 self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
-//                self.onMessageGroupsLoad?(indexOfNotSeenMessageToScrollTo)
 //                delete()
             } catch {
                 print("Could not fetch messages from db: ", error.localizedDescription)

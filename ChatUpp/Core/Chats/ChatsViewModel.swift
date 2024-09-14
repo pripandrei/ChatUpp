@@ -68,7 +68,7 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     private func retrieveChatsFromRealm() -> [Chat] {
-        let filter = NSPredicate(format: "ANY members %@", authUser.uid)
+        let filter = NSPredicate(format: "ANY members == %@", authUser.uid)
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self, filter: filter)
     }
     
