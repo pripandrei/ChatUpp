@@ -51,8 +51,10 @@ class Chat: Object, Codable {
     }
     
     func getMessages() -> [Message] {
-//        conversationMessages.forEach { message in
-//            message.messageSeen = true
+//        RealmDBManager.shared.update(object: self) { chat in
+//            for message in chat.conversationMessages {
+//                message.messageSeen = true
+//            }
 //        }
         return Array(conversationMessages)
     }

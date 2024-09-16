@@ -84,21 +84,38 @@ final class ConversationViewModel {
     
     private func createMessageGroups(_ messages: [Message]) {
         var tempMessageGroups: [ConversationMessageGroups] = messageGroups
+        
         messages.forEach { message in
-            guard let date = message.timestamp.formatToYearMonthDay() else {return}
-            
-            let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-            
-            if let index = tempMessageGroups.firstIndex(where: {$0.date == date})  {
-                tempMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
-            } else {
-                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
-                tempMessageGroups.insert(newGroup, at: 0)
-            }
+//            guard let date = message.timestamp.formatToYearMonthDay() else {return}
+//            
+//            let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+//            
+//            if let index = tempMessageGroups.firstIndex(where: {$0.date == date})  {
+//                tempMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+//            } else {
+//                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+//                tempMessageGroups.insert(newGroup, at: 0)
+//            }
+            addConversationCellViewModel(with: message, to: &tempMessageGroups)
         }
         self.messageGroups = tempMessageGroups
     }
- 
+    
+    func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroups]) {
+        guard let date = message.timestamp.formatToYearMonthDay() else {return}
+        
+        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+        
+        if let index = messageGroups.firstIndex(where: { $0.date == date} )
+        {
+            messageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+        } else 
+        {
+            let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
+            messageGroups.insert(newGroup, at: 0)
+        }
+    }
+    
     private func fetchConversationMessages() {
         guard let conversation = conversation else {return}
         Task {
