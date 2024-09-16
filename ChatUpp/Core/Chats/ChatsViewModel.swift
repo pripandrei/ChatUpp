@@ -21,6 +21,7 @@ final class ChatsViewModel {
     var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
+        print(RealmDBManager.realmFilePath)
         setupCellViewModels()
         addChatsListener()
     }

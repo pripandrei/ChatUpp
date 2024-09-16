@@ -169,16 +169,26 @@ final class ConversationViewModel {
     private func findFirstNotSeenMessageIndex() -> IndexPath? {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
         
-        messageGroups.forEach { messageGroup in
-            for (index,conversationVM) in messageGroup.cellViewModels.enumerated() {
-                if !conversationVM.cellMessage.messageSeen && conversationVM.cellMessage.senderId != authenticatedUserID {
-                    indexOfNotSeenMessageToScrollTo = IndexPath(item: index, section: 0)
+        for (groupIndex, messageGroup) in messageGroups.enumerated()
+        {
+            for (viewModelIndex,conversationVM) in messageGroup.cellViewModels.enumerated()
+            {
+                if isUnseenMessagePresent(in: conversationVM) {
+                    indexOfNotSeenMessageToScrollTo = IndexPath(item: viewModelIndex, section: groupIndex)
                 } else {
-                    break
+                    return indexOfNotSeenMessageToScrollTo
                 }
             }
         }
         return indexOfNotSeenMessageToScrollTo
+    }
+
+    private func isUnseenMessagePresent(in conversationVM: ConversationCellViewModel) -> Bool {
+        let messageIsUnseen = !conversationVM.cellMessage.messageSeen
+        let authUserIsNotOwnerOfMessage = conversationVM.cellMessage.senderId != authenticatedUserID
+        
+        if messageIsUnseen && authUserIsNotOwnerOfMessage { return true }
+        else { return false }
     }
     
     func handleImageDrop(imageData: Data, size: MessageImageSize) {

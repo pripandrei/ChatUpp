@@ -362,7 +362,8 @@ extension ConversationViewController {
 }
 
 //MARK: - Message seen status handler
-extension ConversationViewController {
+extension ConversationViewController 
+{
     private func updateMessageSeenStatusIfNeeded() {
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else {return}
         
@@ -376,6 +377,7 @@ extension ConversationViewController {
             }
         }
     }
+    
     private func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool {
         let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
@@ -392,6 +394,7 @@ extension ConversationViewController {
         }
         return false
     }
+    
     private func updateMessageSeenStatus(_ cell: ConversationTableViewCell) {
         guard let chatID = conversationViewModel.conversation else {return}
         let messageId = cell.cellViewModel.cellMessage.id

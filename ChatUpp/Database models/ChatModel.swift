@@ -51,7 +51,10 @@ class Chat: Object, Codable {
     }
     
     func getMessages() -> [Message] {
-        Array(conversationMessages)
+//        conversationMessages.forEach { message in
+//            message.messageSeen = true
+//        }
+        return Array(conversationMessages)
     }
 
 }
