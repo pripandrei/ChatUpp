@@ -60,7 +60,7 @@ final class ConversationViewModel {
         
         setupConversationMessageGroups()
         
-        addListeners()
+//        addListeners()
     }
     
     private func addListeners() {
@@ -86,16 +86,6 @@ final class ConversationViewModel {
         var tempMessageGroups: [ConversationMessageGroups] = messageGroups
         
         messages.forEach { message in
-//            guard let date = message.timestamp.formatToYearMonthDay() else {return}
-//            
-//            let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-//            
-//            if let index = tempMessageGroups.firstIndex(where: {$0.date == date})  {
-//                tempMessageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
-//            } else {
-//                let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
-//                tempMessageGroups.insert(newGroup, at: 0)
-//            }
             addConversationCellViewModel(with: message, to: &tempMessageGroups)
         }
         self.messageGroups = tempMessageGroups
@@ -103,15 +93,13 @@ final class ConversationViewModel {
     
     private func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroups])
     {
-        guard let date = message.timestamp.formatToYearMonthDay() else {return}
-        
+        guard let date = message.timestamp.formatToYearMonthDay() else { return }
         let conversationCellVM = ConversationCellViewModel(cellMessage: message)
         
-        if let index = messageGroups.firstIndex(where: { $0.date == date} ) 
+        if let index = messageGroups.firstIndex(where: { $0.date == date })
         {
             messageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
-        } else 
-        {
+        } else {
             let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
             messageGroups.insert(newGroup, at: 0)
         }

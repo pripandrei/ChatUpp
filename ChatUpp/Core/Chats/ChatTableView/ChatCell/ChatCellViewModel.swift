@@ -56,7 +56,7 @@ class ChatCellViewModel: Equatable {
     
     private func addMessageToRealm() {
         if let recentMessage = recentMessage,
-            !chat.conversationMessages.contains(where: {$0.id == recentMessage.id})
+            !chat.conversationMessages.contains(where: { $0.id == recentMessage.id} )
         {
             RealmDBManager.shared.update(object: chat) { chat in
                 chat.conversationMessages.append(recentMessage)
