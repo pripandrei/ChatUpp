@@ -143,8 +143,9 @@ final class ConversationViewModel {
         }
     }
     
-    func updateRecentMessageFromFirestoreChat(_ chatID: String? ,messageID: String ) async {
-        guard let chatID = chatID else { print("chatID is nil") ; return}
+    @MainActor
+    func updateRecentMessageFromFirestoreChat(messageID: String ) async {
+        guard let chatID = conversation?.id else { print("chatID is nil") ; return}
         do {
             try await ChatsManager.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
         } catch {
@@ -152,7 +153,6 @@ final class ConversationViewModel {
         }
     }
     
-    @MainActor
     private func insertNewMessage(_ message: Message) {
         createMessageGroups([message])
         Task {
@@ -160,11 +160,10 @@ final class ConversationViewModel {
                 await createConversation()
             }
             await addMessageToFirestoreDataBase(message)
-            await updateRecentMessageFromFirestoreChat(conversation?.id, messageID: message.id)
+            await updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
     }
-    
-    @MainActor 
+    @MainActor
     func createMessageBubble(_ messageText: String) {
         let message = createNewMessage(messageText)
         resetCurrentReplyMessage()
@@ -347,7 +346,7 @@ extension ConversationViewModel
     
     private func updateLastMessageFromFirestoreChat() {
         Task {
-            await updateRecentMessageFromFirestoreChat(conversation?.id, messageID: messageGroups[0].cellViewModels[0].cellMessage.id)
+            await updateRecentMessageFromFirestoreChat(messageID: messageGroups[0].cellViewModels[0].cellMessage.id)
         }
     }
     
