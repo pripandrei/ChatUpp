@@ -60,7 +60,7 @@ final class ConversationViewModel {
         
         setupConversationMessageGroups()
         
-//        addListeners()
+        addListeners()
     }
     
     private func addListeners() {
@@ -101,12 +101,13 @@ final class ConversationViewModel {
         self.messageGroups = tempMessageGroups
     }
     
-    func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroups]) {
+    private func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroups])
+    {
         guard let date = message.timestamp.formatToYearMonthDay() else {return}
         
         let conversationCellVM = ConversationCellViewModel(cellMessage: message)
         
-        if let index = messageGroups.firstIndex(where: { $0.date == date} )
+        if let index = messageGroups.firstIndex(where: { $0.date == date} ) 
         {
             messageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
         } else 
@@ -277,10 +278,10 @@ final class ConversationViewModel {
 }
 
 //MARK: - Messages listener
-extension ConversationViewModel {
-    
-    /// - Messages listener
-    func addListenerToMessages() {
+extension ConversationViewModel
+{
+    func addListenerToMessages() 
+    {
         guard let conversation = conversation else {return}
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
             guard let self = self else {return}
@@ -368,7 +369,8 @@ extension ConversationViewModel
     }
 }
 
-extension Array where Element == ConversationMessageGroups {
+extension Array where Element == ConversationMessageGroups 
+{
     mutating func removeCellViewModel(at indexPath: IndexPath) {
         self[indexPath.section].cellViewModels.remove(at: indexPath.row)
     }

@@ -119,7 +119,8 @@ final class RealmDBManager {
 
 
 //MARK: - Realm file path
-extension RealmDBManager {
+extension RealmDBManager 
+{
     static var realmFilePath: String? {
         guard let fileURL = Realm.Configuration.defaultConfiguration.fileURL else { return nil }
         return "Realm database file is located at: \(fileURL)"
