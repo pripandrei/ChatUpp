@@ -95,7 +95,7 @@ extension ChatsManager
 
 extension ChatsManager
 {
-    func updateDBMessageText(_ messageText: String, messageID: String, chatID: String) async throws {
+    func updateMessageText(_ messageText: String, messageID: String, chatID: String) async throws {
         let data: [String: Any] = [
             Message.CodingKeys.messageBody.rawValue : messageText,
             Message.CodingKeys.isEdited.rawValue : true

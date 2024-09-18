@@ -39,9 +39,9 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
         
         var numberOfLines     = Int(textViewFrameSize.height / textView.font!.lineHeight)
         
+        // in case user paste text that exceeds 5 lines
         if numberOfLines > 4 && !textView.isScrollEnabled
         {
-            // in case user paste text that exceeds 5 lines
             let initialTextViewHeight   = 31.0
             numberOfLines               = 5
             let hightConstraintConstant = initialTextViewHeight + (textView.font!.lineHeight * CGFloat(numberOfLines - 1))

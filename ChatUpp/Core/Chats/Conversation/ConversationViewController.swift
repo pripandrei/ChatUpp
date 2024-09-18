@@ -396,11 +396,8 @@ extension ConversationViewController
     }
     
     private func updateMessageSeenStatus(_ cell: ConversationTableViewCell) {
-        guard let chatID = conversationViewModel.conversation else {return}
-        let messageId = cell.cellViewModel.cellMessage.id
-        
-        cell.cellViewModel.cellMessage = cell.cellViewModel.cellMessage.updateMessageSeenStatus()
-        cell.cellViewModel.updateMessageSeenStatus(messageId, inChat: chatID.id)
+        guard let chatID = conversationViewModel.conversation?.id else {return}
+        cell.cellViewModel.updateMessageSeenStatus(from: chatID)
     }
     
     //    private func handleSectionAnimation() {
@@ -590,11 +587,12 @@ extension ConversationViewController: UITableViewDelegate
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
                 
                 let selectedCellMessageText = cell.messageLabel.text
+                let cellMessage = cell.cellViewModel.cellMessage
                 
                 let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
                     DispatchQueue.main.async {
-                        let replyMessageId = cell.cellViewModel.cellMessage.id
-                        let replyMessageSenderID = cell.cellViewModel.cellMessage.senderId
+                        let replyMessageId = cellMessage.id
+                        let replyMessageSenderID = cellMessage.senderId
                         let messageSenderName = self.conversationViewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
                         self.conversationViewModel.currentlyReplyToMessageID = replyMessageId
                         self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
@@ -608,22 +606,25 @@ extension ConversationViewController: UITableViewDelegate
                 }
                 
                 /// display edit/delete actions only on messages that authenticated user sent
-                let messageBelongsToAuthenticatedUser = cell.cellViewModel.cellMessage.senderId == self.conversationViewModel.authenticatedUserID
+                let messageBelongsToAuthenticatedUser = cellMessage.senderId == self.conversationViewModel.authenticatedUserID
                 let attributesForEditAction = messageBelongsToAuthenticatedUser ? [] : UIMenuElement.Attributes.hidden
                 let attributesForDeleteAction = messageBelongsToAuthenticatedUser ? .destructive : UIMenuElement.Attributes.hidden
 
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble"), attributes: attributesForEditAction) { action in
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.async 
+                    {
                         self.rootView.messageTextView.text = cell.messageLabel.text
                         self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
-                        self.conversationViewModel.shouldEditMessage = { edditedMessage in
-                            self.conversationViewModel.editMessageTextFromDB(edditedMessage, messageID: cell.cellViewModel.cellMessage.id)
+                        self.conversationViewModel.shouldEditMessage = { [cellMessage] edditedMessage in
+                            let updatedMessage = cellMessage.updateMessageText(edditedMessage)
+                            cell.cellViewModel.updateMessage(updatedMessage)
+                            self.conversationViewModel.editMessageTextFromFirestore(edditedMessage, messageID: cellMessage.id)
                         }
                     }
                 }
                 let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: attributesForDeleteAction) { [weak self] action in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        self?.conversationViewModel.deleteMessageFromDB(messageID: cell.cellViewModel.cellMessage.id)
+                        self?.conversationViewModel.deleteMessageFromFirestore(messageID: cellMessage.id)
                     }
                 }
                 return UIMenu(title: "", children: [replyAction, editAction, copyAction, deleteAction])

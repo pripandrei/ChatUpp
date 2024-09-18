@@ -10,7 +10,6 @@ import Foundation
 final class ConversationCellViewModel {
     
     @Published var imageData: Data?
-//    @Published var messageModifiedValue: MessageValueModification?
     var cellMessage: Message 
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
@@ -23,10 +22,6 @@ final class ConversationCellViewModel {
         let hoursAndMinutes = cellMessage.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
     }
-    
-    func updateMessage(_ updatedMessage: Message) {
-        cellMessage = updatedMessage
-    }
 
     func fetchImageData() {
         Task {
@@ -38,10 +33,27 @@ final class ConversationCellViewModel {
         }
     }
     
-    func updateMessageSeenStatus(_ messageId: String, inChat chatId: String) {
-        Task {
-            try await ChatsManager.shared.updateMessageSeenStatus(messageID: messageId, chatID: chatId)
-            
+    @MainActor
+    func updateMessageSeenStatus(from chatID: String)
+    {
+        // Update message seen status in Firestore
+        Task { 
+            try await ChatsManager.shared.updateMessageSeenStatus(messageID: cellMessage.id, chatID: chatID)
+        }
+        // Update message seen status in Realm
+        RealmDBManager.shared.update(object: cellMessage) { message in
+            message.messageSeen = true
+        }
+    }
+    
+    func updateMessage(_ message: Message) {
+        RealmDBManager.shared.add(object: message)
+    }
+    
+    func updateMessageText(_ messageText: String) {
+        RealmDBManager.shared.update(object: cellMessage) { message in
+            message.messageBody = messageText
+            message.isEdited = true
         }
     }
     
@@ -53,10 +65,32 @@ final class ConversationCellViewModel {
         }
         return nil
     }
+    
+    
+    
+//    
+//    func editMessageTextFromFirestore(_ messageText: String, from chatID: String) {
+//        Task {
+//            try await ChatsManager.shared.updateMessageText(messageText, messageID: cellMessage.id, chatID: chatID)
+//        }
+//    }
+//    
+//    func deleteMessageFromFirestore(from chatID: String) {
+//        Task {
+//            do {
+//                try await ChatsManager.shared.removeMessage(messageID: cellMessage.id, conversationID: chatID)
+//            } catch {
+//                print("Error deleting message: ",error.localizedDescription)
+//            }
+//        }
+//    }
 }
 
-extension ConversationCellViewModel {
-    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize {
+
+extension ConversationCellViewModel
+{
+    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize 
+    {
         let (equalWidth, equalHeight) = (250,250)
         
         let preferredWidth: Double = 270

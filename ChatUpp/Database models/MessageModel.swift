@@ -22,7 +22,8 @@ class MessageImageSize: Object, Codable {
     }
 }
 
-class Message: Object, Codable {
+class Message: Object, Codable 
+{
     @Persisted(primaryKey: true) var id: String
     @Persisted var messageBody: String
     @Persisted var senderId: String
@@ -97,6 +98,10 @@ class Message: Object, Codable {
         self.imageSize = imageSize
         self.isEdited = isEdited
         self.repliedTo = repliedTo
+    }
+    
+    func updateMessageText(_ text: String) -> Message {
+        return Message(id: self.id, messageBody: text, senderId: self.senderId, timestamp: self.timestamp, messageSeen: !self.messageSeen, isEdited: true, imagePath: self.imagePath,  imageSize: self.imageSize, repliedTo: self.repliedTo)
     }
     
     func updateMessageSeenStatus() -> Message {

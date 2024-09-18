@@ -133,6 +133,7 @@ final class ConversationViewModel {
                        repliedTo: currentlyReplyToMessageID)
     }
     
+    @MainActor
     private func addMessageToFirestoreDataBase(_ message: Message) async  {
         guard let conversation = conversation else {return}
         do {
@@ -151,6 +152,7 @@ final class ConversationViewModel {
         }
     }
     
+    @MainActor
     private func insertNewMessage(_ message: Message) {
         createMessageGroups([message])
         Task {
@@ -162,6 +164,7 @@ final class ConversationViewModel {
         }
     }
     
+    @MainActor 
     func createMessageBubble(_ messageText: String) {
         let message = createNewMessage(messageText)
         resetCurrentReplyMessage()
@@ -218,7 +221,7 @@ final class ConversationViewModel {
         }
     }
     
-    func deleteMessageFromDB(messageID: String) {
+    func deleteMessageFromFirestore(messageID: String) {
         Task {
             do {
                 try await ChatsManager.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
@@ -228,9 +231,10 @@ final class ConversationViewModel {
         }
     }
     
-    func editMessageTextFromDB(_ messageText: String, messageID: String) {
+    @MainActor
+    func editMessageTextFromFirestore(_ messageText: String, messageID: String) {
         Task {
-            try await ChatsManager.shared.updateDBMessageText(messageText, messageID: messageID, chatID: conversation!.id)
+            try await ChatsManager.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
         }
     }
     
