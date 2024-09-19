@@ -364,10 +364,12 @@ extension ConversationViewController {
 //MARK: - Message seen status handler
 extension ConversationViewController 
 {
-    private func updateMessageSeenStatusIfNeeded() {
-        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else {return}
+    private func updateMessageSeenStatusIfNeeded() 
+    {
+        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
         
-        for indexPath in visibleIndices {
+        for indexPath in visibleIndices 
+        {
             guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {
                 continue
             }
@@ -378,7 +380,8 @@ extension ConversationViewController
         }
     }
     
-    private func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool {
+    private func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool 
+    {
         let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
@@ -395,9 +398,14 @@ extension ConversationViewController
         return false
     }
     
-    private func updateMessageSeenStatus(_ cell: ConversationTableViewCell) {
-        guard let chatID = conversationViewModel.conversation?.id else {return}
-        cell.cellViewModel.updateMessageSeenStatus(from: chatID)
+    private func updateMessageSeenStatus(_ cell: ConversationTableViewCell) 
+    {
+        guard let chatID = conversationViewModel.conversation?.id else { return }
+
+        Task {
+            await cell.cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
+        }
+        cell.cellViewModel.updateRealmMessageSeenStatus()
     }
     
     //    private func handleSectionAnimation() {
@@ -616,8 +624,6 @@ extension ConversationViewController: UITableViewDelegate
                         self.rootView.messageTextView.text = cell.messageLabel.text
                         self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
                         self.conversationViewModel.shouldEditMessage = { [cellMessage] edditedMessage in
-//                            let updatedMessage = cellMessage.updateMessageText(edditedMessage)
-//                            cell.cellViewModel.updateMessage(updatedMessage)
                             self.conversationViewModel.editMessageTextFromFirestore(edditedMessage, messageID: cellMessage.id)
                         }
                     }

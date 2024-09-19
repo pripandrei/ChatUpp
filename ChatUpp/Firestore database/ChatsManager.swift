@@ -46,6 +46,7 @@ final class ChatsManager {
 
 extension ChatsManager
 {
+    @MainActor
     func createMessage(message: Message, atChatPath path: String) async throws {
         try getMessageDocument(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }

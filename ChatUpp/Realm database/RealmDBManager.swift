@@ -48,8 +48,8 @@ final class RealmDBManager {
         }
     }
     
-    public func create<T: Object>(object: T) {
-        let _ = try? realmDB.write {
+    public func create<T: Object>(object: T) -> T {
+        return try! realmDB.write {
             realmDB.create(T.self, value: object, update: .modified)
         }
     }

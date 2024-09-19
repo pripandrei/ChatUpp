@@ -100,13 +100,13 @@ class Message: Object, Codable
         self.repliedTo = repliedTo
     }
     
-    func updateMessageText(_ text: String) -> Message {
-        return Message(id: self.id, messageBody: text, senderId: self.senderId, timestamp: self.timestamp, messageSeen: !self.messageSeen, isEdited: true, imagePath: self.imagePath,  imageSize: self.imageSize, repliedTo: self.repliedTo)
-    }
-    
-    func updateMessageSeenStatus() -> Message {
-        return Message(id: self.id, messageBody: self.messageBody, senderId: self.senderId, timestamp: self.timestamp, messageSeen: !self.messageSeen, isEdited: self.isEdited, imagePath: self.imagePath,  imageSize: self.imageSize, repliedTo: self.repliedTo)
-    }
+//    func updateMessageText(_ text: String) -> Message {
+//        return Message(id: self.id, messageBody: text, senderId: self.senderId, timestamp: self.timestamp, messageSeen: !self.messageSeen, isEdited: true, imagePath: self.imagePath,  imageSize: self.imageSize, repliedTo: self.repliedTo)
+//    }
+//    
+//    func updateMessageSeenStatus() -> Message {
+//        return Message(id: self.id, messageBody: self.messageBody, senderId: self.senderId, timestamp: self.timestamp, messageSeen: !self.messageSeen, isEdited: self.isEdited, imagePath: self.imagePath,  imageSize: self.imageSize, repliedTo: self.repliedTo)
+//    }
 }
 
 

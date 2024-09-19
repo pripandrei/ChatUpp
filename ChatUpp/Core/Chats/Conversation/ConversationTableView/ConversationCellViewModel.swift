@@ -33,30 +33,6 @@ final class ConversationCellViewModel {
         }
     }
     
-    @MainActor
-    func updateMessageSeenStatus(from chatID: String)
-    {
-        // Update message seen status in Firestore
-        Task { 
-            try await ChatsManager.shared.updateMessageSeenStatus(messageID: cellMessage.id, chatID: chatID)
-        }
-        // Update message seen status in Realm
-        RealmDBManager.shared.update(object: cellMessage) { message in
-            message.messageSeen = true
-        }
-    }
-    
-    func updateMessage(_ message: Message) {
-        RealmDBManager.shared.add(object: message)
-    }
-    
-    func updateMessageText(_ messageText: String) {
-        RealmDBManager.shared.update(object: cellMessage) { message in
-            message.messageBody = messageText
-            message.isEdited = true
-        }
-    }
-    
     func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification? {
         if cellMessage.messageBody != newMessage.messageBody {
             return .text
@@ -66,9 +42,7 @@ final class ConversationCellViewModel {
         return nil
     }
     
-    
-    
-//    
+//
 //    func editMessageTextFromFirestore(_ messageText: String, from chatID: String) {
 //        Task {
 //            try await ChatsManager.shared.updateMessageText(messageText, messageID: cellMessage.id, chatID: chatID)
@@ -84,6 +58,32 @@ final class ConversationCellViewModel {
 //            }
 //        }
 //    }
+}
+
+
+//MARK: - Message update in realm/firestore DB
+extension ConversationCellViewModel
+{
+    
+//    @MainActor
+    func updateMessage(_ message: Message) {
+        RealmDBManager.shared.add(object: message)
+//        RealmDBManager.shared.realmDB.refresh()
+    }
+    
+    func updateFirestoreMessageSeenStatus(from chatID: String) async {
+        do {
+            try await ChatsManager.shared.updateMessageSeenStatus(messageID: cellMessage.id, chatID: chatID)
+        } catch {
+            print("Error updating message seen status in Firestore: ", error.localizedDescription)
+        }
+    }
+    
+    func updateRealmMessageSeenStatus() {
+        RealmDBManager.shared.update(object: cellMessage) { message in
+            message.messageSeen = true
+        }
+    }
 }
 
 

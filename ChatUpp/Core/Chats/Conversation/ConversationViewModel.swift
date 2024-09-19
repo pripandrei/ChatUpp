@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import RealmSwift
 
 enum MessageValueModification {
     case text
@@ -70,6 +71,7 @@ final class ConversationViewModel {
     }
     
     private func createConversation() async {
+        //TODO: Add chat to realm here
         let chatId = UUID().uuidString
         let members = [authenticatedUserID, userMember.userId]
         let chat = Chat(id: chatId, members: members, lastMessage: messageGroups.first?.cellViewModels.first?.cellMessage.id)
@@ -154,8 +156,9 @@ final class ConversationViewModel {
     }
     
     private func insertNewMessage(_ message: Message) {
+        addMessageToRealmChat(message)
         createMessageGroups([message])
-        Task {
+        Task { @MainActor in
             if self.conversation == nil {
                 await createConversation()
             }
@@ -163,7 +166,7 @@ final class ConversationViewModel {
             await updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
     }
-    @MainActor
+    
     func createMessageBubble(_ messageText: String) {
         let message = createNewMessage(messageText)
         resetCurrentReplyMessage()
@@ -171,7 +174,9 @@ final class ConversationViewModel {
     }
     
     func resetCurrentReplyMessage() {
-        if currentlyReplyToMessageID != nil {currentlyReplyToMessageID = nil}
+        if currentlyReplyToMessageID != nil { 
+            currentlyReplyToMessageID = nil
+        }
     }
     
     private func findFirstNotSeenMessageIndex() -> IndexPath? {
@@ -277,10 +282,10 @@ extension ConversationViewModel
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
             guard let self = self else {return}
             
-            if self.messageGroups.isEmpty {
-                self.fetchConversationMessages()
-                return
-            }
+//            if self.messageGroups.isEmpty {
+//                self.fetchConversationMessages()
+//                return
+//            }
 
             docTypes.enumerated().forEach { index, type in
                 switch type {
@@ -296,20 +301,44 @@ extension ConversationViewModel
 //MARK: - Message listener helper functions
 extension ConversationViewModel
 {
+    
     private func handleAddedMessage(_ message: Message) {
-        if !messageGroups.contains(elementWithID: message.id) {
-            createMessageGroups([message])
-            messageChangedType = .added
-        }
+//        if !messageGroups.contains(elementWithID: message.id) 
+//        {
+//            Task { @MainActor in
+//                addMessageToRealmChat(message)
+//                guard let messageDB = retrieveMessageFromRealm(message) else {return}
+//                createMessageGroups([messageDB])
+//                messageChangedType = .added
+//            }
+//        }
     }
     
+//    @MainActor 
     private func handleModifiedMessage(_ message: Message) {
         guard let indexPath = indexPath(of: message) else { return }
         let cellVM = messageGroups.getCellViewModel(at: indexPath)
         
-        guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else {return}
+        guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
         cellVM.updateMessage(message)
         messageChangedType = .modified(indexPath, modificationValue)
+//        Task {
+//            await MainActor.run {
+//                cellVM.updateMessage(message)
+//                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { Timer in
+//                    print(cellVM.cellMessage)
+//                }
+//                messageChangedType = .modified(indexPath, modificationValue)
+//                Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { Timer in
+//                    print(cellVM.cellMessage)
+//                }
+//            }
+//        }
+//        Task { @MainActor in
+//            cellVM.updateMessage(message)
+//            messageChangedType = .modified(indexPath, modificationValue)
+////            print(RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id))
+//        }
     }
     
     private func handleRemovedMessage(_ message: Message) {
@@ -403,5 +432,20 @@ extension ConversationViewModel {
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
             self.userMember = user
         }
+    }
+}
+
+
+extension ConversationViewModel {
+    private func addMessageToRealmChat(_ message: Message)
+    {
+        guard let conversation = conversation else { return }
+        RealmDBManager.shared.update(object: conversation) { chat in
+            chat.conversationMessages.append(message)
+        }
+    }
+    
+    private func retrieveMessageFromRealm(_ message: Message) -> Message? {
+        return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
     }
 }
