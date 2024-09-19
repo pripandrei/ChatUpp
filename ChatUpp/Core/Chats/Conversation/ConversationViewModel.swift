@@ -60,7 +60,7 @@ final class ConversationViewModel {
         
         setupConversationMessageGroups()
         
-//        addListeners()
+        addListeners()
     }
     
     private func addListeners() {

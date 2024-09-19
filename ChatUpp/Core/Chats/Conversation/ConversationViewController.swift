@@ -616,8 +616,8 @@ extension ConversationViewController: UITableViewDelegate
                         self.rootView.messageTextView.text = cell.messageLabel.text
                         self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
                         self.conversationViewModel.shouldEditMessage = { [cellMessage] edditedMessage in
-                            let updatedMessage = cellMessage.updateMessageText(edditedMessage)
-                            cell.cellViewModel.updateMessage(updatedMessage)
+//                            let updatedMessage = cellMessage.updateMessageText(edditedMessage)
+//                            cell.cellViewModel.updateMessage(updatedMessage)
                             self.conversationViewModel.editMessageTextFromFirestore(edditedMessage, messageID: cellMessage.id)
                         }
                     }
