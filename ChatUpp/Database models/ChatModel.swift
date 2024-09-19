@@ -38,12 +38,12 @@ class Chat: Object, Codable {
         try container.encode(self.recentMessageID, forKey: .recentMessageID)
     }
     
-    convenience init(id: String, members: [String], lastMessage: String?) {
+    convenience init(id: String, members: [String], recentMessageID: String?) {
         self.init()
         
         self.id = id
         self.members.append(objectsIn: members)
-        self.recentMessageID = lastMessage
+        self.recentMessageID = recentMessageID
     }
     
     func appendConversationMessage(_ message: Message) {

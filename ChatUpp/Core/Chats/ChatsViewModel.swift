@@ -129,15 +129,15 @@ extension ChatsViewModel {
     }
     
     private func handleModifiedChat(_ chat: Chat) {
-//        updateRealmChat(chat)
-//        
-//        guard let cellVM = findCellViewModel(containing: chat),
-//              let viewModelIndex = findIndex(of: cellVM) else { return }
-//        
-//        cellVM.updateChatParameters()
-//        
-//        cellViewModels.move(element: cellVM, toIndex: 0)
-//        modifiedChatIndex = viewModelIndex
+        updateRealmChat(chat)
+        
+        guard let cellVM = findCellViewModel(containing: chat),
+              let viewModelIndex = findIndex(of: cellVM) else { return }
+        
+        cellVM.updateChatParameters()
+        
+        cellViewModels.move(element: cellVM, toIndex: 0)
+        modifiedChatIndex = viewModelIndex
     }
 }
 

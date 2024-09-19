@@ -71,6 +71,7 @@ extension ConversationCellViewModel
 //        RealmDBManager.shared.realmDB.refresh()
     }
     
+    @MainActor
     func updateFirestoreMessageSeenStatus(from chatID: String) async {
         do {
             try await ChatsManager.shared.updateMessageSeenStatus(messageID: cellMessage.id, chatID: chatID)

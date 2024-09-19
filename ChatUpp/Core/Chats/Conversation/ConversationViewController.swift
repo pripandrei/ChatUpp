@@ -263,6 +263,7 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
             }
         }
     }
+    
     private func animateScrollToBottomBtn(shouldBeHidden: Bool) {
         UIView.animate(withDuration: 0.3) {
             self.rootView.scrollToBottomBtn.layer.opacity = shouldBeHidden ? 0.0 : 1.0
@@ -288,7 +289,8 @@ extension ConversationViewController {
     
     private func handleMessageBubbleCreation(messageText: String = "")
     {
-        self.conversationViewModel.createMessageBubble(messageText)
+        self.conversationViewModel.manageMessageCreation(messageText)
+        
         Task { @MainActor in
             self.handleTableViewCellInsertion(scrollToBottom: true)
         }
@@ -373,30 +375,44 @@ extension ConversationViewController
             guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {
                 continue
             }
-            if checkIfCellMessageIsCurrentlyVisible(indexPath: indexPath) {
+            if checkIfCellMessageIsCurrentlyVisible(at: indexPath) {
                 updateMessageSeenStatus(cell)
                 Task { try await conversationViewModel.updateUnreadMessagesCount?() }
             }
         }
     }
     
-    private func checkIfCellMessageIsCurrentlyVisible(indexPath: IndexPath) -> Bool 
-    {
+//    private func updateMessageSeenStatusIfNeeded() {
+//        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
+//
+//        for indexPath in visibleIndices {
+//            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell,
+//                  checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
+//                continue
+//            }
+//            
+//            updateMessageSeenStatus(cell)
+//            Task { try await conversationViewModel.updateUnreadMessagesCount?() }
+//        }
+//    }
+    
+    private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
         let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
-        
-        if !cellMessage.messageSeen && cellMessage.senderId != authUserID 
-        {
-            if let cell = rootView.tableView.cellForRow(at: indexPath)
-            {
-                let cellFrame = cell.frame
-                let tableRect = rootView.tableView.bounds.offsetBy(dx: 0, dy: 65)
-                let isCellFullyVisible = tableRect.contains(cellFrame)
-                return isCellFullyVisible
-            }
+
+        if cellMessage.messageBody == "Ruhr addition" {
+            print("stop")
         }
-        return false
+        guard !cellMessage.messageSeen, cellMessage.senderId != authUserID,
+              let cell = rootView.tableView.cellForRow(at: indexPath) else {
+            return false
+        }
+
+        let cellFrame = cell.frame
+        let tableRect = rootView.tableView.bounds.offsetBy(dx: 0, dy: 65)
+        return tableRect.contains(cellFrame)
     }
+
     
     private func updateMessageSeenStatus(_ cell: ConversationTableViewCell) 
     {
@@ -450,19 +466,36 @@ extension ConversationViewController {
         animateInputBarHeaderViewDestruction()
     }
     
-    @objc func sendMessageBtnWasTapped() {
-        let trimmedString = rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedString.isEmpty {
-            rootView.messageTextView.text.removeAll()
- 
-            rootViewTextViewDelegate.textViewDidChange(rootView.messageTextView)
+    @objc func sendMessageBtnWasTapped() 
+    {
+        let trimmedString = getTrimmedString()
+        if !trimmedString.isEmpty
+        {
+            removeTextViewText()
+            callTextViewDidChange()
+            conversationViewModel.createConversationIfNeeded()
             handleMessageBubbleCreation(messageText: trimmedString)
-            if rootView.inputBarHeader != nil { closeInputBarHeaderView() }
+            closeInputBarHeaderView()
         }
     }
 
     @objc func pictureAddBtnWasTapped() {
         configurePhotoPicker()
+    }
+}
+
+//MARK: - Helper functions
+extension ConversationViewController
+{
+    private func getTrimmedString() -> String {
+        return rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    private func removeTextViewText() {
+        rootView.messageTextView.text.removeAll()
+    }
+    private func callTextViewDidChange() {
+        let textView = rootView.messageTextView
+        rootViewTextViewDelegate.textViewDidChange(textView)
     }
 }
 
@@ -534,8 +567,10 @@ extension ConversationViewController {
         }
     }
     @objc func closeInputBarHeaderView() {
-        conversationViewModel.resetCurrentReplyMessage()
-        animateInputBarHeaderViewDestruction()
+        if rootView.inputBarHeader != nil {
+            conversationViewModel.resetCurrentReplyMessageIfNeeded()
+            animateInputBarHeaderViewDestruction()
+        }
     }
 }
 

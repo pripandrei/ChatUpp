@@ -70,12 +70,15 @@ final class ConversationViewModel {
         addUserObserver()
     }
     
-    private func createConversation() async {
-        //TODO: Add chat to realm here
+    private func createChat() -> Chat
+    {
         let chatId = UUID().uuidString
         let members = [authenticatedUserID, userMember.userId]
-        let chat = Chat(id: chatId, members: members, lastMessage: messageGroups.first?.cellViewModels.first?.cellMessage.id)
-        self.conversation = chat
+        let recentMessageID = messageGroups.first?.cellViewModels.first?.cellMessage.id
+        return Chat(id: chatId, members: members, recentMessageID: recentMessageID)
+    }
+    
+    private func addChatToFirestore(_ chat: Chat) async {
         do {
             try await ChatsManager.shared.createNewChat(chat: chat)
             addListenerToMessages()
@@ -88,6 +91,9 @@ final class ConversationViewModel {
         var tempMessageGroups: [ConversationMessageGroups] = messageGroups
         
         messages.forEach { message in
+            if message.messageBody == "Ruhr addition" {
+                print("stop")
+            }
             addConversationCellViewModel(with: message, to: &tempMessageGroups)
         }
         self.messageGroups = tempMessageGroups
@@ -155,25 +161,35 @@ final class ConversationViewModel {
         }
     }
     
-    private func insertNewMessage(_ message: Message) {
+    var conversationIsInitiated: Bool {
+        return self.conversation != nil
+    }
+    
+    func createConversationIfNeeded() {
+        if !conversationIsInitiated 
+        {
+            let chat = createChat()
+            conversation = chat
+            addChatToRealm(chat)
+            Task(priority: .high, operation: {
+                await addChatToFirestore(chat)
+            })
+        }
+    }
+    
+    func manageMessageCreation(_ messageText: String) 
+    {
+        let message = createNewMessage(messageText)
+        resetCurrentReplyMessageIfNeeded()
         addMessageToRealmChat(message)
         createMessageGroups([message])
         Task { @MainActor in
-            if self.conversation == nil {
-                await createConversation()
-            }
             await addMessageToFirestoreDataBase(message)
             await updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
     }
     
-    func createMessageBubble(_ messageText: String) {
-        let message = createNewMessage(messageText)
-        resetCurrentReplyMessage()
-        insertNewMessage(message)
-    }
-    
-    func resetCurrentReplyMessage() {
+    func resetCurrentReplyMessageIfNeeded() {
         if currentlyReplyToMessageID != nil { 
             currentlyReplyToMessageID = nil
         }
@@ -303,15 +319,15 @@ extension ConversationViewModel
 {
     
     private func handleAddedMessage(_ message: Message) {
-//        if !messageGroups.contains(elementWithID: message.id) 
-//        {
-//            Task { @MainActor in
-//                addMessageToRealmChat(message)
-//                guard let messageDB = retrieveMessageFromRealm(message) else {return}
-//                createMessageGroups([messageDB])
-//                messageChangedType = .added
-//            }
-//        }
+        if !messageGroups.contains(elementWithID: message.id) 
+        {
+            Task { @MainActor in
+                addMessageToRealmChat(message)
+                guard let messageDB = retrieveMessageFromRealm(message) else {return}
+                createMessageGroups([messageDB])
+                messageChangedType = .added
+            }
+        }
     }
     
 //    @MainActor 
@@ -320,6 +336,8 @@ extension ConversationViewModel
         let cellVM = messageGroups.getCellViewModel(at: indexPath)
         
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
+        
+        //TODO: Check if main thread is on this line
         cellVM.updateMessage(message)
         messageChangedType = .modified(indexPath, modificationValue)
 //        Task {
@@ -447,5 +465,9 @@ extension ConversationViewModel {
     
     private func retrieveMessageFromRealm(_ message: Message) -> Message? {
         return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
+    }
+    
+    private func addChatToRealm(_ chat: Chat) {
+        RealmDBManager.shared.add(object: chat)
     }
 }
