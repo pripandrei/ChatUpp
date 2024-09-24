@@ -366,43 +366,40 @@ extension ConversationViewController {
 //MARK: - Message seen status handler
 extension ConversationViewController 
 {
-    private func updateMessageSeenStatusIfNeeded() 
-    {
-        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
-        
-        for indexPath in visibleIndices 
-        {
-            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {
-                continue
-            }
-            if checkIfCellMessageIsCurrentlyVisible(at: indexPath) {
-                updateMessageSeenStatus(cell)
-                Task { try await conversationViewModel.updateUnreadMessagesCount?() }
-            }
-        }
-    }
-    
-//    private func updateMessageSeenStatusIfNeeded() {
+//    private func updateMessageSeenStatusIfNeeded() 
+//    {
 //        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
-//
-//        for indexPath in visibleIndices {
-//            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell,
-//                  checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
+//        
+//        for indexPath in visibleIndices 
+//        {
+//            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {
 //                continue
 //            }
-//            
-//            updateMessageSeenStatus(cell)
-//            Task { try await conversationViewModel.updateUnreadMessagesCount?() }
+//            if checkIfCellMessageIsCurrentlyVisible(at: indexPath) {
+//                updateMessageSeenStatus(cell)
+//                Task { try await conversationViewModel.updateUnreadMessagesCount?() }
+//            }
 //        }
 //    }
+    
+    private func updateMessageSeenStatusIfNeeded() {
+        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
+
+        for indexPath in visibleIndices {
+            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell,
+                  checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
+                continue
+            }
+            
+            updateMessageSeenStatus(cell)
+            Task { try await conversationViewModel.updateUnreadMessagesCount?() }
+        }
+    }
     
     private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
         let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
-
-        if cellMessage.messageBody == "Ruhr addition" {
-            print("stop")
-        }
+        
         guard !cellMessage.messageSeen, cellMessage.senderId != authUserID,
               let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return false

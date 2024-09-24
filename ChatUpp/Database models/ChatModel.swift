@@ -56,7 +56,7 @@ class Chat: Object, Codable {
 //                message.messageSeen = true
 //            }
 //        }
-        return Array(conversationMessages)
+        return Array(conversationMessages.sorted(byKeyPath: "timestamp", ascending: true))
     }
 
 }

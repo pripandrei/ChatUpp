@@ -54,6 +54,10 @@ final class ConversationViewModel {
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var currentlyReplyToMessageID: String?
     
+    var conversationIsInitiated: Bool {
+        return self.conversation != nil
+    }
+    
     init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?) {
         self.userMember = userMember
         self.conversation = conversation
@@ -91,9 +95,6 @@ final class ConversationViewModel {
         var tempMessageGroups: [ConversationMessageGroups] = messageGroups
         
         messages.forEach { message in
-            if message.messageBody == "Ruhr addition" {
-                print("stop")
-            }
             addConversationCellViewModel(with: message, to: &tempMessageGroups)
         }
         self.messageGroups = tempMessageGroups
@@ -161,10 +162,6 @@ final class ConversationViewModel {
         }
     }
     
-    var conversationIsInitiated: Bool {
-        return self.conversation != nil
-    }
-    
     func createConversationIfNeeded() {
         if !conversationIsInitiated 
         {
@@ -180,9 +177,11 @@ final class ConversationViewModel {
     func manageMessageCreation(_ messageText: String) 
     {
         let message = createNewMessage(messageText)
+        
         resetCurrentReplyMessageIfNeeded()
         addMessageToRealmChat(message)
         createMessageGroups([message])
+        
         Task { @MainActor in
             await addMessageToFirestoreDataBase(message)
             await updateRecentMessageFromFirestoreChat(messageID: message.id)
@@ -259,7 +258,7 @@ final class ConversationViewModel {
     }
     
     func getMessageSenderName(usingSenderID id: String) -> String? {
-        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else {return nil}
+        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else { return nil }
         if id == user.uid {
             return user.name
         } else {
@@ -407,22 +406,6 @@ extension ConversationViewModel
     }
 }
 
-extension Array where Element == ConversationMessageGroups 
-{
-    mutating func removeCellViewModel(at indexPath: IndexPath) {
-        self[indexPath.section].cellViewModels.remove(at: indexPath.row)
-    }
-    
-    func getCellViewModel(at indexPath: IndexPath) -> ConversationCellViewModel {
-        return self[indexPath.section].cellViewModels[indexPath.row]
-    }
-    
-    func contains(elementWithID id: String) -> Bool {
-        let existingMessageIDs: Set<String> = Set(self.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
-        return existingMessageIDs.contains(id)
-    }
-}
-
 //MARK: - Users listener
 extension ConversationViewModel {
     
@@ -469,5 +452,22 @@ extension ConversationViewModel {
     
     private func addChatToRealm(_ chat: Chat) {
         RealmDBManager.shared.add(object: chat)
+    }
+}
+
+
+extension Array where Element == ConversationMessageGroups
+{
+    mutating func removeCellViewModel(at indexPath: IndexPath) {
+        self[indexPath.section].cellViewModels.remove(at: indexPath.row)
+    }
+    
+    func getCellViewModel(at indexPath: IndexPath) -> ConversationCellViewModel {
+        return self[indexPath.section].cellViewModels[indexPath.row]
+    }
+    
+    func contains(elementWithID id: String) -> Bool {
+        let existingMessageIDs: Set<String> = Set(self.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
+        return existingMessageIDs.contains(id)
     }
 }
