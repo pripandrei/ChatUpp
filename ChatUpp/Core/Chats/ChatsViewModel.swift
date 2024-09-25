@@ -117,25 +117,13 @@ extension ChatsViewModel {
     
     private func handleAddedChat(_ chat: Chat)
     {
-//        Task { @MainActor in
-            guard let _ = retrieveChatFromRealm(chat) else {
-                addChatToRealm(chat)
-                addCellViewModel(from: chat)
-                onNewChatAdded?(true)
-                return
-            }
-            updateRealmChat(chat)
-//        }
-        
-//        Task { @MainActor in
-//            guard let _ = retrieveChatFromRealm(chat) else {
-//                addChatToRealm(chat)
-//                guard let dbChat = retrieveChatFromRealm(chat) else {return}
-//                addCellViewModel(from: dbChat)
-//                onNewChatAdded?(true)
-//                return
-//            }
-//        }
+        guard let _ = retrieveChatFromRealm(chat) else {
+            addChatToRealm(chat)
+            addCellViewModel(from: chat)
+            onNewChatAdded?(true)
+            return
+        }
+        updateRealmChat(chat)
     }
     
     private func handleModifiedChat(_ chat: Chat) {
