@@ -323,6 +323,10 @@ extension ConversationViewModel
             addMessageToRealmChat(message)
             createMessageGroups([message])
             messageChangedType = .added
+        } else {
+            Task {
+                updateMessage(message)
+            }
         }
     }
     
@@ -336,7 +340,7 @@ extension ConversationViewModel
         //TODO: Check if main thread is on this line
         updateMessage(message)
         messageChangedType = .modified(indexPath, modificationValue)
-
+        
 //        Task { @MainActor in
 //            cellVM.updateMessage(message)
 //            messageChangedType = .modified(indexPath, modificationValue)
