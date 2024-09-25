@@ -318,14 +318,11 @@ extension ConversationViewModel
 {
     
     private func handleAddedMessage(_ message: Message) {
-        if !messageGroups.contains(elementWithID: message.id) 
+        if !messageGroups.contains(elementWithID: message.id)
         {
-            Task { @MainActor in
-                addMessageToRealmChat(message)
-                guard let messageDB = retrieveMessageFromRealm(message) else {return}
-                createMessageGroups([messageDB])
-                messageChangedType = .added
-            }
+            addMessageToRealmChat(message)
+            createMessageGroups([message])
+            messageChangedType = .added
         }
     }
     
@@ -337,20 +334,9 @@ extension ConversationViewModel
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
         
         //TODO: Check if main thread is on this line
-        cellVM.updateMessage(message)
+        updateMessage(message)
         messageChangedType = .modified(indexPath, modificationValue)
-//        Task {
-//            await MainActor.run {
-//                cellVM.updateMessage(message)
-//                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: false) { Timer in
-//                    print(cellVM.cellMessage)
-//                }
-//                messageChangedType = .modified(indexPath, modificationValue)
-//                Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { Timer in
-//                    print(cellVM.cellMessage)
-//                }
-//            }
-//        }
+
 //        Task { @MainActor in
 //            cellVM.updateMessage(message)
 //            messageChangedType = .modified(indexPath, modificationValue)
@@ -452,6 +438,11 @@ extension ConversationViewModel {
     
     private func addChatToRealm(_ chat: Chat) {
         RealmDBManager.shared.add(object: chat)
+    }
+    
+    private func updateMessage(_ message: Message) {
+        RealmDBManager.shared.add(object: message)
+//        RealmDBManager.shared.realmDB.refresh()
     }
 }
 

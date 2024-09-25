@@ -66,10 +66,10 @@ extension ConversationCellViewModel
 {
     
 //    @MainActor
-    func updateMessage(_ message: Message) {
-        RealmDBManager.shared.add(object: message)
-//        RealmDBManager.shared.realmDB.refresh()
-    }
+//    func updateMessage(_ message: Message) {
+//        RealmDBManager.shared.add(object: message)
+////        RealmDBManager.shared.realmDB.refresh()
+//    }
     
     @MainActor
     func updateFirestoreMessageSeenStatus(from chatID: String) async {

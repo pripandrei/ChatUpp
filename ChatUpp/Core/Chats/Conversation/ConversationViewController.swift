@@ -418,7 +418,7 @@ extension ConversationViewController
         Task {
             await cell.cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
         }
-        cell.cellViewModel.updateRealmMessageSeenStatus()
+//        cell.cellViewModel.updateRealmMessageSeenStatus()
     }
     
     //    private func handleSectionAnimation() {
