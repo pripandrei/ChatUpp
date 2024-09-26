@@ -46,7 +46,8 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         setupController()
     }
     
-    private func setupController() {
+    private func setupController() 
+    {
         setupBinding()
         setNavigationBarItems()
         configureTableView()
@@ -168,7 +169,6 @@ final class ConversationViewController: UIViewController, UIScrollViewDelegate {
         NotificationCenter.default.removeObserver(self)
         conversationViewModel.messageListener?.remove()
         conversationViewModel.userListener?.remove()
-//        conversationViewModel.userObserver?.removeAllObservers()
         coordinatorDelegate = nil
         conversationViewModel = nil
         collectionViewDataSource = nil
@@ -366,22 +366,6 @@ extension ConversationViewController {
 //MARK: - Message seen status handler
 extension ConversationViewController 
 {
-//    private func updateMessageSeenStatusIfNeeded() 
-//    {
-//        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
-//        
-//        for indexPath in visibleIndices 
-//        {
-//            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {
-//                continue
-//            }
-//            if checkIfCellMessageIsCurrentlyVisible(at: indexPath) {
-//                updateMessageSeenStatus(cell)
-//                Task { try await conversationViewModel.updateUnreadMessagesCount?() }
-//            }
-//        }
-//    }
-    
     private func updateMessageSeenStatusIfNeeded() {
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
 
@@ -418,7 +402,6 @@ extension ConversationViewController
         Task {
             await cell.cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
         }
-//        cell.cellViewModel.updateRealmMessageSeenStatus()
     }
     
     //    private func handleSectionAnimation() {
@@ -578,7 +561,32 @@ extension ConversationViewController {
         if !shouldIgnoreScrollToBottomBtnUpdate {
             updateScrollToBottomBtnIfNeeded()
         }
+////        
+//        let targetIndexPath = IndexPath(row: 1, section: 0)
+//        let cellRect = rootView.tableView.rectForRow(at: targetIndexPath)
+//        
+//        let cellBottomPosition = cellRect.origin.y - rootView.inputBarContainer.bounds.height - 20
+//
+//        if rootView.tableView.contentOffset.y <= cellBottomPosition {
+//            UIView.animate(withDuration: 0.4, animations: {
+//                self.rootView.tableView.setContentOffset(CGPoint(x: self.rootView.tableView.contentOffset.x, y: cellBottomPosition), animated: false)
+//            })
+//        }
     }
+    
+//    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//        let targetIndexPath = IndexPath(row: 8, section: 0)
+//        let cellRect = rootView.tableView.rectForRow(at: targetIndexPath)
+//        
+//        let cellBottomPosition = cellRect.origin.y - rootView.inputBarContainer.bounds.height - 20
+//        
+//        if targetContentOffset.pointee.y <= cellBottomPosition {
+////            UIView.animate(withDuration: 0.5) {
+//                targetContentOffset.pointee.y = cellBottomPosition
+////            }
+//        }
+//    }
+
 }
 
 
@@ -708,3 +716,7 @@ extension ConversationViewController: UITableViewDelegate
     }
 }
 
+
+extension ConversationViewController {
+  
+}

@@ -104,13 +104,13 @@ class ChatsViewController: UIViewController {
     
     // MARK: - SkeletonView
     
-//    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
-//        if value == .initiate {
-//            initiateSkeletonAnimation()
-//        } else {
-//            terminateSkeletonAnimation()
-//        }
-//    }
+    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
+        if value == .initiate {
+            initiateSkeletonAnimation()
+        } else {
+            terminateSkeletonAnimation()
+        }
+    }
     
     private func initiateSkeletonAnimation() {
         let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
