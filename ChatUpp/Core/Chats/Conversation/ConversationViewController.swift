@@ -12,8 +12,9 @@ import UIKit
 import Photos
 import PhotosUI
 import Combine
+import SkeletonView
 
-final class ConversationViewController: UIViewController, UIScrollViewDelegate {
+final class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate :Coordinator?
     private var collectionViewDataSource :ConversationViewDataSource!
@@ -555,8 +556,10 @@ extension ConversationViewController {
 }
 
 //MARK: - SCROLL VIEW DELEGATE
-extension ConversationViewController {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+extension ConversationViewController: UIScrollViewDelegate
+{
+    func scrollViewDidScroll(_ scrollView: UIScrollView) 
+    {
         updateMessageSeenStatusIfNeeded()
         if !shouldIgnoreScrollToBottomBtnUpdate {
             updateScrollToBottomBtnIfNeeded()
@@ -622,6 +625,14 @@ extension ConversationViewController: UITableViewDelegate
             }
         }
     }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if conversationViewModel.isSkeletonAnimationActive {
+            return CGFloat((70...120).randomElement()!)
+        }
+       return  UITableView.automaticDimension
+    }
+    
     
     //MARK: - Context menu configuration
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
@@ -717,6 +728,31 @@ extension ConversationViewController: UITableViewDelegate
 }
 
 
-extension ConversationViewController {
-  
+
+//MARK: - SkeletonView animation
+extension ConversationViewController
+{
+    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
+        if value == .initiate {
+            initiateSkeletonAnimation()
+        } else {
+            terminateSkeletonAnimation()
+        }
+    }
+    
+    private func initiateSkeletonAnimation() {
+        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
+//        rootView.tableView.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.7))
+//        rootView.tableView.showSkeleton()
+        
+        rootView.tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
+        //        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), transition: .crossDissolve(.signalingNaN))
+    }
+    
+    private func terminateSkeletonAnimation() {
+        rootView.tableView.stopSkeletonAnimation()
+        rootView.tableView.hideSkeleton(transition: SkeletonTransitionStyle.none)
+    }
 }
+

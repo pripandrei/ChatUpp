@@ -6,8 +6,10 @@
 //
 
 import UIKit
+import SkeletonView
 
-final class ConversationViewDataSource: NSObject, UITableViewDataSource {
+
+final class ConversationViewDataSource: NSObject, SkeletonTableViewDataSource {
     var conversationViewModel: ConversationViewModel!
     
     init(conversationViewModel: ConversationViewModel) {
@@ -43,5 +45,12 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
 }
 
 
+// MARK: - SKELETONVIEW DATASOURCE
+extension ConversationViewDataSource
+{
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+       return CellIdentifire.conversationMessageCell
+    }
+}
 
 

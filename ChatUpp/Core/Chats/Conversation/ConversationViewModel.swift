@@ -45,6 +45,7 @@ final class ConversationViewModel {
     private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
+    private(set) var isSkeletonAnimationActive: Bool = false
     
     @Published private(set) var userMember: DBUser
     @Published var messageChangedType: MessageChangeType?
