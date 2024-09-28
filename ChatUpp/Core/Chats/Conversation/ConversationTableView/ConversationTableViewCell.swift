@@ -8,6 +8,7 @@
 import UIKit
 import YYText
 import Combine
+import SkeletonView
 
 final class ConversationTableViewCell: UITableViewCell {
     
@@ -456,12 +457,14 @@ class SkeletonViewCell: UITableViewCell
         let skeletonView = UIView()
         skeletonView.translatesAutoresizingMaskIntoConstraints = false
         skeletonView.isSkeletonable = true
+        skeletonView.skeletonCornerRadius = 15
         return skeletonView
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
+        backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupCustomSkeletonView()
     }
     
@@ -476,11 +479,10 @@ class SkeletonViewCell: UITableViewCell
         contentView.addSubview(customSkeletonView)
         
         NSLayoutConstraint.activate([
-            customSkeletonView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            customSkeletonView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
             customSkeletonView.widthAnchor.constraint(equalToConstant: CGFloat((120...270).randomElement()!)),
-            customSkeletonView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            customSkeletonView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
+            customSkeletonView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            customSkeletonView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5)
         ])
     }
-    
 }

@@ -30,10 +30,26 @@ struct ConversationMessageGroups {
 
 extension ConversationViewModel
 {
-    func setupConversationMessageGroups() {
-        guard let messages = conversation?.getMessages() else { return }
+    private func setupConversationMessageGroups() {
+        guard let messages = conversation?.getMessages(), !messages.isEmpty else { return }
         createMessageGroups(messages)
-        firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+    }
+    
+    private func getUnseenMessageCountFromRealm() -> Int {
+        let filter = NSPredicate(format: "messageSeen == false AND senderId == %@", userMember.userId)
+        return RealmDBManager.shared.retrieveObjects(ofType: Message.self, filter: filter).count
+    }
+    
+    
+    private func tryInitiateConversation()
+    {
+        if getUnseenMessageCountFromRealm() != self.unreadMessageCount {
+            skeletonViewIsInitiated = true
+        } else {
+            print("SetupConversation")
+            setupConversationMessageGroups()
+            firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+        }
     }
 }
 
@@ -45,11 +61,13 @@ final class ConversationViewModel {
     private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
-    private(set) var isSkeletonAnimationActive: Bool = false
+//    private(set) var isSkeletonAnimationActive: Bool = false
+     var unreadMessageCount: Int?
     
     @Published private(set) var userMember: DBUser
     @Published var messageChangedType: MessageChangeType?
     @Published var firstNotSeenMessageIndex: IndexPath?
+    @Published var skeletonViewIsInitiated: Bool = false
     
     var shouldEditMessage: ((String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
@@ -59,12 +77,13 @@ final class ConversationViewModel {
         return self.conversation != nil
     }
     
-    init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?) {
+    init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?, unreadMessageCount: Int?) {
         self.userMember = userMember
         self.conversation = conversation
         self.memberProfileImage = imageData
+        self.unreadMessageCount = unreadMessageCount
         
-        setupConversationMessageGroups()
+        tryInitiateConversation()
         
         addListeners()
     }
@@ -297,17 +316,36 @@ extension ConversationViewModel
         guard let conversation = conversation else {return}
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
             guard let self = self else {return}
-            
-//            if self.messageGroups.isEmpty {
-//                self.fetchConversationMessages()
-//                return
-//            }
 
-            docTypes.enumerated().forEach { index, type in
-                switch type {
-                case .added: self.handleAddedMessage(messages[index])
-                case .removed: self.handleRemovedMessage(messages[index])
-                case .modified: self.handleModifiedMessage(messages[index])
+//            docTypes.enumerated().forEach { index, type in
+//                switch type {
+//                case .added: self.handleAddedMessage(messages[index])
+//                case .removed: self.handleRemovedMessage(messages[index])
+//                case .modified: self.handleModifiedMessage(messages[index])
+//                }
+//            }
+            
+                for (index,type) in docTypes.enumerated() {
+                    let message = messages[index]
+                    
+                    switch type {
+                    case .added:
+                        self.handleAddedMessage(message)
+                        if messages.count == 1 {
+                            self.createMessageGroups([message])
+                            self.messageChangedType = .added
+                        }
+                    case .removed: self.handleRemovedMessage(message)
+                    case .modified: self.handleModifiedMessage(message)
+                    }
+                }
+                
+            Task { @MainActor in
+                try await Task.sleep(nanoseconds: 5_000_000_000)
+                if self.skeletonViewIsInitiated {
+                    self.setupConversationMessageGroups()
+                    self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+                    self.skeletonViewIsInitiated = false
                 }
             }
         }
@@ -318,20 +356,22 @@ extension ConversationViewModel
 extension ConversationViewModel
 {
     
-    private func handleAddedMessage(_ message: Message) {
-        if !messageGroups.contains(elementWithID: message.id)
-        {
+    private func handleAddedMessage(_ message: Message) 
+    {
+        guard let _ = retrieveMessageFromRealm(message) else {
             addMessageToRealmChat(message)
-            createMessageGroups([message])
-            messageChangedType = .added
-        } else {
-            Task {
-                updateMessage(message)
-            }
+//            createMessageGroups([message])
+//            messageChangedType = .added
+            return
         }
+//        Task {
+//            updateMessage(message)
+//        }
+        
     }
     
-//    @MainActor 
+//    private func handleAddedMessage
+    
     private func handleModifiedMessage(_ message: Message) {
         guard let indexPath = indexPath(of: message) else { return }
         let cellVM = messageGroups.getCellViewModel(at: indexPath)
@@ -428,7 +468,22 @@ extension ConversationViewModel {
 }
 
 
-extension ConversationViewModel {
+extension ConversationViewModel 
+{
+    private func testAddMessageToRealmChat(_ messages: [Message]) 
+    {
+        guard let conversation = conversation else { return }
+        RealmDBManager.shared.update(object: conversation) { chat in
+                for message in messages {
+                    RealmDBManager.shared.realmDB.add(message, update: .modified)
+                }
+            let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
+            let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
+
+            chat.conversationMessages.append(objectsIn: newMessages)
+        }
+    }
+    
     private func addMessageToRealmChat(_ message: Message)
     {
         guard let conversation = conversation else { return }

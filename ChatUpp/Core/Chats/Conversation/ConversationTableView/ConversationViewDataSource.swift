@@ -9,7 +9,7 @@ import UIKit
 import SkeletonView
 
 
-final class ConversationViewDataSource: NSObject, SkeletonTableViewDataSource {
+final class ConversationViewDataSource: NSObject, UITableViewDataSource {
     var conversationViewModel: ConversationViewModel!
     
     init(conversationViewModel: ConversationViewModel) {
@@ -46,11 +46,17 @@ final class ConversationViewDataSource: NSObject, SkeletonTableViewDataSource {
 
 
 // MARK: - SKELETONVIEW DATASOURCE
-extension ConversationViewDataSource
+extension ConversationViewDataSource: SkeletonTableViewDataSource
 {
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-       return CellIdentifire.conversationMessageCell
+       return CellIdentifire.conversationSkeletonCell
     }
 }
 
+extension ConversationViewDataSource: SkeletonTableViewDelegate {
+    func skeletonWillAppear(_ skeletonView: UIView) {
+            // Adjust content inset when skeleton view is shown
+            
+        }
+}
 

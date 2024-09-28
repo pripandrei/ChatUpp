@@ -49,15 +49,19 @@ final class ConversationViewController: UIViewController {
     
     private func setupController() 
     {
-        setupBinding()
         setNavigationBarItems()
         configureTableView()
+        addGestureToTableView()
+        setupBinding()
+        addTargetsToButtons()
         addKeyboardNotificationObservers()
+    }
+    
+    private func addTargetsToButtons() {
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
         addTargetToEditMessageBtn()
         addTargetToScrollToBottomBtn()
-        addGestureToTableView()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -85,18 +89,31 @@ final class ConversationViewController: UIViewController {
 //            }
 //        }
         
+        conversationViewModel.$skeletonViewIsInitiated
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] shouldInitiate in
+                guard let self = self else {return}
+                
+                if shouldInitiate {
+                    toggleSkeletonAnimation(.initiate)
+                } else {
+                    toggleSkeletonAnimation(.terminate)
+                }
+                
+            }.store(in: &subscriptions)
+        
         conversationViewModel.$firstNotSeenMessageIndex
             .receive(on: DispatchQueue.main)
             .sink { [weak self] indexOfCellToScrollTo in
                 guard let self = self else {return}
                 
-                Task { @MainActor in
+//                Task { @MainActor in
                     /// table should be reloaded despites of indexOfCellToScrollTo being nil
                     self.rootView.tableView.reloadData()
                     guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                     self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
                     self.updateMessageSeenStatusIfNeeded()
-                }
+//                }
             }.store(in: &subscriptions)
         
         conversationViewModel.$userMember
@@ -400,6 +417,7 @@ extension ConversationViewController
     {
         guard let chatID = conversationViewModel.conversation?.id else { return }
 
+        print("=== Cell model: ",cell.cellViewModel)
         Task {
             await cell.cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
         }
@@ -597,7 +615,7 @@ extension ConversationViewController: UIScrollViewDelegate
 extension ConversationViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        
+        guard !tableView.sk.isSkeletonActive else { return nil }
         let label = DateHeaderLabel()
         let containerView = UIView()
         
@@ -627,7 +645,7 @@ extension ConversationViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if conversationViewModel.isSkeletonAnimationActive {
+        if conversationViewModel.skeletonViewIsInitiated {
             return CGFloat((70...120).randomElement()!)
         }
        return  UITableView.automaticDimension
@@ -743,10 +761,11 @@ extension ConversationViewController
     private func initiateSkeletonAnimation() {
         let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-//        rootView.tableView.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.7))
+        rootView.tableView.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.7))
+//        rootView.tableView.contentInset = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 0)
 //        rootView.tableView.showSkeleton()
         
-        rootView.tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
+//        rootView.tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
         //        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), transition: .crossDissolve(.signalingNaN))
     }
     

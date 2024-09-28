@@ -157,11 +157,11 @@ class ChatsViewController: UIViewController {
             
             for substring in nameSubstrings {
                 if substring.hasPrefix(trimmedSearchText) {
-                    return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage)
+                    return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage, unreadMessageCount: chatCell.unreadMessageCount)
                 }
             }
             if userName.lowercased().hasPrefix(trimmedSearchText) {
-                return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage)
+                return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.memberProfileImage, unreadMessageCount: chatCell.unreadMessageCount)
             }
             return nil
         })
@@ -265,8 +265,9 @@ extension ChatsViewController: UITableViewDelegate
         
         let chat = cellVM.chat
         let memberPhoto = cellVM.memberProfileImage
+        let unreadMessageCount = cellVM.unreadMessageCount
         
-        let conversationViewModel = ConversationViewModel(userMember: user, conversation: chat, imageData: memberPhoto)
+        let conversationViewModel = ConversationViewModel(userMember: user, conversation: chat, imageData: memberPhoto, unreadMessageCount: unreadMessageCount)
         conversationViewModel.updateUnreadMessagesCount = {
             try await cellVM.fetchUnreadMessagesCount()
         }

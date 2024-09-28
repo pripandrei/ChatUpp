@@ -30,8 +30,8 @@ final class ConversationRootView: UIView {
         let tableView                           = UITableView()
         tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1) // Revert table view upside down
         tableView.backgroundColor               = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
-        tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -10, left: 0, bottom: 70, right: 0)
+        tableView.contentInset                  = UIEdgeInsets(top: -15, left: 0, bottom: 60, right: 0)
+        tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -20, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
         tableView.estimatedRowHeight            = 50
