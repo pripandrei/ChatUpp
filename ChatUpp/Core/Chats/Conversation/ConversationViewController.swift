@@ -14,6 +14,20 @@ import PhotosUI
 import Combine
 import SkeletonView
 
+
+//MARK: - SCROLL VIEW DELEGATE
+extension ConversationViewController: UIScrollViewDelegate
+{
+    func scrollViewDidScroll(_ scrollView: UIScrollView)
+    {
+        print("Know know on the heaven door")
+//        updateMessageSeenStatusIfNeeded()
+//        if !shouldIgnoreScrollToBottomBtnUpdate {
+//            updateScrollToBottomBtnIfNeeded()
+//        }
+    }
+}
+
 final class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate :Coordinator?
@@ -49,10 +63,10 @@ final class ConversationViewController: UIViewController {
     
     private func setupController() 
     {
-        setNavigationBarItems()
+        setupBinding()
         configureTableView()
         addGestureToTableView()
-        setupBinding()
+        setNavigationBarItems()
         addTargetsToButtons()
         addKeyboardNotificationObservers()
     }
@@ -112,7 +126,7 @@ final class ConversationViewController: UIViewController {
                     self.rootView.tableView.reloadData()
                     guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                     self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-                    self.updateMessageSeenStatusIfNeeded()
+//                    self.updateMessageSeenStatusIfNeeded()
 //                }
             }.store(in: &subscriptions)
         
@@ -195,8 +209,8 @@ final class ConversationViewController: UIViewController {
     
     private func configureTableView() {
         collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
-        rootView.tableView.dataSource = collectionViewDataSource
         rootView.tableView.delegate = self
+        rootView.tableView.dataSource = collectionViewDataSource
     }
     
     private func updateInputBarBottomConstraint(toSize size: CGFloat) {
@@ -570,42 +584,6 @@ extension ConversationViewController {
     }
 }
 
-//MARK: - SCROLL VIEW DELEGATE
-extension ConversationViewController: UIScrollViewDelegate
-{
-    func scrollViewDidScroll(_ scrollView: UIScrollView) 
-    {
-        updateMessageSeenStatusIfNeeded()
-        if !shouldIgnoreScrollToBottomBtnUpdate {
-            updateScrollToBottomBtnIfNeeded()
-        }
-//////        
-//        let targetIndexPath = IndexPath(row: 1, section: 0)
-//        let cellRect = rootView.tableView.rectForRow(at: targetIndexPath)
-//        
-//        let cellBottomPosition = cellRect.origin.y - rootView.inputBarContainer.bounds.height - 20
-//
-//        if rootView.tableView.contentOffset.y <= cellBottomPosition {
-//            UIView.animate(withDuration: 0.4, animations: {
-//                self.rootView.tableView.setContentOffset(CGPoint(x: self.rootView.tableView.contentOffset.x, y: cellBottomPosition), animated: false)
-//            })
-//        }
-    }
-    
-//    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-//        let targetIndexPath = IndexPath(row: 8, section: 0)
-//        let cellRect = rootView.tableView.rectForRow(at: targetIndexPath)
-//        
-//        let cellBottomPosition = cellRect.origin.y - rootView.inputBarContainer.bounds.height - 20
-//        
-//        if targetContentOffset.pointee.y <= cellBottomPosition {
-////            UIView.animate(withDuration: 0.5) {
-//                targetContentOffset.pointee.y = cellBottomPosition
-////            }
-//        }
-//    }
-
-}
 
 
 //MARK: - TABLE  DELEGATE

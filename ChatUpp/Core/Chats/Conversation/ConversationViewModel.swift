@@ -83,9 +83,9 @@ final class ConversationViewModel {
         self.memberProfileImage = imageData
         self.unreadMessageCount = unreadMessageCount
         
-        tryInitiateConversation()
-        
-        addListeners()
+//        tryInitiateConversation()
+//        
+//        addListeners()
     }
     
     private func addListeners() {
@@ -364,9 +364,9 @@ extension ConversationViewModel
 //            messageChangedType = .added
             return
         }
-//        Task {
-//            updateMessage(message)
-//        }
+        Task {
+            updateMessage(message)
+        }
         
     }
     
