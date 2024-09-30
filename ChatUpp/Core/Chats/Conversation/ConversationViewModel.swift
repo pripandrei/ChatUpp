@@ -324,7 +324,7 @@ extension ConversationViewModel
 //                case .modified: self.handleModifiedMessage(messages[index])
 //                }
 //            }
-            
+
                 for (index,type) in docTypes.enumerated() {
                     let message = messages[index]
                     
@@ -341,7 +341,7 @@ extension ConversationViewModel
                 }
                 
             Task { @MainActor in
-                try await Task.sleep(nanoseconds: 5_000_000_000)
+                try await Task.sleep(nanoseconds: 2_000_000_000)
                 if self.skeletonViewIsInitiated {
                     self.setupConversationMessageGroups()
                     self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()

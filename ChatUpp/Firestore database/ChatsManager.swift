@@ -60,6 +60,13 @@ extension ChatsManager
 
 extension ChatsManager 
 {
+    
+    func getMessagesCount(fromChatDocumentPath documentPath: String) async throws -> Int  {
+        let countQuery = chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).count
+        let count = try await countQuery.getAggregation(source: .server).count
+        return count.intValue
+    }
+    
     func getMessageDocument(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
         return chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).document(messagePath)
     }

@@ -107,13 +107,13 @@ final class ConversationViewController: UIViewController {
             .sink { [weak self] indexOfCellToScrollTo in
                 guard let self = self else {return}
                 
-//                Task { @MainActor in
+                Task { @MainActor in
                     /// table should be reloaded despites of indexOfCellToScrollTo being nil
                     self.rootView.tableView.reloadData()
                     guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                     self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-                    self.updateMessageSeenStatusIfNeeded()
-//                }
+                }
+                self.updateMessageSeenStatusIfNeeded()
             }.store(in: &subscriptions)
         
         conversationViewModel.$userMember
@@ -582,7 +582,7 @@ extension ConversationViewController: UIScrollViewDelegate
         if !shouldIgnoreScrollToBottomBtnUpdate {
             updateScrollToBottomBtnIfNeeded()
         }
-////        
+//////        
 //        let targetIndexPath = IndexPath(row: 1, section: 0)
 //        let cellRect = rootView.tableView.rectForRow(at: targetIndexPath)
 //        

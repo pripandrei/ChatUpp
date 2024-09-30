@@ -19,6 +19,7 @@ class ChatCellViewModel: Equatable {
     @Published private(set) var recentMessage: Message?
     @Published private(set) var memberProfileImage: Data?
     @Published private(set) var unreadMessageCount: Int?
+//    @Published private(set) var totalMessagesCount: Int?
     
     init(chat: Chat) {
         self.chat = chat
@@ -139,7 +140,7 @@ extension ChatCellViewModel {
     
     func retrieveMemberImageData() throws {
         guard let userProfilePhotoURL = member?.photoUrl else {
-            print("image not")
+//            print("image not")
             throw RealmRetrieveError.imageNotPresent }
         memberProfileImage = CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
     }
@@ -149,15 +150,18 @@ extension ChatCellViewModel {
 
 extension ChatCellViewModel 
 {
+    @MainActor
     private func fetchDataFromFirestore() async
     {
         do {
             self.member                = try await loadOtherMemberOfChat()
             async let loadMessage      = loadRecentMessage()
             async let loadImage        = fetchImageData()
-            async let loadMessageCount = fetchUnreadMessagesCount()
+            async let loadUnreadMessageCount = fetchUnreadMessagesCount()
+//            async let loadMessagesCount = getMessagesCount()
             
-            (recentMessage, memberProfileImage, unreadMessageCount) = await (loadMessage, try loadImage, try loadMessageCount)
+            (recentMessage, memberProfileImage, unreadMessageCount/*, totalMessagesCount*/) = await (loadMessage, try loadImage, try loadUnreadMessageCount/*, try loadMessagesCount*/)
+//            print("Messages count \(totalMessagesCount) in chat \(chat.id)")
         } catch {
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
@@ -193,6 +197,12 @@ extension ChatCellViewModel
         let photoData = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
         return photoData
     }
+    
+//    @MainActor
+//    func getMessagesCount() async throws -> Int {
+//        let count = try await ChatsManager.shared.getMessagesCount(fromChatDocumentPath: chat.id)
+//        return count
+//    }
 }
 
 //MARK: - Listeners
