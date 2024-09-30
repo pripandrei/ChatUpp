@@ -107,13 +107,13 @@ final class ConversationViewController: UIViewController {
             .sink { [weak self] indexOfCellToScrollTo in
                 guard let self = self else {return}
                 
-                Task { @MainActor in
-                    /// table should be reloaded despites of indexOfCellToScrollTo being nil
+//                Task { @MainActor in
+                    /// table should be reloaded despites of indexOfCellToScrollTo being nil 
                     self.rootView.tableView.reloadData()
                     guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                     self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-                }
-                self.updateMessageSeenStatusIfNeeded()
+                    self.updateMessageSeenStatusIfNeeded()
+//                }
             }.store(in: &subscriptions)
         
         conversationViewModel.$userMember
@@ -392,8 +392,7 @@ extension ConversationViewController
                   checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
                 continue
             }
-            
-            updateMessageSeenStatus(cell)
+            updateMessageSeenStatus(from: cell.cellViewModel)
             Task { try await conversationViewModel.updateUnreadMessagesCount?() }
         }
     }
@@ -401,7 +400,7 @@ extension ConversationViewController
     private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
         let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
-        
+    
         guard !cellMessage.messageSeen, cellMessage.senderId != authUserID,
               let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return false
@@ -413,13 +412,11 @@ extension ConversationViewController
     }
 
     
-    private func updateMessageSeenStatus(_ cell: ConversationTableViewCell) 
+    private func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel!)
     {
         guard let chatID = conversationViewModel.conversation?.id else { return }
-
-        print("=== Cell model: ",cell.cellViewModel)
         Task {
-            await cell.cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
+            await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
         }
     }
     

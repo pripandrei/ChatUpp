@@ -340,14 +340,14 @@ extension ConversationViewModel
                     }
                 }
                 
-            Task { @MainActor in
-                try await Task.sleep(nanoseconds: 2_000_000_000)
+//            Task { @MainActor in
+//                try await Task.sleep(nanoseconds: 2_000_000_000)
                 if self.skeletonViewIsInitiated {
                     self.setupConversationMessageGroups()
                     self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
                     self.skeletonViewIsInitiated = false
                 }
-            }
+//            }
         }
     }
 }
