@@ -322,39 +322,24 @@ extension ConversationViewModel
     func addListenerToMessages() 
     {
         guard let conversation = conversation else {return}
-        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] messages, docTypes in
+        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
             guard let self = self else {return}
-
-//            docTypes.enumerated().forEach { index, type in
-//                switch type {
-//                case .added: self.handleAddedMessage(messages[index])
-//                case .removed: self.handleRemovedMessage(messages[index])
-//                case .modified: self.handleModifiedMessage(messages[index])
-//                }
-//            }
-
-            for (index,type) in docTypes.enumerated() {
-                let message = messages[index]
-                
-                switch type {
-                case .added: self.handleAddedMessage(message)
-                case .removed: self.handleRemovedMessage(message)
-                case .modified: self.handleModifiedMessage(message)
-                }
-            }
             
-//            Task { @MainActor in
-//                try await Task.sleep(nanoseconds: 2_000_000_000)
-                if self.skeletonViewIsInitiated {
-//                    self.setupConversationMessageGroups()
-                    let index = self.findFirstNotSeenMessageIndex()
-                    toggleSkeletonAnimation?(false)
-                    onMessageGroupsLoad?(index)
-                    skeletonViewIsInitiated = false
-//                    self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
-//                    self.skeletonViewIsInitiated = false
-                }
-//            }
+            switch type {
+            case .added: self.handleAddedMessage(message)
+            case .removed: self.handleRemovedMessage(message)
+            case .modified: self.handleModifiedMessage(message)
+            }
+        } onReceiveMessagesComplition: {
+            if self.skeletonViewIsInitiated {
+//                self.setupConversationMessageGroups()
+                let index = self.findFirstNotSeenMessageIndex()
+                self.toggleSkeletonAnimation?(false)
+                self.onMessageGroupsLoad?(index)
+                self.skeletonViewIsInitiated = false
+//                self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+//                self.skeletonViewIsInitiated = false
+            }
         }
     }
 }

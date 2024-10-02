@@ -20,11 +20,17 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        print("Know know on the heaven door")
-        updateMessageSeenStatusIfNeeded()
-        if !shouldIgnoreScrollToBottomBtnUpdate {
-            updateScrollToBottomBtnIfNeeded()
+        UIView.animate(withDuration: <#T##TimeInterval#>, delay: <#T##TimeInterval#>, options: <#T##UIView.AnimationOptions#>) { 
+            <#code#>
+        } completion: { <#Bool#> in
+            <#code#>
         }
+
+        print("Know know on the heaven door")
+//        updateMessageSeenStatusIfNeeded()
+//        if !shouldIgnoreScrollToBottomBtnUpdate {
+//            updateScrollToBottomBtnIfNeeded()
+//        }
     }
 }
 

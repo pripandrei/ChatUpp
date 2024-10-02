@@ -166,7 +166,9 @@ extension ChatsManager
         }
     }
     
-    func addListenerToChatMessages(_ chatId: String, complition: @escaping (Message, DocumentChangeType) -> Void) -> Listener
+    func addListenerToChatMessages(_ chatId: String,
+                                   onReceivedMessage: @escaping (Message, DocumentChangeType) -> Void,
+                                   onReceiveMessagesComplition: @escaping () -> Void) -> Listener
     {
         return chatDocument(documentPath: chatId).collection(FirestoreCollection.messages.rawValue).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
@@ -174,8 +176,9 @@ extension ChatsManager
 
             for document in documents {
                 guard let message = try? document.document.data(as: Message.self) else {continue}
-                complition(message, document.type)
+                onReceivedMessage(message, document.type)
             }
+            onReceiveMessagesComplition()
         }
     }
 }
