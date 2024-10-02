@@ -45,6 +45,7 @@ final class ConversationViewController: UIViewController {
     private var subscriptions = Set<AnyCancellable>()
     
     //MARK: - Lifecycle
+    
     convenience init(conversationViewModel: ConversationViewModel) {
         self.init()
         self.conversationViewModel = conversationViewModel
@@ -63,6 +64,16 @@ final class ConversationViewController: UIViewController {
         conversationViewModel.addListeners()
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        cleanUp()
+    }
+
+    deinit {
+        print("====ConversationVC Deinit")
+    }
+
+    
     private func setupController() 
     {
         setupBinding()
@@ -80,19 +91,6 @@ final class ConversationViewController: UIViewController {
         addTargetToScrollToBottomBtn()
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        cleanUp()
-    }
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-//        print( navigationItem.titleView?.subviews.first(where: {$0 is UIImageView}))
-    }
-    deinit {
-        print("====ConversationVC Deinit")
-    }
-
-    
     //MARK: - Binding
     private func setupBinding() 
     {
@@ -100,9 +98,10 @@ final class ConversationViewController: UIViewController {
             guard let self = self else {return}
             DispatchQueue.main.async {
                 self.rootView.tableView.reloadData()
+                print(indexOfCellToScrollTo)
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                 self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-                self.updateMessageSeenStatusIfNeeded()
+//                self.updateMessageSeenStatusIfNeeded()
             }
         }
         
