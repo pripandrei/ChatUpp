@@ -173,7 +173,7 @@ extension ChatsManager
         return chatDocument(documentPath: chatId).collection(FirestoreCollection.messages.rawValue).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
-
+            
             for document in documents {
                 guard let message = try? document.document.data(as: Message.self) else {continue}
                 onReceivedMessage(message, document.type)

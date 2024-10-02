@@ -52,11 +52,3 @@ extension ConversationViewDataSource: SkeletonTableViewDataSource
        return CellIdentifire.conversationSkeletonCell
     }
 }
-
-extension ConversationViewDataSource: SkeletonTableViewDelegate {
-    func skeletonWillAppear(_ skeletonView: UIView) {
-            // Adjust content inset when skeleton view is shown
-            
-        }
-}
-

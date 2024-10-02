@@ -48,7 +48,7 @@ extension ConversationViewModel
             skeletonViewIsInitiated = true
             toggleSkeletonAnimation?(true)
         } else {
-            print("SetupConversation")
+//            print("SetupConversation")
 //            setupConversationMessageGroups()
 //            firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
             let index = self.findFirstNotSeenMessageIndex()
@@ -126,6 +126,15 @@ final class ConversationViewModel {
         }
         self.messageGroups = tempMessageGroups
     }
+//    private func sortCellViewModels(fromMessageGroups messageGroups: inout [ConversationMessageGroups])
+    private func sortCellViewModels() {
+        if var lastMessageGroup = messageGroups.first {
+            lastMessageGroup.cellViewModels.sort(by: { $0.cellMessage.timestamp > $1.cellMessage.timestamp })
+            if let lastIndex = messageGroups.indices.first {
+                messageGroups[lastIndex] = lastMessageGroup
+            }
+        }
+    }
     
     private func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroups])
     {
@@ -135,10 +144,12 @@ final class ConversationViewModel {
         if let index = messageGroups.firstIndex(where: { $0.date == date })
         {
             messageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+//            messageGroups[index].cellViewModels.sort(by: { $0.cellMessage.timestamp < $1.cellMessage.timestamp })
         } else {
             let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
             messageGroups.insert(newGroup, at: 0)
         }
+        
     }
     
     private func fetchConversationMessages() {
@@ -321,19 +332,27 @@ extension ConversationViewModel
 {
     func addListenerToMessages() 
     {
+//        var addedMessagesCount: Int = 0
+        
         guard let conversation = conversation else {return}
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
             guard let self = self else {return}
             
             switch type {
             case .added: self.handleAddedMessage(message)
+//                addedMessagesCount += 1
             case .removed: self.handleRemovedMessage(message)
             case .modified: self.handleModifiedMessage(message)
             }
         } onReceiveMessagesComplition: {
             if self.skeletonViewIsInitiated {
+//                if addedMessagesCount > 1 {
+                self.sortCellViewModels()
+//                }
+//                self.messageGroups = []
 //                self.setupConversationMessageGroups()
                 let index = self.findFirstNotSeenMessageIndex()
+                
                 self.toggleSkeletonAnimation?(false)
                 self.onMessageGroupsLoad?(index)
                 self.skeletonViewIsInitiated = false
@@ -352,16 +371,13 @@ extension ConversationViewModel
         guard let _ = retrieveMessageFromRealm(message) else {
             addMessageToRealmChat(message)
             createMessageGroups([message])
-//            messageChangedType = .added
+            messageChangedType = .added
             return
         }
         Task {
             updateMessage(message)
         }
-        
     }
-    
-//    private func handleAddedMessage
     
     private func handleModifiedMessage(_ message: Message) {
         guard let indexPath = indexPath(of: message) else { return }
@@ -369,15 +385,10 @@ extension ConversationViewModel
         
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
         
-        //TODO: Check if main thread is on this line
         updateMessage(message)
-        messageChangedType = .modified(indexPath, modificationValue)
-        
-//        Task { @MainActor in
-//            cellVM.updateMessage(message)
-//            messageChangedType = .modified(indexPath, modificationValue)
-////            print(RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id))
-//        }
+        if message.senderId == authenticatedUserID {
+            messageChangedType = .modified(indexPath, modificationValue)
+        }
     }
     
     private func handleRemovedMessage(_ message: Message) {

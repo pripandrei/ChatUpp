@@ -20,17 +20,11 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        UIView.animate(withDuration: <#T##TimeInterval#>, delay: <#T##TimeInterval#>, options: <#T##UIView.AnimationOptions#>) { 
-            <#code#>
-        } completion: { <#Bool#> in
-            <#code#>
-        }
-
         print("Know know on the heaven door")
-//        updateMessageSeenStatusIfNeeded()
-//        if !shouldIgnoreScrollToBottomBtnUpdate {
-//            updateScrollToBottomBtnIfNeeded()
-//        }
+        updateMessageSeenStatusIfNeeded()
+        if !shouldIgnoreScrollToBottomBtnUpdate {
+            updateScrollToBottomBtnIfNeeded()
+        }
     }
 }
 
@@ -102,19 +96,20 @@ final class ConversationViewController: UIViewController {
     //MARK: - Binding
     private func setupBinding() 
     {
-        conversationViewModel.onMessageGroupsLoad = { indexOfCellToScrollTo in
-            Task { @MainActor in
+        conversationViewModel.onMessageGroupsLoad = { [weak self] indexOfCellToScrollTo in
+            guard let self = self else {return}
+            DispatchQueue.main.async {
                 self.rootView.tableView.reloadData()
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
                 self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-//                self.updateMessageSeenStatusIfNeeded()
+                self.updateMessageSeenStatusIfNeeded()
             }
         }
         
         conversationViewModel.toggleSkeletonAnimation = { [weak self] shouldInitiate in
             guard let self = self else {return}
             
-            Task { @MainActor in
+            DispatchQueue.main.async {
                 if shouldInitiate {
                     self.toggleSkeletonAnimation(.initiate)
                 } else {
@@ -168,11 +163,11 @@ final class ConversationViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] changeType in
                 guard let self = self else {return}
-            
+                
                 switch changeType {
                 case .modified(let indexPath, let modifiedValue):
-                    let animationType = getAnimationType(from: modifiedValue)
-                    reloadCellRow(at: indexPath, with: animationType)
+                    let animationType = self.getAnimationType(from: modifiedValue)
+                    self.reloadCellRow(at: indexPath, with: animationType)
                 case .added:
                     self.handleTableViewCellInsertion(scrollToBottom: false)
                 case .removed:
