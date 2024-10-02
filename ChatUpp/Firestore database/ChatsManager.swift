@@ -166,19 +166,16 @@ extension ChatsManager
         }
     }
     
-    func addListenerToChatMessages(_ chatId: String, complition: @escaping ([Message], [DocumentChangeType]) -> Void) -> Listener
+    func addListenerToChatMessages(_ chatId: String, complition: @escaping (Message, DocumentChangeType) -> Void) -> Listener
     {
         return chatDocument(documentPath: chatId).collection(FirestoreCollection.messages.rawValue).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
-            
-            var docChangeType: [DocumentChangeType] = []
-            
-            let messages = documents.compactMap { documentMessage in
-                docChangeType.append(documentMessage.type)
-                return try? documentMessage.document.data(as: Message.self)
+
+            for document in documents {
+                guard let message = try? document.document.data(as: Message.self) else {continue}
+                complition(message, document.type)
             }
-            complition(messages,docChangeType)
         }
     }
 }

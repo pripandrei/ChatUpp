@@ -43,12 +43,13 @@ extension ConversationViewModel
     
     func tryInitiateConversation()
     {
+        setupConversationMessageGroups()
         if getUnseenMessageCountFromRealm() != self.unreadMessageCount {
             skeletonViewIsInitiated = true
             toggleSkeletonAnimation?(true)
         } else {
             print("SetupConversation")
-            setupConversationMessageGroups()
+//            setupConversationMessageGroups()
 //            firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
             let index = self.findFirstNotSeenMessageIndex()
             onMessageGroupsLoad?(index)
@@ -336,17 +337,12 @@ extension ConversationViewModel
                 let message = messages[index]
                 
                 switch type {
-                case .added:
-                    self.handleAddedMessage(message)
-//                    if messages.count == 1 {
-//                        self.createMessageGroups([message])
-//                        self.messageChangedType = .added
-//                    }
+                case .added: self.handleAddedMessage(message)
                 case .removed: self.handleRemovedMessage(message)
                 case .modified: self.handleModifiedMessage(message)
                 }
             }
-                
+            
 //            Task { @MainActor in
 //                try await Task.sleep(nanoseconds: 2_000_000_000)
                 if self.skeletonViewIsInitiated {
@@ -371,7 +367,7 @@ extension ConversationViewModel
         guard let _ = retrieveMessageFromRealm(message) else {
             addMessageToRealmChat(message)
             createMessageGroups([message])
-            messageChangedType = .added
+//            messageChangedType = .added
             return
         }
         Task {
