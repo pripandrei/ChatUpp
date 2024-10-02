@@ -41,14 +41,17 @@ extension ConversationViewModel
     }
     
     
-    private func tryInitiateConversation()
+    func tryInitiateConversation()
     {
         if getUnseenMessageCountFromRealm() != self.unreadMessageCount {
             skeletonViewIsInitiated = true
+            toggleSkeletonAnimation?(true)
         } else {
             print("SetupConversation")
             setupConversationMessageGroups()
-            firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+//            firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+            let index = self.findFirstNotSeenMessageIndex()
+            onMessageGroupsLoad?(index)
         }
     }
 }
@@ -69,6 +72,9 @@ final class ConversationViewModel {
     @Published var firstNotSeenMessageIndex: IndexPath?
     @Published var skeletonViewIsInitiated: Bool = false
     
+    var onMessageGroupsLoad: ((IndexPath?) -> Void)?
+    var toggleSkeletonAnimation: ((Bool) -> Void)?
+    
     var shouldEditMessage: ((String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var currentlyReplyToMessageID: String?
@@ -84,11 +90,11 @@ final class ConversationViewModel {
         self.unreadMessageCount = unreadMessageCount
         
 //        tryInitiateConversation()
-//        
+        
 //        addListeners()
     }
     
-    private func addListeners() {
+    func addListeners() {
         addListenerToMessages()
         addUsersListener()
         addUserObserver()
@@ -277,7 +283,8 @@ final class ConversationViewModel {
         }
     }
     
-    func getMessageSenderName(usingSenderID id: String) -> String? {
+    func getMessageSenderName(usingSenderID id: String) -> String? 
+    {
         guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else { return nil }
         if id == user.uid {
             return user.name
@@ -325,27 +332,31 @@ extension ConversationViewModel
 //                }
 //            }
 
-                for (index,type) in docTypes.enumerated() {
-                    let message = messages[index]
-                    
-                    switch type {
-                    case .added:
-                        self.handleAddedMessage(message)
-                        if messages.count == 1 {
-                            self.createMessageGroups([message])
-                            self.messageChangedType = .added
-                        }
-                    case .removed: self.handleRemovedMessage(message)
-                    case .modified: self.handleModifiedMessage(message)
-                    }
+            for (index,type) in docTypes.enumerated() {
+                let message = messages[index]
+                
+                switch type {
+                case .added:
+                    self.handleAddedMessage(message)
+//                    if messages.count == 1 {
+//                        self.createMessageGroups([message])
+//                        self.messageChangedType = .added
+//                    }
+                case .removed: self.handleRemovedMessage(message)
+                case .modified: self.handleModifiedMessage(message)
                 }
+            }
                 
 //            Task { @MainActor in
 //                try await Task.sleep(nanoseconds: 2_000_000_000)
                 if self.skeletonViewIsInitiated {
-                    self.setupConversationMessageGroups()
-                    self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
-                    self.skeletonViewIsInitiated = false
+//                    self.setupConversationMessageGroups()
+                    let index = self.findFirstNotSeenMessageIndex()
+                    toggleSkeletonAnimation?(false)
+                    onMessageGroupsLoad?(index)
+                    skeletonViewIsInitiated = false
+//                    self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+//                    self.skeletonViewIsInitiated = false
                 }
 //            }
         }
@@ -355,13 +366,12 @@ extension ConversationViewModel
 //MARK: - Message listener helper functions
 extension ConversationViewModel
 {
-    
     private func handleAddedMessage(_ message: Message) 
     {
         guard let _ = retrieveMessageFromRealm(message) else {
             addMessageToRealmChat(message)
-//            createMessageGroups([message])
-//            messageChangedType = .added
+            createMessageGroups([message])
+            messageChangedType = .added
             return
         }
         Task {

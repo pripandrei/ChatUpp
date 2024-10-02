@@ -21,10 +21,10 @@ extension ConversationViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         print("Know know on the heaven door")
-//        updateMessageSeenStatusIfNeeded()
-//        if !shouldIgnoreScrollToBottomBtnUpdate {
-//            updateScrollToBottomBtnIfNeeded()
-//        }
+        updateMessageSeenStatusIfNeeded()
+        if !shouldIgnoreScrollToBottomBtnUpdate {
+            updateScrollToBottomBtnIfNeeded()
+        }
     }
 }
 
@@ -59,6 +59,8 @@ final class ConversationViewController: UIViewController {
         super.viewDidLoad()
 
         setupController()
+        conversationViewModel.tryInitiateConversation()
+        conversationViewModel.addListeners()
     }
     
     private func setupController() 
@@ -94,42 +96,54 @@ final class ConversationViewController: UIViewController {
     //MARK: - Binding
     private func setupBinding() 
     {
-//        conversationViewModel.onMessageGroupsLoad = { indexOfCellToScrollTo in
-//            Task { @MainActor in
-//                self.rootView.tableView.reloadData()
-//                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-//                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
+        conversationViewModel.onMessageGroupsLoad = { indexOfCellToScrollTo in
+            Task { @MainActor in
+                self.rootView.tableView.reloadData()
+                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
 //                self.updateMessageSeenStatusIfNeeded()
-//            }
-//        }
+            }
+        }
         
-        conversationViewModel.$skeletonViewIsInitiated
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] shouldInitiate in
-                guard let self = self else {return}
-                
+        conversationViewModel.toggleSkeletonAnimation = { [weak self] shouldInitiate in
+            guard let self = self else {return}
+            
+            Task { @MainActor in
                 if shouldInitiate {
-                    toggleSkeletonAnimation(.initiate)
+                    self.toggleSkeletonAnimation(.initiate)
                 } else {
-                    toggleSkeletonAnimation(.terminate)
+                    self.toggleSkeletonAnimation(.terminate)
                 }
-                
-            }.store(in: &subscriptions)
+            }
+        }
         
-        conversationViewModel.$firstNotSeenMessageIndex
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] indexOfCellToScrollTo in
-                guard let self = self else {return}
-                
-//                Task { @MainActor in
-                    /// table should be reloaded despites of indexOfCellToScrollTo being nil 
-                    self.rootView.tableView.reloadData()
-                    guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-                    self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-//                    self.updateMessageSeenStatusIfNeeded()
+//        conversationViewModel.$skeletonViewIsInitiated
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] shouldInitiate in
+//                guard let self = self else {return}
+//                
+//                if shouldInitiate {
+//                    toggleSkeletonAnimation(.initiate)
+//                } else {
+//                    toggleSkeletonAnimation(.terminate)
 //                }
-            }.store(in: &subscriptions)
-        
+//                
+//            }.store(in: &subscriptions)
+//        
+//        conversationViewModel.$firstNotSeenMessageIndex
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] indexOfCellToScrollTo in
+//                guard let self = self else {return}
+//                
+////                Task { @MainActor in
+//                    /// table should be reloaded despites of indexOfCellToScrollTo being nil 
+//                    self.rootView.tableView.reloadData()
+//                    guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+//                    self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
+////                    self.updateMessageSeenStatusIfNeeded()
+////                }
+//            }.store(in: &subscriptions)
+//        
         conversationViewModel.$userMember
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
