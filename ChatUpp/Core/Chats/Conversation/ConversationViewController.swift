@@ -92,16 +92,32 @@ final class ConversationViewController: UIViewController {
     }
     
     //MARK: - Binding
-    private func setupBinding() 
+    func scrollToRow(at indexPath: IndexPath) {
+        let containerViewHeight: CGFloat = rootView.inputBarContainer.frame.height
+        let cellRect = rootView.tableView.rectForRow(at: indexPath)
+        rootView.tableView.setContentOffset(CGPoint(x: 0, y: cellRect.minY - containerViewHeight - cellRect.height), animated: false)
+    }
+
+    
+    private func setupBinding()
     {
         conversationViewModel.onMessageGroupsLoad = { [weak self] indexOfCellToScrollTo in
             guard let self = self else {return}
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5 , execute: {
+//                self.rootView.tableView.reloadData()
+//                print(indexOfCellToScrollTo)
+//                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+//                self.scrollToRow(at: indexToScrollTo)
+////                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
+////                self.updateMessageSeenStatusIfNeeded()
+//            }) 
+            
+            
             DispatchQueue.main.async {
                 self.rootView.tableView.reloadData()
-                print(indexOfCellToScrollTo)
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-//                self.updateMessageSeenStatusIfNeeded()
+                self.scrollToRow(at: indexToScrollTo)
+                self.updateMessageSeenStatusIfNeeded()
             }
         }
         
@@ -440,7 +456,7 @@ extension ConversationViewController
     }
 
     
-    private func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel!)
+    private func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel)
     {
         guard let chatID = conversationViewModel.conversation?.id else { return }
         Task {

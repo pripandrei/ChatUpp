@@ -339,7 +339,7 @@ extension ConversationViewModel
 //                addedMessagesCount += 1
             case .removed: self.handleRemovedMessage(message)
             case .modified: self.handleModifiedMessage(message)
-                print("==== modified")
+                print("==== modified", message)
             }
         } onReceiveMessagesComplition: {
             if self.skeletonViewIsInitiated {
