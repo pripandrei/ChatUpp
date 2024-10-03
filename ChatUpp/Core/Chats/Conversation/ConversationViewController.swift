@@ -21,17 +21,17 @@ extension ConversationViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         print("Know know on the heaven door")
-        updateMessageSeenStatusIfNeeded()
-        if !shouldIgnoreScrollToBottomBtnUpdate {
-            updateScrollToBottomBtnIfNeeded()
-        }
+//        updateMessageSeenStatusIfNeeded()
+//        if !shouldIgnoreScrollToBottomBtnUpdate {
+//            updateScrollToBottomBtnIfNeeded()
+//        }
     }
 }
 
 final class ConversationViewController: UIViewController {
     
     weak var coordinatorDelegate :Coordinator?
-    private var collectionViewDataSource :ConversationViewDataSource!
+    private var tableViewDataSource :ConversationViewDataSource!
     private var customNavigationBar :ConversationCustomNavigationBar!
     private var rootView = ConversationRootView()
     private var conversationViewModel :ConversationViewModel!
@@ -93,9 +93,11 @@ final class ConversationViewController: UIViewController {
     
     //MARK: - Binding
     func scrollToRow(at indexPath: IndexPath) {
-        let containerViewHeight: CGFloat = rootView.inputBarContainer.frame.height
+//        var indexPath2 = IndexPath(row: indexPath.row - 1, section: indexPath.section)
+        let containerViewHeight: CGFloat = rootView.inputBarContainer.bounds.height
         let cellRect = rootView.tableView.rectForRow(at: indexPath)
-        rootView.tableView.setContentOffset(CGPoint(x: 0, y: cellRect.minY - containerViewHeight - cellRect.height), animated: false)
+//        rootView.tableView.setContentOffset(CGPoint(x: 0, y: cellRect.maxY), animated: false)
+        rootView.tableView.contentOffset.y = cellRect.minY
     }
 
     
@@ -115,9 +117,13 @@ final class ConversationViewController: UIViewController {
             
             DispatchQueue.main.async {
                 self.rootView.tableView.reloadData()
+//                self.rootView.tableView.layoutIfNeeded()
+                self.view.layoutIfNeeded()
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-                self.scrollToRow(at: indexToScrollTo)
-                self.updateMessageSeenStatusIfNeeded()
+                let index = IndexPath(row: 9, section: 0)
+//                self.scrollToRow(at: index)
+                self.rootView.tableView.scrollToRow(at: index, at: .top, animated: false)
+//                self.updateMessageSeenStatusIfNeeded()
             }
         }
         
@@ -233,14 +239,14 @@ final class ConversationViewController: UIViewController {
         conversationViewModel.userListener?.remove()
         coordinatorDelegate = nil
         conversationViewModel = nil
-        collectionViewDataSource = nil
+        tableViewDataSource = nil
         customNavigationBar = nil
     }
     
     private func configureTableView() {
-        collectionViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
+        tableViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
         rootView.tableView.delegate = self
-        rootView.tableView.dataSource = collectionViewDataSource
+        rootView.tableView.dataSource = tableViewDataSource
     }
     
     private func updateInputBarBottomConstraint(toSize size: CGFloat) {
@@ -548,7 +554,7 @@ extension ConversationViewController {
         // so we check if maximum allowed number of line is reached (containerView origin.y will be 584)
         let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
         let keyboardHeight = rootView.inputBarContainer.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
-        let editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
+        let  editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
@@ -629,9 +635,8 @@ extension ConversationViewController: UITableViewDelegate
         let dateForSection = conversationViewModel.messageGroups[section].date
         label.text = dateForSection.formatToYearMonthDayCustomString()
         label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        label.topAnchor.constraint(equalTo: containerView.topAnchor,constant: 10).isActive = true
-        label.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,constant: -10).isActive = true
+        label.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10).isActive = true
+        label.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -10).isActive = true
         
         containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
         return containerView

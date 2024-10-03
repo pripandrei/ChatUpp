@@ -13,7 +13,7 @@ import Combine
 
 struct CellIdentifire {
     static let chatCell = "ChatTableVwCell"
-    static let conversationMessageCell = "ConversationCollectionViewCell"
+    static let conversationMessageCell = "ConversationMessageCell"
     static let resultsTableCell = "ResultsTableCell"
     static let conversationSkeletonCell = "ConversationSkeletonCell"
 }
