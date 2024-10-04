@@ -21,10 +21,10 @@ extension ConversationViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         print("Know know on the heaven door")
-//        updateMessageSeenStatusIfNeeded()
-//        if !shouldIgnoreScrollToBottomBtnUpdate {
-//            updateScrollToBottomBtnIfNeeded()
-//        }
+        updateMessageSeenStatusIfNeeded()
+        if !shouldIgnoreScrollToBottomBtnUpdate {
+            updateScrollToBottomBtnIfNeeded()
+        }
     }
 }
 
@@ -60,8 +60,25 @@ final class ConversationViewController: UIViewController {
         super.viewDidLoad()
 
         setupController()
-        conversationViewModel.tryInitiateConversation()
-        conversationViewModel.addListeners()
+        initiateConversation()
+    }
+    
+    private func initiateConversation() {
+        conversationViewModel.tryInitiateConversation {
+            Task { @MainActor [weak self] in
+                self?.conversationViewModel?.addListeners()
+            }
+        }
+        
+//        Task {
+//            let state = await conversationViewModel.tryInitiateConversation()
+//            if state == .done {
+//                conversationViewModel.addListeners()
+//            } else {
+//                print("Repeat initiation")
+////                initiateConversation()
+//            }
+//        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -120,9 +137,9 @@ final class ConversationViewController: UIViewController {
 //                self.rootView.tableView.layoutIfNeeded()
                 self.view.layoutIfNeeded()
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-                let index = IndexPath(row: 9, section: 0)
+//                let index = IndexPath(row: 9, section: 0)
 //                self.scrollToRow(at: index)
-                self.rootView.tableView.scrollToRow(at: index, at: .top, animated: false)
+                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
 //                self.updateMessageSeenStatusIfNeeded()
             }
         }

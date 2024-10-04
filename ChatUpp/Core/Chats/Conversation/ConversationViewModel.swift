@@ -21,6 +21,11 @@ enum MessageChangeType {
     case removed
 }
 
+enum ConversationInitiationState {
+    case done
+    case failure
+}
+
 struct ConversationMessageGroups {
     let date: Date
     var cellViewModels: [ConversationCellViewModel]
@@ -30,6 +35,7 @@ struct ConversationMessageGroups {
 
 extension ConversationViewModel
 {
+//    @MainActor
     private func setupConversationMessageGroups() {
         guard let messages = conversation?.getMessages(), !messages.isEmpty else { return }
         createMessageGroups(messages)
@@ -41,20 +47,73 @@ extension ConversationViewModel
     }
     
     
-    func tryInitiateConversation()
+   
+    func tryInitiateConversation(complition: @escaping () -> Void)
     {
-        setupConversationMessageGroups()
         if getUnseenMessageCountFromRealm() != self.unreadMessageCount {
             skeletonViewIsInitiated = true
             toggleSkeletonAnimation?(true)
+            Task {
+                let messages = try await fetchConversationMessages()
+                
+//                for message in messages {
+                    await MainActor.run {
+                        testAddMessageToRealmChat(messages)
+//                        addMessageToRealmChat(message)
+                    }
+//                }
+                
+                await MainActor.run {
+                    setupConversationMessageGroups()
+                    let index = self.findFirstNotSeenMessageIndex()
+                    skeletonViewIsInitiated = false
+                    toggleSkeletonAnimation?(false)
+                    onMessageGroupsLoad?(index)
+                }
+                complition()
+            }
         } else {
-//            print("SetupConversation")
-//            setupConversationMessageGroups()
+            setupConversationMessageGroups()
 //            firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
             let index = self.findFirstNotSeenMessageIndex()
             onMessageGroupsLoad?(index)
+            complition()
         }
     }
+    
+//   
+//    func tryInitiateConversation() async -> ConversationInitiationState
+//    {
+//        if getUnseenMessageCountFromRealm() != self.unreadMessageCount {
+//            skeletonViewIsInitiated = true
+//            toggleSkeletonAnimation?(true)
+//            
+//            do {
+//                let messages = try await fetchConversationMessages()
+//                
+//                for message in messages {
+//                    addMessageToRealmChat(message)
+//                }
+//                
+//                await setupConversationMessageGroups()
+//                let index = self.findFirstNotSeenMessageIndex()
+//                toggleSkeletonAnimation?(true)
+//                onMessageGroupsLoad?(index)
+//                return .done
+//            } catch {
+//                // TODO: repete the process
+//                print("Failed to fetch conversation messages: \(error)")
+//                return .failure
+//            }
+//        } else {
+//            await setupConversationMessageGroups()
+//            let index = self.findFirstNotSeenMessageIndex()
+//            onMessageGroupsLoad?(index)
+//            return .done
+//        }
+//    }
+    
+    
 }
 
 final class ConversationViewModel {
@@ -72,6 +131,8 @@ final class ConversationViewModel {
     @Published var messageChangedType: MessageChangeType?
     @Published var firstNotSeenMessageIndex: IndexPath?
     @Published var skeletonViewIsInitiated: Bool = false
+    
+    @Published var initiateListeners: Bool = true
     
     var onMessageGroupsLoad: ((IndexPath?) -> Void)?
     var toggleSkeletonAnimation: ((Bool) -> Void)?
@@ -228,6 +289,7 @@ final class ConversationViewModel {
         }
     }
     
+//    @MainActor
     private func findFirstNotSeenMessageIndex() -> IndexPath? {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
         
@@ -342,25 +404,25 @@ extension ConversationViewModel
                 print("==== modified", message)
             }
         } onReceiveMessagesComplition: {
-            if self.skeletonViewIsInitiated {
-////                if addedMessagesCount > 1 {
-//
-////                }
-                self.skeletonViewIsInitiated = false
-                
-//                self.setupConversationMessageGroups()
-                
-                self.sortCellViewModels()
-                
-                let index = self.findFirstNotSeenMessageIndex()
-//
-                print(index)
-                
-                self.toggleSkeletonAnimation?(false)
-                self.onMessageGroupsLoad?(index)
-////                self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
-////                self.skeletonViewIsInitiated = false
-            }
+//            if self.skeletonViewIsInitiated {
+//////                if addedMessagesCount > 1 {
+////
+//////                }
+//                self.skeletonViewIsInitiated = false
+//                
+////                self.setupConversationMessageGroups()
+//                
+//                self.sortCellViewModels()
+//                
+//                let index = self.findFirstNotSeenMessageIndex()
+////
+//                print(index)
+//                
+//                self.toggleSkeletonAnimation?(false)
+//                self.onMessageGroupsLoad?(index)
+//////                self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+//////                self.skeletonViewIsInitiated = false
+//            }
         }
     }
 }
@@ -530,18 +592,24 @@ extension Array where Element == ConversationMessageGroups
 
 
 extension ConversationViewModel {
-    //    private func fetchConversationMessages() {
-    //        guard let conversation = conversation else {return}
-    //        Task {
-    //            do {
-    //                let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-    //                createMessageGroups(messages)
-    //                self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
-    ////                delete()
-    //            } catch {
-    //                print("Could not fetch messages from db: ", error.localizedDescription)
-    //            }
-    //        }
-    //    }
-    //
+//    private func fetchConversationMessages() {
+//        guard let conversation = conversation else {return}
+//        Task {
+//            do {
+//                let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+//                createMessageGroups(messages)
+//                self.firstNotSeenMessageIndex = self.findFirstNotSeenMessageIndex()
+//                //                delete()
+//            } catch {
+//                print("Could not fetch messages from db: ", error.localizedDescription)
+//            }
+//        }
+//    }
+    
+    @MainActor
+    private func fetchConversationMessages() async throws -> [Message] {
+        guard let conversation = conversation else { return [] }
+        let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+        return messages
+    }
 }
