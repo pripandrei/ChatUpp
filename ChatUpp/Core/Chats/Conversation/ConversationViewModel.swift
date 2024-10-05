@@ -352,6 +352,12 @@ extension ConversationViewModel
             messageChangedType = .added
             return
         }
+//        Task {
+//            if message.id == "----" {
+//                print("stop")
+//            }
+//            updateMessage(message)
+//        }
     }
     
     private func handleModifiedMessage(_ message: Message) {
