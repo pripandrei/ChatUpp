@@ -60,18 +60,7 @@ final class ConversationViewController: UIViewController {
         super.viewDidLoad()
 
         setupController()
-        initiateConversation()
-    }
-    
-    private func initiateConversation() {
-//        conversationViewModel.initiateConversation2()
-//        Task { try await conversationViewModel.initiateConversation2() }
-        
-//        conversationViewModel.tryInitiateConversation {
-//            Task { @MainActor [weak self] in
-//                self?.conversationViewModel?.addListeners()
-//            }
-//        }
+        conversationViewModel.initiateConversation()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -172,10 +161,10 @@ final class ConversationViewController: UIViewController {
                 }
             }.store(in: &subscriptions)
         
-        conversationViewModel.$conversationListenersInitiationSubject
-            .dropFirst()
+        conversationViewModel.conversationListenersInitiationSubject
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
+                print("Received event")
                 self?.conversationViewModel?.addListeners()
             }.store(in: &subscriptions)
     }
@@ -447,7 +436,7 @@ extension ConversationViewController
     private func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel)
     {
         guard let chatID = conversationViewModel.conversation?.id else { return }
-        Task {
+        Task { @MainActor in
             await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
         }
     }

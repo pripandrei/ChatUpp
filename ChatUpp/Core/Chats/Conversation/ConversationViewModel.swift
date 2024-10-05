@@ -66,7 +66,7 @@ extension ConversationViewModel
 //    }
     
 
-    private func initiateConversation()
+    func initiateConversation()
     {
         if shouldFetchNewMessages 
         {
@@ -80,13 +80,13 @@ extension ConversationViewModel
                 skeletonAnimationState = .terminated
                 firstUnseenMessageIndex = self.findFirstUnseenMessageIndex()
                 
-                conversationListenersInitiationSubject?.send()
+                conversationListenersInitiationSubject.send()
             }
         } else {
             setupConversationMessageGroups()
             firstUnseenMessageIndex = self.findFirstUnseenMessageIndex()
             
-            conversationListenersInitiationSubject?.send()
+            conversationListenersInitiationSubject.send()
         }
     }
 }
@@ -106,7 +106,7 @@ final class ConversationViewModel {
     @Published var firstUnseenMessageIndex: IndexPath?
     @Published var skeletonAnimationState: SkeletonAnimationState = .terminated
     
-    @Published private(set) var conversationListenersInitiationSubject: PassthroughSubject<Void,Never>?
+    var conversationListenersInitiationSubject = PassthroughSubject<Void,Never>()
     
     var shouldEditMessage: ((String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
@@ -126,7 +126,7 @@ final class ConversationViewModel {
         self.memberProfileImage = imageData
         self.unreadMessageCount = unreadMessageCount
         
-        initiateConversation()
+//        initiateConversation()
 //        addListeners()
     }
     
@@ -362,7 +362,6 @@ extension ConversationViewModel
             case .added: self.handleAddedMessage(message)
             case .removed: self.handleRemovedMessage(message)
             case .modified: self.handleModifiedMessage(message)
-                print("==== modified", message)
             }
         }
     }
@@ -379,9 +378,9 @@ extension ConversationViewModel
             messageChangedType = .added
             return
         }
-        Task {
-            updateMessage(message)
-        }
+//        Task {
+//            updateMessage(message)
+//        }
     }
     
     private func handleModifiedMessage(_ message: Message) {
@@ -508,9 +507,6 @@ extension ConversationViewModel
     }
     
     private func updateMessage(_ message: Message) {
-        if message.id == "4ED91730-2F56-47DF-96B8-139396D4DAD0" {
-            print("stop")
-        }
         RealmDBManager.shared.add(object: message)
 //        RealmDBManager.shared.realmDB.refresh()
     }
