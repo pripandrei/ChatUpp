@@ -90,16 +90,6 @@ final class ConversationViewController: UIViewController {
         addTargetToScrollToBottomBtn()
     }
     
-    //MARK: - Binding
-//    func scrollToRow(at indexPath: IndexPath) {
-////        var indexPath2 = IndexPath(row: indexPath.row - 1, section: indexPath.section)
-//        let containerViewHeight: CGFloat = rootView.inputBarContainer.bounds.height
-//        let cellRect = rootView.tableView.rectForRow(at: indexPath)
-////        rootView.tableView.setContentOffset(CGPoint(x: 0, y: cellRect.maxY), animated: false)
-//        rootView.tableView.contentOffset.y = cellRect.minY
-//    }
-
-    
     private func setupBinding()
     {
         conversationViewModel.$skeletonAnimationState
@@ -122,8 +112,6 @@ final class ConversationViewController: UIViewController {
                 self.rootView.tableView.reloadData()
                 self.view.layoutIfNeeded()
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-//                let index = IndexPath(row: 9, section: 0)
-//                self.scrollToRow(at: index)
                 self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
 //                self.updateMessageSeenStatusIfNeeded()
             }.store(in: &subscriptions)
@@ -164,7 +152,6 @@ final class ConversationViewController: UIViewController {
         conversationViewModel.conversationListenersInitiationSubject
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                print("Received event")
                 self?.conversationViewModel?.addListeners()
             }.store(in: &subscriptions)
     }

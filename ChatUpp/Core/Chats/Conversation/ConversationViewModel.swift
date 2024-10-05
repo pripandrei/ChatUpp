@@ -39,32 +39,6 @@ extension ConversationViewModel
         let filter = NSPredicate(format: "messageSeen == false AND senderId == %@", userMember.userId)
         return RealmDBManager.shared.retrieveObjects(ofType: Message.self, filter: filter).count
     }
-   
-//    func initiateConversation()
-//    {
-//        if shouldFetchNewMessages 
-//        {
-//            skeletonAnimationState = .initiated
-//            Task {
-//                let messages = try await fetchConversationMessages()
-//                
-//                await MainActor.run {
-//                    addMessagesToConversationInRealm(messages)
-//                    setupConversationMessageGroups()
-//                    skeletonAnimationState = .terminated
-//                    let index = self.findFirstUnseenMessageIndex()
-//                    firstUnseenMessageIndex = index
-//                }
-//                conversationListenersInitiationSubject?.send()
-//            }
-//        } else {
-//            setupConversationMessageGroups()
-//            let index = self.findFirstUnseenMessageIndex()
-//            firstUnseenMessageIndex = index
-//            conversationListenersInitiationSubject?.send()
-//        }
-//    }
-    
 
     func initiateConversation()
     {
@@ -99,14 +73,14 @@ final class ConversationViewModel {
     private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
-     var unreadMessageCount: Int?
+    var unreadMessageCount: Int?
     
     @Published private(set) var userMember: DBUser
     @Published var messageChangedType: MessageChangeType?
     @Published var firstUnseenMessageIndex: IndexPath?
-    @Published var skeletonAnimationState: SkeletonAnimationState = .terminated
+    @Published var skeletonAnimationState: SkeletonAnimationState = .none
     
-    var conversationListenersInitiationSubject = PassthroughSubject<Void,Never>()
+    private(set) var conversationListenersInitiationSubject = PassthroughSubject<Void,Never>()
     
     var shouldEditMessage: ((String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
@@ -378,9 +352,6 @@ extension ConversationViewModel
             messageChangedType = .added
             return
         }
-//        Task {
-//            updateMessage(message)
-//        }
     }
     
     private func handleModifiedMessage(_ message: Message) {
