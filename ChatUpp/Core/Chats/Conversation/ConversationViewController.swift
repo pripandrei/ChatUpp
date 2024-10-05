@@ -64,19 +64,12 @@ final class ConversationViewController: UIViewController {
     }
     
     private func initiateConversation() {
-        conversationViewModel.tryInitiateConversation {
-            Task { @MainActor [weak self] in
-                self?.conversationViewModel?.addListeners()
-            }
-        }
+//        conversationViewModel.initiateConversation2()
+//        Task { try await conversationViewModel.initiateConversation2() }
         
-//        Task {
-//            let state = await conversationViewModel.tryInitiateConversation()
-//            if state == .done {
-//                conversationViewModel.addListeners()
-//            } else {
-//                print("Repeat initiation")
-////                initiateConversation()
+//        conversationViewModel.tryInitiateConversation {
+//            Task { @MainActor [weak self] in
+//                self?.conversationViewModel?.addListeners()
 //            }
 //        }
     }
@@ -93,12 +86,12 @@ final class ConversationViewController: UIViewController {
     
     private func setupController() 
     {
-        setupBinding()
         configureTableView()
         addGestureToTableView()
         setNavigationBarItems()
         addTargetsToButtons()
         addKeyboardNotificationObservers()
+        setupBinding()
     }
     
     private func addTargetsToButtons() {
@@ -109,79 +102,42 @@ final class ConversationViewController: UIViewController {
     }
     
     //MARK: - Binding
-    func scrollToRow(at indexPath: IndexPath) {
-//        var indexPath2 = IndexPath(row: indexPath.row - 1, section: indexPath.section)
-        let containerViewHeight: CGFloat = rootView.inputBarContainer.bounds.height
-        let cellRect = rootView.tableView.rectForRow(at: indexPath)
-//        rootView.tableView.setContentOffset(CGPoint(x: 0, y: cellRect.maxY), animated: false)
-        rootView.tableView.contentOffset.y = cellRect.minY
-    }
+//    func scrollToRow(at indexPath: IndexPath) {
+////        var indexPath2 = IndexPath(row: indexPath.row - 1, section: indexPath.section)
+//        let containerViewHeight: CGFloat = rootView.inputBarContainer.bounds.height
+//        let cellRect = rootView.tableView.rectForRow(at: indexPath)
+////        rootView.tableView.setContentOffset(CGPoint(x: 0, y: cellRect.maxY), animated: false)
+//        rootView.tableView.contentOffset.y = cellRect.minY
+//    }
 
     
     private func setupBinding()
     {
-        conversationViewModel.onMessageGroupsLoad = { [weak self] indexOfCellToScrollTo in
-            guard let self = self else {return}
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5 , execute: {
-//                self.rootView.tableView.reloadData()
-//                print(indexOfCellToScrollTo)
-//                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-//                self.scrollToRow(at: indexToScrollTo)
-////                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-////                self.updateMessageSeenStatusIfNeeded()
-//            }) 
-            
-            
-            DispatchQueue.main.async {
+        conversationViewModel.$skeletonAnimationState
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self = self else {return}
+                
+                switch state {
+                case .initiated: self.toggleSkeletonAnimation(.initiated)
+                case .terminated: self.toggleSkeletonAnimation(.terminated)
+                default: break
+                }
+            }.store(in: &subscriptions)
+        
+        conversationViewModel.$firstUnseenMessageIndex
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] indexOfCellToScrollTo in
+                guard let self = self else {return}
+                
                 self.rootView.tableView.reloadData()
-//                self.rootView.tableView.layoutIfNeeded()
                 self.view.layoutIfNeeded()
                 guard let indexToScrollTo = indexOfCellToScrollTo else {return}
 //                let index = IndexPath(row: 9, section: 0)
 //                self.scrollToRow(at: index)
                 self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
 //                self.updateMessageSeenStatusIfNeeded()
-            }
-        }
-        
-        conversationViewModel.toggleSkeletonAnimation = { [weak self] shouldInitiate in
-            guard let self = self else {return}
-            
-            DispatchQueue.main.async {
-                if shouldInitiate {
-                    self.toggleSkeletonAnimation(.initiate)
-                } else {
-                    self.toggleSkeletonAnimation(.terminate)
-                }
-            }
-        }
-        
-//        conversationViewModel.$skeletonViewIsInitiated
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] shouldInitiate in
-//                guard let self = self else {return}
-//                
-//                if shouldInitiate {
-//                    toggleSkeletonAnimation(.initiate)
-//                } else {
-//                    toggleSkeletonAnimation(.terminate)
-//                }
-//                
-//            }.store(in: &subscriptions)
-//        
-//        conversationViewModel.$firstNotSeenMessageIndex
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] indexOfCellToScrollTo in
-//                guard let self = self else {return}
-//                
-////                Task { @MainActor in
-//                    /// table should be reloaded despites of indexOfCellToScrollTo being nil 
-//                    self.rootView.tableView.reloadData()
-//                    guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-//                    self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-////                    self.updateMessageSeenStatusIfNeeded()
-////                }
-//            }.store(in: &subscriptions)
+            }.store(in: &subscriptions)
 //        
         conversationViewModel.$userMember
             .receive(on: DispatchQueue.main)
@@ -214,6 +170,13 @@ final class ConversationViewController: UIViewController {
                     }
                 default: break
                 }
+            }.store(in: &subscriptions)
+        
+        conversationViewModel.$conversationListenersInitiationSubject
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.conversationViewModel?.addListeners()
             }.store(in: &subscriptions)
     }
     
@@ -460,7 +423,9 @@ extension ConversationViewController
                 continue
             }
             updateMessageSeenStatus(from: cell.cellViewModel)
-            Task { try await conversationViewModel.updateUnreadMessagesCount?() }
+            Task {
+                try await conversationViewModel.updateUnreadMessagesCount?()
+            }
         }
     }
     
@@ -672,7 +637,7 @@ extension ConversationViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if conversationViewModel.skeletonViewIsInitiated {
+        if conversationViewModel.skeletonAnimationState == .initiated {
             return CGFloat((70...120).randomElement()!)
         }
        return  UITableView.automaticDimension
@@ -777,8 +742,8 @@ extension ConversationViewController: UITableViewDelegate
 //MARK: - SkeletonView animation
 extension ConversationViewController
 {
-    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
-        if value == .initiate {
+    func toggleSkeletonAnimation(_ value: SkeletonAnimationState) {
+        if value == .initiated {
             initiateSkeletonAnimation()
         } else {
             terminateSkeletonAnimation()

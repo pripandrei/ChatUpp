@@ -8,9 +8,10 @@
 import UIKit
 import SkeletonView
 
-enum Skeletonanimation {
-    case initiate
-    case terminate
+enum SkeletonAnimationState {
+    case initiated
+    case terminated
+    case none
 }
 
 final class ResultsTableController: UITableViewController {
@@ -51,8 +52,8 @@ final class ResultsTableController: UITableViewController {
         ])
     }
     
-    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
-        if value == .initiate {
+    func toggleSkeletonAnimation(_ value: SkeletonAnimationState) {
+        if value == .initiated {
             initiateSkeletonAnimation()
         } else {
             terminateSkeletonAnimation()

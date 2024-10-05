@@ -105,8 +105,8 @@ class ChatsViewController: UIViewController {
     
     // MARK: - SkeletonView
     
-    func toggleSkeletonAnimation(_ value: Skeletonanimation) {
-        if value == .initiate {
+    func toggleSkeletonAnimation(_ value: SkeletonAnimationState) {
+        if value == .initiated {
             initiateSkeletonAnimation()
         } else {
             terminateSkeletonAnimation()
@@ -206,7 +206,7 @@ extension ChatsViewController: UISearchResultsUpdating {
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else
         {
             lastSearchedText = nil
-            updateTableView(withResults: [], toggleSkeletonAnimation: .terminate)
+            updateTableView(withResults: [], toggleSkeletonAnimation: .terminated)
             return
         }
         
@@ -214,13 +214,13 @@ extension ChatsViewController: UISearchResultsUpdating {
         let filteredResults = filterContentForSearchText(searchBar.text!)
         guard filteredResults.isEmpty else {
             resultsTableController.userSearch = .local
-            updateTableView(withResults: filteredResults, toggleSkeletonAnimation: .terminate)
+            updateTableView(withResults: filteredResults, toggleSkeletonAnimation: .terminated)
             return
         }
 
         // If search is performed globaly (database)
         if resultsTableController.filteredUsers.isEmpty {
-            resultsTableController.toggleSkeletonAnimation(.initiate)
+            resultsTableController.toggleSkeletonAnimation(.initiated)
         }
         lastSearchedText = text
         
@@ -229,7 +229,7 @@ extension ChatsViewController: UISearchResultsUpdating {
         })
     }
     
-    private func updateTableView(withResults filteredResults: [ResultsCellViewModel], toggleSkeletonAnimation value: Skeletonanimation) {
+    private func updateTableView(withResults filteredResults: [ResultsCellViewModel], toggleSkeletonAnimation value: SkeletonAnimationState) {
         resultsTableController.filteredUsers = filteredResults
         resultsTableController.tableView.reloadData()
         resultsTableController.toggleSkeletonAnimation(value)
@@ -245,7 +245,7 @@ extension ChatsViewController: UISearchResultsUpdating {
                 }
                 await MainActor.run {
                     resultsTableController.userSearch = .global
-                    updateTableView(withResults: filteredResults, toggleSkeletonAnimation: .terminate)
+                    updateTableView(withResults: filteredResults, toggleSkeletonAnimation: .terminated)
                 }
             }
         }
