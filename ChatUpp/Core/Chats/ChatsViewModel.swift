@@ -46,7 +46,7 @@ extension ChatsViewModel {
         self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
     }
     
-    private func addCellViewModel(from chat: Chat)
+    private func addCellViewModel(using chat: Chat)
     {
         let cellVM = ChatCellViewModel(chat: chat)
         self.cellViewModels.insert(cellVM, at: 0)
@@ -119,7 +119,7 @@ extension ChatsViewModel {
     {
         guard let _ = retrieveChatFromRealm(chat) else {
             addChatToRealm(chat)
-            addCellViewModel(from: chat)
+            addCellViewModel(using: chat)
             onNewChatAdded?(true)
             return
         }

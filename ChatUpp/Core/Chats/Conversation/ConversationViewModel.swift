@@ -65,8 +65,8 @@ extension ConversationViewModel
     }
 }
 
-final class ConversationViewModel {
-    
+final class ConversationViewModel 
+{
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
     private(set) var messageGroups: [ConversationMessageGroups] = []
@@ -507,7 +507,8 @@ extension Array where Element == ConversationMessageGroups
 }
 
 
-extension ConversationViewModel {
+extension ConversationViewModel 
+{
     @MainActor
     private func fetchConversationMessages() async throws -> [Message] 
     {
