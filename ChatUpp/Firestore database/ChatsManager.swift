@@ -36,8 +36,8 @@ final class ChatsManager {
         let chatsQuery = try await chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [id]).getDocuments()
         
         for document in chatsQuery.documents {
-            try await document.reference.updateData(["members": FieldValue.arrayRemove([id])])
-            try await document.reference.updateData(["members": FieldValue.arrayUnion([deletedId])])
+            try await document.reference.updateData([Chat.CodingKeys.members.rawValue: FieldValue.arrayRemove([id])])
+            try await document.reference.updateData([Chat.CodingKeys.members.rawValue: FieldValue.arrayUnion([deletedId])])
         }
     }
 }
@@ -73,7 +73,7 @@ extension ChatsManager
     
     func getAllMessages(fromChatDocumentPath documentID: String) async throws -> [Message] {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
-        return try await messagesReference.order(by: "timestamp", descending: false).getDocuments(as: Message.self)
+        return try await messagesReference.order(by: Message.CodingKeys.timestamp.rawValue, descending: false).getDocuments(as: Message.self)
     }
     
     func getUnreadMessagesCount(from chatID: String, whereMessageSenderID senderID: String) async throws -> Int {
@@ -188,12 +188,23 @@ extension ChatsManager
     }
 }
 
+//MARK: - Pagination fetch
+
+extension ChatsManager 
+{
+    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAfterTimestamp timestamp: Date) async throws -> [Message]
+    {
+        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+        return try await messagesReference.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp).limit(to: limit).getDocuments(as: Message.self)
+    }
+}
+
 //MARK: Testing functions
 extension ChatsManager {
     
     //MARK: - DELETE MESSAGES BY TIMESTAMP
     func testDeleteLastDocuments(documentPath: String) {
-        chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).order(by: "timestamp", descending: true)
+        chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
             .limit(to: 1) // Limit the query to retrieve the last 10 documents
             .getDocuments { (querySnapshot, error) in
                 if let error = error {

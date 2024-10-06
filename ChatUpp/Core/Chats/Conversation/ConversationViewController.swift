@@ -398,8 +398,8 @@ extension ConversationViewController
                   checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
                 continue
             }
-            Task { @MainActor in
-                await updateMessageSeenStatus(from: cell.cellViewModel)
+            Task {
+                await conversationViewModel.updateMessageSeenStatus(from: cell.cellViewModel)
                 try await conversationViewModel.updateUnreadMessagesCount?()
             }
         }
@@ -417,15 +417,6 @@ extension ConversationViewController
         let cellFrame = cell.frame
         let tableRect = rootView.tableView.bounds.offsetBy(dx: 0, dy: 65)
         return tableRect.contains(cellFrame)
-    }
-
-    
-    private func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
-    {
-        guard let chatID = conversationViewModel.conversation?.id else { return }
-//        Task {
-           await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
-//        }
     }
     
     //    private func handleSectionAnimation() {

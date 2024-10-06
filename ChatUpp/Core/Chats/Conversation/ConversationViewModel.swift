@@ -136,15 +136,6 @@ final class ConversationViewModel {
         self.messageGroups = tempMessageGroups
     }
     
-    private func sortCellViewModels() {
-        if var lastMessageGroup = messageGroups.first {
-            lastMessageGroup.cellViewModels.sort(by: { $0.cellMessage.timestamp > $1.cellMessage.timestamp })
-            if let lastIndex = messageGroups.indices.first {
-                messageGroups[lastIndex] = lastMessageGroup
-            }
-        }
-    }
-    
     private func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroups])
     {
         guard let date = message.timestamp.formatToYearMonthDay() else { return }
@@ -336,6 +327,7 @@ extension ConversationViewModel
             case .added: self.handleAddedMessage(message)
             case .removed: self.handleRemovedMessage(message)
             case .modified: self.handleModifiedMessage(message)
+                print("==== modified", message)
             }
         }
     }
@@ -406,8 +398,16 @@ extension ConversationViewModel
     
     private func updateLastMessageFromFirestoreChat() {
         Task {
-            await updateRecentMessageFromFirestoreChat(messageID: messageGroups[0].cellViewModels[0].cellMessage.id)
+            let messageID = messageGroups[0].cellViewModels[0].cellMessage.id
+            await updateRecentMessageFromFirestoreChat(messageID: messageID)
         }
+    }
+    
+    @MainActor
+    func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
+    {
+        guard let chatID = conversation?.id else { return }
+        await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
     }
     
     private func isLastMessage(_ indexPath: IndexPath) -> Bool {
@@ -509,9 +509,29 @@ extension Array where Element == ConversationMessageGroups
 
 extension ConversationViewModel {
     @MainActor
-    private func fetchConversationMessages() async throws -> [Message] {
+    private func fetchConversationMessages() async throws -> [Message] 
+    {
         guard let conversation = conversation else { return [] }
-        let messages = try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-        return messages
+        
+        if let lastMessage = conversation.getLastMessage() {
+            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 50, startAfterTimestamp: lastMessage.timestamp)
+        } else {
+            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+        }
     }
+}
+
+
+
+//MARK: - Not in use
+
+extension ConversationViewModel {
+//    private func sortCellViewModels() {
+//        if var lastMessageGroup = messageGroups.first {
+//            lastMessageGroup.cellViewModels.sort(by: { $0.cellMessage.timestamp > $1.cellMessage.timestamp })
+//            if let lastIndex = messageGroups.indices.first {
+//                messageGroups[lastIndex] = lastMessageGroup
+//            }
+//        }
+//    }
 }

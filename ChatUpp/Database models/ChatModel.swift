@@ -51,14 +51,13 @@ class Chat: Object, Codable {
     }
     
     func getMessages() -> [Message] {
-//        RealmDBManager.shared.update(object: self) { chat in
-//            for message in chat.conversationMessages {
-//                message.messageSeen = true
-//            }
-//        }
-        return Array(conversationMessages.sorted(byKeyPath: "timestamp", ascending: true))
+        return Array(conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true))
     }
 
+    func getLastMessage() -> Message? {
+        return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false).first
+    }
+    
 }
 
 
