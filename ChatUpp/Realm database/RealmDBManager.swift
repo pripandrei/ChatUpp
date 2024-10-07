@@ -33,7 +33,7 @@ final class RealmDBManager {
     
     private init() {}
     
-    private let configuration = Realm.Configuration(schemaVersion: 9)
+    private let configuration = Realm.Configuration(schemaVersion: 10)
     
     private var notificationToken: [NotificationToken] = []
     

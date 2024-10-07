@@ -12,6 +12,7 @@ class Chat: Object, Codable {
     @Persisted(primaryKey: true) var id: String
     @Persisted var members: List<String>
     @Persisted var recentMessageID: String?
+    @Persisted var messagesCount: Int?
     
     @Persisted var conversationMessages: List<Message>
     
@@ -19,6 +20,7 @@ class Chat: Object, Codable {
         case id = "id"
         case members = "members"
         case recentMessageID = "recent_message"
+        case messagesCount = "messages_count"
     }
     
     required convenience init(from decoder: Decoder) throws {
@@ -27,6 +29,7 @@ class Chat: Object, Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.recentMessageID = try container.decodeIfPresent(String.self, forKey: .recentMessageID)
+        self.messagesCount = try container.decodeIfPresent(Int.self, forKey: .messagesCount)
         let members = try container.decode([String].self, forKey: .members)
         self.members.append(objectsIn: members)
     }
@@ -35,15 +38,17 @@ class Chat: Object, Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.id, forKey: .id)
         try container.encode(self.members, forKey: .members)
-        try container.encode(self.recentMessageID, forKey: .recentMessageID)
+        try container.encodeIfPresent(self.recentMessageID, forKey: .recentMessageID)
+        try container.encodeIfPresent(self.messagesCount, forKey: .messagesCount)
     }
     
-    convenience init(id: String, members: [String], recentMessageID: String?) {
+    convenience init(id: String, members: [String], recentMessageID: String?, messagesCount: Int?) {
         self.init()
         
         self.id = id
         self.members.append(objectsIn: members)
         self.recentMessageID = recentMessageID
+        self.messagesCount = messagesCount
     }
     
     func appendConversationMessage(_ message: Message) {

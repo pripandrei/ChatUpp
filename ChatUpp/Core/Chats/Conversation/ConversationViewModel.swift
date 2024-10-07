@@ -115,7 +115,8 @@ final class ConversationViewModel
         let chatId = UUID().uuidString
         let members = [authenticatedUserID, userMember.userId]
         let recentMessageID = messageGroups.first?.cellViewModels.first?.cellMessage.id
-        return Chat(id: chatId, members: members, recentMessageID: recentMessageID)
+        let messagesCount = messageGroups.first?.cellViewModels.count
+        return Chat(id: chatId, members: members, recentMessageID: recentMessageID, messagesCount: messagesCount)
     }
     
     private func addChatToFirestore(_ chat: Chat) async {
@@ -200,6 +201,8 @@ final class ConversationViewModel
     
     func manageMessageCreation(_ messageText: String) 
     {
+        guard let chat = conversation else {return}
+        
         let message = createNewMessage(messageText)
         
         resetCurrentReplyMessageIfNeeded()
@@ -209,7 +212,9 @@ final class ConversationViewModel
         Task { @MainActor in
             await addMessageToFirestoreDataBase(message)
             await updateRecentMessageFromFirestoreChat(messageID: message.id)
+            try await ChatsManager.shared.updateMessagesCount(in: chat)
         }
+        
     }
     
     func resetCurrentReplyMessageIfNeeded() {

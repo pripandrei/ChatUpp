@@ -118,12 +118,14 @@ extension ChatsManager
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
-//    func updateMessageSeenStatus2(messageID: String , chatID: String)  {
-//        let data: [String: Any] = [
-//            "message_seen" : true
-//        ]
-//       getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
-//    }
+    func updateMessagesCount(in chat: Chat) async throws
+    {
+        guard let count = chat.messagesCount else {return}
+        let data: [String: Any] = [
+            Chat.CodingKeys.messagesCount.rawValue : count + 1
+        ]
+        try await chatDocument(documentPath: chat.id).updateData(data)
+    }
     
     func updateChatRecentMessage(recentMessageID: String ,chatID: String) async throws {
         let data: [String: Any] = [
