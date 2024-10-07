@@ -35,11 +35,6 @@ extension ConversationViewModel
         createMessageGroups(messages)
     }
     
-    private func getUnseenMessageCountFromRealm() -> Int {
-        let filter = NSPredicate(format: "messageSeen == false AND senderId == %@", userMember.userId)
-        return RealmDBManager.shared.retrieveObjects(ofType: Message.self, filter: filter).count
-    }
-
     func initiateConversation()
     {
         if shouldFetchNewMessages 
@@ -73,7 +68,6 @@ final class ConversationViewModel
     private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
-    var unreadMessageCount: Int?
     
     @Published private(set) var userMember: DBUser
     @Published var messageChangedType: MessageChangeType?
@@ -91,14 +85,13 @@ final class ConversationViewModel
     }
     
     private var shouldFetchNewMessages: Bool {
-        return getUnseenMessageCountFromRealm() != unreadMessageCount
+        return getMessagesCountFromRealm() != conversation?.messagesCount
     }
     
-    init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?, unreadMessageCount: Int?) {
+    init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?) {
         self.userMember = userMember
         self.conversation = conversation
         self.memberProfileImage = imageData
-        self.unreadMessageCount = unreadMessageCount
         
 //        initiateConversation()
 //        addListeners()
@@ -456,7 +449,8 @@ extension ConversationViewModel {
 }
 
 
-extension ConversationViewModel 
+//MARK: - Realm functions
+extension ConversationViewModel
 {
     private func addMessagesToConversationInRealm(_ messages: [Message]) 
     {
@@ -490,8 +484,19 @@ extension ConversationViewModel
     
     private func updateMessage(_ message: Message) {
         RealmDBManager.shared.add(object: message)
-//        RealmDBManager.shared.realmDB.refresh()
     }
+    
+    private func getMessagesCountFromRealm() -> Int {
+        return RealmDBManager.shared.getObjectsCount(ofType: Message.self)
+    }
+    
+    
+    //    private func getUnseenMessageCountFromRealm() -> Int {
+    //        let filter = NSPredicate(format: "messageSeen == false AND senderId == %@", userMember.userId)
+    //        return RealmDBManager.shared.retrieveObjects(ofType: Message.self, filter: filter).count
+    //    }
+        
+
 }
 
 

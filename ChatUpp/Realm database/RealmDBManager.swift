@@ -64,6 +64,10 @@ final class RealmDBManager {
         return Array(results)
     }
     
+    public func getObjectsCount<T: Object>(ofType type: T.Type) -> Int {
+        return realmDB.objects(type).count
+    }
+    
     public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
         let realm = try? Realm()
         return realm?.object(ofType: type, forPrimaryKey: primaryKey)
