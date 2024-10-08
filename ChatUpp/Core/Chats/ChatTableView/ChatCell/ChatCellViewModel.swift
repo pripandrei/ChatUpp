@@ -19,7 +19,6 @@ class ChatCellViewModel: Equatable {
     @Published private(set) var recentMessage: Message?
     @Published private(set) var memberProfileImage: Data?
     @Published private(set) var unreadMessageCount: Int?
-//    @Published private(set) var totalMessagesCount: Int?
     
     init(chat: Chat) {
         self.chat = chat
@@ -66,7 +65,7 @@ class ChatCellViewModel: Equatable {
     }
     
     private func findMemberID() -> String? {
-        return chat.members.first(where: { $0 != authUser.uid} )
+        return chat.members.first(where: { $0 != authUser.uid } )
     }
     
     var isRecentMessagePresent: Bool?
@@ -75,10 +74,6 @@ class ChatCellViewModel: Equatable {
         if let _ = chat.recentMessageID { return true }
         return false
     }
-    
-//    var isAuthUserOwnerOfRecentMessage: Bool {
-//        authUser.uid == recentMessage?.senderId
-//    }
 }
 
 
@@ -158,10 +153,8 @@ extension ChatCellViewModel
             async let loadMessage      = loadRecentMessage()
             async let loadImage        = fetchImageData()
             async let loadUnreadMessageCount = fetchUnreadMessagesCount()
-//            async let loadMessagesCount = getMessagesCount()
             
-            (recentMessage, memberProfileImage, unreadMessageCount/*, totalMessagesCount*/) = await (loadMessage, try loadImage, try loadUnreadMessageCount/*, try loadMessagesCount*/)
-//            print("Messages count \(totalMessagesCount) in chat \(chat.id)")
+            (recentMessage, memberProfileImage, unreadMessageCount) = await (loadMessage, try loadImage, try loadUnreadMessageCount)
         } catch {
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
@@ -184,7 +177,10 @@ extension ChatCellViewModel
     
     @MainActor
     func fetchUnreadMessagesCount() async throws -> Int? {
-        let unreadMessageCount = try await ChatsManager.shared.getUnreadMessagesCount(from: chat.id, whereMessageSenderID: member!.userId)
+        let unreadMessageCount = try await ChatsManager
+            .shared
+            .getUnreadMessagesCount(from: chat.id, whereMessageSenderID: member!.userId)
+        
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
     }

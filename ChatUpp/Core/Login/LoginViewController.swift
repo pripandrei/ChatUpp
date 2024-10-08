@@ -65,9 +65,11 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         
         NSLayoutConstraint.activate([
             logoImage.topAnchor.constraint(equalTo: view.topAnchor, constant: 70),
-            logoImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-            logoImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+//            logoImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+//            logoImage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
             logoImage.heightAnchor.constraint(equalToConstant: 320),
+            logoImage.widthAnchor.constraint(equalToConstant: 320),
+            logoImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
 

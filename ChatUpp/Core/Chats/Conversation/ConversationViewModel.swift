@@ -200,6 +200,7 @@ final class ConversationViewModel
         
         resetCurrentReplyMessageIfNeeded()
         addMessageToRealmChat(message)
+        chat.incrementMessageCount()
         createMessageGroups([message])
         
         Task { @MainActor in

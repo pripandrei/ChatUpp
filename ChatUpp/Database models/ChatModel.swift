@@ -63,6 +63,10 @@ class Chat: Object, Codable {
         return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false).first
     }
     
+    func incrementMessageCount() {
+        self.messagesCount = (self.messagesCount ?? 0) + 1
+    }
+    
 }
 
 
