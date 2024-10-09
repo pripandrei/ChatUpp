@@ -18,7 +18,7 @@ class Chat: Object, Codable {
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
-        case members = "members"
+        case participants = "participants"
         case recentMessageID = "recent_message"
         case messagesCount = "messages_count"
     }
@@ -30,23 +30,23 @@ class Chat: Object, Codable {
         self.id = try container.decode(String.self, forKey: .id)
         self.recentMessageID = try container.decodeIfPresent(String.self, forKey: .recentMessageID)
         self.messagesCount = try container.decodeIfPresent(Int.self, forKey: .messagesCount)
-        let members = try container.decode([String].self, forKey: .members)
-        self.participants.append(objectsIn: members)
+        let participants = try container.decode([String].self, forKey: .participants)
+        self.participants.append(objectsIn: participants)
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.id, forKey: .id)
-        try container.encode(self.participants, forKey: .members)
+        try container.encode(self.participants, forKey: .participants)
         try container.encodeIfPresent(self.recentMessageID, forKey: .recentMessageID)
         try container.encodeIfPresent(self.messagesCount, forKey: .messagesCount)
     }
     
-    convenience init(id: String, members: [String], recentMessageID: String?, messagesCount: Int?) {
+    convenience init(id: String, participants: [String], recentMessageID: String?, messagesCount: Int?) {
         self.init()
         
         self.id = id
-        self.participants.append(objectsIn: members)
+        self.participants.append(objectsIn: participants)
         self.recentMessageID = recentMessageID
         self.messagesCount = messagesCount
     }

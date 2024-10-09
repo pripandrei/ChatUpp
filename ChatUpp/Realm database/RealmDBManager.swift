@@ -33,7 +33,16 @@ final class RealmDBManager {
     
     private init() {}
     
-    private let configuration = Realm.Configuration(schemaVersion: 10)
+    private let configuration = Realm.Configuration(schemaVersion: 12)
+    { migration, oldSchemaVersion in
+        if oldSchemaVersion < 11 {
+            migration.enumerateObjects(ofType: Chat.className()) { oldObject, newObject in
+                let oldKey = "members"
+                let newKey = Chat.CodingKeys.participants.rawValue
+                newObject![newKey] = oldObject![oldKey]
+            }
+        }
+    }
     
     private var notificationToken: [NotificationToken] = []
     

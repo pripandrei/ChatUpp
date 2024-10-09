@@ -21,6 +21,7 @@ final class ChatsViewModel {
     var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
+//        ChatsManager.shared.updateMembersToParticipants()
         print(RealmDBManager.realmFilePath)
         setupCellViewModels()
         addChatsListener()
@@ -69,7 +70,7 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     private func retrieveChatsFromRealm() -> [Chat] {
-        let filter = NSPredicate(format: "ANY members == %@", authUser.uid)
+        let filter = NSPredicate(format: "ANY \(Chat.CodingKeys.participants.rawValue) == %@", authUser.uid)
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self, filter: filter)
     }
     

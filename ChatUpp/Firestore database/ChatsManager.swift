@@ -36,8 +36,8 @@ final class ChatsManager {
         let chatsQuery = try await chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [id]).getDocuments()
         
         for document in chatsQuery.documents {
-            try await document.reference.updateData([Chat.CodingKeys.members.rawValue: FieldValue.arrayRemove([id])])
-            try await document.reference.updateData([Chat.CodingKeys.members.rawValue: FieldValue.arrayUnion([deletedId])])
+            try await document.reference.updateData([Chat.CodingKeys.participants.rawValue: FieldValue.arrayRemove([id])])
+            try await document.reference.updateData([Chat.CodingKeys.participants.rawValue: FieldValue.arrayUnion([deletedId])])
         }
     }
 }
@@ -222,6 +222,15 @@ extension ChatsManager
 //MARK: Testing functions
 extension ChatsManager {
     
+    static func cleanFirestoreCache() async throws {
+        do {
+            try await Firestore.firestore().clearPersistence()
+            print("Firestore cache successfully cleared")
+        } catch {
+            print("Error clearing Firestore cache: \(error.localizedDescription)")
+        }
+    }
+    
     //MARK: - DELETE MESSAGES BY TIMESTAMP
     func testDeleteLastDocuments(documentPath: String) {
         chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
@@ -300,4 +309,38 @@ extension ChatsManager {
             }
         }
     }
+
+
+    func updateMembersToParticipants() {
+        // Reference to your Firestore collection
+
+        // Fetch all documents in the collection
+        chatsCollection.getDocuments { (snapshot, error) in
+            if let error = error {
+                print("Error fetching documents: \(error)")
+                return
+            }
+            
+            // Iterate through the documents
+            for document in snapshot?.documents ?? [] {
+                let data = document.data()
+
+                // Check if the `members` field exists
+                if let members = data["members"] as? [String] {
+                    // Set the `participants` field with the same value as `members`
+                    self.chatsCollection.document(document.documentID).updateData([
+                        "participants": members,
+                        "members": FieldValue.delete()  // Remove the `members` field
+                    ]) { error in
+                        if let error = error {
+                            print("Error updating document: \(error)")
+                        } else {
+                            print("Successfully updated document \(document.documentID)")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

@@ -106,10 +106,10 @@ final class ConversationViewModel
     private func createChat() -> Chat
     {
         let chatId = UUID().uuidString
-        let members = [authenticatedUserID, participant.userId]
+        let participants = [authenticatedUserID, participant.userId]
         let recentMessageID = messageGroups.first?.cellViewModels.first?.cellMessage.id
         let messagesCount = messageGroups.first?.cellViewModels.count
-        return Chat(id: chatId, members: members, recentMessageID: recentMessageID, messagesCount: messagesCount)
+        return Chat(id: chatId, participants: participants, recentMessageID: recentMessageID, messagesCount: messagesCount)
     }
     
     private func addChatToFirestore(_ chat: Chat) async {
