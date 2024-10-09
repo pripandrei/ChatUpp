@@ -10,7 +10,7 @@ import RealmSwift
 
 class Chat: Object, Codable {
     @Persisted(primaryKey: true) var id: String
-    @Persisted var members: List<String>
+    @Persisted var participants: List<String>
     @Persisted var recentMessageID: String?
     @Persisted var messagesCount: Int?
     
@@ -31,13 +31,13 @@ class Chat: Object, Codable {
         self.recentMessageID = try container.decodeIfPresent(String.self, forKey: .recentMessageID)
         self.messagesCount = try container.decodeIfPresent(Int.self, forKey: .messagesCount)
         let members = try container.decode([String].self, forKey: .members)
-        self.members.append(objectsIn: members)
+        self.participants.append(objectsIn: members)
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.id, forKey: .id)
-        try container.encode(self.members, forKey: .members)
+        try container.encode(self.participants, forKey: .members)
         try container.encodeIfPresent(self.recentMessageID, forKey: .recentMessageID)
         try container.encodeIfPresent(self.messagesCount, forKey: .messagesCount)
     }
@@ -46,7 +46,7 @@ class Chat: Object, Codable {
         self.init()
         
         self.id = id
-        self.members.append(objectsIn: members)
+        self.participants.append(objectsIn: members)
         self.recentMessageID = recentMessageID
         self.messagesCount = messagesCount
     }
@@ -73,7 +73,7 @@ class Chat: Object, Codable {
 extension Chat {
     static func == (lhs: Chat, rhs: Chat) -> Bool {
         lhs.id == rhs.id &&
-        lhs.members == rhs.members &&
+        lhs.participants == rhs.participants &&
         lhs.recentMessageID == rhs.recentMessageID
         
     }

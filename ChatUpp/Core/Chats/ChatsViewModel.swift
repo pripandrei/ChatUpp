@@ -84,7 +84,7 @@ extension ChatsViewModel {
     private func updateRealmChat(_ chat: Chat) {
         RealmDBManager.shared.update(objectWithKey: chat.id, type: Chat.self) { DBChat in
             DBChat.recentMessageID = chat.recentMessageID
-            DBChat.members = chat.members
+            DBChat.participants = chat.participants
         }
     }
 }

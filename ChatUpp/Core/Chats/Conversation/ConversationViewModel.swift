@@ -69,7 +69,7 @@ final class ConversationViewModel
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
-    @Published private(set) var userMember: DBUser
+    @Published private(set) var participant: DBUser
     @Published var messageChangedType: MessageChangeType?
     @Published var firstUnseenMessageIndex: IndexPath?
     @Published var skeletonAnimationState: SkeletonAnimationState = .none
@@ -88,8 +88,8 @@ final class ConversationViewModel
         return getMessagesCountFromRealm() != conversation?.messagesCount
     }
     
-    init(userMember: DBUser, conversation: Chat? = nil, imageData: Data?) {
-        self.userMember = userMember
+    init(participant: DBUser, conversation: Chat? = nil, imageData: Data?) {
+        self.participant = participant
         self.conversation = conversation
         self.memberProfileImage = imageData
         
@@ -106,7 +106,7 @@ final class ConversationViewModel
     private func createChat() -> Chat
     {
         let chatId = UUID().uuidString
-        let members = [authenticatedUserID, userMember.userId]
+        let members = [authenticatedUserID, participant.userId]
         let recentMessageID = messageGroups.first?.cellViewModels.first?.cellMessage.id
         let messagesCount = messageGroups.first?.cellViewModels.count
         return Chat(id: chatId, members: members, recentMessageID: recentMessageID, messagesCount: messagesCount)
@@ -287,7 +287,7 @@ final class ConversationViewModel
         if id == user.uid {
             return user.name
         } else {
-            return userMember.name
+            return participant.name
         }
     }
     
@@ -425,12 +425,12 @@ extension ConversationViewModel {
     /// - Temporary fix while firebase functions are deactivated
     
     func addUserObserver() {
-        userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(userMember.userId) { [weak self] realtimeDBUser in
+        userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(participant.userId) { [weak self] realtimeDBUser in
             guard let self = self else {return}
-            if realtimeDBUser.isActive != self.userMember.isActive
+            if realtimeDBUser.isActive != self.participant.isActive
             {
                 if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive {
-                    self.userMember = self.userMember.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    self.participant = self.participant.updateActiveStatus(lastSeenDate: date,isActive: isActive)
                     
                 }
             }
@@ -439,12 +439,12 @@ extension ConversationViewModel {
     
     func addUsersListener() {
         
-        self.userListener = UserManager.shared.addListenerToUsers([userMember.userId]) { [weak self] users, documentsTypes in
+        self.userListener = UserManager.shared.addListenerToUsers([participant.userId]) { [weak self] users, documentsTypes in
             guard let self = self else {return}
             // since we are listening only for one user here
             // we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self.userMember = user
+            self.participant = user
         }
     }
 }

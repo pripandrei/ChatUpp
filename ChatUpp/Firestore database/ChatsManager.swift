@@ -76,21 +76,28 @@ extension ChatsManager
         return try await messagesReference.order(by: Message.CodingKeys.timestamp.rawValue, descending: false).getDocuments(as: Message.self)
     }
     
-    func getUnreadMessagesCount(from chatID: String, whereMessageSenderID senderID: String) async throws -> Int 
-    {
-        let messagesReference = chatDocument(documentPath: chatID)
-            .collection(FirestoreCollection.messages.rawValue)
-        
-        let countQuery = messagesReference
-            .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false)
-            .whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID)
-            .count
-        
-        return try await countQuery
-            .getAggregation(source: .server)
-            .count
-            .intValue
+    func getUnreadMessagesCount(from chatID: String, whereMessageSenderID senderID: String) async throws -> Int {
+        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+        return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID).getDocuments().count
     }
+    
+    
+        // Aggregation query to not fetch all messages but only get count 
+//    func getUnreadMessagesCount(from chatID: String, whereMessageSenderID senderID: String) async throws -> Int
+//    {
+//        let messagesReference = chatDocument(documentPath: chatID)
+//            .collection(FirestoreCollection.messages.rawValue)
+//        
+//        let countQuery = messagesReference
+//            .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false)
+//            .whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID)
+//            .count
+//        
+//        return try await countQuery
+//            .getAggregation(source: .server)
+//            .count
+//            .intValue
+//    }
     
 //    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message?] {
 //        var messages = [Message?]()

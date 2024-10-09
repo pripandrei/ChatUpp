@@ -90,7 +90,8 @@ extension ConversationCellViewModel
 ////            print("Error updating message seen status in Firestore: ", error.localizedDescription)
 ////        }
 //    }
-//    
+
+    
     func updateRealmMessageSeenStatus() {
         RealmDBManager.shared.update(object: cellMessage) { message in
             message.messageSeen = true

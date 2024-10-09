@@ -65,7 +65,7 @@ class ChatCellViewModel: Equatable {
     }
     
     private func findMemberID() -> String? {
-        return chat.members.first(where: { $0 != authUser.uid } )
+        return chat.participants.first(where: { $0 != authUser.uid } )
     }
     
     var isRecentMessagePresent: Bool?
@@ -155,6 +155,7 @@ extension ChatCellViewModel
             async let loadUnreadMessageCount = fetchUnreadMessagesCount()
             
             (recentMessage, memberProfileImage, unreadMessageCount) = await (loadMessage, try loadImage, try loadUnreadMessageCount)
+            print("stop")
         } catch {
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
@@ -175,6 +176,7 @@ extension ChatCellViewModel
         return message
     }
     
+    @discardableResult
     @MainActor
     func fetchUnreadMessagesCount() async throws -> Int? {
         let unreadMessageCount = try await ChatsManager

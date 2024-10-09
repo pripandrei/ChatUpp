@@ -116,7 +116,7 @@ final class ConversationViewController: UIViewController {
 //                self.updateMessageSeenStatusIfNeeded()
             }.store(in: &subscriptions)
 //        
-        conversationViewModel.$userMember
+        conversationViewModel.$participant
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
                 guard let self = self else {return}
@@ -257,7 +257,7 @@ final class ConversationViewController: UIViewController {
     /// - Navigation bar items setup
     private func setNavigationBarItems() {
         let imageData = conversationViewModel.memberProfileImage 
-        let member = conversationViewModel.userMember
+        let member = conversationViewModel.participant
         var memberActiveStatus: String
         
         memberActiveStatus = member.isActive ?? false ?
@@ -398,8 +398,13 @@ extension ConversationViewController
                   checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
                 continue
             }
-            Task {
+            Task { @MainActor in
+                
+                //realm message seen status update
+                cell.cellViewModel.updateRealmMessageSeenStatus()
+                //firestore message seen status update
                 await conversationViewModel.updateMessageSeenStatus(from: cell.cellViewModel)
+                // gets unread messages from firestore and assignes to local count badge
                 try await conversationViewModel.updateUnreadMessagesCount?()
             }
         }
