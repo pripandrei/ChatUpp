@@ -31,40 +31,43 @@ final class RealmDBManager {
     
     static var shared = RealmDBManager()
     
-    private init() {}
+    static private let schemaVersion: UInt64 = 12
     
-    private let configuration = Realm.Configuration(schemaVersion: 12)
-    { migration, oldSchemaVersion in
-        if oldSchemaVersion < 11 {
-            migration.enumerateObjects(ofType: Chat.className()) { oldObject, newObject in
-                let oldKey = "members"
-                let newKey = Chat.CodingKeys.participants.rawValue
-                newObject![newKey] = oldObject![oldKey]
-            }
-        }
+    private var realm: Realm?
+    
+    private init() {
+        initiateDatabase()
     }
     
-    private var notificationToken: [NotificationToken] = []
+    private func initiateDatabase() {
+        Realm.Configuration.defaultConfiguration = createConfiguration()
+        realm = try? Realm()
+    }
     
-    var realmDB: Realm {
-        Realm.Configuration.defaultConfiguration = configuration
-        return try! Realm()
+    private func createConfiguration() -> Realm.Configuration 
+    {
+        return Realm.Configuration(
+            schemaVersion: RealmDBManager.schemaVersion,
+            migrationBlock: { migration, oldSchemaVersion in
+                if oldSchemaVersion < 11 {
+                    migration.enumerateObjects(ofType: Chat.className()) { oldObject, newObject in
+                        let oldKey = "members"
+                        let newKey = Chat.CodingKeys.participants.rawValue
+                        newObject![newKey] = oldObject![oldKey]
+                    }
+                }
+            }
+        )
     }
     
     public func add<T: Object>(object: T) {
-        try? realmDB.write {
-            realmDB.add(object, update: .modified)
-        }
-    }
-    
-    public func create<T: Object>(object: T) -> T {
-        return try! realmDB.write {
-            realmDB.create(T.self, value: object, update: .modified)
+        try? realm?.write {
+            realm?.add(object, update: .modified)
         }
     }
     
     public func retrieveObjects<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> [T] {
-        var results = realmDB.objects(type)
+        guard var results = realm?.objects(type) else { return [] }
         
         if let predicate = filter {
             results = results.filter(predicate)
@@ -72,19 +75,19 @@ final class RealmDBManager {
         
         return Array(results)
     }
-    
-    public func getObjectsCount<T: Object>(ofType type: T.Type) -> Int {
-        return realmDB.objects(type).count
+
+    public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
+        return realm?.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
-    public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
-        let realm = try? Realm()
-        return realm?.object(ofType: type, forPrimaryKey: primaryKey)
+    public func getObjectsCount<T: Object>(ofType type: T.Type) -> Int {
+        guard let realm = realm else {return 0}
+        return realm.objects(type).count
     }
     
     
     public func update<T: Object>(object: T, update: (T) -> Void) {
-        try? realmDB.write {
+        try? realm?.write {
             update(object)
         }
     }
@@ -92,7 +95,7 @@ final class RealmDBManager {
     public func update<T: Object>(objectWithKey key: String, type: T.Type, update: (T) -> Void) {
         guard let object = retrieveSingleObject(ofType: type, primaryKey: key) else {return}
         
-        try? realmDB.write {
+        try? realm?.write {
             update(object)
         }
     }
@@ -139,6 +142,16 @@ extension RealmDBManager
         return "Realm database file is located at: \(fileURL)"
     }
 }
+
+
+//MARK: Unused functions
+//extension RealmDBManager {
+//    public func create<T: Object>(object: T) -> T? {
+//        return try? realm?.write {
+//            realm?.create(T.self, value: object, update: .modified)
+//        }
+//    }
+//}
 
 //enum RealmPropertyChange {
 //    case member(String)

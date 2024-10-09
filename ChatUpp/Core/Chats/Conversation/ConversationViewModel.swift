@@ -457,9 +457,9 @@ extension ConversationViewModel
     {
         guard let conversation = conversation else { return }
         RealmDBManager.shared.update(object: conversation) { chat in
-                for message in messages {
-                    RealmDBManager.shared.realmDB.add(message, update: .modified)
-                }
+//                for message in messages {
+//                    RealmDBManager.shared.add(object: message)
+//                }
             let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
             let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
 
