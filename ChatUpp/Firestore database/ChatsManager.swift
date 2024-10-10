@@ -33,7 +33,7 @@ final class ChatsManager {
 
     /// - Replace deleted user id in chats
     func replaceUserId(_ id: String, with deletedId: String) async throws {
-        let chatsQuery = try await chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [id]).getDocuments()
+        let chatsQuery = try await chatsCollection.whereField(FirestoreField.participants.rawValue, arrayContainsAny: [id]).getDocuments()
         
         for document in chatsQuery.documents {
             try await document.reference.updateData([Chat.CodingKeys.participants.rawValue: FieldValue.arrayRemove([id])])
@@ -52,7 +52,7 @@ final class ChatsManager {
 //MARK: - fetch chats
 extension ChatsManager {
     func fetchChats(containingUserID userID: String) async throws -> [Chat] {
-        return try await chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).getDocuments(as: Chat.self)
+        return try await chatsCollection.whereField(Chat.CodingKeys.participants.rawValue, arrayContainsAny: [userID]).getDocuments(as: Chat.self)
     }
 }
 
@@ -193,7 +193,7 @@ extension ChatsManager
         // get only the added or removed doc with diff option.
         // use compliciton to get the doc and find if the doc is in array of chats remove it, if not add it
         
-       return chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
+       return chatsCollection.whereField(FirestoreField.participants.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
 

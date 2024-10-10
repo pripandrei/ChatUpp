@@ -22,12 +22,8 @@ final class ChatsViewModel {
     
     init() {
         print(RealmDBManager.realmFilePath)
-        Task {
-            let chats = try await ChatsManager.shared.fetchChats(containingUserID: authUser.uid)
-            print(chats)
-        }
-//        setupCellViewModels()
-//        addChatsListener()
+        setupCellViewModels()
+        addChatsListener()
     }
 
     func activateOnDisconnect() {
