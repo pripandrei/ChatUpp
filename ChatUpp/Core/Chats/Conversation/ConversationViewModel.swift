@@ -62,6 +62,8 @@ extension ConversationViewModel
 
 final class ConversationViewModel 
 {
+    var unreadMessagesCount: Int = 10
+    
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
     private(set) var messageGroups: [ConversationMessageGroups] = []
@@ -85,7 +87,8 @@ final class ConversationViewModel
     }
     
     private var shouldFetchNewMessages: Bool {
-        return conversation?.conversationMessages.count != conversation?.messagesCount
+//        return conversation?.conversationMessages.count != conversation?.messagesCount
+        return unreadMessagesCount != getUnreadMessagesCountFromRealm()
     }
     
     init(participant: DBUser, conversation: Chat? = nil, imageData: Data?) {
@@ -487,6 +490,15 @@ extension ConversationViewModel
         RealmDBManager.shared.add(object: message)
     }
     
+    private func getUnreadMessagesCountFromRealm() -> Int {
+        let filter = NSPredicate(format: "messageSeen == false")
+        let count = conversation?.conversationMessages.filter(filter).count
+        
+        guard let count = count else {return 0}
+        return count
+    }
+    
+    
 //    private func getMessagesCountFromRealm() -> Int {
 //        guard let conversationID = conversation?.id else {return 0}
 //        let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversationID)?.conversationMessages.count
@@ -527,12 +539,31 @@ extension ConversationViewModel
     {
         guard let conversation = conversation else { return [] }
         
-        if let lastMessage = conversation.getLastMessage() {
-            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 50, startAfterTimestamp: lastMessage.timestamp)
+        let fetchDirection = getMessagesFetchingDirection()
+        
+        if let nextToLastMessage = conversation.getNextToLastMessage() {
+            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 50, startAtTimestamp: nextToLastMessage.timestamp, direction: fetchDirection)
         } else {
             return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
         }
     }
+    
+    private func getMessagesFetchingDirection() -> MessagesFetchDirection {
+        guard let count = conversation?.conversationMessages.count else {return .both}
+        
+        if count >= 50  {
+            return .ascending
+        } else {
+            return .descending
+        }
+    }
+    
+}
+
+enum MessagesFetchDirection {
+    case ascending
+    case descending
+    case both
 }
 
 

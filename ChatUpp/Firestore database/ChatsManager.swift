@@ -226,10 +226,32 @@ extension ChatsManager
 
 extension ChatsManager 
 {
-    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAfterTimestamp timestamp: Date) async throws -> [Message]
-    {
+//    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAfterTimestamp timestamp: Date, ascending: Bool) async throws -> [Message]
+//    {
+//        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+//        return try await messagesReference.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp).limit(to: limit).getDocuments(as: Message.self)
+//    }
+    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date, direction: MessagesFetchDirection) async throws -> [Message] {
         let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
-        return try await messagesReference.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp).limit(to: limit).getDocuments(as: Message.self)
+        
+        let query: Query
+        
+        if direction == .ascending {
+            query = messagesReference
+                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+                .order(by: Message.CodingKeys.timestamp.rawValue, descending: false) // ascending order
+        } else if direction == .descending {
+            query = messagesReference
+                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
+                .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending order
+        } else {
+            query = messagesReference
+                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
+                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+                .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending
+        }
+        
+        return try await query.limit(to: limit).getDocuments(as: Message.self)
     }
 }
 

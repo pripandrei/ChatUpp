@@ -63,6 +63,22 @@ class Chat: Object, Codable {
         return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false).first
     }
     
+    
+    
+    /// Last message will always be the recent one (in local and remote db)
+    /// However, next to last message will be in local db but,
+    /// it will not necessarily be next to last in remote db
+    /// So we need to get it's timestamp in order to fetch messages up from that timestamp
+
+    func getNextToLastMessage() -> Message? {
+        guard let nextToLastMessage = conversationMessages
+            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false)
+            .dropFirst()
+            .first else { return nil }
+        
+        return nextToLastMessage
+    }
+    
     func incrementMessageCount() {
         self.messagesCount = (self.messagesCount ?? 0) + 1
     }

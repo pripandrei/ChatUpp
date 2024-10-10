@@ -80,12 +80,6 @@ final class RealmDBManager {
         return realm?.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
-    public func getObjectsCount<T: Object>(ofType type: T.Type) -> Int {
-        guard let realm = realm else {return 0}
-        return realm.objects(type).count
-    }
-    
-    
     public func update<T: Object>(object: T, update: (T) -> Void) {
         try? realm?.write {
             update(object)
@@ -150,6 +144,17 @@ extension RealmDBManager
 //        return try? realm?.write {
 //            realm?.create(T.self, value: object, update: .modified)
 //        }
+//    }
+
+
+//    public func getObjectsCount<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Int {
+//        guard var result = realm?.objects(type) else {return 0}
+//
+//        if let predicate = filter {
+//            result = result.filter(predicate)
+//        }
+//        
+//        return result.count
 //    }
 //}
 
