@@ -21,10 +21,13 @@ final class ChatsViewModel {
     var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
-//        ChatsManager.shared.updateMembersToParticipants()
         print(RealmDBManager.realmFilePath)
-        setupCellViewModels()
-        addChatsListener()
+        Task {
+            let chats = try await ChatsManager.shared.fetchChats(containingUserID: authUser.uid)
+            print(chats)
+        }
+//        setupCellViewModels()
+//        addChatsListener()
     }
 
     func activateOnDisconnect() {
@@ -118,6 +121,9 @@ extension ChatsViewModel {
     
     private func handleAddedChat(_ chat: Chat)
     {
+        if chat.id == "EC7D21E8-AD7B-4708-B083-3598E3B4C2D7" {
+            print("stop")
+        }
         guard let _ = retrieveChatFromRealm(chat) else {
             addChatToRealm(chat)
             addCellViewModel(using: chat)

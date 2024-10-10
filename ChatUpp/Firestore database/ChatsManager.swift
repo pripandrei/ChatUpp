@@ -40,6 +40,20 @@ final class ChatsManager {
             try await document.reference.updateData([Chat.CodingKeys.participants.rawValue: FieldValue.arrayUnion([deletedId])])
         }
     }
+    
+//    static func setupSettings() {
+//        let settings = FirestoreSettings()
+//        settings.cacheSettings = MemoryCacheSettings()
+//        let db = Firestore.firestore()
+//        db.settings = settings
+//    }
+}
+
+//MARK: - fetch chats
+extension ChatsManager {
+    func fetchChats(containingUserID userID: String) async throws -> [Chat] {
+        return try await chatsCollection.whereField(FirestoreField.members.rawValue, arrayContainsAny: [userID]).getDocuments(as: Chat.self)
+    }
 }
 
 //MARK: - Create and remove message
