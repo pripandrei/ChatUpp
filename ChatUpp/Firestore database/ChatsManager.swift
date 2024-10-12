@@ -27,6 +27,7 @@ final class ChatsManager {
         return chatsCollection.document(documentPath)
     }
 
+    
     func createNewChat(chat: Chat) async throws {
         try chatDocument(documentPath: chat.id).setData(from: chat, merge: false)
     }

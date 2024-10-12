@@ -62,7 +62,7 @@ extension ConversationViewModel
 
 final class ConversationViewModel 
 {
-    var unreadMessagesCount: Int = 2
+    var unreadMessagesCount: Int = 0
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
@@ -119,7 +119,6 @@ final class ConversationViewModel
     private func addChatToFirestore(_ chat: Chat) async {
         do {
             try await ChatsManager.shared.createNewChat(chat: chat)
-            addListenerToMessages()
         } catch {
             print("Error creating conversation", error.localizedDescription)
         }
@@ -190,8 +189,10 @@ final class ConversationViewModel
             let chat = createChat()
             conversation = chat
             addChatToRealm(chat)
-            Task(priority: .high, operation: {
-                await addChatToFirestore(chat)
+            let freezedChat = chat.freeze()
+            Task(priority: .high, operation: { @MainActor in
+                await addChatToFirestore(freezedChat)
+                addListenerToMessages()
             })
         }
     }
@@ -430,6 +431,7 @@ extension Array where Element == ConversationMessageGroups
 //MARK: - Messages listener
 extension ConversationViewModel
 {
+    
     func addListenerToMessages()
     {
         guard let conversation = conversation else {return}
