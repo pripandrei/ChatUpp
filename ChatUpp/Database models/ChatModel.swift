@@ -80,7 +80,9 @@ class Chat: Object, Codable {
     }
     
     func incrementMessageCount() {
-        self.messagesCount = (self.messagesCount ?? 0) + 1
+        RealmDBManager.shared.update(object: self) { chat in
+            chat.messagesCount = (self.messagesCount ?? 0) + 1
+        }
     }
     
 }

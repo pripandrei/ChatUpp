@@ -84,9 +84,9 @@ extension ChatCellViewModel {
     func updateChatParameters() {
         
         /// chat was update in realm, so we check if it's properties match local one (member & recentMessage)
-        if findMemberID() != member?.userId {
-            Task { await updateUserAfterDeletion() }
-        }
+//        if findMemberID() != member?.userId {
+//            Task { await updateUserAfterDeletion() }
+//        }
         if chat.recentMessageID != recentMessage?.id {
             Task {
                 recentMessage = await loadRecentMessage()
@@ -155,7 +155,6 @@ extension ChatCellViewModel
             async let loadUnreadMessageCount = fetchUnreadMessagesCount()
             
             (recentMessage, memberProfileImage, unreadMessageCount) = await (loadMessage, try loadImage, try loadUnreadMessageCount)
-            print("stop")
         } catch {
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }

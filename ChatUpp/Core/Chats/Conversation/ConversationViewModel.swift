@@ -62,7 +62,7 @@ extension ConversationViewModel
 
 final class ConversationViewModel 
 {
-    var unreadMessagesCount: Int = 10
+    var unreadMessagesCount: Int = 2
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
@@ -88,7 +88,8 @@ final class ConversationViewModel
     
     private var shouldFetchNewMessages: Bool {
 //        return conversation?.conversationMessages.count != conversation?.messagesCount
-        return unreadMessagesCount != getUnreadMessagesCountFromRealm()
+        guard let count = conversation?.conversationMessages.count else {return true}
+        return (unreadMessagesCount != getUnreadMessagesCountFromRealm()) || count <= 50
     }
     
     init(participant: DBUser, conversation: Chat? = nil, imageData: Data?) {
@@ -316,112 +317,6 @@ final class ConversationViewModel
     }
 }
 
-//MARK: - Messages listener
-extension ConversationViewModel
-{
-    func addListenerToMessages() 
-    {
-        guard let conversation = conversation else {return}
-        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
-            guard let self = self else {return}
-            
-            switch type {
-            case .added: self.handleAddedMessage(message)
-            case .removed: self.handleRemovedMessage(message)
-            case .modified: self.handleModifiedMessage(message)
-                print("==== modified", message)
-            }
-        }
-    }
-}
-
-//MARK: - Message listener helper functions
-extension ConversationViewModel
-{
-    private func handleAddedMessage(_ message: Message) 
-    {
-        guard let _ = retrieveMessageFromRealm(message) else {
-            addMessageToRealmChat(message)
-            createMessageGroups([message])
-            messageChangedType = .added
-            return
-        }
-//        Task {
-//            if message.id == "----" {
-//                print("stop")
-//            }
-//            updateMessage(message)
-//        }
-    }
-    
-    private func handleModifiedMessage(_ message: Message) {
-        guard let indexPath = indexPath(of: message) else { return }
-        let cellVM = messageGroups.getCellViewModel(at: indexPath)
-        
-        guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
-        
-        updateMessage(message)
-        if message.senderId == authenticatedUserID {
-            messageChangedType = .modified(indexPath, modificationValue)
-        }
-    }
-    
-    private func handleRemovedMessage(_ message: Message) {
-        
-        guard let indexPath = indexPath(of: message) else { return }
-        
-        messageGroups.removeCellViewModel(at: indexPath)
-        removeMessageGroup(at: indexPath)
-        
-        if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
-        messageChangedType = .removed
-    }
-    
-    private func removeMessageGroup(at indexPath: IndexPath) {
-        if messageGroups[indexPath.section].cellViewModels.isEmpty {
-            messageGroups.remove(at: indexPath.section)
-        }
-    }
-
-    private func indexPath(of message: Message) -> IndexPath? {
-        guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
-        
-        for groupIndex in 0..<messageGroups.count {
-            let group = messageGroups[groupIndex]
-            
-            if group.date == date {
-                if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage.id == message.id }) {
-                    return IndexPath(row: messageIndex, section: groupIndex)
-                }
-            }
-        }
-        return nil
-    }
-    
-    private func updateLastMessageFromFirestoreChat() {
-        Task {
-            let messageID = messageGroups[0].cellViewModels[0].cellMessage.id
-            await updateRecentMessageFromFirestoreChat(messageID: messageID)
-        }
-    }
-    
-    @MainActor
-    func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
-    {
-        guard let chatID = conversation?.id else { return }
-        await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
-    }
-    
-    private func isLastMessage(_ indexPath: IndexPath) -> Bool {
-        return indexPath.row == 0 && indexPath.section == 0
-    }
-    
-    func contains(_ message: Message) -> Bool {
-        let existingMessageIDs: Set<String> = Set(messageGroups.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
-        return existingMessageIDs.contains(message.id)
-    }
-}
-
 //MARK: - Users listener
 extension ConversationViewModel {
     
@@ -532,6 +427,118 @@ extension Array where Element == ConversationMessageGroups
 }
 
 
+//MARK: - Messages listener
+extension ConversationViewModel
+{
+    func addListenerToMessages()
+    {
+        guard let conversation = conversation else {return}
+        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
+            guard let self = self else {return}
+            
+            if message.id == "6E70FA94-A050-48C5-9DF9-9CF1B234532B" {
+                print("stop")
+            }
+            
+            switch type {
+            case .added: self.handleAddedMessage(message)
+            case .removed: self.handleRemovedMessage(message)
+            case .modified: self.handleModifiedMessage(message)
+                print("==== modified", message)
+            }
+        }
+    }
+}
+
+//MARK: - Message listener helper functions
+extension ConversationViewModel
+{
+    private func handleAddedMessage(_ message: Message)
+    {
+        guard let _ = retrieveMessageFromRealm(message) else {
+            addMessageToRealmChat(message)
+            createMessageGroups([message])
+            messageChangedType = .added
+            return
+        }
+//        Task {
+////            if message.id == "----" {
+////                print("stop")
+////            }
+//            updateMessage(message)
+//        }
+    }
+    
+    private func handleModifiedMessage(_ message: Message) {
+        guard let indexPath = indexPath(of: message) else { return }
+        let cellVM = messageGroups.getCellViewModel(at: indexPath)
+        
+        guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
+        
+        updateMessage(message)
+        if message.senderId == authenticatedUserID {
+            messageChangedType = .modified(indexPath, modificationValue)
+        }
+    }
+    
+    private func handleRemovedMessage(_ message: Message) {
+        
+        guard let indexPath = indexPath(of: message) else { return }
+        
+        messageGroups.removeCellViewModel(at: indexPath)
+        removeMessageGroup(at: indexPath)
+        
+        if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
+        messageChangedType = .removed
+    }
+    
+    private func removeMessageGroup(at indexPath: IndexPath) {
+        if messageGroups[indexPath.section].cellViewModels.isEmpty {
+            messageGroups.remove(at: indexPath.section)
+        }
+    }
+
+    private func indexPath(of message: Message) -> IndexPath? {
+        guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
+        
+        for groupIndex in 0..<messageGroups.count {
+            let group = messageGroups[groupIndex]
+            
+            if group.date == date {
+                if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage.id == message.id }) {
+                    return IndexPath(row: messageIndex, section: groupIndex)
+                }
+            }
+        }
+        return nil
+    }
+    
+    private func updateLastMessageFromFirestoreChat() {
+        Task {
+            let messageID = messageGroups[0].cellViewModels[0].cellMessage.id
+            await updateRecentMessageFromFirestoreChat(messageID: messageID)
+        }
+    }
+    
+    @MainActor
+    func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
+    {
+        guard let chatID = conversation?.id else { return }
+        await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
+    }
+    
+    private func isLastMessage(_ indexPath: IndexPath) -> Bool {
+        return indexPath.row == 0 && indexPath.section == 0
+    }
+    
+    func contains(_ message: Message) -> Bool {
+        let existingMessageIDs: Set<String> = Set(messageGroups.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
+        return existingMessageIDs.contains(message.id)
+    }
+}
+
+
+
 extension ConversationViewModel 
 {
     @MainActor
@@ -541,11 +548,17 @@ extension ConversationViewModel
         
         let fetchDirection = getMessagesFetchingDirection()
         
+//        return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+        
         if let nextToLastMessage = conversation.getNextToLastMessage() {
-            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 50, startAtTimestamp: nextToLastMessage.timestamp, direction: fetchDirection)
+            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: nextToLastMessage.timestamp, direction: fetchDirection)
+        } else if let lastMessage = conversation.getLastMessage() {
+//            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastMessage.timestamp, direction: fetchDirection)
         } else {
             return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
         }
+        
     }
     
     private func getMessagesFetchingDirection() -> MessagesFetchDirection {
