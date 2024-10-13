@@ -40,7 +40,7 @@ extension ConversationViewModel
         if shouldFetchNewMessages 
         {
             skeletonAnimationState = .initiated
-            print("Should fetch?: ", shouldFetchNewMessages)
+//            print("Should fetch?: ", shouldFetchNewMessages)
             Task { @MainActor in
                 let messages = try await fetchConversationMessages()
                 
@@ -86,10 +86,16 @@ final class ConversationViewModel
         return self.conversation != nil
     }
     
+    var isChatFetchedFirstTime: Bool = false
+    
     private var shouldFetchNewMessages: Bool {
 //        return conversation?.conversationMessages.count != conversation?.messagesCount
-        guard let count = conversation?.conversationMessages.count else {return true}
-        return (unreadMessagesCount != getUnreadMessagesCountFromRealm()) || count <= 50
+        guard let localMessagesCount = conversation?.conversationMessages.count else {return true}
+//        guard let remoteMessagesCount = conversation?.messagesCount else {return true}
+        
+//        let isFirstChatFetch = localMessagesCount < 50 && remoteMessagesCount >= 50
+        let isLocalUnreadMessageCountNotEquelToRemoteCount = unreadMessagesCount != getUnreadMessagesCountFromRealm()
+        return isLocalUnreadMessageCountNotEquelToRemoteCount || isChatFetchedFirstTime
     }
     
     init(participant: DBUser, conversation: Chat? = nil, imageData: Data?) {
@@ -382,6 +388,7 @@ extension ConversationViewModel
         RealmDBManager.shared.add(object: chat)
     }
     
+    
     private func updateMessage(_ message: Message) {
         RealmDBManager.shared.add(object: message)
     }
@@ -463,12 +470,12 @@ extension ConversationViewModel
             messageChangedType = .added
             return
         }
-//        Task {
-////            if message.id == "----" {
-////                print("stop")
-////            }
-//            updateMessage(message)
-//        }
+        Task { @MainActor in
+//            if message.id == "----" {
+//                print("stop")
+//            }
+            updateMessage(message)
+        }
     }
     
     private func handleModifiedMessage(_ message: Message) {
@@ -548,30 +555,32 @@ extension ConversationViewModel
     {
         guard let conversation = conversation else { return [] }
         
-        let fetchDirection = getMessagesFetchingDirection()
+//        let fetchDirection = getMessagesFetchingDirection()
         
 //        return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
         
         if let nextToLastMessage = conversation.getNextToLastMessage() {
-            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: nextToLastMessage.timestamp, direction: fetchDirection)
+            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: nextToLastMessage.timestamp, direction: .ascending)
+            // ascending
         } else if let lastMessage = conversation.getLastMessage() {
 //            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastMessage.timestamp, direction: fetchDirection)
+            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastMessage.timestamp, direction: .descending)
+            //descending
         } else {
             return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
         }
         
     }
     
-    private func getMessagesFetchingDirection() -> MessagesFetchDirection {
-        guard let count = conversation?.conversationMessages.count else {return .both}
-        
-        if count >= 50  {
-            return .ascending
-        } else {
-            return .descending
-        }
-    }
+//    private func getMessagesFetchingDirection() -> MessagesFetchDirection {
+////        guard let count = conversation?.conversationMessages.count else {return .both}
+//  
+//        if isChatFetchedFirstTime {
+//            return .descending
+//        } else {
+//            return .ascending
+//        }
+//    }
     
 }
 

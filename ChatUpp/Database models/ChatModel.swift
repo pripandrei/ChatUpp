@@ -42,7 +42,7 @@ class Chat: Object, Codable {
         try container.encodeIfPresent(self.messagesCount, forKey: .messagesCount)
     }
     
-    convenience init(id: String, participants: [String], recentMessageID: String?, messagesCount: Int?) {
+    convenience init(id: String, participants: [String], recentMessageID: String?, messagesCount: Int? = 0) {
         self.init()
         
         self.id = id
