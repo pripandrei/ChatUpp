@@ -96,6 +96,16 @@ extension ChatsManager
         return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID).getDocuments().count
     }
     
+    func getLastSeenMessage(fromChatDocumentPath documentID: String) async throws -> Message? {
+        let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
+        return try await messagesReference
+            .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: true)
+            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
+            .limit(to: 1)
+            .getDocuments(as: Message.self)
+            .first
+    }
+    
     
         // Aggregation query to not fetch all messages but only get count 
 //    func getUnreadMessagesCount(from chatID: String, whereMessageSenderID senderID: String) async throws -> Int
@@ -284,28 +294,58 @@ extension ChatsManager
 //        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
 //        return try await messagesReference.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp).limit(to: limit).getDocuments(as: Message.self)
 //    }
-    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date, direction: MessagesFetchDirection) async throws -> [Message] {
-        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+    
+    
+    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
         
-        let query: Query
+        var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+        
+        if let timestamp = timestamp {
+            query = query.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+        }
         
         if direction == .ascending {
-            query = messagesReference
-                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+            query = query
                 .order(by: Message.CodingKeys.timestamp.rawValue, descending: false) // ascending order
         } else if direction == .descending {
-            query = messagesReference
-                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
+            query = query
                 .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending order
         } else {
-            query = messagesReference
-                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
-                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+            query = query
+//                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
+//                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
                 .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending
         }
 
         return try await query.limit(to: limit).getDocuments(as: Message.self)
     }
+//    
+//    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date?, direction: MessagesFetchDirection) async throws -> [Message] {
+//        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+//        
+//        var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+//        
+//        if let timestamp = timestamp {
+//            query = query.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+//        }
+//        
+//        if direction == .ascending {
+//            query = messagesReference
+//                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+//                .order(by: Message.CodingKeys.timestamp.rawValue, descending: false) // ascending order
+//        } else if direction == .descending {
+//            query = messagesReference
+//                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
+//                .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending order
+//        } else {
+//            query = messagesReference
+//                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
+//                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+//                .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending
+//        }
+//
+//        return try await query.limit(to: limit).getDocuments(as: Message.self)
+//    }
 }
 
 //MARK: Testing functions

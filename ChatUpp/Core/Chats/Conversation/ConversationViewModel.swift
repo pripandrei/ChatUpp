@@ -555,21 +555,73 @@ extension ConversationViewModel
     {
         guard let conversation = conversation else { return [] }
         
-//        let fetchDirection = getMessagesFetchingDirection()
-        
-//        return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-        
-        if let nextToLastMessage = conversation.getNextToLastMessage() {
-            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: nextToLastMessage.timestamp, direction: .ascending)
-            // ascending
-        } else if let lastMessage = conversation.getLastMessage() {
-//            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastMessage.timestamp, direction: .descending)
-            //descending
+        if let lastSeenMessage = conversation.getLastSeenMessage() 
+        {
+            return try await ChatsManager
+                .shared
+                .fetchMessages(from: conversation.id,
+                               messagesQueryLimit: 100,
+                               startAtTimestamp: lastSeenMessage.timestamp,
+                               direction: .ascending)
+        }
+        else if let lastSeenMessage = try await getLastSeenMessageFromFirestore(from: conversation.id)
+        {
+            var messages = try await ChatsManager
+                .shared
+                .fetchMessages(from: conversation.id,
+                               messagesQueryLimit: 100,
+                               startAtTimestamp: lastSeenMessage.timestamp,
+                               direction: .descending)
+            
+            let messagesAfterLastSeen = try await ChatsManager
+                .shared
+                .fetchMessages(from: conversation.id,
+                               messagesQueryLimit: 100,
+                               startAtTimestamp: lastSeenMessage.timestamp,
+                               direction: .ascending)
+            
+            messages.append(contentsOf: messagesAfterLastSeen)
+            return messages
         } else {
-            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+            return try await ChatsManager
+                .shared
+                .fetchMessages(from: conversation.id,
+                               messagesQueryLimit: 100,
+                               direction: .ascending)
+        }
+    }
+    
+    private func fetchConversationMessages2() async throws -> [Message] 
+    {
+        guard let conversation = conversation else { return [] }
+        
+        let lastSeenMessage: Message?
+        if let message = conversation.getLastSeenMessage() {
+            lastSeenMessage = message
+        } else {
+            lastSeenMessage = try await getLastSeenMessageFromFirestore(from: conversation.id)
         }
         
+        if let lastSeenMessage = lastSeenMessage {
+            let descendingMessages = try await fetchMessages(from: conversation.id, startTimeStamp: lastSeenMessage.timestamp, direction: .descending)
+            let ascendingMessages = try await fetchMessages(from: conversation.id, startTimeStamp: lastSeenMessage.timestamp, direction: .ascending)
+            return descendingMessages + ascendingMessages
+        } else {
+            return try await fetchMessages(from: conversation.id, direction: .ascending)
+        }
+    }
+    
+    func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
+        try await ChatsManager.shared.fetchMessages(
+            from: chatID,
+            messagesQueryLimit: 100,
+            startAtTimestamp: timestamp,
+            direction: direction
+        )
+    }
+    
+    private func getLastSeenMessageFromFirestore(from chatID: String) async throws -> Message? {
+        return try await ChatsManager.shared.getLastSeenMessage(fromChatDocumentPath: chatID)
     }
     
 //    private func getMessagesFetchingDirection() -> MessagesFetchDirection {
@@ -604,3 +656,42 @@ extension ConversationViewModel {
 //        }
 //    }
 }
+
+
+//
+//@MainActor
+//private func fetchConversationMessages() async throws -> [Message]
+//{
+//    guard let conversation = conversation else { return [] }
+//    
+//    var messages = [Message]()
+//    
+////        let fetchDirection = getMessagesFetchingDirection()
+//    
+////        return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+//    
+//    if let lastSeenMessage = conversation.getLastSeenMessage() {
+//        return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastSeenMessage.timestamp, direction: .ascending)
+//        // ascending
+//    } else {
+//        guard let lastSeenMessage = try await ChatsManager.shared.getLastSeenMessage(fromChatDocumentPath: conversation.id) else { return [] }
+//        
+//        messages = try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastSeenMessage.timestamp, direction: .descending)
+//        
+//        let messagesAfterLastSeen = try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastSeenMessage.timestamp, direction: .ascending)
+//        messages.append(contentsOf: messagesAfterLastSeen)
+//        return messages
+//    }
+//    
+//    
+////        else if let lastMessage = conversation.getLastMessage() {
+//////            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+////            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastMessage.timestamp, direction: .descending)
+////            //descending
+////        }
+////        return []
+////        else {
+////            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
+////        }
+//    
+//}

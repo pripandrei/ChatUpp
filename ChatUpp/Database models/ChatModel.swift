@@ -79,6 +79,15 @@ class Chat: Object, Codable {
         return nextToLastMessage
     }
     
+    func getLastSeenMessage() -> Message? {
+        guard let lastSeenMessage = conversationMessages
+            .filter("messageSeen == true")
+            .sorted(byKeyPath: "timestamp", ascending: false)
+            .first else { return nil }
+        
+        return lastSeenMessage
+    }
+    
     func incrementMessageCount() {
         RealmDBManager.shared.update(object: self) { chat in
             chat.messagesCount = (self.messagesCount ?? 0) + 1
