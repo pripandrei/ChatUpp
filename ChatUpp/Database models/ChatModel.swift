@@ -70,7 +70,7 @@ class Chat: Object, Codable {
     /// it will not necessarily be next to last in remote db
     /// So we need to get it's timestamp in order to fetch messages up from that timestamp
 
-    func getNextToLastMessage() -> Message? {
+    func getPenultimateMessage() -> Message? {
         guard let nextToLastMessage = conversationMessages
             .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false)
             .dropFirst()
@@ -86,6 +86,10 @@ class Chat: Object, Codable {
             .first else { return nil }
         
         return lastSeenMessage
+    }
+    
+    func getFirstMessage() -> Message? {
+        return conversationMessages.first
     }
     
     func incrementMessageCount() {
