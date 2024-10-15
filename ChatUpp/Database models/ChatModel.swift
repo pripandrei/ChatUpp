@@ -89,7 +89,7 @@ class Chat: Object, Codable {
     }
     
     func getFirstMessage() -> Message? {
-        return conversationMessages.first
+        return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true).first
     }
     
     func incrementMessageCount() {

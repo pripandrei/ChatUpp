@@ -20,7 +20,10 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        print("Know know on the heaven door")
+        print(scrollView.contentOffset.y)
+        
+        
+        
         updateMessageSeenStatusIfNeeded()
         if !shouldIgnoreScrollToBottomBtnUpdate {
             updateScrollToBottomBtnIfNeeded()

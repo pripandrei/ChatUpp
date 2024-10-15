@@ -23,7 +23,7 @@ enum MessageChangeType {
 
 enum MessageFetchStrategy {
     case ascending(startAtMessage: Message?)
-    case descending(startAtMessage: Message)
+    case descending(startAtMessage: Message?)
     case hybrit(startAtMessage: Message)
     case none
 }
@@ -94,6 +94,10 @@ final class ConversationViewModel
     }
     
     var isChatFetchedFirstTime: Bool = false
+    
+    private var firstMessage: Message? {
+        conversation?.getFirstMessage()
+    }
     
     private var shouldFetchNewMessages: Bool {
 //        return conversation?.conversationMessages.count != conversation?.messagesCount
@@ -559,14 +563,14 @@ extension ConversationViewModel
 extension ConversationViewModel
 {
     @MainActor
-    private func fetchConversationMessages() async throws -> [Message] {
+    private func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message] {
         guard let conversation = conversation else { return [] }
         
-        let fetchStrategy = try await determineFetchStrategy()
+        let fetchStrategy = try await determineFetchStrategy(strategy: strategy)
         
         switch fetchStrategy {
         case .ascending(let startAtMessage): return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .ascending)
-        case .descending(let startAtMessage): return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage.timestamp, direction: .descending)
+        case .descending(let startAtMessage): return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .descending)
         case .hybrit(let startAtMessage):
             let descendingMessages = try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage.timestamp, direction: .descending)
             let ascendingMessages = try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage.timestamp, direction: .ascending)
@@ -575,7 +579,27 @@ extension ConversationViewModel
         }
     }
     
-    private func determineFetchStrategy() async throws -> MessageFetchStrategy {
+    private func determineFetchStrategy(strategy: MessageFetchStrategy? = nil) async throws -> MessageFetchStrategy {
+        guard let conversation = conversation else { return .none }
+        
+        if let strategy = strategy {
+            return getStrategyOnChatReachedTopOrBottom(strategy: strategy)
+        }
+        
+        return try await getStrategyForOpenedChat()
+    }
+    
+    private func getStrategyOnChatReachedTopOrBottom(strategy: MessageFetchStrategy) -> MessageFetchStrategy {
+        guard let conversation = conversation else { return .none }
+        
+        switch strategy {
+        case .ascending(nil): return .ascending(startAtMessage: conversation.getLastMessage())
+        case .descending(nil): return .descending(startAtMessage: conversation.getFirstMessage())
+        default: return .none
+        }
+    }
+
+    private func getStrategyForOpenedChat() async throws -> MessageFetchStrategy  {
         guard let conversation = conversation else { return .none }
         
         if let message = conversation.getLastSeenMessage() {
