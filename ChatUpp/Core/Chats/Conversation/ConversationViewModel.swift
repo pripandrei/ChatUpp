@@ -21,6 +21,13 @@ enum MessageChangeType {
     case removed
 }
 
+enum MessageFetchStrategy {
+    case ascending(startAtMessage: Message?)
+    case descending(startAtMessage: Message)
+    case hybrit(startAtMessage: Message)
+    case none
+}
+
 struct ConversationMessageGroups {
     let date: Date
     var cellViewModels: [ConversationCellViewModel]
@@ -547,51 +554,10 @@ extension ConversationViewModel
 }
 
 
+//MARK: - messages fetch
 
-extension ConversationViewModel 
+extension ConversationViewModel
 {
-//    @MainActor
-//    private func fetchConversationMessages() async throws -> [Message] 
-//    {
-//        guard let conversation = conversation else { return [] }
-//        
-//        if let lastSeenMessage = conversation.getLastSeenMessage(),
-//            conversation.conversationMessages.count > 1
-//        {
-//            return try await ChatsManager
-//                .shared
-//                .fetchMessages(from: conversation.id,
-//                               messagesQueryLimit: 100,
-//                               startAtTimestamp: lastSeenMessage.timestamp,
-//                               direction: .ascending)
-//        }
-//        else if let lastSeenMessage = try await getLastSeenMessageFromFirestore(from: conversation.id)
-//        {
-//            var messages = try await ChatsManager
-//                .shared
-//                .fetchMessages(from: conversation.id,
-//                               messagesQueryLimit: 100,
-//                               startAtTimestamp: lastSeenMessage.timestamp,
-//                               direction: .descending)
-//            
-//            let messagesAfterLastSeen = try await ChatsManager
-//                .shared
-//                .fetchMessages(from: conversation.id,
-//                               messagesQueryLimit: 100,
-//                               startAtTimestamp: lastSeenMessage.timestamp,
-//                               direction: .ascending)
-//            
-//            messages.append(contentsOf: messagesAfterLastSeen)
-//            return messages
-//        } else {
-//            return try await ChatsManager
-//                .shared
-//                .fetchMessages(from: conversation.id,
-//                               messagesQueryLimit: 100,
-//                               direction: .ascending)
-//        }
-//    }
-    
     @MainActor
     private func fetchConversationMessages() async throws -> [Message] {
         guard let conversation = conversation else { return [] }
@@ -599,8 +565,7 @@ extension ConversationViewModel
         let fetchStrategy = try await determineFetchStrategy()
         
         switch fetchStrategy {
-        case .ascending(let startAtMessage):
-            return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .ascending)
+        case .ascending(let startAtMessage): return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .ascending)
         case .descending(let startAtMessage): return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage.timestamp, direction: .descending)
         case .hybrit(let startAtMessage):
             let descendingMessages = try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage.timestamp, direction: .descending)
@@ -610,7 +575,7 @@ extension ConversationViewModel
         }
     }
     
-    private func determineFetchStrategy() async throws -> MessageFetchState {
+    private func determineFetchStrategy() async throws -> MessageFetchStrategy {
         guard let conversation = conversation else { return .none }
         
         if let message = conversation.getLastSeenMessage() {
@@ -627,106 +592,8 @@ extension ConversationViewModel
             return .ascending(startAtMessage: nil)
         }
     }
-    
-    /// if local lastSeenMessage present
-    ///     - if messages.count > 1 then fetch messages in ascending from lastSeenMessage
-    ///     - else fetch messages in descending from lastSeenMessage
-    /// else if remote lastSeenMessage then fetch both ascending and descending
-    /// else if local lastUnseenMessage && messages.count > 1 then fetch ascending messages from lastUnseenMessage
-    /// else fetch from very first message in ascending
-    
-    
-    private func fetchConversationMessages2() async throws -> [Message] 
-    {
-        guard let conversation = conversation else { return [] }
-        
-        let lastSeenMessage: Message?
-        
-        if let message = conversation.getLastSeenMessage() {
-            lastSeenMessage = message
-        } else {
-            lastSeenMessage = try await getLastSeenMessageFromFirestore(from: conversation.id)
-        }
-        
-        if let lastSeenMessage = lastSeenMessage 
-        {
-            let descendingMessages = isChatFetchedFirstTime ? try await fetchMessages(from: conversation.id, startTimeStamp: lastSeenMessage.timestamp, direction: .descending) : []
-            let ascendingMessages = try await fetchMessages(from: conversation.id, startTimeStamp: lastSeenMessage.timestamp, direction: .ascending)
-            return descendingMessages + ascendingMessages
-            
-        } else {
-            /// This block will execute only in scenario when:
-            /// - chat was first time opened and all messages in it are unread
-            return try await fetchMessages(from: conversation.id, direction: .ascending)
-        }
-    }
-    
-//    func determineFetchStrategy() async throws -> MessageFetchState
-//    {
-//        if isChatFetchedFirstTime
-//        {
-//            if let message = conversation!.getLastSeenMessage() {
-//                return .descending(startAtMessage: message)
-//            } else if let lastSeenMessage = try await getLastSeenMessageFromFirestore(from: conversation!.id) {
-//                return .hybrit(startAtMessage: lastSeenMessage)
-//            } else {
-//                return .ascending(startAtMessage: nil)
-//            }
-//        } else if let message = conversation!.getLastSeenMessage() {
-//            return .ascending(startAtMessage: message)
-//        } else if let lastMessage = conversation!.getLastMessage() {
-//            return .ascending(startAtMessage: lastMessage)
-//        }
-//        return .none
-//    }
 
-    
-    /// ====
-    ///
-
-    enum MessageFetchState {
-        case ascending(startAtMessage: Message?)
-        case descending(startAtMessage: Message)
-        case hybrit(startAtMessage: Message)
-        case none
-    }
-
-//    func determineFetchState(conversation: Chat?) async -> MessageFetchState {
-//        guard let conversation = conversation else {
-//            return .fullFetch
-//        }
-//        
-//        if isChatFetchedFirstTime {
-//            if let lastSeenMessage = conversation.getLastSeenMessage() {
-//                return .partialFetch(lastSeenMessage: lastSeenMessage)
-//            } else {
-//                return .initialFetch
-//            }
-//        } else if let lastSeenMessage = conversation.getLastSeenMessage() ?? await try? getLastSeenMessageFromFirestore(from: conversation.id) {
-//            return .partialFetch(lastSeenMessage: lastSeenMessage)
-//        } else {
-//            return .fullFetch
-//        }
-//    }
-//    
-//    private func fetchConversationMessages3() async throws -> [Message] {
-//        let fetchState = await determineFetchState(conversation: conversation)
-//        
-//        switch fetchState {
-//        case .initialFetch:
-//            return try await fetchMessagesFromFirestore(direction: .ascending)
-//            
-//        case .partialFetch(let lastSeenMessage):
-//            let descendingMessages = try await fetchMessagesFromFirestore(startingAt: lastSeenMessage.timestamp, direction: .descending)
-//            let ascendingMessages = try await fetchMessagesFromFirestore(startingAt: lastSeenMessage.timestamp, direction: .ascending)
-//            return descendingMessages + ascendingMessages
-//            
-//        case .fullFetch:
-//            return try await fetchMessagesFromFirestore(direction: .ascending)
-//        }
-//    }
-    
-    func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
+    private func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
         try await ChatsManager.shared.fetchMessages(
             from: chatID,
             messagesQueryLimit: 100,
@@ -738,17 +605,6 @@ extension ConversationViewModel
     private func getLastSeenMessageFromFirestore(from chatID: String) async throws -> Message? {
         return try await ChatsManager.shared.getLastSeenMessage(fromChatDocumentPath: chatID)
     }
-    
-//    private func getMessagesFetchingDirection() -> MessagesFetchDirection {
-////        guard let count = conversation?.conversationMessages.count else {return .both}
-//  
-//        if isChatFetchedFirstTime {
-//            return .descending
-//        } else {
-//            return .ascending
-//        }
-//    }
-    
 }
 
 enum MessagesFetchDirection {
