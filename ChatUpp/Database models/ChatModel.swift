@@ -56,7 +56,7 @@ class Chat: Object, Codable {
     }
     
     func getMessages() -> [Message] {
-        return Array(conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true))
+        return Array(conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false))
     }
 
     func getLastMessage() -> Message? {

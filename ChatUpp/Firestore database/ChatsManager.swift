@@ -230,7 +230,7 @@ extension ChatsManager
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
             
-            for document in documents.prefix(100) {
+            for document in documents.prefix(30) {
                 guard let message = try? document.document.data(as: Message.self) else {continue}
                 onReceivedMessage(message, document.type)
             }

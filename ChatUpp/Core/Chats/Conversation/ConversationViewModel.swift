@@ -39,7 +39,7 @@ extension ConversationViewModel
 {
     private func setupConversationMessageGroups() {
         guard let messages = conversation?.getMessages(), !messages.isEmpty else { return }
-        self.messageGroups = createMessageGroups(messages)
+        createMessageGroups(messages)
     }
     
     func initiateConversation()
@@ -141,14 +141,14 @@ final class ConversationViewModel
         }
     }
     
-    func createMessageGroups(_ messages: [Message]) -> [ConversationMessageGroups] {
-        var tempMessageGroups = [ConversationMessageGroups]()
+    func createMessageGroups(_ messages: [Message])  {
+        var tempMessageGroups: [ConversationMessageGroups] = self.messageGroups
         
         messages.forEach { message in
             addConversationCellViewModel(with: message, to: &tempMessageGroups)
         }
-        return tempMessageGroups
-//        self.messageGroups = tempMessageGroups
+//        return tempMessageGroups
+        self.messageGroups = tempMessageGroups
     }
     
     private func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroups])
@@ -158,11 +158,13 @@ final class ConversationViewModel
         
         if let index = messageGroups.firstIndex(where: { $0.date == date })
         {
-            messageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+//            messageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
+            messageGroups[index].cellViewModels.append(conversationCellVM)
 //            messageGroups[index].cellViewModels.sort(by: { $0.cellMessage.timestamp > $1.cellMessage.timestamp })
         } else {
             let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
-            messageGroups.insert(newGroup, at: 0)
+//            messageGroups.insert(newGroup, at: 0)
+            messageGroups.append(newGroup)
         }
         
     }
@@ -224,7 +226,8 @@ final class ConversationViewModel
         resetCurrentReplyMessageIfNeeded()
         addMessageToRealmChat(message)
         chat.incrementMessageCount()
-        self.messageGroups.insert(contentsOf: createMessageGroups([message]), at: 0)
+        createMessageGroups([message])
+//        self.messageGroups.insert(contentsOf: createMessageGroups([message]), at: 0)
         
         Task { @MainActor in
             await addMessageToFirestoreDataBase(message)
@@ -457,10 +460,10 @@ extension ConversationViewModel
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
             guard let self = self else {return}
             
-            if message.id == "6E70FA94-A050-48C5-9DF9-9CF1B234532B" {
-                print("stop")
-            }
-            
+//            if message.id == "6E70FA94-A050-48C5-9DF9-9CF1B234532B" {
+//                print("stop")
+//            }
+//            
             switch type {
             case .added: self.handleAddedMessage(message)
             case .removed: self.handleRemovedMessage(message)
@@ -478,7 +481,8 @@ extension ConversationViewModel
     {
         guard let _ = retrieveMessageFromRealm(message) else {
             addMessageToRealmChat(message)
-            self.messageGroups.insert(contentsOf: createMessageGroups([message]), at: 0)
+            createMessageGroups([message])
+//            self.messageGroups.insert(contentsOf: createMessageGroups([message]), at: 0)
             messageChangedType = .added
             return
         }
@@ -566,8 +570,12 @@ extension ConversationViewModel
     @MainActor
     func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message] {
         guard let conversation = conversation else { return [] }
-        g
-        let fetchStrategy = try await determineFetchStrategy(strategy: strategy)
+        
+        var fetchStrategy = strategy
+        
+        if fetchStrategy == nil {
+            fetchStrategy = try await determineFetchStrategy()
+        }
         
         switch fetchStrategy {
         case .ascending(let startAtMessage): 
@@ -584,26 +592,6 @@ extension ConversationViewModel
     
     @MainActor
     private func determineFetchStrategy(strategy: MessageFetchStrategy? = nil) async throws -> MessageFetchStrategy {
-        if let strategy = strategy {
-            return getStrategyOnChatReachedTopOrBottom(strategy: strategy)
-        }
-        return try await getStrategyForOpenedChat()
-    }
-    
-    private func getStrategyOnChatReachedTopOrBottom(strategy: MessageFetchStrategy) -> MessageFetchStrategy {
-        guard let conversation = conversation else { return .none }
-        
-        switch strategy {
-        case .ascending(nil): return .ascending(startAtMessage: conversation.getLastMessage())
-        case .descending(let message): 
-            print(message)
-            return .descending(startAtMessage: message)
-        default: return .none
-        }
-    }
-
-    @MainActor
-    private func getStrategyForOpenedChat() async throws -> MessageFetchStrategy  {
         guard let conversation = conversation else { return .none }
         
         if let message = conversation.getLastSeenMessage() {
@@ -620,6 +608,37 @@ extension ConversationViewModel
             return .ascending(startAtMessage: nil)
         }
     }
+    
+//    private func getStrategyOnChatReachedTopOrBottom(strategy: MessageFetchStrategy) -> MessageFetchStrategy {
+//        guard let conversation = conversation else { return .none }
+//        
+//        switch strategy {
+//        case .ascending(nil): return .ascending(startAtMessage: conversation.getLastMessage())
+//        case .descending(let message): 
+//            print(message)
+//            return .descending(startAtMessage: message)
+//        default: return .none
+//        }
+//    }
+//
+//    @MainActor
+//    private func getStrategyForOpenedChat() async throws -> MessageFetchStrategy  {
+//        guard let conversation = conversation else { return .none }
+//        
+//        if let message = conversation.getLastSeenMessage() {
+//            if conversation.conversationMessages.count > 1 {
+//                return .ascending(startAtMessage: message)
+//            } else {
+//                return .descending(startAtMessage: message)
+//            }
+//        } else if let message = try await getLastSeenMessageFromFirestore(from: conversation.id) {
+//            return .hybrit(startAtMessage: message)
+//        } else if let message = conversation.getPenultimateMessage() {
+//            return .ascending(startAtMessage: message)
+//        } else {
+//            return .ascending(startAtMessage: nil)
+//        }
+//    }
 
     private func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
         try await ChatsManager.shared.fetchMessages(

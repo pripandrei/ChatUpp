@@ -630,30 +630,46 @@ extension ConversationViewController: UITableViewDelegate
             }
         }
     }
-    
+
     @MainActor
     func loadMessageGroups() async throws {
         let startSection = conversationViewModel.messageGroups.count
         
-//        let firstMessage = conversationViewModel.conversation?.getFirstMessage()?.freeze()
-        guard let firstMessage = conversationViewModel.messageGroups.last?.cellViewModels.last?.cellMessage else {return}
+        guard let lastMessage = conversationViewModel.messageGroups.last?.cellViewModels.last?.cellMessage else {return}
+        guard var lastSectionMessagesBeforeUpdate = conversationViewModel.messageGroups.last?.cellViewModels else {return}
         
-        let messages = try await conversationViewModel.fetchConversationMessages(using: .descending(startAtMessage: firstMessage))
-        let messageGroups = conversationViewModel.createMessageGroups(messages)
-        conversationViewModel.messageGroups.append(contentsOf: messageGroups)
+        let lastSectionIndexBeforeUpdate = conversationViewModel.messageGroups.count - 1
         
+        var messages = try await conversationViewModel.fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
+        messages.removeFirst()
+        
+        conversationViewModel.createMessageGroups(messages)
+        
+        let newRowsIndexes = conversationViewModel.messageGroups[lastSectionIndexBeforeUpdate].cellViewModels.enumerated().compactMap { index, element in
+            return lastSectionMessagesBeforeUpdate.contains(where: { $0.cellMessage == element.cellMessage }) ? nil : IndexPath(row: index, section: lastSectionIndexBeforeUpdate)
+        }
+
         let endSection = conversationViewModel.messageGroups.count - 1
         let indexSet = IndexSet(integersIn: startSection...endSection)
         print("Start Section: \(endSection), End Section: \(endSection)")
-//        rootView.tableView.beginUpdates()
-//        rootView.tableView.performBatchUpdates({
+
         UIView.performWithoutAnimation {
-            self.rootView.tableView.insertSections(indexSet, with: .automatic)
+            self.rootView.tableView.performBatchUpdates {
+                if !newRowsIndexes.isEmpty {
+                    self.rootView.tableView.insertRows(at: newRowsIndexes, with: .automatic)
+                }
+                self.rootView.tableView.insertSections(indexSet, with: .automatic)
+            } completion: { _ in
+            }
         }
-//        }, completion: { _ in
-//            self.rootView.tableView.reloadSections(indexSet, with: .none)
-//        })
-//        rootView.tableView.endUpdates()
+
+        
+//        UIView.performWithoutAnimation {
+//            if !newRowsIndexes.isEmpty {
+//                self.rootView.tableView.insertRows(at: newRowsIndexes, with: .automatic)
+//            }
+//            self.rootView.tableView.insertSections(indexSet, with: .automatic)
+//        }
     }
     
     
