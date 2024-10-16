@@ -20,10 +20,6 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        print(scrollView.contentOffset.y)
-        
-        
-        
         updateMessageSeenStatusIfNeeded()
         if !shouldIgnoreScrollToBottomBtnUpdate {
             updateScrollToBottomBtnIfNeeded()
@@ -616,6 +612,48 @@ extension ConversationViewController: UITableViewDelegate
             return CGFloat((70...120).randomElement()!)
         }
        return  UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+     
+        guard conversationViewModel.messageGroups.count != 0 else {return}
+        
+        let lastSectionIndex = conversationViewModel.messageGroups.count - 1
+        let lastRowIndex = conversationViewModel.messageGroups[lastSectionIndex].cellViewModels.count - 1
+
+        if indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
+        {
+            print("Last cell is displayed. Should fetch new messages")
+            Task {
+                print(indexPath.section)
+                try await loadMessageGroups()
+            }
+        }
+    }
+    
+    @MainActor
+    func loadMessageGroups() async throws {
+        let startSection = conversationViewModel.messageGroups.count
+        
+//        let firstMessage = conversationViewModel.conversation?.getFirstMessage()?.freeze()
+        guard let firstMessage = conversationViewModel.messageGroups.last?.cellViewModels.last?.cellMessage else {return}
+        
+        let messages = try await conversationViewModel.fetchConversationMessages(using: .descending(startAtMessage: firstMessage))
+        let messageGroups = conversationViewModel.createMessageGroups(messages)
+        conversationViewModel.messageGroups.append(contentsOf: messageGroups)
+        
+        let endSection = conversationViewModel.messageGroups.count - 1
+        let indexSet = IndexSet(integersIn: startSection...endSection)
+        print("Start Section: \(endSection), End Section: \(endSection)")
+//        rootView.tableView.beginUpdates()
+//        rootView.tableView.performBatchUpdates({
+        UIView.performWithoutAnimation {
+            self.rootView.tableView.insertSections(indexSet, with: .automatic)
+        }
+//        }, completion: { _ in
+//            self.rootView.tableView.reloadSections(indexSet, with: .none)
+//        })
+//        rootView.tableView.endUpdates()
     }
     
     

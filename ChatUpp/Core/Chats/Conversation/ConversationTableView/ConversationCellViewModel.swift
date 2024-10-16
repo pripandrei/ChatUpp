@@ -14,11 +14,11 @@ final class ConversationCellViewModel {
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
     
-    var messageID: String
+//    var messageID: String
     
     init(cellMessage: Message) {
         self.cellMessage = cellMessage
-        self.messageID = cellMessage.freeze().id
+//        self.messageID = cellMessage.freeze().id
     }
     
     var timestamp: String {
@@ -77,7 +77,7 @@ extension ConversationCellViewModel
     
     func updateFirestoreMessageSeenStatus(from chatID: String) async {
         do {
-            try await ChatsManager.shared.updateMessageSeenStatus(messageID: messageID, chatID: chatID)
+            try await ChatsManager.shared.updateMessageSeenStatus(messageID: "pripa", chatID: chatID)
         } catch {
             print("Error updating message seen status in Firestore: ", error.localizedDescription)
         }

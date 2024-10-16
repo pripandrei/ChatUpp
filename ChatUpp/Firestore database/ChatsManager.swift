@@ -301,9 +301,13 @@ extension ChatsManager
         var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
         
         if let timestamp = timestamp {
-            query = query.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+            switch direction {
+            case .ascending: query = query.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+            case .descending: query = query.whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
+            default:break
+            }
         }
-        
+        /// order will be reverted again on messageGroups creation so we revers order here
         if direction == .ascending {
             query = query
                 .order(by: Message.CodingKeys.timestamp.rawValue, descending: false) // ascending order
