@@ -614,6 +614,8 @@ extension ConversationViewController: UITableViewDelegate
        return  UITableView.automaticDimension
     }
     
+    
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
      
         guard conversationViewModel.messageGroups.count != 0 else {return}
@@ -626,7 +628,7 @@ extension ConversationViewController: UITableViewDelegate
         
         if isLastCellDisplayed {
             handleAdditionalMessageGroupUpdate(inAscending: false)
-        } else if isFirstCellDisplayed {
+        } else if isFirstCellDisplayed && conversationViewModel.unreadMessagesCount != 0 {
             handleAdditionalMessageGroupUpdate(inAscending: true)
         }
     }

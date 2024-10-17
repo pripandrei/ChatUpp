@@ -615,7 +615,10 @@ extension ConversationViewModel
         case false: startSectionCount = messageGroups.count
         }
         
-        let newMessages = try await loadAdditionalMessages()
+        var newMessages = try await loadAdditionalMessages(byAscendingOrder: ascending)
+        guard !newMessages.isEmpty else {return ([],nil)}
+        newMessages.removeFirst()
+        
         manageMessageGroupsCreation(newMessages, ascending: ascending)
         
         let endSectionCount = ascending ? (messageGroups.count - messageGroupsBeforeUpdate.count) : messageGroups.count
@@ -647,13 +650,21 @@ extension ConversationViewModel
         : nil
     }
     
-    private func loadAdditionalMessages() async throws -> [Message] 
+    private func loadAdditionalMessages(byAscendingOrder: Bool) async throws -> [Message]
     {
-        guard let lastMessage = messageGroups.last?.cellViewModels.last?.cellMessage else {return []}
+        //        guard let lastMessage = messageGroups.last?.cellViewModels.last?.cellMessage else {return []}
+        //        guard let lastMessage = messageGroups.first?.cellViewModels.first?.cellMessage else {return []}
+        guard let startMessage = byAscendingOrder
+                ? messageGroups.first?.cellViewModels.first?.cellMessage
+                : messageGroups.last?.cellViewModels.last?.cellMessage else {return []}
         
-        var newMessages = try await fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
-        newMessages.removeFirst()
-        return newMessages
+        switch byAscendingOrder {
+        case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage))
+        case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage))
+        }
+//        if newMessages.isEmpty {return []}
+//        newMessages.removeFirst()
+//        return newMessages
     }
 
 }
