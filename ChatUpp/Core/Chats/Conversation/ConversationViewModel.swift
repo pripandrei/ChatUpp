@@ -654,19 +654,17 @@ extension ConversationViewModel {
     {
         var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
         var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
-
-        tempMessageGroups = messages.reduce(into: [ConversationMessageGroup]()) { result, message in
+        
+       messages.forEach { message in
             guard let date = message.timestamp.formatToYearMonthDay() else { return }
-
             let cellViewModel = ConversationCellViewModel(cellMessage: message)
             
             if let index = groupIndexDict[date] {
-                if result.isEmpty { result = tempMessageGroups }
-                result[index].cellViewModels.append(cellViewModel)
+                tempMessageGroups[index].cellViewModels.append(cellViewModel)
             } else {
                 let newMessageGroup = ConversationMessageGroup(date: date, cellViewModels: [cellViewModel])
-                result.append(newMessageGroup)
-                groupIndexDict[date] = result.count - 1
+                tempMessageGroups.append(newMessageGroup)
+                groupIndexDict[date] = tempMessageGroups.count - 1
             }
         }
         self.messageGroups = tempMessageGroups
