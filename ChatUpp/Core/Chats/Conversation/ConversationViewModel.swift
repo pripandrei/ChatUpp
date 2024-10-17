@@ -599,7 +599,7 @@ extension ConversationViewModel
         let messageGroupsBeforeUpdate = messageGroups
         let startSectionCount = messageGroups.count
         
-        let newMessages = try await fetchAdditionalMessages()
+        let newMessages = try await loadAdditionalMessages()
         manageMessageGroupsCreation(newMessages)
 
         let newRows = findNewRowIndexPaths(inMessageGroups: messageGroupsBeforeUpdate)
@@ -612,7 +612,9 @@ extension ConversationViewModel
         guard let lastSectionBeforeUpdate = messageGroups.last?.cellViewModels else { return [] }
         let lastSectionIndex = messageGroups.count - 1
     
-        return messageGroups[lastSectionIndex].cellViewModels.enumerated().compactMap { index, viewModel in
+        return self.messageGroups[lastSectionIndex].cellViewModels
+            .enumerated()
+            .compactMap { index, viewModel in
             return lastSectionBeforeUpdate.contains { $0.cellMessage == viewModel.cellMessage }
                 ? nil
                 : IndexPath(row: index, section: lastSectionIndex)
@@ -625,7 +627,7 @@ extension ConversationViewModel
         : nil
     }
     
-    private func fetchAdditionalMessages() async throws -> [Message] {
+    private func loadAdditionalMessages() async throws -> [Message] {
         guard let lastMessage = messageGroups.last?.cellViewModels.last?.cellMessage
         else { return [] }
         
