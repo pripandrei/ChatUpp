@@ -640,10 +640,10 @@ extension ConversationViewController: UITableViewDelegate
         
         let lastSectionIndexBeforeUpdate = conversationViewModel.messageGroups.count - 1
         
-        var messages = try await conversationViewModel.fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
-        messages.removeFirst()
+        var newMessages = try await conversationViewModel.fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
+        newMessages.removeFirst()
         
-        conversationViewModel.createMessageGroups(messages)
+        conversationViewModel.manageMessageGroupsCreation(newMessages)
         
         let newRowsIndexes = conversationViewModel.messageGroups[lastSectionIndexBeforeUpdate].cellViewModels.enumerated().compactMap { index, element in
             return lastSectionMessagesBeforeUpdate.contains(where: { $0.cellMessage == element.cellMessage }) ? nil : IndexPath(row: index, section: lastSectionIndexBeforeUpdate)
@@ -651,7 +651,6 @@ extension ConversationViewController: UITableViewDelegate
 
         let endSection = conversationViewModel.messageGroups.count - 1
         let indexSet = IndexSet(integersIn: startSection...endSection)
-        print("Start Section: \(endSection), End Section: \(endSection)")
 
         UIView.performWithoutAnimation {
             self.rootView.tableView.performBatchUpdates {
@@ -659,17 +658,8 @@ extension ConversationViewController: UITableViewDelegate
                     self.rootView.tableView.insertRows(at: newRowsIndexes, with: .automatic)
                 }
                 self.rootView.tableView.insertSections(indexSet, with: .automatic)
-            } completion: { _ in
             }
         }
-
-        
-//        UIView.performWithoutAnimation {
-//            if !newRowsIndexes.isEmpty {
-//                self.rootView.tableView.insertRows(at: newRowsIndexes, with: .automatic)
-//            }
-//            self.rootView.tableView.insertSections(indexSet, with: .automatic)
-//        }
     }
     
     

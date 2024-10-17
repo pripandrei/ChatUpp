@@ -98,6 +98,7 @@
 		75FB78F82AC311D000C2743A /* ChatsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F72AC311D000C2743A /* ChatsViewModel.swift */; };
 		75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */; };
 		75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB79002AC318D600C2743A /* UIView+Extensions.swift */; };
+		75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -222,6 +223,7 @@
 		75FB78F72AC311D000C2743A /* ChatsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsViewModel.swift; sourceTree = "<group>"; };
 		75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		75FB79002AC318D600C2743A /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
+		75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -620,6 +622,7 @@
 				753185E82C22123300C4F9F4 /* UIButton + extensions.swift */,
 				753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */,
 				7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */,
+				75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -829,6 +832,7 @@
 				757900762BF1768D00DE5A2F /* ConversationTableViewHeader.swift in Sources */,
 				7587CE1B2C77DA7D002D60CE /* Query+Extensions.swift in Sources */,
 				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
+				75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */,
 				7543BE332ACC87CA003001BF /* ConversationViewController.swift in Sources */,
 				75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */,
 				75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */,

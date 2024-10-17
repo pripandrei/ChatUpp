@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import RealmSwift
 
 enum MessageValueModification {
     case text
@@ -28,7 +27,13 @@ enum MessageFetchStrategy {
     case none
 }
 
-struct ConversationMessageGroups {
+enum MessagesFetchDirection {
+    case ascending
+    case descending
+    case both
+}
+
+struct ConversationMessageGroup {
     let date: Date
     var cellViewModels: [ConversationCellViewModel]
 }
@@ -39,7 +44,7 @@ extension ConversationViewModel
 {
     private func setupConversationMessageGroups() {
         guard let messages = conversation?.getMessages(), !messages.isEmpty else { return }
-        createMessageGroups(messages)
+        manageMessageGroupsCreation(messages)
     }
     
     func initiateConversation()
@@ -73,7 +78,7 @@ final class ConversationViewModel
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
-    var messageGroups: [ConversationMessageGroups] = []
+    var messageGroups: [ConversationMessageGroup] = []
     private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
@@ -133,40 +138,27 @@ final class ConversationViewModel
         return Chat(id: chatId, participants: participants, recentMessageID: recentMessageID, messagesCount: messagesCount)
     }
     
-    private func addChatToFirestore(_ chat: Chat) async {
-        do {
-            try await ChatsManager.shared.createNewChat(chat: chat)
-        } catch {
-            print("Error creating conversation", error.localizedDescription)
-        }
-    }
-    
     func createMessageGroups(_ messages: [Message])  {
-        var tempMessageGroups: [ConversationMessageGroups] = self.messageGroups
+        var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
         
         messages.forEach { message in
             addConversationCellViewModel(with: message, to: &tempMessageGroups)
         }
-//        return tempMessageGroups
         self.messageGroups = tempMessageGroups
     }
     
-    private func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroups])
+    private func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroup])
     {
         guard let date = message.timestamp.formatToYearMonthDay() else { return }
         let conversationCellVM = ConversationCellViewModel(cellMessage: message)
         
         if let index = messageGroups.firstIndex(where: { $0.date == date })
         {
-//            messageGroups[index].cellViewModels.insert(conversationCellVM, at: 0)
             messageGroups[index].cellViewModels.append(conversationCellVM)
-//            messageGroups[index].cellViewModels.sort(by: { $0.cellMessage.timestamp > $1.cellMessage.timestamp })
         } else {
-            let newGroup = ConversationMessageGroups(date: date, cellViewModels: [conversationCellVM])
-//            messageGroups.insert(newGroup, at: 0)
+            let newGroup = ConversationMessageGroup(date: date, cellViewModels: [conversationCellVM])
             messageGroups.append(newGroup)
         }
-        
     }
 
     private func createNewMessage(_ messageBody: String) -> Message {
@@ -181,26 +173,6 @@ final class ConversationViewModel
                        imagePath: nil,
                        imageSize: nil,
                        repliedTo: currentlyReplyToMessageID)
-    }
-    
-    @MainActor
-    private func addMessageToFirestoreDataBase(_ message: Message) async  {
-        guard let conversation = conversation else {return}
-        do {
-            try await ChatsManager.shared.createMessage(message: message, atChatPath: conversation.id)
-        } catch {
-            print("error occur while trying to create message in DB: ", error.localizedDescription)
-        }
-    }
-    
-    @MainActor
-    func updateRecentMessageFromFirestoreChat(messageID: String ) async {
-        guard let chatID = conversation?.id else { print("chatID is nil") ; return}
-        do {
-            try await ChatsManager.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
-        } catch {
-            print("Error updating chat last message:", error.localizedDescription)
-        }
     }
     
     func createConversationIfNeeded() {
@@ -226,8 +198,7 @@ final class ConversationViewModel
         resetCurrentReplyMessageIfNeeded()
         addMessageToRealmChat(message)
         chat.incrementMessageCount()
-        createMessageGroups([message])
-//        self.messageGroups.insert(contentsOf: createMessageGroups([message]), at: 0)
+        manageMessageGroupsCreation([message])
         
         Task { @MainActor in
             await addMessageToFirestoreDataBase(message)
@@ -244,6 +215,7 @@ final class ConversationViewModel
     }
     
 //    @MainActor
+    //TODO: Make this function to query realm db for smaller code
     private func findFirstUnseenMessageIndex() -> IndexPath? {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
         
@@ -279,41 +251,22 @@ final class ConversationViewModel
         guard let conversation = conversation else {return}
         guard let messageID = messageGroups.first?.cellViewModels.first?.cellMessage.id else {return}
         Task {
-            let (path,name) = try await StorageManager.shared.saveMessageImage(data: data, messageID: messageID)
-            try await ChatsManager.shared.updateMessageImagePath(messageID: messageID,
-                                                                 chatDocumentPath: conversation.id,
-                                                                 path: name)
+            let (path,name) = try await StorageManager
+                .shared
+                .saveMessageImage(data: data, messageID: messageID)
+            try await ChatsManager
+                .shared
+                .updateMessageImagePath(messageID: messageID,
+                                        chatDocumentPath: conversation.id,
+                                        path: name)
             
             let imageSize = MessageImageSize(width: Int(size.width), height: Int(size.height))
-            try await ChatsManager.shared.updateMessageImageSize(messageID: messageID, chatDocumentPath: conversation.id, imageSize: imageSize)
+            try await ChatsManager
+                .shared
+                .updateMessageImageSize(messageID: messageID,
+                                        chatDocumentPath: conversation.id,
+                                        imageSize: imageSize)
             print("Success saving image: \(path) \(name)")
-        }
-    }
-    
-    func deleteMessageFromFirestore(messageID: String) {
-        Task {
-            do {
-                try await ChatsManager.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
-            } catch {
-                print("Error deleting message: ",error.localizedDescription)
-            }
-        }
-    }
-    
-    @MainActor
-    func editMessageTextFromFirestore(_ messageText: String, messageID: String) {
-        Task {
-            try await ChatsManager.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
-        }
-    }
-    
-    func getMessageSenderName(usingSenderID id: String) -> String? 
-    {
-        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else { return nil }
-        if id == user.uid {
-            return user.name
-        } else {
-            return participant.name
         }
     }
     
@@ -340,10 +293,9 @@ final class ConversationViewModel
 }
 
 //MARK: - Users listener
-extension ConversationViewModel {
-    
+extension ConversationViewModel 
+{
     /// - Temporary fix while firebase functions are deactivated
-    
     func addUserObserver() {
         userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(participant.userId) { [weak self] realtimeDBUser in
             guard let self = self else {return}
@@ -357,12 +309,11 @@ extension ConversationViewModel {
         }
     }
     
-    func addUsersListener() {
-        
+    func addUsersListener() 
+    {
         self.userListener = UserManager.shared.addListenerToUsers([participant.userId]) { [weak self] users, documentsTypes in
             guard let self = self else {return}
-            // since we are listening only for one user here
-            // we can just get the first user and docType
+            // since we are listening only for one user, we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
             self.participant = user
         }
@@ -377,12 +328,9 @@ extension ConversationViewModel
     {
         guard let conversation = conversation else { return }
         RealmDBManager.shared.update(object: conversation) { chat in
-//                for message in messages {
-//                    RealmDBManager.shared.add(object: message)
-//                }
             let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
             let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
-
+            
             chat.conversationMessages.append(objectsIn: newMessages)
         }
     }
@@ -415,40 +363,7 @@ extension ConversationViewModel
         guard let count = count else {return 0}
         return count
     }
-    
-    
-//    private func getMessagesCountFromRealm() -> Int {
-//        guard let conversationID = conversation?.id else {return 0}
-//        let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversationID)?.conversationMessages.count
-//        return RealmDBManager.shared.getObjectsCount(ofType: Message.self)
-//    }
-//    
-    
-    //    private func getUnseenMessageCountFromRealm() -> Int {
-    //        let filter = NSPredicate(format: "messageSeen == false AND senderId == %@", userMember.userId)
-    //        return RealmDBManager.shared.retrieveObjects(ofType: Message.self, filter: filter).count
-    //    }
-        
-
 }
-
-
-extension Array where Element == ConversationMessageGroups
-{
-    mutating func removeCellViewModel(at indexPath: IndexPath) {
-        self[indexPath.section].cellViewModels.remove(at: indexPath.row)
-    }
-    
-    func getCellViewModel(at indexPath: IndexPath) -> ConversationCellViewModel {
-        return self[indexPath.section].cellViewModels[indexPath.row]
-    }
-    
-    func contains(elementWithID id: String) -> Bool {
-        let existingMessageIDs: Set<String> = Set(self.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
-        return existingMessageIDs.contains(id)
-    }
-}
-
 
 //MARK: - Messages listener
 extension ConversationViewModel
@@ -459,11 +374,7 @@ extension ConversationViewModel
         guard let conversation = conversation else {return}
         self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
             guard let self = self else {return}
-            
-//            if message.id == "6E70FA94-A050-48C5-9DF9-9CF1B234532B" {
-//                print("stop")
-//            }
-//            
+
             switch type {
             case .added: self.handleAddedMessage(message)
             case .removed: self.handleRemovedMessage(message)
@@ -481,20 +392,18 @@ extension ConversationViewModel
     {
         guard let _ = retrieveMessageFromRealm(message) else {
             addMessageToRealmChat(message)
-            createMessageGroups([message])
-//            self.messageGroups.insert(contentsOf: createMessageGroups([message]), at: 0)
+            manageMessageGroupsCreation([message])
             messageChangedType = .added
             return
         }
         Task { @MainActor in
-//            if message.id == "----" {
-//                print("stop")
-//            }
+//            if message.id == "----" { print("stop") }
             updateMessage(message)
         }
     }
     
-    private func handleModifiedMessage(_ message: Message) {
+    private func handleModifiedMessage(_ message: Message) 
+    {
         guard let indexPath = indexPath(of: message) else { return }
         let cellVM = messageGroups.getCellViewModel(at: indexPath)
         
@@ -536,13 +445,6 @@ extension ConversationViewModel
             }
         }
         return nil
-    }
-    
-    private func updateLastMessageFromFirestoreChat() {
-        Task {
-            let messageID = messageGroups[0].cellViewModels[0].cellMessage.id
-            await updateRecentMessageFromFirestoreChat(messageID: messageID)
-        }
     }
     
     @MainActor
@@ -591,7 +493,8 @@ extension ConversationViewModel
     }
     
     @MainActor
-    private func determineFetchStrategy(strategy: MessageFetchStrategy? = nil) async throws -> MessageFetchStrategy {
+    private func determineFetchStrategy(strategy: MessageFetchStrategy? = nil) async throws -> MessageFetchStrategy 
+    {
         guard let conversation = conversation else { return .none }
         
         if let message = conversation.getLastSeenMessage() {
@@ -608,37 +511,6 @@ extension ConversationViewModel
             return .ascending(startAtMessage: nil)
         }
     }
-    
-//    private func getStrategyOnChatReachedTopOrBottom(strategy: MessageFetchStrategy) -> MessageFetchStrategy {
-//        guard let conversation = conversation else { return .none }
-//        
-//        switch strategy {
-//        case .ascending(nil): return .ascending(startAtMessage: conversation.getLastMessage())
-//        case .descending(let message): 
-//            print(message)
-//            return .descending(startAtMessage: message)
-//        default: return .none
-//        }
-//    }
-//
-//    @MainActor
-//    private func getStrategyForOpenedChat() async throws -> MessageFetchStrategy  {
-//        guard let conversation = conversation else { return .none }
-//        
-//        if let message = conversation.getLastSeenMessage() {
-//            if conversation.conversationMessages.count > 1 {
-//                return .ascending(startAtMessage: message)
-//            } else {
-//                return .descending(startAtMessage: message)
-//            }
-//        } else if let message = try await getLastSeenMessageFromFirestore(from: conversation.id) {
-//            return .hybrit(startAtMessage: message)
-//        } else if let message = conversation.getPenultimateMessage() {
-//            return .ascending(startAtMessage: message)
-//        } else {
-//            return .ascending(startAtMessage: nil)
-//        }
-//    }
 
     private func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
         try await ChatsManager.shared.fetchMessages(
@@ -648,68 +520,156 @@ extension ConversationViewModel
             direction: direction
         )
     }
-    
+}
+
+
+//MARK: - Firestore functions
+extension ConversationViewModel 
+{
     private func getLastSeenMessageFromFirestore(from chatID: String) async throws -> Message? {
         return try await ChatsManager.shared.getLastSeenMessage(fromChatDocumentPath: chatID)
     }
+    
+    private func addChatToFirestore(_ chat: Chat) async {
+        do {
+            try await ChatsManager.shared.createNewChat(chat: chat)
+        } catch {
+            print("Error creating conversation", error.localizedDescription)
+        }
+    }
+    
+    @MainActor
+    private func addMessageToFirestoreDataBase(_ message: Message) async  {
+        guard let conversation = conversation else {return}
+        do {
+            try await ChatsManager.shared.createMessage(message: message, atChatPath: conversation.id)
+        } catch {
+            print("error occur while trying to create message in DB: ", error.localizedDescription)
+        }
+    }
+    
+    @MainActor
+    func updateRecentMessageFromFirestoreChat(messageID: String ) async {
+        guard let chatID = conversation?.id else { print("chatID is nil") ; return}
+        do {
+            try await ChatsManager.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
+        } catch {
+            print("Error updating chat last message:", error.localizedDescription)
+        }
+    }
+    
+    func deleteMessageFromFirestore(messageID: String) {
+        Task {
+            do {
+                try await ChatsManager.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
+            } catch {
+                print("Error deleting message: ",error.localizedDescription)
+            }
+        }
+    }
+    
+    @MainActor
+    func editMessageTextFromFirestore(_ messageText: String, messageID: String) {
+        Task {
+            try await ChatsManager.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
+        }
+    }
+    
+    func getMessageSenderName(usingSenderID id: String) -> String?
+    {
+        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else { return nil }
+        if id == user.uid {
+            return user.name
+        } else {
+            return participant.name
+        }
+    }
+    
+    private func updateLastMessageFromFirestoreChat() {
+        Task {
+            let messageID = messageGroups[0].cellViewModels[0].cellMessage.id
+            await updateRecentMessageFromFirestoreChat(messageID: messageID)
+        }
+    }
 }
-
-enum MessagesFetchDirection {
-    case ascending
-    case descending
-    case both
-}
-
-
 
 //MARK: - Not in use
 
 extension ConversationViewModel {
-//    private func sortCellViewModels() {
-//        if var lastMessageGroup = messageGroups.first {
-//            lastMessageGroup.cellViewModels.sort(by: { $0.cellMessage.timestamp > $1.cellMessage.timestamp })
-//            if let lastIndex = messageGroups.indices.first {
-//                messageGroups[lastIndex] = lastMessageGroup
-//            }
-//        }
-//    }
+    //    private func sortCellViewModels() {
+    //        if var lastMessageGroup = messageGroups.first {
+    //            lastMessageGroup.cellViewModels.sort(by: { $0.cellMessage.timestamp > $1.cellMessage.timestamp })
+    //            if let lastIndex = messageGroups.indices.first {
+    //                messageGroups[lastIndex] = lastMessageGroup
+    //            }
+    //        }
+    //    }
+    
+    
+    //    private func getMessagesCountFromRealm() -> Int {
+    //        guard let conversationID = conversation?.id else {return 0}
+    //        let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversationID)?.conversationMessages.count
+    //        return RealmDBManager.shared.getObjectsCount(ofType: Message.self)
+    //    }
+    //
+    
+    //    private func getUnseenMessageCountFromRealm() -> Int {
+    //        let filter = NSPredicate(format: "messageSeen == false AND senderId == %@", userMember.userId)
+    //        return RealmDBManager.shared.retrieveObjects(ofType: Message.self, filter: filter).count
+    //    }
 }
 
 
-//
-//@MainActor
-//private func fetchConversationMessages() async throws -> [Message]
-//{
-//    guard let conversation = conversation else { return [] }
-//    
-//    var messages = [Message]()
-//    
-////        let fetchDirection = getMessagesFetchingDirection()
-//    
-////        return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-//    
-//    if let lastSeenMessage = conversation.getLastSeenMessage() {
-//        return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastSeenMessage.timestamp, direction: .ascending)
-//        // ascending
-//    } else {
-//        guard let lastSeenMessage = try await ChatsManager.shared.getLastSeenMessage(fromChatDocumentPath: conversation.id) else { return [] }
+
+extension ConversationViewModel {
+    
+    
+//    func createMessageGroups4(_ messages: [Message]) {
+//        var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
+//        var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
 //        
-//        messages = try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastSeenMessage.timestamp, direction: .descending)
-//        
-//        let messagesAfterLastSeen = try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastSeenMessage.timestamp, direction: .ascending)
-//        messages.append(contentsOf: messagesAfterLastSeen)
-//        return messages
+//        messages.forEach { message in
+//            addConversationCellViewModel4(with: message, to: &tempMessageGroups, groupIndexDict: &groupIndexDict)
+//        }
+//        self.messageGroups = tempMessageGroups
 //    }
-//    
-//    
-////        else if let lastMessage = conversation.getLastMessage() {
-//////            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-////            return try await ChatsManager.shared.fetchMessages(from: conversation.id, messagesQueryLimit: 100, startAtTimestamp: lastMessage.timestamp, direction: .descending)
-////            //descending
-////        }
-////        return []
-////        else {
-////            return try await ChatsManager.shared.getAllMessages(fromChatDocumentPath: conversation.id)
-////        }
-//    
-//}
+//
+//    private func addConversationCellViewModel4(with message: Message, 
+//                                               to messageGroups: inout [ConversationMessageGroup],
+//                                               groupIndexDict: inout [Date: Int]) 
+//    {
+//        guard let date = message.timestamp.formatToYearMonthDay() else { return }
+//        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
+//        
+//        if let index = groupIndexDict[date] {
+//            messageGroups[index].cellViewModels.append(conversationCellVM)
+//        } else {
+//            let newGroup = ConversationMessageGroup(date: date, cellViewModels: [conversationCellVM])
+//            messageGroups.append(newGroup)
+//            groupIndexDict[date] = messageGroups.count - 1  // Update the dictionary with the new group's index
+//        }
+//    }
+
+    func manageMessageGroupsCreation(_ messages: [Message])
+    {
+        var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
+        var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
+
+        tempMessageGroups = messages.reduce(into: [ConversationMessageGroup]()) { result, message in
+            guard let date = message.timestamp.formatToYearMonthDay() else { return }
+
+            let cellViewModel = ConversationCellViewModel(cellMessage: message)
+            
+            if let index = groupIndexDict[date] {
+                if result.isEmpty { result = tempMessageGroups }
+                result[index].cellViewModels.append(cellViewModel)
+            } else {
+                let newMessageGroup = ConversationMessageGroup(date: date, cellViewModels: [cellViewModel])
+                result.append(newMessageGroup)
+                groupIndexDict[date] = result.count - 1
+            }
+        }
+        self.messageGroups = tempMessageGroups
+    }
+
+}
