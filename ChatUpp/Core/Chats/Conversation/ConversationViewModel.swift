@@ -573,7 +573,7 @@ extension ConversationViewModel
 
 extension ConversationViewModel
 {
-    func manageMessageGroupsCreation(_ messages: [Message])
+    func manageMessageGroupsCreation(_ messages: [Message], ascending: Bool? = nil)
     {
         var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
         var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
@@ -583,11 +583,22 @@ extension ConversationViewModel
             let cellViewModel = ConversationCellViewModel(cellMessage: message)
             
             if let index = groupIndexDict[date] {
-                tempMessageGroups[index].cellViewModels.append(cellViewModel)
+                if ascending == true {
+                    tempMessageGroups[index].cellViewModels.insert(cellViewModel, at: 0)
+                } else {
+                    tempMessageGroups[index].cellViewModels.append(cellViewModel)
+                }
             } else {
-                let newMessageGroup = ConversationMessageGroup(date: date, cellViewModels: [cellViewModel])
-                tempMessageGroups.append(newMessageGroup)
-                groupIndexDict[date] = tempMessageGroups.count - 1
+                if ascending == true {
+                    let newMessageGroup = ConversationMessageGroup(date: date, cellViewModels: [cellViewModel])
+                    tempMessageGroups.insert(newMessageGroup, at: 0)
+                    groupIndexDict[date] = 0
+                }
+                else {
+                    let newMessageGroup = ConversationMessageGroup(date: date, cellViewModels: [cellViewModel])
+                    tempMessageGroups.append(newMessageGroup)
+                    groupIndexDict[date] = tempMessageGroups.count - 1
+                }
             }
         }
         self.messageGroups = tempMessageGroups
@@ -605,7 +616,7 @@ extension ConversationViewModel
         }
         
         let newMessages = try await loadAdditionalMessages()
-        manageMessageGroupsCreation(newMessages)
+        manageMessageGroupsCreation(newMessages, ascending: ascending)
         
         let endSectionCount = ascending ? (messageGroups.count - messageGroupsBeforeUpdate.count) : messageGroups.count
         
