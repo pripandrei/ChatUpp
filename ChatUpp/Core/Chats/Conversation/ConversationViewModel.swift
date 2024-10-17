@@ -492,7 +492,7 @@ extension ConversationViewModel
     private func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
         try await ChatsManager.shared.fetchMessages(
             from: chatID,
-            messagesQueryLimit: 30,
+//            messagesQueryLimit: 30,
             startAtTimestamp: timestamp,
             direction: direction
         )

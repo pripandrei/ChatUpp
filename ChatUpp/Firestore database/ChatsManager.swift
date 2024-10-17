@@ -14,6 +14,8 @@ typealias Listener = ListenerRegistration
 
 final class ChatsManager {
     
+    private let queryLimit = 30
+    
     static let shared = ChatsManager()
     
     private init() {}
@@ -227,14 +229,14 @@ extension ChatsManager
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
             .addSnapshotListener { querySnapshot, error in
                 
-            guard error == nil else { print(error!.localizedDescription); return}
-            guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
-            
-            for document in documents.prefix(30) {
-                guard let message = try? document.document.data(as: Message.self) else {continue}
-                onReceivedMessage(message, document.type)
+                guard error == nil else { print(error!.localizedDescription); return}
+                guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
+                
+                for document in documents.prefix(self.queryLimit) {
+                    guard let message = try? document.document.data(as: Message.self) else {continue}
+                    onReceivedMessage(message, document.type)
+                }
             }
-        }
     }
     
     
@@ -296,7 +298,7 @@ extension ChatsManager
 //    }
     
     
-    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
+    func fetchMessages(from chatID: String, startAtTimestamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
         
         var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
         
@@ -321,7 +323,7 @@ extension ChatsManager
                 .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending
         }
 
-        return try await query.limit(to: limit).getDocuments(as: Message.self)
+        return try await query.limit(to: queryLimit).getDocuments(as: Message.self)
     }
 //    
 //    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date?, direction: MessagesFetchDirection) async throws -> [Message] {
