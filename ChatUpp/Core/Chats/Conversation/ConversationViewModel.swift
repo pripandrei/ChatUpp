@@ -138,29 +138,6 @@ final class ConversationViewModel
         return Chat(id: chatId, participants: participants, recentMessageID: recentMessageID, messagesCount: messagesCount)
     }
     
-    func createMessageGroups(_ messages: [Message])  {
-        var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
-        
-        messages.forEach { message in
-            addConversationCellViewModel(with: message, to: &tempMessageGroups)
-        }
-        self.messageGroups = tempMessageGroups
-    }
-    
-    private func addConversationCellViewModel(with message: Message, to messageGroups: inout [ConversationMessageGroup])
-    {
-        guard let date = message.timestamp.formatToYearMonthDay() else { return }
-        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-        
-        if let index = messageGroups.firstIndex(where: { $0.date == date })
-        {
-            messageGroups[index].cellViewModels.append(conversationCellVM)
-        } else {
-            let newGroup = ConversationMessageGroup(date: date, cellViewModels: [conversationCellVM])
-            messageGroups.append(newGroup)
-        }
-    }
-
     private func createNewMessage(_ messageBody: String) -> Message {
         let messageID = UUID().uuidString
         
@@ -593,6 +570,129 @@ extension ConversationViewModel
     }
 }
 
+
+extension ConversationViewModel
+{
+    func manageMessageGroupsCreation(_ messages: [Message])
+    {
+        var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
+        var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
+        
+       messages.forEach { message in
+            guard let date = message.timestamp.formatToYearMonthDay() else { return }
+            let cellViewModel = ConversationCellViewModel(cellMessage: message)
+            
+            if let index = groupIndexDict[date] {
+                tempMessageGroups[index].cellViewModels.append(cellViewModel)
+            } else {
+                let newMessageGroup = ConversationMessageGroup(date: date, cellViewModels: [cellViewModel])
+                tempMessageGroups.append(newMessageGroup)
+                groupIndexDict[date] = tempMessageGroups.count - 1
+            }
+        }
+        self.messageGroups = tempMessageGroups
+    }
+    
+//    @MainActor
+//    func loadAdditionalMessageGroups() async throws -> ([IndexPath], IndexSet?) {
+//        let startSection = messageGroups.count
+//        
+//        guard let lastMessage = messageGroups.last?.cellViewModels.last?.cellMessage else {return ([], nil)}
+//        guard let lastSectionMessagesBeforeUpdate = messageGroups.last?.cellViewModels else {return ([], nil)}
+//        
+//        let lastSectionIndexBeforeUpdate = messageGroups.count - 1
+//        
+//        var newMessages = try await fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
+//        newMessages.removeFirst()
+//        
+//        manageMessageGroupsCreation(newMessages)
+//        
+//        /// check if new cells in last section were added
+//        let newRowsIndexes = messageGroups[lastSectionIndexBeforeUpdate].cellViewModels.enumerated().compactMap { index, element in
+//            return lastSectionMessagesBeforeUpdate.contains(where: { $0.cellMessage == element.cellMessage }) ? nil : IndexPath(row: index, section: lastSectionIndexBeforeUpdate)
+//        }
+//
+//        let endSection = messageGroups.count
+//        let indexSet = startSection < endSection ? IndexSet(integersIn: startSection...endSection - 1) : nil
+//        return (newRowsIndexes, indexSet)
+//    }
+    
+//    @MainActor
+//    func loadAdditionalMessageGroups() async throws -> ([IndexPath], IndexSet?) {
+//        guard let lastGroup = messageGroups.last,
+//              let lastMessage = lastGroup.cellViewModels.last?.cellMessage
+//        else { return ([], nil) }
+//        
+//        let startSectionCount = messageGroups.count
+//        let lastSectionMessagesBeforeUpdate = lastGroup.cellViewModels
+//        let lastSectionIndex = messageGroups.count - 1
+//        
+//        // Fetch new messages and remove the duplicate first message
+//        var newMessages = try await fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
+//        newMessages.removeFirst()
+//
+//        manageMessageGroupsCreation(newMessages)
+//        
+//        // Compute index paths for newly added messages in the last section
+//        let newIndexPaths = messageGroups[lastSectionIndex].cellViewModels.enumerated().compactMap { index, viewModel in
+//            return lastSectionMessagesBeforeUpdate.contains { $0.cellMessage == viewModel.cellMessage }
+//                ? nil
+//                : IndexPath(row: index, section: lastSectionIndex)
+//        }
+//
+//        // Check if new sections were added
+//        let endSectionCount = messageGroups.count
+//        let newSections: IndexSet? = (startSectionCount < endSectionCount)
+//            ? IndexSet(integersIn: startSectionCount..<endSectionCount)
+//            : nil
+//
+//        return (newIndexPaths, newSections)
+//    }
+    
+    @MainActor
+    func manageAdditionalMessageGroupsCreation() async throws -> ([IndexPath], IndexSet?) {
+        guard let lastGroup = messageGroups.last
+        else { return ([], nil) }
+        
+        let startSectionCount = messageGroups.count
+        let lastSectionMessagesBeforeUpdate = lastGroup.cellViewModels
+        let lastSectionIndex = messageGroups.count - 1
+        
+        // Fetch new messages and remove the duplicate first message
+        let newMessages = try await loadAdditionalMessages()
+        manageMessageGroupsCreation(newMessages)
+
+        let newRows = findNewRowIndexPaths(inLastSectionBeforeUpdate: lastSectionMessagesBeforeUpdate, lastSectionIndex: lastSectionIndex)
+        
+        let newSections = findNewSectionIndexSet(startSectionCount: startSectionCount, endSectionCount: messageGroups.count)
+        return (newRows, newSections)
+    }
+    
+    private func findNewRowIndexPaths(inLastSectionBeforeUpdate lastSectionMessagesBeforeUpdate: [ConversationCellViewModel], lastSectionIndex: Int) -> [IndexPath] {
+        return messageGroups[lastSectionIndex].cellViewModels.enumerated().compactMap { index, viewModel in
+            return lastSectionMessagesBeforeUpdate.contains { $0.cellMessage == viewModel.cellMessage }
+            ? nil
+            : IndexPath(row: index, section: lastSectionIndex)
+        }
+    }
+    
+    private func findNewSectionIndexSet(startSectionCount: Int, endSectionCount: Int) -> IndexSet? {
+        return (startSectionCount < endSectionCount)
+        ? IndexSet(integersIn: startSectionCount..<endSectionCount)
+        : nil
+    }
+    
+    private func loadAdditionalMessages() async throws -> [Message] {
+        guard let lastMessage = messageGroups.last?.cellViewModels.last?.cellMessage
+        else { return [] }
+        
+        var newMessages = try await fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
+        newMessages.removeFirst()
+        return newMessages
+    }
+
+}
+
 //MARK: - Not in use
 
 extension ConversationViewModel {
@@ -619,55 +719,3 @@ extension ConversationViewModel {
     //    }
 }
 
-
-
-extension ConversationViewModel {
-    
-    
-//    func createMessageGroups4(_ messages: [Message]) {
-//        var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
-//        var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
-//        
-//        messages.forEach { message in
-//            addConversationCellViewModel4(with: message, to: &tempMessageGroups, groupIndexDict: &groupIndexDict)
-//        }
-//        self.messageGroups = tempMessageGroups
-//    }
-//
-//    private func addConversationCellViewModel4(with message: Message, 
-//                                               to messageGroups: inout [ConversationMessageGroup],
-//                                               groupIndexDict: inout [Date: Int]) 
-//    {
-//        guard let date = message.timestamp.formatToYearMonthDay() else { return }
-//        let conversationCellVM = ConversationCellViewModel(cellMessage: message)
-//        
-//        if let index = groupIndexDict[date] {
-//            messageGroups[index].cellViewModels.append(conversationCellVM)
-//        } else {
-//            let newGroup = ConversationMessageGroup(date: date, cellViewModels: [conversationCellVM])
-//            messageGroups.append(newGroup)
-//            groupIndexDict[date] = messageGroups.count - 1  // Update the dictionary with the new group's index
-//        }
-//    }
-
-    func manageMessageGroupsCreation(_ messages: [Message])
-    {
-        var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
-        var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
-        
-       messages.forEach { message in
-            guard let date = message.timestamp.formatToYearMonthDay() else { return }
-            let cellViewModel = ConversationCellViewModel(cellMessage: message)
-            
-            if let index = groupIndexDict[date] {
-                tempMessageGroups[index].cellViewModels.append(cellViewModel)
-            } else {
-                let newMessageGroup = ConversationMessageGroup(date: date, cellViewModels: [cellViewModel])
-                tempMessageGroups.append(newMessageGroup)
-                groupIndexDict[date] = tempMessageGroups.count - 1
-            }
-        }
-        self.messageGroups = tempMessageGroups
-    }
-
-}

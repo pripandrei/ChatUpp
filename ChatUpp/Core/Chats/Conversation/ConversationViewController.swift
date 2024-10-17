@@ -621,47 +621,26 @@ extension ConversationViewController: UITableViewDelegate
         let lastSectionIndex = conversationViewModel.messageGroups.count - 1
         let lastRowIndex = conversationViewModel.messageGroups[lastSectionIndex].cellViewModels.count - 1
 
-        if indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
-        {
-            print("Last cell is displayed. Should fetch new messages")
+        if indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex {
             Task {
-                print(indexPath.section)
-                try await loadMessageGroups()
-            }
-        }
-    }
-
-    @MainActor
-    func loadMessageGroups() async throws {
-        let startSection = conversationViewModel.messageGroups.count
-        
-        guard let lastMessage = conversationViewModel.messageGroups.last?.cellViewModels.last?.cellMessage else {return}
-        guard var lastSectionMessagesBeforeUpdate = conversationViewModel.messageGroups.last?.cellViewModels else {return}
-        
-        let lastSectionIndexBeforeUpdate = conversationViewModel.messageGroups.count - 1
-        
-        var newMessages = try await conversationViewModel.fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
-        newMessages.removeFirst()
-        
-        conversationViewModel.manageMessageGroupsCreation(newMessages)
-        
-        let newRowsIndexes = conversationViewModel.messageGroups[lastSectionIndexBeforeUpdate].cellViewModels.enumerated().compactMap { index, element in
-            return lastSectionMessagesBeforeUpdate.contains(where: { $0.cellMessage == element.cellMessage }) ? nil : IndexPath(row: index, section: lastSectionIndexBeforeUpdate)
-        }
-
-        let endSection = conversationViewModel.messageGroups.count - 1
-        let indexSet = IndexSet(integersIn: startSection...endSection)
-
-        UIView.performWithoutAnimation {
-            self.rootView.tableView.performBatchUpdates {
-                if !newRowsIndexes.isEmpty {
-                    self.rootView.tableView.insertRows(at: newRowsIndexes, with: .automatic)
-                }
-                self.rootView.tableView.insertSections(indexSet, with: .automatic)
+                let (newRows, indexSet) = try await conversationViewModel.manageAdditionalMessageGroupsCreation()
+                self.performeTableViewUpdate(with: newRows, sections: indexSet)
             }
         }
     }
     
+    private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?) {
+        UIView.performWithoutAnimation {
+            self.rootView.tableView.performBatchUpdates {
+                if !newRows.isEmpty {
+                    self.rootView.tableView.insertRows(at: newRows, with: .automatic)
+                }
+                if let sections = sections {
+                    self.rootView.tableView.insertSections(sections, with: .automatic)
+                }
+            }
+        }
+    }
     
     //MARK: - Context menu configuration
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
