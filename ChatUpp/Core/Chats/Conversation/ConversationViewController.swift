@@ -620,12 +620,21 @@ extension ConversationViewController: UITableViewDelegate
         
         let lastSectionIndex = conversationViewModel.messageGroups.count - 1
         let lastRowIndex = conversationViewModel.messageGroups[lastSectionIndex].cellViewModels.count - 1
+        let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
 
-        if indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex {
-            Task {
-                let (newRows, newSections) = try await conversationViewModel.manageAdditionalMessageGroupsCreation()
-                self.performeTableViewUpdate(with: newRows, sections: newSections)
-            }
+        let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
+        
+        if isLastCellDisplayed {
+            handleAdditionalMessageGroupUpdate(inAscending: false)
+        } else if isFirstCellDisplayed {
+            handleAdditionalMessageGroupUpdate(inAscending: true)
+        }
+    }
+    
+    private func handleAdditionalMessageGroupUpdate(inAscending order: Bool) {
+        Task { @MainActor in
+            let (newRows, newSections) = try await conversationViewModel.manageAdditionalMessageGroupsCreation(ascending: order)
+            self.performeTableViewUpdate(with: newRows, sections: newSections)
         }
     }
     
