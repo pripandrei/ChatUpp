@@ -626,18 +626,6 @@ extension ConversationViewController: UITableViewDelegate
                 let (newRows, newSections) = try await conversationViewModel.manageAdditionalMessageGroupsCreation()
                 self.performeTableViewUpdate(with: newRows, sections: newSections)
             }
-            
-//            Task {
-//                let oldMessageGroupsSnapshot = self.conversationViewModel.messageGroups
-//                let startSection = self.conversationViewModel.messageGroups.count
-//                
-//                try await conversationViewModel.manageAdditionalMessageGroupsCreation()
-//                
-//                let newRows = conversationViewModel.findNewRowIndexPaths(usingPreviousMessageGroups: oldMessageGroupsSnapshot)
-//                let indexSet = conversationViewModel.findNewSectionIndexSet(startSectionCount: startSection, endSectionCount: self.conversationViewModel.messageGroups.count)
-//                
-//                self.performeTableViewUpdate(with: newRows, sections: indexSet)
-//            }
         }
     }
     

@@ -593,88 +593,24 @@ extension ConversationViewModel
         self.messageGroups = tempMessageGroups
     }
     
-//    @MainActor
-//    func loadAdditionalMessageGroups() async throws -> ([IndexPath], IndexSet?) {
-//        let startSection = messageGroups.count
-//        
-//        guard let lastMessage = messageGroups.last?.cellViewModels.last?.cellMessage else {return ([], nil)}
-//        guard let lastSectionMessagesBeforeUpdate = messageGroups.last?.cellViewModels else {return ([], nil)}
-//        
-//        let lastSectionIndexBeforeUpdate = messageGroups.count - 1
-//        
-//        var newMessages = try await fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
-//        newMessages.removeFirst()
-//        
-//        manageMessageGroupsCreation(newMessages)
-//        
-//        /// check if new cells in last section were added
-//        let newRowsIndexes = messageGroups[lastSectionIndexBeforeUpdate].cellViewModels.enumerated().compactMap { index, element in
-//            return lastSectionMessagesBeforeUpdate.contains(where: { $0.cellMessage == element.cellMessage }) ? nil : IndexPath(row: index, section: lastSectionIndexBeforeUpdate)
-//        }
-//
-//        let endSection = messageGroups.count
-//        let indexSet = startSection < endSection ? IndexSet(integersIn: startSection...endSection - 1) : nil
-//        return (newRowsIndexes, indexSet)
-//    }
-    
-//    @MainActor
-//    func loadAdditionalMessageGroups() async throws -> ([IndexPath], IndexSet?) {
-//        guard let lastGroup = messageGroups.last,
-//              let lastMessage = lastGroup.cellViewModels.last?.cellMessage
-//        else { return ([], nil) }
-//        
-//        let startSectionCount = messageGroups.count
-//        let lastSectionMessagesBeforeUpdate = lastGroup.cellViewModels
-//        let lastSectionIndex = messageGroups.count - 1
-//        
-//        // Fetch new messages and remove the duplicate first message
-//        var newMessages = try await fetchConversationMessages(using: .descending(startAtMessage: lastMessage))
-//        newMessages.removeFirst()
-//
-//        manageMessageGroupsCreation(newMessages)
-//        
-//        // Compute index paths for newly added messages in the last section
-//        let newIndexPaths = messageGroups[lastSectionIndex].cellViewModels.enumerated().compactMap { index, viewModel in
-//            return lastSectionMessagesBeforeUpdate.contains { $0.cellMessage == viewModel.cellMessage }
-//                ? nil
-//                : IndexPath(row: index, section: lastSectionIndex)
-//        }
-//
-//        // Check if new sections were added
-//        let endSectionCount = messageGroups.count
-//        let newSections: IndexSet? = (startSectionCount < endSectionCount)
-//            ? IndexSet(integersIn: startSectionCount..<endSectionCount)
-//            : nil
-//
-//        return (newIndexPaths, newSections)
-//    }
-    
     @MainActor
-    func manageAdditionalMessageGroupsCreation() async throws -> ([IndexPath], IndexSet?) {
-        let messageGroupSnapshot = messageGroups
+    func manageAdditionalMessageGroupsCreation() async throws -> ([IndexPath], IndexSet?) 
+    {
+        let messageGroupsBeforeUpdate = messageGroups
         let startSectionCount = messageGroups.count
         
-        // Fetch new messages and remove the duplicate first message
-        let newMessages = try await loadAdditionalMessages()
+        let newMessages = try await fetchAdditionalMessages()
         manageMessageGroupsCreation(newMessages)
 
-        let newRows = findNewRowIndexPaths(usingPreviousMessageGroups: messageGroupSnapshot)
+        let newRows = findNewRowIndexPaths(inMessageGroups: messageGroupsBeforeUpdate)
         let newSections = findNewSectionIndexSet(startSectionCount: startSectionCount, endSectionCount: messageGroups.count)
         
         return (newRows, newSections)
     }
     
-//    private func findNewRowIndexPaths(inLastSectionBeforeUpdate lastSectionMessagesBeforeUpdate: [ConversationCellViewModel], lastSectionIndex: Int) -> [IndexPath] {
-//        return messageGroups[lastSectionIndex].cellViewModels.enumerated().compactMap { index, viewModel in
-//            return lastSectionMessagesBeforeUpdate.contains { $0.cellMessage == viewModel.cellMessage }
-//            ? nil
-//            : IndexPath(row: index, section: lastSectionIndex)
-//        }
-//    }
-//    
-    private func findNewRowIndexPaths(usingPreviousMessageGroups previousMessageGroups: [ConversationMessageGroup]) -> [IndexPath] {
-        guard let lastSectionBeforeUpdate = previousMessageGroups.last?.cellViewModels else { return [] }
-        let lastSectionIndex = previousMessageGroups.count - 1
+    private func findNewRowIndexPaths(inMessageGroups messageGroups: [ConversationMessageGroup]) -> [IndexPath] {
+        guard let lastSectionBeforeUpdate = messageGroups.last?.cellViewModels else { return [] }
+        let lastSectionIndex = messageGroups.count - 1
     
         return messageGroups[lastSectionIndex].cellViewModels.enumerated().compactMap { index, viewModel in
             return lastSectionBeforeUpdate.contains { $0.cellMessage == viewModel.cellMessage }
@@ -689,7 +625,7 @@ extension ConversationViewModel
         : nil
     }
     
-    private func loadAdditionalMessages() async throws -> [Message] {
+    private func fetchAdditionalMessages() async throws -> [Message] {
         guard let lastMessage = messageGroups.last?.cellViewModels.last?.cellMessage
         else { return [] }
         
