@@ -93,6 +93,12 @@ final class RealmDBManager {
             update(object)
         }
     }
+    
+    public func delete<T: Object>(object: T) {
+        try? realm?.write({
+            realm?.delete(object)
+        })
+    }
 
 //    public func addObserverToObjects<T: Object>(objects: Results<T>) {
 //        let token = objects.observe { change in

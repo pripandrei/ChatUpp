@@ -340,6 +340,11 @@ extension ConversationViewModel
         guard let count = count else {return 0}
         return count
     }
+    
+    private func removeMessageFromRealm(message: Message) {
+        guard let realmMessage = retrieveMessageFromRealm(message) else {return}
+        RealmDBManager.shared.delete(object: realmMessage)
+    }
 }
 
 //MARK: - Messages listener
@@ -398,6 +403,7 @@ extension ConversationViewModel
         
         messageGroups.removeCellViewModel(at: indexPath)
         removeMessageGroup(at: indexPath)
+        removeMessageFromRealm(message: message)
         
         if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
         messageChangedType = .removed
