@@ -175,7 +175,7 @@ final class ConversationViewModel
         resetCurrentReplyMessageIfNeeded()
         addMessageToRealmChat(message)
         chat.incrementMessageCount()
-        manageMessageGroupsCreation([message])
+        manageMessageGroupsCreation([message], ascending: true)
         
         Task { @MainActor in
             await addMessageToFirestoreDataBase(message)
@@ -369,7 +369,7 @@ extension ConversationViewModel
     {
         guard let _ = retrieveMessageFromRealm(message) else {
             addMessageToRealmChat(message)
-            manageMessageGroupsCreation([message])
+            manageMessageGroupsCreation([message], ascending: true)
             messageChangedType = .added
             return
         }
@@ -536,7 +536,7 @@ extension ConversationViewModel
     }
     
     func deleteMessageFromFirestore(messageID: String) {
-        Task {
+        Task { @MainActor in
             do {
                 try await ChatsManager.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
             } catch {
@@ -563,7 +563,7 @@ extension ConversationViewModel
     }
     
     private func updateLastMessageFromFirestoreChat() {
-        Task {
+        Task { @MainActor in
             let messageID = messageGroups[0].cellViewModels[0].cellMessage.id
             await updateRecentMessageFromFirestoreChat(messageID: messageID)
         }
