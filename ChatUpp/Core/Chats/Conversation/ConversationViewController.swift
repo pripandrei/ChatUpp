@@ -121,49 +121,18 @@ final class ConversationViewController: UIViewController {
     
     private func setupBinding()
     {
-        
         conversationViewModel.$conversationInitializationStatus
             .receive(on: DispatchQueue.main)
             .sink { initializationStatus in
-                if let status = initializationStatus {
-                    switch status {
-                    case .inProgress: self.toggleSkeletonAnimation(.initiated)
-                    case .finished:
-                        self.refreshTableView()
-                        self.conversationViewModel.addListeners()
-                    default: break
-                    }
+                switch initializationStatus {
+                case .inProgress: self.toggleSkeletonAnimation(.initiated)
+                case .finished:
+                    self.refreshTableView()
+                    self.conversationViewModel.addListeners()
+                default: break
                 }
             }.store(in: &subscriptions)
         
-//        
-//        conversationViewModel.$skeletonAnimationState
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] animationState in
-//                
-//                //TODO: - Return to this block of code and reconsider it
-//                guard let self = self, animationState != .none else {return}
-//                
-//                self.toggleSkeletonAnimation(animationState)
-////                if let index = conversationViewModel.firstUnseenMessageIndex {  self.scrollToCell(at: index)
-////                }
-//            }.store(in: &subscriptions)
-//    
-//        conversationViewModel.$firstUnseenMessageIndex
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] indexOfCellToScrollTo in
-//                
-//                guard let self = self, let indexPath = indexOfCellToScrollTo else {return}
-//                
-//                self.rootView.tableView.reloadData()
-//                self.view.layoutIfNeeded()
-//                self.scrollToCell(at: indexPath)
-//                
-////                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-////                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-////                self.updateMessageSeenStatusIfNeeded()
-//            }.store(in: &subscriptions)
-// 
         conversationViewModel.$participant
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
@@ -195,12 +164,6 @@ final class ConversationViewController: UIViewController {
                     }
                 default: break
                 }
-            }.store(in: &subscriptions)
-        
-        conversationViewModel.conversationListenersInitiationSubject
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.conversationViewModel?.addListeners()
             }.store(in: &subscriptions)
     }
     
@@ -821,3 +784,55 @@ extension ConversationViewController
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//MARK: - Code not in use :
+
+//        conversationViewModel.$skeletonAnimationState
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] animationState in
+//
+//                //TODO: - Return to this block of code and reconsider it
+//                guard let self = self, animationState != .none else {return}
+//
+//                self.toggleSkeletonAnimation(animationState)
+////                if let index = conversationViewModel.firstUnseenMessageIndex {  self.scrollToCell(at: index)
+////                }
+//            }.store(in: &subscriptions)
+//
+//        conversationViewModel.$firstUnseenMessageIndex
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] indexOfCellToScrollTo in
+//
+//                guard let self = self, let indexPath = indexOfCellToScrollTo else {return}
+//
+//                self.rootView.tableView.reloadData()
+//                self.view.layoutIfNeeded()
+//                self.scrollToCell(at: indexPath)
+//
+////                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+////                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
+////                self.updateMessageSeenStatusIfNeeded()
+//            }.store(in: &subscriptions)
+//
+//        conversationViewModel.conversationListenersInitiationSubject
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] _ in
+//                self?.conversationViewModel?.addListeners()
+//            }.store(in: &subscriptions)

@@ -41,6 +41,7 @@ struct ConversationMessageGroup {
 //MARK: - Conversation initialization
 
 enum ConversationInitializationStatus {
+    case notInitialized
     case inProgress
     case finished
     case error
@@ -49,18 +50,18 @@ enum ConversationInitializationStatus {
 extension ConversationViewModel
 {
     private func setupConversationMessageGroups() {
-        guard var messages = conversation?.getMessages(), !messages.isEmpty else { return }
+        guard let messages = conversation?.getMessages(), !messages.isEmpty else { return }
 //        messages.removeFirst()
         manageMessageGroupsCreation(messages)
     }
     
     func initiateConversation() 
     {
-//        guard !shouldFetchNewMessages else {
-//            conversationInitializationStatus = .inProgress
-//            initiateConversationWithRemoteData()
-//            return
-//        }
+        guard !shouldFetchNewMessages else {
+            conversationInitializationStatus = .inProgress
+            initiateConversationWithRemoteData()
+            return
+        }
         initiateConversationUsingLocalData()
     }
     
@@ -76,12 +77,6 @@ extension ConversationViewModel
         setupConversationMessageGroups()
         conversationInitializationStatus = .finished
     }
-    
-//    private func completeConversationInitialization() {
-//        skeletonAnimationState = .terminated
-//        firstUnseenMessageIndex = self.findFirstUnseenMessageIndex()
-//        conversationListenersInitiationSubject.send()
-//    }
 }
 
 final class ConversationViewModel 
@@ -90,7 +85,7 @@ final class ConversationViewModel
     
     var ischatOpened = false
     
-    @Published var conversationInitializationStatus: ConversationInitializationStatus?
+    @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
@@ -101,10 +96,6 @@ final class ConversationViewModel
     
     @Published private(set) var participant: DBUser
     @Published var messageChangedType: MessageChangeType?
-//    @Published var firstUnseenMessageIndex: IndexPath?
-//    @Published var skeletonAnimationState: SkeletonAnimationState = .none
-    
-    private(set) var conversationListenersInitiationSubject = PassthroughSubject<Void,Never>()
     
     var shouldEditMessage: ((String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
@@ -135,8 +126,7 @@ final class ConversationViewModel
         self.conversation = conversation
         self.memberProfileImage = imageData
         
-        initiateConversation() // return status ini
-//        addListeners()
+        initiateConversation()
     }
     
     func addListeners() {
@@ -471,12 +461,8 @@ extension ConversationViewModel
     @MainActor
     func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message] {
         guard let conversation = conversation else { return [] }
-        
-        var fetchStrategy = strategy
-        
-        if fetchStrategy == nil {
-            fetchStrategy = try await determineFetchStrategy()
-        }
+
+        var fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
         
         switch fetchStrategy {
         case .ascending(let startAtMessage): 
@@ -493,7 +479,7 @@ extension ConversationViewModel
     }
     
     @MainActor
-    private func determineFetchStrategy(strategy: MessageFetchStrategy? = nil) async throws -> MessageFetchStrategy 
+    private func determineFetchStrategy() async throws -> MessageFetchStrategy
     {
         guard let conversation = conversation else { return .none }
         
@@ -512,8 +498,11 @@ extension ConversationViewModel
         }
     }
 
-    private func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, startAfterMessage message: String? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
-        
+    private func fetchMessages(from chatID: String, 
+                               startTimeStamp timestamp: Date? = nil,
+                               startAfterMessage message: String? = nil,
+                               direction: MessagesFetchDirection) async throws -> [Message] 
+    {
         //TODO: - contemplate on implementing of startAfterMessage :)
         
         try await ChatsManager.shared.fetchMessages(
@@ -699,6 +688,13 @@ extension ConversationViewModel
 //MARK: - Not in use
 
 extension ConversationViewModel {
+    
+    //    @Published var firstUnseenMessageIndex: IndexPath?
+    //    @Published var skeletonAnimationState: SkeletonAnimationState = .none
+    //    private(set) var conversationListenersInitiationSubject = PassthroughSubject<Void,Never>()
+    
+    
+    
     //    private func sortCellViewModels() {
     //        if var lastMessageGroup = messageGroups.first {
     //            lastMessageGroup.cellViewModels.sort(by: { $0.cellMessage.timestamp > $1.cellMessage.timestamp })
