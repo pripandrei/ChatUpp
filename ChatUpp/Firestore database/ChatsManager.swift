@@ -298,18 +298,20 @@ extension ChatsManager
 //    }
     
     
-    func fetchMessages(from chatID: String, startAtTimestamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
+    func fetchMessages(from chatID: String, startAtTimestamp timestamp: Date? = nil, startAfterMessage message: String? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
         
         var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
         
-        if let timestamp = timestamp {
-            switch direction {
-            case .ascending: query = query.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
-            case .descending: query = query.whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
-            default:break
-            }
-        }
-        /// order will be reverted again on messageGroups creation so we revers order here
+        let snapshot = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue).document(message!)
+        
+        let docSnapshot = try await snapshot.getDocument()
+//        if let timestamp = timestamp {
+//            switch direction {
+//            case .ascending: query = query.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
+//            case .descending: query = query.whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
+//            default:break
+//            }
+//        }
         if direction == .ascending {
             query = query
                 .order(by: Message.CodingKeys.timestamp.rawValue, descending: false) // ascending order
@@ -323,7 +325,7 @@ extension ChatsManager
                 .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending
         }
 
-        return try await query.limit(to: queryLimit).getDocuments(as: Message.self)
+        return try await query.limit(to: queryLimit).start(afterDocument: docSnapshot).getDocuments(as: Message.self)
     }
 //    
 //    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date?, direction: MessagesFetchDirection) async throws -> [Message] {

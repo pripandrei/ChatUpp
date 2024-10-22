@@ -57,10 +57,29 @@ final class ConversationViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         setupController()
-        conversationViewModel.initiateConversation()
+//        conversationViewModel.initiateConversation()
     }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+//
+//        guard let indexPath = conversationViewModel.firstUnseenMessageIndex else {return}
+//        scrollToCell(at: indexPath)
+//        conversationViewModel.firstUnseenMessageIndex = nil
+    }
+    
+    private func scrollToCell(at indexPath: IndexPath) 
+    {
+        guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
+        self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+//        let rect = rootView.tableView.rectForRow(at: indexPath)
+//        rootView.tableView.contentOffset = CGPoint(x: 0, y: rect.origin.y - rootView.inputBarContainer.bounds.height)
+//        conversationViewModel.firstUnseenMessageIndex = nil
+    }
+    
+
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
@@ -71,7 +90,6 @@ final class ConversationViewController: UIViewController {
         print("====ConversationVC Deinit")
     }
 
-    
     private func setupController() 
     {
         configureTableView()
@@ -89,32 +107,63 @@ final class ConversationViewController: UIViewController {
         addTargetToScrollToBottomBtn()
     }
     
+    private func refreshTableView() 
+    {
+        self.toggleSkeletonAnimation(.terminated)
+        self.rootView.tableView.reloadData()
+        self.view.layoutIfNeeded()
+//        guard let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() else {
+//            return
+//        }
+        let indexPath = IndexPath(row: 10, section: 0)
+        self.scrollToCell(at: indexPath)
+    }
+    
     private func setupBinding()
     {
-        conversationViewModel.$skeletonAnimationState
+        
+        conversationViewModel.$conversationInitializationStatus
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                guard let self = self else {return}
-                
-                switch state {
-                case .initiated: self.toggleSkeletonAnimation(.initiated)
-                case .terminated: self.toggleSkeletonAnimation(.terminated)
-                default: break
+            .sink { initializationStatus in
+                if let status = initializationStatus {
+                    switch status {
+                    case .inProgress: self.toggleSkeletonAnimation(.initiated)
+                    case .finished:
+                        self.refreshTableView()
+                        self.conversationViewModel.addListeners()
+                    default: break
+                    }
                 }
             }.store(in: &subscriptions)
         
-        conversationViewModel.$firstUnseenMessageIndex
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] indexOfCellToScrollTo in
-                guard let self = self else {return}
-                
-                self.rootView.tableView.reloadData()
-                self.view.layoutIfNeeded()
-                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
-                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
-//                self.updateMessageSeenStatusIfNeeded()
-            }.store(in: &subscriptions)
 //        
+//        conversationViewModel.$skeletonAnimationState
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] animationState in
+//                
+//                //TODO: - Return to this block of code and reconsider it
+//                guard let self = self, animationState != .none else {return}
+//                
+//                self.toggleSkeletonAnimation(animationState)
+////                if let index = conversationViewModel.firstUnseenMessageIndex {  self.scrollToCell(at: index)
+////                }
+//            }.store(in: &subscriptions)
+//    
+//        conversationViewModel.$firstUnseenMessageIndex
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] indexOfCellToScrollTo in
+//                
+//                guard let self = self, let indexPath = indexOfCellToScrollTo else {return}
+//                
+//                self.rootView.tableView.reloadData()
+//                self.view.layoutIfNeeded()
+//                self.scrollToCell(at: indexPath)
+//                
+////                guard let indexToScrollTo = indexOfCellToScrollTo else {return}
+////                self.rootView.tableView.scrollToRow(at: indexToScrollTo, at: .top, animated: false)
+////                self.updateMessageSeenStatusIfNeeded()
+//            }.store(in: &subscriptions)
+// 
         conversationViewModel.$participant
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
@@ -574,7 +623,6 @@ extension ConversationViewController {
 }
 
 
-
 //MARK: - TABLE  DELEGATE
 extension ConversationViewController: UITableViewDelegate
 {
@@ -608,13 +656,12 @@ extension ConversationViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if conversationViewModel.skeletonAnimationState == .initiated {
+//        if conversationViewModel.skeletonAnimationState == .initiated {
+        if conversationViewModel.conversationInitializationStatus == .inProgress {
             return CGFloat((70...120).randomElement()!)
         }
        return  UITableView.automaticDimension
     }
-    
-    
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
      
@@ -623,16 +670,15 @@ extension ConversationViewController: UITableViewDelegate
         let lastSectionIndex = conversationViewModel.messageGroups.count - 1
         let lastRowIndex = conversationViewModel.messageGroups[lastSectionIndex].cellViewModels.count - 1
         let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
-
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
         
         if isLastCellDisplayed {
             handleAdditionalMessageGroupUpdate(inAscending: false)
-        } else if isFirstCellDisplayed && conversationViewModel.unreadMessagesCount != 0 {
+        } else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages && conversationViewModel.ischatOpened {
             handleAdditionalMessageGroupUpdate(inAscending: true)
         }
     }
-    
+ 
     private func handleAdditionalMessageGroupUpdate(inAscending order: Bool) {
         Task { @MainActor in
             let (newRows, newSections) = try await conversationViewModel.manageAdditionalMessageGroupsCreation(ascending: order)
@@ -747,15 +793,14 @@ extension ConversationViewController: UITableViewDelegate
 }
 
 
-
 //MARK: - SkeletonView animation
 extension ConversationViewController
 {
-    func toggleSkeletonAnimation(_ value: SkeletonAnimationState) {
-        if value == .initiated {
-            initiateSkeletonAnimation()
-        } else {
-            terminateSkeletonAnimation()
+    private func toggleSkeletonAnimation(_ state: SkeletonAnimationState) {
+        switch state {
+        case .initiated: initiateSkeletonAnimation()
+        case .terminated: terminateSkeletonAnimation()
+        default: break
         }
     }
     

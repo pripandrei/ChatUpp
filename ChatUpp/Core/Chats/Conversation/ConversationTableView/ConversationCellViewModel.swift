@@ -74,10 +74,10 @@ extension ConversationCellViewModel
 ////        RealmDBManager.shared.realmDB.refresh()
 //    }
     
-    
+    @MainActor
     func updateFirestoreMessageSeenStatus(from chatID: String) async {
         do {
-            try await ChatsManager.shared.updateMessageSeenStatus(messageID: "pripa", chatID: chatID)
+            try await ChatsManager.shared.updateMessageSeenStatus(messageID: cellMessage.id, chatID: chatID)
         } catch {
             print("Error updating message seen status in Firestore: ", error.localizedDescription)
         }

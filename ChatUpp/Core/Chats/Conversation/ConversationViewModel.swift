@@ -38,43 +38,59 @@ struct ConversationMessageGroup {
     var cellViewModels: [ConversationCellViewModel]
 }
 
-//MARK: -
+//MARK: - Conversation initialization
+
+enum ConversationInitializationStatus {
+    case inProgress
+    case finished
+    case error
+}
 
 extension ConversationViewModel
 {
     private func setupConversationMessageGroups() {
-        guard let messages = conversation?.getMessages(), !messages.isEmpty else { return }
+        guard var messages = conversation?.getMessages(), !messages.isEmpty else { return }
+//        messages.removeFirst()
         manageMessageGroupsCreation(messages)
     }
     
-    func initiateConversation()
+    func initiateConversation() 
     {
-        if shouldFetchNewMessages
-        {
-            skeletonAnimationState = .initiated
-//            print("Should fetch?: ", shouldFetchNewMessages)
-            Task { @MainActor in
-                let messages = try await fetchConversationMessages()
-                
-                addMessagesToConversationInRealm(messages)
-                setupConversationMessageGroups()
-                skeletonAnimationState = .terminated
-                firstUnseenMessageIndex = self.findFirstUnseenMessageIndex()
-                
-                conversationListenersInitiationSubject.send()
-            }
-        } else {
-            setupConversationMessageGroups()
-            firstUnseenMessageIndex = self.findFirstUnseenMessageIndex()
-            
-            conversationListenersInitiationSubject.send()
+//        guard !shouldFetchNewMessages else {
+//            conversationInitializationStatus = .inProgress
+//            initiateConversationWithRemoteData()
+//            return
+//        }
+        initiateConversationUsingLocalData()
+    }
+    
+    private func initiateConversationWithRemoteData() {
+        Task { @MainActor in
+            let messages = try await fetchConversationMessages()
+            addMessagesToConversationInRealm(messages)
+            initiateConversationUsingLocalData()
         }
     }
+    
+    private func initiateConversationUsingLocalData() {
+        setupConversationMessageGroups()
+        conversationInitializationStatus = .finished
+    }
+    
+//    private func completeConversationInitialization() {
+//        skeletonAnimationState = .terminated
+//        firstUnseenMessageIndex = self.findFirstUnseenMessageIndex()
+//        conversationListenersInitiationSubject.send()
+//    }
 }
 
 final class ConversationViewModel 
 {
-    var unreadMessagesCount: Int = 0
+    var unreadMessagesCount: Int = 22
+    
+    var ischatOpened = false
+    
+    @Published var conversationInitializationStatus: ConversationInitializationStatus?
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
@@ -85,8 +101,8 @@ final class ConversationViewModel
     
     @Published private(set) var participant: DBUser
     @Published var messageChangedType: MessageChangeType?
-    @Published var firstUnseenMessageIndex: IndexPath?
-    @Published var skeletonAnimationState: SkeletonAnimationState = .none
+//    @Published var firstUnseenMessageIndex: IndexPath?
+//    @Published var skeletonAnimationState: SkeletonAnimationState = .none
     
     private(set) var conversationListenersInitiationSubject = PassthroughSubject<Void,Never>()
     
@@ -104,7 +120,7 @@ final class ConversationViewModel
         conversation?.getFirstMessage()
     }
     
-    private var shouldFetchNewMessages: Bool {
+    var shouldFetchNewMessages: Bool {
 //        return conversation?.conversationMessages.count != conversation?.messagesCount
         guard let localMessagesCount = conversation?.conversationMessages.count else {return true}
 //        guard let remoteMessagesCount = conversation?.messagesCount else {return true}
@@ -119,12 +135,12 @@ final class ConversationViewModel
         self.conversation = conversation
         self.memberProfileImage = imageData
         
-//        initiateConversation()
+        initiateConversation() // return status ini
 //        addListeners()
     }
     
     func addListeners() {
-        addListenerToMessages()
+//        addListenerToMessages()
         addUsersListener()
         addUserObserver()
     }
@@ -193,7 +209,7 @@ final class ConversationViewModel
     
 //    @MainActor
     //TODO: Make this function to query realm db for smaller code
-    private func findFirstUnseenMessageIndex() -> IndexPath? {
+    func findFirstUnseenMessageIndex() -> IndexPath? {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
         
         for (groupIndex, messageGroup) in messageGroups.enumerated()
@@ -464,7 +480,8 @@ extension ConversationViewModel
         
         switch fetchStrategy {
         case .ascending(let startAtMessage): 
-            return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .ascending)
+//            return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .ascending)
+            return try await fetchMessages(from: conversation.id, startAfterMessage: startAtMessage?.id, direction: .ascending)
         case .descending(let startAtMessage):
             return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .descending)
         case .hybrit(let startAtMessage):
@@ -495,11 +512,15 @@ extension ConversationViewModel
         }
     }
 
-    private func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
+    private func fetchMessages(from chatID: String, startTimeStamp timestamp: Date? = nil, startAfterMessage message: String? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
+        
+        //TODO: - contemplate on implementing of startAfterMessage :)
+        
         try await ChatsManager.shared.fetchMessages(
             from: chatID,
 //            messagesQueryLimit: 30,
             startAtTimestamp: timestamp,
+            startAfterMessage: message,
             direction: direction
         )
     }
@@ -621,9 +642,9 @@ extension ConversationViewModel
         case false: startSectionCount = messageGroups.count
         }
         
-        var newMessages = try await loadAdditionalMessages(byAscendingOrder: ascending)
+        let newMessages = try await loadAdditionalMessages(byAscendingOrder: ascending)
         guard !newMessages.isEmpty else {return ([],nil)}
-        newMessages.removeFirst()
+//        newMessages.removeFirst()
         
         manageMessageGroupsCreation(newMessages, ascending: ascending)
         
