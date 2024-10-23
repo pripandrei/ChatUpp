@@ -57,11 +57,11 @@ extension ConversationViewModel
     
     func initiateConversation() 
     {
-        guard !shouldFetchNewMessages else {
-            conversationInitializationStatus = .inProgress
-            initiateConversationWithRemoteData()
-            return
-        }
+//        guard !shouldFetchNewMessages else {
+//            conversationInitializationStatus = .inProgress
+//            initiateConversationWithRemoteData()
+//            return
+//        }
         initiateConversationUsingLocalData()
     }
     
@@ -76,6 +76,7 @@ extension ConversationViewModel
     private func initiateConversationUsingLocalData() {
         setupConversationMessageGroups()
         conversationInitializationStatus = .finished
+//        conversationInitializationStatus2?(.finished)
     }
 }
 
@@ -83,9 +84,8 @@ final class ConversationViewModel
 {
     var unreadMessagesCount: Int = 22
     
-    var ischatOpened = false
-    
     @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
+    var conversationInitializationStatus2: ((ConversationInitializationStatus) -> Void)?
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
@@ -164,7 +164,9 @@ final class ConversationViewModel
             let chat = createChat()
             conversation = chat
             addChatToRealm(chat)
+            
             let freezedChat = chat.freeze()
+            
             Task(priority: .high, operation: { @MainActor in
                 await addChatToFirestore(freezedChat)
                 addListenerToMessages()
@@ -199,7 +201,8 @@ final class ConversationViewModel
     
 //    @MainActor
     //TODO: Make this function to query realm db for smaller code
-    func findFirstUnseenMessageIndex() -> IndexPath? {
+    func findFirstUnseenMessageIndex() -> IndexPath? 
+    {
         var indexOfNotSeenMessageToScrollTo: IndexPath?
         
         for (groupIndex, messageGroup) in messageGroups.enumerated()
@@ -253,8 +256,10 @@ final class ConversationViewModel
         }
     }
     
-    func getRepliedToMessage(messageID: String) -> Message? {
+    func getRepliedToMessage(messageID: String) -> Message? 
+    {
         var repliedMessage: Message?
+        
         messageGroups.forEach { conversationGroups in
             conversationGroups.cellViewModels.forEach { conversationCellViewModel in
                 if conversationCellViewModel.cellMessage.id == messageID {
@@ -267,9 +272,9 @@ final class ConversationViewModel
     }
     
     func setReplyMessageData(fromReplyMessageID id: String, toViewModel viewModel: ConversationCellViewModel) {
-        if let messageToBeReplied = getRepliedToMessage(messageID: id) {
+        if let messageToBeReplied = getRepliedToMessage(messageID: id) 
+        {
             let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
-            
             (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
         }
     }
@@ -280,13 +285,18 @@ extension ConversationViewModel
 {
     /// - Temporary fix while firebase functions are deactivated
     func addUserObserver() {
-        userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(participant.userId) { [weak self] realtimeDBUser in
+        userObserver = UserManagerRealtimeDB
+            .shared
+            .addObserverToUsers(participant.userId) { [weak self] realtimeDBUser in
+                
             guard let self = self else {return}
+            
             if realtimeDBUser.isActive != self.participant.isActive
             {
-                if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive {
+                if let date = realtimeDBUser.lastSeen, 
+                    let isActive = realtimeDBUser.isActive
+                {
                     self.participant = self.participant.updateActiveStatus(lastSeenDate: date,isActive: isActive)
-                    
                 }
             }
         }
@@ -294,7 +304,9 @@ extension ConversationViewModel
     
     func addUsersListener() 
     {
-        self.userListener = UserManager.shared.addListenerToUsers([participant.userId]) { [weak self] users, documentsTypes in
+        self.userListener = UserManager
+            .shared
+            .addListenerToUsers([participant.userId]) { [weak self] users, documentsTypes in
             guard let self = self else {return}
             // since we are listening only for one user, we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
@@ -660,7 +672,8 @@ extension ConversationViewModel
             }
     }
     
-    private func findNewSectionIndexSet(startSectionCount: Int, endSectionCount: Int) -> IndexSet? {
+    private func findNewSectionIndexSet(startSectionCount: Int, endSectionCount: Int) -> IndexSet? 
+    {
         return (startSectionCount < endSectionCount)
         ? IndexSet(integersIn: startSectionCount..<endSectionCount)
         : nil

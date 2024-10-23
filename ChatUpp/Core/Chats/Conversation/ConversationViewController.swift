@@ -20,10 +20,10 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        updateMessageSeenStatusIfNeeded()
-        if !shouldIgnoreScrollToBottomBtnUpdate {
-            updateScrollToBottomBtnIfNeeded()
-        }
+//        updateMessageSeenStatusIfNeeded()
+//        if !shouldIgnoreScrollToBottomBtnUpdate {
+//            updateScrollToBottomBtnIfNeeded()
+//        }
     }
 }
 
@@ -40,6 +40,7 @@ final class ConversationViewController: UIViewController {
     private var isContextMenuPresented: Bool = false
     private var isNewSectionAdded: Bool = false
     private var isKeyboardHidden: Bool = true
+    private var didFinishInitialScroll: Bool = false
     
     private var subscriptions = Set<AnyCancellable>()
     
@@ -59,14 +60,14 @@ final class ConversationViewController: UIViewController {
         super.viewDidLoad()
         
         setupController()
-//        conversationViewModel.initiateConversation()
+//        self.conversationViewModel.initiateConversation()
     }
-
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 //
 //        guard let indexPath = conversationViewModel.firstUnseenMessageIndex else {return}
-//        scrollToCell(at: indexPath)
+//        scrollToCell(at: IndexPath(row: 15, section: 1))
 //        conversationViewModel.firstUnseenMessageIndex = nil
     }
     
@@ -92,12 +93,14 @@ final class ConversationViewController: UIViewController {
 
     private func setupController() 
     {
-        configureTableView()
-        addGestureToTableView()
-        setNavigationBarItems()
-        addTargetsToButtons()
-        addKeyboardNotificationObservers()
-        setupBinding()
+//        DispatchQueue.main.async {
+            self.configureTableView()
+            self.addGestureToTableView()
+            self.setNavigationBarItems()
+            self.addTargetsToButtons()
+            self.addKeyboardNotificationObservers()
+            self.setupBinding()
+//        }
     }
     
     private func addTargetsToButtons() {
@@ -111,12 +114,13 @@ final class ConversationViewController: UIViewController {
     {
         self.toggleSkeletonAnimation(.terminated)
         self.rootView.tableView.reloadData()
-        self.view.layoutIfNeeded()
 //        guard let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() else {
 //            return
 //        }
-        let indexPath = IndexPath(row: 10, section: 0)
+        let indexPath = IndexPath(row: 15, section: 1)
         self.scrollToCell(at: indexPath)
+        self.didFinishInitialScroll = true
+//        self.view.layoutSubviews()
     }
     
     private func setupBinding()
@@ -128,10 +132,21 @@ final class ConversationViewController: UIViewController {
                 case .inProgress: self.toggleSkeletonAnimation(.initiated)
                 case .finished:
                     self.refreshTableView()
-                    self.conversationViewModel.addListeners()
+//                    self.conversationViewModel.addListeners()
                 default: break
                 }
             }.store(in: &subscriptions)
+//        
+        
+//        conversationViewModel.conversationInitializationStatus2 = { initializationStatus in
+//            switch initializationStatus {
+//            case .inProgress: self.toggleSkeletonAnimation(.initiated)
+//            case .finished:
+//                self.refreshTableView()
+////                    self.conversationViewModel.addListeners()
+//            default: break
+//            }
+//        }
         
         conversationViewModel.$participant
             .receive(on: DispatchQueue.main)
@@ -493,6 +508,7 @@ extension ConversationViewController {
     @objc func pictureAddBtnWasTapped() {
         configurePhotoPicker()
     }
+    
 }
 
 //MARK: - Helper functions
@@ -627,8 +643,10 @@ extension ConversationViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-     
-        guard conversationViewModel.messageGroups.count != 0 else {return}
+        
+        guard conversationViewModel.messageGroups.count != 0,
+              didFinishInitialScroll == true
+        else {return}
         
         let lastSectionIndex = conversationViewModel.messageGroups.count - 1
         let lastRowIndex = conversationViewModel.messageGroups[lastSectionIndex].cellViewModels.count - 1
@@ -637,11 +655,11 @@ extension ConversationViewController: UITableViewDelegate
         
         if isLastCellDisplayed {
             handleAdditionalMessageGroupUpdate(inAscending: false)
-        } else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages && conversationViewModel.ischatOpened {
+        } else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages {
             handleAdditionalMessageGroupUpdate(inAscending: true)
         }
     }
- 
+    
     private func handleAdditionalMessageGroupUpdate(inAscending order: Bool) {
         Task { @MainActor in
             let (newRows, newSections) = try await conversationViewModel.manageAdditionalMessageGroupsCreation(ascending: order)
@@ -649,16 +667,25 @@ extension ConversationViewController: UITableViewDelegate
         }
     }
     
-    private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?) {
+    private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?) 
+    {
+        let currentContentHeight = self.rootView.tableView.contentSize.height
+        let currentOffsetY = self.rootView.tableView.contentOffset.y
+        
         UIView.performWithoutAnimation {
-            self.rootView.tableView.performBatchUpdates {
+            self.rootView.tableView.performBatchUpdates ({
                 if !newRows.isEmpty {
                     self.rootView.tableView.insertRows(at: newRows, with: .automatic)
                 }
                 if let sections = sections {
                     self.rootView.tableView.insertSections(sections, with: .automatic)
                 }
-            }
+            }, completion: { _ in
+                let newContentHeight = self.rootView.tableView.contentSize.height
+                let heightDifference = newContentHeight - currentContentHeight
+                
+                self.rootView.tableView.contentOffset.y = currentOffsetY + heightDifference
+            })
         }
     }
     
