@@ -299,7 +299,7 @@ extension ChatsManager
     
     
     func fetchMessages(from chatID: String, startAtTimestamp timestamp: Date? = nil, startAfterMessage message: String? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
-        
+        //TODO: - adjust query by snapshot docuemtn
         var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
         
         let snapshot = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue).document(message!)

@@ -50,11 +50,13 @@ enum ConversationInitializationStatus {
 extension ConversationViewModel
 {
     private func setupConversationMessageGroups() {
-        guard let messages = conversation?.getMessages(), !messages.isEmpty else { return }
-//        messages.removeFirst()
+        guard var messages = conversation?.getMessages(), 
+                !messages.isEmpty else { return }
+        
+        if !displayLastMessage { messages.removeFirst() }
         manageMessageGroupsCreation(messages)
     }
-    
+
     func initiateConversation() 
     {
 //        guard !shouldFetchNewMessages else {
@@ -76,7 +78,6 @@ extension ConversationViewModel
     private func initiateConversationUsingLocalData() {
         setupConversationMessageGroups()
         conversationInitializationStatus = .finished
-//        conversationInitializationStatus2?(.finished)
     }
 }
 
@@ -85,7 +86,6 @@ final class ConversationViewModel
     var unreadMessagesCount: Int = 22
     
     @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
-    var conversationInitializationStatus2: ((ConversationInitializationStatus) -> Void)?
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
@@ -119,6 +119,10 @@ final class ConversationViewModel
 //        let isFirstChatFetch = localMessagesCount < 50 && remoteMessagesCount >= 50
         let isLocalUnreadMessageCountNotEquelToRemoteCount = unreadMessagesCount != getUnreadMessagesCountFromRealm()
         return isLocalUnreadMessageCountNotEquelToRemoteCount || isChatFetchedFirstTime
+    }
+    
+    private var displayLastMessage: Bool {
+        unreadMessagesCount == getUnreadMessagesCountFromRealm()
     }
     
     init(participant: DBUser, conversation: Chat? = nil, imageData: Data?) {
@@ -646,7 +650,9 @@ extension ConversationViewModel
         let newMessages = try await loadAdditionalMessages(byAscendingOrder: ascending)
         guard !newMessages.isEmpty else {return ([],nil)}
 //        newMessages.removeFirst()
-        
+//        for message in newMessages {
+//            messageGroups[0].cellViewModels.insert(ConversationCellViewModel(cellMessage: message), at: 0)
+//        }
         manageMessageGroupsCreation(newMessages, ascending: ascending)
         
         let endSectionCount = ascending ? (messageGroups.count - messageGroupsBeforeUpdate.count) : messageGroups.count

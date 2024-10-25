@@ -27,6 +27,8 @@ final class ConversationRootView: UIView {
     }()
     
     private(set) var tableView: UITableView = {
+        
+        // Bottom of table view has padding due to navigation controller 
         let tableView                           = UITableView()
         tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1) // Revert table view upside down
         tableView.backgroundColor               = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
@@ -39,6 +41,9 @@ final class ConversationRootView: UIView {
         tableView.isSkeletonable                = true
         tableView.register(ConversationTableViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationMessageCell)
         tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationSkeletonCell)
+        
+        
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         
         return tableView
     }()

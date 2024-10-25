@@ -24,10 +24,22 @@ extension ConversationViewController: UIScrollViewDelegate
 //        if !shouldIgnoreScrollToBottomBtnUpdate {
 //            updateScrollToBottomBtnIfNeeded()
 //        }
+        
+//        if shouldAdjustScroll {
+//            shouldAdjustScroll = false
+//            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
+//        }
+        let currentContentHeight = self.rootView.tableView.contentSize.height // 7628
+        let currentOffsetY = self.rootView.tableView.contentOffset.y
+        
+        print("currentContentHeight: " , currentContentHeight, "/n currentOffsetY: ", currentOffsetY)
     }
 }
 
 final class ConversationViewController: UIViewController {
+    
+    var shouldAdjustScroll: Bool = false
+    var tableViewUpdatedContentOffset: CGFloat = 0.0
     
     weak var coordinatorDelegate :Coordinator?
     private var tableViewDataSource :ConversationViewDataSource!
@@ -60,47 +72,33 @@ final class ConversationViewController: UIViewController {
         super.viewDidLoad()
         
         setupController()
-//        self.conversationViewModel.initiateConversation()
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-//
-//        guard let indexPath = conversationViewModel.firstUnseenMessageIndex else {return}
-//        scrollToCell(at: IndexPath(row: 15, section: 1))
-//        conversationViewModel.firstUnseenMessageIndex = nil
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        cleanUp()
     }
     
-    private func scrollToCell(at indexPath: IndexPath) 
+    private func scrollToCell(at indexPath: IndexPath)
     {
         guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
         self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
 //        let rect = rootView.tableView.rectForRow(at: indexPath)
 //        rootView.tableView.contentOffset = CGPoint(x: 0, y: rect.origin.y - rootView.inputBarContainer.bounds.height)
-//        conversationViewModel.firstUnseenMessageIndex = nil
-    }
-    
-
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        cleanUp()
     }
 
     deinit {
         print("====ConversationVC Deinit")
     }
 
-    private func setupController() 
+    private func setupController()
     {
-//        DispatchQueue.main.async {
-            self.configureTableView()
-            self.addGestureToTableView()
-            self.setNavigationBarItems()
-            self.addTargetsToButtons()
-            self.addKeyboardNotificationObservers()
-            self.setupBinding()
-//        }
+        self.configureTableView()
+        self.addGestureToTableView()
+        self.setNavigationBarItems()
+        self.addTargetsToButtons()
+        self.addKeyboardNotificationObservers()
+        self.setupBinding()
     }
     
     private func addTargetsToButtons() {
@@ -117,7 +115,7 @@ final class ConversationViewController: UIViewController {
 //        guard let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() else {
 //            return
 //        }
-        let indexPath = IndexPath(row: 15, section: 1)
+        let indexPath = IndexPath(row: 15, section: 0)
         self.scrollToCell(at: indexPath)
         self.didFinishInitialScroll = true
 //        self.view.layoutSubviews()
@@ -136,17 +134,6 @@ final class ConversationViewController: UIViewController {
                 default: break
                 }
             }.store(in: &subscriptions)
-//        
-        
-//        conversationViewModel.conversationInitializationStatus2 = { initializationStatus in
-//            switch initializationStatus {
-//            case .inProgress: self.toggleSkeletonAnimation(.initiated)
-//            case .finished:
-//                self.refreshTableView()
-////                    self.conversationViewModel.addListeners()
-//            default: break
-//            }
-//        }
         
         conversationViewModel.$participant
             .receive(on: DispatchQueue.main)
@@ -643,7 +630,6 @@ extension ConversationViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        
         guard conversationViewModel.messageGroups.count != 0,
               didFinishInitialScroll == true
         else {return}
@@ -656,35 +642,52 @@ extension ConversationViewController: UITableViewDelegate
         if isLastCellDisplayed {
             handleAdditionalMessageGroupUpdate(inAscending: false)
         } else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages {
-            handleAdditionalMessageGroupUpdate(inAscending: true)
+                //TODO: - if scrol back and forth this block will initiate multiple times, reslove this
+            self.handleAdditionalMessageGroupUpdate(inAscending: true)
         }
     }
     
     private func handleAdditionalMessageGroupUpdate(inAscending order: Bool) {
-        Task { @MainActor in
-            let (newRows, newSections) = try await conversationViewModel.manageAdditionalMessageGroupsCreation(ascending: order)
+        Task { @MainActor [weak self] in
+            guard let self = self else {return}
+            try await Task.sleep(nanoseconds: 5_000_000_000)
+            let (newRows, newSections) = try await self.conversationViewModel.manageAdditionalMessageGroupsCreation(ascending: order)
+            try await Task.sleep(nanoseconds: 3_000_000_000)
             self.performeTableViewUpdate(with: newRows, sections: newSections)
         }
     }
     
     private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?) 
     {
-        let currentContentHeight = self.rootView.tableView.contentSize.height
-        let currentOffsetY = self.rootView.tableView.contentOffset.y
-        
-        UIView.performWithoutAnimation {
-            self.rootView.tableView.performBatchUpdates ({
-                if !newRows.isEmpty {
-                    self.rootView.tableView.insertRows(at: newRows, with: .automatic)
-                }
-                if let sections = sections {
-                    self.rootView.tableView.insertSections(sections, with: .automatic)
-                }
-            }, completion: { _ in
-                let newContentHeight = self.rootView.tableView.contentSize.height
-                let heightDifference = newContentHeight - currentContentHeight
+        let currentContentHeight = self.rootView.tableView.contentSize.height //7634
+        let currentOffsetY = self.rootView.tableView.contentOffset.y // -59
+        var visibleCell: ConversationTableViewCell? = nil
+    
+        UIView.animate(withDuration: 0.0) {
+            //        UIView.performWithoutAnimation {
+            self.rootView.tableView.performBatchUpdates({
+                visibleCell = self.rootView.tableView.visibleCells.first as? ConversationTableViewCell
                 
-                self.rootView.tableView.contentOffset.y = currentOffsetY + heightDifference
+                if let sections = sections {
+                    self.rootView.tableView.insertSections(sections, with: .none)
+                }
+                if !newRows.isEmpty {
+                    self.rootView.tableView.insertRows(at: newRows, with: .none)
+                }
+                self.didFinishInitialScroll = false
+                
+            }, completion: { _ in
+                self.didFinishInitialScroll = true
+                
+                if self.rootView.tableView.contentOffset.y < -97.5 {
+                    guard let cell = visibleCell else {return}
+                    guard let updatedIndexPath = self.rootView.tableView.indexPath(for: cell) else {return}
+                    self.rootView.tableView.scrollToRow(at: updatedIndexPath, at: .top, animated: false)
+                }
+                
+//                let newContentHeight = self.rootView.tableView.contentSize.height // 8033
+//                let heightDifference = newContentHeight - currentContentHeight // 400
+//                self.rootView.tableView.contentOffset.y = currentOffsetY + heightDifference - self.rootView.inputBarContainer.bounds.height // 341
             })
         }
     }
