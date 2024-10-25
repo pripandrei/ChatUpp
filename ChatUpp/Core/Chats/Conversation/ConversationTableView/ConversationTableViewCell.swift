@@ -39,7 +39,7 @@ final class ConversationTableViewCell: UITableViewCell {
     private var timeStamp = YYLabel()
     private var subscribers = Set<AnyCancellable>()
     
-    var mainCellContainer = UIView()
+//    var mainCellContainer = UIView()
     var messageBubbleContainer = UIView()
     var messageLabel = YYLabel()
     var seenStatusMark = YYLabel()
@@ -73,12 +73,12 @@ final class ConversationTableViewCell: UITableViewCell {
         
         backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupBackgroundSelectionView()
-        setupMainCellContainer()
         setupMessageBubbleContainer()
 //        setupReplyMessage()
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
+//        setupMainCellContainer()
 //        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
     }
     
@@ -212,17 +212,17 @@ final class ConversationTableViewCell: UITableViewCell {
         timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
     }
     
-    private func setupMainCellContainer() {
-        contentView.addSubview(mainCellContainer)
-        mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            mainCellContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
-            mainCellContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            mainCellContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            mainCellContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-        ])
-    }
+//    private func setupMainCellContainer() {
+//        contentView.addSubview(mainCellContainer)
+//        mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
+//        
+//        NSLayoutConstraint.activate([
+//            mainCellContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
+//            mainCellContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+//            mainCellContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+//            mainCellContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+//        ])
+//    }
     
     private func setupMessageTextLabel() {
         messageLabel.numberOfLines = 0
@@ -296,14 +296,14 @@ extension ConversationTableViewCell
         case .right:
             configureMessageSeenStatus()
             
-            messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(greaterThanOrEqualTo: mainCellContainer.leadingAnchor)
-            messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(equalTo: mainCellContainer.trailingAnchor, constant: -10)
+            messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor)
+            messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
             messageBubbleContainer.backgroundColor = #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
         case .left:
-            messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(equalTo: mainCellContainer.leadingAnchor, constant: 10)
-            messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(lessThanOrEqualTo: mainCellContainer.trailingAnchor)
+            messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10)
+            messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
             messageBubbleContainer.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
@@ -370,7 +370,7 @@ extension ConversationTableViewCell {
 extension ConversationTableViewCell {
     
     private func setupMessageBubbleContainer() {
-        mainCellContainer.addSubview(messageBubbleContainer)
+        contentView.addSubview(messageBubbleContainer)
         
 //        messageBubbleContainer.addSubview(replyMessageLabel)
         messageBubbleContainer.addSubview(messageLabel)
@@ -378,8 +378,8 @@ extension ConversationTableViewCell {
         messageBubbleContainer.layer.cornerRadius = 15
         messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
         
-        messageBubbleContainer.topAnchor.constraint(equalTo: mainCellContainer.topAnchor).isActive = true
-        messageBubbleContainer.bottomAnchor.constraint(equalTo: mainCellContainer.bottomAnchor, constant: -cellSpacing).isActive = true
+        messageBubbleContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        messageBubbleContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellSpacing).isActive = true
         messageBubbleContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
     }
     
