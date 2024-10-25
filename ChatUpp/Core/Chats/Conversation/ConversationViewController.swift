@@ -18,6 +18,14 @@ import SkeletonView
 //MARK: - SCROLL VIEW DELEGATE
 extension ConversationViewController: UIScrollViewDelegate
 {
+    
+//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) 
+//    {
+//        if self.rootView.tableView.contentOffset.y <= -97.5 {
+//            self.rootView.tableView.contentOffset.y += 0.5
+//        }
+//    }
+
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
 //        updateMessageSeenStatusIfNeeded()
@@ -29,6 +37,7 @@ extension ConversationViewController: UIScrollViewDelegate
 //            shouldAdjustScroll = false
 //            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
 //        }
+        
         let currentContentHeight = self.rootView.tableView.contentSize.height // 7628
         let currentOffsetY = self.rootView.tableView.contentOffset.y
         
@@ -626,6 +635,7 @@ extension ConversationViewController: UITableViewDelegate
         if conversationViewModel.conversationInitializationStatus == .inProgress {
             return CGFloat((70...120).randomElement()!)
         }
+//       return  35
        return  UITableView.automaticDimension
     }
     
@@ -662,34 +672,61 @@ extension ConversationViewController: UITableViewDelegate
         let currentContentHeight = self.rootView.tableView.contentSize.height //7634
         let currentOffsetY = self.rootView.tableView.contentOffset.y // -59
         var visibleCell: ConversationTableViewCell? = nil
-    
-        UIView.animate(withDuration: 0.0) {
-            //        UIView.performWithoutAnimation {
+        
+        UIView.performWithoutAnimation {
+//            UIView.animate(withDuration: 0.0) {
             self.rootView.tableView.performBatchUpdates({
-                visibleCell = self.rootView.tableView.visibleCells.first as? ConversationTableViewCell
-                
-                if let sections = sections {
-                    self.rootView.tableView.insertSections(sections, with: .none)
+                if let section = sections {
+                    self.rootView.tableView.insertSections(section, with: .none)
                 }
                 if !newRows.isEmpty {
                     self.rootView.tableView.insertRows(at: newRows, with: .none)
                 }
-                self.didFinishInitialScroll = false
-                
+//                    self.tableView.reloadData()
             }, completion: { _ in
-                self.didFinishInitialScroll = true
-                
-                if self.rootView.tableView.contentOffset.y < -97.5 {
-                    guard let cell = visibleCell else {return}
-                    guard let updatedIndexPath = self.rootView.tableView.indexPath(for: cell) else {return}
-                    self.rootView.tableView.scrollToRow(at: updatedIndexPath, at: .top, animated: false)
-                }
-                
-//                let newContentHeight = self.rootView.tableView.contentSize.height // 8033
-//                let heightDifference = newContentHeight - currentContentHeight // 400
-//                self.rootView.tableView.contentOffset.y = currentOffsetY + heightDifference - self.rootView.inputBarContainer.bounds.height // 341
+                let newContentHeight = self.rootView.tableView.contentSize.height // 8033
+                let heightDifference = newContentHeight - currentContentHeight // 400
+//
+                self.rootView.tableView.setContentOffset(CGPoint(x: 0, y: currentOffsetY + heightDifference), animated: false)
+                self.rootView.tableView.contentOffset.y = currentOffsetY + heightDifference // 341
+                self.tableViewUpdatedContentOffset = self.rootView.tableView.contentOffset.y
+                self.shouldAdjustScroll = true
             })
         }
+        
+        
+        
+    
+//        UIView.animate(withDuration: 0.0) {
+//            //        UIView.performWithoutAnimation {
+//            self.rootView.tableView.performBatchUpdates({
+//                visibleCell = self.rootView.tableView.visibleCells.first as? ConversationTableViewCell
+//                
+//                if let sections = sections {
+//                    self.rootView.tableView.insertSections(sections, with: .none)
+//                }
+//                if !newRows.isEmpty {
+//                    self.rootView.tableView.insertRows(at: newRows, with: .none)
+//                }
+//                self.didFinishInitialScroll = false
+//                self.rootView.tableView.layoutIfNeeded()
+//                print("BATCH UPDATE: - currentContentHeight: " , currentContentHeight, "/n currentOffsetY: ", currentOffsetY)
+//                
+//            }, completion: { _ in
+////                self.view.layoutIfNeeded()
+//                self.didFinishInitialScroll = true
+//                
+//                if self.rootView.tableView.contentOffset.y < -97.5 {
+//                    guard let cell = visibleCell else {return}
+//                    guard let updatedIndexPath = self.rootView.tableView.indexPath(for: cell) else {return}
+//                    self.rootView.tableView.scrollToRow(at: updatedIndexPath, at: .top, animated: false)
+//                }
+//                
+////                let newContentHeight = self.rootView.tableView.contentSize.height // 8033
+////                let heightDifference = newContentHeight - currentContentHeight // 400
+////                self.rootView.tableView.contentOffset.y = currentOffsetY + heightDifference - self.rootView.inputBarContainer.bounds.height // 341
+//            })
+//        }
     }
     
     //MARK: - Context menu configuration
