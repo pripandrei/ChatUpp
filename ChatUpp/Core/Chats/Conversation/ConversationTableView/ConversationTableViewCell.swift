@@ -74,11 +74,9 @@ final class ConversationTableViewCell: UITableViewCell {
         backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         setupBackgroundSelectionView()
         setupMessageBubbleContainer()
-//        setupReplyMessage()
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
-//        setupMainCellContainer()
 //        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
     }
     
@@ -211,18 +209,6 @@ final class ConversationTableViewCell: UITableViewCell {
         timeStamp.backgroundColor = .darkGray.withAlphaComponent(0.6)
         timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
     }
-    
-//    private func setupMainCellContainer() {
-//        contentView.addSubview(mainCellContainer)
-//        mainCellContainer.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        NSLayoutConstraint.activate([
-//            mainCellContainer.topAnchor.constraint(equalTo: contentView.topAnchor),
-//            mainCellContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-//            mainCellContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-//            mainCellContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-//        ])
-//    }
     
     private func setupMessageTextLabel() {
         messageLabel.numberOfLines = 0

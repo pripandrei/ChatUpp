@@ -19,12 +19,17 @@ import SkeletonView
 extension ConversationViewController: UIScrollViewDelegate
 {
     
-//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) 
-//    {
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) 
+    {
+        /// This code is a workaround to avoid content offset shift on new rows/sections insertion
+        /// EXPLANETION:
+        /// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
+        /// tableView will animate scrolling to the last inserted cell, we want this to avoid,
+        /// So we offset a bit content, which will result in content remaining at the same position after insertion
 //        if self.rootView.tableView.contentOffset.y <= -97.5 {
 //            self.rootView.tableView.contentOffset.y += 0.5
 //        }
-//    }
+    }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
@@ -660,73 +665,52 @@ extension ConversationViewController: UITableViewDelegate
     private func handleAdditionalMessageGroupUpdate(inAscending order: Bool) {
         Task { @MainActor [weak self] in
             guard let self = self else {return}
-            try await Task.sleep(nanoseconds: 5_000_000_000)
+            try await Task.sleep(nanoseconds: 500_000_000)
             let (newRows, newSections) = try await self.conversationViewModel.manageAdditionalMessageGroupsCreation(ascending: order)
-            try await Task.sleep(nanoseconds: 3_000_000_000)
+//            try await Task.sleep(nanoseconds: 200_000_000)
             self.performeTableViewUpdate(with: newRows, sections: newSections)
         }
     }
     
-    private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?) 
+    private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?)
     {
-        let currentContentHeight = self.rootView.tableView.contentSize.height //7634
-        let currentOffsetY = self.rootView.tableView.contentOffset.y // -59
         var visibleCell: ConversationTableViewCell? = nil
+        let currentOffsetY = self.rootView.tableView.contentOffset.y
         
-        UIView.performWithoutAnimation {
-//            UIView.animate(withDuration: 0.0) {
-            self.rootView.tableView.performBatchUpdates({
-                if let section = sections {
-                    self.rootView.tableView.insertSections(section, with: .none)
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        
+        self.rootView.tableView.performBatchUpdates({
+            visibleCell = self.rootView.tableView.visibleCells.first as? ConversationTableViewCell
+            
+            if let sections = sections {
+                self.rootView.tableView.insertSections(sections, with: .none)
+            }
+            if !newRows.isEmpty {
+                self.rootView.tableView.insertRows(at: newRows, with: .none)
+            }
+            self.didFinishInitialScroll = false
+            
+        }, completion: { _ in
+            
+            self.didFinishInitialScroll = true
+            
+            if self.rootView.tableView.contentOffset.y < -97.5
+            {
+                if let visibleCell = visibleCell,
+                   let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
+                {
+                    let lastCellRect = self.rootView.tableView.rectForRow(at: indexPathOfVisibleCell)
+                    self.rootView.tableView.contentOffset.y = currentOffsetY + lastCellRect.minY
                 }
-                if !newRows.isEmpty {
-                    self.rootView.tableView.insertRows(at: newRows, with: .none)
-                }
-//                    self.tableView.reloadData()
-            }, completion: { _ in
-                let newContentHeight = self.rootView.tableView.contentSize.height // 8033
-                let heightDifference = newContentHeight - currentContentHeight // 400
-//
-                self.rootView.tableView.setContentOffset(CGPoint(x: 0, y: currentOffsetY + heightDifference), animated: false)
-                self.rootView.tableView.contentOffset.y = currentOffsetY + heightDifference // 341
-                self.tableViewUpdatedContentOffset = self.rootView.tableView.contentOffset.y
-                self.shouldAdjustScroll = true
-            })
-        }
-        
-        
-        
-    
-//        UIView.animate(withDuration: 0.0) {
-//            //        UIView.performWithoutAnimation {
-//            self.rootView.tableView.performBatchUpdates({
-//                visibleCell = self.rootView.tableView.visibleCells.first as? ConversationTableViewCell
-//                
-//                if let sections = sections {
-//                    self.rootView.tableView.insertSections(sections, with: .none)
-//                }
-//                if !newRows.isEmpty {
-//                    self.rootView.tableView.insertRows(at: newRows, with: .none)
-//                }
-//                self.didFinishInitialScroll = false
-//                self.rootView.tableView.layoutIfNeeded()
-//                print("BATCH UPDATE: - currentContentHeight: " , currentContentHeight, "/n currentOffsetY: ", currentOffsetY)
-//                
-//            }, completion: { _ in
-////                self.view.layoutIfNeeded()
-//                self.didFinishInitialScroll = true
-//                
-//                if self.rootView.tableView.contentOffset.y < -97.5 {
-//                    guard let cell = visibleCell else {return}
-//                    guard let updatedIndexPath = self.rootView.tableView.indexPath(for: cell) else {return}
-//                    self.rootView.tableView.scrollToRow(at: updatedIndexPath, at: .top, animated: false)
-//                }
-//                
-////                let newContentHeight = self.rootView.tableView.contentSize.height // 8033
-////                let heightDifference = newContentHeight - currentContentHeight // 400
-////                self.rootView.tableView.contentOffset.y = currentOffsetY + heightDifference - self.rootView.inputBarContainer.bounds.height // 341
-//            })
-//        }
+            }
+            //                if self.rootView.tableView.contentOffset.y < -97.5 {
+            //                    guard let cell = visibleCell else {return}
+            //                    guard let updatedIndexPath = self.rootView.tableView.indexPath(for: cell) else {return}
+            //                    self.rootView.tableView.scrollToRow(at: updatedIndexPath, at: .top, animated: false)
+            //                }
+            CATransaction.commit()
+        })
     }
     
     //MARK: - Context menu configuration

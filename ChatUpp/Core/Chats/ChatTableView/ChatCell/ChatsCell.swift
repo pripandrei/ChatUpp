@@ -50,7 +50,7 @@ class ChatsCell: UITableViewCell {
         self.cellViewModel = viewModel
 
         setupBinding()
-        setupMemberImage()
+//        setupMemberImage()
     }
     
     private func setOnlineStatusActivity() {
@@ -81,7 +81,7 @@ class ChatsCell: UITableViewCell {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in
                 guard let self = self else {return}
-                self.setImage(imageData)
+//                self.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$member
