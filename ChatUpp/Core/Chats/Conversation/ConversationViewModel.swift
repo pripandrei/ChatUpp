@@ -59,11 +59,11 @@ extension ConversationViewModel
 
     func initiateConversation() 
     {
-//        guard !shouldFetchNewMessages else {
-//            conversationInitializationStatus = .inProgress
-//            initiateConversationWithRemoteData()
-//            return
-//        }
+        guard !shouldFetchNewMessages else {
+            conversationInitializationStatus = .inProgress
+            initiateConversationWithRemoteData()
+            return
+        }
         initiateConversationUsingLocalData()
     }
     
@@ -478,17 +478,37 @@ extension ConversationViewModel
     func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message] {
         guard let conversation = conversation else { return [] }
 
-        var fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
+        let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
         
-        switch fetchStrategy {
-        case .ascending(let startAtMessage): 
-//            return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .ascending)
-            return try await fetchMessages(from: conversation.id, startAfterMessage: startAtMessage?.id, direction: .ascending)
+        switch fetchStrategy
+        {
+        case .ascending(let startAtMessage):
+            return try await ChatsManager.shared.fetchMessagesFromChat(
+                chatID: conversation.id,
+                startingFrom: startAtMessage?.id,
+                inclusive: true,
+                fetchDirection: .ascending
+            )
         case .descending(let startAtMessage):
-            return try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage?.timestamp, direction: .descending)
+            return try await ChatsManager.shared.fetchMessagesFromChat(
+                chatID: conversation.id,
+                startingFrom: startAtMessage?.id,
+                inclusive: true,
+                fetchDirection: .descending
+            )
         case .hybrit(let startAtMessage):
-            let descendingMessages = try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage.timestamp, direction: .descending)
-            let ascendingMessages = try await fetchMessages(from: conversation.id, startTimeStamp: startAtMessage.timestamp, direction: .ascending)
+            let descendingMessages = try await ChatsManager.shared.fetchMessagesFromChat(
+                chatID: conversation.id,
+                startingFrom: startAtMessage.id,
+                inclusive: true,
+                fetchDirection: .descending
+            )
+            let ascendingMessages = try await ChatsManager.shared.fetchMessagesFromChat(
+                chatID: conversation.id,
+                startingFrom: startAtMessage.id,
+                inclusive: false,
+                fetchDirection: .ascending
+            )
             return descendingMessages + ascendingMessages
         default: return []
         }
@@ -512,22 +532,6 @@ extension ConversationViewModel
         } else {
             return .ascending(startAtMessage: nil)
         }
-    }
-
-    private func fetchMessages(from chatID: String, 
-                               startTimeStamp timestamp: Date? = nil,
-                               startAfterMessage message: String? = nil,
-                               direction: MessagesFetchDirection) async throws -> [Message] 
-    {
-        //TODO: - contemplate on implementing of startAfterMessage :)
-        
-        try await ChatsManager.shared.fetchMessages(
-            from: chatID,
-//            messagesQueryLimit: 30,
-            startAtTimestamp: timestamp,
-            startAfterMessage: message,
-            direction: direction
-        )
     }
 }
 
@@ -637,27 +641,25 @@ extension ConversationViewModel
     }
     
     @MainActor
-    func manageAdditionalMessageGroupsCreation(ascending: Bool) async throws -> ([IndexPath], IndexSet?)
+    func manageAdditionalMessageGroupsCreation(inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
     {
         let messageGroupsBeforeUpdate = messageGroups
         var startSectionCount: Int
         
-        switch ascending {
+        switch inAscendingOrder {
         case true: startSectionCount = 0
         case false: startSectionCount = messageGroups.count
         }
         
-        let newMessages = try await loadAdditionalMessages(byAscendingOrder: ascending)
-        guard !newMessages.isEmpty else {return ([],nil)}
+        let newMessages = try await loadAdditionalMessages(inAscendingOrder: inAscendingOrder)
+        guard !newMessages.isEmpty else { return ([], nil) }
 //        newMessages.removeFirst()
-//        for message in newMessages {
-//            messageGroups[0].cellViewModels.insert(ConversationCellViewModel(cellMessage: message), at: 0)
-//        }
-        manageMessageGroupsCreation(newMessages, ascending: ascending)
+
+        manageMessageGroupsCreation(newMessages, ascending: inAscendingOrder)
         
-        let endSectionCount = ascending ? (messageGroups.count - messageGroupsBeforeUpdate.count) : messageGroups.count
+        let endSectionCount = inAscendingOrder ? (messageGroups.count - messageGroupsBeforeUpdate.count) : messageGroups.count
         
-        let newRows = findNewRowIndexPaths(inMessageGroups: messageGroupsBeforeUpdate, ascending: ascending)
+        let newRows = findNewRowIndexPaths(inMessageGroups: messageGroupsBeforeUpdate, ascending: inAscendingOrder)
         let newSections = findNewSectionIndexSet(startSectionCount: startSectionCount, endSectionCount: endSectionCount)
         
         return (newRows, newSections)
@@ -685,21 +687,16 @@ extension ConversationViewModel
         : nil
     }
     
-    private func loadAdditionalMessages(byAscendingOrder: Bool) async throws -> [Message]
+    private func loadAdditionalMessages(inAscendingOrder ascendingOrder: Bool) async throws -> [Message]
     {
-        //        guard let lastMessage = messageGroups.last?.cellViewModels.last?.cellMessage else {return []}
-        //        guard let lastMessage = messageGroups.first?.cellViewModels.first?.cellMessage else {return []}
-        guard let startMessage = byAscendingOrder
+        guard let startMessage = ascendingOrder
                 ? messageGroups.first?.cellViewModels.first?.cellMessage
                 : messageGroups.last?.cellViewModels.last?.cellMessage else {return []}
         
-        switch byAscendingOrder {
+        switch ascendingOrder {
         case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage))
         case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage))
         }
-//        if newMessages.isEmpty {return []}
-//        newMessages.removeFirst()
-//        return newMessages
     }
 
 }

@@ -43,10 +43,10 @@ extension ConversationViewController: UIScrollViewDelegate
 //            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
 //        }
         
-        let currentContentHeight = self.rootView.tableView.contentSize.height // 7628
-        let currentOffsetY = self.rootView.tableView.contentOffset.y
-        
-        print("currentContentHeight: " , currentContentHeight, "/n currentOffsetY: ", currentOffsetY)
+//        let currentContentHeight = self.rootView.tableView.contentSize.height // 7628
+//        let currentOffsetY = self.rootView.tableView.contentOffset.y
+//        
+//        print("currentContentHeight: " , currentContentHeight, "/n currentOffsetY: ", currentOffsetY)
     }
 }
 
@@ -126,12 +126,11 @@ final class ConversationViewController: UIViewController {
     {
         self.toggleSkeletonAnimation(.terminated)
         self.rootView.tableView.reloadData()
-//        guard let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() else {
-//            return
-//        }
-        let indexPath = IndexPath(row: 15, section: 0)
-        self.scrollToCell(at: indexPath)
+        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
+            self.scrollToCell(at: indexPath)
+        }
         self.didFinishInitialScroll = true
+//        let indexPath = IndexPath(row: 15, section: 0)
 //        self.view.layoutSubviews()
     }
     
@@ -655,19 +654,18 @@ extension ConversationViewController: UITableViewDelegate
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
         
         if isLastCellDisplayed {
-            handleAdditionalMessageGroupUpdate(inAscending: false)
+            handleAdditionalMessageGroupUpdate(inAscendingOrder: false)
         } else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages {
                 //TODO: - if scrol back and forth this block will initiate multiple times, reslove this
-            self.handleAdditionalMessageGroupUpdate(inAscending: true)
+            self.handleAdditionalMessageGroupUpdate(inAscendingOrder: true)
         }
     }
     
-    private func handleAdditionalMessageGroupUpdate(inAscending order: Bool) {
+    private func handleAdditionalMessageGroupUpdate(inAscendingOrder order: Bool) {
         Task { @MainActor [weak self] in
             guard let self = self else {return}
             try await Task.sleep(nanoseconds: 500_000_000)
-            let (newRows, newSections) = try await self.conversationViewModel.manageAdditionalMessageGroupsCreation(ascending: order)
-//            try await Task.sleep(nanoseconds: 200_000_000)
+            let (newRows, newSections) = try await self.conversationViewModel.manageAdditionalMessageGroupsCreation(inAscendingOrder: order)
             self.performeTableViewUpdate(with: newRows, sections: newSections)
         }
     }
@@ -704,11 +702,6 @@ extension ConversationViewController: UITableViewDelegate
                     self.rootView.tableView.contentOffset.y = currentOffsetY + lastCellRect.minY
                 }
             }
-            //                if self.rootView.tableView.contentOffset.y < -97.5 {
-            //                    guard let cell = visibleCell else {return}
-            //                    guard let updatedIndexPath = self.rootView.tableView.indexPath(for: cell) else {return}
-            //                    self.rootView.tableView.scrollToRow(at: updatedIndexPath, at: .top, animated: false)
-            //                }
             CATransaction.commit()
         })
     }

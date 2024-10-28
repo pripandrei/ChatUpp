@@ -42,27 +42,6 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
 
         return cell
     }
-    
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-//    
-//        
-//        let viewModel = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row]
-//        let message = viewModel.cellMessage
-//        cell.textLabel?.text = message.messageBody
-//        cell.transform = CGAffineTransform(scaleX: 1, y: -1)
-////        let authUserID = conversationViewModel.authenticatedUserID
-////        let cellSide = message.senderId == authUserID ?
-////        ConversationTableViewCell.BubbleMessageSide.right : ConversationTableViewCell.BubbleMessageSide.left
-////        
-////        /// set sender name and text of message messageToBeReplied if any
-////        if let repliedToMessageID = message.repliedTo {
-////            conversationViewModel.setReplyMessageData(fromReplyMessageID: repliedToMessageID, toViewModel: viewModel)
-////        }
-////        cell.configureCell(usingViewModel: viewModel, forSide: cellSide)
-//
-//        return cell
-//    }
 }
 
 

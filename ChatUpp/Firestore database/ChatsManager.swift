@@ -14,7 +14,7 @@ typealias Listener = ListenerRegistration
 
 final class ChatsManager {
     
-    private let queryLimit = 10
+    private let queryLimit = 50
     
     static let shared = ChatsManager()
     
@@ -298,34 +298,36 @@ extension ChatsManager
 //    }
     
     
-    func fetchMessages(from chatID: String, startAtTimestamp timestamp: Date? = nil, startAfterMessage message: String? = nil, direction: MessagesFetchDirection) async throws -> [Message] {
-        //TODO: - adjust query by snapshot docuemtn
+    func fetchMessagesFromChat(chatID: String,
+                               startingFrom messageID: String?,
+                               inclusive: Bool,
+                               fetchDirection: MessagesFetchDirection) async throws -> [Message]
+    {
         var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
-        
-        let snapshot = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue).document(message!)
-        
-        let docSnapshot = try await snapshot.getDocument()
-//        if let timestamp = timestamp {
-//            switch direction {
-//            case .ascending: query = query.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
-//            case .descending: query = query.whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
-//            default:break
-//            }
-//        }
-        if direction == .ascending {
-            query = query
-                .order(by: Message.CodingKeys.timestamp.rawValue, descending: false) // ascending order
-        } else if direction == .descending {
-            query = query
-                .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending order
-        } else {
-            query = query
-//                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
-//                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
-                .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending
-        }
 
-        return try await query.limit(to: queryLimit).start(afterDocument: docSnapshot).getDocuments(as: Message.self)
+        if fetchDirection == .ascending {
+            query = query.order(by: Message.CodingKeys.timestamp.rawValue, descending: false) // ascending order
+        }
+        else if fetchDirection == .descending {
+            query = query.order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending order
+        }
+        
+        // if message is nil, it means that DB has only unseen messages
+        // and we should just fetch them starting from first one
+        if let messageID = messageID
+        {
+            let document = try await chatDocument(documentPath: chatID)
+                .collection(FirestoreCollection.messages.rawValue)
+                .document(messageID)
+                .getDocument()
+            
+            if document.exists {
+                query = inclusive ? query.start(atDocument: document) : query.start(afterDocument: document)
+            }
+        }
+        
+        return try await query.limit(to: queryLimit)
+            .getDocuments(as: Message.self)
     }
 //    
 //    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date?, direction: MessagesFetchDirection) async throws -> [Message] {
