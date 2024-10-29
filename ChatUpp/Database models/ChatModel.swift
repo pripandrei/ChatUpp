@@ -66,8 +66,8 @@ class Chat: Object, Codable {
     
     
     /// Last message will always be the recent one (in local and remote db)
-    /// However, next to last message will be in local db but,
-    /// it will not necessarily be next to last in remote db
+    /// However, penultimate message will be in local db but,
+    /// it will not necessarily be penultimate in remote db
     /// So we need to get it's timestamp in order to fetch messages up from that timestamp
 
     func getPenultimateMessage() -> Message? {

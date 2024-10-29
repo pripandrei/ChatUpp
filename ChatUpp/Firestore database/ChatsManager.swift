@@ -14,7 +14,7 @@ typealias Listener = ListenerRegistration
 
 final class ChatsManager {
     
-    private let queryLimit = 50
+    private let queryLimit = 10
     
     static let shared = ChatsManager()
     

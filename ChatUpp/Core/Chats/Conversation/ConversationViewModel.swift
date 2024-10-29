@@ -49,21 +49,25 @@ enum ConversationInitializationStatus {
 
 extension ConversationViewModel
 {
-    private func setupConversationMessageGroups() {
-        guard var messages = conversation?.getMessages(), 
+    private func setupConversationMessageGroups() 
+    {
+        guard var messages = conversation?.getMessages(),
                 !messages.isEmpty else { return }
         
-        if !displayLastMessage { messages.removeFirst() }
+        if displayLastMessage == false
+        {
+            messages.removeFirst()
+        }
         manageMessageGroupsCreation(messages)
     }
 
     func initiateConversation() 
     {
-        guard !shouldFetchNewMessages else {
-            conversationInitializationStatus = .inProgress
-            initiateConversationWithRemoteData()
-            return
-        }
+//        guard !shouldFetchNewMessages else {
+//            conversationInitializationStatus = .inProgress
+//            initiateConversationWithRemoteData()
+//            return
+//        }
         initiateConversationUsingLocalData()
     }
     
@@ -84,7 +88,7 @@ extension ConversationViewModel
 final class ConversationViewModel 
 {
     var unreadMessagesCount: Int = 22
-    
+    var isChatFetchedFirstTime: Bool = true
     @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
     
     private(set) var conversation: Chat?
@@ -105,7 +109,7 @@ final class ConversationViewModel
         return self.conversation != nil
     }
     
-    var isChatFetchedFirstTime: Bool = false
+    
     
     private var firstMessage: Message? {
         conversation?.getFirstMessage()
@@ -355,13 +359,16 @@ extension ConversationViewModel
         RealmDBManager.shared.add(object: message)
     }
     
-    private func getUnreadMessagesCountFromRealm() -> Int {
-        let filter = NSPredicate(format: "messageSeen == false")
-        let count = conversation?.conversationMessages.filter(filter).count
+    private func getUnreadMessagesCountFromRealm() -> Int
+    {
+        guard let conversation = conversation else { return 0 }
         
-        guard let count = count else {return 0}
+        let filter = NSPredicate(format: "messageSeen == false AND senderId != %@", authenticatedUserID)
+        let count = conversation.conversationMessages.filter(filter).count
+        
         return count
     }
+    
     
     private func removeMessageFromRealm(message: Message) {
         guard let realmMessage = retrieveMessageFromRealm(message) else {return}
@@ -486,14 +493,14 @@ extension ConversationViewModel
             return try await ChatsManager.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
-                inclusive: true,
+                inclusive: false,
                 fetchDirection: .ascending
             )
         case .descending(let startAtMessage):
             return try await ChatsManager.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
-                inclusive: true,
+                inclusive: false,
                 fetchDirection: .descending
             )
         case .hybrit(let startAtMessage):
@@ -519,18 +526,25 @@ extension ConversationViewModel
     {
         guard let conversation = conversation else { return .none }
         
-        if let message = conversation.getLastSeenMessage() {
-            if conversation.conversationMessages.count > 1 {
-                return .ascending(startAtMessage: message)
+        if let message = conversation.getLastSeenMessage()
+        {
+            if conversation.conversationMessages.count > 1 
+            {
+                return .ascending(startAtMessage: message) // exclude message
             } else {
-                return .descending(startAtMessage: message)
+                return .descending(startAtMessage: message) // exclude message
             }
-        } else if let message = try await getLastSeenMessageFromFirestore(from: conversation.id) {
+        }
+        else if let message = try await getLastSeenMessageFromFirestore(from: conversation.id)
+        {
             return .hybrit(startAtMessage: message)
-        } else if let message = conversation.getPenultimateMessage() {
+        } 
+        else if let message = conversation.getPenultimateMessage()
+        {
             return .ascending(startAtMessage: message)
-        } else {
-            return .ascending(startAtMessage: nil)
+        }
+        else {
+            return .ascending(startAtMessage: nil) // all messages are unseen and we just fetch them from the vey first one
         }
     }
 }
@@ -653,7 +667,6 @@ extension ConversationViewModel
         
         let newMessages = try await loadAdditionalMessages(inAscendingOrder: inAscendingOrder)
         guard !newMessages.isEmpty else { return ([], nil) }
-//        newMessages.removeFirst()
 
         manageMessageGroupsCreation(newMessages, ascending: inAscendingOrder)
         

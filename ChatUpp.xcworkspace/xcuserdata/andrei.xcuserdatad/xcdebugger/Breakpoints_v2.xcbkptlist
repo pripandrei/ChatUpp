@@ -7,47 +7,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "491CC156-09E6-43B5-A8F2-444ABC4CB68D"
+            uuid = "AA10F171-60E3-4743-9A58-4BEAABB421F1"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "145"
-            endingLineNumber = "145"
-            landmarkName = "setupBinding()"
+            startingLineNumber = "669"
+            endingLineNumber = "669"
+            landmarkName = "manageAdditionalMessageGroupsCreation(inAscendingOrder:)"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "491CC156-09E6-43B5-A8F2-444ABC4CB68D - 92321e06c4b70cf"
+                  uuid = "AA10F171-60E3-4743-9A58-4BEAABB421F1 - de853ea3e462970c"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.ConversationInitializationStatus) -&gt; () in ChatUpp.ConversationViewController.setupBinding() -&gt; ()"
+                  symbolName = "(3) suspend resume partial function for ChatUpp.ConversationViewModel.manageAdditionalMessageGroupsCreation(inAscendingOrder: Swift.Bool) async throws -&gt; (Swift.Array&lt;Foundation.IndexPath&gt;, Swift.Optional&lt;Foundation.IndexSet&gt;)"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "146"
-                  endingLineNumber = "146"
-                  offsetFromSymbolStart = "100">
+                  startingLineNumber = "670"
+                  endingLineNumber = "670"
+                  offsetFromSymbolStart = "292">
                </Location>
                <Location
-                  uuid = "491CC156-09E6-43B5-A8F2-444ABC4CB68D - 92321e06c4b70ee"
+                  uuid = "AA10F171-60E3-4743-9A58-4BEAABB421F1 - de853ea3e46297ef"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.ConversationInitializationStatus) -&gt; () in ChatUpp.ConversationViewController.setupBinding() -&gt; ()"
+                  symbolName = "(3) suspend resume partial function for ChatUpp.ConversationViewModel.manageAdditionalMessageGroupsCreation(inAscendingOrder: Swift.Bool) async throws -&gt; (Swift.Array&lt;Foundation.IndexPath&gt;, Swift.Optional&lt;Foundation.IndexSet&gt;)"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "145"
-                  endingLineNumber = "145"
-                  offsetFromSymbolStart = "100">
+                  startingLineNumber = "669"
+                  endingLineNumber = "669"
+                  offsetFromSymbolStart = "140">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -55,47 +55,62 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C60D38F9-464F-4D15-9BBB-361543A07C64"
+            uuid = "CA553825-3755-4365-AEEB-4272FB04E549"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "143"
-            endingLineNumber = "143"
-            landmarkName = "setupBinding()"
+            startingLineNumber = "66"
+            endingLineNumber = "66"
+            landmarkName = "initiateConversation()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "C60D38F9-464F-4D15-9BBB-361543A07C64 - 92321e06c4b7089"
+                  uuid = "CA553825-3755-4365-AEEB-4272FB04E549 - 2c59b152cd57461e"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.ConversationInitializationStatus) -&gt; () in ChatUpp.ConversationViewController.setupBinding() -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewModel.initiateConversation() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "144"
-                  endingLineNumber = "144"
-                  offsetFromSymbolStart = "44">
+                  startingLineNumber = "67"
+                  endingLineNumber = "67"
+                  offsetFromSymbolStart = "48">
                </Location>
                <Location
-                  uuid = "C60D38F9-464F-4D15-9BBB-361543A07C64 - 92321e06c4b70a8"
+                  uuid = "CA553825-3755-4365-AEEB-4272FB04E549 - 2c59b152cd57467f"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.ConversationInitializationStatus) -&gt; () in ChatUpp.ConversationViewController.setupBinding() -&gt; ()"
+                  symbolName = "ChatUpp.ConversationViewModel.initiateConversation() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "143"
-                  endingLineNumber = "143"
-                  offsetFromSymbolStart = "44">
+                  startingLineNumber = "66"
+                  endingLineNumber = "66"
+                  offsetFromSymbolStart = "32">
+               </Location>
+               <Location
+                  uuid = "CA553825-3755-4365-AEEB-4272FB04E549 - 2c59b152cd57479a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationViewModel.initiateConversation() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "71"
+                  endingLineNumber = "71"
+                  offsetFromSymbolStart = "24">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -103,17 +118,161 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "BF2CE365-BBC6-44CF-A042-2C1A80755B9D"
+            uuid = "345DBEDC-DF25-4FCA-9509-5D1707AB12FF"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "77"
+            endingLineNumber = "77"
+            landmarkName = "initiateConversationWithRemoteData()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "345DBEDC-DF25-4FCA-9509-5D1707AB12FF - 2afc5d3146982409"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationViewModel.initiateConversationUsingLocalData() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "79"
+                  endingLineNumber = "79"
+                  offsetFromSymbolStart = "32">
+               </Location>
+               <Location
+                  uuid = "345DBEDC-DF25-4FCA-9509-5D1707AB12FF - 7b9051ed447da936"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for closure #1 @Sendable () async throws -&gt; () in ChatUpp.ConversationViewModel.initiateConversationWithRemoteData() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "77"
+                  endingLineNumber = "77"
+                  offsetFromSymbolStart = "88">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "093DD089-48AF-4B65-8902-AED53B8F1FD3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "78"
+            endingLineNumber = "78"
+            landmarkName = "initiateConversationWithRemoteData()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "093DD089-48AF-4B65-8902-AED53B8F1FD3 - 2afc5d3146982409"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationViewModel.initiateConversationUsingLocalData() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "79"
+                  endingLineNumber = "79"
+                  offsetFromSymbolStart = "32">
+               </Location>
+               <Location
+                  uuid = "093DD089-48AF-4B65-8902-AED53B8F1FD3 - 7b9051ed447da915"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) suspend resume partial function for closure #1 @Sendable () async throws -&gt; () in ChatUpp.ConversationViewModel.initiateConversationWithRemoteData() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "78"
+                  endingLineNumber = "78"
+                  offsetFromSymbolStart = "96">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F55F284F-E64C-410A-9284-E516D47BB93F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
+            landmarkName = "setupConversationMessageGroups()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "F55F284F-E64C-410A-9284-E516D47BB93F - 2140b3cb1974070f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationViewModel.setupConversationMessageGroups() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "57"
+                  endingLineNumber = "57"
+                  offsetFromSymbolStart = "424">
+               </Location>
+               <Location
+                  uuid = "F55F284F-E64C-410A-9284-E516D47BB93F - 2140b3cb1974070f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ChatUpp.ConversationViewModel.setupConversationMessageGroups() -&gt; ()"
+                  moduleName = "ChatUpp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "57"
+                  endingLineNumber = "57"
+                  offsetFromSymbolStart = "340">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C09AA827-1868-4ABB-908A-DE2266703F38"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "129"
             endingLineNumber = "129"
-            landmarkName = "refreshTableView()"
-            landmarkType = "7">
+            landmarkName = "displayLastMessage"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

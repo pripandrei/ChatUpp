@@ -653,12 +653,12 @@ extension ConversationViewController: UITableViewDelegate
         let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
         
-        if isLastCellDisplayed {
-            handleAdditionalMessageGroupUpdate(inAscendingOrder: false)
-        } else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages {
-                //TODO: - if scrol back and forth this block will initiate multiple times, reslove this
-            self.handleAdditionalMessageGroupUpdate(inAscendingOrder: true)
-        }
+//        if isLastCellDisplayed {
+//            handleAdditionalMessageGroupUpdate(inAscendingOrder: false)
+//        } else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages {
+//                //TODO: - if scrol back and forth this block will initiate multiple times, reslove this
+//            self.handleAdditionalMessageGroupUpdate(inAscendingOrder: true)
+//        }
     }
     
     private func handleAdditionalMessageGroupUpdate(inAscendingOrder order: Bool) {
