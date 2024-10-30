@@ -14,7 +14,7 @@ typealias Listener = ListenerRegistration
 
 final class ChatsManager {
     
-    private let queryLimit = 60
+    private let queryLimit = 10
     
     static let shared = ChatsManager()
     
@@ -108,11 +108,12 @@ extension ChatsManager
 //            .first
 //    }
 //    
-    func getFirstUnseenMessage(fromChatDocumentPath documentID: String) async throws -> Message? 
+    func getFirstUnseenMessage(fromChatDocumentPath documentID: String, whereSenderIDNotEqualTo senderID: String) async throws -> Message?
     {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
         return try await messagesReference
             .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false)
+            .whereField(Message.CodingKeys.senderId.rawValue, isNotEqualTo: senderID)
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
             .limit(to: 1)
             .getDocuments(as: Message.self)

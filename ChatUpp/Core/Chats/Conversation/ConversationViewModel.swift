@@ -64,11 +64,11 @@ extension ConversationViewModel
 
     func initiateConversation() 
     {
-        guard !shouldFetchNewMessages else {
-            conversationInitializationStatus = .inProgress
-            initiateConversationWithRemoteData()
-            return
-        }
+//        guard !shouldFetchNewMessages else {
+//            conversationInitializationStatus = .inProgress
+//            initiateConversationWithRemoteData()
+//            return
+//        }
         initiateConversationUsingLocalData()
     }
     
@@ -89,7 +89,7 @@ extension ConversationViewModel
 final class ConversationViewModel 
 {
     var unreadMessagesCount: Int = 22
-    var isChatFetchedFirstTime: Bool = true
+    var isChatFetchedFirstTime: Bool = false
     @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
     
     private(set) var conversation: Chat?
@@ -109,8 +109,6 @@ final class ConversationViewModel
     var conversationIsInitiated: Bool {
         return self.conversation != nil
     }
-    
-    
     
     private var firstMessage: Message? {
         conversation?.getFirstMessage()
@@ -544,8 +542,10 @@ extension ConversationViewModel
 //MARK: - Firestore functions
 extension ConversationViewModel 
 {
-    private func getFirstUnseenMessageFromFirestore(from chatID: String) async throws -> Message? {
-        return try await ChatsManager.shared.getFirstUnseenMessage(fromChatDocumentPath: chatID)
+    private func getFirstUnseenMessageFromFirestore(from chatID: String) async throws -> Message? 
+    {
+        return try await ChatsManager.shared.getFirstUnseenMessage(fromChatDocumentPath: chatID,
+                                                                   whereSenderIDNotEqualTo: authenticatedUserID)
     }
     
 //    private func getLastSeenMessageFromFirestore(from chatID: String) async throws -> Message? {
