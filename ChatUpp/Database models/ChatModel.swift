@@ -63,30 +63,28 @@ class Chat: Object, Codable {
         return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false).first
     }
     
-    
-    
     /// Last message will always be the recent one (in local and remote db)
     /// However, penultimate message will be in local db but,
     /// it will not necessarily be penultimate in remote db
     /// So we need to get it's timestamp in order to fetch messages up from that timestamp
 
-    func getPenultimateMessage() -> Message? {
-        guard let nextToLastMessage = conversationMessages
-            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false)
-            .dropFirst()
-            .first else { return nil }
-        
-        return nextToLastMessage
-    }
+//    func getPenultimateMessage() -> Message? {
+//        guard let nextToLastMessage = conversationMessages
+//            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false)
+//            .dropFirst()
+//            .first else { return nil }
+//        
+//        return nextToLastMessage
+//    }
     
-    func getLastSeenMessage() -> Message? {
-        guard let lastSeenMessage = conversationMessages
-            .filter("messageSeen == true")
-            .sorted(byKeyPath: "timestamp", ascending: false)
-            .first else { return nil }
-        
-        return lastSeenMessage
-    }
+//    func getLastSeenMessage() -> Message? {
+//        guard let lastSeenMessage = conversationMessages
+//            .filter("messageSeen == true")
+//            .sorted(byKeyPath: "timestamp", ascending: false)
+//            .first else { return nil }
+//        
+//        return lastSeenMessage
+//    }
     
     func getFirstMessage() -> Message? {
         return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true).first

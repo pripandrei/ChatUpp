@@ -8,7 +8,8 @@
 import Foundation
 import FirebaseFirestore
 
-extension Query {
+extension Query 
+{
     func getDocuments<T>(as type: T.Type) async throws -> [T] where T: Decodable  {
         let referenceType = try await self.getDocuments()
         return try referenceType.documents.map { document in

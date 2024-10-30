@@ -14,7 +14,7 @@ typealias Listener = ListenerRegistration
 
 final class ChatsManager {
     
-    private let queryLimit = 10
+    private let queryLimit = 60
     
     static let shared = ChatsManager()
     
@@ -98,16 +98,26 @@ extension ChatsManager
         return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID).getDocuments().count
     }
     
-    func getLastSeenMessage(fromChatDocumentPath documentID: String) async throws -> Message? {
+//    func getLastSeenMessage(fromChatDocumentPath documentID: String) async throws -> Message? {
+//        let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
+//        return try await messagesReference
+//            .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: true)
+//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
+//            .limit(to: 1)
+//            .getDocuments(as: Message.self)
+//            .first
+//    }
+//    
+    func getFirstUnseenMessage(fromChatDocumentPath documentID: String) async throws -> Message? 
+    {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
         return try await messagesReference
-            .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: true)
-            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
+            .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false)
+            .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
             .limit(to: 1)
             .getDocuments(as: Message.self)
             .first
     }
-    
     
         // Aggregation query to not fetch all messages but only get count 
 //    func getUnreadMessagesCount(from chatID: String, whereMessageSenderID senderID: String) async throws -> Int
