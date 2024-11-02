@@ -655,24 +655,30 @@ extension ConversationViewController: UITableViewDelegate
         
         if isLastCellDisplayed 
         {
-            handleAdditionalMessageGroupUpdate(inAscendingOrder: false)
-        } 
+            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: false)
+        }
         else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages
         {
-            handleAdditionalMessageGroupUpdate(inAscendingOrder: true)
+            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: true)
         }
     }
     
-    private func handleAdditionalMessageGroupUpdate(inAscendingOrder order: Bool) 
+    private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)
     {
         didFinishInitialScroll = false
-        
+
         Task { @MainActor [weak self] in
-            guard let self = self else {return}
-            try await Task.sleep(nanoseconds: 600_000_000)
-            let (newRows, newSections) = try await self.conversationViewModel.manageAdditionalMessageGroupsCreation(inAscendingOrder: order)
-            self.performeTableViewUpdate(with: newRows, sections: newSections)
+            
+            guard let self = self else { return }
+            
+            try await Task.sleep(nanoseconds: 500_000_000)
+            
+            if let (newRows, newSections) = try await self.conversationViewModel.handleAdditionalMessageGroupUpdate(inAscendingOrder: order)
+            {
+                self.performeTableViewUpdate(with: newRows, sections: newSections)
+            }
         }
+        
     }
     
     private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?)
@@ -692,8 +698,6 @@ extension ConversationViewController: UITableViewDelegate
             if !newRows.isEmpty {
                 self.rootView.tableView.insertRows(at: newRows, with: .none)
             }
-//            self.didFinishInitialScroll = false
-            
         }, completion: { _ in
             
             self.didFinishInitialScroll = true

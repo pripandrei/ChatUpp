@@ -7,102 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "BB37523D-3A67-4755-BC8B-233DE20A1E78"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "452"
-            endingLineNumber = "452"
-            landmarkName = "addListenerToExistingMessages(startAtTimestamp:ascending:limit:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "BB37523D-3A67-4755-BC8B-233DE20A1E78 - 1ff37a47b98f08d4"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.Message, __C.FIRDocumentChangeType) -&gt; () in ChatUpp.ConversationViewModel.addListenerToExistingMessages(startAtTimestamp: Foundation.Date, ascending: Swift.Bool, limit: Swift.Int) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "453"
-                  endingLineNumber = "453"
-                  offsetFromSymbolStart = "392">
-               </Location>
-               <Location
-                  uuid = "BB37523D-3A67-4755-BC8B-233DE20A1E78 - 1ff37a47b98f08f7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.Message, __C.FIRDocumentChangeType) -&gt; () in ChatUpp.ConversationViewModel.addListenerToExistingMessages(startAtTimestamp: Foundation.Date, ascending: Swift.Bool, limit: Swift.Int) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "454"
-                  endingLineNumber = "454"
-                  offsetFromSymbolStart = "180">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "FED432A8-B4F4-42C7-A062-E36C276488F9"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "428"
-            endingLineNumber = "428"
-            landmarkName = "addListenerToUpcomingMessages()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "FED432A8-B4F4-42C7-A062-E36C276488F9 - 47ef83d3dee9c94c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.Message, __C.FIRDocumentChangeType) -&gt; () in closure #1 @Sendable () async throws -&gt; () in ChatUpp.ConversationViewModel.addListenerToUpcomingMessages() -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "430"
-                  endingLineNumber = "430"
-                  offsetFromSymbolStart = "440">
-               </Location>
-               <Location
-                  uuid = "FED432A8-B4F4-42C7-A062-E36C276488F9 - 47ef83d3dee9c98e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.Message, __C.FIRDocumentChangeType) -&gt; () in closure #1 @Sendable () async throws -&gt; () in ChatUpp.ConversationViewModel.addListenerToUpcomingMessages() -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "428"
-                  endingLineNumber = "428"
-                  offsetFromSymbolStart = "204">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "FF49B81E-246D-4C85-9CC0-15A5E503A9D6"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -110,8 +14,8 @@
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "504"
-            endingLineNumber = "504"
+            startingLineNumber = "502"
+            endingLineNumber = "502"
             landmarkName = "handleAddedMessage(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -126,58 +30,10 @@
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "406"
-            endingLineNumber = "406"
+            startingLineNumber = "404"
+            endingLineNumber = "404"
             landmarkName = "ConversationViewModel"
             landmarkType = "21">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "4E74EA2C-3B24-4C4C-A41C-2B4E707997B1"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "441"
-            endingLineNumber = "441"
-            landmarkName = "addListenerToExistingMessages(startAtTimestamp:ascending:limit:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "4E74EA2C-3B24-4C4C-A41C-2B4E707997B1 - e0162643d2b0fac3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewModel.addListenerToExistingMessages(startAtTimestamp: Foundation.Date, ascending: Swift.Bool, limit: Swift.Int) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "443"
-                  endingLineNumber = "443"
-                  offsetFromSymbolStart = "316">
-               </Location>
-               <Location
-                  uuid = "4E74EA2C-3B24-4C4C-A41C-2B4E707997B1 - e0162643d2b0fb60"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ConversationViewModel.addListenerToExistingMessages(startAtTimestamp: Foundation.Date, ascending: Swift.Bool, limit: Swift.Int) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "440"
-                  endingLineNumber = "440"
-                  offsetFromSymbolStart = "88">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -190,8 +46,8 @@
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "154"
-            endingLineNumber = "154"
+            startingLineNumber = "152"
+            endingLineNumber = "152"
             landmarkName = "addListeners()"
             landmarkType = "7">
             <Locations>
@@ -286,8 +142,8 @@
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "520"
-            endingLineNumber = "520"
+            startingLineNumber = "518"
+            endingLineNumber = "518"
             landmarkName = "handleModifiedMessage(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -296,6 +152,22 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "F81D3667-4D7A-410C-95B1-EAF863535391"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "521"
+            endingLineNumber = "521"
+            landmarkName = "handleModifiedMessage(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "510214CB-8718-45A3-B9E4-B8B4801951D4"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -311,22 +183,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "510214CB-8718-45A3-B9E4-B8B4801951D4"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "525"
-            endingLineNumber = "525"
-            landmarkName = "handleModifiedMessage(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "E51CB6C0-427E-4AA7-8968-03D0C01D0C57"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -334,8 +190,8 @@
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "340"
-            endingLineNumber = "340"
+            startingLineNumber = "338"
+            endingLineNumber = "338"
             landmarkName = "updateMessage(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -350,8 +206,8 @@
             filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "527"
-            endingLineNumber = "527"
+            startingLineNumber = "525"
+            endingLineNumber = "525"
             landmarkName = "handleModifiedMessage(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -385,38 +241,6 @@
             startingLineNumber = "333"
             endingLineNumber = "333"
             landmarkName = "reloadCellRow(at:with:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "65F67F46-4E30-42CE-8DF1-53DFA1C86F53"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "770"
-            endingLineNumber = "770"
-            landmarkName = "manageAdditionalMessageGroupsCreation(inAscendingOrder:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "CDB4C114-6615-456A-864F-E59A39FDDCE3"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "772"
-            endingLineNumber = "772"
-            landmarkName = "manageAdditionalMessageGroupsCreation(inAscendingOrder:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -497,6 +321,22 @@
             startingLineNumber = "299"
             endingLineNumber = "299"
             landmarkName = "addListenerForExistingMessages(inChat:startAtTimestamp:ascending:limit:onMessageUpdated:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3F623B88-7FD5-4517-9772-9741ABA760CF"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "448"
+            endingLineNumber = "448"
+            landmarkName = "addListenerToExistingMessages(startAtTimestamp:ascending:limit:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

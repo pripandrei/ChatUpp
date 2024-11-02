@@ -59,7 +59,7 @@ extension ConversationViewModel
         {
             messages.removeFirst()
         }
-        manageMessageGroupsCreation(messages)
+        createMessageGroupsWith(messages)
     }
 
     func initiateConversation() 
@@ -89,8 +89,6 @@ extension ConversationViewModel
 
 final class ConversationViewModel 
 {
-    
-    var additionalMessageFetchLimit = 10
     var listeners: [Listener] = []
     
     var unreadMessagesCount: Int = 22
@@ -208,7 +206,7 @@ final class ConversationViewModel
         resetCurrentReplyMessageIfNeeded()
         addMessageToRealmChat(message)
         chat.incrementMessageCount()
-        manageMessageGroupsCreation([message], ascending: true)
+        createMessageGroupsWith([message], ascending: true)
         
         Task { @MainActor in
             await addMessageToFirestoreDataBase(message)
@@ -308,7 +306,7 @@ final class ConversationViewModel
 //MARK: - Realm functions
 extension ConversationViewModel
 {
-    private func addMessagesToConversationInRealm(_ messages: [Message]) 
+    func addMessagesToConversationInRealm(_ messages: [Message]) 
     {
         guard let conversation = conversation else { return }
         RealmDBManager.shared.update(object: conversation) { chat in
@@ -437,7 +435,7 @@ extension ConversationViewModel
         }
     }
     
-    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int) {
+    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100) {
         guard let conversationID = conversation?.id
                 /*let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage */else { return }
         
@@ -505,7 +503,7 @@ extension ConversationViewModel
             addMessageToRealmChat(message)
             // TODO: - if chat unseen message counter is heigher than local unseen count,
             // dont create messageGroup with this new message
-            manageMessageGroupsCreation([message], ascending: true)
+            createMessageGroupsWith([message], ascending: true)
             messageChangedType = .added
             return
         }
@@ -724,7 +722,7 @@ extension ConversationViewModel
 
 extension ConversationViewModel
 {
-    func manageMessageGroupsCreation(_ messages: [Message], ascending: Bool? = nil)
+    func createMessageGroupsWith(_ messages: [Message], ascending: Bool? = nil)
     {
         var tempMessageGroups: [ConversationMessageGroup] = self.messageGroups
         var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
@@ -756,24 +754,12 @@ extension ConversationViewModel
     }
     
     @MainActor
-    func manageAdditionalMessageGroupsCreation(inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
+    private func prepareMessageGroupsUpdate(withMessages messages: [Message], inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
     {
         let messageGroupsBeforeUpdate = messageGroups
-        var startSectionCount: Int
+        let startSectionCount = inAscendingOrder ? 0 : messageGroups.count
         
-        switch inAscendingOrder {
-        case true: startSectionCount = 0
-        case false: startSectionCount = messageGroups.count
-        }
-        
-        let newMessages = try await loadAdditionalMessages(inAscendingOrder: inAscendingOrder)
-        guard !newMessages.isEmpty else { return ([], nil) }
-
-        addListenerToExistingMessages(startAtTimestamp: newMessages.first!.timestamp, ascending: inAscendingOrder, limit: additionalMessageFetchLimit)
-        
-        addMessagesToConversationInRealm(newMessages)
-        
-        manageMessageGroupsCreation(newMessages, ascending: inAscendingOrder)
+        createMessageGroupsWith(messages, ascending: inAscendingOrder)
         
         let endSectionCount = inAscendingOrder ? (messageGroups.count - messageGroupsBeforeUpdate.count) : messageGroups.count
         
@@ -782,6 +768,23 @@ extension ConversationViewModel
         
         return (newRows, newSections)
     }
+    
+    func handleAdditionalMessageGroupUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)? {
+        
+        let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
+        guard !newMessages.isEmpty else { return nil }
+        
+        let (newRows, newSections) = try await prepareMessageGroupsUpdate(withMessages: newMessages, inAscendingOrder: order)
+        
+        if let timestamp = newMessages.first?.timestamp {
+            addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
+        }
+        
+        addMessagesToConversationInRealm(newMessages)
+        
+        return (newRows, newSections)
+    }
+
     
     private func findNewRowIndexPaths(inMessageGroups messageGroups: [ConversationMessageGroup], ascending: Bool) -> [IndexPath]
     {
