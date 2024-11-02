@@ -143,7 +143,7 @@ final class ConversationViewController: UIViewController {
                 case .inProgress: self.toggleSkeletonAnimation(.initiated)
                 case .finished:
                     self.refreshTableView()
-//                    self.conversationViewModel.addListeners()
+                    self.conversationViewModel.addListeners()
                 default: break
                 }
             }.store(in: &subscriptions)
@@ -659,15 +659,17 @@ extension ConversationViewController: UITableViewDelegate
         } 
         else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages
         {
-            self.didFinishInitialScroll = false
-            self.handleAdditionalMessageGroupUpdate(inAscendingOrder: true)
+            handleAdditionalMessageGroupUpdate(inAscendingOrder: true)
         }
     }
     
-    private func handleAdditionalMessageGroupUpdate(inAscendingOrder order: Bool) {
+    private func handleAdditionalMessageGroupUpdate(inAscendingOrder order: Bool) 
+    {
+        didFinishInitialScroll = false
+        
         Task { @MainActor [weak self] in
             guard let self = self else {return}
-            try await Task.sleep(nanoseconds: 1_500_000_000)
+            try await Task.sleep(nanoseconds: 600_000_000)
             let (newRows, newSections) = try await self.conversationViewModel.manageAdditionalMessageGroupsCreation(inAscendingOrder: order)
             self.performeTableViewUpdate(with: newRows, sections: newSections)
         }

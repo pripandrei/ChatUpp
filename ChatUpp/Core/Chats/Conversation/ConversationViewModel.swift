@@ -88,6 +88,10 @@ extension ConversationViewModel
 
 final class ConversationViewModel 
 {
+    
+    var additionalMessageFetchLimit = 10
+    var listeners: [Listener] = []
+    
     var unreadMessagesCount: Int = 22
     var isChatFetchedFirstTime: Bool = false
     @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
@@ -133,10 +137,22 @@ final class ConversationViewModel
         initiateConversation()
     }
     
+//    func addListeners() {
+////        addListenerToMessages()
+//        addUsersListener()
+//        addUserObserver()
+//    }
     func addListeners() {
-//        addListenerToMessages()
         addUsersListener()
         addUserObserver()
+        
+        guard let startMessage = messageGroups.last?.cellViewModels.last?.cellMessage,
+//              let endMessage = messageGroups.first?.cellViewModels.first?.cellMessage,
+              let limit = conversation?.conversationMessages.count else {return}
+        
+        addListenerToUpcomingMessages()
+//        addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, endAtTimeStamp: endMessage.timestamp)
+        addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
     }
     
     private func createChat() -> Chat
@@ -173,7 +189,11 @@ final class ConversationViewModel
             
             Task(priority: .high, operation: { @MainActor in
                 await addChatToFirestore(freezedChat)
-                addListenerToMessages()
+                
+                guard let timestamp = self.conversation?.getLastMessage()?.timestamp,
+                      let limit = conversation?.conversationMessages.count else {return}
+                
+                addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: true, limit: limit)
             })
         }
     }
@@ -284,42 +304,6 @@ final class ConversationViewModel
     }
 }
 
-//MARK: - Users listener
-extension ConversationViewModel 
-{
-    /// - Temporary fix while firebase functions are deactivated
-    func addUserObserver() {
-        userObserver = UserManagerRealtimeDB
-            .shared
-            .addObserverToUsers(participant.userId) { [weak self] realtimeDBUser in
-                
-            guard let self = self else {return}
-            
-            if realtimeDBUser.isActive != self.participant.isActive
-            {
-                if let date = realtimeDBUser.lastSeen, 
-                    let isActive = realtimeDBUser.isActive
-                {
-                    self.participant = self.participant.updateActiveStatus(lastSeenDate: date,isActive: isActive)
-                }
-            }
-        }
-    }
-    
-    func addUsersListener() 
-    {
-        self.userListener = UserManager
-            .shared
-            .addListenerToUsers([participant.userId]) { [weak self] users, documentsTypes in
-            guard let self = self else {return}
-            // since we are listening only for one user, we can just get the first user and docType
-            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self.participant = user
-        }
-    }
-}
-
-
 //MARK: - Realm functions
 extension ConversationViewModel
 {
@@ -372,24 +356,143 @@ extension ConversationViewModel
     }
 }
 
+
+//MARK: - Users listener
+extension ConversationViewModel
+{
+    /// - Temporary fix while firebase functions are deactivated
+    func addUserObserver() {
+        userObserver = UserManagerRealtimeDB
+            .shared
+            .addObserverToUsers(participant.userId) { [weak self] realtimeDBUser in
+                
+            guard let self = self else {return}
+            
+            if realtimeDBUser.isActive != self.participant.isActive
+            {
+                if let date = realtimeDBUser.lastSeen,
+                    let isActive = realtimeDBUser.isActive
+                {
+                    self.participant = self.participant.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                }
+            }
+        }
+    }
+    
+    func addUsersListener()
+    {
+        self.userListener = UserManager
+            .shared
+            .addListenerToUsers([participant.userId]) { [weak self] users, documentsTypes in
+            guard let self = self else {return}
+            // since we are listening only for one user, we can just get the first user and docType
+            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
+            self.participant = user
+        }
+    }
+}
+
 //MARK: - Messages listener
 extension ConversationViewModel
 {
     
-    func addListenerToMessages()
+//    func addListenerToMessages()
+//    {
+//        guard let conversation = conversation else {return}
+//        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
+//            guard let self = self else {return}
+//
+//            switch type {
+//            case .added: self.handleAddedMessage(message)
+//            case .removed: self.handleRemovedMessage(message)
+//            case .modified: self.handleModifiedMessage(message)
+//                print("==== modified", message)
+//            }
+//        }
+//    }
+    
+    func addListenerToUpcomingMessages()
     {
-        guard let conversation = conversation else {return}
-        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
-            guard let self = self else {return}
-
-            switch type {
-            case .added: self.handleAddedMessage(message)
-            case .removed: self.handleRemovedMessage(message)
-            case .modified: self.handleModifiedMessage(message)
-                print("==== modified", message)
-            }
+        guard let conversationID = conversation?.id,
+              let startMessageID = conversation?.getLastMessage()?.id else { return }
+        
+        Task { @MainActor in
+            
+            let listener = try await ChatsManager.shared.addListenerForUpcomingMessages(
+                inChat: conversationID,
+                startingAfterMessage: startMessageID) { [weak self] message, changeType in
+                    
+                    guard let self = self else {return}
+                    
+                    switch changeType {
+                    case .added: print("added")
+                        //                    self.handleAddedMessage(message)
+                    case .removed: self.handleRemovedMessage(message)
+                    case .modified: self.handleModifiedMessage(message)
+                        print("==== modified", message)
+                    }
+                }
+            self.listeners.append(listener)
         }
     }
+    
+    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int) {
+        guard let conversationID = conversation?.id
+                /*let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage */else { return }
+        
+        let listener = ChatsManager.shared.addListenerForExistingMessages(
+            inChat: conversationID,
+            startAtTimestamp: startAtTimestamp,
+            ascending: ascending,
+            limit: limit) { [weak self] message, changeType in
+                
+                guard let self = self else {return}
+                
+                switch changeType {
+                    //            case .added: print("added")
+                    //                    self.handleAddedMessage(message)
+                case .removed: print("removed")
+                    self.handleRemovedMessage(message)
+                case .modified: self.handleModifiedMessage(message)
+                    print("==== modified", message)
+                default: break
+                }
+                
+            }
+        listeners.append(listener)
+    }
+    
+    
+//    func addListenerToExistingMessages(startAtTimestamp: Date, endAtTimeStamp: Date) {
+//        guard let conversationID = conversation?.id
+//              /*let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage */else { return }
+//        
+//        let listener = ChatsManager.shared.addListenerForExistingMessages(inChat: conversationID,
+//                                                           startAtTimestamp: startAtTimestamp,
+//                                                           endAtTimeStamp: endAtTimeStamp) { message, updateType in
+//            
+//            
+//        }
+//        listeners.append(listener)
+//    }
+    
+//    func addListenerToExistingMessages() {
+//        guard let conversationID = conversation?.id,
+//              let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage else { return }
+//        
+//        ChatsManager.shared.addListenerForExistingMessages(inChat: conversationID,
+//                                                           startAfterTimestamp: startMessage.timestamp,
+//                                                           descending: <#T##Bool#>,
+//                                                           onMessageUpdated: <#T##(Message, DocumentChangeType) -> Void#>)
+//    }
+
+}
+
+
+enum MessagesListenerRange
+{
+    case forExisting(startAtMessage: Message, endAtMessage: Message)
+    case forPaged(startAtMessage: Message, endAtMessage: Message)
 }
 
 //MARK: - Message listener helper functions
@@ -399,6 +502,8 @@ extension ConversationViewModel
     {
         guard let _ = retrieveMessageFromRealm(message) else {
             addMessageToRealmChat(message)
+            // TODO: - if chat unseen message counter is heigher than local unseen count,
+            // dont create messageGroup with this new message
             manageMessageGroupsCreation([message], ascending: true)
             messageChangedType = .added
             return
@@ -496,7 +601,7 @@ extension ConversationViewModel
             return try await ChatsManager.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
-                inclusive: included, /// with new logic should be true
+                inclusive: included,
                 fetchDirection: .descending
             )
         case .hybrit(let startAtMessage):
@@ -663,6 +768,10 @@ extension ConversationViewModel
         let newMessages = try await loadAdditionalMessages(inAscendingOrder: inAscendingOrder)
         guard !newMessages.isEmpty else { return ([], nil) }
 
+        addListenerToExistingMessages(startAtTimestamp: newMessages.first!.timestamp, ascending: inAscendingOrder, limit: additionalMessageFetchLimit)
+        
+        addMessagesToConversationInRealm(newMessages)
+        
         manageMessageGroupsCreation(newMessages, ascending: inAscendingOrder)
         
         let endSectionCount = inAscendingOrder ? (messageGroups.count - messageGroupsBeforeUpdate.count) : messageGroups.count

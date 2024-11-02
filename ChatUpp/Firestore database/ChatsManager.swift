@@ -213,15 +213,34 @@ extension ChatsManager
 
 extension ChatsManager 
 {
+    
+//    func addListenerToChatMessages(_ chatId: String,
+//                                   onReceivedMessage: @escaping (Message, DocumentChangeType) -> Void) -> Listener
+//    {
+//        return chatDocument(documentPath: chatId)
+//            .collection(FirestoreCollection.messages.rawValue)
+//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
+//            .addSnapshotListener { querySnapshot, error in
+//
+//                guard error == nil else { print(error!.localizedDescription); return}
+//                guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
+//
+//                for document in documents.prefix(self.queryLimit) {
+//                    guard let message = try? document.document.data(as: Message.self) else {continue}
+//                    onReceivedMessage(message, document.type)
+//                }
+//            }
+//    }
+    
     func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
     {
         // get only the added or removed doc with diff option.
         // use compliciton to get the doc and find if the doc is in array of chats remove it, if not add it
         
-       return chatsCollection.whereField(FirestoreField.participants.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
+        return chatsCollection.whereField(FirestoreField.participants.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
-
+            
             var docChangeType: [DocumentChangeType] = []
             
             let chats = documents.compactMap { docChange in
@@ -232,70 +251,97 @@ extension ChatsManager
         }
     }
     
-    func addListenerToChatMessages(_ chatId: String,
-                                   onReceivedMessage: @escaping (Message, DocumentChangeType) -> Void) -> Listener
+    // messages listners
+    func addListenerForUpcomingMessages(inChat chatID: String,
+                                        startingAfterMessage messageID: String,
+                                        onNewMessageReceived:  @escaping (Message, DocumentChangeType) -> Void) async throws -> Listener
     {
-        return chatDocument(documentPath: chatId)
+        let document = try await chatsCollection.document(chatID)
             .collection(FirestoreCollection.messages.rawValue)
-            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
-            .addSnapshotListener { querySnapshot, error in
+            .document(messageID)
+            .getDocument()
+        
+        return chatDocument(documentPath: chatID)
+            .collection(FirestoreCollection.messages.rawValue)
+            .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
+            .start(afterDocument: document)
+            .addSnapshotListener { snapshot, error in
+                guard error == nil else { print(error!.localizedDescription); return }
+                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
                 
-                guard error == nil else { print(error!.localizedDescription); return}
-                guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
+                for document in documents {
+                    guard let message = try? document.document.data(as: Message.self) else { continue }
+                    onNewMessageReceived(message, document.type)
+                }
                 
-                for document in documents.prefix(self.queryLimit) {
-                    guard let message = try? document.document.data(as: Message.self) else {continue}
-                    onReceivedMessage(message, document.type)
+            }
+    }
+    
+    func addListenerForExistingMessages(inChat chatID: String,
+                                        startAtTimestamp startTimestamp: Date,
+                                        ascending: Bool,
+                                        limit: Int,
+                                        onMessageUpdated: @escaping (Message, DocumentChangeType) -> Void) -> Listener
+    {
+        return chatDocument(documentPath: chatID)
+            .collection(FirestoreCollection.messages.rawValue)
+            .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
+            .start(at: [startTimestamp])
+            .limit(to: limit)
+            .addSnapshotListener { snapshot, error in
+                guard error == nil else { print(error!.localizedDescription); return }
+                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
+                
+                for document in documents {
+                    guard let message = try? document.document.data(as: Message.self) else { continue }
+                    onMessageUpdated(message, document.type)
                 }
             }
     }
     
+//    func addListenerForExistingMessages(inChat chatID: String,
+//                                        startAtTimestamp startTimestamp: Date,
+//                                        endAtTimeStamp endTimestamp: Date,
+////                                        descending: Bool,
+//                                        onMessageUpdated: @escaping (Message, DocumentChangeType) -> Void) -> Listener
+//    {
+//        return chatDocument(documentPath: chatID)
+//            .collection(FirestoreCollection.messages.rawValue)
+//            .order(by: Message.CodingKeys.timestamp.rawValue)
+//            .start(at: [startTimestamp])
+//            .end(at: [endTimestamp])
+//            .limit(to: queryLimit)
+//            .addSnapshotListener { snapshot, error in
+//                guard error == nil else { print(error!.localizedDescription); return }
+//                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
+//                
+//                for document in documents {
+//                    guard let message = try? document.document.data(as: Message.self) else { continue }
+//                    onMessageUpdated(message, document.type)
+//                }
+//            }
+//    }
     
-    func addListenerToChatMessages2(_ chatId: String,
-                                   lastFetchedMessageDate: Date?,
-                                   localMessageIds: Set<String>,
-                                   onReceivedMessage: @escaping (Message, DocumentChangeType) -> Void) -> Listener {
-        
-        let messagesCollection = chatDocument(documentPath: chatId)
-            .collection(FirestoreCollection.messages.rawValue)
-        
-        // If you have a `createdAt` timestamp, listen for new messages after the last fetched message
-        var query: Query = messagesCollection
-        
-        if let lastFetchedDate = lastFetchedMessageDate {
-            query = query.whereField("timestamp", isGreaterThan: lastFetchedDate)
-        }
-        
-        return query.addSnapshotListener { querySnapshot, error in
-            guard error == nil else {
-                print(error!.localizedDescription)
-                return
-            }
-            
-            guard let documentChanges = querySnapshot?.documentChanges else {
-                print("No Message Documents to listen")
-                return
-            }
-            
-            for change in documentChanges {
-                guard let message = try? change.document.data(as: Message.self) else { continue }
-                
-                // Check if this message is already in local storage
-                if localMessageIds.contains(message.id) {
-                    // Update existing message (if modified)
-                    if change.type == .modified {
-                        onReceivedMessage(message, .modified)
-                    }
-                } else {
-                    // Handle new message
-                    if change.type == .added || change.type == .modified {
-                        onReceivedMessage(message, change.type)
-                    }
-                }
-            }
-        }
-    }
-
+//    func addListenerForExistingMessages(inChat chatID: String, 
+//                                        startAfterTimestamp timestamp: Date,
+//                                        descending: Bool,
+//                                        onMessageUpdated: @escaping (Message, DocumentChangeType) -> Void) -> Listener
+//    {
+//        return chatDocument(documentPath: chatID)
+//            .collection(FirestoreCollection.messages.rawValue)
+//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: descending)
+//            .start(after: [timestamp])
+//            .limit(to: queryLimit)
+//            .addSnapshotListener { snapshot, error in
+//                guard error == nil else { print(error!.localizedDescription); return }
+//                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
+//                
+//                for document in documents {
+//                    guard let message = try? document.document.data(as: Message.self) else { continue }
+//                    onMessageUpdated(message, document.type)
+//                }
+//            }
+//    }
 }
 
 //MARK: - Pagination fetch
