@@ -89,7 +89,7 @@ extension ConversationViewModel
 
 final class ConversationViewModel 
 {
-    var listeners: [Listener] = []
+    private var listeners: [Listener] = []
     
     var unreadMessagesCount: Int = 22
     var isChatFetchedFirstTime: Bool = false
@@ -119,7 +119,8 @@ final class ConversationViewModel
     
     var shouldFetchNewMessages: Bool 
     {
-        guard let localMessagesCount = conversation?.conversationMessages.count else {return true}
+        guard let localMessagesCount = conversation?.conversationMessages.count,
+                localMessagesCount > 0 else { return false }
         let isLocalUnreadMessageCountNotEquelToRemoteCount = unreadMessagesCount != getUnreadMessagesCountFromRealm()
         return isLocalUnreadMessageCountNotEquelToRemoteCount || isChatFetchedFirstTime
     }
@@ -135,22 +136,15 @@ final class ConversationViewModel
         
         initiateConversation()
     }
-    
-//    func addListeners() {
-////        addListenerToMessages()
-//        addUsersListener()
-//        addUserObserver()
-//    }
+
     func addListeners() {
         addUsersListener()
         addUserObserver()
         
         guard let startMessage = messageGroups.last?.cellViewModels.last?.cellMessage,
-//              let endMessage = messageGroups.first?.cellViewModels.first?.cellMessage,
               let limit = conversation?.conversationMessages.count else {return}
         
         addListenerToUpcomingMessages()
-//        addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, endAtTimeStamp: endMessage.timestamp)
         addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
     }
     
@@ -394,22 +388,6 @@ extension ConversationViewModel
 //MARK: - Messages listener
 extension ConversationViewModel
 {
-    
-//    func addListenerToMessages()
-//    {
-//        guard let conversation = conversation else {return}
-//        self.messageListener = ChatsManager.shared.addListenerToChatMessages(conversation.id) { [weak self] message, type in
-//            guard let self = self else {return}
-//
-//            switch type {
-//            case .added: self.handleAddedMessage(message)
-//            case .removed: self.handleRemovedMessage(message)
-//            case .modified: self.handleModifiedMessage(message)
-//                print("==== modified", message)
-//            }
-//        }
-//    }
-    
     func addListenerToUpcomingMessages()
     {
         guard let conversationID = conversation?.id,
@@ -460,31 +438,6 @@ extension ConversationViewModel
             }
         listeners.append(listener)
     }
-    
-    
-//    func addListenerToExistingMessages(startAtTimestamp: Date, endAtTimeStamp: Date) {
-//        guard let conversationID = conversation?.id
-//              /*let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage */else { return }
-//        
-//        let listener = ChatsManager.shared.addListenerForExistingMessages(inChat: conversationID,
-//                                                           startAtTimestamp: startAtTimestamp,
-//                                                           endAtTimeStamp: endAtTimeStamp) { message, updateType in
-//            
-//            
-//        }
-//        listeners.append(listener)
-//    }
-    
-//    func addListenerToExistingMessages() {
-//        guard let conversationID = conversation?.id,
-//              let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage else { return }
-//        
-//        ChatsManager.shared.addListenerForExistingMessages(inChat: conversationID,
-//                                                           startAfterTimestamp: startMessage.timestamp,
-//                                                           descending: <#T##Bool#>,
-//                                                           onMessageUpdated: <#T##(Message, DocumentChangeType) -> Void#>)
-//    }
-
 }
 
 
