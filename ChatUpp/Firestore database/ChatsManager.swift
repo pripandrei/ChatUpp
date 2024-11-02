@@ -271,6 +271,9 @@ extension ChatsManager
                 
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
+                    if message.messageBody == "After listener" {
+                        print("s==top upcoming ")
+                    }
                     onNewMessageReceived(message, document.type)
                 }
                 
@@ -294,6 +297,9 @@ extension ChatsManager
                 
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
+                    if message.messageBody == "After listener" {
+                        print("s==top existing")
+                    }
                     onMessageUpdated(message, document.type)
                 }
             }

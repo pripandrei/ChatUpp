@@ -64,6 +64,7 @@ extension ConversationViewModel
 
     func initiateConversation() 
     {
+        //MARK: - implement listener array cleaner
 //        guard !shouldFetchNewMessages else {
 //            conversationInitializationStatus = .inProgress
 //            initiateConversationWithRemoteData()
