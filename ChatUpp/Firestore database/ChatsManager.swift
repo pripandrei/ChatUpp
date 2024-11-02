@@ -13,9 +13,7 @@ import FirebaseFirestoreSwift
 typealias Listener = ListenerRegistration
 
 final class ChatsManager {
-    
-    private let queryLimit = 10
-    
+
     static let shared = ChatsManager()
     
     private init() {}
@@ -43,13 +41,6 @@ final class ChatsManager {
             try await document.reference.updateData([Chat.CodingKeys.participants.rawValue: FieldValue.arrayUnion([deletedId])])
         }
     }
-    
-//    static func setupSettings() {
-//        let settings = FirestoreSettings()
-//        settings.cacheSettings = MemoryCacheSettings()
-//        let db = Firestore.firestore()
-//        db.settings = settings
-//    }
 }
 
 //MARK: - fetch chats
@@ -98,16 +89,6 @@ extension ChatsManager
         return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID).getDocuments().count
     }
     
-//    func getLastSeenMessage(fromChatDocumentPath documentID: String) async throws -> Message? {
-//        let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
-//        return try await messagesReference
-//            .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: true)
-//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
-//            .limit(to: 1)
-//            .getDocuments(as: Message.self)
-//            .first
-//    }
-//    
     func getFirstUnseenMessage(fromChatDocumentPath documentID: String, whereSenderIDNotEqualTo senderID: String) async throws -> Message?
     {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
@@ -136,17 +117,7 @@ extension ChatsManager
 //            .count
 //            .intValue
 //    }
-    
-//    func getRecentMessageFromChats(_ chats: [Chat]) async throws -> [Message?] {
-//        var messages = [Message?]()
-//        
-//        for chat in chats {
-//            guard let recentMessageID = chat.recentMessageID else { messages.append(nil) ; continue }
-//            let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
-//            messages.append(message)
-//        }
-//        return messages
-//    }
+
     @MainActor
     func getRecentMessage(from chat: Chat) async throws -> Message? {
         guard let recentMessage = chat.recentMessageID else {return nil}
@@ -213,30 +184,8 @@ extension ChatsManager
 
 extension ChatsManager 
 {
-    
-//    func addListenerToChatMessages(_ chatId: String,
-//                                   onReceivedMessage: @escaping (Message, DocumentChangeType) -> Void) -> Listener
-//    {
-//        return chatDocument(documentPath: chatId)
-//            .collection(FirestoreCollection.messages.rawValue)
-//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
-//            .addSnapshotListener { querySnapshot, error in
-//
-//                guard error == nil else { print(error!.localizedDescription); return}
-//                guard let documents = querySnapshot?.documentChanges else { print("No Message Documents to listen"); return}
-//
-//                for document in documents.prefix(self.queryLimit) {
-//                    guard let message = try? document.document.data(as: Message.self) else {continue}
-//                    onReceivedMessage(message, document.type)
-//                }
-//            }
-//    }
-    
     func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
     {
-        // get only the added or removed doc with diff option.
-        // use compliciton to get the doc and find if the doc is in array of chats remove it, if not add it
-        
         return chatsCollection.whereField(FirestoreField.participants.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
@@ -271,9 +220,6 @@ extension ChatsManager
                 
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
-                    if message.messageBody == "After listener" {
-                        print("s==top upcoming ")
-                    }
                     onNewMessageReceived(message, document.type)
                 }
                 
@@ -297,74 +243,21 @@ extension ChatsManager
                 
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
-                    if message.messageBody == "After listener" {
-                        print("s==top existing")
-                    }
                     onMessageUpdated(message, document.type)
                 }
             }
     }
-    
-//    func addListenerForExistingMessages(inChat chatID: String,
-//                                        startAtTimestamp startTimestamp: Date,
-//                                        endAtTimeStamp endTimestamp: Date,
-////                                        descending: Bool,
-//                                        onMessageUpdated: @escaping (Message, DocumentChangeType) -> Void) -> Listener
-//    {
-//        return chatDocument(documentPath: chatID)
-//            .collection(FirestoreCollection.messages.rawValue)
-//            .order(by: Message.CodingKeys.timestamp.rawValue)
-//            .start(at: [startTimestamp])
-//            .end(at: [endTimestamp])
-//            .limit(to: queryLimit)
-//            .addSnapshotListener { snapshot, error in
-//                guard error == nil else { print(error!.localizedDescription); return }
-//                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
-//                
-//                for document in documents {
-//                    guard let message = try? document.document.data(as: Message.self) else { continue }
-//                    onMessageUpdated(message, document.type)
-//                }
-//            }
-//    }
-    
-//    func addListenerForExistingMessages(inChat chatID: String, 
-//                                        startAfterTimestamp timestamp: Date,
-//                                        descending: Bool,
-//                                        onMessageUpdated: @escaping (Message, DocumentChangeType) -> Void) -> Listener
-//    {
-//        return chatDocument(documentPath: chatID)
-//            .collection(FirestoreCollection.messages.rawValue)
-//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: descending)
-//            .start(after: [timestamp])
-//            .limit(to: queryLimit)
-//            .addSnapshotListener { snapshot, error in
-//                guard error == nil else { print(error!.localizedDescription); return }
-//                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
-//                
-//                for document in documents {
-//                    guard let message = try? document.document.data(as: Message.self) else { continue }
-//                    onMessageUpdated(message, document.type)
-//                }
-//            }
-//    }
 }
 
 //MARK: - Pagination fetch
 
 extension ChatsManager 
 {
-//    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAfterTimestamp timestamp: Date, ascending: Bool) async throws -> [Message]
-//    {
-//        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
-//        return try await messagesReference.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp).limit(to: limit).getDocuments(as: Message.self)
-//    }
-    
-    
     func fetchMessagesFromChat(chatID: String,
                                startingFrom messageID: String?,
                                inclusive: Bool,
-                               fetchDirection: MessagesFetchDirection) async throws -> [Message]
+                               fetchDirection: MessagesFetchDirection,
+                               limit: Int = 80) async throws -> [Message]
     {
         var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
 
@@ -389,37 +282,13 @@ extension ChatsManager
             }
         }
         
-        return try await query.limit(to: queryLimit)
+        return try await query.limit(to: limit)
             .getDocuments(as: Message.self)
     }
-//    
-//    func fetchMessages(from chatID: String, messagesQueryLimit limit: Int, startAtTimestamp timestamp: Date?, direction: MessagesFetchDirection) async throws -> [Message] {
-//        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
-//        
-//        var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
-//        
-//        if let timestamp = timestamp {
-//            query = query.whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
-//        }
-//        
-//        if direction == .ascending {
-//            query = messagesReference
-//                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
-//                .order(by: Message.CodingKeys.timestamp.rawValue, descending: false) // ascending order
-//        } else if direction == .descending {
-//            query = messagesReference
-//                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
-//                .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending order
-//        } else {
-//            query = messagesReference
-//                .whereField(Message.CodingKeys.timestamp.rawValue, isLessThan: timestamp)
-//                .whereField(Message.CodingKeys.timestamp.rawValue, isGreaterThan: timestamp)
-//                .order(by: Message.CodingKeys.timestamp.rawValue, descending: true) // descending
-//        }
-//
-//        return try await query.limit(to: limit).getDocuments(as: Message.self)
-//    }
 }
+
+
+
 
 //MARK: Testing functions
 extension ChatsManager {
