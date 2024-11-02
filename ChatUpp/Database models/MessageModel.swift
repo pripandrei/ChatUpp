@@ -99,39 +99,4 @@ class Message: Object, Codable
         self.isEdited = isEdited
         self.repliedTo = repliedTo
     }
-    
-//    func updateMessageText(_ text: String) -> Message {
-//        return Message(id: self.id, messageBody: text, senderId: self.senderId, timestamp: self.timestamp, messageSeen: !self.messageSeen, isEdited: true, imagePath: self.imagePath,  imageSize: self.imageSize, repliedTo: self.repliedTo)
-//    }
-//    
-//    func updateMessageSeenStatus() -> Message {
-//        return Message(id: self.id, messageBody: self.messageBody, senderId: self.senderId, timestamp: self.timestamp, messageSeen: !self.messageSeen, isEdited: self.isEdited, imagePath: self.imagePath,  imageSize: self.imageSize, repliedTo: self.repliedTo)
-//    }
 }
-
-
-//struct RecentMessage: Codable {
-//    let messageBody: String
-//    let sentBy: String
-//    let timestamp: String
-//
-//    enum CodingKeys: String, CodingKey {
-//        case messageBody = "message_body"
-//        case sentBy = "sent_by"
-//        case timestamp = "timestamp"
-//    }
-//    
-//    init(from decoder: Decoder) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        self.messageBody = try container.decode(String.self, forKey: .messageBody)
-//        self.sentBy = try container.decode(String.self, forKey: .sentBy)
-//        self.timestamp = try container.decode(String.self, forKey: .timestamp)
-//    }
-//    
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(messageBody, forKey: .messageBody)
-//        try container.encode(sentBy, forKey: .sentBy)
-//        try container.encode(timestamp, forKey: .timestamp)    
-//    }
-//}
