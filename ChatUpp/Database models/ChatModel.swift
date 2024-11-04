@@ -8,11 +8,13 @@
 import Foundation
 import RealmSwift
 
-class Chat: Object, Codable {
+class Chat: Object, Codable 
+{
     @Persisted(primaryKey: true) var id: String
     @Persisted var participants: List<String>
     @Persisted var recentMessageID: String?
     @Persisted var messagesCount: Int?
+    @Persisted var isFirstTimeOpened: Bool?
     
     @Persisted var conversationMessages: List<Message>
     

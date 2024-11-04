@@ -92,7 +92,7 @@ final class ConversationViewModel
     private var listeners: [Listener] = []
     
     var unreadMessagesCount: Int = 22
-    var isChatFetchedFirstTime: Bool = false
+//    var isChatFetchedFirstTime: Bool = false
     @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
     
     private(set) var conversation: Chat?
@@ -123,6 +123,11 @@ final class ConversationViewModel
                 localMessagesCount > 0 else { return false }
         let isLocalUnreadMessageCountNotEquelToRemoteCount = unreadMessagesCount != getUnreadMessagesCountFromRealm()
         return isLocalUnreadMessageCountNotEquelToRemoteCount || isChatFetchedFirstTime
+    }
+    
+    private var isChatFetchedFirstTime: Bool
+    {
+        conversation?.isFirstTimeOpened ?? true
     }
     
     private var displayLastMessage: Bool {
@@ -333,6 +338,12 @@ extension ConversationViewModel
         RealmDBManager.shared.add(object: chat)
     }
     
+    func updateChatOpenStatusIfNeeded() 
+    {
+        guard let conversation = conversation, conversation.isFirstTimeOpened == true else { return }
+        RealmDBManager.shared.update(object: conversation) { $0.isFirstTimeOpened = false }
+    }
+
     
     private func updateMessage(_ message: Message) {
         RealmDBManager.shared.add(object: message)

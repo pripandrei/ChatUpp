@@ -146,6 +146,7 @@ final class ConversationViewController: UIViewController {
                 case .finished:
                     self.refreshTableView()
                     self.conversationViewModel.addListeners()
+                    self.conversationViewModel.updateChatOpenStatusIfNeeded()
                 default: break
                 }
             }.store(in: &subscriptions)
