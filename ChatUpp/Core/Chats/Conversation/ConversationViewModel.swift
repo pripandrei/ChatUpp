@@ -98,7 +98,7 @@ final class ConversationViewModel
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
     var messageGroups: [ConversationMessageGroup] = []
-    private(set) var (userListener,messageListener): (Listener?, Listener?)
+//    private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     
@@ -146,6 +146,12 @@ final class ConversationViewModel
         
         addListenerToUpcomingMessages()
         addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
+    }
+    
+    func removeAllListeners() 
+    {
+        listeners.forEach{ $0.remove() }
+        userObserver?.removeAllObservers()
     }
     
     private func createChat() -> Chat
@@ -374,7 +380,7 @@ extension ConversationViewModel
     
     func addUsersListener()
     {
-        self.userListener = UserManager
+        let userListener = UserManager
             .shared
             .addListenerToUsers([participant.userId]) { [weak self] users, documentsTypes in
             guard let self = self else {return}
@@ -382,6 +388,7 @@ extension ConversationViewModel
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
             self.participant = user
         }
+        self.listeners.append(userListener)
     }
 }
 

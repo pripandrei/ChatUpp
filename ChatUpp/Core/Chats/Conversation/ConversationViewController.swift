@@ -104,6 +104,8 @@ final class ConversationViewController: UIViewController {
     deinit {
         print("====ConversationVC Deinit")
     }
+    
+    
 
     private func setupController()
     {
@@ -217,8 +219,7 @@ final class ConversationViewController: UIViewController {
     
     private func cleanUp() {
         NotificationCenter.default.removeObserver(self)
-        conversationViewModel.messageListener?.remove()
-        conversationViewModel.userListener?.remove()
+        conversationViewModel.removeAllListeners()
         coordinatorDelegate = nil
         conversationViewModel = nil
         tableViewDataSource = nil
