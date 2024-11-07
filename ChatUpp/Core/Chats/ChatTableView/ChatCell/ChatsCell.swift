@@ -12,11 +12,11 @@ import Combine
 
 class ChatsCell: UITableViewCell {
     
+    private var cellViewModel: ChatCellViewModel!
     private var messageLable = CustomMessageLabel()
     private var nameLabel = UILabel()
     private var profileImage = UIImageView()
     private var dateLable = UILabel()
-    private var cellViewModel: ChatCellViewModel!
     private var unreadMessagesCountLabel = UILabel()
     private var onlineStatusCircleView = UIView()
     
@@ -54,7 +54,7 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setOnlineStatusActivity() {
-        if let activeStatus = cellViewModel.participant?.isActive {
+        if let activeStatus = cellViewModel.chatUser?.isActive {
             onlineStatusCircleView.isHidden = !activeStatus
         }
     }
@@ -84,7 +84,7 @@ class ChatsCell: UITableViewCell {
 //                self.setImage(imageData)
             }.store(in: &subscriptions)
         
-        cellViewModel.$participant
+        cellViewModel.$chatUser
             .receive(on: DispatchQueue.main)
             .sink { member in
                 if let member = member {
@@ -127,7 +127,7 @@ class ChatsCell: UITableViewCell {
     //MARK: - Image setup
     
     private func setupMemberImage() {
-        guard let member = cellViewModel.participant else { return }
+        guard let member = cellViewModel.chatUser else { return }
 //        
         if member.photoUrl == nil {
             /// set local image

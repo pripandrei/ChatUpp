@@ -156,7 +156,7 @@ class ChatsViewController: UIViewController {
             
             let conversation = chatsViewModel.cellViewModels[index].chat
             
-            guard let user = chatCell.participant,
+            guard let user = chatCell.chatUser,
                   let userName = user.name else {return nil}
             
             let nameSubstrings = userName.lowercased().components(separatedBy: delimiters)
@@ -267,7 +267,7 @@ extension ChatsViewController: UITableViewDelegate
         
         let cellVM = self.chatsViewModel.cellViewModels[indexPath.item]
 
-        guard let user = cellVM.participant else {return}
+        guard let user = cellVM.chatUser else {return}
         
         let chat = cellVM.chat
         let memberPhoto = cellVM.memberProfileImage

@@ -55,7 +55,7 @@ extension ChatsViewModel {
     }
     
     private func removeCellViewModel(containing chat: Chat) {
-        cellViewModels.removeAll(where: {$0.participant?.id == chat.id})
+        cellViewModels.removeAll(where: {$0.chatUser?.id == chat.id})
     }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
