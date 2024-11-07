@@ -358,8 +358,10 @@ extension ConversationViewModel
     
     func updateChatOpenStatusIfNeeded() 
     {
-        guard let conversation = conversation, conversation.isFirstTimeOpened == true else { return }
-        RealmDBManager.shared.update(object: conversation) { $0.isFirstTimeOpened = false }
+        guard let conversation = conversation else { return }
+        if conversation.isFirstTimeOpened != false {
+            RealmDBManager.shared.update(object: conversation) { $0.isFirstTimeOpened = false }
+        }
     }
 
     
