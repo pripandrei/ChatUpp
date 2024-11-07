@@ -66,7 +66,7 @@ extension ChatsManager
 
 //MARK: - Fetch messages
 
-extension ChatsManager 
+extension ChatsManager
 {
     
     func getMessagesCount(fromChatDocumentPath documentPath: String) async throws -> Int  {
@@ -145,15 +145,16 @@ extension ChatsManager
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
-    @MainActor
-    func updateMessagesCount(in chat: Chat) async throws
-    {
-        guard let count = chat.messagesCount else {return}
-        let data: [String: Any] = [
-            Chat.CodingKeys.messagesCount.rawValue : count + 1
-        ]
-        try await chatDocument(documentPath: chat.id).updateData(data)
-    }
+//    @MainActor
+//    func updateMessagesCount(inChat chatID: String) async throws
+//    {
+////        guard let count = chat.messagesCount else {return}
+//        let data: [String: Any] = [
+////            Chat.CodingKeys.messagesCount.rawValue : count + 1
+//            Chat.CodingKeys.messagesCount.rawValue : FieldValue.increment(1.0)
+//        ]
+//        try await chatDocument(documentPath: chatID).updateData(data)
+//    }
     
     func updateChatRecentMessage(recentMessageID: String ,chatID: String) async throws {
         let data: [String: Any] = [
@@ -177,7 +178,24 @@ extension ChatsManager
         ]
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
     }
-    
+}
+
+//MARK: - update chat participants
+
+extension ChatsManager
+{
+    func updateUnreadMessageCount(for participantID: String, inChatWithID chatID: String) async throws
+    {
+        let fieldPath = "participants.\(participantID).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
+        
+//        let data: [String: [String:Any]] = [
+//            Chat.CodingKeys.participants.rawValue : [ Participant.CodingKeys.unseenMessagesCount.rawValue : FieldValue.increment(1.0) ]
+//        ]
+        
+        let data = [fieldPath : FieldValue.increment(Int64(1))]
+        
+        try await chatDocument(documentPath: chatID).updateData(data)
+    }
 }
 
 //MARK: - Listeners
@@ -413,5 +431,54 @@ extension ChatsManager {
             }
         }
     }
+    
+    func migrateParticipantsField() {
+
+        // Fetch all chat documents
+        chatsCollection.getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching chat documents: \(error)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else { return }
+            
+            // Iterate over each document
+            for document in documents {
+                let chatId = document.documentID
+                
+                if chatId == "049EDFBC-1F46-465E-B0B6-FEFD8A3C3E16" {
+                    // Get current participants array
+                    if var oldParticipants = document.data()["participants"] as? [String] {
+                        var newParticipantsMap: [String: [String: Any]] = [:]
+                        
+                        // Transform each participant in the array to the new map format
+                        for userId in oldParticipants {
+                            // Generate a new ID for each participant entry
+                            let newId = UUID().uuidString
+                            
+                            newParticipantsMap[newId] = [
+                                "id": newId,
+                                "user_id": userId,
+                                "unseen_messages_count": 0 // default initial value
+                            ]
+                        }
+                        
+                        // Update the document with the new participants structure
+                        self.chatsCollection.document(chatId).updateData(["participants": newParticipantsMap]) { error in
+                            if let error = error {
+                                print("Error updating chat \(chatId): \(error)")
+                            } else {
+                                print("Successfully updated chat \(chatId)")
+                            }
+                        }
+                    } else {
+                        print("No participants array found for chat \(chatId)")
+                    }
+                }
+            }
+        }
+    }
+
 
 }

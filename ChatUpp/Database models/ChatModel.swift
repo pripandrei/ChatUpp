@@ -8,14 +8,57 @@
 import Foundation
 import RealmSwift
 
+
+class ChatParticipant: Object, Codable
+{
+    @Persisted(primaryKey: true) var id: String
+    @Persisted var userID: String
+    @Persisted var unseenMessagesCount: Int
+    
+    enum CodingKeys: String, CodingKey 
+    {
+//        case id = "id"
+        case userID = "user_id"
+        case unseenMessagesCount = "unseen_messages_count"
+    }
+    
+    convenience init(userID: String, unseenMessageCount: Int)
+    {
+        self.init()
+        
+        self.id = UUID().uuidString
+        self.userID = userID
+        self.unseenMessagesCount = unseenMessageCount
+    }
+    
+    convenience required init(from decoder: Decoder) throws
+    {
+        self.init()
+        
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.id = try container.decode(String.self, forKey: .id)
+        self.userID = try container.decode(String.self, forKey: .userID)
+        self.unseenMessagesCount = try container.decode(Int.self, forKey: .unseenMessagesCount)
+    }
+    
+    func encode(to encoder: Encoder) throws 
+    {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(self.id, forKey: .id)
+        try container.encode(self.userID, forKey: .userID)
+        try container.encode(self.unseenMessagesCount, forKey: .unseenMessagesCount)
+    }
+}
+
 class Chat: Object, Codable 
 {
     @Persisted(primaryKey: true) var id: String
-    @Persisted var participants: List<String>
     @Persisted var recentMessageID: String?
     @Persisted var messagesCount: Int?
-    @Persisted var isFirstTimeOpened: Bool?
+    @Persisted var participants: List<ChatParticipant>
     
+    /// isFirstTimeOpened and conversationMessages field are present only in local database
+    @Persisted var isFirstTimeOpened: Bool?
     @Persisted var conversationMessages: List<Message>
     
     enum CodingKeys: String, CodingKey {
@@ -32,8 +75,15 @@ class Chat: Object, Codable
         self.id = try container.decode(String.self, forKey: .id)
         self.recentMessageID = try container.decodeIfPresent(String.self, forKey: .recentMessageID)
         self.messagesCount = try container.decodeIfPresent(Int.self, forKey: .messagesCount)
-        let participants = try container.decode([String].self, forKey: .participants)
-        self.participants.append(objectsIn: participants)
+        
+        let participants = try container.decode([String:ChatParticipant].self, forKey: .participants)
+        for (participantID, participant) in participants {
+            participant.id = participantID
+            self.participants.append(participant)
+        }
+        
+//        let participants = try container.decode([Participant].self, forKey: .participants)
+//        self.participants.append(objectsIn: participants)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -42,9 +92,16 @@ class Chat: Object, Codable
         try container.encode(self.participants, forKey: .participants)
         try container.encodeIfPresent(self.recentMessageID, forKey: .recentMessageID)
         try container.encodeIfPresent(self.messagesCount, forKey: .messagesCount)
+        
+        var dictParticipants: [String:ChatParticipant] = [:]
+        for participant in participants {
+            dictParticipants[participant.id] = participant
+        }
+        try container.encode(dictParticipants, forKey: .participants)
     }
     
-    convenience init(id: String, participants: [String], recentMessageID: String?, messagesCount: Int? = 0) {
+    convenience init(id: String, participants: [ChatParticipant], recentMessageID: String?, messagesCount: Int? = 0)
+    {
         self.init()
         
         self.id = id
@@ -67,6 +124,10 @@ class Chat: Object, Codable
     
     func getFirstMessage() -> Message? {
         return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true).first
+    }
+    
+    func getParticipant(byID ID: String) -> ChatParticipant? {
+        return participants.first(where: { $0.userID == ID })
     }
     
 //    func incrementMessageCount() {

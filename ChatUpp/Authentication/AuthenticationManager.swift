@@ -26,12 +26,12 @@ struct AuthDataResultModel {
     let name: String?
     let phoneNumber: String?
     
-    init(user: User) {
-        self.uid = user.uid
-        self.email = user.email
-        self.photoURL = user.photoURL?.absoluteString
-        self.name = user.displayName
-        self.phoneNumber = user.phoneNumber
+    init(firebaseAuthUser: FirebaseAuth.User) {
+        self.uid = firebaseAuthUser.uid
+        self.email = firebaseAuthUser.email
+        self.photoURL = firebaseAuthUser.photoURL?.absoluteString
+        self.name = firebaseAuthUser.displayName
+        self.phoneNumber = firebaseAuthUser.phoneNumber
     }
 }
 
@@ -46,7 +46,7 @@ final class AuthenticationManager
     @discardableResult
     func getAuthenticatedUser() throws -> AuthDataResultModel {
         if let user = Auth.auth().currentUser {
-            return AuthDataResultModel(user: user)
+            return AuthDataResultModel(firebaseAuthUser: user)
         }
         throw AuthenticationStatus.userIsNotAuthenticated
     }
@@ -114,7 +114,7 @@ extension AuthenticationManager {
                 complition(nil)
                 return
             }
-            let authDataResultModel = AuthDataResultModel(user: result.user)
+            let authDataResultModel = AuthDataResultModel(firebaseAuthUser: result.user)
             complition(authDataResultModel)
         }
     }
@@ -126,7 +126,7 @@ extension AuthenticationManager {
                 complition(nil)
                 return
             }
-            let authDataResultModel = AuthDataResultModel(user: result.user)
+            let authDataResultModel = AuthDataResultModel(firebaseAuthUser: result.user)
             complition(authDataResultModel)
         }
     }
@@ -158,7 +158,7 @@ extension AuthenticationManager {
                 return
             }
 //            result.user.
-            let authDataModel = AuthDataResultModel(user: result.user)
+            let authDataModel = AuthDataResultModel(firebaseAuthUser: result.user)
             complition(authDataModel)
         }
     }
@@ -179,7 +179,7 @@ extension AuthenticationManager {
     func signinWithPhoneSMS(using verificationID:String, verificationCode: String) async throws -> AuthDataResultModel {
         let credentials = createOTPCredentials(with: verificationID, verificationCode: verificationCode)
         let result = try await Auth.auth().signIn(with: credentials)
-        let authDataModel = AuthDataResultModel(user: result.user)
+        let authDataModel = AuthDataResultModel(firebaseAuthUser: result.user)
         return authDataModel
     }
 }

@@ -10,6 +10,8 @@ import Combine
 
 final class ChatsViewModel {
     
+    //TODO: - remove listeners
+    
     private(set) var cellViewModels = [ChatCellViewModel]()
     private(set) var usersListener: Listener?
     private(set) var chatsListener: Listener?
@@ -53,7 +55,7 @@ extension ChatsViewModel {
     }
     
     private func removeCellViewModel(containing chat: Chat) {
-        cellViewModels.removeAll(where: {$0.member?.userId == chat.id})
+        cellViewModels.removeAll(where: {$0.participant?.id == chat.id})
     }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
@@ -69,7 +71,8 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     private func retrieveChatsFromRealm() -> [Chat] {
-        let filter = NSPredicate(format: "ANY \(Chat.CodingKeys.participants.rawValue) == %@", authUser.uid)
+        //TODO: - adjust by participants retrieve after update
+        let filter = NSPredicate(format: "ANY \(Chat.CodingKeys.participants.rawValue).userID == %@", authUser.uid)
         return RealmDBManager.shared.retrieveObjects(ofType: Chat.self, filter: filter)
     }
     

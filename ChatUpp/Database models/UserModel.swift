@@ -10,9 +10,9 @@ import RealmSwift
 
 // MARK: - User model
 
-class DBUser: Object, Codable
+class User: Object, Codable
 {
-    @Persisted(primaryKey: true) var userId: String
+    @Persisted(primaryKey: true) var id: String
     @Persisted var name: String?
     @Persisted var dateCreated: Date?
     @Persisted var email: String?
@@ -23,7 +23,7 @@ class DBUser: Object, Codable
     var nickname: String?
         
         enum CodingKeys: String, CodingKey {
-            case userId = "user_id"
+            case id = "user_id"
             case name = "name"
             case dateCreated = "date_created"
             case email = "email"
@@ -37,7 +37,7 @@ class DBUser: Object, Codable
     convenience init(auth: AuthDataResultModel) {
         self.init()
         
-        self.userId = auth.uid
+        self.id = auth.uid
         self.name = auth.name
         self.email = auth.email
         self.photoUrl = auth.photoURL
@@ -60,7 +60,7 @@ class DBUser: Object, Codable
     {
         self.init()
         
-        self.userId = userId
+        self.id = userId
         self.name = name
         self.email = email
         self.photoUrl = photoUrl
@@ -74,7 +74,7 @@ class DBUser: Object, Codable
         self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.userId = try container.decode(String.self, forKey: .userId)
+        self.id = try container.decode(String.self, forKey: .id)
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
         self.dateCreated = try container.decodeIfPresent(Date.self, forKey: .dateCreated)
         self.email = try container.decodeIfPresent(String.self, forKey: .email)
@@ -94,7 +94,7 @@ class DBUser: Object, Codable
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.userId, forKey: .userId)
+        try container.encode(self.id, forKey: .id)
         try container.encodeIfPresent(self.name, forKey: .name)
         try container.encodeIfPresent(self.dateCreated, forKey: .dateCreated)
         try container.encodeIfPresent(self.email, forKey: .email)
@@ -109,8 +109,8 @@ class DBUser: Object, Codable
 
 //MARK: - Temporary methods while firebase functions are deactivated
 
-extension DBUser {
-    func updateActiveStatus(lastSeenDate: Date, isActive: Bool) -> DBUser {
-        return DBUser(userId: self.userId, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeenDate.toLocalTime(), isActive: isActive)
+extension User {
+    func updateActiveStatus(lastSeenDate: Date, isActive: Bool) -> User {
+        return User(userId: self.id, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeenDate.toLocalTime(), isActive: isActive)
     }
 }

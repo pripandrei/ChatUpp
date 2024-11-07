@@ -128,10 +128,10 @@ final class ConversationViewController: UIViewController {
     {
         self.toggleSkeletonAnimation(.terminated)
         self.rootView.tableView.reloadData()
-        let indexPath = IndexPath(row: 15, section: 0)
-//        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
+//        let indexPath = IndexPath(row: 15, section: 0)
+        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPath)
-//        }
+        }
         self.didFinishInitialScroll = true
 //        self.view.layoutSubviews()
     }
@@ -151,7 +151,7 @@ final class ConversationViewController: UIViewController {
                 }
             }.store(in: &subscriptions)
         
-        conversationViewModel.$participant
+        conversationViewModel.$chatUser
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
                 guard let self = self else {return}
@@ -285,7 +285,7 @@ final class ConversationViewController: UIViewController {
     /// - Navigation bar items setup
     private func setNavigationBarItems() {
         let imageData = conversationViewModel.memberProfileImage 
-        let member = conversationViewModel.participant
+        let member = conversationViewModel.chatUser
         var memberActiveStatus: String
         
         memberActiveStatus = member.isActive ?? false ?
@@ -473,7 +473,7 @@ extension ConversationViewController {
         rootView.scrollToBottomBtn.addTarget(self, action: #selector(scrollToBottomBtnWasTapped), for: .touchUpInside)
     }
     private func addTargetToSendMessageBtn() {
-        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageBtnWasTapped), for: .touchUpInside)
+        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageTapped), for: .touchUpInside)
     }
     private func addTargetToAddPictureBtn() {
         rootView.addPictureButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
@@ -494,7 +494,7 @@ extension ConversationViewController {
         animateInputBarHeaderViewDestruction()
     }
     
-    @objc func sendMessageBtnWasTapped() 
+    @objc func sendMessageTapped() 
     {
         let trimmedString = getTrimmedString()
         if !trimmedString.isEmpty

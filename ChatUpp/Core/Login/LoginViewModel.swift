@@ -57,7 +57,7 @@ extension LoginViewModel {
                     return
                 }
                 
-                let dbUser = DBUser(auth: authResultModel)
+                let dbUser = User(auth: authResultModel)
                 UserManager.shared.createNewUser(user: dbUser) { isCreated in
                    isCreated ? (self?.loginStatus.value = .userIsAuthenticated) : nil
                 }

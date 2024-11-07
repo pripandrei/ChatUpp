@@ -8,7 +8,8 @@
 import Foundation
 import RealmSwift
 
-class MessageImageSize: Object, Codable {
+class MessageImageSize: Object, Codable 
+{
     @Persisted(primaryKey: true) private var id: String = UUID().uuidString
     @Persisted var width: Int
     @Persisted var height: Int
@@ -17,6 +18,7 @@ class MessageImageSize: Object, Codable {
         self.width = width
         self.height = height
     }
+    
     override init() {
         super.init()
     }

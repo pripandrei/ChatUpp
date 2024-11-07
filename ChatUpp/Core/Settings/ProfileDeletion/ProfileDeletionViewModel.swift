@@ -11,12 +11,12 @@ final class ProfileDeletionViewModel {
     
     var verificationID: String?
     
-    let dbUser: DBUser
+    let user: User
     
     let userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
     
-    init(dbUser: DBUser) {
-        self.dbUser = dbUser
+    init(user: User) {
+        self.user = user
     }
     
     func signOut() {
@@ -43,10 +43,10 @@ final class ProfileDeletionViewModel {
         let deletedUserID = UserManager.mainDeletedUserID
     
         try await AuthenticationManager.shared.deleteAuthUser()
-        try await ChatsManager.shared.replaceUserId(dbUser.userId, with: deletedUserID)
-        if let photoURL = dbUser.photoUrl {
-            try await StorageManager.shared.deleteProfileImage(ofUser: dbUser.userId, path: photoURL)
+        try await ChatsManager.shared.replaceUserId(user.id, with: deletedUserID)
+        if let photoURL = user.photoUrl {
+            try await StorageManager.shared.deleteProfileImage(ofUser: user.id, path: photoURL)
         }
-        try await UserManager.shared.deleteUserFromDB(userID: dbUser.userId)
+        try await UserManager.shared.deleteUserFromDB(userID: user.id)
     }
 }

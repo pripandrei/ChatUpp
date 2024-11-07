@@ -158,7 +158,7 @@ extension ResultsTableController
             let user = self.filteredUsers[indexPath.item].participant
             let chat = self.filteredUsers[indexPath.item].chat
             let memberPhoto = self.filteredUsers[indexPath.item].userImageData.value
-            let conversationViewModel = ConversationViewModel(participant: user, conversation: chat, imageData: memberPhoto)
+            let conversationViewModel = ConversationViewModel(conversationUser: user, conversation: chat, imageData: memberPhoto)
             
             self.coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
         }

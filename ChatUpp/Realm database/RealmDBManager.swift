@@ -31,7 +31,7 @@ final class RealmDBManager {
     
     static var shared = RealmDBManager()
     
-    static private let schemaVersion: UInt64 = 12
+    static private let schemaVersion: UInt64 = 14
     
     private var realm: Realm?
     
@@ -39,12 +39,17 @@ final class RealmDBManager {
         initiateDatabase()
     }
     
-    private func initiateDatabase() {
+    private func initiateDatabase() 
+    {
         Realm.Configuration.defaultConfiguration = createConfiguration()
-        realm = try? Realm()
+        do {
+            realm = try Realm()
+        } catch {
+            print("Error initiating Realm database: ", error.localizedDescription)
+        }
     }
     
-    private func createConfiguration() -> Realm.Configuration 
+    private func createConfiguration() -> Realm.Configuration
     {
         return Realm.Configuration(
             schemaVersion: RealmDBManager.schemaVersion,
@@ -54,6 +59,43 @@ final class RealmDBManager {
                         let oldKey = "members"
                         let newKey = Chat.CodingKeys.participants.rawValue
                         newObject![newKey] = oldObject![oldKey]
+                    }
+                }
+                
+                if oldSchemaVersion < 13 {
+                    migration.enumerateObjects(ofType: Chat.className()) { oldObject, newObject in
+                        
+                        let key = "participants"
+                        var newParticipantList = [MigrationObject]()
+                        
+                        if let participantsID = oldObject![key] as? List<String>
+                        {
+                            for id in participantsID
+                            {
+                                let participant = ChatParticipant(userID: id, unseenMessageCount: 0)
+                                let migrationParticipantObject = migration.create(ChatParticipant.className(), value: participant)
+                                newParticipantList.append(migrationParticipantObject)
+                            }
+                        }
+                        newObject![key] = newParticipantList
+                    }
+                }
+                
+                if oldSchemaVersion < 14
+                {
+                    migration.enumerateObjects(ofType: "DBUser") { oldObject, newObject in
+                        guard let oldObject = oldObject else {return}
+                        
+                        let user = migration.create("User", value: [
+                            "id": oldObject["userId"] as? String ?? UUID().uuidString,
+                            "name": oldObject["name"] as? String?,
+                            "dateCreated": oldObject["dateCreated"] as? Date?,
+                            "email": oldObject["email"] as? String?,
+                            "photoUrl": oldObject["photoUrl"] as? String?,
+                            "phoneNumber": oldObject["phoneNumber"] as? String?,
+                            "isActive": oldObject["isActive"] as? Bool?,
+                            "lastSeen": oldObject["lastSeen"] as? Date?
+                        ])
                     }
                 }
             }

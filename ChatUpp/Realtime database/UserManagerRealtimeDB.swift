@@ -35,13 +35,13 @@ final class UserManagerRealtimeDB {
     private var onDisconnectRefListener: DatabaseReference?
     
     /// - create user
-    func createUser(user: DBUser) {
+    func createUser(user: User) {
         let userData: [String: Any?] = [
-            "user_id": user.userId,
+            "user_id": user.id,
             "is_active": user.isActive,
             "last_seen": user.lastSeen!.timeIntervalSince1970
         ]
-            usersReference.child(user.userId).setValue(userData)
+            usersReference.child(user.id).setValue(userData)
     }
     
     /// - update active status
@@ -72,12 +72,12 @@ final class UserManagerRealtimeDB {
         try await onDisconnectRefListener?.cancelDisconnectOperations()
     }
     
-    func addObserverToUsers(_ userID: String, complition: @escaping (DBUser) -> Void) -> RealtimeDBObserver {
+    func addObserverToUsers(_ userID: String, complition: @escaping (User) -> Void) -> RealtimeDBObserver {
         let userRef = usersReference.child(userID)
 
         userRef.observe(.value) { snapshot in
             do {
-                let user = try snapshot.data(as: DBUser.self)
+                let user = try snapshot.data(as: User.self)
                 complition(user)
             } catch {
                 print("Could not decode Realtime DBUser: ", error.localizedDescription)

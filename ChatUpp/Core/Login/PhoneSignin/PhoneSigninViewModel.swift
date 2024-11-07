@@ -28,8 +28,8 @@ final class PhoneSignInViewModel {
         Task {
             do {
                 let resultModel = try await AuthenticationManager.shared.signinWithPhoneSMS(using: verificationID, verificationCode: code)
-                let dbUser = DBUser(auth: resultModel)
-                if let _ = try? await UserManager.shared.getUserFromDB(userID: dbUser.userId) {
+                let dbUser = User(auth: resultModel)
+                if let _ = try? await UserManager.shared.getUserFromDB(userID: dbUser.id) {
                     userCreationStatus.value = .userExists
                 } else {
                     try UserManager.shared.createNewUser(user: dbUser)

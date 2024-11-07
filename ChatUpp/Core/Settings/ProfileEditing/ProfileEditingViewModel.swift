@@ -20,7 +20,7 @@ final class ProfileEditingViewModel {
     private var profilePictureURL: String?
     
     var profileDataIsEdited: ObservableObject<Bool?> = ObservableObject(nil)
-    var userDataToTransferOnSave: ((DBUser, Data?) -> Void)?
+    var userDataToTransferOnSave: ((User, Data?) -> Void)?
     
     private var userData: (name: String?, phone: String?, nickname: String?)
     
@@ -36,10 +36,10 @@ final class ProfileEditingViewModel {
         fatalError("user is missing")
     }
     
-    init(dbUser: DBUser, profilePicutre: Data) {
-        self.userData.name = dbUser.name!
-        self.userData.phone = dbUser.phoneNumber
-        self.userData.nickname = dbUser.nickname
+    init(user: User, profilePicutre: Data) {
+        self.userData.name = user.name!
+        self.userData.phone = user.phoneNumber
+        self.userData.nickname = user.nickname
         self.initialProfilePhoto = profilePicutre
     }
     
@@ -62,7 +62,7 @@ final class ProfileEditingViewModel {
         }
     }
     
-    private func fetchFreshUserFromDB() async throws -> DBUser {
+    private func fetchFreshUserFromDB() async throws -> User {
         return try await UserManager.shared.getUserFromDB(userID: authUser.uid)
     }
     
@@ -88,7 +88,7 @@ final class ProfileEditingViewModel {
         }
     }
     
-    private func updateAuthUser(with dbUser: DBUser) {
+    private func updateAuthUser(with dbUser: User) {
         AuthenticationManager.shared.updateAuthUserData(name: dbUser.name, phoneNumber: dbUser.phoneNumber, photoURL: dbUser.photoUrl)
     }
     
@@ -99,7 +99,8 @@ final class ProfileEditingViewModel {
 
 
 //MARK: - Profile Model
-enum ProfileEditingItems {
+enum ProfileEditingItems 
+{
     case name(String)
     case phone(String)
     case nickName(String)

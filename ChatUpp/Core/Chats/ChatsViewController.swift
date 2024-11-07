@@ -41,7 +41,13 @@ class ChatsViewController: UIViewController {
     // MARK: - UI SETUP
     override func viewDidLoad() {
         super.viewDidLoad()
+        
 //        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        
+//        try? AuthenticationManager.shared.signOut()
+//        ChatsManager.shared.migrateParticipantsField()
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 200) {
+        
         self.chatsViewModel = ChatsViewModel()
         setupBinding()
         configureTableView()
@@ -150,7 +156,7 @@ class ChatsViewController: UIViewController {
             
             let conversation = chatsViewModel.cellViewModels[index].chat
             
-            guard let user = chatCell.member,
+            guard let user = chatCell.participant,
                   let userName = user.name else {return nil}
             
             let nameSubstrings = userName.lowercased().components(separatedBy: delimiters)
@@ -261,13 +267,13 @@ extension ChatsViewController: UITableViewDelegate
         
         let cellVM = self.chatsViewModel.cellViewModels[indexPath.item]
 
-        guard let user = cellVM.member else {return}
+        guard let user = cellVM.participant else {return}
         
         let chat = cellVM.chat
         let memberPhoto = cellVM.memberProfileImage
         let unreadMessageCount = cellVM.unreadMessageCount
         
-        let conversationViewModel = ConversationViewModel(participant: user, conversation: chat, imageData: memberPhoto)
+        let conversationViewModel = ConversationViewModel(conversationUser: user, conversation: chat, imageData: memberPhoto)
         conversationViewModel.updateUnreadMessagesCount = {
             try await cellVM.fetchUnreadMessagesCount()
         }

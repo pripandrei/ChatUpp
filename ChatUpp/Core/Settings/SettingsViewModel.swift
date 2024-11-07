@@ -11,7 +11,7 @@ final class SettingsViewModel {
 
     private(set) var userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
     private(set) var imageData: Data?
-    var dbUser: DBUser?
+    var user: User?
     var onUserFetched: (() -> ())?
     var authProvider: String!
     
@@ -34,17 +34,17 @@ final class SettingsViewModel {
         }
     }
     
-    func updateUserData(_ dbUser: DBUser, _ photoData: Data?) {
-        self.dbUser = dbUser
+    func updateUserData(_ dbUser: User, _ photoData: Data?) {
+        self.user = dbUser
         guard let photo = photoData else {return}
         self.imageData = photo
     }
     
     func fetchUserFromDB() async throws {
         let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
-        self.dbUser = try await UserManager.shared.getUserFromDB(userID: uderID.uid)
+        self.user = try await UserManager.shared.getUserFromDB(userID: uderID.uid)
 //        self.imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
-        if let userID = dbUser?.userId, let photoUrl = dbUser?.photoUrl {
+        if let userID = user?.id, let photoUrl = user?.photoUrl {
             self.imageData = try await StorageManager.shared.getUserImage(userID: userID, path: photoUrl)
         }
         onUserFetched?()
@@ -55,7 +55,7 @@ final class SettingsViewModel {
     }
 
     func deleteUser() async throws {
-        guard let userID = dbUser?.userId else {return}
+        guard let userID = user?.id else {return}
         let deletedUserID = UserManager.mainDeletedUserID
 
         if authProvider == "google" {
@@ -63,7 +63,7 @@ final class SettingsViewModel {
         }
         try await AuthenticationManager.shared.deleteAuthUser()
         try await ChatsManager.shared.replaceUserId(userID, with: deletedUserID)
-        try await StorageManager.shared.deleteProfileImage(ofUser: userID, path: dbUser!.photoUrl!)
+        try await StorageManager.shared.deleteProfileImage(ofUser: userID, path: user!.photoUrl!)
         try await UserManager.shared.deleteUserFromDB(userID: userID)
     }
     

@@ -55,7 +55,7 @@ extension ConversationViewModel
         guard var messages = conversation?.getMessages(),
                 !messages.isEmpty else { return }
         
-        if displayLastMessage == false
+        if shouldDisplayLastMessage == false
         {
             messages.removeFirst()
         }
@@ -64,16 +64,16 @@ extension ConversationViewModel
 
     func initiateConversation() 
     {
-        //MARK: - implement listener array cleaner
-//        guard !shouldFetchNewMessages else {
-//            conversationInitializationStatus = .inProgress
-//            initiateConversationWithRemoteData()
-//            return
-//        }
+        guard !shouldFetchNewMessages else {
+            conversationInitializationStatus = .inProgress
+            initiateConversationWithRemoteData()
+            return
+        }
         initiateConversationUsingLocalData()
     }
     
-    private func initiateConversationWithRemoteData() {
+    private func initiateConversationWithRemoteData() 
+    {
         Task { @MainActor in
             let messages = try await fetchConversationMessages()
             addMessagesToConversationInRealm(messages)
@@ -89,57 +89,59 @@ extension ConversationViewModel
 
 final class ConversationViewModel 
 {
-    private var listeners: [Listener] = []
-    
-    var unreadMessagesCount: Int = 22
-//    var isChatFetchedFirstTime: Bool = false
-    @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
+    //    var isChatFetchedFirstTime: Bool = false
     
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
-    var messageGroups: [ConversationMessageGroup] = []
-//    private(set) var (userListener,messageListener): (Listener?, Listener?)
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
+    private var listeners: [Listener] = []
+    var messageGroups: [ConversationMessageGroup] = []
+    //    private(set) var (userListener,messageListener): (Listener?, Listener?)
     
-    @Published private(set) var participant: DBUser
+    @Published private(set) var chatUser: User
     @Published var messageChangedType: MessageChangeType?
+    @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
     
     var shouldEditMessage: ((String) -> Void)?
     var updateUnreadMessagesCount: (() async throws -> Void)?
     var currentlyReplyToMessageID: String?
     
-    var conversationIsInitiated: Bool {
+    private var conversationExists: Bool {
         return self.conversation != nil
+    }
+    
+    var unreadMessagesCount: Int {
+        conversation?.participants.first(where: { $0.userID == authenticatedUserID })?.unseenMessagesCount ?? 0
+    }
+    
+    private var isChatFetchedFirstTime: Bool {
+        conversation?.isFirstTimeOpened ?? true
+    }
+    
+    private var shouldDisplayLastMessage: Bool {
+        unreadMessagesCount == getUnreadMessagesCountFromRealm()
     }
     
     private var firstMessage: Message? {
         conversation?.getFirstMessage()
     }
-    
-    var shouldFetchNewMessages: Bool 
-    {
-        guard let localMessagesCount = conversation?.conversationMessages.count,
-                localMessagesCount > 0 else { return false }
-        let isLocalUnreadMessageCountNotEquelToRemoteCount = unreadMessagesCount != getUnreadMessagesCountFromRealm()
-        return isLocalUnreadMessageCountNotEquelToRemoteCount || isChatFetchedFirstTime
+
+    var shouldFetchNewMessages: Bool {
+        guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
+            return false
+        }
+        return ( unreadMessagesCount != getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
     }
-    
-    private var isChatFetchedFirstTime: Bool
-    {
-        conversation?.isFirstTimeOpened ?? true
-    }
-    
-    private var displayLastMessage: Bool {
-        unreadMessagesCount == getUnreadMessagesCountFromRealm()
-    }
-    
-    init(participant: DBUser, conversation: Chat? = nil, imageData: Data?) {
-        self.participant = participant
+
+    init(conversationUser: User, conversation: Chat? = nil, imageData: Data?) {
+        self.chatUser = conversationUser
         self.conversation = conversation
         self.memberProfileImage = imageData
         
-        initiateConversation()
+        if conversationExists {
+            initiateConversation()
+        }
     }
 
     func addListeners() {
@@ -159,13 +161,26 @@ final class ConversationViewModel
         userObserver?.removeAllObservers()
     }
     
+    func resetCurrentReplyMessageIfNeeded() {
+        if currentlyReplyToMessageID != nil {
+            currentlyReplyToMessageID = nil
+        }
+    }
+    
     private func createChat() -> Chat
     {
         let chatId = UUID().uuidString
-        let participants = [authenticatedUserID, participant.userId]
+        let participants = createParticipants()
         let recentMessageID = messageGroups.first?.cellViewModels.first?.cellMessage.id
         let messagesCount = messageGroups.first?.cellViewModels.count
         return Chat(id: chatId, participants: participants, recentMessageID: recentMessageID, messagesCount: messagesCount)
+    }
+    
+    private func createParticipants() -> [ChatParticipant]
+    {
+        let firstParticipant = ChatParticipant(userID: authenticatedUserID, unseenMessageCount: 0)
+        let secondParticipant = ChatParticipant(userID: chatUser.id, unseenMessageCount: 0)
+        return [firstParticipant,secondParticipant]
     }
     
     private func createNewMessage(_ messageBody: String) -> Message {
@@ -182,8 +197,22 @@ final class ConversationViewModel
                        repliedTo: currentlyReplyToMessageID)
     }
     
+    func manageMessageCreation(_ messageText: String)
+    {
+        let message = createNewMessage(messageText)
+        
+        resetCurrentReplyMessageIfNeeded()
+        addMessageToRealmChat(message)
+        createMessageGroupsWith([message], ascending: true)
+        
+        Task { @MainActor in
+            await addMessageToFirestoreDataBase(message)
+            await updateRecentMessageFromFirestoreChat(messageID: message.id)
+        }
+    }
+    
     func createConversationIfNeeded() {
-        if !conversationIsInitiated 
+        if !conversationExists
         {
             let chat = createChat()
             conversation = chat
@@ -202,28 +231,17 @@ final class ConversationViewModel
         }
     }
     
-    func manageMessageCreation(_ messageText: String) 
+    func updateUnseenMessageCounter() 
     {
-        guard let chat = conversation else {return}
+        guard let conversation = conversation,
+              let participant = conversation.getParticipant(byID: chatUser.id) else {return}
         
-        let message = createNewMessage(messageText)
-        
-        resetCurrentReplyMessageIfNeeded()
-        addMessageToRealmChat(message)
-//        chat.incrementMessageCount()
-        createMessageGroupsWith([message], ascending: true)
-        
-        Task { @MainActor in
-            await addMessageToFirestoreDataBase(message)
-            await updateRecentMessageFromFirestoreChat(messageID: message.id)
-            try await ChatsManager.shared.updateMessagesCount(in: chat)
+        RealmDBManager.shared.update(object: participant) { participant in
+            participant.unseenMessagesCount += 1
         }
         
-    }
-    
-    func resetCurrentReplyMessageIfNeeded() {
-        if currentlyReplyToMessageID != nil { 
-            currentlyReplyToMessageID = nil
+        Task { @MainActor in
+            try await ChatsManager.shared.updateUnreadMessageCount(for: participant.userID, inChatWithID: conversation.id)
         }
     }
     
@@ -374,16 +392,16 @@ extension ConversationViewModel
     func addUserObserver() {
         userObserver = UserManagerRealtimeDB
             .shared
-            .addObserverToUsers(participant.userId) { [weak self] realtimeDBUser in
+            .addObserverToUsers(chatUser.id) { [weak self] realtimeDBUser in
                 
             guard let self = self else {return}
             
-            if realtimeDBUser.isActive != self.participant.isActive
+            if realtimeDBUser.isActive != self.chatUser.isActive
             {
                 if let date = realtimeDBUser.lastSeen,
                     let isActive = realtimeDBUser.isActive
                 {
-                    self.participant = self.participant.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    self.chatUser = self.chatUser.updateActiveStatus(lastSeenDate: date,isActive: isActive)
                 }
             }
         }
@@ -393,11 +411,11 @@ extension ConversationViewModel
     {
         let userListener = UserManager
             .shared
-            .addListenerToUsers([participant.userId]) { [weak self] users, documentsTypes in
+            .addListenerToUsers([chatUser.id]) { [weak self] users, documentsTypes in
             guard let self = self else {return}
             // since we are listening only for one user, we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self.participant = user
+            self.chatUser = user
         }
         self.listeners.append(userListener)
     }
@@ -433,7 +451,8 @@ extension ConversationViewModel
     
     func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100) {
         guard let conversationID = conversation?.id
-                /*let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage */else { return }
+                /*let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage */
+        else { return }
         
         let listener = ChatsManager.shared.addListenerForExistingMessages(
             inChat: conversationID,
@@ -678,7 +697,7 @@ extension ConversationViewModel
         if id == user.uid {
             return user.name
         } else {
-            return participant.name
+            return chatUser.name
         }
     }
     

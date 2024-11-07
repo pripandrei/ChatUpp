@@ -19,7 +19,7 @@ final class AlgoliaSearchManager {
     
     private init() {  }
 
-    func performSearch(_ searchText: String) async -> [DBUser] 
+    func performSearch(_ searchText: String) async -> [User] 
     {
         let text = Query(searchText)
         
@@ -28,7 +28,7 @@ final class AlgoliaSearchManager {
             
             let result = try index.search(query: text)
             
-            var users: [DBUser] = []
+            var users: [User] = []
             
             for hitJson in result.hits {
                 if let userID = hitJson.object["user_id"]?.object() as? String {

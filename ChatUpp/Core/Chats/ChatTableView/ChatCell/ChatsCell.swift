@@ -54,7 +54,7 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setOnlineStatusActivity() {
-        if let activeStatus = cellViewModel.member?.isActive {
+        if let activeStatus = cellViewModel.participant?.isActive {
             onlineStatusCircleView.isHidden = !activeStatus
         }
     }
@@ -84,7 +84,7 @@ class ChatsCell: UITableViewCell {
 //                self.setImage(imageData)
             }.store(in: &subscriptions)
         
-        cellViewModel.$member
+        cellViewModel.$participant
             .receive(on: DispatchQueue.main)
             .sink { member in
                 if let member = member {
@@ -127,7 +127,7 @@ class ChatsCell: UITableViewCell {
     //MARK: - Image setup
     
     private func setupMemberImage() {
-        guard let member = cellViewModel.member else { return }
+        guard let member = cellViewModel.participant else { return }
 //        
         if member.photoUrl == nil {
             /// set local image

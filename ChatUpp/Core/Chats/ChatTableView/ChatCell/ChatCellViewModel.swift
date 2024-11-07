@@ -15,7 +15,7 @@ class ChatCellViewModel: Equatable {
     private var userObserver: RealtimeDBObserver?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-    @Published private(set) var member: DBUser?
+    @Published private(set) var participant: User?
     @Published private(set) var recentMessage: Message?
     @Published private(set) var memberProfileImage: Data?
     @Published private(set) var unreadMessageCount: Int?
@@ -38,7 +38,7 @@ class ChatCellViewModel: Equatable {
     }
     
     private func addDataToRealm() {
-        guard let member = member else {return}
+        guard let member = participant else {return}
         
         Task { @MainActor in
             RealmDBManager.shared.add(object: member)
@@ -49,7 +49,7 @@ class ChatCellViewModel: Equatable {
     }
     
     private func saveImageToCache() {
-        if let imageData = memberProfileImage, let path = member?.photoUrl {
+        if let imageData = memberProfileImage, let path = participant?.photoUrl {
             CacheManager.shared.saveImageData(imageData, toPath: path)
         }
     }
@@ -65,12 +65,12 @@ class ChatCellViewModel: Equatable {
     }
     
     private func findMemberID() -> String? {
-        return chat.participants.first(where: { $0 != authUser.uid } )
+        return chat.participants.first(where: { $0.userID != authUser.uid } )?.userID
     }
     
     var isRecentMessagePresent: Bool?
     {
-        guard member != nil else { return nil }
+        guard participant != nil else { return nil }
         if let _ = chat.recentMessageID { return true }
         return false
     }
@@ -100,7 +100,7 @@ extension ChatCellViewModel {
     func updateUserAfterDeletion() async {
         let deletedUserID = UserManager.mainDeletedUserID
         do {
-            self.member = try await UserManager.shared.getUserFromDB(userID: deletedUserID)
+            self.participant = try await UserManager.shared.getUserFromDB(userID: deletedUserID)
             self.memberProfileImage = try await self.fetchImageData()
         } catch {
             print("Error updating user while listening: ", error.localizedDescription)
@@ -113,14 +113,14 @@ extension ChatCellViewModel {
 extension ChatCellViewModel {
     
     func retrieveDataFromRealm() throws {
-        self.member = try retrieveMember()
+        self.participant = try retrieveMember()
         self.recentMessage = try retrieveRecentMessage()
         try retrieveMemberImageData()
     }
     
-    func retrieveMember() throws -> DBUser {
+    func retrieveMember() throws -> User {
         guard let memberID = findMemberID(),
-              let member = RealmDBManager.shared.retrieveSingleObject(ofType: DBUser.self, primaryKey: memberID) else {
+              let member = RealmDBManager.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else {
             throw
             RealmRetrieveError.memberNotPresent }
         return member
@@ -134,7 +134,7 @@ extension ChatCellViewModel {
     }
     
     func retrieveMemberImageData() throws {
-        guard let userProfilePhotoURL = member?.photoUrl else {
+        guard let userProfilePhotoURL = participant?.photoUrl else {
 //            print("image not")
             throw RealmRetrieveError.imageNotPresent }
         memberProfileImage = CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
@@ -149,7 +149,7 @@ extension ChatCellViewModel
     private func fetchDataFromFirestore() async
     {
         do {
-            self.member                = try await loadOtherMemberOfChat()
+            self.participant                = try await loadOtherMemberOfChat()
             async let loadMessage      = loadRecentMessage()
             async let loadImage        = fetchImageData()
             async let loadUnreadMessageCount = fetchUnreadMessagesCount()
@@ -160,7 +160,7 @@ extension ChatCellViewModel
         }
     }
     @MainActor
-    func loadOtherMemberOfChat() async throws -> DBUser? {
+    func loadOtherMemberOfChat() async throws -> User? {
         guard let memberID = findMemberID() else {
             return nil
         }
@@ -180,18 +180,18 @@ extension ChatCellViewModel
     func fetchUnreadMessagesCount() async throws -> Int? {
         let unreadMessageCount = try await ChatsManager
             .shared
-            .getUnreadMessagesCount(from: chat.id, whereMessageSenderID: member!.userId)
+            .getUnreadMessagesCount(from: chat.id, whereMessageSenderID: participant!.id)
         
         self.unreadMessageCount = unreadMessageCount
         return unreadMessageCount
     }
     
     func fetchImageData() async throws -> Data? {
-        guard let user = self.member,
+        guard let user = self.participant,
               let userProfilePhotoURL = user.photoUrl else {
             return nil
         }
-        let photoData = try await StorageManager.shared.getUserImage(userID: user.userId, path: userProfilePhotoURL)
+        let photoData = try await StorageManager.shared.getUserImage(userID: user.id, path: userProfilePhotoURL)
         return photoData
     }
     
@@ -209,14 +209,14 @@ extension ChatCellViewModel {
     /// Observe user from Realtime db (Temporary fix while firebase functions are deactivated)
     @MainActor
     private func addObserverToUser() {
-        guard let member = member else {return}
+        guard let member = participant else {return}
         
-        self.userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(member.userId) { [weak self] realtimeDBUser in
-            if realtimeDBUser.isActive != self?.member?.isActive
+        self.userObserver = UserManagerRealtimeDB.shared.addObserverToUsers(member.id) { [weak self] realtimeDBUser in
+            if realtimeDBUser.isActive != self?.participant?.isActive
             {
                 if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive 
                 {
-                    self?.member = self?.member?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    self?.participant = self?.participant?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
                 }
             }
         }
@@ -226,14 +226,14 @@ extension ChatCellViewModel {
     @MainActor
     private func addListenerToUser()
     {
-        guard let memberID = member?.userId else {return}
+        guard let memberID = participant?.id else {return}
         
         self.usersListener = UserManager.shared.addListenerToUsers([memberID]) { [weak self] users, documentsTypes in
             guard let self = self else {return}
             // since we are listening only for one user here
             // we can just get the first user and docType
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self.member = user
+            self.participant = user
         }
     }
 }

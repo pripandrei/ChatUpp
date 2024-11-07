@@ -154,7 +154,7 @@ extension SettingsViewController {
             supplementaryView.setupAdditionalCredentialsConstraints()
             self?.collectionViewListHeader = supplementaryView
             
-            guard let user = self?.settingsViewModel.dbUser else {return}
+            guard let user = self?.settingsViewModel.user else {return}
             
             supplementaryView.nameLabel.text = user.name
             supplementaryView.additionalCredentials.text = "\(user.phoneNumber ?? "") \u{25CF} \(user.nickname ?? "")"
@@ -208,16 +208,16 @@ extension SettingsViewController {
 extension SettingsViewController {
     
     private func createProfileDeletionViewModel() -> ProfileDeletionViewModel {
-        guard let dbUser = settingsViewModel.dbUser else {fatalError("dbUser is missing")}
-        return ProfileDeletionViewModel(dbUser: dbUser)
+        guard let dbUser = settingsViewModel.user else {fatalError("dbUser is missing")}
+        return ProfileDeletionViewModel(user: dbUser)
     }
     
     private func createprofileEditingViewModel() -> ProfileEditingViewModel {
-        guard let user = settingsViewModel.dbUser else {fatalError("dbUser is missing")}
+        guard let user = settingsViewModel.user else {fatalError("dbUser is missing")}
         
         // if imageData is nil, meaning user did not select picture, local default image will be used as profile picture
         guard let profilePicutre = settingsViewModel.imageData == nil ? UIImage(named: "default_profile_photo")?.pngData() : settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
-        let profileVM = ProfileEditingViewModel(dbUser: user, profilePicutre: profilePicutre)
+        let profileVM = ProfileEditingViewModel(user: user, profilePicutre: profilePicutre)
         
         profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in
             guard let self = self else {return}
