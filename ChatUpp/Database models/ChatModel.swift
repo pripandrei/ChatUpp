@@ -57,7 +57,7 @@ class Chat: Object, Codable
     @Persisted var messagesCount: Int?
     @Persisted var participants: List<ChatParticipant>
     
-    /// isFirstTimeOpened and conversationMessages field are present only in local database
+    /// isFirstTimeOpened and conversationMessages fields are ment only for local database
     @Persisted var isFirstTimeOpened: Bool?
     @Persisted var conversationMessages: List<Message>
     
@@ -100,7 +100,11 @@ class Chat: Object, Codable
         try container.encode(dictParticipants, forKey: .participants)
     }
     
-    convenience init(id: String, participants: [ChatParticipant], recentMessageID: String?, messagesCount: Int? = 0)
+    convenience init(id: String,
+                     participants: [ChatParticipant],
+                     recentMessageID: String?,
+                     messagesCount: Int? = 0,
+                     isFirstTimeOpened: Bool? = nil)
     {
         self.init()
         
@@ -108,6 +112,7 @@ class Chat: Object, Codable
         self.participants.append(objectsIn: participants)
         self.recentMessageID = recentMessageID
         self.messagesCount = messagesCount
+        self.isFirstTimeOpened = isFirstTimeOpened
     }
     
     func appendConversationMessage(_ message: Message) {
