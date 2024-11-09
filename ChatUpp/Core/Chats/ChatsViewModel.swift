@@ -65,6 +65,11 @@ extension ChatsViewModel {
     private func findIndex(of element: ChatCellViewModel) -> Int? {
         return cellViewModels.firstIndex(of: element)
     }
+    
+    private func getAuthenticatedParticipantID() -> String? {
+        let filter = NSPredicate(format: "userID == %@", authUser.uid)
+        return RealmDBManager.shared.retrieveObjects(ofType: ChatParticipant.self, filter: filter).first?.id
+    }
 }
 
 //MARK: - Realm functions
@@ -84,10 +89,19 @@ extension ChatsViewModel {
         RealmDBManager.shared.add(object: chat)
     }
     
-    private func updateRealmChat(_ chat: Chat) {
+    private func updateRealmChat(_ chat: Chat) 
+    {
         RealmDBManager.shared.update(objectWithKey: chat.id, type: Chat.self) { DBChat in
+            
             DBChat.recentMessageID = chat.recentMessageID
-            DBChat.participants = chat.participants
+            
+            chat.participants.forEach { participant in
+                if let existingParticipant = RealmDBManager.shared.retrieveSingleObject(ofType: ChatParticipant.self, primaryKey: participant.id)
+                {
+                    existingParticipant.userID = participant.userID
+                    existingParticipant.unseenMessagesCount = participant.unseenMessagesCount
+                }
+            }
         }
     }
 }
@@ -98,15 +112,17 @@ extension ChatsViewModel {
     
     private func addChatsListener()
     {
-        self.chatsListener = ChatsManager.shared.addListenerForChats(containingUserID: authUser.uid, complition: { [weak self] chats, docTypes in
-                
-            guard let self = self else {return}
+        guard let participant = getAuthenticatedParticipantID() else {return}
         
+        self.chatsListener = ChatsManager.shared.addListenerForChats(containingParticipantID: participant, complition: { [weak self] chats, docTypes in
+            
+            guard let self = self else {return}
+            
             docTypes.enumerated().forEach { index, type in
                 switch type {
                 case .added: self.handleAddedChat(chats[index])
                 case .removed: print("remove cellVM")
-//                    self.removeChat(chats[index])
+                    //                    self.removeChat(chats[index])
                 case .modified: self.handleModifiedChat(chats[index])
                 }
             }
@@ -126,7 +142,7 @@ extension ChatsViewModel {
             onNewChatAdded?(true)
             return
         }
-        updateRealmChat(chat)
+//        updateRealmChat(chat)
     }
     
     private func handleModifiedChat(_ chat: Chat) {

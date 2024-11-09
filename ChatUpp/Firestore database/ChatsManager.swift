@@ -202,9 +202,10 @@ extension ChatsManager
 
 extension ChatsManager 
 {
-    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
+    func addListenerForChats(containingParticipantID participantID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
     {
-        return chatsCollection.whereField(FirestoreField.participants.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
+        let fieldPath = "participants.\(participantID).id"
+        return chatsCollection.whereField(fieldPath, isEqualTo: participantID).addSnapshotListener { querySnapshot, error in
             guard error == nil else { print(error!.localizedDescription); return}
             guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
             
@@ -217,6 +218,22 @@ extension ChatsManager
             complition(chats,docChangeType)
         }
     }
+    
+//    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
+//    {
+//        return chatsCollection.whereField(FirestoreField.participants.rawValue, arrayContainsAny: [userID]).addSnapshotListener { querySnapshot, error in
+//            guard error == nil else { print(error!.localizedDescription); return}
+//            guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
+//            
+//            var docChangeType: [DocumentChangeType] = []
+//            
+//            let chats = documents.compactMap { docChange in
+//                docChangeType.append(docChange.type)
+//                return try? docChange.document.data(as: Chat.self)
+//            }
+//            complition(chats,docChangeType)
+//        }
+//    }
     
     // messages listners
     func addListenerForUpcomingMessages(inChat chatID: String,

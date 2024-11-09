@@ -17,7 +17,7 @@ class ChatParticipant: Object, Codable
     
     enum CodingKeys: String, CodingKey 
     {
-//        case id = "id"
+        case id = "id"
         case userID = "user_id"
         case unseenMessagesCount = "unseen_messages_count"
     }
@@ -36,7 +36,7 @@ class ChatParticipant: Object, Codable
         self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
-//        self.id = try container.decode(String.self, forKey: .id)
+        self.id = try container.decode(String.self, forKey: .id)
         self.userID = try container.decode(String.self, forKey: .userID)
         self.unseenMessagesCount = try container.decode(Int.self, forKey: .unseenMessagesCount)
     }
@@ -44,7 +44,7 @@ class ChatParticipant: Object, Codable
     func encode(to encoder: Encoder) throws 
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(self.id, forKey: .id)
+        try container.encode(self.id, forKey: .id)
         try container.encode(self.userID, forKey: .userID)
         try container.encode(self.unseenMessagesCount, forKey: .unseenMessagesCount)
     }
@@ -78,7 +78,7 @@ class Chat: Object, Codable
         
         let participants = try container.decode([String:ChatParticipant].self, forKey: .participants)
         for (participantID, participant) in participants {
-            participant.id = participantID
+//            participant.id = participantID
             self.participants.append(participant)
         }
         
