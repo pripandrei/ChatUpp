@@ -55,8 +55,7 @@ extension ConversationViewModel
         guard var messages = conversation?.getMessages(),
                 !messages.isEmpty else { return }
         
-        if shouldDisplayLastMessage == false
-        {
+        if shouldDisplayLastMessage == false {
             messages.removeFirst()
         }
         createMessageGroupsWith(messages)
@@ -89,15 +88,12 @@ extension ConversationViewModel
 
 final class ConversationViewModel 
 {
-    //    var isChatFetchedFirstTime: Bool = false
-    
     private(set) var conversation: Chat?
     private(set) var memberProfileImage: Data?
     private(set) var userObserver: RealtimeDBObserver?
     private(set) var authenticatedUserID: String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     private var listeners: [Listener] = []
     var messageGroups: [ConversationMessageGroup] = []
-    //    private(set) var (userListener,messageListener): (Listener?, Listener?)
     
     @Published private(set) var chatUser: User
     @Published var messageChangedType: MessageChangeType?
@@ -111,7 +107,7 @@ final class ConversationViewModel
         return self.conversation != nil
     }
     
-    var unreadMessagesCount: Int {
+    var authParticipantUnreadMessagesCount: Int {
         conversation?.participants.first(where: { $0.userID == authenticatedUserID })?.unseenMessagesCount ?? 0
     }
     
@@ -120,7 +116,7 @@ final class ConversationViewModel
     }
     
     private var shouldDisplayLastMessage: Bool {
-        unreadMessagesCount == getUnreadMessagesCountFromRealm()
+        authParticipantUnreadMessagesCount == getUnreadMessagesCountFromRealm()
     }
     
     private var firstMessage: Message? {
@@ -131,7 +127,7 @@ final class ConversationViewModel
         guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
             return false
         }
-        return ( unreadMessagesCount != getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
+        return ( authParticipantUnreadMessagesCount != getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
     }
 
     init(conversationUser: User, conversation: Chat? = nil, imageData: Data?) {
@@ -451,10 +447,9 @@ extension ConversationViewModel
         }
     }
     
-    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100) {
-        guard let conversationID = conversation?.id
-                /*let startMessage = messageGroups.first?.cellViewModels.first?.cellMessage */
-        else { return }
+    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100)
+    {
+        guard let conversationID = conversation?.id else { return }
         
         let listener = ChatsManager.shared.addListenerForExistingMessages(
             inChat: conversationID,
@@ -465,15 +460,10 @@ extension ConversationViewModel
                 guard let self = self else {return}
                 
                 switch changeType {
-                    //            case .added: print("added")
-                    //                    self.handleAddedMessage(message)
-                case .removed: print("removed")
-                    self.handleRemovedMessage(message)
+                case .removed: self.handleRemovedMessage(message)
                 case .modified: self.handleModifiedMessage(message)
-                    print("==== modified", message)
                 default: break
                 }
-                
             }
         listeners.append(listener)
     }
@@ -761,6 +751,7 @@ extension ConversationViewModel
         return (newRows, newSections)
     }
     
+    @MainActor
     func handleAdditionalMessageGroupUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)? {
         
         let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
@@ -768,10 +759,10 @@ extension ConversationViewModel
         
         let (newRows, newSections) = try await prepareMessageGroupsUpdate(withMessages: newMessages, inAscendingOrder: order)
         
-        if let timestamp = newMessages.first?.timestamp {
+        if let timestamp = newMessages.first?.timestamp 
+        {
             addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
         }
-        
         addMessagesToConversationInRealm(newMessages)
         
         return (newRows, newSections)

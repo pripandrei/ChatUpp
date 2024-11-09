@@ -655,11 +655,13 @@ extension ConversationViewController: UITableViewDelegate
         let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
         
-        if isLastCellDisplayed 
+        guard conversationViewModel.shouldFetchNewMessages else {return}
+        
+        if isLastCellDisplayed
         {
             updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: false)
         }
-        else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages
+        else if isFirstCellDisplayed
         {
             updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: true)
         }
