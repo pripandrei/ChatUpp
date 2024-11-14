@@ -25,7 +25,7 @@ final class ChatsViewModel {
     var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
-        print(RealmDBManager.realmFilePath)
+        print(RealmDataBase.realmFilePath)
         setupCellViewModels()
         observeChats()
     }
@@ -70,7 +70,7 @@ extension ChatsViewModel {
     
     private func getAuthenticatedParticipantID() -> String? {
         let filter = NSPredicate(format: "userID == %@", authUser.uid)
-        return RealmDBManager.shared.retrieveObjects(ofType: ChatParticipant.self, filter: filter).first?.id
+        return RealmDataBase.shared.retrieveObjects(ofType: ChatParticipant.self, filter: filter).first?.id
     }
 }
 
@@ -80,25 +80,25 @@ extension ChatsViewModel {
     private func retrieveChatsFromRealm() -> [Chat] {
         //TODO: - adjust by participants retrieve after update
         let filter = NSPredicate(format: "ANY \(Chat.CodingKeys.participants.rawValue).userID == %@", authUser.uid)
-        return RealmDBManager.shared.retrieveObjects(ofType: Chat.self, filter: filter)
+        return RealmDataBase.shared.retrieveObjects(ofType: Chat.self, filter: filter)
     }
     
     private func retrieveChatFromRealm(_ chat: Chat) -> Chat? {
-        return RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
+        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
     }
     
     private func addChatToRealm(_ chat: Chat) {
-        RealmDBManager.shared.add(object: chat)
+        RealmDataBase.shared.add(object: chat)
     }
     
     private func updateRealmChat(_ chat: Chat) 
     {
-        RealmDBManager.shared.update(objectWithKey: chat.id, type: Chat.self) { DBChat in
+        RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { DBChat in
             
             DBChat.recentMessageID = chat.recentMessageID
             
             chat.participants.forEach { participant in
-                if let existingParticipant = RealmDBManager.shared.retrieveSingleObject(ofType: ChatParticipant.self, primaryKey: participant.id)
+                if let existingParticipant = RealmDataBase.shared.retrieveSingleObject(ofType: ChatParticipant.self, primaryKey: participant.id)
                 {
                     existingParticipant.userID = participant.userID
                     existingParticipant.unseenMessagesCount = participant.unseenMessagesCount

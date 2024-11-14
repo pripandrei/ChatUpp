@@ -27,11 +27,11 @@ enum RealmRetrieveError: Error, LocalizedError {
     }
 }
 
-final class RealmDBManager {
+final class RealmDataBase {
     
     private var notificationToken: [NotificationToken]?
     
-    static var shared = RealmDBManager()
+    static var shared = RealmDataBase()
     
     static private let schemaVersion: UInt64 = 14
     
@@ -54,7 +54,7 @@ final class RealmDBManager {
     private func createConfiguration() -> Realm.Configuration
     {
         return Realm.Configuration(
-            schemaVersion: RealmDBManager.schemaVersion,
+            schemaVersion: RealmDataBase.schemaVersion,
             migrationBlock: { [weak self] migration, oldSchemaVersion in
                 
                 if oldSchemaVersion < 11 { self?.migrateToVersion11(migration: migration) }
@@ -107,7 +107,7 @@ final class RealmDBManager {
 
 //MARK: - Migrations
 
-extension RealmDBManager
+extension RealmDataBase
 {
     private func migrateToVersion11(migration: Migration)
     {
@@ -158,7 +158,7 @@ extension RealmDBManager
 }
 
 //MARK: - Realm file path
-extension RealmDBManager 
+extension RealmDataBase 
 {
     static var realmFilePath: String? {
         guard let fileURL = Realm.Configuration.defaultConfiguration.fileURL else { return nil }

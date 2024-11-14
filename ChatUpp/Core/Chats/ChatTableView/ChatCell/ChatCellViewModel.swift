@@ -44,7 +44,7 @@ class ChatCellViewModel
         guard let member = chatUser else {return}
         
         Task { @MainActor in
-            RealmDBManager.shared.add(object: member)
+            RealmDataBase.shared.add(object: member)
             
             addMessageToRealm()
             saveImageToCache()
@@ -61,7 +61,7 @@ class ChatCellViewModel
         if let recentMessage = recentMessage,
             !chat.conversationMessages.contains(where: { $0.id == recentMessage.id} )
         {
-            RealmDBManager.shared.update(object: chat) { chat in
+            RealmDataBase.shared.update(object: chat) { chat in
                 chat.conversationMessages.append(recentMessage)
             }
         }
@@ -128,7 +128,7 @@ extension ChatCellViewModel {
     private func retrieveMember() throws -> User 
     {
         guard let memberID = findMemberID(),
-              let member = RealmDBManager.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else {
+              let member = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else {
             throw
             RealmRetrieveError.memberNotPresent }
         return member
@@ -137,7 +137,7 @@ extension ChatCellViewModel {
     private func retrieveRecentMessage() throws -> Message 
     {
         guard let messageID = chat.recentMessageID,
-        let message = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
+        let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
             throw RealmRetrieveError.messageNotPresent }
         return message
     }

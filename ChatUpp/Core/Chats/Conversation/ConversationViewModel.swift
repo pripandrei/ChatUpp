@@ -100,7 +100,6 @@ final class ConversationViewModel
     @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
     
     var shouldEditMessage: ((String) -> Void)?
-//    var updateUnreadMessagesCount: (() async throws -> Void)?
     var currentlyReplyToMessageID: String?
     
     private var conversationExists: Bool {
@@ -236,7 +235,7 @@ final class ConversationViewModel
         guard let conversation = conversation,
               let participant = conversation.getParticipant(byID: chatUser.id) else {return}
         
-        RealmDBManager.shared.update(object: participant) { participant in
+        RealmDataBase.shared.update(object: participant) { participant in
             participant.unseenMessagesCount += 1
         }
         
@@ -332,7 +331,7 @@ extension ConversationViewModel
     func addMessagesToConversationInRealm(_ messages: [Message]) 
     {
         guard let conversation = conversation else { return }
-        RealmDBManager.shared.update(object: conversation) { chat in
+        RealmDataBase.shared.update(object: conversation) { chat in
             let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
             let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
             
@@ -343,30 +342,30 @@ extension ConversationViewModel
     private func addMessageToRealmChat(_ message: Message)
     {
         guard let conversation = conversation else { return }
-        RealmDBManager.shared.update(object: conversation) { chat in
+        RealmDataBase.shared.update(object: conversation) { chat in
             chat.conversationMessages.append(message)
         }
     }
     
     private func retrieveMessageFromRealm(_ message: Message) -> Message? {
-        return RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
+        return RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
     }
     
     private func addChatToRealm(_ chat: Chat) {
-        RealmDBManager.shared.add(object: chat)
+        RealmDataBase.shared.add(object: chat)
     }
     
     func updateChatOpenStatusIfNeeded() 
     {
         guard let conversation = conversation else { return }
         if conversation.isFirstTimeOpened != false {
-            RealmDBManager.shared.update(object: conversation) { $0.isFirstTimeOpened = false }
+            RealmDataBase.shared.update(object: conversation) { $0.isFirstTimeOpened = false }
         }
     }
 
     
     private func updateMessage(_ message: Message) {
-        RealmDBManager.shared.add(object: message)
+        RealmDataBase.shared.add(object: message)
     }
     
     private func getUnreadMessagesCountFromRealm() -> Int
@@ -382,7 +381,7 @@ extension ConversationViewModel
     
     private func removeMessageFromRealm(message: Message) {
         guard let realmMessage = retrieveMessageFromRealm(message) else {return}
-        RealmDBManager.shared.delete(object: realmMessage)
+        RealmDataBase.shared.delete(object: realmMessage)
     }
 }
 
@@ -704,7 +703,6 @@ extension ConversationViewModel
         }
     }
 }
-
 
 extension ConversationViewModel
 {

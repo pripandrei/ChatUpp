@@ -93,7 +93,7 @@ extension ConversationCellViewModel
 
     
     func updateRealmMessageSeenStatus() {
-        RealmDBManager.shared.update(object: cellMessage) { message in
+        RealmDataBase.shared.update(object: cellMessage) { message in
             message.messageSeen = true
         }
     }
