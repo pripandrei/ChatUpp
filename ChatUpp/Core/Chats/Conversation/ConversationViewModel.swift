@@ -204,6 +204,8 @@ final class ConversationViewModel
         addMessageToRealmChat(message)
         createMessageGroupsWith([message], ascending: true)
         
+        updateUnseenMessageCounter(shouldIncrement: true)
+        
         Task { @MainActor in
             await addMessageToFirestoreDataBase(message)
             await updateRecentMessageFromFirestoreChat(messageID: message.id)
@@ -230,17 +232,19 @@ final class ConversationViewModel
         }
     }
     
-    func updateUnseenMessageCounter() 
+    func updateUnseenMessageCounter(shouldIncrement: Bool)
     {
+        let participantUserID = shouldIncrement ? chatUser.id : authenticatedUserID
+        
         guard let conversation = conversation,
-              let participant = conversation.getParticipant(byID: chatUser.id) else {return}
+              let participant = conversation.getParticipant(byID: participantUserID) else {return}
         
         RealmDataBase.shared.update(object: participant) { participant in
-            participant.unseenMessagesCount += 1
+            participant.unseenMessagesCount += shouldIncrement ? +1 : -1
         }
         
         Task { @MainActor in
-            try await FirebaseChatService.shared.updateUnreadMessageCount(for: participant.userID, inChatWithID: conversation.id)
+            try await FirebaseChatService.shared.updateUnreadMessageCount(for: participant.id, inChatWithID: conversation.id, increment: shouldIncrement)
         }
     }
     

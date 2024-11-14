@@ -103,9 +103,9 @@ extension ChatsViewModel {
                     existingParticipant.userID = participant.userID
                     existingParticipant.unseenMessagesCount = participant.unseenMessagesCount
                 }
-//                else {
-//                    DBChat.participants.append(participant)
-//                }
+                else {
+                    DBChat.participants.append(participant)
+                }
             }
         }
     }

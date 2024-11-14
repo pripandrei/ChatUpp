@@ -172,15 +172,12 @@ extension FirebaseChatService
 
 extension FirebaseChatService
 {
-    func updateUnreadMessageCount(for participantID: String, inChatWithID chatID: String) async throws
+    func updateUnreadMessageCount(for participantID: String, inChatWithID chatID: String, increment: Bool) async throws
     {
         let fieldPath = "participants.\(participantID).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
         
-//        let data: [String: [String:Any]] = [
-//            Chat.CodingKeys.participants.rawValue : [ Participant.CodingKeys.unseenMessagesCount.rawValue : FieldValue.increment(1.0) ]
-//        ]
-        
-        let data = [fieldPath : FieldValue.increment(Int64(1))]
+        let counterValue = increment ? +1 : -1
+        let data = [fieldPath : FieldValue.increment(Int64(counterValue))]
         
         try await chatDocument(documentPath: chatID).updateData(data)
     }
