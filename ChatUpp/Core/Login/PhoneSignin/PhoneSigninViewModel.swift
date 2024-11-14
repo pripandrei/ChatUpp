@@ -29,11 +29,11 @@ final class PhoneSignInViewModel {
             do {
                 let resultModel = try await AuthenticationManager.shared.signinWithPhoneSMS(using: verificationID, verificationCode: code)
                 let dbUser = User(auth: resultModel)
-                if let _ = try? await UserManager.shared.getUserFromDB(userID: dbUser.id) {
+                if let _ = try? await FirestoreUserService.shared.getUserFromDB(userID: dbUser.id) {
                     userCreationStatus.value = .userExists
                 } else {
-                    try UserManager.shared.createNewUser(user: dbUser)
-                    UserManagerRealtimeDB.shared.createUser(user: dbUser)
+                    try FirestoreUserService.shared.createNewUser(user: dbUser)
+                    RealtimeUserService.shared.createUser(user: dbUser)
                     userCreationStatus.value = .userIsCreated
                 }
             } catch {

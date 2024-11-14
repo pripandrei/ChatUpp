@@ -11,7 +11,6 @@ import RealmSwift
 
 final class ChatsViewModel {
 
-    
     //TODO: - remove listeners
     private var cancellables = Set<AnyCancellable>()
     
@@ -29,13 +28,11 @@ final class ChatsViewModel {
         print(RealmDBManager.realmFilePath)
         setupCellViewModels()
         observeChats()
-//        observeChatsParticipants()
-//        addChatsParticipantsListener()
     }
 
     func activateOnDisconnect() {
         Task {
-            try await UserManagerRealtimeDB.shared.setupOnDisconnect()
+            try await RealtimeUserService.shared.setupOnDisconnect()
         }
     }
 }
@@ -120,50 +117,13 @@ extension ChatsViewModel {
     
     private func observeChats()
     {
-//        let chatsResults = RealmDBManager.shared.realm!.objects(Chat.self)
-//        chatsResults.collectionPublisher
-//            .map { Array($0) } // Convert Results to an Array of Chats
-//            .catch { _ in Just([Chat]()) } // Use an empty array if there’s an error
-//            .receive(on: DispatchQueue.main)
-//            .sink(receiveValue: { chats in
-//                print(chats)
-//            })
-//            .assign(to: &$chats)
-//        
-        
-        ChatsManager.shared.chatsPublisher(containingParticipantUserID: authUser.uid)
+        FirebaseChatService.shared.chatsPublisher(containingParticipantUserID: authUser.uid)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] update in
                 self?.handleChatUpdate(update)
             }.store(in: &cancellables)
     }
-    
-//    private func observeChatsParticipants() {
-//        ChatsManager.shared.chatParticipantsPublisher(for: authUser.uid)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] update in
-//                self?.handleParticipantUpdate(update)
-//            }.store(in: &cancellables)
-//    }
-    
 }
-
-
-////MARK: - Participants updates
-//
-//extension ChatsViewModel {
-//    
-//    private func handleParticipantUpdate(_ update: ChatUpdate<ChatParticipant>)
-//    {
-//        update.changeType.
-//        switch update.changeType
-//        {
-//        case .modified:
-//        case .added:
-//        case .removed: print("Handle removed participant")
-//        }
-//    }
-//}
 
 //MARK: - Chat updates
 

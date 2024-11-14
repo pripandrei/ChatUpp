@@ -57,7 +57,7 @@ class ChatsViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        UserManagerRealtimeDB.shared.updateUserActiveStatus(isActive: true)
+        RealtimeUserService.shared.updateUserActiveStatus(isActive: true)
     }
     
     override func viewDidDisappear(_ animated: Bool) {

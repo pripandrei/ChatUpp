@@ -27,7 +27,7 @@ final class ResultsCellViewModel {
         guard let imageURL = participant.photoUrl else {return}
         Task {
             do {
-                userImageData.value = try await StorageManager.shared.getUserImage(userID: participant.id, path: imageURL)
+                userImageData.value = try await FirebaseStorageManager.shared.getUserImage(userID: participant.id, path: imageURL)
             } catch {
                 print("Error getting user image form storage: ", error)
             }

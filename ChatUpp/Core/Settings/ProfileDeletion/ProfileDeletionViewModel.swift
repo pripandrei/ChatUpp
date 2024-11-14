@@ -40,13 +40,13 @@ final class ProfileDeletionViewModel {
     }
     
     func deleteUser() async throws {
-        let deletedUserID = UserManager.mainDeletedUserID
+        let deletedUserID = FirestoreUserService.mainDeletedUserID
     
         try await AuthenticationManager.shared.deleteAuthUser()
-        try await ChatsManager.shared.replaceUserId(user.id, with: deletedUserID)
+        try await FirebaseChatService.shared.replaceUserId(user.id, with: deletedUserID)
         if let photoURL = user.photoUrl {
-            try await StorageManager.shared.deleteProfileImage(ofUser: user.id, path: photoURL)
+            try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: user.id, path: photoURL)
         }
-        try await UserManager.shared.deleteUserFromDB(userID: user.id)
+        try await FirestoreUserService.shared.deleteUserFromDB(userID: user.id)
     }
 }

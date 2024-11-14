@@ -33,7 +33,7 @@ final class AlgoliaSearchManager {
             for hitJson in result.hits {
                 if let userID = hitJson.object["user_id"]?.object() as? String {
                     do {
-                        let user = try await UserManager.shared.getUserFromDB(userID: userID)
+                        let user = try await FirestoreUserService.shared.getUserFromDB(userID: userID)
                         users.append(user)
                     } catch {
                         print("Error fetching user for ID \(userID): \(error)")

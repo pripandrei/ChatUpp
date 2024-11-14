@@ -241,7 +241,7 @@ final class ConversationViewModel
         }
         
         Task { @MainActor in
-            try await ChatsManager.shared.updateUnreadMessageCount(for: participant.userID, inChatWithID: conversation.id)
+            try await FirebaseChatService.shared.updateUnreadMessageCount(for: participant.userID, inChatWithID: conversation.id)
         }
     }
     
@@ -283,17 +283,17 @@ final class ConversationViewModel
         guard let conversation = conversation else {return}
         guard let messageID = messageGroups.first?.cellViewModels.first?.cellMessage.id else {return}
         Task {
-            let (path,name) = try await StorageManager
+            let (path,name) = try await FirebaseStorageManager
                 .shared
                 .saveMessageImage(data: data, messageID: messageID)
-            try await ChatsManager
+            try await FirebaseChatService
                 .shared
                 .updateMessageImagePath(messageID: messageID,
                                         chatDocumentPath: conversation.id,
                                         path: name)
             
             let imageSize = MessageImageSize(width: Int(size.width), height: Int(size.height))
-            try await ChatsManager
+            try await FirebaseChatService
                 .shared
                 .updateMessageImageSize(messageID: messageID,
                                         chatDocumentPath: conversation.id,
@@ -392,7 +392,7 @@ extension ConversationViewModel
 {
     /// - Temporary fix while firebase functions are deactivated
     func addUserObserver() {
-        userObserver = UserManagerRealtimeDB
+        userObserver = RealtimeUserService
             .shared
             .addObserverToUsers(chatUser.id) { [weak self] realtimeDBUser in
                 
@@ -411,7 +411,7 @@ extension ConversationViewModel
     
     func addUsersListener()
     {
-        let userListener = UserManager
+        let userListener = FirestoreUserService
             .shared
             .addListenerToUsers([chatUser.id]) { [weak self] users, documentsTypes in
             guard let self = self else {return}
@@ -433,7 +433,7 @@ extension ConversationViewModel
         
         Task { @MainActor in
             
-            let listener = try await ChatsManager.shared.addListenerForUpcomingMessages(
+            let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
                 inChat: conversationID,
                 startingAfterMessage: startMessageID) { [weak self] message, changeType in
                     
@@ -455,7 +455,7 @@ extension ConversationViewModel
     {
         guard let conversationID = conversation?.id else { return }
         
-        let listener = ChatsManager.shared.addListenerForExistingMessages(
+        let listener = FirebaseChatService.shared.addListenerForExistingMessages(
             inChat: conversationID,
             startAtTimestamp: startAtTimestamp,
             ascending: ascending,
@@ -576,27 +576,27 @@ extension ConversationViewModel
         switch fetchStrategy
         {
         case .ascending(let startAtMessage, let included):
-            return try await ChatsManager.shared.fetchMessagesFromChat(
+            return try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
                 fetchDirection: .ascending
             )
         case .descending(let startAtMessage, let included):
-            return try await ChatsManager.shared.fetchMessagesFromChat(
+            return try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
                 fetchDirection: .descending
             )
         case .hybrit(let startAtMessage):
-            let descendingMessages = try await ChatsManager.shared.fetchMessagesFromChat(
+            let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: true,
                 fetchDirection: .descending
             )
-            let ascendingMessages = try await ChatsManager.shared.fetchMessagesFromChat(
+            let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: false,
@@ -634,7 +634,7 @@ extension ConversationViewModel
 {
     private func getFirstUnseenMessageFromFirestore(from chatID: String) async throws -> Message? 
     {
-        return try await ChatsManager.shared.getFirstUnseenMessage(fromChatDocumentPath: chatID,
+        return try await FirebaseChatService.shared.getFirstUnseenMessage(fromChatDocumentPath: chatID,
                                                                    whereSenderIDNotEqualTo: authenticatedUserID)
     }
     
@@ -644,7 +644,7 @@ extension ConversationViewModel
     
     private func addChatToFirestore(_ chat: Chat) async {
         do {
-            try await ChatsManager.shared.createNewChat(chat: chat)
+            try await FirebaseChatService.shared.createNewChat(chat: chat)
         } catch {
             print("Error creating conversation", error.localizedDescription)
         }
@@ -654,7 +654,7 @@ extension ConversationViewModel
     private func addMessageToFirestoreDataBase(_ message: Message) async  {
         guard let conversation = conversation else {return}
         do {
-            try await ChatsManager.shared.createMessage(message: message, atChatPath: conversation.id)
+            try await FirebaseChatService.shared.createMessage(message: message, atChatPath: conversation.id)
         } catch {
             print("error occur while trying to create message in DB: ", error.localizedDescription)
         }
@@ -664,7 +664,7 @@ extension ConversationViewModel
     func updateRecentMessageFromFirestoreChat(messageID: String ) async {
         guard let chatID = conversation?.id else { print("chatID is nil") ; return}
         do {
-            try await ChatsManager.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
+            try await FirebaseChatService.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
         } catch {
             print("Error updating chat last message:", error.localizedDescription)
         }
@@ -673,7 +673,7 @@ extension ConversationViewModel
     func deleteMessageFromFirestore(messageID: String) {
         Task { @MainActor in
             do {
-                try await ChatsManager.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
+                try await FirebaseChatService.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
             } catch {
                 print("Error deleting message: ",error.localizedDescription)
             }
@@ -683,7 +683,7 @@ extension ConversationViewModel
     @MainActor
     func editMessageTextFromFirestore(_ messageText: String, messageID: String) {
         Task {
-            try await ChatsManager.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
+            try await FirebaseChatService.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
         }
     }
     

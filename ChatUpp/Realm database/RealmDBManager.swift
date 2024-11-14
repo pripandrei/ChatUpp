@@ -55,51 +55,11 @@ final class RealmDBManager {
     {
         return Realm.Configuration(
             schemaVersion: RealmDBManager.schemaVersion,
-            migrationBlock: { migration, oldSchemaVersion in
-                if oldSchemaVersion < 11 {
-                    migration.enumerateObjects(ofType: Chat.className()) { oldObject, newObject in
-                        let oldKey = "members"
-                        let newKey = Chat.CodingKeys.participants.rawValue
-                        newObject![newKey] = oldObject![oldKey]
-                    }
-                }
+            migrationBlock: { [weak self] migration, oldSchemaVersion in
                 
-                if oldSchemaVersion < 13 {
-                    migration.enumerateObjects(ofType: Chat.className()) { oldObject, newObject in
-                        
-                        let key = "participants"
-                        var newParticipantList = [MigrationObject]()
-                        
-                        if let participantsID = oldObject![key] as? List<String>
-                        {
-                            for id in participantsID
-                            {
-                                let participant = ChatParticipant(userID: id, unseenMessageCount: 0)
-                                let migrationParticipantObject = migration.create(ChatParticipant.className(), value: participant)
-                                newParticipantList.append(migrationParticipantObject)
-                            }
-                        }
-                        newObject![key] = newParticipantList
-                    }
-                }
-                
-                if oldSchemaVersion < 14
-                {
-                    migration.enumerateObjects(ofType: "DBUser") { oldObject, newObject in
-                        guard let oldObject = oldObject else {return}
-                        
-                        let user = migration.create("User", value: [
-                            "id": oldObject["userId"] as? String ?? UUID().uuidString,
-                            "name": oldObject["name"] as? String?,
-                            "dateCreated": oldObject["dateCreated"] as? Date?,
-                            "email": oldObject["email"] as? String?,
-                            "photoUrl": oldObject["photoUrl"] as? String?,
-                            "phoneNumber": oldObject["phoneNumber"] as? String?,
-                            "isActive": oldObject["isActive"] as? Bool?,
-                            "lastSeen": oldObject["lastSeen"] as? Date?
-                        ])
-                    }
-                }
+                if oldSchemaVersion < 11 { self?.migrateToVersion11(migration: migration) }
+                if oldSchemaVersion < 13 { self?.migrateToVersion13(migration: migration) }
+                if oldSchemaVersion < 14 { self?.migrateToVersion14(migration: migration) }
             }
         )
     }
@@ -143,40 +103,59 @@ final class RealmDBManager {
             realm?.delete(object)
         })
     }
-
-//    public func addObserverToObjects<T: Object>(objects: Results<T>) {
-//        let token = objects.observe { change in
-//            switch change {
-//            case .initial(let initialResults): print(initialResults)
-//            case .update(let updateResults, let deletions, let insertions, let modifications): print("ads")
-//            case .error(let error): print(error.localizedDescription)
-//            }
-//        }
-//        notificationToken.append(token)
-//    }
-    
-    
-//    @Published var objectPropertyChange: RealmPropertyChange?
-//    @Published var objectPropertyChange: PropertyChange?
-    
-    public func addObserverToObject<T: Object>(object: T) {
-        let token = object.observe { change in
-            switch change {
-            case .change(_, let properties):
-                properties.forEach { property in
-                    guard let newValue = property.newValue as? String else { return }
-//                    self.objectPropertyChange = property
-                }
-            case .deleted:
-                print("Object was deleted")
-            case .error(let error):
-                print(error.localizedDescription)
-            }
-        }
-        notificationToken?.append(token)
-    }
 }
 
+//MARK: - Migrations
+
+extension RealmDBManager
+{
+    private func migrateToVersion11(migration: Migration)
+    {
+        migration.enumerateObjects(ofType: Chat.className()) { oldObject, newObject in
+            let oldKey = "members"
+            let newKey = Chat.CodingKeys.participants.rawValue
+            newObject![newKey] = oldObject![oldKey]
+        }
+    }
+    
+    private func migrateToVersion13(migration: Migration)
+    {
+        migration.enumerateObjects(ofType: Chat.className()) { oldObject, newObject in
+            
+            let key = "participants"
+            var newParticipantList = [MigrationObject]()
+            
+            if let participantsID = oldObject![key] as? List<String>
+            {
+                for id in participantsID
+                {
+                    let participant = ChatParticipant(userID: id, unseenMessageCount: 0)
+                    let migrationParticipantObject = migration.create(ChatParticipant.className(), value: participant)
+                    newParticipantList.append(migrationParticipantObject)
+                }
+            }
+            newObject![key] = newParticipantList
+        }
+    }
+    
+    private func migrateToVersion14(migration: Migration)
+    {
+        migration.enumerateObjects(ofType: "DBUser") { oldObject, newObject in
+            guard let oldObject = oldObject else {return}
+            
+            let user = migration.create("User", value: [
+                "id": oldObject["userId"] as? String ?? UUID().uuidString,
+                "name": oldObject["name"] as? String?,
+                "dateCreated": oldObject["dateCreated"] as? Date?,
+                "email": oldObject["email"] as? String?,
+                "photoUrl": oldObject["photoUrl"] as? String?,
+                "phoneNumber": oldObject["phoneNumber"] as? String?,
+                "isActive": oldObject["isActive"] as? Bool?,
+                "lastSeen": oldObject["lastSeen"] as? Date?
+            ])
+        }
+    }
+}
 
 //MARK: - Realm file path
 extension RealmDBManager 
@@ -206,6 +185,39 @@ extension RealmDBManager
 //        
 //        return result.count
 //    }
+
+//    public func addObserverToObjects<T: Object>(objects: Results<T>) {
+//        let token = objects.observe { change in
+//            switch change {
+//            case .initial(let initialResults): print(initialResults)
+//            case .update(let updateResults, let deletions, let insertions, let modifications): print("ads")
+//            case .error(let error): print(error.localizedDescription)
+//            }
+//        }
+//        notificationToken.append(token)
+//    }
+    
+    
+//    @Published var objectPropertyChange: RealmPropertyChange?
+//    @Published var objectPropertyChange: PropertyChange?
+    
+//    public func addObserverToObject<T: Object>(object: T) {
+//        let token = object.observe { change in
+//            switch change {
+//            case .change(_, let properties):
+//                properties.forEach { property in
+//                    guard let newValue = property.newValue as? String else { return }
+////                    self.objectPropertyChange = property
+//                }
+//            case .deleted:
+//                print("Object was deleted")
+//            case .error(let error):
+//                print(error.localizedDescription)
+//            }
+//        }
+//        notificationToken?.append(token)
+//    }
+
 //}
 
 //enum RealmPropertyChange {

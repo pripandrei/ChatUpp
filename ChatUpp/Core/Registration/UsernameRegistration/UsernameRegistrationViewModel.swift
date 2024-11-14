@@ -38,7 +38,7 @@ final class UsernameRegistrationViewModel {
     
     private func saveProfileImageToStorage() async throws -> String? {
         if let profileImageData = profileImageData {
-            let (_, name) = try await StorageManager.shared.saveUserImage(data: profileImageData, userId: authUser.uid)
+            let (_, name) = try await FirebaseStorageManager.shared.saveUserImage(data: profileImageData, userId: authUser.uid)
             return name
         }
         return nil
@@ -50,7 +50,7 @@ final class UsernameRegistrationViewModel {
                 // if user will not add profile photo saveProfileImageToStorage will return nil
                 // and default profile picture, form assets, will be used
                 let profilePhotoURL = try await saveProfileImageToStorage()
-                try await UserManager.shared.updateUser(with: authUser.uid, usingName: username, profilePhotoURL: profilePhotoURL)
+                try await FirestoreUserService.shared.updateUser(with: authUser.uid, usingName: username, profilePhotoURL: profilePhotoURL)
                 finishRegistration.value = true
             } catch {
                 print("Error updating user on creation: ", error)

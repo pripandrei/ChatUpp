@@ -29,7 +29,7 @@ final class ConversationCellViewModel {
     func fetchImageData() {
         Task {
             do {
-                self.imageData = try await StorageManager.shared.getMessageImage(messageId: cellMessage.id, path: cellMessage.imagePath!)
+                self.imageData = try await FirebaseStorageManager.shared.getMessageImage(messageId: cellMessage.id, path: cellMessage.imagePath!)
             } catch {
                 print("Error fetching image from storage: ", error)
             }
@@ -77,7 +77,7 @@ extension ConversationCellViewModel
     @MainActor
     func updateFirestoreMessageSeenStatus(from chatID: String) async {
         do {
-            try await ChatsManager.shared.updateMessageSeenStatus(messageID: cellMessage.id, chatID: chatID)
+            try await FirebaseChatService.shared.updateMessageSeenStatus(messageID: cellMessage.id, chatID: chatID)
         } catch {
             print("Error updating message seen status in Firestore: ", error.localizedDescription)
         }

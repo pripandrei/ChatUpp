@@ -26,11 +26,11 @@ import FirebaseDatabaseSwift
 
 typealias RealtimeDBObserver = DatabaseReference
 
-final class UserManagerRealtimeDB {
+final class RealtimeUserService {
 
     private init() {}
     
-    static let shared = UserManagerRealtimeDB()
+    static let shared = RealtimeUserService()
     private let usersReference = Database.database(url: "https://chatupp-e5b6c-default-rtdb.europe-west1.firebasedatabase.app").reference(withPath: "users")
     private var onDisconnectRefListener: DatabaseReference?
     

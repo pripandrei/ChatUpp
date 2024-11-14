@@ -58,10 +58,10 @@ extension LoginViewModel {
                 }
                 
                 let dbUser = User(auth: authResultModel)
-                UserManager.shared.createNewUser(user: dbUser) { isCreated in
+                FirestoreUserService.shared.createNewUser(user: dbUser) { isCreated in
                    isCreated ? (self?.loginStatus.value = .userIsAuthenticated) : nil
                 }
-                UserManagerRealtimeDB.shared.createUser(user: dbUser)
+                RealtimeUserService.shared.createUser(user: dbUser)
             }
         }
     }

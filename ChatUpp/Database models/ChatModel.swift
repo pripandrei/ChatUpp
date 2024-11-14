@@ -78,12 +78,8 @@ class Chat: Object, Codable
         
         let participants = try container.decode([String:ChatParticipant].self, forKey: .participants)
         for (participantID, participant) in participants {
-//            participant.id = participantID
             self.participants.append(participant)
         }
-        
-//        let participants = try container.decode([Participant].self, forKey: .participants)
-//        self.participants.append(objectsIn: participants)
     }
     
     func encode(to encoder: Encoder) throws {

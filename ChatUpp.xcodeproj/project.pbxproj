@@ -14,7 +14,7 @@
 		7533D9BB2B167ED80057EBC7 /* PhoneSigninViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7533D9BA2B167ED80057EBC7 /* PhoneSigninViewModel.swift */; };
 		753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753D0B682AC1FA6100C22AC4 /* Utilities.swift */; };
 		7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7541615B2ABDDABC007CF0FA /* EmailCredentialsValidator.swift */; };
-		7543BE2A2ACB0EDA003001BF /* ChatsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE292ACB0EDA003001BF /* ChatsManager.swift */; };
+		7543BE2A2ACB0EDA003001BF /* FirebaseChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE292ACB0EDA003001BF /* FirebaseChatService.swift */; };
 		7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2B2ACC864A003001BF /* UserModel.swift */; };
 		7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2D2ACC868B003001BF /* ChatModel.swift */; };
 		7543BE302ACC86AE003001BF /* MessageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2F2ACC86AE003001BF /* MessageModel.swift */; };
@@ -37,7 +37,7 @@
 		756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */; };
 		756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525CD2A9F96AB005DC594 /* TabBarViewController.swift */; };
 		756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D12AAA147A005DC594 /* ChatsCell.swift */; };
-		756525D52AB50079005DC594 /* UserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D42AB50079005DC594 /* UserManager.swift */; };
+		756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D42AB50079005DC594 /* FirestoreUserService.swift */; };
 		756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */; };
 		756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */; };
 		757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */; };
@@ -74,7 +74,7 @@
 		75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C42A49AB0B00F63A5A /* LaunchScreen.storyboard */; };
 		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
-		75CB52182B0BF064007F3AB6 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* StorageManager.swift */; };
+		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
 		75D08B9C2BEFDCB1000AE1B5 /* YYText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08B952BEFDC8D000AE1B5 /* YYText.framework */; };
 		75D08B9D2BEFDCB1000AE1B5 /* YYText.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08B952BEFDC8D000AE1B5 /* YYText.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
@@ -87,7 +87,7 @@
 		75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */; };
 		75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */; };
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
-		75E2F2F12C3C17BE0058DC88 /* UserManagerRealtimeDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */; };
+		75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */; };
 		75F608842BEC2F560065DA83 /* ConversationTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */; };
 		75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* InputBarHeaderView.swift */; };
 		75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -157,7 +157,7 @@
 		753D3FF42BEFC1DB00BA26A4 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = SOURCE_ROOT; };
 		753D3FFA2BEFC23700BA26A4 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = SOURCE_ROOT; };
 		7541615B2ABDDABC007CF0FA /* EmailCredentialsValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailCredentialsValidator.swift; sourceTree = "<group>"; };
-		7543BE292ACB0EDA003001BF /* ChatsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsManager.swift; sourceTree = "<group>"; };
+		7543BE292ACB0EDA003001BF /* FirebaseChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseChatService.swift; sourceTree = "<group>"; };
 		7543BE2B2ACC864A003001BF /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		7543BE2D2ACC868B003001BF /* ChatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModel.swift; sourceTree = "<group>"; };
 		7543BE2F2ACC86AE003001BF /* MessageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageModel.swift; sourceTree = "<group>"; };
@@ -180,7 +180,7 @@
 		756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		756525CD2A9F96AB005DC594 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		756525D12AAA147A005DC594 /* ChatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsCell.swift; sourceTree = "<group>"; };
-		756525D42AB50079005DC594 /* UserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManager.swift; sourceTree = "<group>"; };
+		756525D42AB50079005DC594 /* FirestoreUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreUserService.swift; sourceTree = "<group>"; };
 		756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameRegistrationViewController.swift; sourceTree = "<group>"; };
 		756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsCellViewModel.swift; sourceTree = "<group>"; };
 		757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewShadowConfigurable.swift; sourceTree = "<group>"; };
@@ -202,7 +202,7 @@
 		75B5C4C72A49AB0B00F63A5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
-		75CB52172B0BF064007F3AB6 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
 		75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = "<group>"; };
 		75D6DC322B0D735100D2CD26 /* ConversationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCellViewModel.swift; sourceTree = "<group>"; };
@@ -213,7 +213,7 @@
 		75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneCodeVerificationViewController.swift; sourceTree = "<group>"; };
 		75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSignInViewController.swift; sourceTree = "<group>"; };
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
-		75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserManagerRealtimeDB.swift; sourceTree = "<group>"; };
+		75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeUserService.swift; sourceTree = "<group>"; };
 		75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTextViewDelegate.swift; sourceTree = "<group>"; };
 		75F608852BEC33400065DA83 /* InputBarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarHeaderView.swift; sourceTree = "<group>"; };
 		75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
@@ -376,8 +376,8 @@
 		756525D32AB50035005DC594 /* Firestore database */ = {
 			isa = PBXGroup;
 			children = (
-				756525D42AB50079005DC594 /* UserManager.swift */,
-				7543BE292ACB0EDA003001BF /* ChatsManager.swift */,
+				756525D42AB50079005DC594 /* FirestoreUserService.swift */,
+				7543BE292ACB0EDA003001BF /* FirebaseChatService.swift */,
 				7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */,
 			);
 			path = "Firestore database";
@@ -498,7 +498,7 @@
 		75CB52192B0BF07D007F3AB6 /* Firebase storage */ = {
 			isa = PBXGroup;
 			children = (
-				75CB52172B0BF064007F3AB6 /* StorageManager.swift */,
+				75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */,
 			);
 			path = "Firebase storage";
 			sourceTree = "<group>";
@@ -572,7 +572,7 @@
 		75E2F2EF2C3C17620058DC88 /* Realtime database */ = {
 			isa = PBXGroup;
 			children = (
-				75E2F2F02C3C17BE0058DC88 /* UserManagerRealtimeDB.swift */,
+				75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */,
 			);
 			path = "Realtime database";
 			sourceTree = "<group>";
@@ -815,10 +815,10 @@
 				753186132C26F8B900C4F9F4 /* UITextView+Extensions.swift in Sources */,
 				7563F8802ADF6E31006FA374 /* FirestoreCollectionName.swift in Sources */,
 				755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */,
-				7543BE2A2ACB0EDA003001BF /* ChatsManager.swift in Sources */,
+				7543BE2A2ACB0EDA003001BF /* FirebaseChatService.swift in Sources */,
 				75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */,
-				756525D52AB50079005DC594 /* UserManager.swift in Sources */,
-				75E2F2F12C3C17BE0058DC88 /* UserManagerRealtimeDB.swift in Sources */,
+				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
+				75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
 				7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */,
@@ -857,7 +857,7 @@
 				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
 				75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */,
-				75CB52182B0BF064007F3AB6 /* StorageManager.swift in Sources */,
+				75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */,
 				7544392E2B3D2B620044A84B /* SettingsItemModel.swift in Sources */,
 				7533D9B82B1659210057EBC7 /* PhoneSignInViewController.swift in Sources */,
 				7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */,

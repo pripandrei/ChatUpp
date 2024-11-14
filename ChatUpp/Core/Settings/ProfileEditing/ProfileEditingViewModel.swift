@@ -54,7 +54,7 @@ final class ProfileEditingViewModel {
     
     private func saveImageToStorage() async throws {
         if let editedPhoto = editedProfilePhoto {
-            let (_,name) = try await StorageManager.shared.saveUserImage(data: editedPhoto, userId: authUser.uid)
+            let (_,name) = try await FirebaseStorageManager.shared.saveUserImage(data: editedPhoto, userId: authUser.uid)
             if let photoURL = authUser.photoURL {
                 try await removeProfileImage(ofUser: authUser.uid, urlPath: photoURL)
             }
@@ -63,11 +63,11 @@ final class ProfileEditingViewModel {
     }
     
     private func fetchFreshUserFromDB() async throws -> User {
-        return try await UserManager.shared.getUserFromDB(userID: authUser.uid)
+        return try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
     }
     
     private func updateDBUser() async throws {
-        try await UserManager.shared.updateUser(with: authUser.uid, usingName: userData.name, profilePhotoURL: profilePictureURL, phoneNumber: userData.phone, nickname: userData.nickname)
+        try await FirestoreUserService.shared.updateUser(with: authUser.uid, usingName: userData.name, profilePhotoURL: profilePictureURL, phoneNumber: userData.phone, nickname: userData.nickname)
     }
     
     func handleProfileDataUpdate() {
@@ -93,7 +93,7 @@ final class ProfileEditingViewModel {
     }
     
     private func removeProfileImage(ofUser userID: String, urlPath: String) async throws {
-        try await StorageManager.shared.deleteProfileImage(ofUser: userID, path: urlPath)
+        try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: userID, path: urlPath)
     }
 }
 

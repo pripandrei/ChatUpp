@@ -40,14 +40,14 @@ final class EmailSignupViewModel: EmailValidator {
             }
             let dbUser = User(auth: authDataResult)
             
-            UserManager.shared.createNewUser(user: dbUser) { isCreated in
+            FirestoreUserService.shared.createNewUser(user: dbUser) { isCreated in
                 if isCreated {
                    print("User was created!")
                 } else {
                     print("Error creating user during sign up")
                 }
             }
-            UserManagerRealtimeDB.shared.createUser(user: dbUser)
+            RealtimeUserService.shared.createUser(user: dbUser)
             complition(.success)
         }
     }

@@ -24,9 +24,9 @@ final class SettingsViewModel {
     
     @objc func signOut() async {
         do {
-            UserManagerRealtimeDB.shared.updateUserActiveStatus(isActive: false)
+            RealtimeUserService.shared.updateUserActiveStatus(isActive: false)
             //            try await updateUserOnlineStatus()
-            try await UserManagerRealtimeDB.shared.cancelOnDisconnect()
+            try await RealtimeUserService.shared.cancelOnDisconnect()
             try AuthenticationManager.shared.signOut()
             userIsSignedOut.value = true
         } catch {
@@ -42,10 +42,10 @@ final class SettingsViewModel {
     
     func fetchUserFromDB() async throws {
         let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
-        self.user = try await UserManager.shared.getUserFromDB(userID: uderID.uid)
+        self.user = try await FirestoreUserService.shared.getUserFromDB(userID: uderID.uid)
 //        self.imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
         if let userID = user?.id, let photoUrl = user?.photoUrl {
-            self.imageData = try await StorageManager.shared.getUserImage(userID: userID, path: photoUrl)
+            self.imageData = try await FirebaseStorageManager.shared.getUserImage(userID: userID, path: photoUrl)
         }
         onUserFetched?()
     }
@@ -56,15 +56,15 @@ final class SettingsViewModel {
 
     func deleteUser() async throws {
         guard let userID = user?.id else {return}
-        let deletedUserID = UserManager.mainDeletedUserID
+        let deletedUserID = FirestoreUserService.mainDeletedUserID
 
         if authProvider == "google" {
             try await AuthenticationManager.shared.googleAuthReauthenticate()
         }
         try await AuthenticationManager.shared.deleteAuthUser()
-        try await ChatsManager.shared.replaceUserId(userID, with: deletedUserID)
-        try await StorageManager.shared.deleteProfileImage(ofUser: userID, path: user!.photoUrl!)
-        try await UserManager.shared.deleteUserFromDB(userID: userID)
+        try await FirebaseChatService.shared.replaceUserId(userID, with: deletedUserID)
+        try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: userID, path: user!.photoUrl!)
+        try await FirestoreUserService.shared.deleteUserFromDB(userID: userID)
     }
     
 //    func deleteUser() async throws {

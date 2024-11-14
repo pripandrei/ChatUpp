@@ -17,11 +17,11 @@ enum ResponseStatus {
 
 //MARK: - USER MANAGER
 
-final class UserManager {
+final class FirestoreUserService {
     
     static let mainDeletedUserID = "DeletedxE3btxSOXM2bRfkppe1P"
     
-    static let shared = UserManager()
+    static let shared = FirestoreUserService()
     
     private init() {}
     
@@ -152,7 +152,7 @@ final class UserManager {
 }
 
 // MARK: - Testing functions
-extension UserManager {
+extension FirestoreUserService {
     
     ///Remove all is_active fields
     func deleteAllIsActiveFieldsOnUsers() {

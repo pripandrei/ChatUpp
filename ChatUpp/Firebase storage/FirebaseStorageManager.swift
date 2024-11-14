@@ -9,9 +9,9 @@ import Foundation
 import FirebaseStorage
 
 
-final class StorageManager {
+final class FirebaseStorageManager {
     
-    static var shared = StorageManager()
+    static var shared = FirebaseStorageManager()
     
     private init() {}
     
