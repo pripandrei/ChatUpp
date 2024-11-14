@@ -7,10 +7,13 @@
 
 import Foundation
 import Combine
+import RealmSwift
 
 final class ChatsViewModel {
+
     
     //TODO: - remove listeners
+    private var cancellables = Set<AnyCancellable>()
     
     private(set) var cellViewModels = [ChatCellViewModel]()
     private(set) var usersListener: Listener?
@@ -25,7 +28,9 @@ final class ChatsViewModel {
     init() {
         print(RealmDBManager.realmFilePath)
         setupCellViewModels()
-        addChatsListener()
+        observeChats()
+//        observeChatsParticipants()
+//        addChatsParticipantsListener()
     }
 
     func activateOnDisconnect() {
@@ -101,6 +106,9 @@ extension ChatsViewModel {
                     existingParticipant.userID = participant.userID
                     existingParticipant.unseenMessagesCount = participant.unseenMessagesCount
                 }
+//                else {
+//                    DBChat.participants.append(participant)
+//                }
             }
         }
     }
@@ -110,29 +118,66 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     
-    private func addChatsListener()
+    private func observeChats()
     {
-        guard let participant = getAuthenticatedParticipantID() else {return}
+//        let chatsResults = RealmDBManager.shared.realm!.objects(Chat.self)
+//        chatsResults.collectionPublisher
+//            .map { Array($0) } // Convert Results to an Array of Chats
+//            .catch { _ in Just([Chat]()) } // Use an empty array if there’s an error
+//            .receive(on: DispatchQueue.main)
+//            .sink(receiveValue: { chats in
+//                print(chats)
+//            })
+//            .assign(to: &$chats)
+//        
         
-        self.chatsListener = ChatsManager.shared.addListenerForChats(containingParticipantID: participant, complition: { [weak self] chats, docTypes in
-            
-            guard let self = self else {return}
-            
-            docTypes.enumerated().forEach { index, type in
-                switch type {
-                case .added: self.handleAddedChat(chats[index])
-                case .removed: print("remove cellVM")
-                    //                    self.removeChat(chats[index])
-                case .modified: self.handleModifiedChat(chats[index])
-                }
-            }
-        })
+        ChatsManager.shared.chatsPublisher(containingParticipantUserID: authUser.uid)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] update in
+                self?.handleChatUpdate(update)
+            }.store(in: &cancellables)
     }
+    
+//    private func observeChatsParticipants() {
+//        ChatsManager.shared.chatParticipantsPublisher(for: authUser.uid)
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] update in
+//                self?.handleParticipantUpdate(update)
+//            }.store(in: &cancellables)
+//    }
+    
 }
+
+
+////MARK: - Participants updates
+//
+//extension ChatsViewModel {
+//    
+//    private func handleParticipantUpdate(_ update: ChatUpdate<ChatParticipant>)
+//    {
+//        update.changeType.
+//        switch update.changeType
+//        {
+//        case .modified:
+//        case .added:
+//        case .removed: print("Handle removed participant")
+//        }
+//    }
+//}
 
 //MARK: - Chat updates
 
 extension ChatsViewModel {
+    
+    private func handleChatUpdate(_ update: ChatUpdate<Chat>)
+    {
+        switch update.changeType
+        {
+            case .added: handleAddedChat(update.data)
+            case .modified: handleModifiedChat(update.data)
+            case .removed: print("Handle Removed chat")
+        }
+    }
     
     private func handleAddedChat(_ chat: Chat)
     {
@@ -142,7 +187,7 @@ extension ChatsViewModel {
             onNewChatAdded?(true)
             return
         }
-//        updateRealmChat(chat)
+        updateRealmChat(chat)
     }
     
     private func handleModifiedChat(_ chat: Chat) {
@@ -180,3 +225,82 @@ extension Array where Element: Equatable
 //        }
 //    }
 //}
+
+//
+//extension ChatsViewModel {
+//    
+//    private func addChatsParticipantsListener()
+//    {
+//        self.chatsListener = ChatsManager.shared.addListenerForChatsParticipants(withUserID: authUser.uid, complition: { [weak self] participants, docTypes in
+//            
+//            guard let self = self else {return}
+// 
+//            docTypes.enumerated().forEach { index, type in
+//                switch type {
+//                case .added:  self.participants.append(participants[index])
+//                case .removed: self.handleRemovedParticipant(participants[index])
+//                case .modified: self.handleModifiedParticipant(participants[index])
+//                }
+//            }
+//        })
+//    }
+//    
+//    private func addListenerForChats(containingParticipantsID participantsID: [String]) {
+//        
+//        self.chatsListener = ChatsManager.shared.addListenerForChats(containingParticipantID: participantsID, complition: { [weak self] chats, docTypes in
+//            
+//            guard let self = self else {return}
+//            
+//            docTypes.enumerated().forEach { index, type in
+//                switch type {
+//                case .added: self.handleAddedChat(chats[index])
+//                case .removed: print("remove cellVM")
+//                    //                    self.removeChat(chats[index])
+//                case .modified: self.handleModifiedChat(chats[index])
+//                }
+//            }
+//        })
+//    }
+//}
+
+
+//MARK: - Participants
+extension ChatsViewModel
+{
+//    private func participantBinding() {
+//        self.$participants
+//            .scan([] as [ChatParticipant]) { previous, current in
+//                let newItems = current.filter { !previous.contains($0) }
+//                return newItems
+//            }
+//            .filter { !$0.isEmpty }
+//            .receive(on: DispatchQueue.main)
+//            .sink { newParticipants in
+//                print("New participants:", newParticipants)
+//                let participantsIDs = newParticipants.compactMap({ $0.id })
+//                self.addListenerForChats(containingParticipantsID: participantsIDs)
+//
+//            }
+//            .store(in: &subscribers)
+//    }
+//
+//    private func pa2rticipantBinding() {
+//        self.$participants
+//            .scan(([], [])) { (old, new) -> ([ChatParticipant], [ChatParticipant]) in
+//                // Returns tuple of (previous array, current array)
+//                return (new, old.1)
+//            }
+//            .map { prev, current in
+//
+//                return current.filter { newParticipant in
+//                    !prev.contains(where: { $0.id == newParticipant.id })
+//                }
+//            }
+//            .receive(on: DispatchQueue.main)
+//            .sink { newParticipants in
+//                // Handle only the newly added participants here
+//                print("New participants:", newParticipants)
+//            }
+//            .store(in: &subscribers)
+//    }
+}

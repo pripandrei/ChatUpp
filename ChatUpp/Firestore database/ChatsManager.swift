@@ -8,9 +8,16 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreSwift
+import Combine
 
 
 typealias Listener = ListenerRegistration
+
+
+struct ChatUpdate<T> {
+    let data: T
+    let changeType: DocumentChangeType
+}
 
 final class ChatsManager {
 
@@ -18,10 +25,12 @@ final class ChatsManager {
     
     private init() {}
     
-    let firestoreEncoder = Firestore.Encoder()
-    let firestoreDecoder = Firestore.Decoder()
+    private let firestoreEncoder = Firestore.Encoder()
+    private let firestoreDecoder = Firestore.Decoder()
     
-    let chatsCollection = Firestore.firestore().collection(FirestoreCollection.chats.rawValue)
+    private let db = Firestore.firestore()
+    
+    private lazy var chatsCollection = db.collection(FirestoreCollection.chats.rawValue)
     
     private func chatDocument(documentPath: String) -> DocumentReference {
         return chatsCollection.document(documentPath)
@@ -118,11 +127,19 @@ extension ChatsManager
 //            .intValue
 //    }
 
+    
     @MainActor
     func getRecentMessage(from chat: Chat) async throws -> Message? {
-        guard let recentMessage = chat.recentMessageID else {return nil}
-        let message = try await getMessageDocument(messagePath: recentMessage, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
-        return message
+        guard let recentMessageID = chat.recentMessageID else {return nil}
+        do {
+//            let message = try await getMessageDocument(messagePath: "klwjrqwlkrjl3k4j2k3j42", fromChatDocumentPath: "CF3D16E4-ADBET47F8-ADE6-B2ACECA699E3").getDocument(as: Message.self)
+            let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
+            return message
+        } catch {
+            
+            print("Error fetching recent message: ", error.localizedDescription)
+            return nil
+        }
     }
 }
 
@@ -202,22 +219,100 @@ extension ChatsManager
 
 extension ChatsManager 
 {
-    func addListenerForChats(containingParticipantID participantID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
+    func chatsPublisher(containingParticipantUserID participantUserID: String) -> AnyPublisher<ChatUpdate<Chat>, Never>
     {
-        let fieldPath = "participants.\(participantID).id"
-        return chatsCollection.whereField(fieldPath, isEqualTo: participantID).addSnapshotListener { querySnapshot, error in
-            guard error == nil else { print(error!.localizedDescription); return}
-            guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
-            
-            var docChangeType: [DocumentChangeType] = []
-            
-            let chats = documents.compactMap { docChange in
-                docChangeType.append(docChange.type)
-                return try? docChange.document.data(as: Chat.self)
+        let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
+        
+        chatsCollection
+            .whereField("participants_user_ids", arrayContainsAny: [participantUserID])
+            .addSnapshotListener { snapshot, error in
+                guard error == nil else { print(error!.localizedDescription); return }
+                
+                snapshot?.documentChanges.forEach { change in
+                    if let chat = try? change.document.data(as: Chat.self) {
+                        let update = ChatUpdate(data: chat, changeType: change.type)
+                        subject.send(update)
+                    }
+                }
             }
-            complition(chats,docChangeType)
-        }
+        return subject.eraseToAnyPublisher()
     }
+    
+//    func chatParticipantsPublisher(for userID: String) -> AnyPublisher<ChatUpdate<ChatParticipant>, Never> 
+//    {
+//        let subject = PassthroughSubject<ChatUpdate<ChatParticipant>, Never>()
+//        
+//        db.collectionGroup("participants")
+//            .whereField("user_id", isEqualTo: userID)
+//            .addSnapshotListener { snapshot, error in
+//                guard error == nil else { print(error!.localizedDescription); return }
+//                
+//                snapshot?.documentChanges.forEach { change in
+//                    if let participant = try? change.document.data(as: ChatParticipant.self) 
+//                    {
+//                        let update = ChatUpdate(data: participant, changeType: change.type)
+//                        subject.send(update)
+//                    }
+//                }
+//            }
+//        return subject.eraseToAnyPublisher()
+//    }
+    
+    func participantsPublisher(for chatID: String) -> AnyPublisher<ChatUpdate<ChatParticipant>, Never>
+    {
+        let subject = PassthroughSubject<ChatUpdate<ChatParticipant>, Never>()
+        
+        chatDocument(documentPath: chatID)
+//            .collection(FirestoreCollection.participants.rawValue)
+            .collection("participants5")
+            .addSnapshotListener { snapshot, error in
+                guard error == nil else { print(error!.localizedDescription); return }
+                
+                snapshot?.documentChanges.forEach { change in
+                    if let participant = try? change.document.data(as: ChatParticipant.self)
+                    {
+                        let update = ChatUpdate(data: participant, changeType: change.type)
+                        subject.send(update)
+                    }
+                }
+            }
+        return subject.eraseToAnyPublisher()
+    }
+    
+    
+//    func addListenerForChats(containingParticipantID participantID: [String], complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
+//    {
+//        let fieldPath = "participantsIDs"
+//        return chatsCollection.whereField(fieldPath, arrayContainsAny: participantID).addSnapshotListener { querySnapshot, error in
+//            guard error == nil else { print(error!.localizedDescription); return}
+//            guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
+//            
+//            var docChangeType: [DocumentChangeType] = []
+//            
+//            let chats = documents.compactMap { docChange in
+//                docChangeType.append(docChange.type)
+//                return try? docChange.document.data(as: Chat.self)
+//            }
+//            complition(chats,docChangeType)
+//        }
+//    }
+//    
+//    func addListenerForChatsParticipants(withUserID userID: String, complition: @escaping ([ChatParticipant],[DocumentChangeType]) -> Void) -> Listener
+//    {
+//        return db.collectionGroup("participants").whereField("user_id", isEqualTo: userID).addSnapshotListener { querySnapshot, error in
+//            guard error == nil else { print(error!.localizedDescription); return}
+//            guard let documents = querySnapshot?.documentChanges else { print("No Chat Documents to listen"); return}
+//            
+//            var docChangeType: [DocumentChangeType] = []
+//            
+//            let chats = documents.compactMap { docChange in
+//                let path = docChange.document.reference.path
+//                docChangeType.append(docChange.type)
+//                return try? docChange.document.data(as: ChatParticipant.self)
+//            }
+//            complition(chats,docChangeType)
+//        }
+//    }
     
 //    func addListenerForChats(containingUserID userID: String, complition: @escaping ([Chat],[DocumentChangeType]) -> Void) -> Listener
 //    {
@@ -267,6 +362,7 @@ extension ChatsManager
                                         limit: Int,
                                         onMessageUpdated: @escaping (Message, DocumentChangeType) -> Void) -> Listener
     {
+        
         return chatDocument(documentPath: chatID)
             .collection(FirestoreCollection.messages.rawValue)
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)

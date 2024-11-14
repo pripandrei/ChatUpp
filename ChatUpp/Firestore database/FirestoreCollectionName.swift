@@ -11,6 +11,7 @@ enum FirestoreCollection: String {
     case chats
     case messages
     case users
+    case participantsUserIDs = "participants_user_ids"
 }
 
 enum FirestoreField: String {

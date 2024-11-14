@@ -8,6 +8,15 @@
 import Foundation
 import Combine
 
+
+//MARK: - Participants updates
+extension ChatCellViewModel 
+{
+    private func observeChat() {
+        RealmDBManager.shared.addObserverToObject(object: chat)
+    }
+}
+
 class ChatCellViewModel: Equatable {
     
     private(set) var chat: Chat
@@ -17,13 +26,16 @@ class ChatCellViewModel: Equatable {
     
     @Published private(set) var chatUser: User?
     @Published private(set) var recentMessage: Message?
-    @Published private(set) var memberProfileImage: Data?
     @Published private(set) var unreadMessageCount: Int?
+    @Published private(set) var memberProfileImage: Data?
+    
+    private var cancellables = Set<AnyCancellable>()
     
     init(chat: Chat) {
         self.chat = chat
 
         initiateChatDataLoad()
+        observeChat()
     }
     
     private func initiateChatDataLoad() {
@@ -74,6 +86,24 @@ class ChatCellViewModel: Equatable {
         if let _ = chat.recentMessageID { return true }
         return false
     }
+    
+//    private func updateParticipantsInRealm(_ participant: ChatParticipant)
+//    {
+////        participants.forEach { participant in
+//            RealmDBManager.shared.add(object: participant)
+////        }
+//    }
+//    
+//    private func addParticipantsToRealm(_ participant: ChatParticipant)
+//    {
+////        participants.forEach { participant in
+//            if !chat.participants.contains(where: { $0.id == participant.id }) {
+//                RealmDBManager.shared.update(object: chat) { chat in
+//                    chat.participants.append(participant)
+//                }
+//            }
+////        }
+//    }
 }
 
 
@@ -84,13 +114,13 @@ extension ChatCellViewModel {
     func updateChatParameters() {
         
         /// chat was update in realm, so we check if it's properties match local one (member & recentMessage)
-//        if findMemberID() != member?.userId {
-//            Task { await updateUserAfterDeletion() }
-//        }
+        self.unreadMessageCount = chat.participants.first { $0.userID == authUser.uid }?.unseenMessagesCount
+        if findMemberID() != chatUser?.id {
+            Task { await updateUserAfterDeletion() }
+        }
         if chat.recentMessageID != recentMessage?.id {
             Task {
                 recentMessage = await loadRecentMessage()
-                unreadMessageCount = try await fetchUnreadMessagesCount()
                 await MainActor.run { addMessageToRealm() }
             }
         }
@@ -113,12 +143,13 @@ extension ChatCellViewModel {
 extension ChatCellViewModel {
     
     func retrieveDataFromRealm() throws {
-        self.chatUser = try retrieveMember()
+        self.unreadMessageCount = try retrieveAuthParticipant().unseenMessagesCount
         self.recentMessage = try retrieveRecentMessage()
-        try retrieveMemberImageData()
+        self.chatUser = try retrieveMember()
+        self.memberProfileImage = try retrieveMemberImageData()
     }
     
-    func retrieveMember() throws -> User {
+    private func retrieveMember() throws -> User {
         guard let memberID = findMemberID(),
               let member = RealmDBManager.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else {
             throw
@@ -126,18 +157,25 @@ extension ChatCellViewModel {
         return member
     }
     
-    func retrieveRecentMessage() throws -> Message {
+    private func retrieveRecentMessage() throws -> Message {
         guard let messageID = chat.recentMessageID,
         let message = RealmDBManager.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
             throw RealmRetrieveError.messageNotPresent }
         return message
     }
     
-    func retrieveMemberImageData() throws {
+    private func retrieveMemberImageData() throws -> Data? {
         guard let userProfilePhotoURL = chatUser?.photoUrl else {
 //            print("image not")
             throw RealmRetrieveError.imageNotPresent }
-        memberProfileImage = CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
+        return CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
+    }
+    
+    private func retrieveAuthParticipant() throws -> ChatParticipant {
+        if let participant = chat.getParticipant(byID: authUser.uid) {
+            return participant
+        }
+        throw NSError(domain: "com.chatUpp.retrieve.participant.error", code: 1, userInfo: [NSLocalizedDescriptionKey: "Auth participant is missing"])
     }
 }
 
@@ -149,12 +187,11 @@ extension ChatCellViewModel
     private func fetchDataFromFirestore() async
     {
         do {
-            self.chatUser                = try await loadOtherMemberOfChat()
+            self.chatUser              = try await loadOtherMemberOfChat()
             async let loadMessage      = loadRecentMessage()
             async let loadImage        = fetchImageData()
-            async let loadUnreadMessageCount = fetchUnreadMessagesCount()
             
-            (recentMessage, memberProfileImage, unreadMessageCount) = await (loadMessage, try loadImage, try loadUnreadMessageCount)
+            (recentMessage, memberProfileImage) = await (loadMessage, try loadImage)
         } catch {
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
@@ -171,19 +208,10 @@ extension ChatCellViewModel
     @MainActor
     func loadRecentMessage() async -> Message?  {
         guard let message = try? await ChatsManager.shared.getRecentMessage(from: chat)
-        else { return nil }
+        else { 
+            return nil
+        }
         return message
-    }
-    
-    @discardableResult
-    @MainActor
-    func fetchUnreadMessagesCount() async throws -> Int? {
-        let unreadMessageCount = try await ChatsManager
-            .shared
-            .getUnreadMessagesCount(from: chat.id, whereMessageSenderID: chatUser!.id)
-        
-        self.unreadMessageCount = unreadMessageCount
-        return unreadMessageCount
     }
     
     func fetchImageData() async throws -> Data? {
@@ -195,6 +223,17 @@ extension ChatCellViewModel
         return photoData
     }
     
+    //    @discardableResult
+    //    @MainActor
+    //    func fetchUnreadMessagesCount() async throws -> Int? {
+    //        let unreadMessageCount = try await ChatsManager
+    //            .shared
+    //            .getUnreadMessagesCount(from: chat.id, whereMessageSenderID: chatUser!.id)
+    //
+    //        self.unreadMessageCount = unreadMessageCount
+    //        return unreadMessageCount
+    //    }
+    
 //    @MainActor
 //    func getMessagesCount() async throws -> Int {
 //        let count = try await ChatsManager.shared.getMessagesCount(fromChatDocumentPath: chat.id)
@@ -205,7 +244,7 @@ extension ChatCellViewModel
 //MARK: - Listeners
 
 extension ChatCellViewModel {
-   
+
     /// Observe user from Realtime db (Temporary fix while firebase functions are deactivated)
     @MainActor
     private func addObserverToUser() {
@@ -236,7 +275,32 @@ extension ChatCellViewModel {
             self.chatUser = user
         }
     }
+    
+    //    private func observeParticipants() {
+    //        ChatsManager.shared.participantsPublisher(for: chat.id)
+    //            .receive(on: DispatchQueue.main)
+    //            .sink { [weak self] update in
+    //                self?.handleParticipantUpdate(update)
+    //            }.store(in: &cancellables)
+    //    }
+        
+       
 }
+
+//MARK: - Participants updates
+
+//extension ChatCellViewModel 
+//{
+//    private func handleParticipantUpdate(_ update: ChatUpdate<ChatParticipant>)
+//    {
+//        switch update.changeType
+//        {
+//        case .modified: updateParticipantsInRealm(update.data)
+//        case .added: addParticipantsToRealm(update.data)
+//        case .removed: print("Handle removed participant")
+//        }
+//    }
+//}
 
 //MARK: - Equatable protocol subs
 

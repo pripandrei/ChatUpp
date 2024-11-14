@@ -433,7 +433,8 @@ extension ConversationViewController
                 //firestore message seen status update
                 await conversationViewModel.updateMessageSeenStatus(from: cell.cellViewModel)
                 // gets unread messages from firestore and assignes to local count badge
-                try await conversationViewModel.updateUnreadMessagesCount?()
+                //TODO: participant update updateUnseenMessageCounter() 
+//                try await conversationViewModel.updateUnreadMessagesCount?()
             }
         }
     }

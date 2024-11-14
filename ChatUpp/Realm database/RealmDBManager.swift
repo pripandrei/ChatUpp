@@ -29,11 +29,13 @@ enum RealmRetrieveError: Error, LocalizedError {
 
 final class RealmDBManager {
     
+    private var notificationToken: [NotificationToken]?
+    
     static var shared = RealmDBManager()
     
     static private let schemaVersion: UInt64 = 14
     
-    private var realm: Realm?
+    var realm: Realm?
     
     private init() {
         initiateDatabase()
@@ -156,23 +158,23 @@ final class RealmDBManager {
     
 //    @Published var objectPropertyChange: RealmPropertyChange?
 //    @Published var objectPropertyChange: PropertyChange?
-//    
-//    public func addObserverToObject<T: Object>(object: T) {
-//        let token = object.observe { change in
-//            switch change {
-//            case .change(_, let properties):
-//                properties.forEach { property in
-//                    guard let newValue = property.newValue as? String else { return }
+    
+    public func addObserverToObject<T: Object>(object: T) {
+        let token = object.observe { change in
+            switch change {
+            case .change(_, let properties):
+                properties.forEach { property in
+                    guard let newValue = property.newValue as? String else { return }
 //                    self.objectPropertyChange = property
-//                }
-//            case .deleted:
-//                print("Object was deleted")
-//            case .error(let error):
-//                print(error.localizedDescription)
-//            }
-//        }
-//        notificationToken.append(token)
-//    }
+                }
+            case .deleted:
+                print("Object was deleted")
+            case .error(let error):
+                print(error.localizedDescription)
+            }
+        }
+        notificationToken?.append(token)
+    }
 }
 
 

@@ -274,9 +274,9 @@ extension ChatsViewController: UITableViewDelegate
         let unreadMessageCount = cellVM.unreadMessageCount
         
         let conversationViewModel = ConversationViewModel(conversationUser: user, conversation: chat, imageData: memberPhoto)
-        conversationViewModel.updateUnreadMessagesCount = {
-            try await cellVM.fetchUnreadMessagesCount()
-        }
+//        conversationViewModel.updateUnreadMessagesCount = {
+//            try await cellVM.fetchUnreadMessagesCount()
+//        }
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
 }

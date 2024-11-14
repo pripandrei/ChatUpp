@@ -60,7 +60,7 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setUnreadMessageCount(_ count: Int) {
-        guard let _ = cellViewModel.recentMessage else {return}
+//        guard let _ = cellViewModel.recentMessage else {return}
 
         unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         

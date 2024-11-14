@@ -100,7 +100,7 @@ final class ConversationViewModel
     @Published var conversationInitializationStatus: ConversationInitializationStatus = .notInitialized
     
     var shouldEditMessage: ((String) -> Void)?
-    var updateUnreadMessagesCount: (() async throws -> Void)?
+//    var updateUnreadMessagesCount: (() async throws -> Void)?
     var currentlyReplyToMessageID: String?
     
     private var conversationExists: Bool {
@@ -130,6 +130,8 @@ final class ConversationViewModel
         return ( authParticipantUnreadMessagesCount != getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
     }
 
+    /// - Life cycle
+    
     init(conversationUser: User, conversation: Chat? = nil, imageData: Data?) {
         self.chatUser = conversationUser
         self.conversation = conversation
@@ -140,6 +142,8 @@ final class ConversationViewModel
         }
     }
 
+    /// - listeners
+    
     func addListeners() {
         addUsersListener()
         addUserObserver()
