@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Array where Element == ConversationMessageGroup
+extension Array where Element == ConversationViewModel.ConversationMessageGroup
 {
     mutating func removeCellViewModel(at indexPath: IndexPath) {
         self[indexPath.section].cellViewModels.remove(at: indexPath.row)

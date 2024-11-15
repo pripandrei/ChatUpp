@@ -64,10 +64,8 @@ final class RealmDataBase {
         )
     }
     
-    public func add<T: Object>(object: T) {
-        try? realm?.write {
-            realm?.add(object, update: .modified)
-        }
+    public func retrieveObjects<T: Object>(ofType type: T.Type) -> Results<T>? {
+        return realm?.objects(type)
     }
     
     public func retrieveObjects<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> [T] {
@@ -98,11 +96,18 @@ final class RealmDataBase {
         }
     }
     
+    public func add<T: Object>(object: T) {
+        try? realm?.write {
+            realm?.add(object, update: .modified)
+        }
+    }
+    
     public func delete<T: Object>(object: T) {
         try? realm?.write({
             realm?.delete(object)
         })
     }
+    
 }
 
 //MARK: - Migrations

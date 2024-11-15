@@ -413,18 +413,11 @@ extension ConversationViewController
                   checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
                 continue
             }
-            
             cell.cellViewModel.updateRealmMessageSeenStatus()
             
             Task { @MainActor in
-                
-                //realm message seen status update
-                //firestore message seen status update
                 await conversationViewModel.updateMessageSeenStatus(from: cell.cellViewModel)
-                // gets unread messages from firestore and assignes to local count badge
-                //TODO: participant update updateUnseenMessageCounter() 
                 conversationViewModel.updateUnseenMessageCounter(shouldIncrement: false)
-//                try await conversationViewModel.updateUnreadMessagesCount?()
             }
         }
     }
