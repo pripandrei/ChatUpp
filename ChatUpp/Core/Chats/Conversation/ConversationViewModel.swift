@@ -434,6 +434,7 @@ extension ConversationViewModel
         guard let conversationID = conversation?.id,
               let startMessageID = conversation?.getLastMessage()?.id else { return }
         
+        print(":asd")
         Task { @MainActor in
             
             let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
@@ -444,7 +445,7 @@ extension ConversationViewModel
                     
                     switch changeType {
                     case .added: print("added")
-                        //                    self.handleAddedMessage(message)
+                        self.handleAddedMessage(message)
                     case .removed: self.handleRemovedMessage(message)
                     case .modified: self.handleModifiedMessage(message)
                         print("==== modified", message)
@@ -496,10 +497,10 @@ extension ConversationViewModel
             messageChangedType = .added
             return
         }
-        Task { @MainActor in
-//            if message.id == "----" { print("stop") }
-            updateMessage(message)
-        }
+//        Task { @MainActor in
+////            if message.id == "----" { print("stop") }
+//            updateMessage(message)
+//        }
     }
     
     private func handleModifiedMessage(_ message: Message) 
