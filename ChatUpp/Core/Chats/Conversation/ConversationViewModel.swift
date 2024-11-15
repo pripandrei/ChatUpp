@@ -433,8 +433,7 @@ extension ConversationViewModel
     {
         guard let conversationID = conversation?.id,
               let startMessageID = conversation?.getLastMessage()?.id else { return }
-        
-        print(":asd")
+ 
         Task { @MainActor in
             
             let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(

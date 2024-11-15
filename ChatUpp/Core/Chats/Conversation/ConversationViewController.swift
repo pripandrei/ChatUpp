@@ -8,6 +8,7 @@
 // THEREFORE, SOME PROPERTIES AND ADJUSTMENTS WERE MADE AND SET AS BOTTOM => TOP.
 // KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST TABLE VIEW
 
+
 import UIKit
 import Photos
 import PhotosUI
@@ -18,19 +19,6 @@ import SkeletonView
 //MARK: - SCROLL VIEW DELEGATE
 extension ConversationViewController: UIScrollViewDelegate
 {
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) 
-    {
-        /// This code is a workaround to avoid content offset shift on new rows/sections insertion
-        /// EXPLANETION:
-        /// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
-        /// tableView will animate scrolling to the last inserted cell, we want this to avoid,
-        /// So we offset a bit content, which will result in content remaining at the same position after insertion
-//        if self.rootView.tableView.contentOffset.y <= -97.5 {
-//            self.rootView.tableView.contentOffset.y += 0.5
-//        }
-    }
-
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         updateMessageSeenStatusIfNeeded()
@@ -104,8 +92,6 @@ final class ConversationViewController: UIViewController {
     deinit {
         print("====ConversationVC Deinit")
     }
-    
-    
 
     private func setupController()
     {
@@ -133,14 +119,15 @@ final class ConversationViewController: UIViewController {
             self.scrollToCell(at: indexPath)
         }
         self.didFinishInitialScroll = true
-//        self.view.layoutSubviews()
     }
     
     private func setupBinding()
     {
         conversationViewModel.$conversationInitializationStatus
             .receive(on: DispatchQueue.main)
-            .sink { initializationStatus in
+            .sink { [weak self] initializationStatus in
+                guard let self = self else {return}
+                
                 switch initializationStatus {
                 case .inProgress: self.toggleSkeletonAnimation(.initiated)
                 case .finished:

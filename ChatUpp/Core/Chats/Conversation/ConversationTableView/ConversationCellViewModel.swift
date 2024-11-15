@@ -14,11 +14,8 @@ final class ConversationCellViewModel {
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
     
-//    var messageID: String
-    
     init(cellMessage: Message) {
         self.cellMessage = cellMessage
-//        self.messageID = cellMessage.freeze().id
     }
     
     var timestamp: String {
@@ -67,13 +64,6 @@ final class ConversationCellViewModel {
 //MARK: - Message update in realm/firestore DB
 extension ConversationCellViewModel
 {
-    
-//    @MainActor
-//    func updateMessage(_ message: Message) {
-//        RealmDBManager.shared.add(object: message)
-////        RealmDBManager.shared.realmDB.refresh()
-//    }
-    
     @MainActor
     func updateFirestoreMessageSeenStatus(from chatID: String) async {
         do {
@@ -82,15 +72,6 @@ extension ConversationCellViewModel
             print("Error updating message seen status in Firestore: ", error.localizedDescription)
         }
     }
-    
-//    func updateFirestoreMessageSeenStatus(from chatID: String) {
-////        do {
-//            ChatsManager.shared.updateMessageSeenStatus2(messageID: messageID, chatID: chatID)
-////        } catch {
-////            print("Error updating message seen status in Firestore: ", error.localizedDescription)
-////        }
-//    }
-
     
     func updateRealmMessageSeenStatus() {
         RealmDataBase.shared.update(object: cellMessage) { message in
