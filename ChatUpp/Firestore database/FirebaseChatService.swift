@@ -77,7 +77,6 @@ extension FirebaseChatService
 
 extension FirebaseChatService
 {
-    
     func getMessagesCount(fromChatDocumentPath documentPath: String) async throws -> Int  {
         let countQuery = chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).count
         let count = try await countQuery.getAggregation(source: .server).count
@@ -429,14 +428,17 @@ extension FirebaseChatService {
             
             guard let documents = snapshot?.documents else { return }
             
+            let batch = self.db.batch()
+            
             // Iterate over each document
             for document in documents {
                 let chatId = document.documentID
                 
-                if chatId == "049EDFBC-1F46-465E-B0B6-FEFD8A3C3E16" {
+//                if chatId == "26606A0B-6134-4503-B6D7-06634F5902B6" {
                     // Get current participants array
                     if var oldParticipants = document.data()["participants"] as? [String] {
                         var newParticipantsMap: [String: [String: Any]] = [:]
+                        var participantsUserIDs: [String] = []
                         
                         // Transform each participant in the array to the new map format
                         for userId in oldParticipants {
@@ -448,21 +450,63 @@ extension FirebaseChatService {
                                 "user_id": userId,
                                 "unseen_messages_count": 0 // default initial value
                             ]
+                            participantsUserIDs.append(userId)
                         }
+                        let chatRef = self.chatsCollection.document(document.documentID)
                         
+                        batch.updateData(["participants_user_ids": participantsUserIDs,
+                                          "participants": newParticipantsMap], forDocument: chatRef)
                         // Update the document with the new participants structure
-                        self.chatsCollection.document(chatId).updateData(["participants": newParticipantsMap]) { error in
-                            if let error = error {
-                                print("Error updating chat \(chatId): \(error)")
-                            } else {
-                                print("Successfully updated chat \(chatId)")
-                            }
-                        }
+                        self.chatsCollection.document(chatId).updateData(["participants_user_ids": participantsUserIDs,
+                                                                          "participants": newParticipantsMap])
+                        
                     } else {
                         print("No participants array found for chat \(chatId)")
                     }
+//                }
+                self.updateMessageSeenStatusToTrue(fromChatWithID: chatId)
+            }
+            
+            batch.commit() { error in
+                if let error = error {
+                    print("Error updating chat \(error)")
+                } else {
+                    print("Successfully updated chats")
                 }
             }
         }
+    }
+    
+    func updateMessageSeenStatusToTrue(fromChatWithID chatID: String) {
+        let messagesCollection = self.chatsCollection.document(chatID).collection(FirestoreCollection.messages.rawValue)
+
+        messagesCollection.whereField("message_seen", isEqualTo: false).getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching messages: \(error)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("No messages found.")
+                return
+            }
+            
+            let batch = self.db.batch()
+            
+            for document in documents {
+                let documentRef = messagesCollection.document(document.documentID)
+                batch.updateData(["message_seen": true], forDocument: documentRef)
+            }
+            
+            // Commit the batch
+            batch.commit { error in
+                if let error = error {
+                    print("Error updating messages: \(error)")
+                } else {
+                    print("Successfully updated all unseen messages to seen.")
+                }
+            }
+        }
+
     }
 }

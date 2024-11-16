@@ -584,9 +584,9 @@ extension ConversationViewModel
             messageChangedType = .added
             return
         }
-//        Task { @MainActor in
-//            updateMessage(message)
-//        }
+        Task { @MainActor in
+            updateMessage(message)
+        }
     }
     
     private func handleModifiedMessage(_ message: Message) 
