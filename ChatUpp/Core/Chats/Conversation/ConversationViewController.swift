@@ -114,7 +114,7 @@ final class ConversationViewController: UIViewController {
     {
         self.toggleSkeletonAnimation(.terminated)
         self.rootView.tableView.reloadData()
-//        let indexPath = IndexPath(row: 15, section: 0)
+//        let indexPathTest = IndexPath(row: 13, section: 0)
         if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPath)
         }
@@ -629,7 +629,8 @@ extension ConversationViewController: UITableViewDelegate
        return  UITableView.automaticDimension
     }
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) 
+    {
         guard conversationViewModel.messageGroups.count != 0,
               didFinishInitialScroll == true
         else {return}
@@ -639,13 +640,13 @@ extension ConversationViewController: UITableViewDelegate
         let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
         
-        guard conversationViewModel.shouldFetchNewMessages else {return}
+//        guard conversationViewModel.shouldFetchNewMessages else {return}
         
         if isLastCellDisplayed
         {
             updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: false)
         }
-        else if isFirstCellDisplayed
+        else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages
         {
             updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: true)
         }
@@ -657,14 +658,15 @@ extension ConversationViewController: UITableViewDelegate
 
         Task { @MainActor [weak self] in
             
-            guard let self = self else { return }
-            
             try await Task.sleep(nanoseconds: 500_000_000)
+            
+            guard let self = self else { return }
             
             if let (newRows, newSections) = try await self.conversationViewModel.handleAdditionalMessageGroupUpdate(inAscendingOrder: order)
             {
                 self.performeTableViewUpdate(with: newRows, sections: newSections)
             }
+            self.didFinishInitialScroll = true
         }
         
     }
@@ -687,9 +689,7 @@ extension ConversationViewController: UITableViewDelegate
                 self.rootView.tableView.insertRows(at: newRows, with: .none)
             }
         }, completion: { _ in
-            
-            self.didFinishInitialScroll = true
-            
+        
             if self.rootView.tableView.contentOffset.y < -97.5
             {
                 if let visibleCell = visibleCell,
