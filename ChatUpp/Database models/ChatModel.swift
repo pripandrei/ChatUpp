@@ -9,15 +9,15 @@ import Foundation
 import RealmSwift
 
 
-class ChatParticipant: Object, Codable
+class ChatParticipant: EmbeddedObject, Codable
 {
-    @Persisted(primaryKey: true) var id: String
+//    @Persisted(primaryKey: true) var id: String
     @Persisted var userID: String
     @Persisted var unseenMessagesCount: Int
     
     enum CodingKeys: String, CodingKey 
     {
-        case id = "id"
+//        case id = "id"
         case userID = "user_id"
         case unseenMessagesCount = "unseen_messages_count"
     }
@@ -26,7 +26,7 @@ class ChatParticipant: Object, Codable
     {
         self.init()
         
-        self.id = UUID().uuidString
+//        self.id = UUID().uuidString
         self.userID = userID
         self.unseenMessagesCount = unseenMessageCount
     }
@@ -36,7 +36,7 @@ class ChatParticipant: Object, Codable
         self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(String.self, forKey: .id)
+//        self.id = try container.decode(String.self, forKey: .id)
         self.userID = try container.decode(String.self, forKey: .userID)
         self.unseenMessagesCount = try container.decode(Int.self, forKey: .unseenMessagesCount)
     }
@@ -44,7 +44,7 @@ class ChatParticipant: Object, Codable
     func encode(to encoder: Encoder) throws 
     {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(self.id, forKey: .id)
+//        try container.encode(self.id, forKey: .id)
         try container.encode(self.userID, forKey: .userID)
         try container.encode(self.unseenMessagesCount, forKey: .unseenMessagesCount)
     }
@@ -77,7 +77,7 @@ class Chat: Object, Codable
         self.messagesCount = try container.decodeIfPresent(Int.self, forKey: .messagesCount)
         
         let participants = try container.decode([String:ChatParticipant].self, forKey: .participants)
-        for (participantID, participant) in participants {
+        for participant in participants.values {
             self.participants.append(participant)
         }
     }
@@ -91,7 +91,7 @@ class Chat: Object, Codable
         
         var dictParticipants: [String:ChatParticipant] = [:]
         for participant in participants {
-            dictParticipants[participant.id] = participant
+            dictParticipants[participant.userID] = participant
         }
         try container.encode(dictParticipants, forKey: .participants)
     }
