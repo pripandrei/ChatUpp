@@ -9,6 +9,13 @@ import Foundation
 import Combine
 import RealmSwift
 
+
+enum ChatDeletionOption
+{
+    case forMe
+    case forBoth
+}
+
 final class ChatsViewModel {
 
     //TODO: - remove listeners
@@ -56,8 +63,12 @@ extension ChatsViewModel {
         self.cellViewModels.insert(cellVM, at: 0)
     }
     
-    private func removeCellViewModel(containing chat: Chat) {
-        cellViewModels.removeAll(where: {$0.chatUser?.id == chat.id})
+    private func removeCellViewModel(containing chatID: String) {
+        cellViewModels.removeAll(where: {$0.chat.id == chatID})
+    }
+    
+    private func removeCellViewModel(at position: Int) {
+        cellViewModels.remove(at: position)
     }
     
     private func findCellViewModel(containing chat: Chat) -> ChatCellViewModel? {
@@ -156,6 +167,56 @@ extension ChatsViewModel {
         
         cellViewModels.move(element: cellVM, toIndex: 0)
         modifiedChatIndex = viewModelIndex
+    }
+}
+
+//MARK: - Chats deletion
+
+extension ChatsViewModel
+{
+    func initiateChatDeletion(for deletionOption: ChatDeletionOption, at indexPath: IndexPath)
+    {
+        let chat = cellViewModels[indexPath.row].chat
+        
+        switch deletionOption {
+        case .forMe: deleteChatForCurrentUser(chat)
+        case .forBoth: deleteChatForBothUsers(chat)
+        }
+        
+        removeCellViewModel(at: indexPath.row)
+    }
+    
+    private func deleteChatForCurrentUser(_ chat: Chat) {
+        
+        let chatID = chat.id
+        
+        RealmDataBase.shared.update(object: chat) { dbChat in
+            let participant = dbChat.getParticipant(byID: authUser.uid)
+            participant?.isDeleted = true
+        }
+        
+        Task {
+            do {
+                try await FirebaseChatService.shared.removeParticipant(participantID: authUser.uid, inChatWithID: chatID)
+            } catch {
+                print("Error removing participant: ", error.localizedDescription)
+            }
+        }
+    }
+    
+    private func deleteChatForBothUsers(_ chat: Chat) {
+        
+        let chatID = chat.id
+        
+        RealmDataBase.shared.delete(object: chat)
+        
+        Task {
+            do {
+                try await FirebaseChatService.shared.removeChat(chatID: chatID)
+            } catch {
+                print("Error removing chat: ", error.localizedDescription)
+            }
+        }
     }
 }
 

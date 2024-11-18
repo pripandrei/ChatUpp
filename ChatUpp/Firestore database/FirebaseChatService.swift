@@ -13,7 +13,6 @@ import Combine
 
 typealias Listener = ListenerRegistration
 
-
 struct ChatUpdate<T> {
     let data: T
     let changeType: DocumentChangeType
@@ -35,12 +34,12 @@ final class FirebaseChatService {
     private func chatDocument(documentPath: String) -> DocumentReference {
         return chatsCollection.document(documentPath)
     }
-
     
     func createNewChat(chat: Chat) async throws {
         try chatDocument(documentPath: chat.id).setData(from: chat, merge: false)
     }
 
+    //TODO: - modify function to adjusts current participants map strucutre
     /// - Replace deleted user id in chats
     func replaceUserId(_ id: String, with deletedId: String) async throws {
         let chatsQuery = try await chatsCollection.whereField(FirestoreField.participants.rawValue, arrayContainsAny: [id]).getDocuments()
@@ -56,6 +55,14 @@ final class FirebaseChatService {
 extension FirebaseChatService {
     func fetchChats(containingUserID userID: String) async throws -> [Chat] {
         return try await chatsCollection.whereField(Chat.CodingKeys.participants.rawValue, arrayContainsAny: [userID]).getDocuments(as: Chat.self)
+    }
+}
+
+//MARK: - remove chat
+extension FirebaseChatService 
+{
+    func removeChat(chatID: String) async throws {
+        try await chatsCollection.document(chatID).delete()
     }
 }
 
@@ -180,7 +187,14 @@ extension FirebaseChatService
         
         try await chatDocument(documentPath: chatID).updateData(data)
     }
+    
+    func removeParticipant(participantID: String, inChatWithID chatID: String) async throws
+    {
+        let isDeletedField = "participants.\(participantID).is_deleted"
+        try await chatsCollection.document(chatID).updateData( [isDeletedField: true] )
+    }
 }
+
 
 //MARK: - Listeners
 
@@ -191,7 +205,8 @@ extension FirebaseChatService
         let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
         
         chatsCollection
-            .whereField("participants.\(participantUserID).user_id", isEqualTo: participantUserID)
+//            .whereField("participants.\(participantUserID).user_id", isEqualTo: participantUserID)
+            .whereField("participants.\(participantUserID).is_deleted", isEqualTo: false)
             .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
                 

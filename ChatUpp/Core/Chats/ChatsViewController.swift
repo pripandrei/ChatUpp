@@ -24,7 +24,7 @@ class ChatsViewController: UIViewController {
     
     private var tableView: UITableView!
     private var chatsViewModel: ChatsViewModel!
-    private var tableViewDataSource: UITableViewDataSource!
+    private var tableViewDataSource: ChatsTableViewDataSource!
     private var subscriptions = Set<AnyCancellable>()
 
     lazy private var resultsTableController = {
@@ -266,14 +266,95 @@ extension ChatsViewController: UITableViewDelegate
         tableView.deselectRow(at: indexPath, animated: false)
         
         let cellVM = self.chatsViewModel.cellViewModels[indexPath.item]
-
+        
         guard let user = cellVM.chatUser else {return}
         
         let chat = cellVM.chat
         let memberPhoto = cellVM.memberProfileImage
-        let unreadMessageCount = cellVM.unreadMessageCount
         
         let conversationViewModel = ConversationViewModel(conversationUser: user, conversation: chat, imageData: memberPhoto)
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration?
+    {
+        let deleteChat = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
+            self?.presentDeletionAlert(for: indexPath)
+            completion(true)
+        }
+        
+        deleteChat.image = swipeLayout(icon: "trash", text: "Delete", size: 20)
+        
+        let configuration = UISwipeActionsConfiguration(actions: [deleteChat])
+        configuration.performsFirstActionWithFullSwipe = false
+        return configuration
+    }
 }
+
+//MARK: - Chat deletion
+extension ChatsViewController
+{
+    private func presentDeletionAlert(for indexPath: IndexPath)
+    {
+        let participantName = chatsViewModel.cellViewModels[indexPath.row].chatUser?.name
+        
+        let alert = UIAlertController(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet)
+        
+        let alertTitle = "Permanently delete chat with \(participantName ?? "User")?"
+        let alertTitleAttributes: [NSAttributedString.Key:Any] = [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: #colorLiteral(red: 0.7950155139, green: 0.7501099706, blue: 0.7651557922, alpha: 1)]
+        
+        alert.setValue(NSAttributedString(string: alertTitle, attributes: alertTitleAttributes), forKey: "attributedTitle")
+        
+        alert.addAction(UIAlertAction(title: "Delete just for me", style: .destructive) { [weak self] action in
+            self?.chatsViewModel.initiateChatDeletion(for: .forMe, at: indexPath)
+            self?.tableView.deleteRows(at: [indexPath], with: .fade)
+            print("deleted just for me!!!")
+        })
+        
+        alert.addAction(UIAlertAction(title: "Delete for me and \(participantName ?? "User")", style: .destructive) { [weak self] action in
+            self?.chatsViewModel.initiateChatDeletion(for: .forBoth, at: indexPath)
+            self?.tableView.deleteRows(at: [indexPath], with: .fade)
+            print("deleted for both!!!")
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+
+        self.present(alert, animated: true) {
+            print("Alert presented")
+        }
+    }
+}
+
+//MARK: - row swipe image configuration
+extension ChatsViewController
+{
+    private func swipeLayout(icon: String, text: String, size: CGFloat) -> UIImage
+    {
+        let config = UIImage.SymbolConfiguration(pointSize: size, weight: .regular, scale: .large)
+        let img = UIImage(systemName: icon, withConfiguration: config)?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        
+        let label = UILabel(frame: .zero)
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.textColor = .white
+        label.text = text
+        
+        let tempView = UIStackView(frame: .init(x: 0, y: 0, width: 50, height: 50))
+        let imageView = UIImageView(frame: .init(x: 0, y: 0, width: img!.size.width, height: img!.size.height))
+        imageView.contentMode = .scaleAspectFit
+        tempView.axis = .vertical
+        tempView.alignment = .center
+        tempView.spacing = 2
+        imageView.image = img
+        tempView.addArrangedSubview(imageView)
+        tempView.addArrangedSubview(label)
+        
+        let renderer = UIGraphicsImageRenderer(bounds: tempView.bounds)
+        let image = renderer.image { rendererContext in
+            tempView.layer.render(in: rendererContext.cgContext)
+        }
+        return image
+    }
+}
+
