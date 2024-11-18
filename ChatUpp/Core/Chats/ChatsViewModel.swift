@@ -67,11 +67,6 @@ extension ChatsViewModel {
     private func findIndex(of element: ChatCellViewModel) -> Int? {
         return cellViewModels.firstIndex(of: element)
     }
-    
-    private func getAuthenticatedParticipantID() -> String? {
-        let filter = NSPredicate(format: "userID == %@", authUser.uid)
-        return RealmDataBase.shared.retrieveObjects(ofType: ChatParticipant.self, filter: filter).first?.id
-    }
 }
 
 //MARK: - Realm functions
@@ -98,9 +93,10 @@ extension ChatsViewModel {
             DBChat.recentMessageID = chat.recentMessageID
             
             chat.participants.forEach { participant in
-                if let existingParticipant = RealmDataBase.shared.retrieveSingleObject(ofType: ChatParticipant.self, primaryKey: participant.id)
+                if let existingParticipant = DBChat.participants.first(where: { $0.userID == participant.userID})
                 {
                     existingParticipant.userID = participant.userID
+                    existingParticipant.isDeleted = participant.isDeleted
                     existingParticipant.unseenMessagesCount = participant.unseenMessagesCount
                 }
                 else {

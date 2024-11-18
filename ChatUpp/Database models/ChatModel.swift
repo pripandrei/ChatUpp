@@ -13,21 +13,24 @@ class ChatParticipant: EmbeddedObject, Codable
 {
 //    @Persisted(primaryKey: true) var id: String
     @Persisted var userID: String
+    @Persisted var isDeleted: Bool
     @Persisted var unseenMessagesCount: Int
     
     enum CodingKeys: String, CodingKey 
     {
 //        case id = "id"
         case userID = "user_id"
+        case isDeleted = "is_deleted"
         case unseenMessagesCount = "unseen_messages_count"
     }
     
-    convenience init(userID: String, unseenMessageCount: Int)
+    convenience init(userID: String, unseenMessageCount: Int, isDeleted: Bool = false)
     {
         self.init()
         
 //        self.id = UUID().uuidString
         self.userID = userID
+        self.isDeleted = isDeleted
         self.unseenMessagesCount = unseenMessageCount
     }
     
@@ -38,6 +41,7 @@ class ChatParticipant: EmbeddedObject, Codable
         let container = try decoder.container(keyedBy: CodingKeys.self)
 //        self.id = try container.decode(String.self, forKey: .id)
         self.userID = try container.decode(String.self, forKey: .userID)
+        self.isDeleted = try container.decode(Bool.self, forKey: .isDeleted)
         self.unseenMessagesCount = try container.decode(Int.self, forKey: .unseenMessagesCount)
     }
     
@@ -46,6 +50,7 @@ class ChatParticipant: EmbeddedObject, Codable
         var container = encoder.container(keyedBy: CodingKeys.self)
 //        try container.encode(self.id, forKey: .id)
         try container.encode(self.userID, forKey: .userID)
+        try container.encode(self.isDeleted, forKey: .isDeleted)
         try container.encode(self.unseenMessagesCount, forKey: .unseenMessagesCount)
     }
 }

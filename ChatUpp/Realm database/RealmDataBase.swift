@@ -33,7 +33,7 @@ final class RealmDataBase {
     
     static var shared = RealmDataBase()
     
-    static private let schemaVersion: UInt64 = 14
+    static private let schemaVersion: UInt64 = 15
     
     var realm: Realm?
     
@@ -60,6 +60,7 @@ final class RealmDataBase {
                 if oldSchemaVersion < 11 { self?.migrateToVersion11(migration: migration) }
                 if oldSchemaVersion < 13 { self?.migrateToVersion13(migration: migration) }
                 if oldSchemaVersion < 14 { self?.migrateToVersion14(migration: migration) }
+                if oldSchemaVersion < 15 { self?.migrateToVersion15(migration: migration) }
             }
         )
     }
@@ -158,6 +159,29 @@ extension RealmDataBase
                 "isActive": oldObject["isActive"] as? Bool?,
                 "lastSeen": oldObject["lastSeen"] as? Date?
             ])
+        }
+    }
+    
+    private func migrateToVersion15(migration: Migration)
+    {
+        migration.enumerateObjects(ofType: Chat.className())  { oldChat, newChat in
+            
+            guard let oldParticipants = oldChat?["participants"] as? List<Object> else {return}
+            
+            let newParticipants = List<ChatParticipant>()
+            
+            for oldParticipant in oldParticipants {
+                
+                let newParticipant = ChatParticipant()
+                
+                newParticipant.userID = oldParticipant["user_id"] as! String
+                newParticipant.unseenMessagesCount = oldParticipant["unseen_messages_count"] as? Int ?? 0
+                newParticipant.isDeleted = false
+                
+                newParticipants.append(newParticipant)
+            }
+            
+            newChat?["participants"] = newParticipants
         }
     }
 }

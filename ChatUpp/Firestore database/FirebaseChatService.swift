@@ -191,7 +191,7 @@ extension FirebaseChatService
         let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
         
         chatsCollection
-            .whereField("participants_user_ids", arrayContainsAny: [participantUserID])
+            .whereField("participants.\(participantUserID).user_id", isEqualTo: participantUserID)
             .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
                 
@@ -417,9 +417,8 @@ extension FirebaseChatService {
         }
     }
     
-    func migrateParticipantsField() {
-
-        // Fetch all chat documents
+    func migrateParticipantsField() 
+    {
         chatsCollection.getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching chat documents: \(error)")
@@ -430,52 +429,51 @@ extension FirebaseChatService {
             
             let batch = self.db.batch()
             
-            // Iterate over each document
             for document in documents {
                 let chatId = document.documentID
                 
-//                if chatId == "26606A0B-6134-4503-B6D7-06634F5902B6" {
-                    // Get current participants array
-                    if var oldParticipants = document.data()["participants"] as? [String] {
+                if chatId == "490EA49D-E8BA-461C-8125-5FDEA3BCBAA8" {
+                    // Fetch current participants array
+                    if let oldParticipants = document.data()["participants"] as? [String: [String: Any]] {
+                        // Prepare the new participants map
                         var newParticipantsMap: [String: [String: Any]] = [:]
-                        var participantsUserIDs: [String] = []
                         
-                        // Transform each participant in the array to the new map format
-                        for userId in oldParticipants {
-                            // Generate a new ID for each participant entry
-                            let newId = UUID().uuidString
-                            
-                            newParticipantsMap[newId] = [
-                                "id": newId,
-                                "user_id": userId,
-                                "unseen_messages_count": 0 // default initial value
+                        for participant in oldParticipants.values {
+                            guard let userID = participant["user_id"] as? String else {return}
+//                            values["user_id"]
+                            newParticipantsMap[userID] = [
+                                "user_id": userID,
+                                "unseen_messages_count": 0,
+                                "is_deleted": false
                             ]
-                            participantsUserIDs.append(userId)
                         }
-                        let chatRef = self.chatsCollection.document(document.documentID)
                         
-                        batch.updateData(["participants_user_ids": participantsUserIDs,
-                                          "participants": newParticipantsMap], forDocument: chatRef)
-                        // Update the document with the new participants structure
-                        self.chatsCollection.document(chatId).updateData(["participants_user_ids": participantsUserIDs,
-                                                                          "participants": newParticipantsMap])
+                        // Update chat document with new schema
+                        let chatRef = self.chatsCollection.document(chatId)
                         
+                        batch.updateData([
+                            "participants": newParticipantsMap,
+                            "participants_user_ids": FieldValue.delete() // Remove the field
+                        ], forDocument: chatRef)
                     } else {
                         print("No participants array found for chat \(chatId)")
                     }
-//                }
-                self.updateMessageSeenStatusToTrue(fromChatWithID: chatId)
+                    
+//                    self.updateMessageSeenStatusToTrue(fromChatWithID: chatId)
+                }
             }
             
-            batch.commit() { error in
+            // Commit the batch updates
+            batch.commit { error in
                 if let error = error {
-                    print("Error updating chat \(error)")
+                    print("Error updating chats: \(error)")
                 } else {
                     print("Successfully updated chats")
                 }
             }
         }
     }
+
     
     func updateMessageSeenStatusToTrue(fromChatWithID chatID: String) {
         let messagesCollection = self.chatsCollection.document(chatID).collection(FirestoreCollection.messages.rawValue)

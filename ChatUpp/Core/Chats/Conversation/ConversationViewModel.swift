@@ -207,21 +207,36 @@ final class ConversationViewModel
     
     /// - update messages components
     
-    func updateUnseenMessageCounter(shouldIncrement: Bool)
+    func updateUnseenMessageCounter(shouldIncrement: Bool) 
     {
         let participantUserID = shouldIncrement ? chatUser.id : authenticatedUserID
-        
-        guard let conversation = conversation,
-              let participant = conversation.getParticipant(byID: participantUserID) else {return}
-        
-        RealmDataBase.shared.update(object: participant) { participant in
-            participant.unseenMessagesCount += shouldIncrement ? +1 : -1
+ 
+        guard let conversation = conversation else { return }
+
+        RealmDataBase.shared.update(object: conversation) { dbChat in
+            
+            if let participant = dbChat.getParticipant(byID: participantUserID) 
+            {
+                participant.unseenMessagesCount += shouldIncrement ? 1 : -1
+            } 
+            else {
+                print("Participant not found for ID: \(participantUserID)")
+            }
         }
-        
+
         Task { @MainActor in
-            try await FirebaseChatService.shared.updateUnreadMessageCount(for: participant.id, inChatWithID: conversation.id, increment: shouldIncrement)
+            do {
+                try await FirebaseChatService.shared.updateUnreadMessageCount(
+                    for: participantUserID,
+                    inChatWithID: conversation.id,
+                    increment: shouldIncrement
+                )
+            } catch {
+                print("Failed to update Firebase unread message count: \(error)")
+            }
         }
     }
+
     
     @MainActor
     func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
