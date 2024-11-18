@@ -414,7 +414,7 @@ extension ConversationViewController
                 continue
             }
             cell.cellViewModel.updateRealmMessageSeenStatus()
-            
+//            
             Task { @MainActor in
                 await conversationViewModel.updateMessageSeenStatus(from: cell.cellViewModel)
                 conversationViewModel.updateUnseenMessageCounter(shouldIncrement: false)
