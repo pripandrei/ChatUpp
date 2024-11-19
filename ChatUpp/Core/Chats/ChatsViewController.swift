@@ -86,21 +86,38 @@ class ChatsViewController: UIViewController {
     
     private func setupBinding()
     {
-        chatsViewModel.onNewChatAdded = { [weak self] isAdded in
-            if isAdded {
-                let indexPath = IndexPath(row: 0, section: 0)
-                self?.tableView.insertRows(at: [indexPath], with: .automatic)
-            }
-        }
-        
-        chatsViewModel.$modifiedChatIndex
-            .filter({ $0 > 0 })
+        chatsViewModel.$chatModificationType
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] sourceIndex in
-                let destinationIndexPath = IndexPath(row: 0, section: 0)
-                self?.tableView.moveRow(at: IndexPath(row: sourceIndex, section: 0), to: destinationIndexPath)
+            .sink { [weak self] modificationType in
+                guard let self = self else {return}
+                
+                switch modificationType {
+                case .added:
+                    addNewRow()
+                case .updated(let rowPosition):
+                    moveRow(at: rowPosition)
+                case .removed(let rowPosition):
+                   removeRow(from: rowPosition)
+                default: break
+                }
             }.store(in: &subscriptions)
         
+        
+//        chatsViewModel.onNewChatAdded = { [weak self] isAdded in
+//            if isAdded {
+//                let indexPath = IndexPath(row: 0, section: 0)
+//                self?.tableView.insertRows(at: [indexPath], with: .automatic)
+//            }
+//        }
+//        
+//        chatsViewModel.$modifiedChatIndex
+//            .filter({ $0 > 0 })
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] sourceIndex in
+//                let destinationIndexPath = IndexPath(row: 0, section: 0)
+//                self?.tableView.moveRow(at: IndexPath(row: sourceIndex, section: 0), to: destinationIndexPath)
+//            }.store(in: &subscriptions)
+//        
         chatsViewModel.$initialChatsDoneFetching
             .filter({ $0 == true })
             .receive(on: DispatchQueue.main)
@@ -197,6 +214,25 @@ class ChatsViewController: UIViewController {
         chatsViewModel.usersListener?.remove()
         chatsViewModel = nil
         tableView = nil
+    }
+}
+
+// MARK: - chats row update
+extension ChatsViewController
+{
+    private func addNewRow() {
+        let indexPath = IndexPath(row: 0, section: 0)
+        self.tableView.insertRows(at: [indexPath], with: .automatic)
+    }
+    
+    private func moveRow(at position: Int) {
+        let destinationIndexPath = IndexPath(row: 0, section: 0)
+        self.tableView.moveRow(at: IndexPath(row: position, section: 0), to: destinationIndexPath)
+    }
+    
+    private func removeRow(from position: Int) {
+        let removedIndex = IndexPath(row: position, section: 0)
+        self.tableView.deleteRows(at: [removedIndex], with: .none)
     }
 }
 
@@ -297,14 +333,13 @@ extension ChatsViewController
     private func presentDeletionAlert(for indexPath: IndexPath)
     {
         let participantName = chatsViewModel.cellViewModels[indexPath.row].chatUser?.name
+        let alertTitle = "Permanently delete chat with \(participantName ?? "User")?"
+        let alertTitleAttributes: [NSAttributedString.Key:Any] = [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: #colorLiteral(red: 0.7950155139, green: 0.7501099706, blue: 0.7651557922, alpha: 1)]
         
         let alert = UIAlertController(
             title: nil,
             message: nil,
             preferredStyle: .actionSheet)
-        
-        let alertTitle = "Permanently delete chat with \(participantName ?? "User")?"
-        let alertTitleAttributes: [NSAttributedString.Key:Any] = [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: #colorLiteral(red: 0.7950155139, green: 0.7501099706, blue: 0.7651557922, alpha: 1)]
         
         alert.setValue(NSAttributedString(string: alertTitle, attributes: alertTitleAttributes), forKey: "attributedTitle")
         
@@ -319,11 +354,10 @@ extension ChatsViewController
             self?.tableView.deleteRows(at: [indexPath], with: .fade)
             print("deleted for both!!!")
         })
+        
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
 
-        self.present(alert, animated: true) {
-            print("Alert presented")
-        }
+        self.present(alert, animated: true)
     }
 }
 

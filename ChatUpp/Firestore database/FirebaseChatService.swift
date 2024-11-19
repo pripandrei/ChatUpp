@@ -191,7 +191,8 @@ extension FirebaseChatService
     func removeParticipant(participantID: String, inChatWithID chatID: String) async throws
     {
         let isDeletedField = "participants.\(participantID).is_deleted"
-        try await chatsCollection.document(chatID).updateData( [isDeletedField: true] )
+//        try await chatsCollection.document(chatID).updateData( [isDeletedField: true] )
+        try await chatDocument(documentPath: chatID).updateData( [isDeletedField: true] )
     }
 }
 

@@ -16,7 +16,16 @@ enum ChatDeletionOption
     case forBoth
 }
 
+enum ChatModificationType 
+{
+    case added
+    case updated(position: Int)
+    case removed(position: Int)
+}
+
 final class ChatsViewModel {
+    
+    @Published private(set) var chatModificationType: ChatModificationType?
 
     //TODO: - remove listeners
     private var cancellables = Set<AnyCancellable>()
@@ -26,10 +35,10 @@ final class ChatsViewModel {
     private(set) var chatsListener: Listener?
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
-    @Published var modifiedChatIndex: Int = 0
     @Published var initialChatsDoneFetching: Bool = false
+    //    @Published var modifiedChatIndex: Int = 0
     
-    var onNewChatAdded: ((Bool) -> Void)?
+//    var onNewChatAdded: ((Bool) -> Void)?
     
     init() {
         print(RealmDataBase.realmFilePath)
@@ -82,7 +91,8 @@ extension ChatsViewModel {
 
 //MARK: - Realm functions
 
-extension ChatsViewModel {
+extension ChatsViewModel 
+{
     private func retrieveChatsFromRealm() -> [Chat] {
         //TODO: - adjust by participants retrieve after update
         let filter = NSPredicate(format: "ANY \(Chat.CodingKeys.participants.rawValue).userID == %@", authUser.uid)
@@ -97,25 +107,60 @@ extension ChatsViewModel {
         RealmDataBase.shared.add(object: chat)
     }
     
-    private func updateRealmChat(_ chat: Chat) 
-    {
-        RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { DBChat in
+    private func deleteRealmChat(_ chat: Chat) {
+        RealmDataBase.shared.delete(object: chat)
+    }
+    
+    private func updateRealmChat(_ chat: Chat) {
+        
+//        // preserve messages before update, because updated chat from firestore doesn't have messages
+//        guard let messages = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)?.conversationMessages else {return}
+//        
+//        RealmDataBase.shared.add(object: chat)
+//        
+//        RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
+//            dbChat.conversationMessages = messages
+//            
+//            dbChat.participants.removeAll()
+//            dbChat.participants.append(objectsIn: chat.participants)
+//        }
+        
+        RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
+            dbChat.recentMessageID = chat.recentMessageID
             
-            DBChat.recentMessageID = chat.recentMessageID
-            
-            chat.participants.forEach { participant in
-                if let existingParticipant = DBChat.participants.first(where: { $0.userID == participant.userID})
-                {
-                    existingParticipant.userID = participant.userID
-                    existingParticipant.isDeleted = participant.isDeleted
-                    existingParticipant.unseenMessagesCount = participant.unseenMessagesCount
-                }
-                else {
-                    DBChat.participants.append(participant)
-                }
-            }
+            dbChat.participants.removeAll()
+            dbChat.participants.append(objectsIn: chat.participants)
         }
     }
+//    
+//    private func updateRealmChat(_ chat: Chat) {
+//        RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { DBChat in
+//            
+//            DBChat.recentMessageID = chat.recentMessageID
+//            
+//            // Update existing participants or add new ones
+//            chat.participants.forEach { participant in
+//                if let existingParticipant = DBChat.participants.first(where: { $0.userID == participant.userID }) {
+//                    existingParticipant.userID = participant.userID
+//                    existingParticipant.isDeleted = participant.isDeleted
+//                    existingParticipant.unseenMessagesCount = participant.unseenMessagesCount
+//                } else {
+//                    DBChat.participants.append(participant)
+//                }
+//            }
+//            
+//            // Remove participants not in the updated chat
+//            let updatedParticipantIDs = Set(chat.participants.map { $0.userID })
+//            let pariticipantsToRemove = DBChat.participants.filter { !updatedParticipantIDs.contains($0.userID) }
+//            
+//            pariticipantsToRemove.forEach { participant in
+//                if let index = DBChat.participants.firstIndex(of: participant) {
+//                    DBChat.participants.remove(at: index)
+//                }
+//            }
+//        }
+//    }
+
 }
 
 //MARK: - Listeners
@@ -141,8 +186,11 @@ extension ChatsViewModel {
         switch update.changeType
         {
             case .added: handleAddedChat(update.data)
+            print("Handle Added chat")
             case .modified: handleModifiedChat(update.data)
+            print("Handle Updated chat")
             case .removed: print("Handle Removed chat")
+                           handleRemovedChat(update.data)
         }
     }
     
@@ -151,7 +199,8 @@ extension ChatsViewModel {
         guard let _ = retrieveChatFromRealm(chat) else {
             addChatToRealm(chat)
             addCellViewModel(using: chat)
-            onNewChatAdded?(true)
+//            onNewChatAdded?(true)
+            chatModificationType = .added
             return
         }
         updateRealmChat(chat)
@@ -166,7 +215,20 @@ extension ChatsViewModel {
         cellVM.updateChatParameters()
         
         cellViewModels.move(element: cellVM, toIndex: 0)
-        modifiedChatIndex = viewModelIndex
+        chatModificationType = .updated(position: viewModelIndex)
+//        modifiedChatIndex = viewModelIndex
+    }
+    
+    private func handleRemovedChat(_ chat: Chat) 
+    {
+        guard let chat = retrieveChatFromRealm(chat) else {return}
+        
+        guard let cellVM = findCellViewModel(containing: chat),
+              let viewModelIndex = findIndex(of: cellVM) else { return }
+        
+        chatModificationType = .removed(position: viewModelIndex)
+        
+        deleteRealmChat(chat)
     }
 }
 
@@ -182,18 +244,14 @@ extension ChatsViewModel
         case .forMe: deleteChatForCurrentUser(chat)
         case .forBoth: deleteChatForBothUsers(chat)
         }
-        
+//        RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
+        deleteRealmChat(chat)
         removeCellViewModel(at: indexPath.row)
     }
     
     private func deleteChatForCurrentUser(_ chat: Chat) {
         
         let chatID = chat.id
-        
-        RealmDataBase.shared.update(object: chat) { dbChat in
-            let participant = dbChat.getParticipant(byID: authUser.uid)
-            participant?.isDeleted = true
-        }
         
         Task {
             do {
@@ -207,9 +265,7 @@ extension ChatsViewModel
     private func deleteChatForBothUsers(_ chat: Chat) {
         
         let chatID = chat.id
-        
-        RealmDataBase.shared.delete(object: chat)
-        
+
         Task {
             do {
                 try await FirebaseChatService.shared.removeChat(chatID: chatID)
