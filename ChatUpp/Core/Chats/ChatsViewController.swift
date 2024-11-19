@@ -91,7 +91,8 @@ class ChatsViewController: UIViewController {
             .sink { [weak self] modificationType in
                 guard let self = self else {return}
                 
-                switch modificationType {
+                switch modificationType 
+                {
                 case .added:
                     addNewRow()
                 case .updated(let rowPosition):
@@ -102,22 +103,6 @@ class ChatsViewController: UIViewController {
                 }
             }.store(in: &subscriptions)
         
-        
-//        chatsViewModel.onNewChatAdded = { [weak self] isAdded in
-//            if isAdded {
-//                let indexPath = IndexPath(row: 0, section: 0)
-//                self?.tableView.insertRows(at: [indexPath], with: .automatic)
-//            }
-//        }
-//        
-//        chatsViewModel.$modifiedChatIndex
-//            .filter({ $0 > 0 })
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] sourceIndex in
-//                let destinationIndexPath = IndexPath(row: 0, section: 0)
-//                self?.tableView.moveRow(at: IndexPath(row: sourceIndex, section: 0), to: destinationIndexPath)
-//            }.store(in: &subscriptions)
-//        
         chatsViewModel.$initialChatsDoneFetching
             .filter({ $0 == true })
             .receive(on: DispatchQueue.main)

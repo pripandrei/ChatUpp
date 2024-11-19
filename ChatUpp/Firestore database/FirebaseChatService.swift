@@ -144,7 +144,6 @@ extension FirebaseChatService
     func getRecentMessage(from chat: Chat) async throws -> Message? {
         guard let recentMessageID = chat.recentMessageID else {return nil}
         do {
-//            let message = try await getMessageDocument(messagePath: "klwjrqwlkrjl3k4j2k3j42", fromChatDocumentPath: "CF3D16E4-ADBET47F8-ADE6-B2ACECA699E3").getDocument(as: Message.self)
             let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             return message
         } catch {
@@ -230,7 +229,6 @@ extension FirebaseChatService
         let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
         
         chatsCollection
-//            .whereField("participants.\(participantUserID).user_id", isEqualTo: participantUserID)
             .whereField("participants.\(participantUserID).is_deleted", isEqualTo: false)
             .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
