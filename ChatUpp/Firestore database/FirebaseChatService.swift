@@ -62,8 +62,32 @@ extension FirebaseChatService {
 extension FirebaseChatService 
 {
     func removeChat(chatID: String) async throws {
+//        try await removeSubcollection(inChatWithID: chatID)
+        try await deleteSubcollection(fromChatWithID: chatID)
         try await chatsCollection.document(chatID).delete()
     }
+    
+    func deleteSubcollection(fromChatWithID chatID: String) async throws
+    {
+        var batch: WriteBatch
+        var documents: [QueryDocumentSnapshot]
+        
+        repeat {
+            documents = try await chatDocument(documentPath: chatID)
+                .collection(FirestoreCollection.messages.rawValue)
+                .getDocuments()
+                .documents
+            
+            batch = Firestore.firestore().batch()
+            
+            for document in documents {
+                batch.deleteDocument(document.reference)
+            }
+            
+            try await batch.commit()
+        } while !documents.isEmpty
+    }
+
 }
 
 //MARK: - Create and remove message
