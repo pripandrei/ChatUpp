@@ -107,13 +107,34 @@ extension ChatsViewModel
         RealmDataBase.shared.delete(object: chat)
     }
     
+//    private func updateRealmChat(_ chat: Chat)
+//    {
+//        RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
+//            dbChat.recentMessageID = chat.recentMessageID
+//            
+//            dbChat.participants.removeAll()
+//            dbChat.participants.append(objectsIn: chat.participants)
+//        }
+//    }
+    
     private func updateRealmChat(_ chat: Chat)
     {
         RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
             dbChat.recentMessageID = chat.recentMessageID
             
-            dbChat.participants.removeAll()
-            dbChat.participants.append(objectsIn: chat.participants)
+            chat.participants.forEach { participant in
+                if let existingParticipant = dbChat.participants.first(where: { $0.userID == participant.userID})
+                {
+                    existingParticipant.userID = participant.userID
+                    existingParticipant.isDeleted = participant.isDeleted
+                    existingParticipant.unseenMessagesCount = participant.unseenMessagesCount
+                }
+                else {
+                    dbChat.participants.append(participant)
+                }
+            }
+//            dbChat.participants.removeAll()
+//            dbChat.participants.append(objectsIn: chat.participants)
         }
     }
 }

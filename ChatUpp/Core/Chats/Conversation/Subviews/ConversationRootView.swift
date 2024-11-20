@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import SkeletonView
+import YYText
 
 final class ConversationRootView: UIView {
     
@@ -16,6 +17,8 @@ final class ConversationRootView: UIView {
     private(set) var inputBarHeader          : InputBarHeaderView?
     private(set) var inputBarBottomConstraint: NSLayoutConstraint!
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
+    
+//    private(set) var unseenMessagesBadge: UnseenMessagesBadge = UnseenMessagesBadge()
 
     private(set) var inputBarContainer: InputBarContainer = {
         let inputBarContainer = InputBarContainer()
@@ -24,6 +27,18 @@ final class ConversationRootView: UIView {
         inputBarContainer.translatesAutoresizingMaskIntoConstraints = false
         
         return inputBarContainer
+    }()
+    
+    private(set) var unseenMessagesBadge = {
+        let badge = UnseenMessagesBadge()
+        
+        badge.backgroundColor = #colorLiteral(red: 0.08765616736, green: 0.5956842649, blue: 0.6934683476, alpha: 1)
+        badge.font = UIFont.systemFont(ofSize: 15)
+        badge.textColor = .white
+        badge.textAlignment = .center
+        badge.translatesAutoresizingMaskIntoConstraints = false
+        
+        return badge
     }()
     
     private(set) var tableView: UITableView = {
@@ -112,7 +127,7 @@ final class ConversationRootView: UIView {
         scrollToBottomBtn.configuration?.baseForegroundColor        = .white
         scrollToBottomBtn.configuration?.image                      = UIImage(systemName: "arrow.down")
         scrollToBottomBtn.layer.cornerRadius                        = scrollToBottomBtn.bounds.size.width / 2
-        scrollToBottomBtn.clipsToBounds                             = true
+//        scrollToBottomBtn.clipsToBounds                             = true
         scrollToBottomBtn.backgroundColor                           = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
         scrollToBottomBtn.translatesAutoresizingMaskIntoConstraints = false
         scrollToBottomBtn.layer.borderWidth = 0.25
@@ -122,7 +137,7 @@ final class ConversationRootView: UIView {
 
         return scrollToBottomBtn
     }()
-
+    
     private func setupScrollToBottomBtn() {
         addSubview(scrollToBottomBtn)
         
@@ -161,6 +176,8 @@ final class ConversationRootView: UIView {
         setupAddPictureButtonConstrains()
         setupSendEditMessageButtonConstraints()
         setupScrollToBottomBtn()
+        setupUnseenMessageCounterBadgeConstraints()
+//        setupUnseenMessagesBadgeConstraints()
     }
     
     // MARK: Private functions
@@ -183,7 +200,8 @@ final class ConversationRootView: UIView {
 }
 
 // MARK: - SETUP EDIT VIEW
-extension ConversationRootView {
+extension ConversationRootView 
+{
     private func setupInputBarHeaderView(mode: InputBarHeaderView.Mode) {
         destroyinputBarHeaderView()
         inputBarHeader = InputBarHeaderView(mode: mode)
@@ -210,7 +228,16 @@ extension ConversationRootView {
 }
 
 // MARK: - SETUP SUBVIEW'S CONSTRAINTS
-extension ConversationRootView {
+extension ConversationRootView
+{
+    private func setupUnseenMessageCounterBadgeConstraints() 
+    {
+        scrollToBottomBtn.addSubview(unseenMessagesBadge)
+        NSLayoutConstraint.activate([
+            unseenMessagesBadge.centerXAnchor.constraint(equalTo: scrollToBottomBtn.centerXAnchor),
+            unseenMessagesBadge.topAnchor.constraint(equalTo: scrollToBottomBtn.topAnchor, constant: -10),
+        ])
+    }
     
     private func setupInputBarContainerConstraints() {
         self.addSubviews(inputBarContainer)
@@ -487,4 +514,72 @@ extension ConversationCustomNavigationBar
 }
 
 
-
+//
+//extension ConversationRootView
+//{
+//    class UnseenMessagesBadge: UIView
+//    {
+//        private let label = UILabel()
+//        private let padding: CGFloat = 3.0 // Padding around the text
+//
+//        var counter: Int = 0 {
+//            didSet {
+//                updateBadge()
+//            }
+//        }
+//
+//        override init(frame: CGRect) {
+//            super.init(frame: frame)
+//            setupBadge(number: counter)
+//        }
+//
+//        required init?(coder: NSCoder) {
+//            fatalError("init(coder:) has not been implemented")
+//        }
+//
+//        private func setupBadge(number: Int)
+//        {
+//            addSubview(label)
+//            backgroundColor = UIColor.systemBlue
+//
+//            label.text = "\(number)"
+//            label.textColor = .white
+//            label.font = UIFont.boldSystemFont(ofSize: 14)
+//            label.textAlignment = .center
+//            label.translatesAutoresizingMaskIntoConstraints = false
+////            label.layer.cornerCurve = .circular
+//
+//            let height = self.label.intrinsicContentSize.height + self.padding
+//            self.layer.cornerRadius = height / 2
+////            self.layer.cornerRadius = 10
+//
+//            NSLayoutConstraint.activate([
+//                label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding * 2.5),
+//                label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding * 2.5),
+//                label.topAnchor.constraint(equalTo: topAnchor, constant: padding / 2),
+//                label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -padding / 2)
+//            ])
+//
+////            updateBadge()
+//        }
+//
+//        private func updateBadge()
+//        {
+//            guard counter != 0 else {
+//                self.isHidden = true
+//                return
+//            }
+//
+//            self.isHidden = false
+//            UIView.animate(withDuration: 0.3, delay: 0.0)
+//            {
+//                self.label.text = "\(self.counter)"
+//                self.layoutIfNeeded()
+////
+////                let height = self.label.intrinsicContentSize.height + self.padding
+////                self.layer.cornerRadius = height / 2
+//            }
+//        }
+//    }
+//}
+//

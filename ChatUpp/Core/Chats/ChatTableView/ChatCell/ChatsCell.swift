@@ -17,7 +17,7 @@ class ChatsCell: UITableViewCell {
     private var nameLabel = UILabel()
     private var profileImage = UIImageView()
     private var dateLable = UILabel()
-    private var unreadMessagesCountLabel = UILabel()
+    private var unreadMessagesBadgeLabel = UnseenMessagesBadge()
     private var onlineStatusCircleView = UIView()
     
     private var subscriptions = Set<AnyCancellable>()
@@ -62,13 +62,13 @@ class ChatsCell: UITableViewCell {
     private func setUnreadMessageCount(_ count: Int) {
 //        guard let _ = cellViewModel.recentMessage else {return}
 
-        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
+        unreadMessagesBadgeLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         
         let shouldShowUnreadCount = count > 0
-        unreadMessagesCountLabel.isHidden = !shouldShowUnreadCount
+        unreadMessagesBadgeLabel.isHidden = !shouldShowUnreadCount
         
         if shouldShowUnreadCount {
-            unreadMessagesCountLabel.text = "\(count)"
+            unreadMessagesBadgeLabel.text = "\(count)"
         }
     }
 
@@ -119,7 +119,7 @@ class ChatsCell: UITableViewCell {
                 guard let self = self else {return}
                 guard let count = count else {return}
                 
-                self.stopSkeletonAnimationFor(unreadMessagesCountLabel)
+                self.stopSkeletonAnimationFor(unreadMessagesBadgeLabel)
                 setUnreadMessageCount(count)
             }.store(in: &subscriptions)
     }
@@ -202,28 +202,53 @@ extension ChatsCell {
         ])
     }
     
+//    private func setupUnreadMessagesCountLabel() {
+//        contentView.addSubview(unreadMessagesCountLabel)
+//        
+//        unreadMessagesCountLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
+//        unreadMessagesCountLabel.font = UIFont(name: "Helvetica", size: 16)
+////        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
+//        unreadMessagesCountLabel.layer.cornerRadius = 12
+//        unreadMessagesCountLabel.textAlignment = .center
+//        unreadMessagesCountLabel.clipsToBounds = true
+//        unreadMessagesCountLabel.layer.masksToBounds = true
+//        unreadMessagesCountLabel.linesCornerRadius = 8
+//        unreadMessagesCountLabel.isSkeletonable = true
+//        unreadMessagesCountLabel.skeletonTextLineHeight = .fixed(25)
+//        unreadMessagesCountLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
+//        
+//        unreadMessagesCountLabel.translatesAutoresizingMaskIntoConstraints = false
+//        
+//        NSLayoutConstraint.activate([
+//            unreadMessagesCountLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
+//            unreadMessagesCountLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
+//            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
+//            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
+//        ])
+//    }  
+    
     private func setupUnreadMessagesCountLabel() {
-        contentView.addSubview(unreadMessagesCountLabel)
+        contentView.addSubview(unreadMessagesBadgeLabel)
         
-        unreadMessagesCountLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
-        unreadMessagesCountLabel.font = UIFont(name: "Helvetica", size: 16)
+        unreadMessagesBadgeLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
+        unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 16)
 //        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
-        unreadMessagesCountLabel.layer.cornerRadius = 12
-        unreadMessagesCountLabel.textAlignment = .center
-        unreadMessagesCountLabel.clipsToBounds = true
-        unreadMessagesCountLabel.layer.masksToBounds = true
-        unreadMessagesCountLabel.linesCornerRadius = 8
-        unreadMessagesCountLabel.isSkeletonable = true
-        unreadMessagesCountLabel.skeletonTextLineHeight = .fixed(25)
-        unreadMessagesCountLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
+//        unreadMessagesCountLabel.layer.cornerRadius = 12
+        unreadMessagesBadgeLabel.textAlignment = .center
+//        unreadMessagesCountLabel.clipsToBounds = true
+//        unreadMessagesCountLabel.layer.masksToBounds = true
+        unreadMessagesBadgeLabel.linesCornerRadius = 8
+        unreadMessagesBadgeLabel.isSkeletonable = true
+        unreadMessagesBadgeLabel.skeletonTextLineHeight = .fixed(25)
+        unreadMessagesBadgeLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
         
-        unreadMessagesCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        unreadMessagesBadgeLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            unreadMessagesCountLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
-            unreadMessagesCountLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
-            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
-            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
+            unreadMessagesBadgeLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
+            unreadMessagesBadgeLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
+//            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
+//            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
         ])
     }
     

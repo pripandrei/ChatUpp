@@ -7,655 +7,175 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C"
+            uuid = "1B44F880-1F1F-4D17-9FB1-BCD963A27209"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "218"
-            endingLineNumber = "218"
-            landmarkName = "removeParticipant(participantID:inChatWithID:)"
+            startingLineNumber = "477"
+            endingLineNumber = "477"
+            landmarkName = "migrateParticipantsField()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 9cb57182948838b6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "194"
-                  endingLineNumber = "194"
-                  offsetFromSymbolStart = "412">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 6fe2b29306c929f8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) await resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "194"
-                  endingLineNumber = "194"
-                  offsetFromSymbolStart = "52">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 79e651482040c8c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "194"
-                  endingLineNumber = "194"
-                  offsetFromSymbolStart = "52">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - ca6ce321893ee68f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "194"
-                  endingLineNumber = "194"
-                  offsetFromSymbolStart = "60">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 9cb5718294883897"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "195"
-                  endingLineNumber = "195"
-                  offsetFromSymbolStart = "428">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 6fe2b29306c929d9"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) await resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "195"
-                  endingLineNumber = "195"
-                  offsetFromSymbolStart = "52">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 79e651482040cad"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "195"
-                  endingLineNumber = "195"
-                  offsetFromSymbolStart = "52">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - ca6ce321893ee6ae"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "195"
-                  endingLineNumber = "195"
-                  offsetFromSymbolStart = "60">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 9cb57182948835ef"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "219"
-                  endingLineNumber = "219"
-                  offsetFromSymbolStart = "428">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 6fe2b29306c924a1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) await resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "219"
-                  endingLineNumber = "219"
-                  offsetFromSymbolStart = "52">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - 79e6514820401d5"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "219"
-                  endingLineNumber = "219"
-                  offsetFromSymbolStart = "52">
-               </Location>
-               <Location
-                  uuid = "5D4321EF-74AD-45CB-B061-E861FFAF118C - ca6ce321893eebd6"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "219"
-                  endingLineNumber = "219"
-                  offsetFromSymbolStart = "60">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7AE6B3DB-E43B-4E9F-8E82-D061874F90B3"
+            uuid = "E7DB61D4-EA70-45F0-9293-BF25FC9D042E"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "217"
-            endingLineNumber = "217"
-            landmarkName = "removeParticipant(participantID:inChatWithID:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "7AE6B3DB-E43B-4E9F-8E82-D061874F90B3 - 9cb5718294883849"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "193"
-                  endingLineNumber = "193"
-                  offsetFromSymbolStart = "176">
-               </Location>
-               <Location
-                  uuid = "7AE6B3DB-E43B-4E9F-8E82-D061874F90B3 - 9cb57182948835a1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for ChatUpp.FirebaseChatService.removeParticipant(participantID: Swift.String, inChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "217"
-                  endingLineNumber = "217"
-                  offsetFromSymbolStart = "176">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "02114E00-6338-4BE8-834A-A88EE80CF3B6"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Realm database/RealmDataBase.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "107"
-            endingLineNumber = "107"
-            landmarkName = "delete(object:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "02114E00-6338-4BE8-834A-A88EE80CF3B6 - fdf01503a4ab9e5e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.RealmDataBase.delete&lt;&#x3c4;_0_0 where &#x3c4;_0_0: __C.RealmSwiftObject&gt;(object: &#x3c4;_0_0) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Realm%20database/RealmDataBase.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "107"
-                  endingLineNumber = "107"
-                  offsetFromSymbolStart = "68">
-               </Location>
-               <Location
-                  uuid = "02114E00-6338-4BE8-834A-A88EE80CF3B6 - d89c8f816143b81e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; Swift.Optional&lt;()&gt; in ChatUpp.RealmDataBase.delete&lt;&#x3c4;_0_0 where &#x3c4;_0_0: __C.RealmSwiftObject&gt;(object: &#x3c4;_0_0) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Realm%20database/RealmDataBase.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "108"
-                  endingLineNumber = "108"
-                  offsetFromSymbolStart = "52">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "118BA856-A84A-4C76-8695-5065418AB18E"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "232"
-            endingLineNumber = "232"
-            landmarkName = "handleRemovedChat(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "118BA856-A84A-4C76-8695-5065418AB18E - 301fff6fa7ceae46"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleRemovedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "232"
-                  endingLineNumber = "232"
-                  offsetFromSymbolStart = "240">
-               </Location>
-               <Location
-                  uuid = "118BA856-A84A-4C76-8695-5065418AB18E - 301fff6fa7ceae46"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleRemovedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "232"
-                  endingLineNumber = "232"
-                  offsetFromSymbolStart = "324">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "115F7D1C-7951-4ED0-874B-57B5C3C4535D"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "224"
-            endingLineNumber = "224"
-            landmarkName = "handleRemovedChat(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "115F7D1C-7951-4ED0-874B-57B5C3C4535D - 2337489c8fa6e3c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleAddedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "224"
-                  endingLineNumber = "224"
-                  offsetFromSymbolStart = "44">
-               </Location>
-               <Location
-                  uuid = "115F7D1C-7951-4ED0-874B-57B5C3C4535D - 301fff6fa7ceaf3e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleRemovedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "224"
-                  endingLineNumber = "224"
-                  offsetFromSymbolStart = "56">
-               </Location>
-               <Location
-                  uuid = "115F7D1C-7951-4ED0-874B-57B5C3C4535D - 301fff6fa7ceaf3e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleRemovedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "224"
-                  endingLineNumber = "224"
-                  offsetFromSymbolStart = "52">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A7525A50-BDAD-4F6D-A80F-859E2AA27E28"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "272"
-            endingLineNumber = "272"
-            landmarkName = "deleteChatForBothUsers(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A7525A50-BDAD-4F6D-A80F-859E2AA27E28 - acd5267abb7f172"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "272"
-                  endingLineNumber = "272"
-                  offsetFromSymbolStart = "56">
-               </Location>
-               <Location
-                  uuid = "A7525A50-BDAD-4F6D-A80F-859E2AA27E28 - 9c07793abea3af73"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "272"
-                  endingLineNumber = "272"
-                  offsetFromSymbolStart = "104">
-               </Location>
-               <Location
-                  uuid = "A7525A50-BDAD-4F6D-A80F-859E2AA27E28 - 66b8f8ad9d9cb570"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "272"
-                  endingLineNumber = "272"
-                  offsetFromSymbolStart = "56">
-               </Location>
-               <Location
-                  uuid = "A7525A50-BDAD-4F6D-A80F-859E2AA27E28 - bb61efaddf976942"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) await resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "272"
-                  endingLineNumber = "272"
-                  offsetFromSymbolStart = "36">
-               </Location>
-               <Location
-                  uuid = "A7525A50-BDAD-4F6D-A80F-859E2AA27E28 - acd5267abb7f172"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "272"
-                  endingLineNumber = "272"
-                  offsetFromSymbolStart = "28">
-               </Location>
-               <Location
-                  uuid = "A7525A50-BDAD-4F6D-A80F-859E2AA27E28 - 9c07793abea3af73"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "272"
-                  endingLineNumber = "272"
-                  offsetFromSymbolStart = "60">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "F994AB14-BD12-436E-9FC7-61C1D56F4234"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "274"
-            endingLineNumber = "274"
-            landmarkName = "deleteChatForBothUsers(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "F994AB14-BD12-436E-9FC7-61C1D56F4234 - acd5267abb7f0d1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "275"
-                  endingLineNumber = "275"
-                  offsetFromSymbolStart = "68">
-               </Location>
-               <Location
-                  uuid = "F994AB14-BD12-436E-9FC7-61C1D56F4234 - 9c07793abea3aed0"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "275"
-                  endingLineNumber = "275"
-                  offsetFromSymbolStart = "484">
-               </Location>
-               <Location
-                  uuid = "F994AB14-BD12-436E-9FC7-61C1D56F4234 - 9c07793abea3aeb1"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for closure #1 @Sendable () async -&gt; () in ChatUpp.ChatsViewModel.deleteChatForBothUsers(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "274"
-                  endingLineNumber = "274"
-                  offsetFromSymbolStart = "164">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7E1ACF86-4C8D-4312-A1C7-A60C265FDCFD"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "210"
-            endingLineNumber = "210"
-            landmarkName = "handleModifiedChat(_:)"
+            startingLineNumber = "479"
+            endingLineNumber = "479"
+            landmarkName = "migrateParticipantsField()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "BDDE8D6F-A2E8-4D26-984C-263CDF735AB9"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "199"
-            endingLineNumber = "199"
-            landmarkName = "handleAddedChat(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "23470945-A839-4C62-8F1A-58091E11EE9C"
+            uuid = "CABCADCA-3055-4251-8FEE-2ACFD6D8E7A8"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "238"
-            endingLineNumber = "238"
-            landmarkName = "chatsPublisher(containingParticipantUserID:)"
+            startingLineNumber = "480"
+            endingLineNumber = "480"
+            landmarkName = "migrateParticipantsField()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2E42A863-BB67-4F11-8AA4-F6336AC7E298"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "490"
+            endingLineNumber = "490"
+            landmarkName = "migrateParticipantsField()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CD099545-C832-42D1-9C58-008C6A656EE7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "482"
+            endingLineNumber = "482"
+            landmarkName = "migrateParticipantsField()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "0DA92942-B530-4829-A2D4-A36E2649A340"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "485"
+            endingLineNumber = "485"
+            landmarkName = "migrateParticipantsField()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C6736DBC-3203-4DB7-9E6A-8E0ABFD9C55D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "484"
+            endingLineNumber = "484"
+            landmarkName = "migrateParticipantsField()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A0E6FA82-3B4E-4A4E-A198-24063480C849"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "492"
+            endingLineNumber = "492"
+            landmarkName = "migrateParticipantsField()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5D9B5E88-5DAC-4256-BC3E-6B141E04B202"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "505"
+            endingLineNumber = "505"
+            landmarkName = "migrateParticipantsField()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "23470945-A839-4C62-8F1A-58091E11EE9C - c4f3fe580d28d048"
+                  uuid = "5D9B5E88-5DAC-4256-BC3E-6B141E04B202 - 66cfcc309a7cfca3"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;__C.FIRQuerySnapshot&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in ChatUpp.FirebaseChatService.chatsPublisher(containingParticipantUserID: Swift.String) -&gt; Combine.AnyPublisher&lt;ChatUpp.ChatUpdate&lt;ChatUpp.Chat&gt;, Swift.Never&gt;"
+                  symbolName = "closure #1 (Swift.Optional&lt;__C.FIRQuerySnapshot&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in ChatUpp.FirebaseChatService.migrateParticipantsField() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "238"
-                  endingLineNumber = "238"
-                  offsetFromSymbolStart = "200">
+                  startingLineNumber = "505"
+                  endingLineNumber = "505"
+                  offsetFromSymbolStart = "1068">
                </Location>
                <Location
-                  uuid = "23470945-A839-4C62-8F1A-58091E11EE9C - 6093c38fac383527"
+                  uuid = "5D9B5E88-5DAC-4256-BC3E-6B141E04B202 - a3be52225bc12220"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (__C.FIRDocumentChange) -&gt; () in closure #1 (Swift.Optional&lt;__C.FIRQuerySnapshot&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in ChatUpp.FirebaseChatService.chatsPublisher(containingParticipantUserID: Swift.String) -&gt; Combine.AnyPublisher&lt;ChatUpp.ChatUpdate&lt;ChatUpp.Chat&gt;, Swift.Never&gt;"
+                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Error&gt;) -&gt; () in closure #1 (Swift.Optional&lt;__C.FIRQuerySnapshot&gt;, Swift.Optional&lt;Swift.Error&gt;) -&gt; () in ChatUpp.FirebaseChatService.migrateParticipantsField() -&gt; ()"
                   moduleName = "ChatUpp"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "239"
-                  endingLineNumber = "239"
-                  offsetFromSymbolStart = "64">
+                  startingLineNumber = "506"
+                  endingLineNumber = "506"
+                  offsetFromSymbolStart = "48">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -663,127 +183,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "20AD8E76-6920-423D-9E43-1C64826B71D8"
+            uuid = "6F2708FE-CFFA-4F04-954D-90B40466FC55"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "226"
-            endingLineNumber = "226"
-            landmarkName = "handleRemovedChat(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "20AD8E76-6920-423D-9E43-1C64826B71D8 - 301fff6fa7ceaf7c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleRemovedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "226"
-                  endingLineNumber = "226"
-                  offsetFromSymbolStart = "108">
-               </Location>
-               <Location
-                  uuid = "20AD8E76-6920-423D-9E43-1C64826B71D8 - 301fff6fa7ceaf7c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleRemovedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "226"
-                  endingLineNumber = "226"
-                  offsetFromSymbolStart = "104">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "BFE732B7-90B4-4FD4-A647-1B153D43C411"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "186"
-            endingLineNumber = "186"
-            landmarkName = "handleChatUpdate(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "E6AA0259-595C-4AFD-A486-E4B93FE1162F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "230"
-            endingLineNumber = "230"
-            landmarkName = "handleRemovedChat(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "E6AA0259-595C-4AFD-A486-E4B93FE1162F - 301fff6fa7ceae19"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleRemovedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "231"
-                  endingLineNumber = "231"
-                  offsetFromSymbolStart = "232">
-               </Location>
-               <Location
-                  uuid = "E6AA0259-595C-4AFD-A486-E4B93FE1162F - 301fff6fa7ceaef8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewModel.handleRemovedChat(ChatUpp.Chat) -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "230"
-                  endingLineNumber = "230"
-                  offsetFromSymbolStart = "312">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "5C7B430F-2E09-4267-B316-6C6FAB1D9F93"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "100"
-            endingLineNumber = "100"
+            startingLineNumber = "129"
+            endingLineNumber = "129"
             landmarkName = "setupBinding()"
             landmarkType = "7">
          </BreakpointContent>
@@ -791,268 +199,49 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F6617EC9-4512-4086-9BF0-8873DCBEB6CE"
+            uuid = "78AD3FA5-CDA2-4868-A457-D6292B523F53"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
-            landmarkName = "setupBinding()"
+            startingLineNumber = "130"
+            endingLineNumber = "130"
+            landmarkName = "observeParticipantChanges()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F083486F-2E5B-478E-9102-494112D7F994"
+            uuid = "DA511A43-6CCD-4A2D-9E13-2C2B6521C031"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
+            filePath = "ChatUpp/Custom Views/UnseenMessagesBadge.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "234"
-            endingLineNumber = "234"
-            landmarkName = "removeRow(from:)"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "updateBadge()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "158C76DC-75A6-4842-AE52-E7802750E500"
+            uuid = "E3177D1C-578E-409E-8FB1-65DE0B71C094"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
+            filePath = "ChatUpp/Custom Views/UnseenMessagesBadge.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "235"
-            endingLineNumber = "235"
-            landmarkName = "removeRow(from:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "18A5B28E-6287-4221-AC06-5C927A20F55F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "102"
-            endingLineNumber = "102"
-            landmarkName = "setupBinding()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "18A5B28E-6287-4221-AC06-5C927A20F55F - 2b0709276073b818"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "ChatUpp.ChatsViewController.setupBinding() -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "103"
-                  endingLineNumber = "103"
-                  offsetFromSymbolStart = "1020">
-               </Location>
-               <Location
-                  uuid = "18A5B28E-6287-4221-AC06-5C927A20F55F - 48262f5f03fe460f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;ChatUpp.ChatModificationType&gt;) -&gt; () in ChatUpp.ChatsViewController.setupBinding() -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatsViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "103"
-                  endingLineNumber = "103"
-                  offsetFromSymbolStart = "360">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "04F2374E-04CB-4D58-81A7-440AC8A291BB"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "76"
-            endingLineNumber = "76"
-            landmarkName = "deleteSubcollection(fromChatWithID:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "04F2374E-04CB-4D58-81A7-440AC8A291BB - 494996f530b10045"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "76"
-                  endingLineNumber = "76"
-                  offsetFromSymbolStart = "100">
-               </Location>
-               <Location
-                  uuid = "04F2374E-04CB-4D58-81A7-440AC8A291BB - f80cf14bb19c4243"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "76"
-                  endingLineNumber = "76"
-                  offsetFromSymbolStart = "184">
-               </Location>
-               <Location
-                  uuid = "04F2374E-04CB-4D58-81A7-440AC8A291BB - 6bc3d1c832febc41"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(5) suspend resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "76"
-                  endingLineNumber = "76"
-                  offsetFromSymbolStart = "236">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "66610B7A-97DC-4998-87CA-38101D54C3D3"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "87"
-            endingLineNumber = "87"
-            landmarkName = "deleteSubcollection(fromChatWithID:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "66610B7A-97DC-4998-87CA-38101D54C3D3 - f80cf14bb19c43dc"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "87"
-                  endingLineNumber = "87"
-                  offsetFromSymbolStart = "800">
-               </Location>
-               <Location
-                  uuid = "66610B7A-97DC-4998-87CA-38101D54C3D3 - 4cbb5cc4f578d52e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) await resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "87"
-                  endingLineNumber = "87"
-                  offsetFromSymbolStart = "68">
-               </Location>
-               <Location
-                  uuid = "66610B7A-97DC-4998-87CA-38101D54C3D3 - 6bc3d1c832febce4"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(5) suspend resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "81"
-                  endingLineNumber = "81"
-                  offsetFromSymbolStart = "72">
-               </Location>
-               <Location
-                  uuid = "66610B7A-97DC-4998-87CA-38101D54C3D3 - 6bc3d1c832febdde"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(5) suspend resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "87"
-                  endingLineNumber = "87"
-                  offsetFromSymbolStart = "104">
-               </Location>
-               <Location
-                  uuid = "66610B7A-97DC-4998-87CA-38101D54C3D3 - 1a86304eb3d9feea"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(7) suspend resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "81"
-                  endingLineNumber = "81"
-                  offsetFromSymbolStart = "40">
-               </Location>
-               <Location
-                  uuid = "66610B7A-97DC-4998-87CA-38101D54C3D3 - 1a86304eb3d9ffd0"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(7) suspend resume partial function for ChatUpp.FirebaseChatService.deleteSubcollection(fromChatWithID: Swift.String) async throws -&gt; ()"
-                  moduleName = "ChatUpp"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "87"
-                  endingLineNumber = "87"
-                  offsetFromSymbolStart = "52">
-               </Location>
-            </Locations>
+            startingLineNumber = "16"
+            endingLineNumber = "16"
+            landmarkName = "unseenCount"
+            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

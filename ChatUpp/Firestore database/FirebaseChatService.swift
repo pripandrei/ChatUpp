@@ -470,7 +470,7 @@ extension FirebaseChatService {
             for document in documents {
                 let chatId = document.documentID
                 
-                if chatId == "490EA49D-E8BA-461C-8125-5FDEA3BCBAA8" {
+                if chatId == "CF3D16E4-ADBET47F8-ADE6-B2ACECA699E3" {
                     // Fetch current participants array
                     if let oldParticipants = document.data()["participants"] as? [String: [String: Any]] {
                         // Prepare the new participants map

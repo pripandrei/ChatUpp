@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import RealmSwift
 
 enum MessageValueModification {
     case text
@@ -65,7 +66,9 @@ final class ConversationViewModel
     private(set) var memberProfileImage  : Data?
     private(set) var authenticatedUserID : String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
     private      var listeners           : [Listener] = []
+    private var cancellables             = Set<AnyCancellable>()
     
+    @Published private(set) var unseenMessagesCount              : Int
     @Published private(set) var chatUser                         : User
     @Published private(set) var messageChangedType               : MessageChangeType?
     @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus = .notInitialized
@@ -92,24 +95,65 @@ final class ConversationViewModel
     private var firstMessage: Message? {
         conversation?.getFirstMessage()
     }
-
+    
     var shouldFetchNewMessages: Bool {
         guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
             return false
         }
         return ( authParticipantUnreadMessagesCount != getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
     }
-
+    
     /// - Life cycle
     
     init(conversationUser: User, conversation: Chat? = nil, imageData: Data?) {
         self.chatUser = conversationUser
         self.conversation = conversation
         self.memberProfileImage = imageData
+        self.unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? 0
         
         if conversationExists {
             initiateConversation()
         }
+    }
+    var embeddedCatChangeNotification: NotificationToken?
+    var keyObserver: NSKeyValueObservation?
+    private func observeParticipantChanges()
+    {
+        guard let chat = conversation else {return}
+        guard let participant = chat.getParticipant(byID: authenticatedUserID) else {return}
+        
+        embeddedCatChangeNotification = participant
+            .observe(on: DispatchQueue.main) { change in
+                switch change {
+                case .change(_, let properties): 
+                    properties.forEach { property in
+                        if property.name == "unseenMessagesCount" {
+                            self.unseenMessagesCount = property.newValue as? Int ?? self.unseenMessagesCount
+                        }
+                    }
+                    print(properties)
+                default: break
+                }
+            }
+//        
+//        keyObserver = participant.observe(\.unseenMessagesCount) { participant, change in
+//            print("Value changed")
+//        }
+//        
+//        participant.publisher(for: \.unseenMessagesCount)
+//            .sink { [weak self] count in
+//                self?.unseenMessagesCount = count
+//            }.store(in: &cancellables)
+//
+//        
+//        chat.observe { [weak self] changes in
+//                switch changes {
+//                case .change(_, _):
+//                    // Handle initial load if necessary
+//                   print("ad")
+//                default: break
+//                }
+//            }
     }
 
     /// - listeners
@@ -117,6 +161,7 @@ final class ConversationViewModel
     func addListeners() {
         addUsersListener()
         addUserObserver()
+        observeParticipantChanges()
         
         guard let startMessage = messageGroups.last?.cellViewModels.last?.cellMessage,
               let limit = conversation?.conversationMessages.count else {return}
@@ -597,6 +642,7 @@ extension ConversationViewModel
             // dont create messageGroup with this new message
             createMessageGroupsWith([message], ascending: true)
             messageChangedType = .added
+//            unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? unseenMessagesCount
             return
         }
         Task { @MainActor in

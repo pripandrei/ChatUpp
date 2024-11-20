@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		750F26762C38922500378BC7 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 750F26752C38922500378BC7 /* Alamofire */; };
+		751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */; };
 		753185E92C22123300C4F9F4 /* UIButton + extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753185E82C22123300C4F9F4 /* UIButton + extensions.swift */; };
 		753186132C26F8B900C4F9F4 /* UITextView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */; };
 		7533D9B82B1659210057EBC7 /* PhoneSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */; };
@@ -149,6 +150,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesBadge.swift; sourceTree = "<group>"; };
 		753185E82C22123300C4F9F4 /* UIButton + extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + extensions.swift"; sourceTree = "<group>"; };
 		753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Extensions.swift"; sourceTree = "<group>"; };
 		7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSignInViewController.swift; sourceTree = "<group>"; };
@@ -264,6 +266,14 @@
 				75F608852BEC33400065DA83 /* InputBarHeaderView.swift */,
 			);
 			path = Subviews;
+			sourceTree = "<group>";
+		};
+		751100372CEEA0CF00DD659C /* Custom Views */ = {
+			isa = PBXGroup;
+			children = (
+				751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */,
+			);
+			path = "Custom Views";
 			sourceTree = "<group>";
 		};
 		7533D9B92B167E7F0057EBC7 /* PhoneSignin */ = {
@@ -465,6 +475,7 @@
 		75B5C4B82A49AB0A00F63A5A /* ChatUpp */ = {
 			isa = PBXGroup;
 			children = (
+				751100372CEEA0CF00DD659C /* Custom Views */,
 				75A918492C942DEB006ED4CA /* Helpers */,
 				7587CE1F2C78176E002D60CE /* Database models */,
 				756525D32AB50035005DC594 /* Firestore database */,
@@ -842,6 +853,7 @@
 				75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */,
 				759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */,
 				75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */,
+				751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */,
 				7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
 				7533D9BB2B167ED80057EBC7 /* PhoneSigninViewModel.swift in Sources */,
