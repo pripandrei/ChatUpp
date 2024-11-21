@@ -10,6 +10,13 @@ import RealmSwift
 import Realm
 import Combine
 
+extension Results
+{
+    func toArray() -> [Element] {
+        return Array(self)
+    }
+}
+
 enum RealmRetrieveError: Error, LocalizedError {
     case objectNotPresent
     case chatNotPresent

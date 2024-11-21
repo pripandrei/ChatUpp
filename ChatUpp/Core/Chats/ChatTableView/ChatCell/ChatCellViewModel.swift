@@ -44,9 +44,11 @@ class ChatCellViewModel
         observeAuthParticipantChanges()
     }
     
-    private func initiateChatDataLoad() {
+    private func initiateChatDataLoad()
+    {
         try? retrieveDataFromRealm()
-        Task 
+        
+        Task
         {
             await fetchDataFromFirestore()
             await self.addObserverToUser()
@@ -101,9 +103,6 @@ extension ChatCellViewModel {
     
     func updateChatParameters()
     {
-        /// chat was update in realm, so we check if it's properties match local one (member & recentMessage)
-//        self.unreadMessageCount = chat.participants.first { $0.userID == authUser.uid }?.unseenMessagesCount
-        
         if findMemberID() != chatUser?.id {
             Task { await updateUserAfterDeletion() }
         }
@@ -159,9 +158,7 @@ extension ChatCellViewModel {
     
     private func retrieveMemberImageData() throws -> Data? 
     {
-        guard let userProfilePhotoURL = chatUser?.photoUrl else {
-//            print("image not")
-            throw RealmRetrieveError.imageNotPresent }
+        guard let userProfilePhotoURL = chatUser?.photoUrl else { throw RealmRetrieveError.imageNotPresent }
         return CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
     }
     

@@ -162,11 +162,8 @@ extension ChatsViewModel {
         switch update.changeType
         {
             case .added: handleAddedChat(update.data)
-            print("Handle Added chat")
             case .modified: handleModifiedChat(update.data)
-            print("Handle Updated chat")
-            case .removed: print("Handle Removed chat")
-                           handleRemovedChat(update.data)
+            case .removed: handleRemovedChat(update.data)
         }
     }
     
@@ -175,7 +172,6 @@ extension ChatsViewModel {
         guard let _ = retrieveChatFromRealm(chat) else {
             addChatToRealm(chat)
             addCellViewModel(using: chat)
-//            onNewChatAdded?(true)
             chatModificationType = .added
             return
         }
@@ -192,7 +188,6 @@ extension ChatsViewModel {
         
         cellViewModels.move(element: cellVM, toIndex: 0)
         chatModificationType = .updated(position: viewModelIndex)
-//        modifiedChatIndex = viewModelIndex
     }
     
     private func handleRemovedChat(_ chat: Chat) 
