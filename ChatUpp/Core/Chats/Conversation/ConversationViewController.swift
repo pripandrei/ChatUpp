@@ -618,20 +618,10 @@ extension ConversationViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard !tableView.sk.isSkeletonActive,
-              let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HeaderFooterIdentifier.footer) else { return nil }
+              let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HeaderFooterIdentifier.footer) as? FooterSectionView else { return nil }
         
-        let label = DateHeaderLabel()
-        
-        footerView.addSubview(label)
-        
-        let dateForSection = conversationViewModel.messageGroups[section].date
-        label.text = dateForSection.formatToYearMonthDayCustomString()
-        label.centerXAnchor.constraint(equalTo: footerView.centerXAnchor).isActive = true
-        label.topAnchor.constraint(equalTo: footerView.topAnchor, constant: 10).isActive = true
-        label.bottomAnchor.constraint(equalTo: footerView.bottomAnchor, constant: -10).isActive = true
-        
-        footerView.transform = CGAffineTransform(scaleX: 1, y: -1)
-        footerView.backgroundConfiguration = .clear()
+        let dateForSection = conversationViewModel.messageGroups[section].date.formatToYearMonthDayCustomString()
+        footerView.setDate(dateText: dateForSection)
         return footerView
     }
     
@@ -648,11 +638,9 @@ extension ConversationViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        if conversationViewModel.skeletonAnimationState == .initiated {
         if conversationViewModel.conversationInitializationStatus == .inProgress {
             return CGFloat((70...120).randomElement()!)
         }
-//       return  35
        return  UITableView.automaticDimension
     }
     
@@ -666,8 +654,6 @@ extension ConversationViewController: UITableViewDelegate
         let lastRowIndex = conversationViewModel.messageGroups[lastSectionIndex].cellViewModels.count - 1
         let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
-        
-//        guard conversationViewModel.shouldFetchNewMessages else {return}
         
         if isLastCellDisplayed
         {
