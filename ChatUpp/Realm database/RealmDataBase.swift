@@ -10,13 +10,6 @@ import RealmSwift
 import Realm
 import Combine
 
-extension Results
-{
-    func toArray() -> [Element] {
-        return Array(self)
-    }
-}
-
 enum RealmRetrieveError: Error, LocalizedError {
     case objectNotPresent
     case chatNotPresent
@@ -73,18 +66,15 @@ final class RealmDataBase {
         )
     }
     
-    public func retrieveObjects<T: Object>(ofType type: T.Type) -> Results<T>? {
-        return realm?.objects(type)
-    }
-    
-    public func retrieveObjects<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> [T] {
-        guard var results = realm?.objects(type) else { return [] }
+    public func retrieveObjects<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Results<T>?
+    {
+        var results = realm?.objects(type)
         
         if let predicate = filter {
-            results = results.filter(predicate)
+            results = results?.filter(predicate)
         }
         
-        return Array(results)
+        return results
     }
 
     public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
@@ -228,6 +218,14 @@ extension RealmDataBase
         return "Realm database file is located at: \(fileURL)"
     }
 }
+
+extension Results
+{
+    func toArray() -> [Element] {
+        return Array(self)
+    }
+}
+
 
 
 //MARK: Unused functions
