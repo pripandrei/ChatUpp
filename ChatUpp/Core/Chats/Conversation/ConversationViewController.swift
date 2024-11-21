@@ -21,7 +21,6 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        toggleSectionHeaderVisibility(isScrollActive: true)
         updateMessageSeenStatusIfNeeded()
         if !shouldIgnoreScrollToBottomBtnUpdate {
             updateScrollToBottomBtnIfNeeded()
@@ -33,14 +32,14 @@ extension ConversationViewController: UIScrollViewDelegate
         }
     }
     
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        toggleSectionHeaderVisibility(isScrollActive: true)
+    }
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         toggleSectionHeaderVisibility(isScrollActive: false)
     }
-    
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if !decelerate {
-            toggleSectionHeaderVisibility(isScrollActive: false)
-        }
+        toggleSectionHeaderVisibility(isScrollActive: decelerate)
     }
     
     private func toggleSectionHeaderVisibility(isScrollActive: Bool)
@@ -50,8 +49,9 @@ extension ConversationViewController: UIScrollViewDelegate
         else {return}
         
         let isLastSectionDisplayed = (rootView.tableView.numberOfSections - 1) == lastVisibleCellIndex.section
+        let animationDelay = isScrollActive ? 0.0 : 0.4
         
-        UIView.animate(withDuration: 0.4) {
+        UIView.animate(withDuration: 0.4, delay: animationDelay) {
             footerView.layer.opacity = (isScrollActive || isLastSectionDisplayed) ? 1.0 : 0.0
         }
     }
