@@ -21,6 +21,7 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
+        toggleSectionHeaderVisibility(isScrollActive: true)
         updateMessageSeenStatusIfNeeded()
         if !shouldIgnoreScrollToBottomBtnUpdate {
             updateScrollToBottomBtnIfNeeded()
@@ -30,11 +31,29 @@ extension ConversationViewController: UIScrollViewDelegate
             shouldAdjustScroll = false
             self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
         }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        toggleSectionHeaderVisibility(isScrollActive: false)
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            toggleSectionHeaderVisibility(isScrollActive: false)
+        }
+    }
+    
+    private func toggleSectionHeaderVisibility(isScrollActive: Bool)
+    {
+        guard let lastVisibleCellIndex = rootView.tableView.indexPathsForVisibleRows?.last,
+              let footerView = rootView.tableView.footerView(forSection: lastVisibleCellIndex.section)
+        else {return}
         
-//        let currentContentHeight = self.rootView.tableView.contentSize.height // 7628
-//        let currentOffsetY = self.rootView.tableView.contentOffset.y
-//        
-//        print("currentContentHeight: " , currentContentHeight, "/n currentOffsetY: ", currentOffsetY)
+        let isLastSectionDisplayed = (rootView.tableView.numberOfSections - 1) == lastVisibleCellIndex.section
+        
+        UIView.animate(withDuration: 0.4) {
+            footerView.layer.opacity = (isScrollActive || isLastSectionDisplayed) ? 1.0 : 0.0
+        }
     }
 }
 
@@ -593,25 +612,27 @@ extension ConversationViewController {
     }
 }
 
-
+//viewForFooterInSection
 //MARK: - TABLE  DELEGATE
 extension ConversationViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        guard !tableView.sk.isSkeletonActive else { return nil }
-        let label = DateHeaderLabel()
-        let containerView = UIView()
+        guard !tableView.sk.isSkeletonActive,
+              let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HeaderFooterIdentifier.footer) else { return nil }
         
-        containerView.addSubview(label)
+        let label = DateHeaderLabel()
+        
+        footerView.addSubview(label)
         
         let dateForSection = conversationViewModel.messageGroups[section].date
         label.text = dateForSection.formatToYearMonthDayCustomString()
-        label.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        label.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10).isActive = true
-        label.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -10).isActive = true
+        label.centerXAnchor.constraint(equalTo: footerView.centerXAnchor).isActive = true
+        label.topAnchor.constraint(equalTo: footerView.topAnchor, constant: 10).isActive = true
+        label.bottomAnchor.constraint(equalTo: footerView.bottomAnchor, constant: -10).isActive = true
         
-        containerView.transform = CGAffineTransform(scaleX: 1, y: -1)
-        return containerView
+        footerView.transform = CGAffineTransform(scaleX: 1, y: -1)
+        footerView.backgroundConfiguration = .clear()
+        return footerView
     }
     
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {

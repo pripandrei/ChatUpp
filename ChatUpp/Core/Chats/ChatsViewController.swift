@@ -18,6 +18,10 @@ struct CellIdentifire {
     static let conversationSkeletonCell = "ConversationSkeletonCell"
 }
 
+struct HeaderFooterIdentifier {
+    static let footer = "footer"
+}
+
 class ChatsViewController: UIViewController {
     
     weak var coordinatorDelegate: Coordinator?

@@ -57,6 +57,7 @@ final class ConversationRootView: UIView {
         tableView.isSkeletonable                = true
         tableView.register(ConversationTableViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationMessageCell)
         tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationSkeletonCell)
+        tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: HeaderFooterIdentifier.footer)
         
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
