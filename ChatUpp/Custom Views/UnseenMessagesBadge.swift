@@ -33,6 +33,7 @@ class UnseenMessagesBadge: UILabel
         clipsToBounds = true
         layer.masksToBounds = true
         layer.cornerRadius = intrinsicContentSize.height / 2
+        invalidateIntrinsicContentSize()
     }
 
     private func updateBadge()
@@ -42,11 +43,9 @@ class UnseenMessagesBadge: UILabel
             return
         }
         
-        UIView.animate(withDuration: 0.3, delay: 0.0)
-        {
-            self.text = "\(self.unseenCount)"
-            self.layer.opacity = 1.0
-            self.layoutIfNeeded()
-        }
+        UIView.animate(withDuration: 0.3, delay: 0.0) { self.layer.opacity = 1.0 }
+        
+        self.text = "\(self.unseenCount)"
+        self.layoutIfNeeded()
     }
 }

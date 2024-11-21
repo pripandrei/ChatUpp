@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-import RealmSwift
+//import RealmSwift
 
 enum MessageValueModification {
     case text
@@ -68,7 +68,7 @@ final class ConversationViewModel
     private      var listeners           : [Listener] = []
     private var cancellables             = Set<AnyCancellable>()
     
-    @Published private(set) var unseenMessagesCount              : Int
+    @Published private(set) var unseenMessagesCount              : Int 
     @Published private(set) var chatUser                         : User
     @Published private(set) var messageChangedType               : MessageChangeType?
     @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus = .notInitialized
@@ -115,45 +115,18 @@ final class ConversationViewModel
             initiateConversation()
         }
     }
-    var embeddedCatChangeNotification: NotificationToken?
-    var keyObserver: NSKeyValueObservation?
+    
     private func observeParticipantChanges()
     {
         guard let chat = conversation else {return}
         guard let participant = chat.getParticipant(byID: authenticatedUserID) else {return}
         
-        embeddedCatChangeNotification = participant
-            .observe(on: DispatchQueue.main) { change in
-                switch change {
-                case .change(_, let properties): 
-                    properties.forEach { property in
-                        if property.name == "unseenMessagesCount" {
-                            self.unseenMessagesCount = property.newValue as? Int ?? self.unseenMessagesCount
-                        }
-                    }
-                    print(properties)
-                default: break
-                }
-            }
-//        
-//        keyObserver = participant.observe(\.unseenMessagesCount) { participant, change in
-//            print("Value changed")
-//        }
-//        
-//        participant.publisher(for: \.unseenMessagesCount)
-//            .sink { [weak self] count in
-//                self?.unseenMessagesCount = count
-//            }.store(in: &cancellables)
-//
-//        
-//        chat.observe { [weak self] changes in
-//                switch changes {
-//                case .change(_, _):
-//                    // Handle initial load if necessary
-//                   print("ad")
-//                default: break
-//                }
-//            }
+        RealmDataBase.shared.observeChanges(for: participant)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] change in
+                guard let self = self, change.name == "unseenMessagesCount" else { return }
+                self.unseenMessagesCount = change.newValue as? Int ?? self.unseenMessagesCount
+            }.store(in: &cancellables)
     }
 
     /// - listeners

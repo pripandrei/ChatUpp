@@ -128,25 +128,6 @@ final class ConversationViewController: UIViewController {
             .sink { [weak self] unseenCount in
                 self?.rootView.unseenMessagesBadge.unseenCount = unseenCount
             }.store(in: &subscriptions)
-//        
-//        conversationViewModel.$authParticipant
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] participant in
-//                
-//                guard let participant = participant else {return}
-//                self?.rootView.unseenMessagesBadge.counter = participant.unseenMessagesCount
-//            }.store(in: &subscriptions)
-//        
-        
-//        conversationViewModel.$conversation
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] chat in
-//                guard let self = self else {return }
-//                guard let chat = chat else {return}
-//                
-//               self.rootView.unseenMessagesBadge.counter = chat.getParticipant(byID: self.conversationViewModel.authenticatedUserID)?.unseenMessagesCount ?? 0
-//            }.store(in: &subscriptions)
-//        
         
         conversationViewModel.$conversationInitializationStatus
             .receive(on: DispatchQueue.main)

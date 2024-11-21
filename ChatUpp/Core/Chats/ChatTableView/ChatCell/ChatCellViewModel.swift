@@ -8,6 +8,20 @@
 import Foundation
 import Combine
 
+extension ChatCellViewModel 
+{
+    private func observeAuthParticipantChanges()
+    {
+        guard let participant = chat.getParticipant(byID: authUser.uid) else {return}
+        
+        RealmDataBase.shared.observeChanges(for: participant)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] change in
+                guard let self = self, change.name == "unseenMessagesCount" else { return }
+                self.unreadMessageCount = change.newValue as? Int ?? self.unreadMessageCount
+            }.store(in: &cancellables)
+    }
+}
 
 class ChatCellViewModel
 {
@@ -25,8 +39,9 @@ class ChatCellViewModel
     
     init(chat: Chat) {
         self.chat = chat
-
+        
         initiateChatDataLoad()
+        observeAuthParticipantChanges()
     }
     
     private func initiateChatDataLoad() {
@@ -87,7 +102,7 @@ extension ChatCellViewModel {
     func updateChatParameters()
     {
         /// chat was update in realm, so we check if it's properties match local one (member & recentMessage)
-        self.unreadMessageCount = chat.participants.first { $0.userID == authUser.uid }?.unseenMessagesCount
+//        self.unreadMessageCount = chat.participants.first { $0.userID == authUser.uid }?.unseenMessagesCount
         
         if findMemberID() != chatUser?.id {
             Task { await updateUserAfterDeletion() }

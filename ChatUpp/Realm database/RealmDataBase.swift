@@ -8,6 +8,7 @@
 import Foundation
 import RealmSwift
 import Realm
+import Combine
 
 enum RealmRetrieveError: Error, LocalizedError {
     case objectNotPresent
@@ -29,7 +30,7 @@ enum RealmRetrieveError: Error, LocalizedError {
 
 final class RealmDataBase {
     
-    private var notificationToken: [NotificationToken]?
+    private var notificationTokens: [NotificationToken]?
     
     static var shared = RealmDataBase()
     
@@ -109,6 +110,32 @@ final class RealmDataBase {
         })
     }
     
+    func observeChanges<T: EmbeddedObject>(for object: T) -> AnyPublisher<PropertyChange, Never>
+    {
+        let subject = PassthroughSubject<PropertyChange, Never>()
+        
+        let token = object.observe { change in
+            switch change {
+            case .change(_, let properties):
+                properties.forEach { property in
+                    subject.send(property)
+                }
+            default: break
+            }
+        }
+        notificationTokens?.append(token)
+        
+        return subject
+            .handleEvents(receiveCancel: { [weak self] in
+                self?.invalidateToken(token)
+            })
+            .eraseToAnyPublisher()
+    }
+  
+    private func invalidateToken(_ token: NotificationToken) {
+        token.invalidate()
+        notificationTokens?.removeAll { $0 == token }
+    }
 }
 
 //MARK: - Migrations
