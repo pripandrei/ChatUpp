@@ -538,7 +538,8 @@ extension ConversationViewController
 }
 
 //MARK: - TABLE OFFSET HANDLER
-extension ConversationViewController {
+extension ConversationViewController 
+{
     private func handleTableViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
         
         // if number of lines inside textView is bigger than 1, it will expand

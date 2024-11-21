@@ -13,7 +13,7 @@ import UIKit
 
 final class FooterSectionView: UITableViewHeaderFooterView
 {
-    private var dateLabel: DateHeaderLabel!
+    private var dateLabel: DateFooterLabel!
     
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
@@ -32,7 +32,7 @@ final class FooterSectionView: UITableViewHeaderFooterView
     
     private func setupDateLabel() 
     {
-        dateLabel = DateHeaderLabel()
+        dateLabel = DateFooterLabel()
         addSubview(dateLabel)
         
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -50,7 +50,7 @@ final class FooterSectionView: UITableViewHeaderFooterView
 
 extension FooterSectionView 
 {
-    private class DateHeaderLabel: UILabel
+    private class DateFooterLabel: UILabel
     {
         override init(frame: CGRect) 
         {
