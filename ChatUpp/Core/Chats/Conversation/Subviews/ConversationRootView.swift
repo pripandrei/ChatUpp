@@ -55,10 +55,10 @@ final class ConversationRootView: UIView {
         tableView.estimatedRowHeight            = 50
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
-        tableView.register(ConversationTableViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationMessageCell)
-        tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationSkeletonCell)
-        tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: HeaderFooterIdentifier.footer)
-        tableView.register(ConversationTableViewTitleCell.self, forCellReuseIdentifier: CellIdentifire.conversationUnseentitleCell)
+        tableView.register(ConversationTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
+        tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
+        tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
+        tableView.register(ConversationTableViewTitleCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
         
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")

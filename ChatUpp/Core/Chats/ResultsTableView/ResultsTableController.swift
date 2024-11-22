@@ -76,7 +76,7 @@ final class ResultsTableController: UITableViewController {
     private func setupTableView() {
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(ResultsTableCell.self, forCellReuseIdentifier: CellIdentifire.resultsTableCell)
+        tableView.register(ResultsTableCell.self, forCellReuseIdentifier: ReuseIdentifire.SearchRusultsTableCell.searchResult.identifire)
         tableView.sectionHeaderTopPadding = 0
         tableView.rowHeight = 55
         tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
@@ -92,7 +92,7 @@ final class ResultsTableController: UITableViewController {
 
 extension ResultsTableController: SkeletonTableViewDataSource {
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-       return CellIdentifire.resultsTableCell
+       return ReuseIdentifire.SearchRusultsTableCell.searchResult.identifire
     }
 }
 
@@ -111,7 +111,8 @@ extension ResultsTableController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.resultsTableCell, for: indexPath) as? ResultsTableCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.SearchRusultsTableCell.searchResult.identifire,
+                                                       for: indexPath) as? ResultsTableCell
         else {fatalError("Could not dequeue Results cell")}
         
         cell.configure(viewModel: filteredUsers[indexPath.item])

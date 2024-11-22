@@ -21,7 +21,7 @@ class ChatsTableViewDataSource: NSObject, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.chatCell, for: indexPath) as? ChatsCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ChatTableCell.chat.identifire, for: indexPath) as? ChatsCell else {
             fatalError("Unable to dequeu reusable cell")
         }
         cell.configure(viewModel: chatsViewModel.cellViewModels[indexPath.row])
@@ -35,7 +35,7 @@ class ChatsTableViewDataSource: NSObject, UITableViewDataSource {
 extension ChatsTableViewDataSource: SkeletonTableViewDataSource {
     
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-       return CellIdentifire.chatCell
+       return ReuseIdentifire.ChatTableCell.chat.identifire
     }
 }
 

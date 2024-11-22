@@ -11,6 +11,94 @@ import Combine
 
 // MARK: - CELL IDENTIFIER
 
+enum ReuseIdentifire 
+{
+//    enum TableCell: String
+//    {
+//        case chat,
+//             searchResult,
+//             conversationMessage,
+//             conversationSkeleton,
+//             conversationUnseenTitle
+//        
+//        var identifire: String
+//        {
+//            switch self {
+//            case .chat: return rawValue.capitalized
+//            case .searchResult: return rawValue.capitalized
+//            case .conversationMessage: return rawValue.capitalized
+//            case .conversationSkeleton: return rawValue.capitalized
+//            case .conversationUnseenTitle: return rawValue.capitalized
+//            }
+//        }
+//    }
+//    
+//    enum HeaderFooter: String
+//    {
+//        case footer
+//        
+//        var identifire: String
+//        {
+//            switch self {
+//            case .footer: return rawValue.capitalized
+//            }
+//        }
+//    }
+    
+    //MARK: -
+    
+    enum ConversationTableCell: String {
+        case message,
+             messageSekeleton,
+             unseenTitle
+        
+        var identifire: String
+        {
+            switch self {
+            case .message: return rawValue.capitalized
+            case .messageSekeleton: return rawValue.capitalized
+            case .unseenTitle: return rawValue.capitalized
+            }
+        }
+    }
+    
+    enum SearchRusultsTableCell: String {
+        case searchResult
+        
+        var identifire: String
+        {
+            switch self {
+            case .searchResult: return rawValue.capitalized
+            }
+        }
+    }
+    
+    enum ChatTableCell: String {
+        case chat
+        
+        var identifire: String
+        {
+            switch self {
+            case .chat: return rawValue.capitalized
+            }
+        }
+    }
+    
+    enum HeaderFooter: String
+    {
+        case footer
+        
+        var identifire: String
+        {
+            switch self {
+            case .footer: return rawValue.capitalized
+            }
+        }
+    }
+    
+ 
+}
+
 struct CellIdentifire {
     static let chatCell = "ChatTableVwCell"
     static let conversationMessageCell = "ConversationMessageCell"

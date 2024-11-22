@@ -7,23 +7,23 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "36412192-0602-4A84-ADB9-6833B5242296"
-            shouldBeEnabled = "No"
+            uuid = "078905AC-91B1-4526-84B1-C7F31088475C"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/Conversation/ConversationViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "42"
-            endingLineNumber = "42"
-            landmarkName = "init()"
+            startingLineNumber = "300"
+            endingLineNumber = "300"
+            landmarkName = "insertUnseenMessagesTitle()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9E86721F-7239-499D-A31B-D3CB6DDB56E6"
+            uuid = "EEFBCDA7-DF9D-42F9-8AC9-3548C2C370B8"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"

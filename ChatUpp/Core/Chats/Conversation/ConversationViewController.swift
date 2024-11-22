@@ -631,7 +631,7 @@ extension ConversationViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard !tableView.sk.isSkeletonActive,
-              let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: HeaderFooterIdentifier.footer) as? FooterSectionView else { return nil }
+              let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? FooterSectionView else { return nil }
         
         let dateForSection = conversationViewModel.messageGroups[section].date.formatToYearMonthDayCustomString()
         footerView.setDate(dateText: dateForSection)

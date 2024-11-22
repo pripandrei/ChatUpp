@@ -39,10 +39,6 @@ final class ConversationCellViewModel {
         self.displayUnseenMessagesTitle = isUnseenCell
     }
     
-//    convenience init() {
-//        
-//    }
-    
     var timestamp: String? {
         let hoursAndMinutes = cellMessage?.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes

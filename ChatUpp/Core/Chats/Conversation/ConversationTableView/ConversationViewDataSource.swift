@@ -30,11 +30,11 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
         let viewModel = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row]
         
         if viewModel.displayUnseenMessagesTitle == true {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.conversationUnseentitleCell, for: indexPath) as? ConversationTableViewTitleCell else { fatalError("Could not dequeu custom collection cell") }
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire, for: indexPath) as? ConversationTableViewTitleCell else { fatalError("Could not dequeu custom collection cell") }
             return cell
         }
         
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: CellIdentifire.conversationMessageCell, for: indexPath) as? ConversationTableViewCell else { fatalError("Could not dequeu custom collection cell") }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire, for: indexPath) as? ConversationTableViewCell else { fatalError("Could not dequeu custom collection cell") }
 
         let message = viewModel.cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
@@ -56,6 +56,6 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
 extension ConversationViewDataSource: SkeletonTableViewDataSource
 {
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-       return CellIdentifire.conversationSkeletonCell
+       return ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire
     }
 }
