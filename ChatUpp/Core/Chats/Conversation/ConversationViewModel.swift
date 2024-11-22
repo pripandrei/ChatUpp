@@ -8,11 +8,20 @@
 
 import Foundation
 import Combine
+import UIKit
 //import RealmSwift
 
-enum MessageValueModification {
+enum MessageValueModification 
+{
     case text
     case seenStatus
+    
+    var animationType: UITableView.RowAnimation {
+        switch self {
+        case .text: return .left
+        case .seenStatus: return .none
+        }
+    }
 }
 
 enum MessageChangeType {
@@ -70,7 +79,7 @@ final class ConversationViewModel
     
     @Published private(set) var unseenMessagesCount              : Int 
     @Published private(set) var chatUser                         : User
-    @Published private(set) var messageChangedType               : MessageChangeType?
+    @Published  var messageChangedType               : [MessageChangeType] = []
     @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus = .notInitialized
     
     var shouldEditMessage: ((String) -> Void)?
@@ -255,7 +264,6 @@ final class ConversationViewModel
         }
     }
 
-    
     @MainActor
     func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
     {
@@ -282,7 +290,8 @@ final class ConversationViewModel
         return nil
     }
     
-    func insertUnseenMessagesTitle() {
+    func insertUnseenMessagesTitle() 
+    {
         guard let indexPath = findFirstUnseenMessageIndex() else {return}
         let conversationCellVM = ConversationCellViewModel(isUnseenCell: true)
         messageGroups[indexPath.section].cellViewModels.insert(conversationCellVM, at: indexPath.row + 1)
@@ -620,7 +629,8 @@ extension ConversationViewModel
             // TODO: - if chat unseen message counter is heigher than local unseen count,
             // dont create messageGroup with this new message
             createMessageGroupsWith([message], ascending: true)
-            messageChangedType = .added
+//            messageChangedType = .added
+            messageChangedType.append(.added)
 //            unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? unseenMessagesCount
             return
         }
@@ -639,7 +649,8 @@ extension ConversationViewModel
         
         updateMessage(message)
         if message.senderId == authenticatedUserID {
-            messageChangedType = .modified(indexPath, modificationValue)
+//            messageChangedType = .modified(indexPath, modificationValue)
+            messageChangedType.append(.modified(indexPath, modificationValue))
         }
     }
     
@@ -652,7 +663,8 @@ extension ConversationViewModel
         removeMessageFromRealm(message: message)
         
         if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
-        messageChangedType = .removed
+//        messageChangedType = .removed
+        messageChangedType.append(.removed)
     }
 
     private func indexPath(of message: Message) -> IndexPath? 

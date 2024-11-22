@@ -21,15 +21,15 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-//        updateMessageSeenStatusIfNeeded()
-//        if !shouldIgnoreScrollToBottomBtnUpdate {
-//            updateScrollToBottomBtnIfNeeded()
-//        }
-//        
-//        if shouldAdjustScroll {
-//            shouldAdjustScroll = false
-//            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
-//        }
+        updateMessageSeenStatusIfNeeded()
+        if !shouldIgnoreScrollToBottomBtnUpdate {
+            updateScrollToBottomBtnIfNeeded()
+        }
+        
+        if shouldAdjustScroll {
+            shouldAdjustScroll = false
+            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
+        }
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
@@ -103,7 +103,7 @@ final class ConversationViewController: UIViewController {
     private func scrollToCell(at indexPath: IndexPath)
     {
         guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
-        self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+        self.rootView.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
 //        let rect = rootView.tableView.rectForRow(at: indexPath)
 //        rootView.tableView.contentOffset = CGPoint(x: 0, y: rect.origin.y - rootView.inputBarContainer.bounds.height)
     }
@@ -139,6 +139,9 @@ final class ConversationViewController: UIViewController {
         }
         self.didFinishInitialScroll = true
     }
+    
+    
+    //MARK: - Bindings
     
     private func setupBinding()
     {
@@ -179,26 +182,33 @@ final class ConversationViewController: UIViewController {
             }.store(in: &subscriptions)
         
         conversationViewModel.$messageChangedType
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] changeType in
-                guard let self = self else {return}
-                
-                switch changeType {
-                case .modified(let indexPath, let modifiedValue):
-                    let animationType = self.getAnimationType(from: modifiedValue)
-                    self.reloadCellRow(at: indexPath, with: animationType)
-                case .added:
-                    self.handleTableViewCellInsertion(scrollToBottom: false)
-                case .removed:
-                    UIView.transition(with: self.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
-                        self.rootView.tableView.reloadData()
-                    }
-                default: break
-                }
+            .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
+            .sink { [weak self] changeTypes in
+                guard let self = self, !changeTypes.isEmpty else {return}
+                performBatchUpdateWithMessageChanges(changeTypes)
+                conversationViewModel.messageChangedType.removeAll()
             }.store(in: &subscriptions)
     }
     
+    private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
+    {
+        rootView.tableView.performBatchUpdates {
+            for changeType in changes
+            {
+                switch changeType {
+                case .modified(let indexPath, let modifiedValue):
+                    self.reloadCellRow(at: indexPath, with: modifiedValue.animationType)
+                case .added:
+                    self.handleTableViewCellInsertion(scrollToBottom: false)
+                case .removed:
+                    self.reloadTableWithCrossDissolve()
+                }
+            }
+        }
+    }
+    
     //MARK: - Keyboard notification observers
+    
     private func addKeyboardNotificationObservers() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -335,17 +345,17 @@ final class ConversationViewController: UIViewController {
         }
     }
     
-    private func getAnimationType(from valueModification: MessageValueModification) -> UITableView.RowAnimation {
-        switch valueModification {
-        case .seenStatus: return .none
-        case .text: return .left
-        }
-    }
-    
     private func reloadCellRow(at indexPath: IndexPath, with animation: UITableView.RowAnimation)
     {
         guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
         self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
+    }
+    
+    private func reloadTableWithCrossDissolve()
+    {
+        UIView.transition(with: self.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
+            self.rootView.tableView.reloadData()
+        }
     }
 }
 
@@ -440,7 +450,7 @@ extension ConversationViewController
                 continue
             }
             cell.cellViewModel.updateRealmMessageSeenStatus()
-//            
+            
             Task { @MainActor in
                 await conversationViewModel.updateMessageSeenStatus(from: cell.cellViewModel)
                 conversationViewModel.updateUnseenMessageCounter(shouldIncrement: false)
@@ -452,7 +462,7 @@ extension ConversationViewController
         let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
-        guard cellMessage?.messageSeen == true,
+        guard cellMessage?.messageSeen == false,
               cellMessage?.senderId != authUserID,
               let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return false
