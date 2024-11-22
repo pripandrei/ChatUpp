@@ -186,7 +186,7 @@ final class ConversationViewController: UIViewController {
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else {return}
                 performBatchUpdateWithMessageChanges(changeTypes)
-                conversationViewModel.messageChangedType.removeAll()
+                conversationViewModel.clearMessageChanges()
             }.store(in: &subscriptions)
     }
     

@@ -79,7 +79,8 @@ final class ConversationViewModel
     
     @Published private(set) var unseenMessagesCount              : Int 
     @Published private(set) var chatUser                         : User
-    @Published  var messageChangedType               : [MessageChangeType] = []
+    @Published private(set) var messageChangedType               : [MessageChangeType] = []
+    
     @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus = .notInitialized
     
     var shouldEditMessage: ((String) -> Void)?
@@ -269,6 +270,10 @@ final class ConversationViewModel
     {
         guard let chatID = conversation?.id else { return }
         await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
+    }
+    
+    func clearMessageChanges() {
+        messageChangedType.removeAll()
     }
     
     /// - unseen message check
