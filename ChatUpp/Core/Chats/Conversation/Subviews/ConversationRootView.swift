@@ -58,6 +58,7 @@ final class ConversationRootView: UIView {
         tableView.register(ConversationTableViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationMessageCell)
         tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: CellIdentifire.conversationSkeletonCell)
         tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: HeaderFooterIdentifier.footer)
+        tableView.register(ConversationTableViewTitleCell.self, forCellReuseIdentifier: CellIdentifire.conversationUnseentitleCell)
         
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")

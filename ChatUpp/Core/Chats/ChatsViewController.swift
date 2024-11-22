@@ -16,6 +16,7 @@ struct CellIdentifire {
     static let conversationMessageCell = "ConversationMessageCell"
     static let resultsTableCell = "ResultsTableCell"
     static let conversationSkeletonCell = "ConversationSkeletonCell"
+    static let conversationUnseentitleCell = "ConversationUnseentitleCell"
 }
 
 struct HeaderFooterIdentifier {

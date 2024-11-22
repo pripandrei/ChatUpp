@@ -161,7 +161,7 @@ final class ConversationViewModel
     {
         let chatId = UUID().uuidString
         let participants = createParticipants()
-        let recentMessageID = messageGroups.first?.cellViewModels.first?.cellMessage.id
+        let recentMessageID = messageGroups.first?.cellViewModels.first?.cellMessage?.id
         let messagesCount = messageGroups.first?.cellViewModels.count
         return Chat(id: chatId, participants: participants, recentMessageID: recentMessageID, messagesCount: messagesCount, isFirstTimeOpened: false)
     }
@@ -275,11 +275,17 @@ final class ConversationViewModel
 
         for (groupIndex, messageGroup) in messageGroups.enumerated()
         {
-            if let viewModelIndex = messageGroup.cellViewModels.firstIndex(where: { $0.cellMessage.id == unseenMessage.id }) {
+            if let viewModelIndex = messageGroup.cellViewModels.firstIndex(where: { $0.cellMessage?.id == unseenMessage.id }) {
                 return IndexPath(item: viewModelIndex, section: groupIndex)
             }
         }
         return nil
+    }
+    
+    func insertUnseenMessagesTitle() {
+        guard let indexPath = findFirstUnseenMessageIndex() else {return}
+        let conversationCellVM = ConversationCellViewModel(isUnseenCell: true)
+        messageGroups[indexPath.section].cellViewModels.insert(conversationCellVM, at: indexPath.row + 1)
     }
     
     func getRepliedToMessage(messageID: String) -> Message? 
@@ -288,7 +294,7 @@ final class ConversationViewModel
         
         messageGroups.forEach { conversationGroups in
             conversationGroups.cellViewModels.forEach { conversationCellViewModel in
-                if conversationCellViewModel.cellMessage.id == messageID {
+                if conversationCellViewModel.cellMessage?.id == messageID {
                     repliedMessage = conversationCellViewModel.cellMessage
                     return
                 }
@@ -309,13 +315,13 @@ final class ConversationViewModel
     
     func handleImageDrop(imageData: Data, size: MessageImageSize) {
         self.messageGroups.first?.cellViewModels.first?.imageData = imageData
-        self.messageGroups.first?.cellViewModels.first?.cellMessage.imageSize = size
+        self.messageGroups.first?.cellViewModels.first?.cellMessage?.imageSize = size
         self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
     }
     
     func saveImage(data: Data, size: CGSize) {
         guard let conversation = conversation else {return}
-        guard let messageID = messageGroups.first?.cellViewModels.first?.cellMessage.id else {return}
+        guard let messageID = messageGroups.first?.cellViewModels.first?.cellMessage?.id else {return}
         Task {
             let (path,name) = try await FirebaseStorageManager
                 .shared
@@ -510,7 +516,7 @@ extension ConversationViewModel
     
     private func updateLastMessageFromFirestoreChat() {
         Task { @MainActor in
-            let messageID = messageGroups[0].cellViewModels[0].cellMessage.id
+            guard let messageID = messageGroups[0].cellViewModels[0].cellMessage?.id else {return}
             await updateRecentMessageFromFirestoreChat(messageID: messageID)
         }
     }
@@ -657,7 +663,7 @@ extension ConversationViewModel
             let group = messageGroups[groupIndex]
             
             if group.date == date {
-                if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage.id == message.id }) {
+                if let messageIndex = group.cellViewModels.firstIndex(where: { $0.cellMessage?.id == message.id }) {
                     return IndexPath(row: messageIndex, section: groupIndex)
                 }
             }
@@ -667,7 +673,7 @@ extension ConversationViewModel
     
     func contains(_ message: Message) -> Bool 
     {
-        let existingMessageIDs: Set<String> = Set(messageGroups.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
+        let existingMessageIDs: Set<String> = Set(messageGroups.flatMap { $0.cellViewModels.compactMap { $0.cellMessage?.id } })
         return existingMessageIDs.contains(message.id)
     }
     
@@ -880,4 +886,10 @@ extension ConversationViewModel {
     //        let filter = NSPredicate(format: "messageSeen == false AND senderId == %@", userMember.userId)
     //        return RealmDBManager.shared.retrieveObjects(ofType: Message.self, filter: filter).count
     //    }
+    
+//    guard case .message(content: let conversationCellVM) = messageGroups.last?.cellViewModels.last,
+//          let startMessage = conversationCellVM.cellMessage,
+//          let limit = conversation?.conversationMessages.count else {
+//        return
+//    }
 }

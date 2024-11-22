@@ -21,15 +21,15 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        updateMessageSeenStatusIfNeeded()
-        if !shouldIgnoreScrollToBottomBtnUpdate {
-            updateScrollToBottomBtnIfNeeded()
-        }
-        
-        if shouldAdjustScroll {
-            shouldAdjustScroll = false
-            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
-        }
+//        updateMessageSeenStatusIfNeeded()
+//        if !shouldIgnoreScrollToBottomBtnUpdate {
+//            updateScrollToBottomBtnIfNeeded()
+//        }
+//        
+//        if shouldAdjustScroll {
+//            shouldAdjustScroll = false
+//            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
+//        }
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
@@ -156,6 +156,7 @@ final class ConversationViewController: UIViewController {
                 switch initializationStatus {
                 case .inProgress: self.toggleSkeletonAnimation(.initiated)
                 case .finished:
+                    self.conversationViewModel.insertUnseenMessagesTitle()
                     self.refreshTableView()
                     self.conversationViewModel.addListeners()
                     self.conversationViewModel.updateChatOpenStatusIfNeeded()
@@ -450,8 +451,9 @@ extension ConversationViewController
     private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
         let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
-    
-        guard !cellMessage.messageSeen, cellMessage.senderId != authUserID,
+        
+        guard cellMessage?.messageSeen == true,
+              cellMessage?.senderId != authUserID,
               let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return false
         }
@@ -729,7 +731,7 @@ extension ConversationViewController: UITableViewDelegate
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
                 
                 let selectedCellMessageText = cell.messageLabel.text
-                let cellMessage = cell.cellViewModel.cellMessage
+                guard let cellMessage = cell.cellViewModel.cellMessage else {return nil}
                 
                 let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
                     DispatchQueue.main.async {

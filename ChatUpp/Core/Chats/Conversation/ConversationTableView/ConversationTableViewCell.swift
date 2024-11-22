@@ -51,8 +51,9 @@ final class ConversationTableViewCell: UITableViewCell {
     }
     private let cellSpacing = 3.0
     
-    private func makeAttributedStringForMessage() -> NSAttributedString {
-        return NSAttributedString(string: cellViewModel.cellMessage.messageBody, attributes: [
+    private func makeAttributedStringForMessage() -> NSAttributedString? {
+        guard let message = cellViewModel.cellMessage else {return nil}
+        return NSAttributedString(string: message.messageBody, attributes: [
             .font: UIFont(name: "Helvetica", size: 17)!,
             .foregroundColor: UIColor.white,
             .paragraphStyle: {
@@ -135,7 +136,7 @@ final class ConversationTableViewCell: UITableViewCell {
         setupBinding()
         adjustMessageSide(side)
 
-        if viewModel.cellMessage.messageBody != "" {
+        if viewModel.cellMessage?.messageBody != "" {
             messageLabel.attributedText = makeAttributedStringForMessage()
             handleMessageBubbleLayout(forSide: side)
             return
@@ -144,8 +145,9 @@ final class ConversationTableViewCell: UITableViewCell {
     }
     
     func configureMessageSeenStatus() {
-        let iconSize = cellViewModel.cellMessage.messageSeen ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
-        let seenStatusIcon = cellViewModel.cellMessage.messageSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
+        guard let message = cellViewModel.cellMessage else {return}
+        let iconSize = message.messageSeen ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
+        let seenStatusIcon = message.messageSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
         guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
 
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
@@ -156,7 +158,8 @@ final class ConversationTableViewCell: UITableViewCell {
 // MARK: - UI INITIAL STEUP
     
     private func setupEditedLabel() {
-        if cellViewModel.cellMessage.isEdited {
+        guard let message = cellViewModel.cellMessage else {return}
+        if message.isEdited {
             editedLabel = UILabel()
             guard let editedLabel = editedLabel else {return}
             
@@ -334,7 +337,7 @@ extension ConversationTableViewCell {
     }
 
     private func setMessageImageSize() {
-        if let cellImageSize = cellViewModel.cellMessage.imageSize {
+        if let cellImageSize = cellViewModel.cellMessage?.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             let testSize = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
             messageImage = messageImage?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)

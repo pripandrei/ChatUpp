@@ -18,7 +18,7 @@ extension Array where Element == ConversationViewModel.ConversationMessageGroup
     }
     
     func contains(elementWithID id: String) -> Bool {
-        let existingMessageIDs: Set<String> = Set(self.flatMap { $0.cellViewModels.map { $0.cellMessage.id } })
+        let existingMessageIDs: Set<String> = Set(self.flatMap { $0.cellViewModels.compactMap { $0.cellMessage?.id } })
         return existingMessageIDs.contains(id)
     }
 }
