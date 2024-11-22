@@ -16,7 +16,7 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     
     var profileEditingViewModel: ProfileEditingViewModel!
     
-    var headerCell: CollectionViewListHeader!
+    var headerCell: ProfileEditingListHeaderCell!
     
     convenience init(viewModel: ProfileEditingViewModel) {
         self.init()
@@ -93,8 +93,8 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     }
     
     private func registerCells() {
-        collectionView.register(CustomListCell.self, forCellWithReuseIdentifier: "ListCell")
-        collectionView.register(CollectionViewListHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "Header")
+        collectionView.register(ProfileEditingListCell.self, forCellWithReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.list.identifire)
+        collectionView.register(ProfileEditingListHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.header.identifire)
     }
 }
 
@@ -110,7 +110,7 @@ extension ProfileEditingViewController {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ListCell", for: indexPath) as? CustomListCell else {fatalError("Could not deqeue CustomListCell")}
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.list.identifire, for: indexPath) as? ProfileEditingListCell else {fatalError("Could not deqeue CustomListCell")}
         
         cell.textField.placeholder = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
         if profileEditingViewModel.userDataItems[indexPath.item] != nil {
@@ -125,8 +125,8 @@ extension ProfileEditingViewController {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let headerCell = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
-            withReuseIdentifier: "Header",
-            for: indexPath) as? CollectionViewListHeader
+            withReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.header.identifire,
+            for: indexPath) as? ProfileEditingListHeaderCell
         else {
             fatalError("Could not deqeue CollectionViewListHeader")
         }
@@ -140,7 +140,7 @@ extension ProfileEditingViewController {
 
 
 //MARK: - CUSTOM LIST CELL
-class CustomListCell: UICollectionViewListCell, UITextFieldDelegate {
+class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate {
     
     var textField: UITextField!
     

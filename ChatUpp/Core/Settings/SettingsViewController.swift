@@ -16,7 +16,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     private let settingsViewModel = SettingsViewModel()
     private lazy var collectionView: UICollectionView = makeCollectionView()
     private lazy var dataSource: DataSource = makeDataSource()
-    private var collectionViewListHeader: CollectionViewListHeader?
+    private var collectionViewListHeader: ProfileEditingListHeaderCell?
     
     // Initially settingsVC interaction is disabled
     // until user data is fetched
@@ -150,7 +150,7 @@ extension SettingsViewController {
         }
         
         // Custom Header registration
-        let headerRegistration = UICollectionView.SupplementaryRegistration<CollectionViewListHeader>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
+        let headerRegistration = UICollectionView.SupplementaryRegistration<ProfileEditingListHeaderCell>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
             supplementaryView.setupAdditionalCredentialsConstraints()
             self?.collectionViewListHeader = supplementaryView
             
