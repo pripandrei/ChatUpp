@@ -21,10 +21,10 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        updateMessageSeenStatusIfNeeded()
-        if !shouldIgnoreScrollBadgeButtonUpdate {
+//        updateMessageSeenStatusIfNeeded()
+//        if !shouldIgnoreScrollBadgeButtonUpdate {
             isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-        }
+//        }
 
         if shouldAdjustScroll {
             shouldAdjustScroll = false
@@ -108,7 +108,7 @@ final class ConversationViewController: UIViewController {
         guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
         self.rootView.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
     }
-
+    
     deinit {
         print("====ConversationVC Deinit")
     }
@@ -232,17 +232,14 @@ final class ConversationViewController: UIViewController {
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
-            if rootView.inputBarContainer.frame.origin.y > 580 
-            {
-                if isContextMenuPresented 
-                {
-                    let keyboardHeight = -336.0
-                    updateInputBarBottomConstraint(toSize: keyboardHeight)
-                } else {
-                    handleTableViewOffSet(usingKeyboardSize: keyboardSize)
-                }
-                isKeyboardHidden = false
+            isKeyboardHidden = false
+            guard isContextMenuPresented else {
+                handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+                return
             }
+            
+            let keyboardHeight = -336.0
+            updateInputBarBottomConstraint(toSize: keyboardHeight)
         }
     }
     
@@ -250,14 +247,12 @@ final class ConversationViewController: UIViewController {
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue 
         {
-            if !isContextMenuPresented 
-            {
-                handleTableViewOffSet(usingKeyboardSize: keyboardSize)
-            } else if isContextMenuPresented 
-            {
-                updateInputBarBottomConstraint(toSize: 0)
-            }
             isKeyboardHidden = true
+            guard !isContextMenuPresented else {
+                updateInputBarBottomConstraint(toSize: 0)
+                return
+            }
+            handleTableViewOffSet(usingKeyboardSize: keyboardSize)
         }
     }
     
@@ -587,13 +582,14 @@ extension ConversationViewController
         let currentOffSet = rootView.tableView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
-        shouldIgnoreScrollBadgeButtonUpdate = true
+//        shouldIgnoreScrollBadgeButtonUpdate = true
         rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+        rootView.layoutSubviews()
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
-        shouldIgnoreScrollBadgeButtonUpdate = false
-        view.layoutSubviews()
+//        shouldIgnoreScrollBadgeButtonUpdate = false
+//        view.layoutSubviews()
     }
 }
 
