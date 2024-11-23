@@ -415,12 +415,12 @@
 			path = ProfileDeletion;
 			sourceTree = "<group>";
 		};
-		75855B3D2CF14B2A00FF8E9E /* Constants */ = {
+		75855B3D2CF14B2A00FF8E9E /* Reuse Identifires */ = {
 			isa = PBXGroup;
 			children = (
 				75855B3E2CF14B5300FF8E9E /* ReuseIdentifire.swift */,
 			);
-			path = Constants;
+			path = "Reuse Identifires";
 			sourceTree = "<group>";
 		};
 		7586807A2AC3239E009C16D3 /* CredentialsValidator */ = {
@@ -654,7 +654,7 @@
 			isa = PBXGroup;
 			children = (
 				751100372CEEA0CF00DD659C /* Custom Views */,
-				75855B3D2CF14B2A00FF8E9E /* Constants */,
+				75855B3D2CF14B2A00FF8E9E /* Reuse Identifires */,
 				755A3F9E2AD2F2A700739861 /* Coordinator */,
 				75FB78FE2AC3169100C2743A /* Chats */,
 				756525C32A7FDAEA005DC594 /* Login */,

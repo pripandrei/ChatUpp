@@ -146,11 +146,11 @@ final class ConversationViewController: UIViewController {
 
         if conversationViewModel.conversationInitializationStatus == .finished {
             finalizeConversationSetup()
-            conversationViewModel.resetInitializationStatus()
         }
     }
     
     private func finalizeConversationSetup() {
+        conversationViewModel.resetInitializationStatus()
         conversationViewModel.insertUnseenMessagesTitle()
         refreshTableView()
         conversationViewModel.addListeners()
@@ -169,7 +169,6 @@ final class ConversationViewController: UIViewController {
         
         conversationViewModel.$conversationInitializationStatus
             .debounce(for: .milliseconds(50), scheduler: DispatchQueue.main)
-//            .receive(on: DispatchQueue.main)
             .sink { [weak self] initializationStatus in
                 guard let self = self else {return}
                 
