@@ -21,11 +21,11 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-//        updateMessageSeenStatusIfNeeded()
-        if !shouldIgnoreScrollToBottomBtnUpdate {
+        updateMessageSeenStatusIfNeeded()
+        if !shouldIgnoreScrollBadgeButtonUpdate {
             isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
         }
-        
+
         if shouldAdjustScroll {
             shouldAdjustScroll = false
             self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
@@ -69,7 +69,7 @@ final class ConversationViewController: UIViewController {
     private var conversationViewModel :ConversationViewModel!
     private var rootViewTextViewDelegate: ConversationTextViewDelegate!
     
-    private var shouldIgnoreScrollToBottomBtnUpdate: Bool = false
+    private var shouldIgnoreScrollBadgeButtonUpdate: Bool = false
     private var isContextMenuPresented: Bool = false
     private var isNewSectionAdded: Bool = false
     private var isKeyboardHidden: Bool = true
@@ -228,10 +228,14 @@ final class ConversationViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            if rootView.inputBarContainer.frame.origin.y > 580 {
-                if isContextMenuPresented {
+    @objc func keyboardWillShow(notification: NSNotification)
+    {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+        {
+            if rootView.inputBarContainer.frame.origin.y > 580 
+            {
+                if isContextMenuPresented 
+                {
                     let keyboardHeight = -336.0
                     updateInputBarBottomConstraint(toSize: keyboardHeight)
                 } else {
@@ -242,11 +246,15 @@ final class ConversationViewController: UIViewController {
         }
     }
     
-    @objc func keyboardWillHide(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            if !isContextMenuPresented {
+    @objc func keyboardWillHide(notification: NSNotification) 
+    {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue 
+        {
+            if !isContextMenuPresented 
+            {
                 handleTableViewOffSet(usingKeyboardSize: keyboardSize)
-            } else if isContextMenuPresented {
+            } else if isContextMenuPresented 
+            {
                 updateInputBarBottomConstraint(toSize: 0)
             }
             isKeyboardHidden = true
@@ -342,6 +350,9 @@ final class ConversationViewController: UIViewController {
         
         let lastCellRect = rootView.tableView.convert(lastCell.frame, to: rootView)
         let inputBarRect = rootView.inputBarContainer.frame
+        
+        print("lastCellRect Y: ", lastCellRect.origin.y)
+        print("=inputBarRect Y: ", inputBarRect.origin.y)
         
         return lastCellRect.minY <= inputBarRect.minY
     }
@@ -576,12 +587,12 @@ extension ConversationViewController
         let currentOffSet = rootView.tableView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
-        shouldIgnoreScrollToBottomBtnUpdate = true
+        shouldIgnoreScrollBadgeButtonUpdate = true
         rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
-        shouldIgnoreScrollToBottomBtnUpdate = false
+        shouldIgnoreScrollBadgeButtonUpdate = false
         view.layoutSubviews()
     }
 }
