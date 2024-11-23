@@ -19,18 +19,18 @@ import SkeletonView
 //MARK: - SCROLL VIEW DELEGATE
 extension ConversationViewController: UIScrollViewDelegate
 {
-//    func scrollViewDidScroll(_ scrollView: UIScrollView)
-//    {
-//        updateMessageSeenStatusIfNeeded()
-//        if !shouldIgnoreScrollToBottomBtnUpdate {
-//            updateScrollToBottomBtnIfNeeded()
-//        }
-//        
-//        if shouldAdjustScroll {
-//            shouldAdjustScroll = false
-//            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
-//        }
-//    }
+    func scrollViewDidScroll(_ scrollView: UIScrollView)
+    {
+        updateMessageSeenStatusIfNeeded()
+        if !shouldIgnoreScrollToBottomBtnUpdate {
+            updateScrollToBottomBtnIfNeeded()
+        }
+        
+        if shouldAdjustScroll {
+            shouldAdjustScroll = false
+            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
+        }
+    }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         toggleSectionHeaderVisibility(isScrollActive: true)
