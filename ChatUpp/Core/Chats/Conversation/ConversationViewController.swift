@@ -19,18 +19,18 @@ import SkeletonView
 //MARK: - SCROLL VIEW DELEGATE
 extension ConversationViewController: UIScrollViewDelegate
 {
-    func scrollViewDidScroll(_ scrollView: UIScrollView)
-    {
-        updateMessageSeenStatusIfNeeded()
-        if !shouldIgnoreScrollToBottomBtnUpdate {
-            updateScrollToBottomBtnIfNeeded()
-        }
-        
-        if shouldAdjustScroll {
-            shouldAdjustScroll = false
-            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
-        }
-    }
+//    func scrollViewDidScroll(_ scrollView: UIScrollView)
+//    {
+//        updateMessageSeenStatusIfNeeded()
+//        if !shouldIgnoreScrollToBottomBtnUpdate {
+//            updateScrollToBottomBtnIfNeeded()
+//        }
+//        
+//        if shouldAdjustScroll {
+//            shouldAdjustScroll = false
+//            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
+//        }
+//    }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         toggleSectionHeaderVisibility(isScrollActive: true)
@@ -140,6 +140,21 @@ final class ConversationViewController: UIViewController {
         self.didFinishInitialScroll = true
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        if conversationViewModel.conversationInitializationStatus == .finished {
+            finalizeConversationSetup()
+            conversationViewModel.resetInitializationStatus()
+        }
+    }
+    
+    private func finalizeConversationSetup() {
+        conversationViewModel.insertUnseenMessagesTitle()
+        refreshTableView()
+        conversationViewModel.addListeners()
+        conversationViewModel.updateChatOpenStatusIfNeeded()
+    }
     
     //MARK: - Bindings
     
@@ -152,17 +167,15 @@ final class ConversationViewController: UIViewController {
             }.store(in: &subscriptions)
         
         conversationViewModel.$conversationInitializationStatus
-            .receive(on: DispatchQueue.main)
+            .debounce(for: .milliseconds(50), scheduler: DispatchQueue.main)
+//            .receive(on: DispatchQueue.main)
             .sink { [weak self] initializationStatus in
                 guard let self = self else {return}
                 
                 switch initializationStatus {
                 case .inProgress: self.toggleSkeletonAnimation(.initiated)
                 case .finished:
-                    self.conversationViewModel.insertUnseenMessagesTitle()
-                    self.refreshTableView()
-                    self.conversationViewModel.addListeners()
-                    self.conversationViewModel.updateChatOpenStatusIfNeeded()
+                    self.finalizeConversationSetup()
                 default: break
                 }
             }.store(in: &subscriptions)
@@ -181,7 +194,7 @@ final class ConversationViewController: UIViewController {
                 "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
             }.store(in: &subscriptions)
         
-        conversationViewModel.$messageChangedType
+        conversationViewModel.$messageChangedTypes
             .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else {return}

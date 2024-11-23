@@ -45,10 +45,8 @@ enum MessagesFetchDirection {
 }
 
 enum ConversationInitializationStatus {
-    case notInitialized
     case inProgress
     case finished
-    case error
 }
 
 enum MessagesListenerRange
@@ -79,9 +77,9 @@ final class ConversationViewModel
     
     @Published private(set) var unseenMessagesCount              : Int 
     @Published private(set) var chatUser                         : User
-    @Published private(set) var messageChangedType               : [MessageChangeType] = []
+    @Published private(set) var messageChangedTypes               : [MessageChangeType] = []
     
-    @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus = .notInitialized
+    @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus?
     
     var shouldEditMessage: ((String) -> Void)?
     var currentlyReplyToMessageID: String?
@@ -163,6 +161,10 @@ final class ConversationViewModel
         if currentlyReplyToMessageID != nil {
             currentlyReplyToMessageID = nil
         }
+    }
+    
+    func resetInitializationStatus() {
+        conversationInitializationStatus = nil
     }
     
     /// - chat components creation
@@ -273,7 +275,7 @@ final class ConversationViewModel
     }
     
     func clearMessageChanges() {
-        messageChangedType.removeAll()
+        messageChangedTypes.removeAll()
     }
     
     /// - unseen message check
@@ -635,7 +637,7 @@ extension ConversationViewModel
             // dont create messageGroup with this new message
             createMessageGroupsWith([message], ascending: true)
 //            messageChangedType = .added
-            messageChangedType.append(.added)
+            messageChangedTypes.append(.added)
 //            unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? unseenMessagesCount
             return
         }
@@ -655,7 +657,7 @@ extension ConversationViewModel
         updateMessage(message)
         if message.senderId == authenticatedUserID {
 //            messageChangedType = .modified(indexPath, modificationValue)
-            messageChangedType.append(.modified(indexPath, modificationValue))
+            messageChangedTypes.append(.modified(indexPath, modificationValue))
         }
     }
     
@@ -669,7 +671,7 @@ extension ConversationViewModel
         
         if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
 //        messageChangedType = .removed
-        messageChangedType.append(.removed)
+        messageChangedTypes.append(.removed)
     }
 
     private func indexPath(of message: Message) -> IndexPath? 
