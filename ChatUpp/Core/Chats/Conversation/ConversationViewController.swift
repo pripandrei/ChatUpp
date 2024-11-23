@@ -21,22 +21,22 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        updateMessageSeenStatusIfNeeded()
+//        updateMessageSeenStatusIfNeeded()
         if !shouldIgnoreScrollToBottomBtnUpdate {
-            updateScrollToBottomBtnIfNeeded()
+            isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
         }
         
         if shouldAdjustScroll {
             shouldAdjustScroll = false
             self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
         }
-    }
+    }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         toggleSectionHeaderVisibility(isScrollActive: true)
-    }
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        toggleSectionHeaderVisibility(isScrollActive: false)
+    }
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        toggleSectionHeaderVisibility(isScrollActive: false)
     }
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         toggleSectionHeaderVisibility(isScrollActive: decelerate)
@@ -74,8 +74,11 @@ final class ConversationViewController: UIViewController {
     private var isNewSectionAdded: Bool = false
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScroll: Bool = false
-    
     private var subscriptions = Set<AnyCancellable>()
+    
+    private var isLastCellFullyVisible: Bool {
+        checkIfLastCellIsFullyVisible()
+    }
     
     //MARK: - Lifecycle
     
@@ -104,8 +107,6 @@ final class ConversationViewController: UIViewController {
     {
         guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
         self.rootView.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
-//        let rect = rootView.tableView.rectForRow(at: indexPath)
-//        rootView.tableView.contentOffset = CGPoint(x: 0, y: rect.origin.y - rootView.inputBarContainer.bounds.height)
     }
 
     deinit {
@@ -331,30 +332,24 @@ final class ConversationViewController: UIViewController {
         customNavigationBar.setupNavigationBarItems(with: imageData, memberName: member.name ?? "unknow", memberActiveStatus: memberActiveStatus)
     }
     
-    /// - Scroll to bottom btn functions
-    private func updateScrollToBottomBtnIfNeeded() {
+    private func checkIfLastCellIsFullyVisible() -> Bool 
+    {
         let lastCellIndexPath = IndexPath(row: 0, section: 0)
-        
-        /// check if first cell indexPath is visible before proceeding further
-        guard let containsIndexPathZero = rootView.tableView.indexPathsForVisibleRows?.contains(where: {$0 == lastCellIndexPath}) else {return}
-        guard containsIndexPathZero == true else {return}
 
-        /// activate scrollBottomBtn if first cell is no longer visible or covered with inputBar
-        if let lastCell = rootView.tableView.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell {
-            let lastCellRect = rootView.tableView.convert(lastCell.frame, to: rootView.tableView.superview)
-            let holderViewRect = rootView.inputBarContainer.frame
-            
-            if lastCellRect.maxY - 30 > holderViewRect.minY {
-                animateScrollToBottomBtn(shouldBeHidden: false)
-            } else {
-                animateScrollToBottomBtn(shouldBeHidden: true)
-            }
+        guard let lastCell = rootView.tableView.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell else {
+            return false
         }
+        
+        let lastCellRect = rootView.tableView.convert(lastCell.frame, to: rootView)
+        let inputBarRect = rootView.inputBarContainer.frame
+        
+        return lastCellRect.minY <= inputBarRect.minY
     }
     
-    private func animateScrollToBottomBtn(shouldBeHidden: Bool) {
+    private func toggleScrollBadgeButtonVisibility(shouldBeHidden: Bool) 
+    {
         UIView.animate(withDuration: 0.3) {
-            self.rootView.scrollToBottomBtn.layer.opacity = shouldBeHidden ? 0.0 : 1.0
+            self.rootView.scrollBadgeButton.layer.opacity = shouldBeHidden ? 0.0 : 1.0
         }
     }
     
@@ -504,7 +499,7 @@ extension ConversationViewController
 extension ConversationViewController {
     
     private func addTargetToScrollToBottomBtn() {
-        rootView.scrollToBottomBtn.addTarget(self, action: #selector(scrollToBottomBtnWasTapped), for: .touchUpInside)
+        rootView.scrollBadgeButton.addTarget(self, action: #selector(scrollToBottomBtnWasTapped), for: .touchUpInside)
     }
     private func addTargetToSendMessageBtn() {
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageTapped), for: .touchUpInside)

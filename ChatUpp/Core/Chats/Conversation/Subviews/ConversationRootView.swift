@@ -118,7 +118,7 @@ final class ConversationRootView: UIView {
         return sendEditMessageButton
     }()
     
-    private(set) var scrollToBottomBtn: UIButton = {
+    private(set) var scrollBadgeButton: UIButton = {
         let scrollToBottomBtn                                       = UIButton()
         scrollToBottomBtn.bounds.size                               = CGSize(width: 35, height: 35) // size is used only for radius calculation
         scrollToBottomBtn.configuration                             = .plain()
@@ -138,15 +138,15 @@ final class ConversationRootView: UIView {
     }()
     
     private func setupScrollToBottomBtn() {
-        addSubview(scrollToBottomBtn)
+        addSubview(scrollBadgeButton)
         
-        scrollToBottomBtnBottomConstraint = scrollToBottomBtn.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: -10)
+        scrollToBottomBtnBottomConstraint = scrollBadgeButton.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: -10)
         scrollToBottomBtnBottomConstraint.isActive = true
         
-        scrollToBottomBtn.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -10).isActive = true
+        scrollBadgeButton.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -10).isActive = true
 //        scrollToBottomBtn.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: -10).isActive        = true
-        scrollToBottomBtn.heightAnchor.constraint(equalToConstant: 35).isActive                                        = true
-        scrollToBottomBtn.widthAnchor.constraint(equalToConstant: 35).isActive                                         = true
+        scrollBadgeButton.heightAnchor.constraint(equalToConstant: 35).isActive                                        = true
+        scrollBadgeButton.widthAnchor.constraint(equalToConstant: 35).isActive                                         = true
     }
     var scrollToBottomBtnBottomConstraint: NSLayoutConstraint!
 
@@ -231,10 +231,10 @@ extension ConversationRootView
 {
     private func setupUnseenMessageCounterBadgeConstraints() 
     {
-        scrollToBottomBtn.addSubview(unseenMessagesBadge)
+        scrollBadgeButton.addSubview(unseenMessagesBadge)
         NSLayoutConstraint.activate([
-            unseenMessagesBadge.centerXAnchor.constraint(equalTo: scrollToBottomBtn.centerXAnchor),
-            unseenMessagesBadge.topAnchor.constraint(equalTo: scrollToBottomBtn.topAnchor, constant: -10),
+            unseenMessagesBadge.centerXAnchor.constraint(equalTo: scrollBadgeButton.centerXAnchor),
+            unseenMessagesBadge.topAnchor.constraint(equalTo: scrollBadgeButton.topAnchor, constant: -10),
         ])
     }
     
