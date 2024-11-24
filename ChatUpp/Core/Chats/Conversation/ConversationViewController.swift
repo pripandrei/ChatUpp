@@ -214,8 +214,8 @@ final class ConversationViewController: UIViewController {
                     self.reloadCellRow(at: indexPath, with: modifiedValue.animationType)
                 case .added:
                     self.handleTableViewCellInsertion(scrollToBottom: false)
-                case .removed:
-                    self.reloadTableWithCrossDissolve()
+                case .removed(let removedIndex):
+                    self.reloadTableWithCrossDissolve(at: removedIndex)
                 }
             }
         }
@@ -234,7 +234,7 @@ final class ConversationViewController: UIViewController {
         {
             isKeyboardHidden = false
             guard isContextMenuPresented else {
-                handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+                handleTableViewOffset(usingKeyboardSize: keyboardSize)
                 return
             }
             
@@ -252,7 +252,7 @@ final class ConversationViewController: UIViewController {
                 updateInputBarBottomConstraint(toSize: 0)
                 return
             }
-            handleTableViewOffSet(usingKeyboardSize: keyboardSize)
+            handleTableViewOffset(usingKeyboardSize: keyboardSize)
         }
     }
     
@@ -365,10 +365,15 @@ final class ConversationViewController: UIViewController {
         self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
     }
     
-    private func reloadTableWithCrossDissolve()
+    private func reloadTableWithCrossDissolve(at indexPath: IndexPath)
     {
         UIView.transition(with: self.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
-            self.rootView.tableView.reloadData()
+            //            self.rootView.tableView.reloadData()
+            guard self.rootView.tableView.numberOfRows(inSection: 0) != 1 else {
+                self.rootView.tableView.deleteSections(IndexSet(integer: 0), with: .fade)
+                return
+            }
+            self.rootView.tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
 }
@@ -566,13 +571,64 @@ extension ConversationViewController
 //MARK: - TABLE OFFSET HANDLER
 extension ConversationViewController 
 {
-    private func handleTableViewOffSet(usingKeyboardSize keyboardSize: CGRect) {
-        
+//    private func handleTableViewOffset(usingKeyboardSize keyboardSize: CGRect)
+//    {
+//        let maxContainerY = 584.0 - 4.0
+//        let isMaxLinesReached = rootView.inputBarContainer.frame.origin.y > maxContainerY
+//        let keyboardHeight = isMaxLinesReached ? -keyboardSize.height : keyboardSize.height
+//        
+//        // Calculate text view height
+//        let lineHeight = rootView.messageTextView.font!.lineHeight
+//        let textViewHeight = (lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - lineHeight
+//        
+//        // Calculate total inset including text view height and header
+//        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
+//        let totalInset = textViewHeight + editViewHeight + (keyboardHeight < 0 ? abs(keyboardHeight) : 0)
+//        
+//        let currentOffset = rootView.tableView.contentOffset
+//        let newOffset = CGPoint(x: currentOffset.x,
+//                               y: keyboardHeight + currentOffset.y)
+//        
+//        // Update layout
+//        rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+//        rootView.layoutSubviews()
+//        rootView.tableView.contentInset.top = totalInset
+//        rootView.tableView.setContentOffset(newOffset, animated: false)
+//        rootView.tableView.verticalScrollIndicatorInsets.top = totalInset
+//    }
+//    
+//    
+//    private func handleTableViewOffse2t(usingKeyboardSize keyboardSize: CGRect)
+//    {
+//        let maxContainerY = 584.0 - 4.0
+//        let isMaxLinesReached = rootView.inputBarContainer.frame.origin.y > maxContainerY
+//        let keyboardHeight = isMaxLinesReached ? -keyboardSize.height : 0
+//        
+//        // Calculate text view height (subtract one line as in original)
+//        let lineHeight = rootView.messageTextView.font!.lineHeight
+//        let textViewHeight = (lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - lineHeight
+//        
+//        // Calculate total inset including text view height and header
+//        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
+//        let totalInset = textViewHeight + editViewHeight + (keyboardHeight < 0 ? abs(keyboardHeight) : 0)
+//        
+//        // Update layout
+//        rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+//        rootView.layoutSubviews()
+//        rootView.tableView.contentInset.top = totalInset
+//        rootView.tableView.setContentOffset(
+//            CGPoint(x: rootView.tableView.contentOffset.x,
+//                    y: keyboardHeight + rootView.tableView.contentOffset.y),
+//            animated: false
+//        )
+//        rootView.tableView.verticalScrollIndicatorInsets.top = totalInset
+//    }
+//    
+    private func handleTableViewOffset(usingKeyboardSize keyboardSize: CGRect)
+    {
         // if number of lines inside textView is bigger than 1, it will expand
-        // and origin.y of containerView that holds textView will change
-        // so we check if maximum allowed number of line is reached (containerView origin.y will be 584)
-        let containerViewYPointWhenMaximumLineNumberReached = 584.0 - 4.0
-        let keyboardHeight = rootView.inputBarContainer.frame.origin.y > containerViewYPointWhenMaximumLineNumberReached ? -keyboardSize.height : keyboardSize.height
+        let maxContainerViewY = 584.0 - 4.0
+        let keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardSize.height : keyboardSize.height
         let  editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
@@ -582,14 +638,11 @@ extension ConversationViewController
         let currentOffSet = rootView.tableView.contentOffset
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
-//        shouldIgnoreScrollBadgeButtonUpdate = true
         rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         rootView.layoutSubviews()
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
-//        shouldIgnoreScrollBadgeButtonUpdate = false
-//        view.layoutSubviews()
     }
 }
 
@@ -778,7 +831,8 @@ extension ConversationViewController: UITableViewDelegate
                 let messageBelongsToAuthenticatedUser = cellMessage.senderId == self.conversationViewModel.authenticatedUserID
                 let attributesForEditAction = messageBelongsToAuthenticatedUser ? [] : UIMenuElement.Attributes.hidden
                 let attributesForDeleteAction = messageBelongsToAuthenticatedUser ? .destructive : UIMenuElement.Attributes.hidden
-
+                
+                
                 let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble"), attributes: attributesForEditAction) { action in
                     DispatchQueue.main.async 
                     {

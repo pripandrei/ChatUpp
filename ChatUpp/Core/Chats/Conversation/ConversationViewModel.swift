@@ -27,7 +27,7 @@ enum MessageValueModification
 enum MessageChangeType {
     case modified(IndexPath, MessageValueModification)
     case added
-    case removed
+    case removed(IndexPath)
 }
 
 enum MessageFetchStrategy 
@@ -77,7 +77,7 @@ final class ConversationViewModel
     
     @Published private(set) var unseenMessagesCount              : Int 
     @Published private(set) var chatUser                         : User
-    @Published private(set) var messageChangedTypes               : [MessageChangeType] = []
+    @Published private(set) var messageChangedTypes              : [MessageChangeType] = []
     
     @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus?
     
@@ -671,7 +671,7 @@ extension ConversationViewModel
         
         if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
 //        messageChangedType = .removed
-        messageChangedTypes.append(.removed)
+        messageChangedTypes.append(.removed(indexPath))
     }
 
     private func indexPath(of message: Message) -> IndexPath? 
