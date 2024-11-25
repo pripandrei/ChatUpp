@@ -105,8 +105,11 @@ final class ConversationViewController: UIViewController {
     
     private func scrollToCell(at indexPath: IndexPath)
     {
-        guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
-        self.rootView.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
+        guard indexPath.row < self.rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
+        
+        let updatedIndex = IndexPath(row: indexPath.row + 1, section: indexPath.section)
+        
+        self.rootView.tableView.scrollToRow(at: updatedIndex, at: .bottom, animated: false)
     }
     
     deinit {
@@ -140,6 +143,7 @@ final class ConversationViewController: UIViewController {
             self.scrollToCell(at: indexPath)
         }
         self.didFinishInitialScroll = true
+
     }
     
     override func viewDidLayoutSubviews() {
@@ -639,10 +643,10 @@ extension ConversationViewController
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
         rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-        rootView.layoutSubviews()
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
+        rootView.layoutSubviews()
     }
 }
 
