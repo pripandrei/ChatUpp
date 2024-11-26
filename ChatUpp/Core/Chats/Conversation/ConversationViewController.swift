@@ -21,7 +21,7 @@ extension ConversationViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-//        updateMessageSeenStatusIfNeeded()
+        updateMessageSeenStatusIfNeeded()
 //        if !shouldIgnoreScrollBadgeButtonUpdate {
             isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
 //        }
@@ -138,10 +138,10 @@ final class ConversationViewController: UIViewController {
         self.toggleSkeletonAnimation(.terminated)
         self.rootView.tableView.reloadData()
         self.view.layoutIfNeeded()
-//        let indexPathTest = IndexPath(row: 13, section: 0)
-        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
-            self.scrollToCell(at: indexPath)
-        }
+        let indexPathTest = IndexPath(row: 33, section: 2)
+//        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
+            self.scrollToCell(at: indexPathTest)
+//        }
         self.didFinishInitialScroll = true
 
     }
@@ -353,7 +353,12 @@ final class ConversationViewController: UIViewController {
         print("lastCellRect Y: ", lastCellRect.origin.y)
         print("=inputBarRect Y: ", inputBarRect.origin.y)
         
-        return lastCellRect.minY <= inputBarRect.minY
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            print("lastCellRect Y: ", self.rootView.tableView.convert(lastCell.frame, to: self.rootView))
+            print("=inputBarRect Y: ", self.rootView.inputBarContainer.frame)
+        }
+        
+        return inputBarRect.origin.y >= lastCellRect.origin.y
     }
     
     private func toggleScrollBadgeButtonVisibility(shouldBeHidden: Bool) 
@@ -643,10 +648,10 @@ extension ConversationViewController
         let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
         
         rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
+        rootView.layoutSubviews()
         rootView.tableView.contentInset.top = customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
-        rootView.layoutSubviews()
     }
 }
 

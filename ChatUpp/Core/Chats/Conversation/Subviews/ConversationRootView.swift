@@ -71,7 +71,7 @@ final class ConversationRootView: UIView {
         messageTextView.font                                      = UIFont(name: "HelveticaNeue", size: 17)
         messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
         messageTextView.textColor                                 = .white
-        messageTextView.isScrollEnabled                           = false
+        messageTextView.isScrollEnabled                           = true
         messageTextView.textContainer.maximumNumberOfLines        = 0
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
         
