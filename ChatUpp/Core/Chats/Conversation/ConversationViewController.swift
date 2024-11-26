@@ -206,6 +206,14 @@ final class ConversationViewController: UIViewController {
                 performBatchUpdateWithMessageChanges(changeTypes)
                 conversationViewModel.clearMessageChanges()
             }.store(in: &subscriptions)
+        
+        rootViewTextViewDelegate.lineNumberModificationSubject
+            .debounce(for: .seconds(0.1), scheduler: DispatchQueue.main)
+            .sink { [weak self] updatedLinesNumber, currentLinesNumber in
+                self?.adjustTableViewContent(withUpdatedNumberOfLines: updatedLinesNumber,
+                                             currentNumberOfLines: currentLinesNumber)
+            }
+            .store(in: &subscriptions)
     }
     
     private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
@@ -653,6 +661,26 @@ extension ConversationViewController
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
     }
+    
+    private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
+                                        currentNumberOfLines: Int)
+    {
+        let textView = rootView.messageTextView
+        let tableView = rootView.tableView
+        let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
+        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
+        let updatedContentOffset = tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
+        let updatedContentTopInset = rootView.tableViewInitialTopInset +
+        (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
+        
+        UIView.animate(withDuration: 0.15) {
+            tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
+            tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
+            tableView.contentInset.top = updatedContentTopInset
+        }
+//        messageTextViewNumberOfLines = numberOfLines
+    }
+
 }
 
 //MARK: - PHOTO PICKER CONFIGURATION & DELEGATE
