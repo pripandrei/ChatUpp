@@ -204,8 +204,8 @@ final class ConversationViewController: UIViewController {
             .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else {return}
-                performBatchUpdateWithMessageChanges(changeTypes)
-                conversationViewModel.clearMessageChanges()
+//                performBatchUpdateWithMessageChanges(changeTypes)
+//                conversationViewModel.clearMessageChanges()
             }.store(in: &subscriptions)
         
         rootViewTextViewDelegate.lineNumberModificationSubject
@@ -555,6 +555,7 @@ extension ConversationViewController {
         if !trimmedString.isEmpty
         {
             removeTextViewText()
+            rootViewTextViewDelegate.invalidateTextViewSize()
             callTextViewDidChange()
             conversationViewModel.createConversationIfNeeded()
             handleMessageBubbleCreation(messageText: trimmedString)
@@ -671,12 +672,14 @@ extension ConversationViewController
             let updatedContentTopInset = rootView.tableViewInitialTopInset +
             (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
             
-            UIView.animate(withDuration: 0.15) {
+            UIView.animate(withDuration: 0.15)
+            {
                 tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
                 tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
                 tableView.contentInset.top = updatedContentTopInset
             }
-            if self.shouldScrollToFirstCell == true {
+            if self.shouldScrollToFirstCell == true
+            {
                 self.rootView.tableView.layoutIfNeeded()
                 self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
                 self.shouldScrollToFirstCell = false

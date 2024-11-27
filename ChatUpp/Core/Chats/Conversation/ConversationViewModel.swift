@@ -204,15 +204,15 @@ final class ConversationViewModel
         let message = createNewMessage(messageText)
         
         resetCurrentReplyMessageIfNeeded()
-        addMessageToRealmChat(message)
+//        addMessageToRealmChat(message)
         createMessageGroupsWith([message], ascending: true)
         
-        updateUnseenMessageCounter(shouldIncrement: true)
-        
-        Task { @MainActor in
-            await addMessageToFirestoreDataBase(message)
-            await updateRecentMessageFromFirestoreChat(messageID: message.id)
-        }
+//        updateUnseenMessageCounter(shouldIncrement: true)
+//        
+//        Task { @MainActor in
+//            await addMessageToFirestoreDataBase(message)
+//            await updateRecentMessageFromFirestoreChat(messageID: message.id)
+//        }
     }
     
     func createConversationIfNeeded() {

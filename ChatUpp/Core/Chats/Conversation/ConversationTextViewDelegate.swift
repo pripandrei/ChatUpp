@@ -14,6 +14,7 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
     private var conversationView: ConversationRootView!
     private(set) var messageTextViewNumberOfLines = 1
     private(set) var lineNumberModificationSubject = PassthroughSubject<(Int,Int), Never>()
+    private var _invalidateTextViewSize: Bool = false
     
     convenience init(view: ConversationRootView) {
         self.init(frame: .zero)
@@ -24,13 +25,6 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
     private func setupDelegate() {
         conversationView.setTextViewDelegate(to: self)
     }
-    
-    private func calculateTextViewFrameSize(_ textView: UITextView) -> CGSize
-    {
-        let fixedWidth = textView.frame.size.width
-        let newSize    = textView.sizeThatFits(CGSize.init(width: fixedWidth, height: CGFloat(MAXFLOAT)))
-        return CGSize.init(width: CGFloat(fmaxf(Float(newSize.width), Float(fixedWidth))), height: newSize.height)
-    }
 
     func textViewDidChange(_ textView: UITextView)
     {
@@ -40,7 +34,8 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
         let textViewFrameSize = calculateTextViewFrameSize(textView)
         var numberOfLines     = Int(textViewFrameSize.height / textView.font!.lineHeight)
         
-//        guard numberOfLines != self.messageTextViewNumberOfLines else {return}
+        guard numberOfLines != self.messageTextViewNumberOfLines || _invalidateTextViewSize == true
+        else {return}
         
         // in case user paste text that exceeds 5 lines
         if numberOfLines > 4
@@ -57,6 +52,7 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
             animateTextViewHeightChange(height: textViewFrameSize.height)
             lineNumberModificationSubject.send((numberOfLines, messageTextViewNumberOfLines))
         }
+        _invalidateTextViewSize = false
     }
     
     private func animateTextViewHeightChange(height: Double)
@@ -70,29 +66,29 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
             
         }
     }
+}
+
+//MARK: - Helper functions
+extension ConversationTextViewDelegate
+{
+    func getNumberOfLines(from textView: UITextView) -> Int
+    {
+        let textViewFrameSize = calculateTextViewFrameSize(textView)
+        return Int(textViewFrameSize.height / textView.font!.lineHeight)
+    }
     
     func updateLinesNumber(_ number: Int) {
         self.messageTextViewNumberOfLines = number
     }
     
-//    func adjustTableViewContent(using textView: UITextView, numberOfLines: Int)
-//    {
-//        debounceWorkItem?.cancel()
-//        debounceWorkItem = DispatchWorkItem(block: { [weak self] in
-//            guard let self = self else {return}
-//            let numberOfAddedLines     = CGFloat(numberOfLines - self.messageTextViewNumberOfLines)
-//            let editViewHeight         = self.conversationView.inputBarHeader?.bounds.height != nil ? self.conversationView.inputBarHeader!.bounds.height : 0
-//            let updatedContentOffset   = self.conversationView.tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
-//            let updatedContentTopInset = self.conversationView.tableViewInitialTopInset + (textView.font!.lineHeight * CGFloat((numberOfLines - 1))) + editViewHeight
-//
-//            UIView.animate(withDuration: 0.15) {
-//                self.conversationView.tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
-//                self.conversationView.tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
-//                self.conversationView.tableView.contentInset.top                  = updatedContentTopInset
-//                print("one")
-//            }
-//            self.messageTextViewNumberOfLines = numberOfLines
-//        })
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.1, execute: debounceWorkItem!)
-//    }
+    private func calculateTextViewFrameSize(_ textView: UITextView) -> CGSize
+    {
+        let fixedWidth = textView.frame.size.width
+        let newSize    = textView.sizeThatFits(CGSize.init(width: fixedWidth, height: CGFloat(MAXFLOAT)))
+        return CGSize.init(width: CGFloat(fmaxf(Float(newSize.width), Float(fixedWidth))), height: newSize.height)
+    }
+    
+    func invalidateTextViewSize() {
+        _invalidateTextViewSize = true
+    }
 }
