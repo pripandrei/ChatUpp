@@ -75,6 +75,7 @@ final class ConversationViewController: UIViewController {
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScroll: Bool = false
     private var subscriptions = Set<AnyCancellable>()
+    private var shouldScrollToFirstCell: Bool = false
     
     private var isLastCellFullyVisible: Bool {
         checkIfLastCellIsFullyVisible()
@@ -411,13 +412,10 @@ extension ConversationViewController {
     {
         isNewSectionAdded = checkIfNewSectionWasAdded()
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-
-        // Schedules scrolling execution in order for proper animation scrolling
-        DispatchQueue.main.async {
-            if scrollToBottom {self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: true)}
-        }
         animateCellOffsetOnInsertion(usingCellIndexPath: indexPath)
+        
         isNewSectionAdded = false
+        shouldScrollToFirstCell = true
     }
     
     private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
@@ -663,23 +661,28 @@ extension ConversationViewController
     }
     
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
-                                        currentNumberOfLines: Int)
-    {
-        let textView = rootView.messageTextView
-        let tableView = rootView.tableView
-        let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
-        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
-        let updatedContentOffset = tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
-        let updatedContentTopInset = rootView.tableViewInitialTopInset +
-        (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
-        
-        UIView.animate(withDuration: 0.15) {
-            tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
-            tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
-            tableView.contentInset.top = updatedContentTopInset
+                                            currentNumberOfLines: Int)
+        {
+            let textView = rootView.messageTextView
+            let tableView = rootView.tableView
+            let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
+            let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
+            let updatedContentOffset = tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
+            let updatedContentTopInset = rootView.tableViewInitialTopInset +
+            (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
+            
+            UIView.animate(withDuration: 0.15) {
+                tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
+                tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
+                tableView.contentInset.top = updatedContentTopInset
+            }
+            if self.shouldScrollToFirstCell == true {
+                self.rootView.tableView.layoutIfNeeded()
+                self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                self.shouldScrollToFirstCell = false
+            }
+            rootViewTextViewDelegate.updateLinesNumber(numberOfLines)
         }
-//        messageTextViewNumberOfLines = numberOfLines
-    }
 
 }
 
