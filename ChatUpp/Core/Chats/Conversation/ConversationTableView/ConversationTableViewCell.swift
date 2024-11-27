@@ -127,7 +127,7 @@ final class ConversationTableViewCell: UITableViewCell {
     //MARK: - CELL DATA CONFIGURATION
     func configureCell(usingViewModel viewModel: ConversationCellViewModel, forSide side: BubbleMessageSide) {
         
-//        cleanupCellContent()
+        cleanupCellContent()
         
         self.cellViewModel = viewModel
         timeStamp.text = viewModel.timestamp
