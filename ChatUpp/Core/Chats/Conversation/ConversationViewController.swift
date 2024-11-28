@@ -136,7 +136,7 @@ final class ConversationViewController: UIViewController {
         self.toggleSkeletonAnimation(.terminated)
         self.rootView.tableView.reloadData()
         self.view.layoutIfNeeded()
-        let indexPathTest = IndexPath(row: 33, section: 2)
+        let indexPathTest = IndexPath(row: 1000, section: 3)
 //        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPathTest)
 //        }
@@ -201,8 +201,8 @@ final class ConversationViewController: UIViewController {
             .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else {return}
-//                performBatchUpdateWithMessageChanges(changeTypes)
-//                conversationViewModel.clearMessageChanges()
+                performBatchUpdateWithMessageChanges(changeTypes)
+                conversationViewModel.clearMessageChanges()
             }.store(in: &subscriptions)
         
         rootViewTextViewDelegate.lineNumberModificationSubject
@@ -347,23 +347,19 @@ final class ConversationViewController: UIViewController {
     
     private func checkIfLastCellIsFullyVisible() -> Bool 
     {
+        let table = rootView.tableView
         let lastCellIndexPath = IndexPath(row: 0, section: 0)
-
-        guard let lastCell = rootView.tableView.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell else {
+        
+        /// - data source is not empty and table didn't layed out cells yet, return true
+        guard !table.visibleCells.isEmpty else {return true}
+        
+        guard let lastCell = table.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell else {
             return false
         }
-        
-        let lastCellRect = rootView.tableView.convert(lastCell.frame, to: rootView)
+
+        let lastCellRect = table.convert(lastCell.frame, to: rootView)
         let inputBarRect = rootView.inputBarContainer.frame
-        
-        print("lastCellRect Y: ", lastCellRect.origin.y)
-        print("=inputBarRect Y: ", inputBarRect.origin.y)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            print("lastCellRect Y: ", self.rootView.tableView.convert(lastCell.frame, to: self.rootView))
-            print("=inputBarRect Y: ", self.rootView.inputBarContainer.frame)
-        }
-        
+
         return inputBarRect.origin.y >= lastCellRect.origin.y
     }
     

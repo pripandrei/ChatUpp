@@ -78,7 +78,6 @@ final class ConversationTableViewCell: UITableViewCell {
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
-//        contextMenuInteraction = MessageContextMenuInteractionHandler(message: messageContainer)
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
