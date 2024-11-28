@@ -22,9 +22,7 @@ extension ConversationViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         updateMessageSeenStatusIfNeeded()
-//        if !shouldIgnoreScrollBadgeButtonUpdate {
-            isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-//        }
+        isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
 
         if shouldAdjustScroll {
             shouldAdjustScroll = false
@@ -68,8 +66,7 @@ final class ConversationViewController: UIViewController {
     private var rootView = ConversationRootView()
     private var conversationViewModel :ConversationViewModel!
     private var rootViewTextViewDelegate: ConversationTextViewDelegate!
-    
-    private var shouldIgnoreScrollBadgeButtonUpdate: Bool = false
+
     private var isContextMenuPresented: Bool = false
     private var isNewSectionAdded: Bool = false
     private var isKeyboardHidden: Bool = true
@@ -645,7 +642,7 @@ extension ConversationViewController
         // if number of lines inside textView is bigger than 1, it will expand
         let maxContainerViewY = 584.0 - 4.0
         let keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardSize.height : keyboardSize.height
-        let  editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
+        let editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
@@ -682,11 +679,11 @@ extension ConversationViewController
             {
                 self.rootView.tableView.layoutIfNeeded()
                 self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+
                 self.shouldScrollToFirstCell = false
             }
             rootViewTextViewDelegate.updateLinesNumber(numberOfLines)
         }
-
 }
 
 //MARK: - PHOTO PICKER CONFIGURATION & DELEGATE
@@ -736,7 +733,7 @@ extension ConversationViewController {
     }
 }
 
-//viewForFooterInSection
+
 //MARK: - TABLE  DELEGATE
 extension ConversationViewController: UITableViewDelegate
 {
