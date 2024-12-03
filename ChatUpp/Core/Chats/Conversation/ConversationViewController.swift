@@ -136,10 +136,10 @@ final class ConversationViewController: UIViewController {
         self.toggleSkeletonAnimation(.terminated)
         self.rootView.tableView.reloadData()
         self.view.layoutIfNeeded()
-        let indexPathTest = IndexPath(row: 1000, section: 3)
-//        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
-            self.scrollToCell(at: indexPathTest)
-//        }
+//        let indexPathTest = IndexPath(row: 13, section: 3)
+        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
+            self.scrollToCell(at: indexPath)
+        }
         self.didFinishInitialScroll = true
 
     }
