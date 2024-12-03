@@ -118,6 +118,8 @@ final class ConversationTableViewCell: UITableViewCell {
         
         // Layout with no animation to hide resizing animation of cells on keyboard show/hide
         // or any other table view content offset change
+//        messageLabel.invalidateIntrinsicContentSize()
+//        contentView.invalidateIntrinsicContentSize()
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
         }
