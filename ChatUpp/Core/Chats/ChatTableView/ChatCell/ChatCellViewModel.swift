@@ -208,13 +208,22 @@ extension ChatCellViewModel
         return message
     }
     
-    func fetchImageData() async throws -> Data? 
+    @MainActor
+    func fetchImageData() async throws -> Data?
     {
+        if self.chatUser?.id == "ozg8xmCD6lMMZ3Wp3NCtcXaKrqi1" {
+            print("stop")
+            print(chat)
+        }
         guard let user = self.chatUser,
               let userProfilePhotoURL = user.photoUrl else {
             return nil
         }
         let photoData = try await FirebaseStorageManager.shared.getUserImage(userID: user.id, path: userProfilePhotoURL)
+        if self.chatUser?.id == "ozg8xmCD6lMMZ3Wp3NCtcXaKrqi1" {
+            print("stop")
+            print(chat)
+        }
         return photoData
     }
 }

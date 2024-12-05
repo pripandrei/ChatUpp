@@ -79,7 +79,6 @@ class ChatsViewController: UIViewController {
     private func setupBinding()
     {
         chatsViewModel.$chatModificationType
-            .receive(on: DispatchQueue.main)
             .sink { [weak self] modificationType in
                 guard let self = self else {return}
                 

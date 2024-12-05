@@ -141,10 +141,14 @@ extension FirebaseChatService
     }
     
     @MainActor
-    func getRecentMessage(from chat: Chat) async throws -> Message? {
+    func getRecentMessage(from chat: Chat) async throws -> Message?
+    {
         guard let recentMessageID = chat.recentMessageID else {return nil}
         do {
             let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
+            if message.id == "76581590-51C6-4AAB-87B5-E9CB002F3AG3" {
+                print("stop")
+            }
             return message
         } catch {
             
@@ -421,39 +425,6 @@ extension FirebaseChatService {
             }
         }
     }
-
-
-    func updateMembersToParticipants() {
-        // Reference to your Firestore collection
-
-        // Fetch all documents in the collection
-        chatsCollection.getDocuments { (snapshot, error) in
-            if let error = error {
-                print("Error fetching documents: \(error)")
-                return
-            }
-            
-            // Iterate through the documents
-            for document in snapshot?.documents ?? [] {
-                let data = document.data()
-
-                // Check if the `members` field exists
-                if let members = data["members"] as? [String] {
-                    // Set the `participants` field with the same value as `members`
-                    self.chatsCollection.document(document.documentID).updateData([
-                        "participants": members,
-                        "members": FieldValue.delete()  // Remove the `members` field
-                    ]) { error in
-                        if let error = error {
-                            print("Error updating document: \(error)")
-                        } else {
-                            print("Successfully updated document \(document.documentID)")
-                        }
-                    }
-                }
-            }
-        }
-    }
     
     func migrateParticipantsField() 
     {
@@ -469,15 +440,18 @@ extension FirebaseChatService {
             
             for document in documents {
                 let chatId = document.documentID
-                
-                if chatId == "CF3D16E4-ADBET47F8-ADE6-B2ACECA699E3" {
+                print(chatId)
+//                if chatId == "543CFF01-4AA8-47FB-9965-9D1B0F75D460" {
                     // Fetch current participants array
                     if let oldParticipants = document.data()["participants"] as? [String: [String: Any]] {
                         // Prepare the new participants map
                         var newParticipantsMap: [String: [String: Any]] = [:]
                         
                         for participant in oldParticipants.values {
-                            guard let userID = participant["user_id"] as? String else {return}
+                            guard let userID = participant["user_id"] as? String else {
+                                print("could not create participant")
+                                continue
+                            }
 //                            values["user_id"]
                             newParticipantsMap[userID] = [
                                 "user_id": userID,
@@ -498,7 +472,7 @@ extension FirebaseChatService {
                     }
                     
 //                    self.updateMessageSeenStatusToTrue(fromChatWithID: chatId)
-                }
+//                }
             }
             
             // Commit the batch updates
