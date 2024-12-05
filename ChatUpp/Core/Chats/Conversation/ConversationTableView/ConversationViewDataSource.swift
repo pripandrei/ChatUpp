@@ -38,8 +38,9 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
 
         let message = viewModel.cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
+        
         let cellSide = message?.senderId == authUserID ?
-        ConversationTableViewCell.BubbleMessageSide.right : ConversationTableViewCell.BubbleMessageSide.left
+        ConversationTableViewCell.MessageSide.right : ConversationTableViewCell.MessageSide.left
         
         /// set sender name and text of message messageToBeReplied if any
         if let repliedToMessageID = message?.repliedTo {

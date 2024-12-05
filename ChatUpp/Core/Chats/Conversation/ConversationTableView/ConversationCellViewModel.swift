@@ -27,6 +27,8 @@ final class ConversationCellViewModel {
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
     
+//    private(set) var authUserID: String = try! AuthenticationManager.shared.getAuthenticatedUser().uid
+    
     var displayUnseenMessagesTitle: Bool?
     
     convenience init(cellMessage: Message) {
