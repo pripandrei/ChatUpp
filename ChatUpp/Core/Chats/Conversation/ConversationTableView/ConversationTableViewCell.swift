@@ -28,29 +28,9 @@ final class ConversationTableViewCell: UITableViewCell
     private(set) var cellViewModel: ConversationCellViewModel!
 
     private let cellSpacing = 3.0
+    private var messageSide: MessageSide!
     private var maxMessageWidth: CGFloat {
-//        return 288.0
         return 292.0
-    }
-    private var messageSide: MessageSide = .right
-//    {
-//        return cellViewModel.authUserID == cellViewModel.cellMessage?.senderId
-//        ?
-//        ConversationTableViewCell.MessageSide.right : ConversationTableViewCell.MessageSide.left
-//    }
-    
-    private func makeAttributedStringForMessage() -> NSAttributedString? {
-        guard let message = cellViewModel.cellMessage else {return nil}
-        return NSAttributedString(string: message.messageBody, attributes: [
-            .font: UIFont(name: "Helvetica", size: 17)!,
-            .foregroundColor: UIColor.white,
-            .paragraphStyle: {
-                let paragraphStyle = NSMutableParagraphStyle()
-                paragraphStyle.alignment = .left
-                paragraphStyle.lineBreakMode = .byWordWrapping
-                return paragraphStyle
-            }()
-        ])
     }
     
     //MARK: - LIFECYCLE
@@ -69,7 +49,8 @@ final class ConversationTableViewCell: UITableViewCell
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
-    private func setupBackgroundSelectionView() {
+    private func setupBackgroundSelectionView()
+    {
         let selectedView = UIView()
         selectedView.backgroundColor = UIColor.clear
         selectedBackgroundView = selectedView
@@ -93,7 +74,8 @@ final class ConversationTableViewCell: UITableViewCell
     }
 
     //MARK: - CELL PREPARE CLEANUP
-    private func cleanupCellContent() {
+    private func cleanupCellContent()
+    {
         messageLabel.attributedText = nil
         timeStamp.text = nil
         timeStamp.backgroundColor = .clear
@@ -102,13 +84,10 @@ final class ConversationTableViewCell: UITableViewCell
         timeStamp.textContainerInset = .zero
         editedLabel?.text = nil
         replyMessageLabel.removeFromSuperview()
-        adjustMessagePadding(.initial)
-//        messageLabel.textContainerInset = TextPaddingStrategy.initial.padding
+        setMessagePadding(.initial)
         
         // Layout with no animation to hide resizing animation of cells on keyboard show/hide
         // or any other table view content offset change
-//        messageLabel.invalidateIntrinsicContentSize()
-//        contentView.invalidateIntrinsicContentSize()
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
         }
@@ -126,17 +105,17 @@ final class ConversationTableViewCell: UITableViewCell
         self.setupReplyMessage()
         self.setupEditedLabel()
         self.setupBinding()
-        self.adjustMessageSide(/*side*/)
+        self.adjustMessageSide()
 
         if viewModel.cellMessage?.messageBody != "" {
             self.messageLabel.attributedText = self.makeAttributedStringForMessage()
-            self.handleMessageBubbleLayout(/*forSide: side*/)
+            self.handleMessageBubbleLayout()
             return
         }
         configureImageAttachment(data: viewModel.imageData)
     }
     
-    func configureMessageSeenStatus()
+    private func configureMessageSeenStatus()
     {
         guard let message = cellViewModel.cellMessage else {return}
         let iconSize = message.messageSeen ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
@@ -148,28 +127,44 @@ final class ConversationTableViewCell: UITableViewCell
         seenStatusMark.attributedText = imageAttributedString
     }
     
+    private func makeAttributedStringForMessage() -> NSAttributedString?
+    {
+        guard let message = cellViewModel.cellMessage else {return nil}
+        
+        let attributes: [NSAttributedString.Key : Any] =
+        [
+            .font: UIFont(name: "Helvetica", size: 17)!,
+            .foregroundColor: UIColor.white,
+            .paragraphStyle: {
+                let paragraphStyle = NSMutableParagraphStyle()
+                paragraphStyle.alignment = .left
+                paragraphStyle.lineBreakMode = .byWordWrapping
+                return paragraphStyle
+            }()
+        ]
+        return NSAttributedString(string: message.messageBody, attributes: attributes)
+    }
+    
 // MARK: - UI INITIAL STEUP
     
-    private func setupEditedLabel() {
+    private func setupEditedLabel()
+    {
         guard let message = cellViewModel.cellMessage else {return}
-        if message.isEdited {
+        
+        if message.isEdited
+        {
             editedLabel = UILabel()
-            guard let editedLabel = editedLabel else {return}
+        
+            messageLabel.addSubviews(editedLabel!)
             
-            messageLabel.addSubviews(editedLabel)
-            
-            editedLabel.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
-            editedLabel.text = "edited"
-    //        editedLabel.layer.cornerRadius = 7
-    //        editedLabel.clipsToBounds = true
-            editedLabel.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
-    //        editedLabel.isHidden = true
-            
-            editedLabel.translatesAutoresizingMaskIntoConstraints = false
+            editedLabel!.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
+            editedLabel!.text = "edited"
+            editedLabel!.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
+            editedLabel!.translatesAutoresizingMaskIntoConstraints = false
             
             NSLayoutConstraint.activate([
-                editedLabel.trailingAnchor.constraint(equalTo: timeStamp.leadingAnchor, constant: -2),
-                editedLabel.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -5)
+                editedLabel!.trailingAnchor.constraint(equalTo: timeStamp.leadingAnchor, constant: -2),
+                editedLabel!.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -5)
             ])
         }
     }
@@ -227,36 +222,6 @@ final class ConversationTableViewCell: UITableViewCell
 // MARK: - MESSAGE BUBBLE LAYOUT HANDLER
 extension ConversationTableViewCell
 {
-//    func handleMessageBubbleLayoutOriginal(/*forSide side: MessageSide*/)
-//    {
-//        createMessageTextLayout()
-//
-//        guard let lastLineMessageWidth = getMessageLastLineSize() else {return}
-//        guard let numberOfMessageLines = messageLabel.textLayout?.lines.count else {return}
-//
-//        let padding: CGFloat = 20.0
-//        let timestampWidth: CGFloat = timeStamp.intrinsicContentSize.width
-//        let seenStatusMarkWidth: CGFloat = 24.0
-//
-//        let widthForSide = messageSide == .right ? seenStatusMarkWidth : 0
-//
-//        let lastLineMessageAndTimestampWidth = (lastLineMessageWidth + timestampWidth + widthForSide) + padding + editedMessageWidth()
-//        let messageRectWidth = messageLabel.intrinsicContentSize.width
-//
-//        if lastLineMessageAndTimestampWidth > maxMessageWidth  {
-//            adjustMessagePadding(.bottom)
-//            return
-//        }
-//        if lastLineMessageAndTimestampWidth <= maxMessageWidth {
-//            if numberOfMessageLines == 1 {
-//                messageSide == .right ? adjustMessagePadding(.incomingMessageRightSpace) : adjustMessagePadding(.outgoingMessageRightSapce)
-//            } else if lastLineMessageAndTimestampWidth > messageRectWidth {
-//                let difference = lastLineMessageAndTimestampWidth - messageRectWidth
-//                messageLabel.textContainerInset.right = difference + padding / 2
-//            }
-//        }
-//    }
-    
     func handleMessageBubbleLayout()
     {
         createMessageTextLayout()
@@ -266,19 +231,11 @@ extension ConversationTableViewCell
     func createMessageTextLayout() {
         let textLayout = YYTextLayout(containerSize: CGSize(width: messageLabel.intrinsicContentSize.width, height: messageLabel.intrinsicContentSize.height), text: messageLabel.attributedText!)
         messageLabel.textLayout = textLayout
-        adjustMessagePadding(.initial)
-//        messageLabel.textContainerInset = TextPaddingStrategy.initial.padding
-    }
-    
-    func getMessageLastLineSize() -> CGFloat? {
-        if let lastLine = messageLabel.textLayout?.lines.last {
-            return lastLine.lineWidth
-        }
-        return nil
+        setMessagePadding(.initial)
     }
     
     // MARK: - MESSAGE BUBBLE CONSTRAINTS
-    func adjustMessageSide(/*_ side: MessageSide*/) {
+    func adjustMessageSide() {
         if messageContainerLeadingConstraint != nil { messageContainerLeadingConstraint.isActive = false }
         if messageContainerTrailingConstraint != nil { messageContainerTrailingConstraint.isActive = false }
 
@@ -297,18 +254,15 @@ extension ConversationTableViewCell
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
             messageBubbleContainer.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
+        case .none:
+            break
         }
     }
     // MARK: - MESSAGE BUBBLE PADDING
-    private func adjustMessagePadding(_ messagePadding: TextPaddingStrategy) {
-        switch messagePadding {
-        case .initial: messageLabel.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-        case .bottom: messageLabel.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
-        case .image: messageLabel.textContainerInset = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
-        case .trailling(let space): messageLabel.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: space + 15)
-//        case .incomingMessageRightSpace: messageLabel.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + seenStatusMark.intrinsicContentSize.width + 15 + editedMessageWidth())
-//        case .outgoingMessageRightSapce: messageLabel.textContainerInset = UIEdgeInsets(top: 6, left: 10, bottom: 6, right: timeStamp.intrinsicContentSize.width + 15 + editedMessageWidth())
-        }
+    
+    private func setMessagePadding(_ messagePadding: TextPaddingStrategy)
+    {
+        messageLabel.textContainerInset = messagePadding.padding
         messageLabel.invalidateIntrinsicContentSize()
     }
     
@@ -325,27 +279,20 @@ extension ConversationTableViewCell
     func adjustMessageLabelPadding()
     {
         defer {
-            self.timeStamp.layoutIfNeeded()
-            self.messageLabel.invalidateIntrinsicContentSize()
-            self.contentView.invalidateIntrinsicContentSize()
+//            self.messageLabel.invalidateIntrinsicContentSize()
+//            self.contentView.invalidateIntrinsicContentSize()
         }
-        
-        if messageLabel.attributedText?.string == "The only way I could do that" {
-            print("stop")
-        }
-        
+
         guard checkIfMessageComponentsFitIntoLastLine() else
         {
-//            messageLabel.textContainerInset = TextPaddingStrategy.bottom.padding
-            adjustMessagePadding(.bottom)
+            setMessagePadding(.bottom)
             return
         }
-//        getMessageTextLines().first.
+        
         if getMessageTextLines().count == 1
         {
             let componentsWidth = getMessageComponentsWidth()
-            adjustMessagePadding(.trailling(space: componentsWidth))
-//            messageLabel.textContainerInset = TextPaddingStrategy.trailling(space: componentsWidth).padding
+            setMessagePadding(.trailling(space: componentsWidth))
         }
     }
     
@@ -405,8 +352,7 @@ extension ConversationTableViewCell {
         setMessageImageSize()
         setMessageLabelAttributedTextImage()
         setupTimestampBackgroundForImage()
-        adjustMessagePadding(.image)
-//        messageLabel.textContainerInset = TextPaddingStrategy.image.padding
+        setMessagePadding(.image)
     }
 
     private func setMessageImage(imageData: Data?) {
@@ -443,7 +389,6 @@ extension ConversationTableViewCell {
     private func setupMessageBubbleContainer() {
         contentView.addSubview(messageBubbleContainer)
         
-//        messageBubbleContainer.addSubview(replyMessageLabel)
         messageBubbleContainer.addSubview(messageLabel)
         
         messageBubbleContainer.layer.cornerRadius = 15
@@ -463,7 +408,6 @@ extension ConversationTableViewCell {
             return
         }
         
-//        replyMessageLabel.font = UIFont(name: "HelveticaNeue", size: 13)
         replyMessageLabel.attributedText = createReplyMessageAttributedText(with: messageSenderName, messageText: messageText)
         replyMessageLabel.numberOfLines = 2
         replyMessageLabel.layer.cornerRadius = 4
@@ -513,7 +457,8 @@ extension ConversationTableViewCell {
             self.fillColor(with: .cyan, width: 5)
         }
         
-        private func fillColor(with color: UIColor, width: CGFloat) {
+        private func fillColor(with color: UIColor, width: CGFloat)
+        {
             let topRect = CGRect(x:0, y:0, width : width, height: self.bounds.height);
             color.setFill()
             UIRectFill(topRect)
@@ -577,14 +522,14 @@ extension ConversationTableViewCell
         case bottom
         case trailling(space: CGFloat)
         case image
-
+        
         var padding: UIEdgeInsets
         {
             switch self {
-            case .bottom: return UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
-            case .trailling (let space): return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: space + 10)
-            case .initial: return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
             case .image: return UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
+            case .bottom: return UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
+            case .initial: return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
+            case .trailling (let space): return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: space + 10 + 3)
             }
         }
     }
