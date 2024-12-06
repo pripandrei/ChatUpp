@@ -38,7 +38,7 @@ final class ChatsViewModel {
     @Published var initialChatsDoneFetching: Bool = false
 
     init() {
-        print(RealmDataBase.realmFilePath)
+        print(RealmDataBase.realmFilePath ?? "unknown realm file path")
         setupCellViewModels()
         observeChats()
     }
