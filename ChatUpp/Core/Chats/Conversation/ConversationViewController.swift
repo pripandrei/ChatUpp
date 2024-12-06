@@ -242,14 +242,17 @@ final class ConversationViewController: UIViewController {
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
-            isKeyboardHidden = false
-            guard isContextMenuPresented else {
-                handleTableViewOffset(usingKeyboardSize: keyboardSize)
-                return
+            if rootView.inputBarContainer.frame.origin.y > 580 /// first character typed in textField triggers keyboardWillShow, so we perform this check
+            {
+                isKeyboardHidden = false
+                guard isContextMenuPresented else {
+                    handleTableViewOffset(usingKeyboardSize: keyboardSize)
+                    return
+                }
+                
+                let keyboardHeight = -336.0
+                updateInputBarBottomConstraint(toSize: keyboardHeight)
             }
-            
-            let keyboardHeight = -336.0
-            updateInputBarBottomConstraint(toSize: keyboardHeight)
         }
     }
     
