@@ -146,9 +146,6 @@ extension FirebaseChatService
         guard let recentMessageID = chat.recentMessageID else {return nil}
         do {
             let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
-            if message.id == "76581590-51C6-4AAB-87B5-E9CB002F3AG3" {
-                print("stop")
-            }
             return message
         } catch {
             

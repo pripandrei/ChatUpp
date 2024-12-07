@@ -268,6 +268,9 @@ extension ConversationTableViewCell
     
     private func editedMessageWidth() -> Double
     {
+        if messageLabel.attributedText?.string == "Thet" {
+            print("STOP")
+        }
         guard let editedLabel = editedLabel else {return 0}
         return editedLabel.intrinsicContentSize.width
     }
@@ -308,7 +311,7 @@ extension ConversationTableViewCell
     private func getMessageComponentsWidth() -> CGFloat
     {
         let allocatedWidthForMessageSide = messageSide == .right ? (seenStatusMark.intrinsicContentSize.width) : 0
-        let componentsWidth = timeStamp.intrinsicContentSize.width + allocatedWidthForMessageSide - editedMessageWidth() + 4 /// +4 extra padding
+        let componentsWidth = timeStamp.intrinsicContentSize.width + allocatedWidthForMessageSide + editedMessageWidth() + 4 /// +4 extra padding
         return componentsWidth
     }
     
