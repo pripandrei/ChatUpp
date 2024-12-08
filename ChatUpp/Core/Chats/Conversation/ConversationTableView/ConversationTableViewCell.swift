@@ -225,7 +225,9 @@ extension ConversationTableViewCell
     func handleMessageBubbleLayout()
     {
         createMessageTextLayout()
-        adjustMessageLabelPadding()
+        let padding = getMessagePaddingStrategy()
+        setMessagePadding(padding)
+//        adjustMessageLabelPadding()
     }
     
     func createMessageTextLayout() {
@@ -268,9 +270,6 @@ extension ConversationTableViewCell
     
     private func editedMessageWidth() -> Double
     {
-        if messageLabel.attributedText?.string == "Thet" {
-            print("STOP")
-        }
         guard let editedLabel = editedLabel else {return 0}
         return editedLabel.intrinsicContentSize.width
     }
@@ -279,71 +278,63 @@ extension ConversationTableViewCell
 //MARK: - message padding handler functions
 extension ConversationTableViewCell
 {
-    func adjustMessageLabelPadding()
+    private func getMessagePaddingStrategy() -> TextPaddingStrategy
     {
-        defer {
-//            self.messageLabel.invalidateIntrinsicContentSize()
-//            self.contentView.invalidateIntrinsicContentSize()
+        let availableSpace = calculateLastLineAvailableSpace()
+        
+        if availableSpace <= 4.0 {
+            return .bottom
         }
+        
+        let totalExpectedWidth = calculateTotalExpectedLastLineWidth()
+        guard let textBoundingWidth = calculateTextBoundingWidth() else {
+            return .bottom
+        }
+        
+        if isSingleLineMessage() || totalExpectedWidth > textBoundingWidth {
+            return .trailling(space: calculateMessageComponentsWidth())
+        }
+        
+        return .initial
+    }
 
-        guard checkIfMessageComponentsFitIntoLastLine() else
-        {
-            setMessagePadding(.bottom)
-            return
-        }
-        
-        if getMessageTextLines().count == 1
-        {
-            let componentsWidth = getMessageComponentsWidth()
-            setMessagePadding(.trailling(space: componentsWidth))
-        }
-    }
-    
-    private func checkIfMessageComponentsFitIntoLastLine() -> Bool
+    // MARK: - Helper Methods
+    private func calculateLastLineAvailableSpace() -> CGFloat
     {
-        let lastLineRemainingWidth = getLastLineRemainingWidth()
-        let componentsWidth = getMessageComponentsWidth()
-        let leftover = lastLineRemainingWidth - componentsWidth
-        
-        return leftover > 4 /// +4 points reserved space
+        let lastLineRemainingWidth = calculateLastLineRemainingWidth()
+        let componentsWidth = calculateMessageComponentsWidth()
+        return lastLineRemainingWidth - componentsWidth
     }
-    
-    private func getMessageComponentsWidth() -> CGFloat
+
+    private func calculateTotalExpectedLastLineWidth() -> CGFloat
     {
-        let allocatedWidthForMessageSide = messageSide == .right ? (seenStatusMark.intrinsicContentSize.width) : 0
-        let componentsWidth = timeStamp.intrinsicContentSize.width + allocatedWidthForMessageSide + editedMessageWidth() + 4 /// +4 extra padding
-        return componentsWidth
+        return calculateMessageComponentsWidth() + calculateLastLineTextWidth()
     }
-    
-    private func getLastLineRemainingWidth() -> CGFloat
+
+    private func calculateLastLineRemainingWidth() -> CGFloat
     {
-        let lastLineTextWidth = getLastLineMessageTextWidth()
-        let messageWidthPadding = TextPaddingStrategy.initial.padding.left * 2
-        
-        guard getMessageTextLines().count > 1 else {
-            return maxMessageWidth - messageWidthPadding - lastLineTextWidth
-        }
-        
-        guard let textBoundingRect = getTextBoundingRect(from: messageLabel) else { return 0.0 }
-        return textBoundingRect.width - lastLineTextWidth
+        let messagePadding = 2 * TextPaddingStrategy.initial.padding.left
+        return maxMessageWidth - messagePadding - calculateLastLineTextWidth()
     }
-    
-    private func getMessageTextLines() -> [YYTextLine] {
-        return messageLabel.textLayout?.lines ?? []
-    }
-    
-    private func getLastLineMessageTextWidth() -> CGFloat
+
+    private func calculateLastLineTextWidth() -> CGFloat
     {
-        return messageLabel.textLayout?
-            .lines
-            .last?
-            .width ?? 0.0
+        return messageLabel.textLayout?.lines.last?.width ?? 0
     }
-    
-    private func getTextBoundingRect(from view: UIView) -> CGRect?
+
+    private func calculateTextBoundingWidth() -> CGFloat?
     {
-        guard let layout = messageLabel.textLayout else { return nil }
-        return layout.textBoundingRect
+        return messageLabel.textLayout?.textBoundingRect.width
+    }
+
+    private func calculateMessageComponentsWidth() -> CGFloat
+    {
+        let sideWidth = messageSide == .right ? seenStatusMark.intrinsicContentSize.width : 0.0
+        return timeStamp.intrinsicContentSize.width + sideWidth + editedMessageWidth() + 4.0
+    }
+
+    private func isSingleLineMessage() -> Bool {
+        return messageLabel.textLayout?.lines.count == 1
     }
 }
 
