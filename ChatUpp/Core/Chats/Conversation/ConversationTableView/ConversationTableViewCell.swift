@@ -225,9 +225,10 @@ extension ConversationTableViewCell
     func handleMessageBubbleLayout()
     {
         createMessageTextLayout()
-        let padding = getMessagePaddingStrategy()
-        setMessagePadding(padding)
-//        adjustMessageLabelPadding()
+//        handleMessageBubbleLayout3(forSide: .right)
+//        let padding = getMessagePaddingStrategy()
+//        setMessagePadding(padding)
+        adjustMessageLabelPadding()
     }
     
     func createMessageTextLayout() {
@@ -278,6 +279,30 @@ extension ConversationTableViewCell
 //MARK: - message padding handler functions
 extension ConversationTableViewCell
 {
+    func adjustMessageLabelPadding()
+    {
+        let textBoundingWidth = calculateTextBoundingWidth()
+        let padding = (TextPaddingStrategy.initial.padding.left * 2) + 3.0
+        let expectedLineWidth = calculateLastLineTextWidth() + calculateMessageComponentsWidth()
+        
+        guard expectedLineWidth < (maxMessageWidth - padding) else {
+            setMessagePadding(.bottom)
+            return
+        }
+        
+        if expectedLineWidth > textBoundingWidth
+        {
+            let difference = expectedLineWidth - textBoundingWidth
+            setMessagePadding(.trailling(space: difference))
+        }
+    }
+
+    private func calculateMessageComponentsWidth() -> CGFloat
+    {
+        let sideWidth = messageSide == .right ? seenStatusMark.intrinsicContentSize.width : 0.0
+        return timeStamp.intrinsicContentSize.width + sideWidth + editedMessageWidth() + 4.0
+    }
+    
     private func getMessagePaddingStrategy() -> TextPaddingStrategy
     {
         let availableSpace = calculateLastLineAvailableSpace()
@@ -287,9 +312,7 @@ extension ConversationTableViewCell
         }
         
         let totalExpectedWidth = calculateTotalExpectedLastLineWidth()
-        guard let textBoundingWidth = calculateTextBoundingWidth() else {
-            return .bottom
-        }
+        let textBoundingWidth = calculateTextBoundingWidth()
         
         if isSingleLineMessage() || totalExpectedWidth > textBoundingWidth {
             return .trailling(space: calculateMessageComponentsWidth())
@@ -322,15 +345,9 @@ extension ConversationTableViewCell
         return messageLabel.textLayout?.lines.last?.width ?? 0
     }
 
-    private func calculateTextBoundingWidth() -> CGFloat?
+    private func calculateTextBoundingWidth() -> CGFloat
     {
-        return messageLabel.textLayout?.textBoundingRect.width
-    }
-
-    private func calculateMessageComponentsWidth() -> CGFloat
-    {
-        let sideWidth = messageSide == .right ? seenStatusMark.intrinsicContentSize.width : 0.0
-        return timeStamp.intrinsicContentSize.width + sideWidth + editedMessageWidth() + 4.0
+        return messageLabel.textLayout?.textBoundingRect.width ?? 0
     }
 
     private func isSingleLineMessage() -> Bool {
@@ -523,7 +540,7 @@ extension ConversationTableViewCell
             case .image: return UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
             case .bottom: return UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
             case .initial: return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-            case .trailling (let space): return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: space + 10 + 3)
+            case .trailling (let space): return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: space + 10 + 3.0)
             }
         }
     }
