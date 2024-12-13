@@ -29,6 +29,10 @@ class EmailSignUpViewController: UIViewController {
         controllerMainConfiguration()
     }
     
+    deinit {
+        print("Sign Up email deinit !!")
+    }
+    
 //MARK: - UI Configuration
     
     private func controllerMainConfiguration() {
@@ -139,9 +143,9 @@ class EmailSignUpViewController: UIViewController {
     {
         let isValid = textFieldValidator.validate()
         if isValid {
-            signUpViewModel.signUp() { registrationStatus in
+            signUpViewModel.signUp() { [weak self] registrationStatus in
                 if registrationStatus == .success {
-                    self.coordinator?.pushUsernameRegistration()
+                    self?.coordinator?.pushUsernameRegistration()
                 }
             }
         }

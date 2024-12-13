@@ -40,10 +40,10 @@ class UsernameRegistrationViewController: UIViewController {
     // MARK: - BINDING
     
     private func configureBinding() {
-        usernameRegistrationViewModel.finishRegistration.bind { finishRegistration in
+        usernameRegistrationViewModel.finishRegistration.bind { [weak self] finishRegistration in
             if let finish = finishRegistration, finish == true {
                 Task { @MainActor in
-                    self.coordinator.dismissNaviagtionController()
+                    self?.coordinator.dismissNaviagtionController()
                 }
             }
         }
