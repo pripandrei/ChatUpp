@@ -7,6 +7,11 @@
 
 import UIKit
 
+
+enum UnwrappingError: Error {
+    case nilValueFound(String)
+}
+
 struct Utilities {
     static func findLoginViewControllerInHierarchy() -> UIViewController? {
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
@@ -103,6 +108,22 @@ struct Utilities {
     }
 }
 
-enum UnwrappingError: Error {
-    case nilValueFound(String)
+//MARK: - Test functions
+extension Utilities
+{
+    static func saveImageToDocumentDirectory(_ image: UIImage, to fileName: String) {
+        let compressedData = image.jpegData(compressionQuality: 0.6)
+        let fileName = getDocumentsDirectory().appending(path: fileName)
+        print("Saved file path: ", fileName)
+        do {
+            try compressedData?.write(to: fileName)
+            print("success saving image")
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    static func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
 }

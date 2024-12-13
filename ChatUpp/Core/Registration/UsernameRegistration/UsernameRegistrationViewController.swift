@@ -8,6 +8,7 @@
 import UIKit
 import Photos
 import PhotosUI
+import Kingfisher
 
 class UsernameRegistrationViewController: UIViewController {
     
@@ -30,6 +31,10 @@ class UsernameRegistrationViewController: UIViewController {
         setupProfileImage()
         setupNameAndPhotoLabel()
         configureBinding()
+    }
+    
+    deinit {
+        print("Username VC was deinited !!!")
     }
     
     // MARK: - BINDING
@@ -155,13 +160,18 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
         
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
-                guard let image = reading as? UIImage, error == nil else { print("Could not read image"); return }
-                guard let data = image.jpegData(compressionQuality: 0.5) else {return}
+                guard let self = self else {return}
                 
-                self?.usernameRegistrationViewModel.profileImageData = data
+                guard let image = reading as? UIImage,
+                      error == nil else { print("Could not read image"); return }
+                
+                let resizedImage = self.resizeImage(image)
+                self.saveImageData(resizedImage)
+                
+//                Utilities.saveImageToDocumentDirectory(resizedImage, to: "profile_selected.jpg")
                 
                 Task { @MainActor in
-                    self?.profileImage.image = image
+                    self.profileImage.image = resizedImage
                 }
             }
         }
@@ -179,3 +189,21 @@ extension UsernameRegistrationViewController: UITextFieldDelegate {
         }
     }
 }
+
+extension UsernameRegistrationViewController
+{
+    private func resizeImage(_ image: UIImage) -> UIImage
+    {
+        let targetSize = CGSize(width: 1280, height: 1280)
+        let resizedImage = image.kf.resize(to: targetSize, for: .aspectFit)
+        return resizedImage
+    }
+    
+    private func saveImageData(_ image: UIImage)
+    {
+        guard let data = image.jpegData(compressionQuality: 0.6) else {return}
+        usernameRegistrationViewModel.profileImageData = data
+    }
+}
+
+
