@@ -50,7 +50,7 @@ class ChatsCell: UITableViewCell {
         self.cellViewModel = viewModel
 
         setupBinding()
-//        setupMemberImage()
+        setupMemberImage()
     }
     
     private func setOnlineStatusActivity() {
@@ -81,7 +81,7 @@ class ChatsCell: UITableViewCell {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in
                 guard let self = self else {return}
-//                self.setImage(imageData)
+                self.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$chatUser
@@ -201,31 +201,6 @@ extension ChatsCell {
             onlineStatusCircleView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -3),
         ])
     }
-    
-//    private func setupUnreadMessagesCountLabel() {
-//        contentView.addSubview(unreadMessagesCountLabel)
-//        
-//        unreadMessagesCountLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
-//        unreadMessagesCountLabel.font = UIFont(name: "Helvetica", size: 16)
-////        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
-//        unreadMessagesCountLabel.layer.cornerRadius = 12
-//        unreadMessagesCountLabel.textAlignment = .center
-//        unreadMessagesCountLabel.clipsToBounds = true
-//        unreadMessagesCountLabel.layer.masksToBounds = true
-//        unreadMessagesCountLabel.linesCornerRadius = 8
-//        unreadMessagesCountLabel.isSkeletonable = true
-//        unreadMessagesCountLabel.skeletonTextLineHeight = .fixed(25)
-//        unreadMessagesCountLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
-//        
-//        unreadMessagesCountLabel.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        NSLayoutConstraint.activate([
-//            unreadMessagesCountLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
-//            unreadMessagesCountLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
-//            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
-//            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
-//        ])
-//    }  
     
     private func setupUnreadMessagesCountLabel() {
         contentView.addSubview(unreadMessagesBadgeLabel)

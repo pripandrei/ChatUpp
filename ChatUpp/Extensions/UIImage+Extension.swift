@@ -63,4 +63,28 @@ extension UIImage {
             return CGSize(width: equalWidth, height: equalHeight)
         }
     }
+    
+//    func calculateImageMemorySize(image: UIImage) -> Int?
+//    {
+//        guard let cgImage = image.cgImage else {
+//            print("Failed to get CGImage from UIImage")
+//            return nil
+//        }
+//        
+//        let width = cgImage.width
+//        let height = cgImage.height
+//        let bitsPerPixel = cgImage.bitsPerPixel // Typically 32 for RGBA
+//        let bytesPerPixel = bitsPerPixel / 8 // 4 bytes for RGBA
+//        
+//        let memorySizeInBytes = width * height * bytesPerPixel
+//        return memorySizeInBytes
+//    }
+//
+//    // Convert bytes to a human-readable format (e.g., KB, MB)
+//    func formatMemorySize(bytes: Int) -> String
+//    {
+//        let formatter = ByteCountFormatter()
+//        formatter.countStyle = .memory
+//        return formatter.string(fromByteCount: Int64(bytes))
+//    }
 }
