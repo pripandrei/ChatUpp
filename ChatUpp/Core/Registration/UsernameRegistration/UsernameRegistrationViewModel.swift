@@ -61,6 +61,7 @@ final class UsernameRegistrationViewModel
                                                          profilePhotoURL: profilePhotoURL)
     }
     
+    @MainActor
     private func addUserToRealmDB()
     {
         let user = User(userId: authUser.uid,
@@ -71,6 +72,7 @@ final class UsernameRegistrationViewModel
                         dateCreated: Date(),
                         lastSeen: Date(),
                         isActive: true)
+        
         RealmDataBase.shared.add(object: user)
     }
     
@@ -78,9 +80,9 @@ final class UsernameRegistrationViewModel
     {
         Task {
             do {
-                self.addUserToRealmDB()
-                try await updateUser()
                 try await saveImageData()
+                try await updateUser()
+                await self.addUserToRealmDB()
                 self.registrationCompleted.value = true
             } catch {
                 print("Error finishing registration: ", error.localizedDescription)
