@@ -1,22 +1,70 @@
-//  Created by Andrew Podkovyrin
-//  Copyright © 2020 Andrew Podkovyrin. All rights reserved.
-//
-//  Licensed under the MIT License (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//  https://opensource.org/licenses/MIT
-//
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-//
-
 import UIKit
+import Kingfisher
 
-extension UIImage {
+//protocol Resizable
+//{
+//    var size: CGSize {get}
+//}
+//
+//struct ImageSample
+//{
+//    enum User: Resizable
+//    {
+//        case original
+//        case thumbnail
+//        
+//        var size: CGSize {
+//            switch self {
+//            case .original: return CGSize(width: 1024, height: 1024)
+//            case .thumbnail: return CGSize(width: 320, height: 320)
+//            }
+//        }
+//    }
+//    
+//    enum Message: Resizable
+//    {
+//        case original
+//        case thumbnail
+//        
+//        var size: CGSize {
+//            switch self {
+//            case .original: return CGSize(width: 1280, height: 1280)
+//            case .thumbnail: return CGSize(width: 540, height: 540)
+//            }
+//        }
+//    }
+//}
+
+
+enum ImageSize
+{
+    enum User {
+        static let original = CGSize(width: 1280, height: 1280)
+        static let thumbnail = CGSize(width: 320, height: 320)
+    }
+    
+    enum Message {
+        static let original = CGSize(width: 1280, height: 1280)
+        static let thumbnail = CGSize(width: 540, height: 540)
+    }
+}
+
+extension UIImage
+{
+    func resize(_ size: CGSize) -> UIImage
+    {
+        let resizedImage = self.kf.resize(to: size, for: .aspectFit)
+        return resizedImage
+    }
+    
+    func resize(to newSize: CGSize) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+        defer { UIGraphicsEndImageContext() }
+        self.draw(in: CGRect(origin: .zero, size: newSize))
+        guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else { return UIImage() }
+        return newImage
+    }
+    
     func roundedCornerImage(with radius: CGFloat) -> UIImage {
         let format = UIGraphicsImageRendererFormat()
         format.scale = scale
@@ -34,14 +82,6 @@ extension UIImage {
             draw(in: rect)
             cgContext.restoreGState()
         }
-    }
-    
-    func resize(to newSize: CGSize) -> UIImage {
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-        defer { UIGraphicsEndImageContext() }
-        self.draw(in: CGRect(origin: .zero, size: newSize))
-        guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else { return UIImage() }
-        return newImage
     }
 
     func getAspectRatio() -> CGSize {

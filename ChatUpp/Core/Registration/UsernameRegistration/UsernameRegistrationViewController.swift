@@ -161,17 +161,17 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
                 guard let self = self else {return}
-                
+            
                 guard let image = reading as? UIImage,
                       error == nil else { print("Could not read image"); return }
                 
-                let resizedImage = self.resizeImage(image)
-                self.saveImageData(resizedImage)
+                let downsampledImage = downsampleImage(image)
+                self.saveImageData(downsampledImage)
                 
-//                Utilities.saveImageToDocumentDirectory(resizedImage, to: "profile_selected.jpg")
+                Utilities.saveImageToDocumentDirectory(downsampledImage, to: "profile_selected.jpg")
                 
                 Task { @MainActor in
-                    self.profileImage.image = resizedImage
+                    self.profileImage.image = downsampledImage
                 }
             }
         }
@@ -192,17 +192,25 @@ extension UsernameRegistrationViewController: UITextFieldDelegate {
 
 extension UsernameRegistrationViewController
 {
-    private func resizeImage(_ image: UIImage) -> UIImage
+//    private func resizeImage(_ image: UIImage) -> UIImage
+//    {
+//        let targetSize = CGSize(width: 1280, height: 1280)
+//        let resizedImage = image.kf.resize(to: targetSize, for: .aspectFit)
+//        return resizedImage
+//    }
+    
+    private func downsampleImage(_ image: UIImage) -> UIImage
     {
-        let targetSize = CGSize(width: 1280, height: 1280)
-        let resizedImage = image.kf.resize(to: targetSize, for: .aspectFit)
-        return resizedImage
+        let newSize = ImageSize.User.original
+        let resizedImage = image.resize(newSize)
+        guard let data = resizedImage.jpegData(compressionQuality: 0.6) else {return image}
+        
+        return UIImage(data: data) ?? image
     }
     
     private func saveImageData(_ image: UIImage)
     {
-        guard let data = image.jpegData(compressionQuality: 0.6) else {return}
-        usernameRegistrationViewModel.profileImageData = data
+        usernameRegistrationViewModel.profileImageData = image.jpegData(compressionQuality: 1.0)
     }
 }
 

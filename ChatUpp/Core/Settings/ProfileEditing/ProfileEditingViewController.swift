@@ -218,15 +218,16 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
         
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                guard let self = self else {return}
                 guard let image = reading as? UIImage, error == nil else {
                     print("Could not read image!")
                     return
                 }
                 guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
-                self?.profileEditingViewModel.editedProfilePhoto = data
+                self.profileEditingViewModel.editedProfilePhoto = data
                 Task { @MainActor in
-                    self?.headerCell.imageView.image = image                    
+                    self.headerCell.imageView.image = image                    
                 }
             }
         }
