@@ -9,11 +9,10 @@ import Foundation
 
 final class SettingsViewModel {
 
-    private(set) var userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
-    private(set) var imageData: Data?
-    var user: User!
-    var onUserFetched: (() -> ())?
-    var authProvider: String!
+    private(set) var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
+    private(set) var profileImageData: Data?
+    private(set) var user: User!
+    private(set) var authProvider: String!
     
     private var authUser : AuthDataResultModel
     {
@@ -21,10 +20,12 @@ final class SettingsViewModel {
     }
     
     init() {
-        Task {
-            await self.retrieveDataFromDB()
+        Task { @MainActor in
+            self.retrieveDataFromDB()
             try await self.fetchUserFromDB()
             try await self.getCurrentAuthProvider()
+            addUserToRealmDB()
+            cacheProfileImage()
         }
     }
     
@@ -34,36 +35,44 @@ final class SettingsViewModel {
             //            try await updateUserOnlineStatus()
             try await RealtimeUserService.shared.cancelOnDisconnect()
             try AuthenticationManager.shared.signOut()
-            userIsSignedOut.value = true
+            isUserSignedOut.value = true
         } catch {
             print("Error signing out", error.localizedDescription)
         }
     }
     
-    @MainActor
     private func retrieveDataFromDB()
     {
         guard let realmUser = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: authUser.uid) else {return}
         self.user = realmUser
         guard let pictureURL = user.photoUrl else {return}
-        self.imageData = CacheManager.shared.retrieveImageData(from: pictureURL)
-//        self.onUserFetched?()
+        self.profileImageData = CacheManager.shared.retrieveImageData(from: pictureURL)
     }
     
-    func updateUserData(_ dbUser: User, _ photoData: Data?) {
+    func updateUserData(_ dbUser: User, _ photoData: Data?)
+    {
         self.user = dbUser
         guard let photo = photoData else {return}
-        self.imageData = photo
+        self.profileImageData = photo
     }
-
     
-    func fetchUserFromDB() async throws {
+    func fetchUserFromDB() async throws
+    {
         self.user = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
-//        self.imageData = try await FirestoreUserService.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
         if let photoUrl = user.photoUrl {
-            self.imageData = try await FirebaseStorageManager.shared.getUserImage(userID: user.id, path: photoUrl)
+            self.profileImageData = try await FirebaseStorageManager.shared.getUserImage(userID: user.id, path: photoUrl)
         }
-//        onUserFetched?()
+    }
+    
+    private func addUserToRealmDB()
+    {
+        RealmDataBase.shared.add(object: self.user)
+    }
+    
+    private func cacheProfileImage()
+    {
+        guard let path = user.photoUrl, let data = profileImageData else {return}
+        CacheManager.shared.saveImageData(data, toPath: path)
     }
     
     func getCurrentAuthProvider() async throws {

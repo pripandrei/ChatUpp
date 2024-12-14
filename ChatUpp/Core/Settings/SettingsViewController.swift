@@ -19,12 +19,8 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     private lazy var dataSource: DataSource = makeDataSource()
     private var collectionViewListHeader: ProfileEditingListHeaderCell?
     
-    // Initially settingsVC interaction is disabled
-    // until user data is fetched
-    // This is only when user logs in for the first time
-//    var shouldEnableInteractionOnSelf = true
-    
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         configureCollectionViewLayout()
         createSnapshot()
@@ -48,21 +44,19 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
 // MARK: - Binder
     
     func setupBinder() {
-        settingsViewModel.userIsSignedOut.bind { [weak self] isSignedOut in
+        settingsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
                 Task { @MainActor in
                     self?.coordinatorDelegate?.handleSignOut()
                 }
             }
         }
-//        settingsViewModel.onUserFetched = { [weak self] in
-//            self?.shouldEnableInteractionOnSelf = true
-//        }
     }
     
     // MARK: - DELETION PROVIDER HANDLER
     
-    private func handleDeletionProviderPresentation(_ provider: String) {
+    private func handleDeletionProviderPresentation(_ provider: String)
+    {
         switch provider {
         case "google.com", "password": self.createDeletionAlertController()
         case "phone": self.coordinatorDelegate?.showProfileDeletionVC(viewModel: self.createProfileDeletionViewModel())
@@ -96,7 +90,8 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
 // MARK: - SETUP COLLECTION VIEW LAYOUT
 extension SettingsViewController
 {
-    private func configureCollectionViewLayout() {
+    private func configureCollectionViewLayout()
+    {
         view.addSubview(collectionView)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -159,7 +154,7 @@ extension SettingsViewController {
             
             supplementaryView.nameLabel.text = user.name
             supplementaryView.additionalCredentials.text = "\(user.phoneNumber ?? "") \u{25CF} \(user.nickname ?? "")"
-            if let image = self?.settingsViewModel.imageData {
+            if let image = self?.settingsViewModel.profileImageData {
                 supplementaryView.imageView.image = UIImage(data: image)
             } else {
                 supplementaryView.imageView.image = UIImage(named: "default_profile_photo")
@@ -188,7 +183,8 @@ extension SettingsViewController {
 }
 
 //MARK: - COLLECTIONVIEW DELEGATE
-extension SettingsViewController {
+extension SettingsViewController
+{
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         
@@ -217,7 +213,7 @@ extension SettingsViewController {
         guard let user = settingsViewModel.user else {fatalError("dbUser is missing")}
         
         // if imageData is nil, meaning user did not select picture, local default image will be used as profile picture
-        guard let profilePicutre = settingsViewModel.imageData == nil ? UIImage(named: "default_profile_photo")?.pngData() : settingsViewModel.imageData else {fatalError("profilePicutre is missing")}
+        guard let profilePicutre = settingsViewModel.profileImageData == nil ? UIImage(named: "default_profile_photo")?.pngData() : settingsViewModel.profileImageData else {fatalError("profilePicutre is missing")}
         let profileVM = ProfileEditingViewModel(user: user, profilePicutre: profilePicutre)
         
         profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in
