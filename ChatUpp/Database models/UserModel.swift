@@ -51,10 +51,10 @@ class User: Object, Codable
          name: String?,
          email: String?,
          photoUrl: String?,
-         phoneNumber: String?,
-         nickName: String?,
-         dateCreated: Date?,
-         lastSeen: Date?,
+         phoneNumber: String? = nil,
+         nickName: String? = nil,
+         dateCreated: Date? = nil,
+         lastSeen: Date? = nil,
          isActive: Bool
     )
     {

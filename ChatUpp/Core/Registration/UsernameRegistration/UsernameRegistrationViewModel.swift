@@ -51,6 +51,7 @@ final class UsernameRegistrationViewModel
         guard let data = self.profileImageData else { return }
         self.profilePhotoURL = try await saveProfileImageToStorage()
         CacheManager.shared.saveImageData(data, toPath: profilePhotoURL ?? "")
+        print("Success saving image to cache!")
     }
     
     private func updateUser() async throws
@@ -60,10 +61,24 @@ final class UsernameRegistrationViewModel
                                                          profilePhotoURL: profilePhotoURL)
     }
     
+    private func addUserToRealmDB()
+    {
+        let user = User(userId: authUser.uid,
+                        name: username,
+                        email: authUser.email,
+                        photoUrl: profilePhotoURL,
+                        phoneNumber: authUser.phoneNumber,
+                        dateCreated: Date(),
+                        lastSeen: Date(),
+                        isActive: true)
+        RealmDataBase.shared.add(object: user)
+    }
+    
     func finishRegistration()
     {
         Task {
             do {
+                self.addUserToRealmDB()
                 try await updateUser()
                 try await saveImageData()
                 self.registrationCompleted.value = true

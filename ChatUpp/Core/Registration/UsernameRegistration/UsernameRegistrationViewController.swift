@@ -171,10 +171,10 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
                 
                 let newSize = ImageSize.User.original
                 let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
-                let imageData = self.profileImage.image?.jpegData(compressionQuality: 0.6)
-                self.usernameRegistrationViewModel.updateUserProfileImage(imageData)
                 
                 Task { @MainActor in
+                    let imageData = downsampledImage.jpegData(compressionQuality: 1.0)
+                    self.usernameRegistrationViewModel.updateUserProfileImage(imageData)
                     self.profileImage.image = downsampledImage
                 }
             }

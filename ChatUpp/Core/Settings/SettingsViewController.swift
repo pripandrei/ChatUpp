@@ -22,7 +22,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
     // Initially settingsVC interaction is disabled
     // until user data is fetched
     // This is only when user logs in for the first time
-    var shouldEnableInteractionOnSelf = false
+//    var shouldEnableInteractionOnSelf = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,9 +55,9 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate {
                 }
             }
         }
-        settingsViewModel.onUserFetched = { [weak self] in
-            self?.shouldEnableInteractionOnSelf = true
-        }
+//        settingsViewModel.onUserFetched = { [weak self] in
+//            self?.shouldEnableInteractionOnSelf = true
+//        }
     }
     
     // MARK: - DELETION PROVIDER HANDLER
