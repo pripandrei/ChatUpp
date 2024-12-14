@@ -48,16 +48,18 @@ class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
     
     func animateBorder()
     {
-        let feedback = UIImpactFeedbackGenerator(style: .medium)
-        feedback.impactOccurred()
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.error)
         
         UIView.animate(withDuration: 0.3) {
-            self.layer.borderColor = #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1)
-            self.setupPlaceholderApperance(withColor: #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1))
+            self.layer.borderColor = #colorLiteral(red: 0.8009483814, green: 0.263946712, blue: 0.4296012521, alpha: 1)
+            self.innerTopShadowLayer.shadowColor = #colorLiteral(red: 0.8541589975, green: 0.1646220684, blue: 0.2478865087, alpha: 1)
+            self.innerBottomShadowLayer.shadowColor = #colorLiteral(red: 0.9945252538, green: 0.2054752707, blue: 0.415672183, alpha: 1)
         } completion: { _ in
             UIView.animate(withDuration: 0.3) {
                 self.layer.borderColor = #colorLiteral(red: 0.6480519045, green: 0.6017470402, blue: 0.5859600679, alpha: 1)
-                self.setupPlaceholderApperance(withColor: #colorLiteral(red: 0.8415537822, green: 0.7419982449, blue: 0.7352401063, alpha: 1))
+                self.innerTopShadowLayer.shadowColor = #colorLiteral(red: 0.2635404468, green: 0.2457663417, blue: 0.2927972674, alpha: 1)
+                self.innerBottomShadowLayer.shadowColor = #colorLiteral(red: 0.8560417295, green: 0.8963857889, blue: 0.8623355031, alpha: 1)
             }
         }
     }
