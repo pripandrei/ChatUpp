@@ -6,28 +6,29 @@
 //
 
 import UIKit
-import Kingfisher
-//import FirebaseAuth
 
-
-class SettingsViewController: UIViewController, UICollectionViewDelegate {
-    
+class SettingsViewController: UIViewController, UICollectionViewDelegate
+{
     weak var coordinatorDelegate: Coordinator?
     
-    private let settingsViewModel = SettingsViewModel()
-    private lazy var collectionView: UICollectionView = makeCollectionView()
-    private lazy var dataSource: DataSource = makeDataSource()
+    private var settingsViewModel: SettingsViewModel!
+    private var collectionView: UICollectionView!
+    private var dataSource: DataSource!
     private var collectionViewListHeader: ProfileEditingListHeaderCell?
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        configureCollectionViewLayout()
-        createSnapshot()
+        
+        self.collectionView = makeCollectionView()
+        self.dataSource = makeDataSource()
+        self.configureCollectionViewLayout()
+        self.createSnapshot()
     }
     
     convenience init() {
         self.init(nibName: nil, bundle: nil)
+        self.settingsViewModel = SettingsViewModel()
         self.setupBinder()
     }
     

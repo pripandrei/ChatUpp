@@ -20,6 +20,11 @@ final class SettingsViewModel {
     }
     
     init() {
+        initiateSelf()
+    }
+    
+    private func initiateSelf()
+    {
         Task { @MainActor in
             self.retrieveDataFromDB()
             try await self.fetchUserFromDB()

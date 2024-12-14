@@ -7,16 +7,18 @@
 
 import UIKit
 
-class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
-    
+class TabBarViewController: UITabBarController, UITabBarControllerDelegate
+{
     private(set) var chatsVC: ChatsViewController?
     private(set) var settingsVC: SettingsViewController?
 
     private(set) var chatsNavigationController: UINavigationController?
     private(set) var settingsNavigationController: UINavigationController?
 
-    public override func viewDidLoad() {
+    public override func viewDidLoad()
+    {
         super.viewDidLoad()
+        
         view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         tabBar.isHidden = true
         self.delegate = self
@@ -74,18 +76,6 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
             chatItem.image = UIImage(named: "chats_icon")
         }
     }
-    
-//    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool
-//    {
-//        if let navcontroller = viewController as? UINavigationController,
-//           let settingsVC = navcontroller.viewControllers.first as? SettingsViewController,
-//           settingsVC.shouldEnableInteractionOnSelf { return true }
-//        
-//        if let navcontroller = viewController as? UINavigationController,
-//           navcontroller.viewControllers.first is ChatsViewController { return true }
-//        
-//        return false
-//    }
     
     deinit { 
         self.chatsVC?.cleanup()

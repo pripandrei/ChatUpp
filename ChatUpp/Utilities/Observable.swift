@@ -7,13 +7,14 @@
 
 import Foundation
 
-final class ObservableObject<T> {
+final class ObservableObject<T>
+{
     var value: T {
         didSet {
             listiner?(value)
         }
     }
-
+    
     var listiner: ((T) -> Void)?
 
     init(_ value: T) {
