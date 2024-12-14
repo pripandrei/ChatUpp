@@ -15,7 +15,7 @@ class UsernameRegistrationViewController: UIViewController {
     var coordinator: Coordinator!
     
     private let usernameRegistrationViewModel = UsernameRegistrationViewModel()
-    private let usernameTextField: UITextField = CustomizedShadowTextField()
+    private let usernameTextField: CustomizedShadowTextField = CustomizedShadowTextField()
     private let continueButton: UIButton = CustomizedShadowButton()
     private let profileImage: UIImageView = UIImageView()
     private let nameAndPhotoTextLabel: UILabel = UILabel()
@@ -40,8 +40,9 @@ class UsernameRegistrationViewController: UIViewController {
     // MARK: - BINDING
     
     private func configureBinding() {
-        usernameRegistrationViewModel.finishRegistration.bind { [weak self] finishRegistration in
-            if let finish = finishRegistration, finish == true {
+        usernameRegistrationViewModel.registrationCompleted.bind { [weak self] completed in
+            if completed == true
+            {
                 Task { @MainActor in
                     self?.coordinator.dismissNaviagtionController()
                 }
@@ -76,7 +77,7 @@ class UsernameRegistrationViewController: UIViewController {
         view.addSubview(continueButton)
         
         continueButton.configuration?.title = "Continue"
-        continueButton.addTarget(self, action: #selector(manageContinueButtonTap), for: .touchUpInside)
+        continueButton.addTarget(self, action: #selector(continueButtonWasTapped), for: .touchUpInside)
         
         setContinueButtonConstraints()
     }
@@ -93,10 +94,13 @@ class UsernameRegistrationViewController: UIViewController {
         ])
     }
     
-    @objc private func manageContinueButtonTap() {
-        
-        if usernameRegistrationViewModel.validateName() == .valid {
-            usernameRegistrationViewModel.updateUser()
+    @objc private func continueButtonWasTapped()
+    {
+        if usernameRegistrationViewModel.validateName() == .valid
+        {
+            usernameRegistrationViewModel.finishRegistration()
+        } else {
+            usernameTextField.animateBorder()
         }
     }
     
@@ -166,11 +170,9 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
                       error == nil else { print("Could not read image"); return }
                 
                 let newSize = ImageSize.User.original
-                let compression = 0.6
-                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: compression)
-                self.usernameRegistrationViewModel.saveImageData(downsampledImage.jpegData(compressionQuality: compression))
-                
-                Utilities.saveImageToDocumentDirectory(downsampledImage, to: "profile_selected.jpg")
+                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
+                let imageData = self.profileImage.image?.jpegData(compressionQuality: 0.6)
+                self.usernameRegistrationViewModel.updateUserProfileImage(imageData)
                 
                 Task { @MainActor in
                     self.profileImage.image = downsampledImage

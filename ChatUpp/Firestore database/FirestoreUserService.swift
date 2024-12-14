@@ -95,36 +95,18 @@ final class FirestoreUserService {
     
     // MARK: - GET USER PROFILE IMAGE
     
-    func getProfileImageData(urlPath: String?) async throws -> Data {
-        guard let urlPath = urlPath,
-              let url = URL(string: urlPath) else { throw UnwrappingError.nilValueFound("URL path for image Data is nil") }
-
-        do {
-            let (imgData,_) = try await URLSession.shared.data(from: url)
-            return imgData
-        } catch {
-            print("Could not get the image from url: ", error.localizedDescription)
-            throw error
-        }
-    }
-    
-    func getProfileImageData(urlPath: String?, completion: @escaping (Data?) -> Void) {
-        guard let urlPath = urlPath,
-              let url = URL(string: urlPath) else { return }
-        
-        let session = URLSession(configuration: .default)
-       
-        session.dataTask(with: url) { data, _, error in
-            if let error = error {
-                print("Could not get profile image: \(error.localizedDescription)")
-                completion(nil)
-                return
-            }
-            guard let data = data else { completion(nil); return }
-            
-            completion(data)
-        }.resume()
-    }
+//    func getProfileImageData(urlPath: String?) async throws -> Data {
+//        guard let urlPath = urlPath,
+//              let url = URL(string: urlPath) else { throw UnwrappingError.nilValueFound("URL path for image Data is nil") }
+//
+//        do {
+//            let (imgData,_) = try await URLSession.shared.data(from: url)
+//            return imgData
+//        } catch {
+//            print("Could not get the image from url: ", error.localizedDescription)
+//            throw error
+//        }
+//    }
     
     // MARK: - Delete user form DB
     

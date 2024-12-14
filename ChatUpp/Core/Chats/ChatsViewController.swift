@@ -39,7 +39,7 @@ class ChatsViewController: UIViewController {
 //        try? AuthenticationManager.shared.signOut()
 //        FirebaseChatService.shared.migrateParticipantsField()
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 200) {
-        
+        let user = try! AuthenticationManager.shared.getAuthenticatedUser()
         self.chatsViewModel = ChatsViewModel()
         setupBinding()
         configureTableView()

@@ -10,6 +10,7 @@ import UIKit
 import FlagPhoneNumber
 
 class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
+    
     var innerTopShadowLayer: CALayer!
     var innerBottomShadowLayer: CALayer!
     
@@ -24,8 +25,13 @@ class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
             applyShadows()
             textColor = #colorLiteral(red: 0.9970493562, green: 0.9588443194, blue: 0.9372033194, alpha: 1)
             font = .boldSystemFont(ofSize: 16)
-            attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.8415537822, green: 0.7419982449, blue: 0.7352401063, alpha: 1)])
+            setupPlaceholderApperance(withColor: #colorLiteral(red: 0.8415537822, green: 0.7419982449, blue: 0.7352401063, alpha: 1))
         }
+    }
+    
+    private func setupPlaceholderApperance(withColor color: UIColor)
+    {
+        attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: color])
     }
     
     required init?(coder: NSCoder) {
@@ -38,6 +44,22 @@ class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
         self.layer.cornerRadius = self.intrinsicContentSize.height/2
         self.layer.borderWidth = 1.5
         self.layer.borderColor = #colorLiteral(red: 0.6480519045, green: 0.6017470402, blue: 0.5859600679, alpha: 1)
+    }
+    
+    func animateBorder()
+    {
+        let feedback = UIImpactFeedbackGenerator(style: .medium)
+        feedback.impactOccurred()
+        
+        UIView.animate(withDuration: 0.3) {
+            self.layer.borderColor = #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1)
+            self.setupPlaceholderApperance(withColor: #colorLiteral(red: 0.8078431487, green: 0.02745098062, blue: 0.3333333433, alpha: 1))
+        } completion: { _ in
+            UIView.animate(withDuration: 0.3) {
+                self.layer.borderColor = #colorLiteral(red: 0.6480519045, green: 0.6017470402, blue: 0.5859600679, alpha: 1)
+                self.setupPlaceholderApperance(withColor: #colorLiteral(red: 0.8415537822, green: 0.7419982449, blue: 0.7352401063, alpha: 1))
+            }
+        }
     }
 }
 

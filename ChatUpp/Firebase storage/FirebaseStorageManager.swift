@@ -17,10 +17,6 @@ final class FirebaseStorageManager {
     
     private let storage = Storage.storage().reference()
     
-    private var imageReference: StorageReference {
-        storage.child("Images")
-    }
-    
     private func userReference(userID: String) -> StorageReference {
         storage.child("users").child(userID)
     }
@@ -33,8 +29,12 @@ final class FirebaseStorageManager {
         return try await userReference(userID: userID).child(path).data(maxSize: 3 * 1024 * 1024)
     }
     
-    func saveUserImage(data: Data, userId: String) async throws -> (path :String, name :String) {
-        
+    func getUserImageURL(userID: String, path: String) async throws -> URL {
+        return try await userReference(userID: userID).child(path).downloadURL()
+    }
+    
+    func saveUserImage(data: Data, userId: String) async throws -> (path :String, name :String)
+    {
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         
@@ -42,11 +42,11 @@ final class FirebaseStorageManager {
         
         let metaData = try await userReference(userID: userId).child(path).putDataAsync(data, metadata: meta)
         
-        guard let returnedPath = metaData.path, let returnedName = metaData.name else {
+        guard let fullPath = metaData.path, let name = metaData.name else {
             print("Invalid Storage metaData path/name")
             throw URLError(.badServerResponse)
         }
-        return (returnedPath,returnedName)
+        return (fullPath,name)
 
     }
     

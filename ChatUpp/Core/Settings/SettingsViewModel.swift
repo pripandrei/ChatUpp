@@ -41,9 +41,9 @@ final class SettingsViewModel {
     }
     
     func fetchUserFromDB() async throws {
-        let uderID = try AuthenticationManager.shared.getAuthenticatedUser()
-        self.user = try await FirestoreUserService.shared.getUserFromDB(userID: uderID.uid)
-//        self.imageData = try await UserManager.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
+        let userID = try AuthenticationManager.shared.getAuthenticatedUser()
+        self.user = try await FirestoreUserService.shared.getUserFromDB(userID: userID.uid)
+//        self.imageData = try await FirestoreUserService.shared.getProfileImageData(urlPath: dbUser!.photoUrl)
         if let userID = user?.id, let photoUrl = user?.photoUrl {
             self.imageData = try await FirebaseStorageManager.shared.getUserImage(userID: userID, path: photoUrl)
         }
@@ -72,5 +72,11 @@ final class SettingsViewModel {
 //    private func updateUserOnlineStatus() async throws {
 //        guard let userId = dbUser?.userId else {return}
 //        try await UserManager.shared.updateUser(with: userId, usingName: nil, onlineStatus: false)
+//    }
+    
+//    func getUserImageAbsoluteURL() async throws -> URL?
+//    {
+//        guard let userID = user?.id, let url = user?.photoUrl else {return nil}
+//        return try await FirebaseStorageManager.shared.getUserImageURL(userID: userID, path: url)
 //    }
 }
