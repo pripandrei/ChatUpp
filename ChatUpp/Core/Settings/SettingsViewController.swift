@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import SkeletonView
 
 class SettingsViewController: UIViewController, UICollectionViewDelegate
 {
@@ -57,8 +58,8 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
         
         settingsViewModel.$profileImageData
             .receive(on: DispatchQueue.main)
+            .dropFirst()
             .sink { [weak self] imageData in
-                guard let _ = imageData else {return}
                 self?.fillSupplementaryViewWithData()
             }.store(in: &subscribers)
     }
@@ -163,6 +164,8 @@ extension SettingsViewController {
             supplementaryView.setupAdditionalCredentialsConstraints()
             self.collectionViewListHeader = supplementaryView
             
+            self.toggleSkeletonAnimation(isActive: true)
+            
             self.fillSupplementaryViewWithData()
         }
         
@@ -181,10 +184,10 @@ extension SettingsViewController {
     
     private func fillSupplementaryViewWithData()
     {
-        let user = self.settingsViewModel.user
+        guard let user = self.settingsViewModel.user else {return}
         
-        collectionViewListHeader?.nameLabel.text = user?.name
-        collectionViewListHeader?.additionalCredentials.text = "\(user?.phoneNumber ?? "") \u{25CF} \(user?.nickname ?? "")"
+        collectionViewListHeader?.nameLabel.text = user.name
+        collectionViewListHeader?.additionalCredentials.text = "\(user.phoneNumber ?? "") \u{25CF} \(user.nickname ?? "")"
         
         if let image = self.settingsViewModel.profileImageData
         {
@@ -193,6 +196,7 @@ extension SettingsViewController {
         else {
             collectionViewListHeader?.imageView.image = UIImage(named: "default_profile_photo")
         }
+        toggleSkeletonAnimation(isActive: false)
     }
     
     private func createSnapshot() {
@@ -200,6 +204,19 @@ extension SettingsViewController {
         snapshot.appendSections([0])
         snapshot.appendItems(SettingsItem.itemsData)
         dataSource.apply(snapshot)
+    }
+    
+    private func toggleSkeletonAnimation(isActive: Bool)
+    {
+        collectionViewListHeader?.imageView.isSkeletonable = isActive
+        collectionViewListHeader?.isSkeletonable = isActive
+        
+        if isActive {
+            collectionViewListHeader?.imageView.showAnimatedGradientSkeleton()
+        } else {
+            collectionViewListHeader?.imageView.stopAnimating();
+            collectionViewListHeader?.imageView.hideSkeleton()
+        }
     }
 }
 
