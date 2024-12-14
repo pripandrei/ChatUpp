@@ -116,13 +116,14 @@ extension ProfileEditingViewController {
         if profileEditingViewModel.userDataItems[indexPath.item] != nil {
             cell.textField.text = profileEditingViewModel.userDataItems[indexPath.item]
         }
-        cell.onTextChanged = { text in
-            self.profileEditingViewModel.applyTitle(title: text, toItem: indexPath.item)
+        cell.onTextChanged = { [weak self] text in
+            self?.profileEditingViewModel.applyTitle(title: text, toItem: indexPath.item)
         }
         return cell
     }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView
+    {
         guard let headerCell = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
             withReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.header.identifire,
@@ -218,16 +219,23 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
         
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
+                
                 guard let self = self else {return}
+                
                 guard let image = reading as? UIImage, error == nil else {
                     print("Could not read image!")
                     return
                 }
-                guard let data = image.jpegData(compressionQuality: 0.5) else {return}
                 
-                self.profileEditingViewModel.editedProfilePhoto = data
+                let newSize = ImageSize.User.original
+                let compression = 0.6
+                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: compression)
+                self.profileEditingViewModel.editedProfilePhoto = downsampledImage.jpegData(compressionQuality: compression)
+                
+                Utilities.saveImageToDocumentDirectory(downsampledImage, to: "profile_edited.jpg")
+                
                 Task { @MainActor in
-                    self.headerCell.imageView.image = image                    
+                    self.headerCell.imageView.image = downsampledImage
                 }
             }
         }

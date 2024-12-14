@@ -58,4 +58,8 @@ final class UsernameRegistrationViewModel {
         }
     }
 
+    func saveImageData(_ data: Data?)
+    {
+        self.profileImageData = data
+    }
 }

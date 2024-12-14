@@ -63,20 +63,11 @@ final class SettingsViewModel {
         }
         try await AuthenticationManager.shared.deleteAuthUser()
         try await FirebaseChatService.shared.replaceUserId(userID, with: deletedUserID)
-        try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: userID, path: user!.photoUrl!)
+        if let imgUrl = user?.photoUrl {
+            try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: userID, path: imgUrl)
+        }
         try await FirestoreUserService.shared.deleteUserFromDB(userID: userID)
     }
-    
-//    func deleteUser() async throws {
-//        let deletedUserID = UserManager.mainDeletedUserID
-//    
-//        try await AuthenticationManager.shared.deleteAuthUser()
-//        try await ChatsManager.shared.replaceUserId(dbUser.userId, with: deletedUserID)
-//        if let photoURL = dbUser.photoUrl {
-//            try await StorageManager.shared.deleteProfileImage(ofUser: dbUser.userId, path: photoURL)
-//        }
-//        try await UserManager.shared.deleteUserFromDB(userID: dbUser.userId)
-//    }
     
 //    private func updateUserOnlineStatus() async throws {
 //        guard let userId = dbUser?.userId else {return}

@@ -165,8 +165,10 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
                 guard let image = reading as? UIImage,
                       error == nil else { print("Could not read image"); return }
                 
-                let downsampledImage = downsampleImage(image)
-                self.saveImageData(downsampledImage)
+                let newSize = ImageSize.User.original
+                let compression = 0.6
+                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: compression)
+                self.usernameRegistrationViewModel.saveImageData(downsampledImage.jpegData(compressionQuality: compression))
                 
                 Utilities.saveImageToDocumentDirectory(downsampledImage, to: "profile_selected.jpg")
                 
@@ -192,26 +194,26 @@ extension UsernameRegistrationViewController: UITextFieldDelegate {
 
 extension UsernameRegistrationViewController
 {
-//    private func resizeImage(_ image: UIImage) -> UIImage
+
+//    private func proccessTheImage(_ image: UIImage)
 //    {
-//        let targetSize = CGSize(width: 1280, height: 1280)
-//        let resizedImage = image.kf.resize(to: targetSize, for: .aspectFit)
-//        return resizedImage
+//        let newSize = ImageSize.User.original
+//        let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
+//        self.saveImageData(downsampledImage)
 //    }
-    
-    private func downsampleImage(_ image: UIImage) -> UIImage
-    {
-        let newSize = ImageSize.User.original
-        let resizedImage = image.resize(newSize)
-        guard let data = resizedImage.jpegData(compressionQuality: 0.6) else {return image}
-        
-        return UIImage(data: data) ?? image
-    }
-    
-    private func saveImageData(_ image: UIImage)
-    {
-        usernameRegistrationViewModel.profileImageData = image.jpegData(compressionQuality: 1.0)
-    }
+//    
+//    private func downsampleImage(_ image: UIImage) -> UIImage
+//    {
+//        let newSize = ImageSize.User.original
+//        let resizedImage = image.resize(newSize)
+//        guard let compressedImage = resizedImage.compressImage(to: 0.6) else {return resizedImage}
+//        return compressedImage
+//    }
+//    
+//    private func saveImageData(_ image: UIImage)
+//    {
+//        usernameRegistrationViewModel.profileImageData = image.jpegData(compressionQuality: 1.0)
+//    }
 }
 
 

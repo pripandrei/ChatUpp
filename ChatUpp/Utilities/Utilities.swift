@@ -111,8 +111,9 @@ struct Utilities {
 //MARK: - Test functions
 extension Utilities
 {
-    static func saveImageToDocumentDirectory(_ image: UIImage, to fileName: String) {
-        let compressedData = image.jpegData(compressionQuality: 0.6)
+    static func saveImageToDocumentDirectory(_ image: UIImage, to fileName: String)
+    {
+        let compressedData = image.jpegData(compressionQuality: 1.0)
         let fileName = getDocumentsDirectory().appending(path: fileName)
         print("Saved file path: ", fileName)
         do {

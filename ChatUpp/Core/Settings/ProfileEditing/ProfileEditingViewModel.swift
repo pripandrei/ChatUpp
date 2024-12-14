@@ -9,7 +9,8 @@ import Foundation
 
 final class ProfileEditingViewModel {
     
-    enum ProfileEditingItemsPlaceholder: String, CaseIterable {
+    enum ProfileEditingItemsPlaceholder: String, CaseIterable
+    {
         case name = "name"
         case phone = "ex. +37376445934"
         case username = "username"

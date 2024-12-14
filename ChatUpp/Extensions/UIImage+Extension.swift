@@ -51,11 +51,27 @@ enum ImageSize
 
 extension UIImage
 {
-    func resize(_ size: CGSize) -> UIImage
+    public func resize(_ size: CGSize) -> UIImage
     {
         let resizedImage = self.kf.resize(to: size, for: .aspectFit)
         return resizedImage
     }
+    
+    public func compressImage(to quality: CGFloat) -> UIImage?
+    {
+        guard let data = self.jpegData(compressionQuality: quality) else {return nil}
+        return UIImage(data: data)
+    }
+    
+    public func downsample(toSize size: CGSize,
+                           withCompressionQuality qulity: CGFloat) -> UIImage
+    {
+        let resizedImage = self.resize(size)
+        guard let compressedImage = resizedImage.compressImage(to: qulity) else {return resizedImage}
+        return compressedImage
+    }
+    
+    
     
     func resize(to newSize: CGSize) -> UIImage {
         UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
