@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import Combine
 
-final class SettingsViewModel {
-
+final class SettingsViewModel
+{
     private(set) var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
-    private(set) var profileImageData: Data?
+    @Published private(set) var profileImageData: Data?
     private(set) var user: User!
     private(set) var authProvider: String!
     
@@ -29,20 +30,8 @@ final class SettingsViewModel {
             self.retrieveDataFromDB()
             try await self.fetchUserFromDB()
             try await self.getCurrentAuthProvider()
-            addUserToRealmDB()
-            cacheProfileImage()
-        }
-    }
-    
-    @objc func signOut() async {
-        do {
-            RealtimeUserService.shared.updateUserActiveStatus(isActive: false)
-            //            try await updateUserOnlineStatus()
-            try await RealtimeUserService.shared.cancelOnDisconnect()
-            try AuthenticationManager.shared.signOut()
-            isUserSignedOut.value = true
-        } catch {
-            print("Error signing out", error.localizedDescription)
+            self.addUserToRealmDB()
+            self.cacheProfileImage()
         }
     }
     
@@ -54,16 +43,10 @@ final class SettingsViewModel {
         self.profileImageData = CacheManager.shared.retrieveImageData(from: pictureURL)
     }
     
-    func updateUserData(_ dbUser: User, _ photoData: Data?)
-    {
-        self.user = dbUser
-        guard let photo = photoData else {return}
-        self.profileImageData = photo
-    }
-    
-    func fetchUserFromDB() async throws
+    private func fetchUserFromDB() async throws
     {
         self.user = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
+        
         if let photoUrl = user.photoUrl {
             self.profileImageData = try await FirebaseStorageManager.shared.getUserImage(userID: user.id, path: photoUrl)
         }
@@ -83,6 +66,13 @@ final class SettingsViewModel {
     func getCurrentAuthProvider() async throws {
         self.authProvider = try await AuthenticationManager.shared.getAuthProvider()
     }
+    
+    func updateUserData(_ dbUser: User, _ photoData: Data?)
+    {
+        self.user = dbUser
+        guard let photo = photoData else {return}
+        self.profileImageData = photo
+    }
 
     func deleteUser() async throws
     {
@@ -98,6 +88,18 @@ final class SettingsViewModel {
         }
         try await FirestoreUserService.shared.deleteUserFromDB(userID: user.id)
     }
+    
+    @objc func signOut() async {
+        do {
+            RealtimeUserService.shared.updateUserActiveStatus(isActive: false)
+            try await RealtimeUserService.shared.cancelOnDisconnect()
+            try AuthenticationManager.shared.signOut()
+            isUserSignedOut.value = true
+        } catch {
+            print("Error signing out", error.localizedDescription)
+        }
+    }
+
     
 //    private func updateUserOnlineStatus() async throws {
 //        guard let userId = dbUser?.userId else {return}

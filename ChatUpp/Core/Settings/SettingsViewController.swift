@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 class SettingsViewController: UIViewController, UICollectionViewDelegate
 {
@@ -15,6 +16,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
     private var collectionView: UICollectionView!
     private var dataSource: DataSource!
     private var collectionViewListHeader: ProfileEditingListHeaderCell?
+    private var subscribers = Set<AnyCancellable>()
     
     override func viewDidLoad()
     {
@@ -34,7 +36,6 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        view.backgroundColor = .white
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
@@ -44,7 +45,8 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
     
 // MARK: - Binder
     
-    func setupBinder() {
+    func setupBinder()
+    {
         settingsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
             if isSignedOut == true {
                 Task { @MainActor in
@@ -52,6 +54,13 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
                 }
             }
         }
+        
+        settingsViewModel.$profileImageData
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] imageData in
+                guard let _ = imageData else {return}
+                self?.fillSupplementaryViewWithData()
+            }.store(in: &subscribers)
     }
     
     // MARK: - DELETION PROVIDER HANDLER
@@ -148,18 +157,13 @@ extension SettingsViewController {
         
         // Custom Header registration
         let headerRegistration = UICollectionView.SupplementaryRegistration<ProfileEditingListHeaderCell>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
+            
+            guard let self = self else {return}
+            
             supplementaryView.setupAdditionalCredentialsConstraints()
-            self?.collectionViewListHeader = supplementaryView
+            self.collectionViewListHeader = supplementaryView
             
-            guard let user = self?.settingsViewModel.user else {return}
-            
-            supplementaryView.nameLabel.text = user.name
-            supplementaryView.additionalCredentials.text = "\(user.phoneNumber ?? "") \u{25CF} \(user.nickname ?? "")"
-            if let image = self?.settingsViewModel.profileImageData {
-                supplementaryView.imageView.image = UIImage(data: image)
-            } else {
-                supplementaryView.imageView.image = UIImage(named: "default_profile_photo")
-            }
+            self.fillSupplementaryViewWithData()
         }
         
         // Data source initiation
@@ -173,6 +177,22 @@ extension SettingsViewController {
             collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
         }
         return dataSource
+    }
+    
+    private func fillSupplementaryViewWithData()
+    {
+        let user = self.settingsViewModel.user
+        
+        collectionViewListHeader?.nameLabel.text = user?.name
+        collectionViewListHeader?.additionalCredentials.text = "\(user?.phoneNumber ?? "") \u{25CF} \(user?.nickname ?? "")"
+        
+        if let image = self.settingsViewModel.profileImageData
+        {
+            collectionViewListHeader?.imageView.image = UIImage(data: image)
+        }
+        else {
+            collectionViewListHeader?.imageView.image = UIImage(named: "default_profile_photo")
+        }
     }
     
     private func createSnapshot() {
