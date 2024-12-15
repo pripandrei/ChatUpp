@@ -68,6 +68,7 @@ class User: Object, Codable
         self.dateCreated = dateCreated
         self.lastSeen = lastSeen
         self.isActive = isActive
+        self.nickname = nickName
     }
     
     convenience required init(from decoder: Decoder) throws {

@@ -240,20 +240,21 @@ extension SettingsViewController
 
 
 //MARK: - Settings items ViewModel's
-extension SettingsViewController {
-    
-    private func createProfileDeletionViewModel() -> ProfileDeletionViewModel {
+extension SettingsViewController
+{
+    private func createProfileDeletionViewModel() -> ProfileDeletionViewModel
+    {
         guard let dbUser = settingsViewModel.user else {fatalError("dbUser is missing")}
         return ProfileDeletionViewModel(user: dbUser)
     }
     
-    private func createprofileEditingViewModel() -> ProfileEditingViewModel {
+    private func createprofileEditingViewModel() -> ProfileEditingViewModel
+    {
         guard let user = settingsViewModel.user else {fatalError("dbUser is missing")}
         
         // if imageData is nil, meaning user did not select picture, local default image will be used as profile picture
         guard let profilePicutre = settingsViewModel.profileImageData == nil ? UIImage(named: "default_profile_photo")?.pngData() : settingsViewModel.profileImageData else {fatalError("profilePicutre is missing")}
         let profileVM = ProfileEditingViewModel(user: user, profilePicutre: profilePicutre)
-        
         
         profileVM.$profileDataIsEdited
             .sink { [weak self] isEdited in
@@ -262,29 +263,6 @@ extension SettingsViewController {
                 }
             }.store(in: &subscribers)
         
-//        profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in
-//            guard let self = self else {return}
-//            
-//            settingsViewModel.updateUserData(dbUser,photoData)
-//            
-//            if let name = dbUser.name {
-//                self.collectionViewListHeader?.nameLabel.text = name
-//            }
-//            if let phone = dbUser.phoneNumber {
-//                self.collectionViewListHeader?.additionalCredentials.text = phone
-//            }
-//            if let nickname = dbUser.nickname {
-//                if let text = self.collectionViewListHeader?.additionalCredentials.text {
-//                    self.collectionViewListHeader?.additionalCredentials.text = "\(text) \(nickname)"
-//                } else {
-//                    self.collectionViewListHeader?.additionalCredentials.text = nickname
-//                }
-//            }
-//            if let photo = photoData {
-//                self.collectionViewListHeader?.imageView.image = UIImage(data: photo)
-//                
-//            }
-//        }
         return profileVM
     }
 }
