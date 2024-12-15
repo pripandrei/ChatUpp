@@ -69,6 +69,7 @@ final class UsernameRegistrationViewModel
                         email: authUser.email,
                         photoUrl: profilePhotoURL,
                         phoneNumber: authUser.phoneNumber,
+                        nickName: nil,
                         dateCreated: Date(),
                         lastSeen: Date(),
                         isActive: true)

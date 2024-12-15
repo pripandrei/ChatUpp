@@ -20,7 +20,7 @@ class User: Object, Codable
     @Persisted var phoneNumber: String?
     @Persisted var isActive: Bool?
     @Persisted var lastSeen: Date?
-    var nickname: String?
+    @Persisted var nickname: String?
         
         enum CodingKeys: String, CodingKey {
             case id = "user_id"
@@ -51,11 +51,11 @@ class User: Object, Codable
          name: String?,
          email: String?,
          photoUrl: String?,
-         phoneNumber: String? = nil,
-         nickName: String? = nil,
-         dateCreated: Date? = nil,
-         lastSeen: Date? = nil,
-         isActive: Bool
+         phoneNumber: String?,
+         nickName: String?,
+         dateCreated: Date?,
+         lastSeen: Date?,
+         isActive: Bool?
     )
     {
         self.init()

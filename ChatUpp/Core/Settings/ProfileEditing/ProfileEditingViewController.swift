@@ -8,15 +8,16 @@
 import UIKit
 import Photos
 import PhotosUI
+import Combine
 
 final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     weak var coordinatorDelegate: Coordinator!
-    lazy var collectionView = makeCollectionView()
     
-    var profileEditingViewModel: ProfileEditingViewModel!
-    
-    var headerCell: ProfileEditingListHeaderCell!
+    private lazy var collectionView = makeCollectionView()
+    private var profileEditingViewModel: ProfileEditingViewModel!
+    private var headerCell: ProfileEditingListHeaderCell!
+    private var cancellables: Set<AnyCancellable> = Set<AnyCancellable>()
     
     convenience init(viewModel: ProfileEditingViewModel) {
         self.init()
@@ -47,10 +48,15 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     
     //MARK: - BINDING
     
-    private func setupBinding() {
-        profileEditingViewModel.profileDataIsEdited.bind({ [weak self] isEdited in
-            self?.coordinatorDelegate.dismissEditProfileVC()
-        })
+    private func setupBinding()
+    {
+        profileEditingViewModel.$profileDataIsEdited
+            .sink { [weak self] isEdited in
+                if isEdited == true {
+                    self?.coordinatorDelegate.dismissEditProfileVC()
+                }
+            }.store(in: &cancellables)
+        
     }
 
     private func setupNavigationBarItems() {
@@ -109,13 +115,16 @@ extension ProfileEditingViewController {
         profileEditingViewModel.userDataItems.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
+    {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.list.identifire, for: indexPath) as? ProfileEditingListCell else {fatalError("Could not deqeue CustomListCell")}
         
         cell.textField.placeholder = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
+        
         if profileEditingViewModel.userDataItems[indexPath.item] != nil {
             cell.textField.text = profileEditingViewModel.userDataItems[indexPath.item]
         }
+        
         cell.onTextChanged = { [weak self] text in
             self?.profileEditingViewModel.applyTitle(title: text, toItem: indexPath.item)
         }
@@ -136,57 +145,6 @@ extension ProfileEditingViewController {
         headerCell.setupNewPhotoConstraints()
         addGestureToNewPhotoLabel()
         return headerCell
-    }
-}
-
-
-//MARK: - CUSTOM LIST CELL
-class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate {
-    
-    var textField: UITextField!
-    
-    var onTextChanged: ((String) -> Void)?
-    
-    override func updateConfiguration(using state: UICellConfigurationState) {
-        var newConfiguration = UIBackgroundConfiguration.listGroupedCell().updated(for: state)
-        let customColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.5)
-        newConfiguration.backgroundColor = customColor
-        backgroundConfiguration = newConfiguration
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        textField = makeTextField()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func makeTextField() -> UITextField {
-        let textfield = UITextField(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: self.bounds.width, height: self.bounds.height)))
-        
-        textfield.delegate = self
-        textfield.textColor = .black
-        textfield.layer.sublayerTransform = CATransform3DMakeTranslation(20, 0, 0)
-        self.contentView.addSubview(textfield)
-        
-//        var placeHolder: [NSAttributedString.Key: Any] = [.foregroundColor: #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)]
-//        let attr = NSAttributedString(string: "", attributes: placeHolder)
-//        textfield.attributedPlaceholder = attr
-        
-        return textfield
-    }
-
-    func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool
-    {
-        if let text = textField.text as NSString? {
-            let updatedText = text.replacingCharacters(in: range, with: string)
-            onTextChanged?(updatedText as String)
-        }
-        return true
     }
 }
 
@@ -230,9 +188,7 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
                 let newSize = ImageSize.User.original
                 let compression = 0.6
                 let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: compression)
-                self.profileEditingViewModel.editedProfilePhoto = downsampledImage.jpegData(compressionQuality: compression)
-                
-                Utilities.saveImageToDocumentDirectory(downsampledImage, to: "profile_edited.jpg")
+                self.profileEditingViewModel.updateProfilePhotoData(downsampledImage.jpegData(compressionQuality: 1.0))
                 
                 Task { @MainActor in
                     self.headerCell.imageView.image = downsampledImage

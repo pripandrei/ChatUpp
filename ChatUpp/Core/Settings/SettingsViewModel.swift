@@ -14,7 +14,7 @@ final class SettingsViewModel
     @Published private(set) var profileImageData: Data?
     private(set) var user: User!
     private(set) var authProvider: String!
-    
+ 
     private var authUser : AuthDataResultModel
     {
         try! AuthenticationManager.shared.getAuthenticatedUser()
@@ -35,7 +35,7 @@ final class SettingsViewModel
         }
     }
     
-    private func retrieveDataFromDB()
+    func retrieveDataFromDB()
     {
         guard let realmUser = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: authUser.uid) else {return}
         self.user = realmUser

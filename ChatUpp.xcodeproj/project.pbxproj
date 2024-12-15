@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */; };
 		752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 752514B92D0CD2FF003330E7 /* Kingfisher */; };
+		7525150D2D0EE427003330E7 /* ProfileEditingListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */; };
 		753185E92C22123300C4F9F4 /* UIButton + extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753185E82C22123300C4F9F4 /* UIButton + extensions.swift */; };
 		753186132C26F8B900C4F9F4 /* UITextView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */; };
 		7533D9B82B1659210057EBC7 /* PhoneSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */; };
@@ -153,6 +154,7 @@
 
 /* Begin PBXFileReference section */
 		751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesBadge.swift; sourceTree = "<group>"; };
+		7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingListCell.swift; sourceTree = "<group>"; };
 		753185E82C22123300C4F9F4 /* UIButton + extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + extensions.swift"; sourceTree = "<group>"; };
 		753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Extensions.swift"; sourceTree = "<group>"; };
 		7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSignInViewController.swift; sourceTree = "<group>"; };
@@ -314,6 +316,7 @@
 		754439512B3FCFA80044A84B /* ProfileEditing */ = {
 			isa = PBXGroup;
 			children = (
+				7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */,
 				754439522B3FCFF30044A84B /* ProfileEditingViewController.swift */,
 				754439542B4134150044A84B /* ProfileEditingViewModel.swift */,
 			);
@@ -862,6 +865,7 @@
 				75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */,
 				75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */,
 				75F608842BEC2F560065DA83 /* ConversationTextViewDelegate.swift in Sources */,
+				7525150D2D0EE427003330E7 /* ProfileEditingListCell.swift in Sources */,
 				754439552B4134150044A84B /* ProfileEditingViewModel.swift in Sources */,
 				75D7C5CC2ADAD40600F6D4B9 /* CGFloat+Extension.swift in Sources */,
 				75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */,

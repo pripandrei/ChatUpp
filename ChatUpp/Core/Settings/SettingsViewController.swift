@@ -254,34 +254,37 @@ extension SettingsViewController {
         guard let profilePicutre = settingsViewModel.profileImageData == nil ? UIImage(named: "default_profile_photo")?.pngData() : settingsViewModel.profileImageData else {fatalError("profilePicutre is missing")}
         let profileVM = ProfileEditingViewModel(user: user, profilePicutre: profilePicutre)
         
-        profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in
-            guard let self = self else {return}
-            
-            settingsViewModel.updateUserData(dbUser,photoData)
-            
-            if let name = dbUser.name {
-                self.collectionViewListHeader?.nameLabel.text = name
-            }
-            if let phone = dbUser.phoneNumber {
-                self.collectionViewListHeader?.additionalCredentials.text = phone
-            }
-            if let nickname = dbUser.nickname {
-                if let text = self.collectionViewListHeader?.additionalCredentials.text {
-                    self.collectionViewListHeader?.additionalCredentials.text = "\(text) \(nickname)"
-                } else {
-                    self.collectionViewListHeader?.additionalCredentials.text = nickname
+        
+        profileVM.$profileDataIsEdited
+            .sink { [weak self] isEdited in
+                if isEdited == true {
+                    self?.settingsViewModel.retrieveDataFromDB()
                 }
-            }
-            if let photo = photoData {
-                self.collectionViewListHeader?.imageView.image = UIImage(data: photo)
-                
-            }
-        }
+            }.store(in: &subscribers)
+        
+//        profileVM.userDataToTransferOnSave = { [weak self] dbUser, photoData in
+//            guard let self = self else {return}
+//            
+//            settingsViewModel.updateUserData(dbUser,photoData)
+//            
+//            if let name = dbUser.name {
+//                self.collectionViewListHeader?.nameLabel.text = name
+//            }
+//            if let phone = dbUser.phoneNumber {
+//                self.collectionViewListHeader?.additionalCredentials.text = phone
+//            }
+//            if let nickname = dbUser.nickname {
+//                if let text = self.collectionViewListHeader?.additionalCredentials.text {
+//                    self.collectionViewListHeader?.additionalCredentials.text = "\(text) \(nickname)"
+//                } else {
+//                    self.collectionViewListHeader?.additionalCredentials.text = nickname
+//                }
+//            }
+//            if let photo = photoData {
+//                self.collectionViewListHeader?.imageView.image = UIImage(data: photo)
+//                
+//            }
+//        }
         return profileVM
     }
 }
-
-
-//final class SettingsDataSource: UICollectionViewDiffableDataSource<Int, SettingsItem> {
-//
-//}
