@@ -7,8 +7,23 @@
 
 import Foundation
 import Combine
+import Kingfisher
 
-extension ChatCellViewModel 
+extension ChatCellViewModel
+{
+    private func downloadProfileImage()
+    {
+        guard let url = profileImageURL else {return}
+        ImageDownloader.default.downloadImage(with: url, completionHandler: { result in
+            switch result {
+            case .success(let value): value.image
+            case .failure(let failure): print(failure.errorDescription)
+            }
+        })
+    }
+}
+
+extension ChatCellViewModel
 {
     private func observeAuthParticipantChanges()
     {
@@ -35,6 +50,8 @@ class ChatCellViewModel
     @Published private(set) var unreadMessageCount: Int?
     @Published private(set) var memberProfileImage: Data?
     
+    @Published private(set) var profileImageURL: URL?
+    
     private var cancellables = Set<AnyCancellable>()
     
     init(chat: Chat) {
@@ -54,7 +71,15 @@ class ChatCellViewModel
             await self.addObserverToUser()
             await self.addListenerToUser()
             self.addDataToRealm()
+            await self.saveImageToCache()
         }
+    }
+    
+    private var profileImageThumbnailPath: String?
+    {
+        let thumbnailString = "_thumbnail"
+        let path = chatUser?.photoUrl?.replacingOccurrences(of: ".jpg", with: "\(thumbnailString).jpg")
+        return path
     }
     
     private func addDataToRealm() {
@@ -62,16 +87,31 @@ class ChatCellViewModel
         
         Task { @MainActor in
             RealmDataBase.shared.add(object: member)
-            
             addMessageToRealm()
-            saveImageToCache()
         }
     }
     
-    private func saveImageToCache() {
-        if let imageData = memberProfileImage, let path = chatUser?.photoUrl {
+    @MainActor
+    private func saveImageToCache()
+    {
+//        if let imageData = memberProfileImage, let path = chatUser?.photoUrl {
+        if let imageData = memberProfileImage, let path = profileImageThumbnailPath {
             CacheManager.shared.saveImageData(imageData, toPath: path)
         }
+    }
+    
+    func cacheProfileImage(_ imageData: Data)
+    {
+        guard let imageKey = chatUser?.photoUrl else {return}
+        ImageCache.default.storeToDisk(imageData, forKey: imageKey)
+        print("Success caching image")
+    }
+    
+    @MainActor
+    func retrieveProfileImageFromCache() async throws -> ImageCacheResult?
+    {
+        guard let imageKey = chatUser?.photoUrl else {return nil}
+        return try await ImageCache.default.retrieveImage(forKey: imageKey)
     }
     
     private func addMessageToRealm() {
@@ -136,7 +176,7 @@ extension ChatCellViewModel {
         self.unreadMessageCount = try retrieveAuthParticipant().unseenMessagesCount
         self.recentMessage = try retrieveRecentMessage()
         self.chatUser = try retrieveMember()
-        self.memberProfileImage = try retrieveMemberImageData()
+        self.memberProfileImage = try retrieveMemberImageData() // clean this
     }
     
     private func retrieveMember() throws -> User 
@@ -148,17 +188,18 @@ extension ChatCellViewModel {
         return member
     }
     
-    private func retrieveRecentMessage() throws -> Message 
+    private func retrieveRecentMessage() throws -> Message
     {
         guard let messageID = chat.recentMessageID,
-        let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
+              let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
             throw RealmRetrieveError.messageNotPresent }
         return message
     }
     
-    private func retrieveMemberImageData() throws -> Data? 
+    func retrieveMemberImageData() throws -> Data? 
     {
-        guard let userProfilePhotoURL = chatUser?.photoUrl else { throw RealmRetrieveError.imageNotPresent }
+//        guard let userProfilePhotoURL = chatUser?.photoUrl else { throw RealmRetrieveError.imageNotPresent }
+        guard let userProfilePhotoURL = profileImageThumbnailPath else { throw RealmRetrieveError.imageNotPresent }
         return CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
     }
     
@@ -175,19 +216,35 @@ extension ChatCellViewModel {
 
 extension ChatCellViewModel 
 {
+    
+    private var didProfileImageChanged: Bool
+    {
+        let dbUser = try? retrieveMember()
+        return self.chatUser?.photoUrl != dbUser?.photoUrl
+    }
+    
+//    private func checkIfProfileImageChanged(_ profileImagePath: String) -> Bool
+//    {
+//        return profileImagePath != self.chatUser?.photoUrl
+//    }
+    
     @MainActor
     private func fetchDataFromFirestore() async
     {
         do {
-            self.chatUser         = try await loadOtherMemberOfChat()
-            async let loadMessage = loadRecentMessage()
-            async let loadImage   = fetchImageData()
+            self.chatUser           = try await loadOtherMemberOfChat()
+            self.recentMessage      = await loadRecentMessage()
+//            async let loadImageURL  = getProfileImageURL()
+            if didProfileImageChanged {
+                self.memberProfileImage = try await fetchImageData()
+            }
             
-            (recentMessage, memberProfileImage) = await (loadMessage, try loadImage)
+//            (recentMessage, profileImageURL /*memberProfileImage*/) = await (loadMessage,  try loadImageURL /*try loadImage*/)
         } catch {
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
     }
+    
     @MainActor
     func loadOtherMemberOfChat() async throws -> User? 
     {
@@ -201,17 +258,28 @@ extension ChatCellViewModel
     @MainActor
     func loadRecentMessage() async -> Message?
     {
-        guard let message = try? await FirebaseChatService.shared.getRecentMessage(from: chat)
-        else { 
+        do {
+            return try await FirebaseChatService.shared.getRecentMessage(from: chat)
+        } catch {
+            print("Error while loading recent message for chat cell: ", error.localizedDescription)
             return nil
         }
-        return message
+    }
+    
+    @MainActor
+    private func getProfileImageURL() async throws -> URL?
+    {
+        guard let userID = chatUser?.id,
+              let imageURL = chatUser?.photoUrl else {print("no url image");return nil}
+        let url = try await FirebaseStorageManager.shared.getUserImageURL(userID: userID, path: imageURL)
+        print(url)
+        return url
     }
     
     func fetchImageData() async throws -> Data? 
     {
         guard let user = self.chatUser,
-              let userProfilePhotoURL = user.photoUrl else {
+              let userProfilePhotoURL = profileImageThumbnailPath else {
             return nil
         }
         let photoData = try await FirebaseStorageManager.shared.getUserImage(userID: user.id, path: userProfilePhotoURL)

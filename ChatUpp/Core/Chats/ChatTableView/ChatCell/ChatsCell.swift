@@ -8,7 +8,7 @@
 import UIKit
 import SkeletonView
 import Combine
-
+import Kingfisher
 
 class ChatsCell: UITableViewCell {
     
@@ -50,7 +50,17 @@ class ChatsCell: UITableViewCell {
         self.cellViewModel = viewModel
 
         setupBinding()
+//        setupImage()
         setupMemberImage()
+    }
+    
+    private func setupImage()
+    {
+        Task { @MainActor in
+            profileImage.image = try await cellViewModel.retrieveProfileImageFromCache()?.image
+            stopSkeletonAnimationFor(profileImage)
+            print("Success retrieving image from cache!")
+        }
     }
     
     private func setOnlineStatusActivity() {
@@ -71,11 +81,36 @@ class ChatsCell: UITableViewCell {
             unreadMessagesBadgeLabel.text = "\(count)"
         }
     }
+    
+    @MainActor
+    private func setupProfileImage(fromURL url: URL?)
+    {
+        profileImage.kf.setImage(with: url) { [weak self] result in
+            switch result {
+            case .success(let value):
+                let image = value.image.downsample(toSize: ImageSize.User.thumbnail, withCompressionQuality: 0.6)
+                self?.cellViewModel.cacheProfileImage(value.data()!)
+            case .failure(let failure):
+//                Task { @MainActor in
+//                    self?.profileImage.image = try await self?.cellViewModel.retrieveProfileImageFromCache()?.image
+//                }
+                print("Failed to set profile image. Reason: \(failure.failureReason ?? "-")")
+            }
+        }
+        stopSkeletonAnimationFor(profileImage)
+    }
 
     //MARK: - Binding
     
     private func setupBinding()
     {
+//        cellViewModel.$profileImageURL
+////            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] imageURL in
+////                guard let url = imageURL else {return}
+//                self?.setupProfileImage(fromURL: imageURL)
+//            }.store(in: &subscriptions)
+//        
         cellViewModel.$memberProfileImage
             .dropFirst()
             .receive(on: DispatchQueue.main)
@@ -126,11 +161,12 @@ class ChatsCell: UITableViewCell {
     
     //MARK: - Image setup
     
-    private func setupMemberImage() {
+    private func setupMemberImage()
+    {
         guard let member = cellViewModel.chatUser else { return }
-//        
+
         if member.photoUrl == nil {
-            /// set local image
+            /// set local/default image
             setImage()
             return
         }
@@ -141,9 +177,11 @@ class ChatsCell: UITableViewCell {
         }
     }
     
-    private func setImage(_ imageData: Data? = nil) {
+    private func setImage(_ imageData: Data? = nil)
+    {
         Task { @MainActor in
             stopSkeletonAnimationFor(profileImage)
+            
             guard let imageData = imageData else {
                 self.profileImage.image = UIImage(named: "default_profile_photo")
                 return

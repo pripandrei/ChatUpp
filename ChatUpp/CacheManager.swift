@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Kingfisher
 
 final class CacheManager {
     
@@ -39,5 +40,19 @@ final class CacheManager {
             }
         }
         return nil
+    }
+}
+
+
+class ImageCacheService
+{
+    static let shered = ImageCacheService()
+    
+    private init() {}
+    
+    func cacheImageData(_ data: Data, for key: String)
+    {
+        ImageCache.default.storeToDisk(data, forKey: key)
+//        ImageCache.default.retrieve
     }
 }

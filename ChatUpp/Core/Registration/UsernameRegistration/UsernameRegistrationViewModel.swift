@@ -95,16 +95,3 @@ final class UsernameRegistrationViewModel
         profileImageData = data
     }
 }
-
-
-class ImageCacheService
-{
-    static let shered = ImageCacheService()
-    
-    private init() {}
-    
-    func cacheImageData(_ data: Data, for key: String)
-    {
-        ImageCache.default.storeToDisk(data, forKey: key)
-    }
-}
