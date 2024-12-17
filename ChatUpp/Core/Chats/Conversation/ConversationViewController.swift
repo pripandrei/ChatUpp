@@ -697,11 +697,13 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                     print("Could not read image!")
                     return
                 }
-                guard let data = image.jpegData(compressionQuality: 0.5) else {return}
+                let newSize = ImageSize.Message.original
+                guard let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6).jpegData(compressionQuality: 1.0) else {return}
+                
                 let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 
                 self?.handleMessageBubbleCreation()
-                self?.conversationViewModel.handleImageDrop(imageData: data, size: imageSize)
+                self?.conversationViewModel.handleImageDrop(imageData: downsampledImage, size: imageSize)
             }
         }
     }

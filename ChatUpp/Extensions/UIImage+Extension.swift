@@ -39,13 +39,13 @@ import Kingfisher
 enum ImageSize
 {
     enum User {
-        static let original = CGSize(width: 1280, height: 1280)
+        static let original = CGSize(width: 840, height: 840)
         static let thumbnail = CGSize(width: 320, height: 320)
     }
     
     enum Message {
-        static let original = CGSize(width: 1280, height: 1280)
-        static let thumbnail = CGSize(width: 540, height: 540)
+        static let original = CGSize(width: 1024, height: 1024)
+        static let thumbnail = CGSize(width: 480, height: 480)
     }
 }
 

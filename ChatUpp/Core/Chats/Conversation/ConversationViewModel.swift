@@ -330,32 +330,41 @@ final class ConversationViewModel
     
     /// - save image from message
     
-    func handleImageDrop(imageData: Data, size: MessageImageSize) {
+    func handleImageDrop(imageData: Data, size: MessageImageSize)
+    {
         self.messageGroups.first?.cellViewModels.first?.imageData = imageData
         self.messageGroups.first?.cellViewModels.first?.cellMessage?.imageSize = size
-        self.saveImage(data: imageData, size: CGSize(width: size.width, height: size.height))
+        self.saveImage(data: imageData, size: size)
     }
     
-    func saveImage(data: Data, size: CGSize) {
+    func saveImage(data: Data, size: MessageImageSize)
+    {
         guard let conversation = conversation else {return}
-        guard let messageID = messageGroups.first?.cellViewModels.first?.cellMessage?.id else {return}
+        guard let message = messageGroups.first?.cellViewModels.first?.cellMessage else {return}
+        
         Task {
             let (path,name) = try await FirebaseStorageManager
                 .shared
-                .saveMessageImage(data: data, messageID: messageID)
+                .saveMessageImage(data: data, messageID: message.id)
+            
             try await FirebaseChatService
                 .shared
-                .updateMessageImagePath(messageID: messageID,
+                .updateMessageImagePath(messageID: message.id,
                                         chatDocumentPath: conversation.id,
                                         path: name)
             
-            let imageSize = MessageImageSize(width: Int(size.width), height: Int(size.height))
             try await FirebaseChatService
                 .shared
-                .updateMessageImageSize(messageID: messageID,
+                .updateMessageImageSize(messageID: message.id,
                                         chatDocumentPath: conversation.id,
-                                        imageSize: imageSize)
+                                        imageSize: size)
             print("Success saving image: \(path) \(name)")
+            
+            CacheManager.shared.saveImageData(data, toPath: name)
+            
+            await MainActor.run {
+                addMessageToRealmChat(message)
+            }
         }
     }
 }
@@ -364,17 +373,6 @@ final class ConversationViewModel
 
 extension ConversationViewModel
 {
-    private func setupConversationMessageGroups()
-    {
-        guard var messages = conversation?.getMessages(),
-                !messages.isEmpty else { return }
-        
-        if shouldDisplayLastMessage == false {
-            messages.removeFirst()
-        }
-        createMessageGroupsWith(messages)
-    }
-
     private func initiateConversation()
     {
         guard !shouldFetchNewMessages else {
@@ -388,9 +386,13 @@ extension ConversationViewModel
     private func initiateConversationWithRemoteData()
     {
         Task { @MainActor in
-            let messages = try await fetchConversationMessages()
-            addMessagesToConversationInRealm(messages)
-            initiateConversationUsingLocalData()
+            do {
+                let messages = try await fetchConversationMessages()
+                addMessagesToConversationInRealm(messages)
+                initiateConversationUsingLocalData()
+            } catch {
+                print("Error while initiating conversation: - \(error)")
+            }
         }
     }
     
@@ -398,6 +400,17 @@ extension ConversationViewModel
     {
         setupConversationMessageGroups()
         conversationInitializationStatus = .finished
+    }
+    
+    private func setupConversationMessageGroups()
+    {
+        guard var messages = conversation?.getMessages(),
+                !messages.isEmpty else { return }
+        
+        if shouldDisplayLastMessage == false {
+            messages.removeFirst()
+        }
+        createMessageGroupsWith(messages)
     }
 }
 
