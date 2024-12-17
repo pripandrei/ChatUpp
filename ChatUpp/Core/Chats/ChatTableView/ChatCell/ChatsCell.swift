@@ -48,20 +48,10 @@ class ChatsCell: UITableViewCell {
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
-
+        
         setupBinding()
-//        setupImage()
         prepareImage()
     }
-    
-//    private func setupImage()
-//    {
-//        Task { @MainActor in
-//            profileImage.image = try await cellViewModel.retrieveProfileImageFromCache()?.image
-//            stopSkeletonAnimationFor(profileImage)
-//            print("Success retrieving image from cache!")
-//        }
-//    }
     
     private func setOnlineStatusActivity() {
         if let activeStatus = cellViewModel.chatUser?.isActive {
@@ -70,8 +60,8 @@ class ChatsCell: UITableViewCell {
     }
     
     private func setUnreadMessageCount(_ count: Int) {
-//        guard let _ = cellViewModel.recentMessage else {return}
-
+        //        guard let _ = cellViewModel.recentMessage else {return}
+        
         unreadMessagesBadgeLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         
         let shouldShowUnreadCount = count > 0
@@ -82,43 +72,10 @@ class ChatsCell: UITableViewCell {
         }
     }
     
-//    @MainActor
-//    private func setupProfileImage(fromURL url: URL?)
-//    {
-//        profileImage.kf.setImage(with: url) { [weak self] result in
-//            switch result {
-//            case .success(let value):
-//                let image = value.image.downsample(toSize: ImageSize.User.thumbnail, withCompressionQuality: 0.6)
-//                self?.cellViewModel.cacheProfileImage(value.data()!)
-//            case .failure(let failure):
-////                Task { @MainActor in
-////                    self?.profileImage.image = try await self?.cellViewModel.retrieveProfileImageFromCache()?.image
-////                }
-//                print("Failed to set profile image. Reason: \(failure.failureReason ?? "-")")
-//            }
-//        }
-//        stopSkeletonAnimationFor(profileImage)
-//    }
-
     //MARK: - Binding
     
     private func setupBinding()
     {
-//        cellViewModel.$profileImageURL
-////            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] imageURL in
-////                guard let url = imageURL else {return}
-//                self?.setupProfileImage(fromURL: imageURL)
-//            }.store(in: &subscriptions)
-//        
-//        cellViewModel.$memberProfileImage
-//            .dropFirst()
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] imageData in
-//                guard let self = self else {return}
-//                self.setImage(imageData)
-//            }.store(in: &subscriptions)
-//
         cellViewModel.imageDataUpdateSubject
             .receive(on: DispatchQueue.main)
             .sink { [weak self]_ in
@@ -170,7 +127,7 @@ class ChatsCell: UITableViewCell {
     private func prepareImage()
     {
         guard let member = cellViewModel.chatUser else { return }
-
+        
         if member.photoUrl == nil {
             /// set local/default image
             setImage()
@@ -250,11 +207,11 @@ extension ChatsCell {
         
         unreadMessagesBadgeLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
         unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 16)
-//        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
-//        unreadMessagesCountLabel.layer.cornerRadius = 12
+        //        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
+        //        unreadMessagesCountLabel.layer.cornerRadius = 12
         unreadMessagesBadgeLabel.textAlignment = .center
-//        unreadMessagesCountLabel.clipsToBounds = true
-//        unreadMessagesCountLabel.layer.masksToBounds = true
+        //        unreadMessagesCountLabel.clipsToBounds = true
+        //        unreadMessagesCountLabel.layer.masksToBounds = true
         unreadMessagesBadgeLabel.linesCornerRadius = 8
         unreadMessagesBadgeLabel.isSkeletonable = true
         unreadMessagesBadgeLabel.skeletonTextLineHeight = .fixed(25)
@@ -265,8 +222,8 @@ extension ChatsCell {
         NSLayoutConstraint.activate([
             unreadMessagesBadgeLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
             unreadMessagesBadgeLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
-//            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
-//            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
+            //            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
+            //            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
         ])
     }
     
@@ -333,7 +290,7 @@ extension ChatsCell {
     
     private func setProfileImageConstraints() {
         profileImage.translatesAutoresizingMaskIntoConstraints = false
-    
+        
         NSLayoutConstraint.activate([
             profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             profileImage.centerYAnchor.constraint(equalTo: self.centerYAnchor),
@@ -344,7 +301,7 @@ extension ChatsCell {
     
     private func setDateLable() {
         contentView.addSubview(dateLable)
-
+        
         dateLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title3), size: 14)
         dateLable.textColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1)
         dateLable.adjustsFontSizeToFitWidth = true

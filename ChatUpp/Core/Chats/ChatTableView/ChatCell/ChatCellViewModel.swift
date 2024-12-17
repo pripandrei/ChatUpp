@@ -9,51 +9,19 @@ import Foundation
 import Combine
 import Kingfisher
 
-extension ChatCellViewModel
-{
-    private func downloadProfileImage()
-    {
-        guard let url = profileImageURL else {return}
-        ImageDownloader.default.downloadImage(with: url, completionHandler: { result in
-            switch result {
-            case .success(let value): value.image
-            case .failure(let failure): print(failure.errorDescription)
-            }
-        })
-    }
-}
-
-extension ChatCellViewModel
-{
-    private func observeAuthParticipantChanges()
-    {
-        guard let participant = chat.getParticipant(byID: authUser.uid) else {return}
-        
-        RealmDataBase.shared.observeChanges(for: participant)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] change in
-                guard let self = self, change.name == "unseenMessagesCount" else { return }
-                self.unreadMessageCount = change.newValue as? Int ?? self.unreadMessageCount
-            }.store(in: &cancellables)
-    }
-}
-
 class ChatCellViewModel
 {
     private(set) var chat: Chat
     private var usersListener: Listener?
     private var userObserver: RealtimeDBObserver?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
+    private var cancellables = Set<AnyCancellable>()
+    private(set) var imageDataUpdateSubject = PassthroughSubject<Void,Never>()
     
     @Published private(set) var chatUser: User?
     @Published private(set) var recentMessage: Message?
     @Published private(set) var unreadMessageCount: Int?
-//    @Published private(set) var memberProfileImage: Data?
-    private(set) var imageDataUpdateSubject = PassthroughSubject<Void,Never>()
     
-    @Published private(set) var profileImageURL: URL?
-    
-    private var cancellables = Set<AnyCancellable>()
     
     init(chat: Chat) {
         self.chat = chat
@@ -75,13 +43,6 @@ class ChatCellViewModel
         }
     }
     
-    private var profileImageThumbnailPath: String?
-    {
-        let thumbnailString = "_thumbnail"
-        let path = chatUser?.photoUrl?.replacingOccurrences(of: ".jpg", with: "\(thumbnailString).jpg")
-        return path
-    }
-    
     private func addDataToRealm() {
         
         guard let member = chatUser else {return}
@@ -92,7 +53,7 @@ class ChatCellViewModel
         }
     }
     
-    //default cache
+    // image data cache
     @MainActor
     private func cacheImageData(_ data: Data)
     {
@@ -106,30 +67,22 @@ class ChatCellViewModel
         guard let userProfilePhotoURL = profileImageThumbnailPath else { return nil }
         return CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
     }
+}
+
+//MARK: - Computed properties
+extension ChatCellViewModel
+{
+    private var profileImageThumbnailPath: String?
+    {
+        let thumbnailString = "_thumbnail"
+        let path = chatUser?.photoUrl?.replacingOccurrences(of: ".jpg", with: "\(thumbnailString).jpg")
+        return path
+    }
     
-//    // Kingfisher cache
-//    func cacheProfileImage(_ imageData: Data)
-//    {
-//        guard let imageKey = chatUser?.photoUrl else {return}
-//        ImageCache.default.storeToDisk(imageData, forKey: imageKey)
-//        print("Success caching image")
-//    }
-//    
-//    @MainActor
-//    func retrieveProfileImageFromCache() async throws -> ImageCacheResult?
-//    {
-//        guard let imageKey = chatUser?.photoUrl else {return nil}
-//        return try await ImageCache.default.retrieveImage(forKey: imageKey)
-//    }
-    
-    private func addMessageToRealm() {
-        if let recentMessage = recentMessage,
-            !chat.conversationMessages.contains(where: { $0.id == recentMessage.id} )
-        {
-            RealmDataBase.shared.update(object: chat) { chat in
-                chat.conversationMessages.append(recentMessage)
-            }
-        }
+    private var profileImageChanged: Bool
+    {
+        let dbUser = try? retrieveMember()
+        return self.chatUser?.photoUrl != dbUser?.photoUrl
     }
     
     private func findMemberID() -> String? {
@@ -143,7 +96,6 @@ class ChatCellViewModel
         return false
     }
 }
-
 
 //MARK: - Update cell data
 
@@ -176,7 +128,7 @@ extension ChatCellViewModel {
     }
 }
 
-//MARK: - Retrieve Realm db data
+//MARK: - Retrieve/add Realm db data
 
 extension ChatCellViewModel {
     
@@ -185,7 +137,6 @@ extension ChatCellViewModel {
         self.unreadMessageCount = try retrieveAuthParticipant().unseenMessagesCount
         self.recentMessage = try retrieveRecentMessage()
         self.chatUser = try retrieveMember()
-//        self.memberProfileImage = try retrieveMemberImageData() // clean this
     }
     
     private func retrieveMember() throws -> User 
@@ -212,18 +163,22 @@ extension ChatCellViewModel {
         }
         throw NSError(domain: "com.chatUpp.retrieve.participant.error", code: 1, userInfo: [NSLocalizedDescriptionKey: "Auth participant is missing"])
     }
+    
+    private func addMessageToRealm() {
+        if let recentMessage = recentMessage,
+            !chat.conversationMessages.contains(where: { $0.id == recentMessage.id} )
+        {
+            RealmDataBase.shared.update(object: chat) { chat in
+                chat.conversationMessages.append(recentMessage)
+            }
+        }
+    }
 }
 
 //MARK: - Fetch Firestore data
 
 extension ChatCellViewModel 
 {
-    private var profileImageChanged: Bool
-    {
-        let dbUser = try? retrieveMember()
-        return self.chatUser?.photoUrl != dbUser?.photoUrl
-    }
-    
     @MainActor
     private func fetchDataFromFirestore() async
     {
@@ -272,17 +227,7 @@ extension ChatCellViewModel
             return nil
         }
     }
-    
-//    @MainActor
-//    private func getProfileImageURL() async throws -> URL?
-//    {
-//        guard let userID = chatUser?.id,
-//              let imageURL = chatUser?.photoUrl else {print("no url image");return nil}
-//        let url = try await FirebaseStorageManager.shared.getUserImageURL(userID: userID, path: imageURL)
-//        print(url)
-//        return url
-//    }
-//    
+
     func fetchImageData() async throws -> Data? 
     {
         guard let user = self.chatUser,
@@ -328,6 +273,22 @@ extension ChatCellViewModel {
             guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
             self.chatUser = user
         }
+    }
+}
+
+//MARK: - participant observer
+extension ChatCellViewModel
+{
+    private func observeAuthParticipantChanges()
+    {
+        guard let participant = chat.getParticipant(byID: authUser.uid) else {return}
+        
+        RealmDataBase.shared.observeChanges(for: participant)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] change in
+                guard let self = self, change.name == "unseenMessagesCount" else { return }
+                self.unreadMessageCount = change.newValue as? Int ?? self.unreadMessageCount
+            }.store(in: &cancellables)
     }
 }
 
