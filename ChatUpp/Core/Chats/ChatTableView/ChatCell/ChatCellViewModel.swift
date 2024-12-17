@@ -241,6 +241,9 @@ extension ChatCellViewModel
     
     private func performImageDataUpdate() async throws
     {
+        if chatUser?.name == "Dorian" {
+            print("stop")
+        }
         guard let imageData = try await fetchImageData() else {return}
         await cacheImageData(imageData)
         self.imageDataUpdateSubject.send()
