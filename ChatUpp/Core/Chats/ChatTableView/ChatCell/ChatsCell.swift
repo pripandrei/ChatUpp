@@ -51,17 +51,17 @@ class ChatsCell: UITableViewCell {
 
         setupBinding()
 //        setupImage()
-        setupMemberImage()
+        prepareImage()
     }
     
-    private func setupImage()
-    {
-        Task { @MainActor in
-            profileImage.image = try await cellViewModel.retrieveProfileImageFromCache()?.image
-            stopSkeletonAnimationFor(profileImage)
-            print("Success retrieving image from cache!")
-        }
-    }
+//    private func setupImage()
+//    {
+//        Task { @MainActor in
+//            profileImage.image = try await cellViewModel.retrieveProfileImageFromCache()?.image
+//            stopSkeletonAnimationFor(profileImage)
+//            print("Success retrieving image from cache!")
+//        }
+//    }
     
     private func setOnlineStatusActivity() {
         if let activeStatus = cellViewModel.chatUser?.isActive {
@@ -82,23 +82,23 @@ class ChatsCell: UITableViewCell {
         }
     }
     
-    @MainActor
-    private func setupProfileImage(fromURL url: URL?)
-    {
-        profileImage.kf.setImage(with: url) { [weak self] result in
-            switch result {
-            case .success(let value):
-                let image = value.image.downsample(toSize: ImageSize.User.thumbnail, withCompressionQuality: 0.6)
-                self?.cellViewModel.cacheProfileImage(value.data()!)
-            case .failure(let failure):
-//                Task { @MainActor in
-//                    self?.profileImage.image = try await self?.cellViewModel.retrieveProfileImageFromCache()?.image
-//                }
-                print("Failed to set profile image. Reason: \(failure.failureReason ?? "-")")
-            }
-        }
-        stopSkeletonAnimationFor(profileImage)
-    }
+//    @MainActor
+//    private func setupProfileImage(fromURL url: URL?)
+//    {
+//        profileImage.kf.setImage(with: url) { [weak self] result in
+//            switch result {
+//            case .success(let value):
+//                let image = value.image.downsample(toSize: ImageSize.User.thumbnail, withCompressionQuality: 0.6)
+//                self?.cellViewModel.cacheProfileImage(value.data()!)
+//            case .failure(let failure):
+////                Task { @MainActor in
+////                    self?.profileImage.image = try await self?.cellViewModel.retrieveProfileImageFromCache()?.image
+////                }
+//                print("Failed to set profile image. Reason: \(failure.failureReason ?? "-")")
+//            }
+//        }
+//        stopSkeletonAnimationFor(profileImage)
+//    }
 
     //MARK: - Binding
     
@@ -111,12 +111,18 @@ class ChatsCell: UITableViewCell {
 //                self?.setupProfileImage(fromURL: imageURL)
 //            }.store(in: &subscriptions)
 //        
-        cellViewModel.$memberProfileImage
-            .dropFirst()
+//        cellViewModel.$memberProfileImage
+//            .dropFirst()
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] imageData in
+//                guard let self = self else {return}
+//                self.setImage(imageData)
+//            }.store(in: &subscriptions)
+//
+        cellViewModel.imageDataUpdateSubject
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] imageData in
-                guard let self = self else {return}
-                self.setImage(imageData)
+            .sink { [weak self]_ in
+                self?.prepareImage()
             }.store(in: &subscriptions)
         
         cellViewModel.$chatUser
@@ -161,7 +167,7 @@ class ChatsCell: UITableViewCell {
     
     //MARK: - Image setup
     
-    private func setupMemberImage()
+    private func prepareImage()
     {
         guard let member = cellViewModel.chatUser else { return }
 
@@ -170,8 +176,7 @@ class ChatsCell: UITableViewCell {
             setImage()
             return
         }
-        
-        if let imageData = cellViewModel.memberProfileImage {
+        if let imageData = cellViewModel.retrieveProfileImageFromCache() {
             /// set fetched image
             setImage(imageData)
         }
