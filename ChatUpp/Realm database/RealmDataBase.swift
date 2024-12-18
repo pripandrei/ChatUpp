@@ -48,7 +48,7 @@ final class RealmDataBase {
         do {
             realm = try Realm()
         } catch {
-            print("Error initiating Realm database: ", error.localizedDescription)
+            print("Error initiating Realm database: ", error)
         }
     }
     

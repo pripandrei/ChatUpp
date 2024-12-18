@@ -14,8 +14,8 @@ extension Query
     {
         let referenceType = try await self.getDocuments()
         
-        return try referenceType.documents.map { document in
-            try document.data(as: type.self)
+        return referenceType.documents.compactMap { document in
+            try? document.data(as: type.self)
         }
     }
 }

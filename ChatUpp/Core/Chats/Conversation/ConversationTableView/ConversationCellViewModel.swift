@@ -46,6 +46,7 @@ final class ConversationCellViewModel {
         return hoursAndMinutes
     }
 
+    @MainActor
     func fetchImageData() {
         guard let message = cellMessage else {return}
         Task {
