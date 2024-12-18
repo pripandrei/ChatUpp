@@ -302,7 +302,7 @@ extension FirebaseChatService
                                startingFrom messageID: String?,
                                inclusive: Bool,
                                fetchDirection: MessagesFetchDirection,
-                               limit: Int = 80) async throws -> [Message]
+                               limit: Int = 150) async throws -> [Message]
     {
         var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
 
