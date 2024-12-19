@@ -17,7 +17,6 @@ enum ValidationStatus {
  
 final class UsernameRegistrationViewModel
 {
-    private(set) var profileImageData: Data?
     private(set) var registrationCompleted: ObservableObject<Bool?> = ObservableObject(nil)
     private var profilePhotoURL: String?
     var username: String = ""
@@ -29,13 +28,6 @@ final class UsernameRegistrationViewModel
         }
     }
     
-    func validateName() -> ValidationStatus {
-        if !self.username.isEmpty {
-            return .valid
-        }
-        return .invalid
-    }
-    
     private var authUser: AuthDataResultModel {
         if let user = try? AuthenticationManager.shared.getAuthenticatedUser() {
             return user
@@ -43,73 +35,32 @@ final class UsernameRegistrationViewModel
         fatalError("user is missing")
     }
     
-    deinit {
-        print("usernam view model wass deinit")
+    func validateName() -> ValidationStatus {
+        return username.isEmpty ? .invalid : .valid
     }
     
-    
-//    private func saveProfileImageToStorage() async throws -> String?
-//    {
-//        if let profileImageData = profileImageData
-//        {
-//            let (_, name) = try await FirebaseStorageManager.shared.saveUserImage(data: profileImageData, userId: authUser.uid)
-//            return name
-//        }
-//        return nil
-//    }
-    
-//    private func saveProfileImageToStorage() async throws
-//    {
-//        guard let imageRepository = imageSampleRepository else {return}
-//        for imageSample in imageRepository.samples
-//        {
-//            guard let path = imageSampleRepository?.imagePath(for: imageSample.key) else {continue}
-//            
-//            let (_, name) = try await FirebaseStorageManager.shared.saveUserImage(
-//                data: imageSample.value,
-//                userId: authUser.uid,
-//                path: path
-//            )
-//            
-//            if imageSample.key == .original {
-//                profilePhotoURL = name
-//            }
-//        }
-//    }
-    
-//    private func cacheImageData()
- //    {
- //        guard let imageRepository = imageSampleRepository else {return }
- //        for imageSample in imageRepository.samples {
- //            guard var path = profilePhotoURL else {return}
- //            path = path + "_\(imageSample.key.rawValue).jpg"
- //            CacheManager.shared.saveImageData(imageSample.value, toPath: profilePhotoURL ?? "")
- //        }
- //    }
- //
-    
-    private func saveImageDataToFirebaseStorage(_ data: Data, path: String) async throws
+    func setImageSampleRepository(_ sampleRepository: ImageSampleRepository) {
+        self.imageSampleRepository = sampleRepository
+    }
+ 
+    private func saveImageDataToFirebase(_ data: Data, path: String) async throws
     {
-        let (_, name) = try await FirebaseStorageManager.shared.saveUserImage(
+        let (_, _) = try await FirebaseStorageManager.shared.saveUserImage(
             data: data,
             userId: authUser.uid,
             path: path
         )
     }
     
-    private func saveImageData() async throws
-    {
-        guard let sampleRepository = self.imageSampleRepository else { return }
-        
-        for imageSample in sampleRepository.samples
-        {
-            guard let path = imageSampleRepository?.imagePath(for: imageSample.key) else {continue}
-            
-            try await saveImageDataToFirebaseStorage(imageSample.value, path: path)
-            
-            CacheManager.shared.saveImageData(imageSample.value, toPath: path)
-        }
-    }
+    private func processImageSamples() async throws {
+           guard let sampleRepository = imageSampleRepository else { return }
+           
+           for (key, imageData) in sampleRepository.samples {
+               let path = sampleRepository.imagePath(for: key)
+               try await saveImageDataToFirebase(imageData, path: path)
+               CacheManager.shared.saveImageData(imageData, toPath: path)
+           }
+       }
 
     private func updateUser() async throws
     {
@@ -140,7 +91,7 @@ final class UsernameRegistrationViewModel
     {
         Task {
             do {
-                try await saveImageData()
+                try await processImageSamples()
                 try await updateUser()
                 await self.addUserToRealmDB()
                 self.registrationCompleted.value = true
@@ -148,13 +99,5 @@ final class UsernameRegistrationViewModel
                 print("Error finishing registration: ", error.localizedDescription)
             }
         }
-    }
-
-//    func updateUserProfileImage(_ data: Data?) {
-//        profileImageData = data
-//    }
-    
-    func setImageSampleRepository(_ sampleRepository: ImageSampleRepository) {
-        self.imageSampleRepository = sampleRepository
     }
 }

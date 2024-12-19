@@ -2,7 +2,6 @@ import UIKit
 import Kingfisher
 
 
-
 enum ImageSample
 {
     case user, message
@@ -32,84 +31,6 @@ enum ImageSample
         }
     }
 }
-//
-//enum ImageType
-//{
-//    case user, message
-//    
-//    enum SizeKey: String
-//    {
-//        case original
-//        case medium
-//        case small
-//    }
-//    
-//    var sizes: [(key: String, size: CGSize)] {
-//        [
-//            (SizeKey.original.rawValue, originalSize),
-//            (SizeKey.medium.rawValue, mediumSize),
-//            (SizeKey.small.rawValue, smallSize)
-//        ]
-//    }
-//    
-//    private var originalSize: CGSize {
-//        switch self {
-//        case .user: CGSize(width: 1024, height: 1024)
-//        case .message: CGSize(width: 1280, height: 1280)
-//        }
-//    }
-//    
-//    private var mediumSize: CGSize {
-//        switch self {
-//        case .user: CGSize(width: 200, height: 200)
-//        case .message: CGSize(width: 480, height: 480)
-//        }
-//    }
-//    
-//    private var smallSize: CGSize {
-//        switch self {
-//        case .user: CGSize(width: 100, height: 100)
-//        case .message: CGSize(width: 80, height: 80)
-//        }
-//    }
-//}
-//
-//enum ImageSample
-//{
-//    case user
-//    case message
-//    
-//    var sizes: [CGSize]
-//    {
-//        return Size.allCases.map { $0.size(for: self) }
-//    }
-//    
-//    func size(for type: Size) -> CGSize
-//    {
-//        return type.size(for: self)
-//    }
-//    
-//    enum Size: String, CaseIterable
-//    {
-//        case original
-//        case medium
-//        case small
-//        
-//        func size(for type: ImageSample) -> CGSize
-//        {
-//            switch (type, self)
-//            {
-//            case (.user, .original): return CGSize(width: 1024, height: 1024)
-//            case (.user, .medium): return CGSize(width: 200, height: 200)
-//            case (.user, .small): return CGSize(width: 100, height: 100)
-//                
-//            case (.message, .original): return CGSize(width: 1280, height: 1280)
-//            case (.message, .medium): return CGSize(width: 480, height: 480)
-//            case (.message, .small): return CGSize(width: 80, height: 80)
-//            }
-//        }
-//    }
-//}
 
 extension UIImage
 {
