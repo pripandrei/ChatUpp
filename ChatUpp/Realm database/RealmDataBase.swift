@@ -34,7 +34,7 @@ final class RealmDataBase {
     
     static var shared = RealmDataBase()
     
-    static private let schemaVersion: UInt64 = 16
+    static private let schemaVersion: UInt64 = 17
     
     var realm: Realm?
     
@@ -57,12 +57,12 @@ final class RealmDataBase {
         return Realm.Configuration(
             schemaVersion: RealmDataBase.schemaVersion,
             migrationBlock: { [weak self] migration, oldSchemaVersion in
-                
                 if oldSchemaVersion < 11 { self?.migrateToVersion11(migration: migration) }
                 if oldSchemaVersion < 13 { self?.migrateToVersion13(migration: migration) }
                 if oldSchemaVersion < 14 { self?.migrateToVersion14(migration: migration) }
                 if oldSchemaVersion < 15 { self?.migrateToVersion15(migration: migration) }
                 if oldSchemaVersion < 16 { self?.migrateToVersion16(migration: migration) }
+                if oldSchemaVersion < 17 { self?.migrateToVersion17(migration: migration) }
             }
         )
     }
@@ -214,6 +214,18 @@ extension RealmDataBase
     {
         migration.enumerateObjects(ofType: User.className())  { oldUser, newUser in
             newUser?["nickname"] = ""
+        }
+    }
+    
+    private func migrateToVersion17(migration: Migration)
+    {
+        migration.enumerateObjects(ofType: Message.className()) { oldMessage, newMessage in
+            
+            guard let imageSize = oldMessage?["imageSize"] as? MessageImageSize else {return}
+            
+            let newImageSize = migration.create(MessageImageSize.className(), value: imageSize)
+            
+            newMessage?["imageSize"] = newImageSize
         }
     }
 }

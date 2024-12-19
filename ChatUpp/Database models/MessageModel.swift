@@ -8,9 +8,8 @@
 import Foundation
 import RealmSwift
 
-class MessageImageSize: Object, Codable 
+class MessageImageSize: EmbeddedObject, Codable
 {
-    @Persisted(primaryKey: true) private var id: String = UUID().uuidString
     @Persisted var width: Int
     @Persisted var height: Int
     
