@@ -54,6 +54,7 @@ final class ProfileEditingViewModel
         Task {
             do {
                 try await saveImageToStorage()
+                try await removePreviousImage()
                 try await updateFirestoreUser()
 
                 Task { @MainActor in
@@ -114,13 +115,17 @@ extension ProfileEditingViewModel
         if let editedPhoto = editedProfilePhoto
         {
             let (_,name) = try await FirebaseStorageManager.shared.saveUserImage(data: editedPhoto,
-                                                                                 userId: authUser.uid)
-            if let photoURL = authUser.photoURL
-            {
-                try await removeProfileImage(ofUser: authUser.uid,
-                                             urlPath: photoURL)
-            }
+                                                                                 userId: authUser.uid,
+                                                                                 path: "testPath")
             profilePictureURL = name
+        }
+    }
+    
+    private func removePreviousImage() async throws {
+        if let photoURL = authUser.photoURL
+        {
+            try await removeProfileImage(ofUser: authUser.uid,
+                                         urlPath: photoURL)
         }
     }
     

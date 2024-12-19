@@ -185,10 +185,9 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
                     return
                 }
                 
-                let newSize = ImageSize.User.original
-                let compression = 0.6
-                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: compression)
-                self.profileEditingViewModel.updateProfilePhotoData(downsampledImage.jpegData(compressionQuality: 1.0))
+                guard let newSize = ImageSample.user.sizeMapping[.original] else {return}
+                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
+                self.profileEditingViewModel.updateProfilePhotoData(downsampledImage.getJpegData())
                 
                 Task { @MainActor in
                     self.headerCell.imageView.image = downsampledImage

@@ -169,13 +169,15 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
                 guard let image = reading as? UIImage,
                       error == nil else { print("Could not read image"); return }
                 
-                let newSize = ImageSize.User.original
-                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
+//                let newSize = ImageSample.user.size(for: .original)
+                let imageSampleRepository = ImageSampleRepository(image: image, type: .user)
+//                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
                 
                 Task { @MainActor in
-                    let imageData = downsampledImage.jpegData(compressionQuality: 1.0)
-                    self.usernameRegistrationViewModel.updateUserProfileImage(imageData)
-                    self.profileImage.image = downsampledImage
+                    self.usernameRegistrationViewModel.setImageSampleRepository(imageSampleRepository)
+                    let key = ImageSample.SizeKey.medium
+                    guard let downsampledImage = imageSampleRepository.samples[key] else {return}
+                    self.profileImage.image = UIImage(data: downsampledImage)
                 }
             }
         }
@@ -194,28 +196,90 @@ extension UsernameRegistrationViewController: UITextFieldDelegate {
     }
 }
 
-extension UsernameRegistrationViewController
+//struct ImageSampleRepository
+//{
+//    var samples: [String : Data] = [:]
+//    
+//    init(image: UIImage, for sampleType: ImageSample)
+//    {
+//        self.createImageSamples(from: image, for: sampleType)
+//    }
+//    
+//    mutating private func createImageSamples(from image: UIImage, for type: ImageSample)
+//    {
+//        for (index, size) in type.sizes.enumerated()
+//        {
+//            let imageSample = image.downsample(toSize: size, withCompressionQuality: 0.6).getJpegData()
+//            let sizeType = ImageSample.Size.allCases[index].rawValue
+//            self.samples[sizeType] = imageSample
+//        }
+//        
+//        for sizeType in ImageSample.Size.allCases
+//        {
+//            let imageSampleData = image.downsample(toSize: sizeType.size(for: type), withCompressionQuality: 0.6).getJpegData()
+//            self.samples[sizeType.rawValue] = imageSampleData
+//        }
+//    }
+//}
+//
+//struct ImageProcessor
+//{
+//    private let image: UIImage
+//    private let type: ImageType
+//    private let quality: CGFloat
+//    
+//    init(image: UIImage, type: ImageType, quality: CGFloat = 0.6)
+//    {
+//        self.image = image
+//        self.type = type
+//        self.quality = quality
+//    }
+//    
+//    var samples: [String: Data?] {
+//        Dictionary(uniqueKeysWithValues: type.sizes.map { key, size in
+//            (key, image.downsample(toSize: size, withCompressionQuality: quality).getJpegData())
+//        })
+//    }
+//}
+
+struct ImageSampleRepository
 {
+    private(set) var samples: [ImageSample.SizeKey: Data] = [:]
+    private let uuidString = UUID().uuidString
 
-//    private func proccessTheImage(_ image: UIImage)
-//    {
-//        let newSize = ImageSize.User.original
-//        let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
-//        self.saveImageData(downsampledImage)
-//    }
-//    
-//    private func downsampleImage(_ image: UIImage) -> UIImage
-//    {
-//        let newSize = ImageSize.User.original
-//        let resizedImage = image.resize(newSize)
-//        guard let compressedImage = resizedImage.compressImage(to: 0.6) else {return resizedImage}
-//        return compressedImage
-//    }
-//    
-//    private func saveImageData(_ image: UIImage)
-//    {
-//        usernameRegistrationViewModel.profileImageData = image.jpegData(compressionQuality: 1.0)
-//    }
+    init(image: UIImage, type: ImageSample)
+    {
+        self.createImageSamples(from: image, for: type)
+    }
+    
+    func imagePath(for size: ImageSample.SizeKey) -> String
+    {
+        switch size {
+        case .original:
+            return "\(uuidString).jpg"
+        case .medium, .small:
+            return "\(uuidString)_\(size.rawValue).jpg"
+        }
+    }
+
+    mutating private func createImageSamples(from image: UIImage, for type: ImageSample)
+    {
+        let sortedSizes = type.sizeMapping.values.sorted { $0.width > $1.width }
+        
+        for (index, size) in sortedSizes.enumerated()
+        {
+            let imageSample = image.downsample(toSize: size, withCompressionQuality: 0.6).getJpegData()
+            let sizeType = ImageSample.SizeKey.allCases[index]
+            self.samples[sizeType] = imageSample
+        }
+    }
+    
+    //    private mutating func createImageSamples(from image: UIImage, using type: ImageSample)
+    //    {
+    //        self.samples = type.sizeMapping.reduce(into: [:]) { result, mapping in
+    //            if let imageData = image.downsample(toSize: mapping.value, withCompressionQuality: 0.6).getJpegData() {
+    //                result[mapping.key] = imageData
+    //            }
+    //        }
+    //    }
 }
-
-

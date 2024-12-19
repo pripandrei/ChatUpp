@@ -22,6 +22,13 @@ final class UsernameRegistrationViewModel
     private var profilePhotoURL: String?
     var username: String = ""
     
+    private(set) var imageSampleRepository: ImageSampleRepository?
+    {
+        didSet {
+            profilePhotoURL = imageSampleRepository?.imagePath(for: .original)
+        }
+    }
+    
     func validateName() -> ValidationStatus {
         if !self.username.isEmpty {
             return .valid
@@ -36,24 +43,74 @@ final class UsernameRegistrationViewModel
         fatalError("user is missing")
     }
     
-    private func saveProfileImageToStorage() async throws -> String?
+    deinit {
+        print("usernam view model wass deinit")
+    }
+    
+    
+//    private func saveProfileImageToStorage() async throws -> String?
+//    {
+//        if let profileImageData = profileImageData
+//        {
+//            let (_, name) = try await FirebaseStorageManager.shared.saveUserImage(data: profileImageData, userId: authUser.uid)
+//            return name
+//        }
+//        return nil
+//    }
+    
+//    private func saveProfileImageToStorage() async throws
+//    {
+//        guard let imageRepository = imageSampleRepository else {return}
+//        for imageSample in imageRepository.samples
+//        {
+//            guard let path = imageSampleRepository?.imagePath(for: imageSample.key) else {continue}
+//            
+//            let (_, name) = try await FirebaseStorageManager.shared.saveUserImage(
+//                data: imageSample.value,
+//                userId: authUser.uid,
+//                path: path
+//            )
+//            
+//            if imageSample.key == .original {
+//                profilePhotoURL = name
+//            }
+//        }
+//    }
+    
+//    private func cacheImageData()
+ //    {
+ //        guard let imageRepository = imageSampleRepository else {return }
+ //        for imageSample in imageRepository.samples {
+ //            guard var path = profilePhotoURL else {return}
+ //            path = path + "_\(imageSample.key.rawValue).jpg"
+ //            CacheManager.shared.saveImageData(imageSample.value, toPath: profilePhotoURL ?? "")
+ //        }
+ //    }
+ //
+    
+    private func saveImageDataToFirebaseStorage(_ data: Data, path: String) async throws
     {
-        if let profileImageData = profileImageData
-        {
-            let (_, name) = try await FirebaseStorageManager.shared.saveUserImage(data: profileImageData, userId: authUser.uid)
-            return name
-        }
-        return nil
+        let (_, name) = try await FirebaseStorageManager.shared.saveUserImage(
+            data: data,
+            userId: authUser.uid,
+            path: path
+        )
     }
     
     private func saveImageData() async throws
     {
-        guard let data = self.profileImageData else { return }
-        self.profilePhotoURL = try await saveProfileImageToStorage()
-        CacheManager.shared.saveImageData(data, toPath: profilePhotoURL ?? "")
-        print("Success saving image to cache!")
+        guard let sampleRepository = self.imageSampleRepository else { return }
+        
+        for imageSample in sampleRepository.samples
+        {
+            guard let path = imageSampleRepository?.imagePath(for: imageSample.key) else {continue}
+            
+            try await saveImageDataToFirebaseStorage(imageSample.value, path: path)
+            
+            CacheManager.shared.saveImageData(imageSample.value, toPath: path)
+        }
     }
-    
+
     private func updateUser() async throws
     {
         try await FirestoreUserService.shared.updateUser(with: authUser.uid,
@@ -74,6 +131,8 @@ final class UsernameRegistrationViewModel
                         lastSeen: Date(),
                         isActive: true)
         
+        print("User ID: ",user.id)
+        
         RealmDataBase.shared.add(object: user)
     }
     
@@ -91,7 +150,11 @@ final class UsernameRegistrationViewModel
         }
     }
 
-    func updateUserProfileImage(_ data: Data?) {
-        profileImageData = data
+//    func updateUserProfileImage(_ data: Data?) {
+//        profileImageData = data
+//    }
+    
+    func setImageSampleRepository(_ sampleRepository: ImageSampleRepository) {
+        self.imageSampleRepository = sampleRepository
     }
 }

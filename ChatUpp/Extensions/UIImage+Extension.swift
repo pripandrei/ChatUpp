@@ -1,53 +1,115 @@
 import UIKit
 import Kingfisher
 
-//protocol Resizable
-//{
-//    var size: CGSize {get}
-//}
+
+
+enum ImageSample
+{
+    case user, message
+    
+    enum SizeKey: String, CaseIterable
+    {
+        case original
+        case medium
+        case small
+    }
+
+    var sizeMapping: [SizeKey: CGSize]
+    {
+        switch self {
+        case .user:
+            return [
+                .original: CGSize(width: 1024, height: 1024),
+                .medium: CGSize(width: 200, height: 200),
+                .small: CGSize(width: 100, height: 100)
+            ]
+        case .message:
+            return [
+                .original: CGSize(width: 1280, height: 1280),
+                .medium: CGSize(width: 480, height: 480),
+                .small: CGSize(width: 80, height: 80)
+            ]
+        }
+    }
+}
 //
-//struct ImageSample
+//enum ImageType
 //{
-//    enum User: Resizable
+//    case user, message
+//    
+//    enum SizeKey: String
 //    {
 //        case original
-//        case thumbnail
-//        
-//        var size: CGSize {
-//            switch self {
-//            case .original: return CGSize(width: 1024, height: 1024)
-//            case .thumbnail: return CGSize(width: 320, height: 320)
-//            }
+//        case medium
+//        case small
+//    }
+//    
+//    var sizes: [(key: String, size: CGSize)] {
+//        [
+//            (SizeKey.original.rawValue, originalSize),
+//            (SizeKey.medium.rawValue, mediumSize),
+//            (SizeKey.small.rawValue, smallSize)
+//        ]
+//    }
+//    
+//    private var originalSize: CGSize {
+//        switch self {
+//        case .user: CGSize(width: 1024, height: 1024)
+//        case .message: CGSize(width: 1280, height: 1280)
 //        }
 //    }
 //    
-//    enum Message: Resizable
+//    private var mediumSize: CGSize {
+//        switch self {
+//        case .user: CGSize(width: 200, height: 200)
+//        case .message: CGSize(width: 480, height: 480)
+//        }
+//    }
+//    
+//    private var smallSize: CGSize {
+//        switch self {
+//        case .user: CGSize(width: 100, height: 100)
+//        case .message: CGSize(width: 80, height: 80)
+//        }
+//    }
+//}
+//
+//enum ImageSample
+//{
+//    case user
+//    case message
+//    
+//    var sizes: [CGSize]
+//    {
+//        return Size.allCases.map { $0.size(for: self) }
+//    }
+//    
+//    func size(for type: Size) -> CGSize
+//    {
+//        return type.size(for: self)
+//    }
+//    
+//    enum Size: String, CaseIterable
 //    {
 //        case original
-//        case thumbnail
+//        case medium
+//        case small
 //        
-//        var size: CGSize {
-//            switch self {
-//            case .original: return CGSize(width: 1280, height: 1280)
-//            case .thumbnail: return CGSize(width: 540, height: 540)
+//        func size(for type: ImageSample) -> CGSize
+//        {
+//            switch (type, self)
+//            {
+//            case (.user, .original): return CGSize(width: 1024, height: 1024)
+//            case (.user, .medium): return CGSize(width: 200, height: 200)
+//            case (.user, .small): return CGSize(width: 100, height: 100)
+//                
+//            case (.message, .original): return CGSize(width: 1280, height: 1280)
+//            case (.message, .medium): return CGSize(width: 480, height: 480)
+//            case (.message, .small): return CGSize(width: 80, height: 80)
 //            }
 //        }
 //    }
 //}
-
-
-enum ImageSize
-{
-    enum User {
-        static let original = CGSize(width: 840, height: 840)
-        static let thumbnail = CGSize(width: 320, height: 320)
-    }
-    
-    enum Message {
-        static let original = CGSize(width: 1024, height: 1024)
-        static let thumbnail = CGSize(width: 480, height: 480)
-    }
-}
 
 extension UIImage
 {
@@ -69,6 +131,10 @@ extension UIImage
         let resizedImage = self.resize(size)
         guard let compressedImage = resizedImage.compressImage(to: qulity) else {return resizedImage}
         return compressedImage
+    }
+    
+    public func getJpegData() -> Data? {
+        return self.jpegData(compressionQuality: 1.0)
     }
     
     
@@ -144,3 +210,44 @@ extension UIImage
 //        return formatter.string(fromByteCount: Int64(bytes))
 //    }
 }
+//
+//
+//enum ImageSample2
+//{
+//    case user
+//    case message
+//    
+//    private enum Size
+//    {
+//        case original
+//        case medium
+//        case small
+//        case thumbnail
+//        
+//        var value: CGSize {
+//            switch self {
+//            case .original: return CGSize(width: 1024, height: 1024)
+//            case .medium: return CGSize(width: 200, height: 200)
+//            case .small: return CGSize(width: 80, height: 80)
+//            case .thumbnail: return CGSize(width: 480, height: 480)
+//            }
+//        }
+//    }
+//    
+//    var sizes: [CGSize] {
+//        switch self {
+//        case .user:
+//            return [
+//                Size.original.value,
+//                Size.medium.value,
+//                Size.small.value
+//            ]
+//        case .message:
+//            return [
+//                Size.original.value,
+//                Size.thumbnail.value,
+//                Size.small.value
+//            ]
+//        }
+//    }
+//}

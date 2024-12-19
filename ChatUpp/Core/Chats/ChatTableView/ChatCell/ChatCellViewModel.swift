@@ -74,7 +74,8 @@ extension ChatCellViewModel
 {
     private var profileImageThumbnailPath: String?
     {
-        let thumbnailString = "_thumbnail"
+//        let thumbnailString = "_" + ImageSample.SizeKey.small.rawValue
+        let thumbnailString = "_" + "thumbnail"
         let path = chatUser?.photoUrl?.replacingOccurrences(of: ".jpg", with: "\(thumbnailString).jpg")
         return path
     }
@@ -196,9 +197,6 @@ extension ChatCellViewModel
     
     private func performImageDataUpdate() async throws
     {
-        if chatUser?.name == "Dorian" {
-            print("stop")
-        }
         guard let imageData = try await fetchImageData() else {return}
         await cacheImageData(imageData)
         self.imageDataUpdateSubject.send()
