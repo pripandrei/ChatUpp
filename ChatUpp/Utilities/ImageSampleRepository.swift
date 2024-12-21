@@ -12,8 +12,8 @@ import UIKit
 
 struct ImageSampleRepository
 {
-    private(set) var samples: [ImageSample.SizeKey: Data] = [:]
     private let uuidString = UUID().uuidString
+    private(set) var samples: [ImageSample.SizeKey: Data] = [:]
 
     init(image: UIImage, type: ImageSample)
     {
