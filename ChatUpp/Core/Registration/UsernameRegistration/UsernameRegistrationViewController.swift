@@ -169,13 +169,13 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
                 guard let image = reading as? UIImage,
                       error == nil else { print("Could not read image"); return }
                 
-                let newSize = ImageSize.User.original
-                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
+                let imageSampleRepository = ImageSampleRepository(image: image, type: .user)
                 
                 Task { @MainActor in
-                    let imageData = downsampledImage.jpegData(compressionQuality: 1.0)
-                    self.usernameRegistrationViewModel.updateUserProfileImage(imageData)
-                    self.profileImage.image = downsampledImage
+                    let key = ImageSample.SizeKey.medium
+                    guard let downsampledImage = imageSampleRepository.samples[key] else {return}
+                    self.usernameRegistrationViewModel.setImageSampleRepository(imageSampleRepository)
+                    self.profileImage.image = UIImage(data: downsampledImage)
                 }
             }
         }
@@ -193,29 +193,3 @@ extension UsernameRegistrationViewController: UITextFieldDelegate {
         }
     }
 }
-
-extension UsernameRegistrationViewController
-{
-
-//    private func proccessTheImage(_ image: UIImage)
-//    {
-//        let newSize = ImageSize.User.original
-//        let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
-//        self.saveImageData(downsampledImage)
-//    }
-//    
-//    private func downsampleImage(_ image: UIImage) -> UIImage
-//    {
-//        let newSize = ImageSize.User.original
-//        let resizedImage = image.resize(newSize)
-//        guard let compressedImage = resizedImage.compressImage(to: 0.6) else {return resizedImage}
-//        return compressedImage
-//    }
-//    
-//    private func saveImageData(_ image: UIImage)
-//    {
-//        usernameRegistrationViewModel.profileImageData = image.jpegData(compressionQuality: 1.0)
-//    }
-}
-
-

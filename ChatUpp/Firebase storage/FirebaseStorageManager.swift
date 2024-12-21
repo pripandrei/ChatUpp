@@ -33,12 +33,24 @@ final class FirebaseStorageManager {
         return try await userReference(userID: userID).child(path).downloadURL()
     }
     
-    func saveUserImage(data: Data, userId: String) async throws -> (path :String, name :String)
+//    func getPath(constructingFrom sizeSample: ImageSample.SizeKey) -> String
+//    {
+//        var path = sizeSample == .original ? "" : sizeSample.rawValue
+//        
+//        if !path.isEmpty {
+//            path = "\(UUID().uuidString)" + "_\(path).jpeg"
+//        } else {
+//            path = "\(UUID().uuidString).jpeg"
+//        }
+//        return path
+//    }
+//    
+    func saveUserImage(data: Data, userId: String, path: String) async throws -> (path :String, name :String)
     {
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
         
-        let path = "\(UUID().uuidString).jpeg"
+//        let path = getPath(constructingFrom: sizeSample)
         
         let metaData = try await userReference(userID: userId).child(path).putDataAsync(data, metadata: meta)
         

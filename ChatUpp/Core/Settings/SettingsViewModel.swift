@@ -74,6 +74,7 @@ final class SettingsViewModel
         self.profileImageData = photo
     }
 
+    @MainActor
     func deleteUser() async throws
     {
         let deletedUserID = FirestoreUserService.mainDeletedUserID
@@ -81,8 +82,10 @@ final class SettingsViewModel
         if authProvider == "google" {
             try await AuthenticationManager.shared.googleAuthReauthenticate()
         }
+        
         try await AuthenticationManager.shared.deleteAuthUser()
         try await FirebaseChatService.shared.replaceUserId(user.id, with: deletedUserID)
+        
         if let imgUrl = user.photoUrl {
             try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: user.id, path: imgUrl)
         }

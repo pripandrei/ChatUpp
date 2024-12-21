@@ -697,8 +697,8 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
                     print("Could not read image!")
                     return
                 }
-                let newSize = ImageSize.Message.original
-                guard let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6).jpegData(compressionQuality: 1.0) else {return}
+                guard let newSize = ImageSample.user.sizeMapping[.original] else {return}
+                guard let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6).getJpegData() else {return}
                 
                 let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 
