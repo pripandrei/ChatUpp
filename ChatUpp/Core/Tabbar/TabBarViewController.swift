@@ -24,7 +24,8 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         self.delegate = self
     }
     
-    func setupTabBarController() {
+    func setupTabBarController()
+    {
         chatsVC = ChatsViewController()
         settingsVC = SettingsViewController()
 
