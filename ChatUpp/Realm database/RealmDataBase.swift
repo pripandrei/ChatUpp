@@ -63,7 +63,8 @@ final class RealmDataBase {
                 if oldSchemaVersion < 15 { self?.migrateToVersion15(migration: migration) }
                 if oldSchemaVersion < 16 { self?.migrateToVersion16(migration: migration) }
                 if oldSchemaVersion < 17 { self?.migrateToVersion17(migration: migration) }
-            }
+            },
+            objectTypes: [Chat.self, User.self, Message.self, MessageImageSize.self, ChatParticipant.self]
         )
     }
     
