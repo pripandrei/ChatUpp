@@ -42,6 +42,9 @@ final class ChatsViewModel {
         setupCellViewModels()
         observeChats()
     }
+    deinit {
+        print("deinit chats view model")
+    }
 
     func activateOnDisconnect() {
         Task {

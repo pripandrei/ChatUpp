@@ -52,10 +52,6 @@ class ChatsViewController: UIViewController {
         RealtimeUserService.shared.updateUserActiveStatus(isActive: true)
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-    }
-
     deinit {
         print("ChatsVC was DEINITED!==")
     }

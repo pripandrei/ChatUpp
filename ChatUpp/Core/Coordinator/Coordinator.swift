@@ -82,16 +82,17 @@ class MainCoordinator: Coordinator {
     }
     
     func handleSignOut() {
-//        resetWindowRoot()
-//        tabBar.cleanupTabBarItems()
-
-        self.resetWindowRoot()
+//        self.resetWindowRoot()
+        Task {
+            try await Task.sleep(nanoseconds: 1_500_000_000)
+            await tabBar.destroyItems()
+        }
         presentLogInForm()
     }
     
-    private func resetWindowRoot() {
+    private func resetWindowRoot()
+    {
         self.tabBar = TabBarViewController()
-//        self.tabBar.selectedIndex = 0
         Utilities.windowRoot = tabBar
     }
     

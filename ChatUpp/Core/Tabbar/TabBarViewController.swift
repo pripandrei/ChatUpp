@@ -77,6 +77,18 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         }
     }
     
+    @MainActor
+    func destroyItems()
+    {
+        chatsVC?.cleanup()
+        settingsVC?.cleanup()
+        chatsVC = nil
+        settingsVC = nil
+        chatsNavigationController = nil
+        settingsNavigationController = nil
+        viewControllers?.removeAll()
+    }
+    
     deinit { 
         self.chatsVC?.cleanup()
 //        self.chatsNavigationController = nil

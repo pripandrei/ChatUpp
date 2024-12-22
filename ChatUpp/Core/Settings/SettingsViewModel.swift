@@ -23,6 +23,9 @@ final class SettingsViewModel
     init() {
         initiateSelf()
     }
+    deinit {
+        print("deinit settings view model")
+    }
     
     private func initiateSelf()
     {

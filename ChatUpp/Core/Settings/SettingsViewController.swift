@@ -266,3 +266,19 @@ extension SettingsViewController
         return profileVM
     }
 }
+
+//MARK: - Cleanup on sign out
+extension SettingsViewController
+{
+    func cleanup()
+    {
+        collectionViewListHeader?.imageView.image = nil
+        coordinatorDelegate = nil
+        dataSource = nil
+        collectionView = nil
+        settingsViewModel = nil
+        collectionViewListHeader = nil
+        subscribers = Set()
+        self.removeFromParent()
+    }
+}
