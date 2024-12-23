@@ -166,38 +166,26 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         
-        guard let result = results.first else { return }
-        
-        Task { @MainActor in
-            do {
-                let image = try await loadImage(from: result)
-                guard let processedImage = await processImage(image) else { return }
+        results.first?.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+            
+            guard error == nil else {return}
+            guard let image = image as? UIImage else {return}
+            
+            Task { @MainActor in
+                
+                guard let processedImage = await self.processImage(image) else { return }
                 
                 let repository = ImageSampleRepository(image: processedImage, type: .user)
-                if let mediumImage = repository.samples[.medium] {
-                    usernameRegistrationViewModel.setImageSampleRepository(repository)
-                    profileImage.image = UIImage(data: mediumImage)
+                
+                if let mediumImage = repository.samples[.medium]
+                {
+                    self.usernameRegistrationViewModel.setImageSampleRepository(repository)
+                    self.profileImage.image = UIImage(data: mediumImage)
                 }
-            } catch {
-                print("Failed to process image: \(error)")
             }
         }
     }
-
-    private func loadImage(from result: PHPickerResult) async throws -> UIImage?
-    {
-        try await withCheckedThrowingContinuation { continuation in
-            
-            result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-                continuation.resume(returning: image as? UIImage)
-            }
-        }
-    }
-
+    
     private func processImage(_ image: UIImage?) async -> UIImage? {
         guard let image else { return nil }
         
