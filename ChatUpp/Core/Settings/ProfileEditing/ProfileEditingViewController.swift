@@ -9,6 +9,7 @@ import UIKit
 import Photos
 import PhotosUI
 import Combine
+import CropViewController
 
 final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -179,57 +180,46 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         
-        guard let result = results.first else { return }
+        results.first?.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+            guard error == nil else {return}
+            guard let image = image as? UIImage else {return}
+            
+            Task { @MainActor in
+                self.presentCropViewController(image: image)
+            }
+        }
+    }
+    
+    func presentCropViewController(image: UIImage)
+    {
+        let cropVC = CropViewController(croppingStyle: .circular, image: image)
+        cropVC.delegate = self
+        cropVC.aspectRatioLockEnabled = true
+        cropVC.resetAspectRatioEnabled = false
+        cropVC.toolbar.clampButtonHidden = true
         
-        Task { [weak self] in
-            do {
-                guard let image = try await self?.loadImage(from: result.itemProvider) else {
-                    print("Could not load image")
-                    return
-                }
-                self?.processImage(image)
-            } catch {
-                print("Error processing image: \(error)")
-            }
-        }
+        present(cropVC, animated: true)
     }
     
-    private func loadImage(from itemProvider: NSItemProvider) async throws -> UIImage?
+    private func updateImage(_ image: UIImage)
     {
-        return try await withCheckedThrowingContinuation { continuation in
-            itemProvider.loadObject(ofClass: UIImage.self) { image, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-                continuation.resume(returning: image as? UIImage)
-            }
-        }
-    }
-    
-    @MainActor
-    private func processImage(_ image: UIImage)
-    {
-        cropImage(image)
-            .compactMap { $0 }
-            .sink { [weak self] image in
-                guard let self = self else {return}
-                let downsampledImage = self.downsampleImage(image)
-                self.profileEditingViewModel.updateProfilePhotoData(downsampledImage.getJpegData())
-                self.headerCell.imageView.image = downsampledImage
-            }.store(in: &cancellables)
-    }
-    
-    private func cropImage(_ image: UIImage) -> AnyPublisher<UIImage?, Never>
-    {
-        let imageCropper = ImageCropper(image: image)
-        imageCropper.presentCropViewController(from: self)
-        return imageCropper.$croppedImage.eraseToAnyPublisher()
+        self.profileEditingViewModel.updateProfilePhotoData(image.getJpegData())
+        self.headerCell.imageView.image = image
     }
     
     private func downsampleImage(_ image: UIImage) -> UIImage
     {
         let newSize = ImageSample.user.sizeMapping[.original]!
         return image.downsample(toSize: newSize, withCompressionQuality: 0.6)
+    }
+}
+
+extension ProfileEditingViewController: CropViewControllerDelegate
+{
+    func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int)
+    {
+        let downsampledImage = downsampleImage(image)
+        updateImage(downsampledImage)
+        cropViewController.dismiss(animated: true)
     }
 }

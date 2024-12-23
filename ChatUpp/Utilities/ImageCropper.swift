@@ -40,7 +40,6 @@ extension ImageCropper: CropViewControllerDelegate
                             withRect cropRect: CGRect,
                             angle: Int)
     {
-        print("Image: ", image)
         croppedImage = image
         cropViewController.dismiss(animated: true)
     }
@@ -50,21 +49,3 @@ extension ImageCropper: CropViewControllerDelegate
         cropViewController.dismiss(animated: true)
     }
 }
-
-
-
-
-//    private var continuation: CheckedContinuation<UIImage, Never>?
-//    @MainActor
-//    func cropImage(from viewController: UIViewController) async -> UIImage {
-//           await withCheckedContinuation { continuation in
-//               self.continuation = continuation
-//               let cropVC = CropViewController(croppingStyle: .circular, image: self.image)
-//               cropVC.delegate = self
-//               cropVC.aspectRatioLockEnabled = true
-//               cropVC.resetAspectRatioEnabled = false
-//               cropVC.toolbar.clampButtonHidden = true
-//
-//               viewController.present(cropVC, animated: true)
-//           }
-//       }
