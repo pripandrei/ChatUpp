@@ -9,6 +9,7 @@ import UIKit
 import Photos
 import PhotosUI
 import Kingfisher
+import Combine
 
 class UsernameRegistrationViewController: UIViewController {
     
@@ -19,12 +20,13 @@ class UsernameRegistrationViewController: UIViewController {
     private let continueButton: UIButton = CustomizedShadowButton()
     private let profileImage: UIImageView = UIImageView()
     private let nameAndPhotoTextLabel: UILabel = UILabel()
+    private var cancellables = Set<AnyCancellable>()
     
     
     // MARK: VC LIFE CYCLE
     override func viewDidLoad() {
         super.viewDidLoad()
-//        view.backgroundColor = .white
+        //        view.backgroundColor = .white
         Utilities.setGradientBackground(forView: view)
         configureUsernameTextField()
         configureContinueButton()
@@ -57,7 +59,7 @@ class UsernameRegistrationViewController: UIViewController {
         
         profileImage.backgroundColor = .carrot
         profileImage.image = UIImage(named: "default_profile_photo")
-//        profileImage.contentMode = .scaleAspectFill
+        //        profileImage.contentMode = .scaleAspectFill
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(addProfilePhoto))
         profileImage.addGestureRecognizer(tapGesture)
@@ -109,7 +111,7 @@ class UsernameRegistrationViewController: UIViewController {
         usernameTextField.delegate = self
         
         usernameTextField.placeholder = "Enter Your name"
-//        usernameTextField.borderStyle = .roundedRect
+        //        usernameTextField.borderStyle = .roundedRect
         
         setUsernameTextFieldConstraints()
     }
@@ -119,7 +121,7 @@ class UsernameRegistrationViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             usernameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            usernameTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            //            usernameTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             usernameTextField.widthAnchor.constraint(equalToConstant: 300),
             usernameTextField.heightAnchor.constraint(equalToConstant: 50),
             usernameTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 290)
@@ -135,7 +137,7 @@ class UsernameRegistrationViewController: UIViewController {
         nameAndPhotoTextLabel.numberOfLines = 2
         nameAndPhotoTextLabel.textAlignment = .center
         nameAndPhotoTextLabel.font =  UIFont.boldSystemFont(ofSize: 19)
-       
+        
         nameAndPhotoTextLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -159,25 +161,57 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
         present(pickerVC, animated: true)
     }
     
+    
+    // MARK: - PHPickerViewControllerDelegate
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         
-        results.forEach { result in
-            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
-                guard let self = self else {return}
-            
-                guard let image = reading as? UIImage,
-                      error == nil else { print("Could not read image"); return }
+        guard let result = results.first else { return }
+        
+        Task { @MainActor in
+            do {
+                let image = try await loadImage(from: result)
+                guard let processedImage = await processImage(image) else { return }
                 
-                let imageSampleRepository = ImageSampleRepository(image: image, type: .user)
-                
-                Task { @MainActor in
-                    let key = ImageSample.SizeKey.medium
-                    guard let downsampledImage = imageSampleRepository.samples[key] else {return}
-                    self.usernameRegistrationViewModel.setImageSampleRepository(imageSampleRepository)
-                    self.profileImage.image = UIImage(data: downsampledImage)
+                let repository = ImageSampleRepository(image: processedImage, type: .user)
+                if let mediumImage = repository.samples[.medium] {
+                    usernameRegistrationViewModel.setImageSampleRepository(repository)
+                    profileImage.image = UIImage(data: mediumImage)
                 }
+            } catch {
+                print("Failed to process image: \(error)")
             }
+        }
+    }
+
+    private func loadImage(from result: PHPickerResult) async throws -> UIImage?
+    {
+        try await withCheckedThrowingContinuation { continuation in
+            
+            result.itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                continuation.resume(returning: image as? UIImage)
+            }
+        }
+    }
+
+    private func processImage(_ image: UIImage?) async -> UIImage? {
+        guard let image else { return nil }
+        
+        let cropper = ImageCropper(image: image)
+        cropper.presentCropViewController(from: self)
+        
+        return await withCheckedContinuation { continuation in
+            cropper.$croppedImage
+                .dropFirst()
+                .first()
+                .sink {
+                    continuation.resume(returning: $0)
+                }
+                .store(in: &cancellables)
         }
     }
 }

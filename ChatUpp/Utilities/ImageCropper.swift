@@ -44,6 +44,11 @@ extension ImageCropper: CropViewControllerDelegate
         croppedImage = image
         cropViewController.dismiss(animated: true)
     }
+    
+    func cropViewController(_ cropViewController: CropViewController, didFinishCancelled cancelled: Bool) {
+        croppedImage = nil
+        cropViewController.dismiss(animated: true)
+    }
 }
 
 

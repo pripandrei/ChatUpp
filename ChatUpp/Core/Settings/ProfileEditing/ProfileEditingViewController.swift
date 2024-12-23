@@ -179,20 +179,21 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         
-        results.forEach { result in
-            Task { [weak self] in
-                do {
-                    guard let image = try await self?.loadImage(from: result.itemProvider) else {
-                        print("Could not load image")
-                        return
-                    }
-                    self?.processImage(image)
-                } catch {
-                    print("Error processing image: \(error)")
+        guard let result = results.first else { return }
+        
+        Task { [weak self] in
+            do {
+                guard let image = try await self?.loadImage(from: result.itemProvider) else {
+                    print("Could not load image")
+                    return
                 }
+                self?.processImage(image)
+            } catch {
+                print("Error processing image: \(error)")
             }
         }
     }
+    
     private func loadImage(from itemProvider: NSItemProvider) async throws -> UIImage?
     {
         return try await withCheckedThrowingContinuation { continuation in
