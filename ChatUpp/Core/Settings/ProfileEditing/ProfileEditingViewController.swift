@@ -190,7 +190,7 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
         }
     }
     
-    func presentCropViewController(image: UIImage)
+    private func presentCropViewController(image: UIImage)
     {
         let cropVC = CropViewController(croppingStyle: .circular, image: image)
         cropVC.delegate = self
@@ -200,7 +200,7 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
         
         present(cropVC, animated: true)
     }
-    
+//    
     private func updateImage(_ image: UIImage)
     {
         self.profileEditingViewModel.updateProfilePhotoData(image.getJpegData())
