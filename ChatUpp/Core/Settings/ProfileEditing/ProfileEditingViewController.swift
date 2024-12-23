@@ -185,14 +185,44 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
                     return
                 }
                 
-                guard let newSize = ImageSample.user.sizeMapping[.original] else {return}
-                let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6)
-                self.profileEditingViewModel.updateProfilePhotoData(downsampledImage.getJpegData())
-                
                 Task { @MainActor in
-                    self.headerCell.imageView.image = downsampledImage
+                    self.cropImage(image)
+                        .sink { [weak self] image in
+                            if let image = image {
+                                let downsampledImage = self?.downsampleImage(image)
+                                self?.profileEditingViewModel.updateProfilePhotoData(downsampledImage?.getJpegData())
+                                self?.headerCell.imageView.image = downsampledImage
+                            }
+                        }.store(in: &self.cancellables)
                 }
+//                Task { @MainActor in
+//                    let imageCropper = ImageCropper(image: image)
+//                    imageCropper.presentCropViewController(from: self)
+//                    imageCropper.$croppedImage
+//                        .sink { [weak self] croppedImage in
+//                            if let image = croppedImage {
+//                                let downsampledImage = self?.downsampleImage(image)
+//                                print(downsampledImage)
+//                                self?.profileEditingViewModel.updateProfilePhotoData(downsampledImage?.getJpegData())
+//                                self?.headerCell.imageView.image = downsampledImage
+//                            }
+//                        }.store(in: &self.cancellables)
+//                }
             }
         }
+    }
+    
+    @MainActor
+    private func cropImage(_ image: UIImage) -> AnyPublisher<UIImage?, Never>
+    {
+        let imageCropper = ImageCropper(image: image)
+        imageCropper.presentCropViewController(from: self)
+        return imageCropper.$croppedImage.eraseToAnyPublisher()
+    }
+    
+    private func downsampleImage(_ image: UIImage) -> UIImage
+    {
+        let newSize = ImageSample.user.sizeMapping[.original]!
+        return image.downsample(toSize: newSize, withCompressionQuality: 0.6)
     }
 }

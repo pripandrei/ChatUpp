@@ -71,6 +71,7 @@
 		759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */; };
 		75A086162D19619E00DE5333 /* CropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 75A086152D19619E00DE5333 /* CropViewController */; };
 		75A086182D19619E00DE5333 /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 75A086172D19619E00DE5333 /* TOCropViewController */; };
+		75A0861A2D1977DB00DE5333 /* ImageCropper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A086192D1977D200DE5333 /* ImageCropper.swift */; };
 		75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A9184A2C942E15006ED4CA /* CacheManager.swift */; };
 		75B48B572AF6837700A5FBFC /* ConversationRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B562AF6837700A5FBFC /* ConversationRootView.swift */; };
 		75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */; };
@@ -202,6 +203,7 @@
 		7587CE1D2C781425002D60CE /* RealmDataBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataBase.swift; sourceTree = "<group>"; };
 		7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSampleRepository.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
+		75A086192D1977D200DE5333 /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropper.swift; sourceTree = "<group>"; };
 		75A9184A2C942E15006ED4CA /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		75B48B562AF6837700A5FBFC /* ConversationRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRootView.swift; sourceTree = "<group>"; };
 		75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableController.swift; sourceTree = "<group>"; };
@@ -390,6 +392,7 @@
 		756525C82A8127CC005DC594 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				75A086192D1977D200DE5333 /* ImageCropper.swift */,
 				7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */,
 				7586807A2AC3239E009C16D3 /* CredentialsValidator */,
 				756525C92A8127F5005DC594 /* Observable.swift */,
@@ -856,6 +859,7 @@
 				755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */,
 				7543BE2A2ACB0EDA003001BF /* FirebaseChatService.swift in Sources */,
 				75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */,
+				75A0861A2D1977DB00DE5333 /* ImageCropper.swift in Sources */,
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
 				75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
