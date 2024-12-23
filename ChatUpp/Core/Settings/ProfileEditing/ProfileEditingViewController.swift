@@ -36,6 +36,10 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
         setupNavigationBar()
     }
     
+    deinit {
+        print("ProfileEditingViewController was deinited")
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         Utilities.setupNavigationBarAppearance()
@@ -171,48 +175,50 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
         pickerVC.delegate = self
         present(pickerVC, animated: true)
     }
-
+    
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
         
         results.forEach { result in
-            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
-                
-                guard let self = self else {return}
-                
-                guard let image = reading as? UIImage, error == nil else {
-                    print("Could not read image!")
+            Task { [weak self] in
+                do {
+                    guard let image = try await self?.loadImage(from: result.itemProvider) else {
+                        print("Could not load image")
+                        return
+                    }
+                    self?.processImage(image)
+                } catch {
+                    print("Error processing image: \(error)")
+                }
+            }
+        }
+    }
+    private func loadImage(from itemProvider: NSItemProvider) async throws -> UIImage?
+    {
+        return try await withCheckedThrowingContinuation { continuation in
+            itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
                     return
                 }
-                
-                Task { @MainActor in
-                    self.cropImage(image)
-                        .sink { [weak self] image in
-                            if let image = image {
-                                let downsampledImage = self?.downsampleImage(image)
-                                self?.profileEditingViewModel.updateProfilePhotoData(downsampledImage?.getJpegData())
-                                self?.headerCell.imageView.image = downsampledImage
-                            }
-                        }.store(in: &self.cancellables)
-                }
-//                Task { @MainActor in
-//                    let imageCropper = ImageCropper(image: image)
-//                    imageCropper.presentCropViewController(from: self)
-//                    imageCropper.$croppedImage
-//                        .sink { [weak self] croppedImage in
-//                            if let image = croppedImage {
-//                                let downsampledImage = self?.downsampleImage(image)
-//                                print(downsampledImage)
-//                                self?.profileEditingViewModel.updateProfilePhotoData(downsampledImage?.getJpegData())
-//                                self?.headerCell.imageView.image = downsampledImage
-//                            }
-//                        }.store(in: &self.cancellables)
-//                }
+                continuation.resume(returning: image as? UIImage)
             }
         }
     }
     
     @MainActor
+    private func processImage(_ image: UIImage)
+    {
+        cropImage(image)
+            .compactMap { $0 }
+            .sink { [weak self] image in
+                guard let self = self else {return}
+                let downsampledImage = self.downsampleImage(image)
+                self.profileEditingViewModel.updateProfilePhotoData(downsampledImage.getJpegData())
+                self.headerCell.imageView.image = downsampledImage
+            }.store(in: &cancellables)
+    }
+    
     private func cropImage(_ image: UIImage) -> AnyPublisher<UIImage?, Never>
     {
         let imageCropper = ImageCropper(image: image)

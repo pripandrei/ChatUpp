@@ -17,6 +17,10 @@ final class ProfileEditingViewModel
     private var user: User
     private var userData: (name: String?, phone: String?, nickname: String?)
     
+    deinit {
+        print("ProfileEditingViewModel was deinited")
+    }
+    
     var userDataItems: [String?]
     {
         let userDataMirror = Mirror(reflecting: userData)

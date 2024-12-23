@@ -8,18 +8,22 @@
 import UIKit
 import CropViewController
 
-public final class ImageCropper: NSObject
+final class ImageCropper: NSObject
 {
-    private let image: UIImage
     @Published public var croppedImage: UIImage?
+    private var image: UIImage
     
     init(image: UIImage) {
         self.image = image
     }
     
+    deinit {
+        print("ImageCropper was deinit")
+    }
+    
     func presentCropViewController(from viewController: UIViewController)
     {
-        let cropVC = CropViewController(croppingStyle: .circular, image: self.image)
+        let cropVC = CropViewController(croppingStyle: .circular, image: image)
         cropVC.delegate = self
         cropVC.aspectRatioLockEnabled = true
         cropVC.resetAspectRatioEnabled = false
@@ -41,3 +45,21 @@ extension ImageCropper: CropViewControllerDelegate
         cropViewController.dismiss(animated: true)
     }
 }
+
+
+
+
+//    private var continuation: CheckedContinuation<UIImage, Never>?
+//    @MainActor
+//    func cropImage(from viewController: UIViewController) async -> UIImage {
+//           await withCheckedContinuation { continuation in
+//               self.continuation = continuation
+//               let cropVC = CropViewController(croppingStyle: .circular, image: self.image)
+//               cropVC.delegate = self
+//               cropVC.aspectRatioLockEnabled = true
+//               cropVC.resetAspectRatioEnabled = false
+//               cropVC.toolbar.clampButtonHidden = true
+//
+//               viewController.present(cropVC, animated: true)
+//           }
+//       }
