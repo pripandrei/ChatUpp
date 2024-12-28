@@ -32,11 +32,13 @@ struct GroupCreationScreen: View
                     }
                 } header: {
                     Text("Users")
-//                        .textCase(nil)
+                    //                        .textCase(nil)
                         .font(.subheadline)
                         .bold()
                 }
             }
+            .padding(.top, 1)
+            .background(Color(#colorLiteral(red: 0.949019134, green: 0.9490200877, blue: 0.9705253243, alpha: 1)))
             .navigationTitle("New group")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: "search for name")
@@ -96,13 +98,14 @@ extension GroupCreationScreen
         {
             HStack {
                 Image(systemName: item.imageName)
-                    .font(.footnote)
-                    .frame(width: 40, height: 40)
+                    .font(.system(size: 15))
+                    .frame(width: 37, height: 37)
                     .background(Color(.systemGray6))
                     .clipShape(.circle)
                     .padding(.trailing, 10)
                 
                 Text(item.title)
+                    .font(.system(size: 16))
             }
             
         }
@@ -116,7 +119,7 @@ extension GroupCreationScreen
         var body: some View {
             HStack {
                 Circle()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 37, height: 37)
                     .padding(.trailing, 10)
                 
                 VStack(alignment: .leading) {
