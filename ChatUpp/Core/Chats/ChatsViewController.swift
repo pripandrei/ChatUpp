@@ -41,6 +41,7 @@ class ChatsViewController: UIViewController {
         configureTableView()
         setupSearchController()
         chatsViewModel.activateOnDisconnect()
+        setupNavigationBarItems()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -359,4 +360,21 @@ extension ChatsViewController
         return image
     }
 }
-
+//MARK: - Navigation bar items 
+extension ChatsViewController
+{
+    private func setupNavigationBarItems()
+    {
+        let trailingBarItem = UIBarButtonItem(image: UIImage(systemName: "plus.circle.fill"),
+                                              style: .plain,
+                                              target: self,
+                                              action: #selector(presentGropupOptionScreen))
+        self.navigationItem.rightBarButtonItem = trailingBarItem
+        
+    }
+    
+    @objc private func presentGropupOptionScreen() {
+        print("present new group screen")
+    }
+    
+}
