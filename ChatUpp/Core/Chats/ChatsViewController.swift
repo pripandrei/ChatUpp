@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 import SkeletonView
 import Combine
 
@@ -360,7 +361,7 @@ extension ChatsViewController
         return image
     }
 }
-//MARK: - Navigation bar items 
+//MARK: - Navigation bar items
 extension ChatsViewController
 {
     private func setupNavigationBarItems()
@@ -373,8 +374,13 @@ extension ChatsViewController
         
     }
     
-    @objc private func presentGropupOptionScreen() {
-        print("present new group screen")
+    @objc private func presentGropupOptionScreen()
+    {
+        let groupCreationScreen = GroupCreationScreen()
+        let hostingController = UIHostingController(rootView: groupCreationScreen)
+        hostingController.modalPresentationStyle = .pageSheet
+        hostingController.modalTransitionStyle = .coverVertical
+        present(hostingController, animated: true)
     }
     
 }

@@ -66,7 +66,7 @@ extension GroupCreationScreen
 //            dismiss.callAsFunction()
         } label: {
             Image(systemName: "xmark")
-                .font(.footnote)
+                .font(.system(size: 10))
                 .bold()
                 .foregroundStyle(.gray)
                 .padding(7)
