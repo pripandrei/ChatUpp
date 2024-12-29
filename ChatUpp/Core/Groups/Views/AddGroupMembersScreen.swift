@@ -9,21 +9,55 @@ import SwiftUI
 
 struct AddGroupMembersScreen: View
 {
+    @ObservedObject var viewModel: GroupCreationViewModel
     @State var searchText: String = ""
     
     var body: some View
     {
-            List {
-                Text("Test one two three")
+        List {
+            if viewModel.showSelectedUsers {
+                Text("item")
             }
-            .padding(.top, 1)
-            .background(Color(#colorLiteral(red: 0.949019134, green: 0.9490200877, blue: 0.9705253243, alpha: 1)))
-            .searchable(text: $searchText, prompt: "Search users")
+            Section {
+                ForEach([UserItem.placeholder]) { user in
+                    Button {
+                        print("item tapped")
+                        viewModel.toggleUserSelection(user)
+                    } label: {
+                        userRowView(user)
+                    }.buttonStyle(.plain)
+                    
+                }
+            }
+        }
+        .searchable(text: $searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: "Search users")
+        .animation(.easeInOut, value: viewModel.showSelectedUsers)
+    }
+    
+    private func userRowView(_ user: UserItem) -> some View
+    {
+        return UserView(userItem: UserItem.placeholder)
+        {
+            Spacer()
+            createTrailingItem(for: user)
+        }
+    }
+    
+    private func createTrailingItem(for user: UserItem) -> some View
+    {
+        let isUserSelected = viewModel.isUserSelected(user)
+        let image = isUserSelected ? Image(systemName: "checkmark.circle.fill") : Image(systemName: "circle")
+        let foregroundColor = isUserSelected ? Color.green : Color.gray
+        return image
+            .foregroundStyle(foregroundColor)
+            .imageScale(.large)
     }
 }
 
 #Preview {
     NavigationStack{
-        AddGroupMembersScreen()
+        AddGroupMembersScreen(viewModel: GroupCreationViewModel())
     }
 }

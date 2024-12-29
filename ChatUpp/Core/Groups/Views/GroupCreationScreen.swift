@@ -38,7 +38,9 @@ struct GroupCreationScreen: View
             }
             .padding(.top, 1)
             .background(Color(#colorLiteral(red: 0.949019134, green: 0.9490200877, blue: 0.9705253243, alpha: 1)))
-            .searchable(text: $searchText, prompt: "search for name")
+            .searchable(text: $searchText,
+                        placement: .navigationBarDrawer(displayMode: .always),
+                        prompt: "search for name")
             .navigationTitle("New group")
             .navigationDestination(for: GroupCreationRoute.self, destination: { route in
                 destinationRouteView(route)
@@ -53,13 +55,14 @@ struct GroupCreationScreen: View
 
 extension GroupCreationScreen
 {
+    @ViewBuilder
     private func destinationRouteView(_ route: GroupCreationRoute) -> some View
     {
         switch route {
         case .addGroupMembers:
-            return Text("Group members")
+            AddGroupMembersScreen(viewModel: groupCreationViewModel)
         case .setupGroupDetails:
-            return Text("group details")
+            Text("group details")
         }
     }
 }
@@ -157,8 +160,10 @@ enum NewChatOption: String, CaseIterable, Identifiable
  
 
 
-struct UserItem
+struct UserItem: Identifiable
 {
+    static var placeholder: Self = UserItem(name: "Placeholder", bio: "just chilling out") 
+    
     let id: String = UUID().uuidString
     let name: String
     var bio: String?
