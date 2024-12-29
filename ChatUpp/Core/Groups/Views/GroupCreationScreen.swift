@@ -7,22 +7,21 @@
 
 import SwiftUI
 
-
-class UserSettings: SwiftUI.ObservableObject {
-    @Published var username: String = "Guest"
-}
-
-
 struct GroupCreationScreen: View
 {
+    @StateObject private var groupCreationViewModel = GroupCreationViewModel()
+    
     @State private var searchText = ""
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $groupCreationViewModel.navigationStack) {
             List {
                 ForEach(NewChatOption.allCases) { item in
                     NewChatOptionHeaderView(item: item)
+                        .onTapGesture {
+                            groupCreationViewModel.navigationStack.append(.addGroupMembers)
+                        }
                 }
                 
                 Section {
@@ -39,12 +38,28 @@ struct GroupCreationScreen: View
             }
             .padding(.top, 1)
             .background(Color(#colorLiteral(red: 0.949019134, green: 0.9490200877, blue: 0.9705253243, alpha: 1)))
-            .navigationTitle("New group")
-            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: "search for name")
+            .navigationTitle("New group")
+            .navigationDestination(for: GroupCreationRoute.self, destination: { route in
+                destinationRouteView(route)
+            })
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarTrailingItem()
             }
+        }
+    }
+}
+
+extension GroupCreationScreen
+{
+    private func destinationRouteView(_ route: GroupCreationRoute) -> some View
+    {
+        switch route {
+        case .addGroupMembers:
+            return Text("Group members")
+        case .setupGroupDetails:
+            return Text("group details")
         }
     }
 }
@@ -91,6 +106,8 @@ extension GroupCreationScreen
                 
             } label: {
                 setupButtonLabel()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
             }
         }
         
@@ -107,7 +124,6 @@ extension GroupCreationScreen
                 Text(item.title)
                     .font(.system(size: 16))
             }
-            
         }
     }
     
