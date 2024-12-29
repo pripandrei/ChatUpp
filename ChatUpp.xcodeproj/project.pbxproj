@@ -11,6 +11,8 @@
 		752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 752514B92D0CD2FF003330E7 /* Kingfisher */; };
 		7525150D2D0EE427003330E7 /* ProfileEditingListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */; };
 		752DE4092D21700A003AC40C /* GroupCreationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE4082D217003003AC40C /* GroupCreationViewModel.swift */; };
+		752DE40D2D218B95003AC40C /* AddGroupMembersScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40C2D218B95003AC40C /* AddGroupMembersScreen.swift */; };
+		752DE4102D219557003AC40C /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40F2D219557003AC40C /* UserView.swift */; };
 		753185E92C22123300C4F9F4 /* UIButton + extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753185E82C22123300C4F9F4 /* UIButton + extensions.swift */; };
 		753186132C26F8B900C4F9F4 /* UITextView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */; };
 		7533D9B82B1659210057EBC7 /* PhoneSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */; };
@@ -162,6 +164,8 @@
 		751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesBadge.swift; sourceTree = "<group>"; };
 		7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingListCell.swift; sourceTree = "<group>"; };
 		752DE4082D217003003AC40C /* GroupCreationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationViewModel.swift; sourceTree = "<group>"; };
+		752DE40C2D218B95003AC40C /* AddGroupMembersScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGroupMembersScreen.swift; sourceTree = "<group>"; };
+		752DE40F2D219557003AC40C /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
 		753185E82C22123300C4F9F4 /* UIButton + extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + extensions.swift"; sourceTree = "<group>"; };
 		753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Extensions.swift"; sourceTree = "<group>"; };
 		7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSignInViewController.swift; sourceTree = "<group>"; };
@@ -297,7 +301,9 @@
 		752DE4022D216FB2003AC40C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				752DE40E2D219549003AC40C /* Subviews */,
 				75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */,
+				752DE40C2D218B95003AC40C /* AddGroupMembersScreen.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -308,6 +314,14 @@
 				752DE4082D217003003AC40C /* GroupCreationViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		752DE40E2D219549003AC40C /* Subviews */ = {
+			isa = PBXGroup;
+			children = (
+				752DE40F2D219557003AC40C /* UserView.swift */,
+			);
+			path = Subviews;
 			sourceTree = "<group>";
 		};
 		7533D9B92B167E7F0057EBC7 /* PhoneSignin */ = {
@@ -944,6 +958,7 @@
 				756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */,
 				75D7C5952AD72DBC00F6D4B9 /* ConversationTableViewCell.swift in Sources */,
 				752DE4092D21700A003AC40C /* GroupCreationViewModel.swift in Sources */,
+				752DE4102D219557003AC40C /* UserView.swift in Sources */,
 				7563F8C42AE8D2D1006FA374 /* String+Extensions.swift in Sources */,
 				75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */,
 				75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */,
@@ -952,6 +967,7 @@
 				756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */,
 				7563F87C2ADE25E6006FA374 /* ConversationViewDataSource.swift in Sources */,
 				754439302B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift in Sources */,
+				752DE40D2D218B95003AC40C /* AddGroupMembersScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
