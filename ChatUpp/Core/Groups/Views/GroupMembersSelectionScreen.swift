@@ -16,7 +16,7 @@ struct GroupMembersSelectionScreen: View
     {
         List {
             if viewModel.showSelectedUsers {
-                SelectedGroupMembersView()
+                SelectedGroupMembersView(selectedMembers: $viewModel.selectedGroupMembers)
             }
             
             Section {

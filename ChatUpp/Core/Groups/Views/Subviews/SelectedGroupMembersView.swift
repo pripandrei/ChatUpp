@@ -9,38 +9,40 @@ import SwiftUI
 
 struct SelectedGroupMembersView: View
 {
+    @Binding var selectedMembers: [UserItem]
+    
     var body: some View
     {
         ScrollView(.horizontal) {
             HStack {
-                ForEach(UserItem.placeholders) { user in
-                    selectedMemberItem(user.name)
+                ForEach(selectedMembers) { user in
+                    selectedMemberItem(user)
                 }
             }
         }
         .scrollIndicators(.hidden)
     }
     
-    private func selectedMemberItem(_ name: String) -> some View
+    private func selectedMemberItem(_ user: UserItem) -> some View
     {
         VStack {
             Circle()
                 .frame(width: 60, height: 60)
                 .foregroundStyle(.gray)
                 .overlay(alignment: .topTrailing) {
-                    cancelButton()
+                    cancelButton(for: user)
                 }
             
-            Text(name)
+            Text(user.name)
                 .font(Font.system(.subheadline))
                 .fontWeight(.semibold)
                 .foregroundStyle(Color(#colorLiteral(red: 0.2674642503, green: 0.2521909475, blue: 0.2465424836, alpha: 1)))
         }
     }
     
-    private func cancelButton() -> some View {
+    private func cancelButton(for user: UserItem) -> some View {
         Button {
-            
+            selectedMembers.removeAll(where: { $0.id == user.id })
         } label: {
             Image(systemName: "xmark")
                 .imageScale(.small)
@@ -53,5 +55,5 @@ struct SelectedGroupMembersView: View
     }
 }
 #Preview {
-    SelectedGroupMembersView()
+    SelectedGroupMembersView(selectedMembers: .constant(UserItem.placeholders))
 }
