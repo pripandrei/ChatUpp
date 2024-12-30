@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AddGroupMembersScreen: View
+struct GroupMembersSelectionScreen: View
 {
     @ObservedObject var viewModel: GroupCreationViewModel
     @State var searchText: String = ""
@@ -16,15 +16,15 @@ struct AddGroupMembersScreen: View
     {
         List {
             if viewModel.showSelectedUsers {
-                Text("item")
+                SelectedGroupMembersView()
             }
+            
             Section {
-                ForEach([UserItem.placeholder]) { user in
+                ForEach(UserItem.placeholders) { user in
                     Button {
-                        print("item tapped")
                         viewModel.toggleUserSelection(user)
                     } label: {
-                        userRowView(user)
+                        rowView(for: user)
                     }.buttonStyle(.plain)
                     
                 }
@@ -35,29 +35,34 @@ struct AddGroupMembersScreen: View
                     prompt: "Search users")
         .animation(.easeInOut, value: viewModel.showSelectedUsers)
     }
-    
-    private func userRowView(_ user: UserItem) -> some View
+}
+
+//MARK: - List row
+extension GroupMembersSelectionScreen
+{
+    private func rowView(for user: UserItem) -> some View
     {
-        return UserView(userItem: UserItem.placeholder)
+        UserView(userItem: user)
         {
             Spacer()
-            createTrailingItem(for: user)
+            let isUserSelected = viewModel.isUserSelected(user)
+            createTrailingItem(withSelection: isUserSelected)
         }
     }
     
-    private func createTrailingItem(for user: UserItem) -> some View
+    private func createTrailingItem(withSelection isSelected: Bool) -> some View
     {
-        let isUserSelected = viewModel.isUserSelected(user)
-        let image = isUserSelected ? Image(systemName: "checkmark.circle.fill") : Image(systemName: "circle")
-        let foregroundColor = isUserSelected ? Color.green : Color.gray
+        let image = isSelected ? Image(systemName: "checkmark.circle.fill") : Image(systemName: "circle")
+        let foregroundColor = isSelected ? Color.green : Color.gray
         return image
+            .font(.system(size: 24))
             .foregroundStyle(foregroundColor)
-            .imageScale(.large)
     }
 }
 
 #Preview {
     NavigationStack{
-        AddGroupMembersScreen(viewModel: GroupCreationViewModel())
+        GroupMembersSelectionScreen(viewModel: GroupCreationViewModel())
     }
 }
+

@@ -36,8 +36,6 @@ struct UserView<Content: View>: View
                     .foregroundStyle(.gray)
             }
             trailingItems
-//                .foregroundStyle(Color.blue)
-//                .padding(.trailing, 20)
         }
     }
 }

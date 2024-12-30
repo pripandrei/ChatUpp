@@ -60,7 +60,7 @@ extension GroupCreationScreen
     {
         switch route {
         case .addGroupMembers:
-            AddGroupMembersScreen(viewModel: groupCreationViewModel)
+            GroupMembersSelectionScreen(viewModel: groupCreationViewModel)
         case .setupGroupDetails:
             Text("group details")
         }
@@ -162,7 +162,19 @@ enum NewChatOption: String, CaseIterable, Identifiable
 
 struct UserItem: Identifiable
 {
-    static var placeholder: Self = UserItem(name: "Placeholder", bio: "just chilling out") 
+    static let placeholder: Self = UserItem(name: "Placeholder", bio: "just chilling out")
+    
+    static var placeholders: [UserItem] =
+    {
+        let bios = ["I am thankful for support", "Have a nice life", "Get things done", "Smile some", "Lucky we", "can do this", "I am happy"]
+        let names = ["kevin", "Adam", "Lilly", "Derik", "Faitha", "gabriel", "Barbara"]
+        
+        let userItems = (1..<12).map { number in
+            UserItem(name: names.randomElement()!, bio: bios.randomElement()!)
+        }
+
+        return userItems
+    }()
     
     let id: String = UUID().uuidString
     let name: String

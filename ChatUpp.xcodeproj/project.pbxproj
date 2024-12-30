@@ -11,7 +11,7 @@
 		752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 752514B92D0CD2FF003330E7 /* Kingfisher */; };
 		7525150D2D0EE427003330E7 /* ProfileEditingListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */; };
 		752DE4092D21700A003AC40C /* GroupCreationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE4082D217003003AC40C /* GroupCreationViewModel.swift */; };
-		752DE40D2D218B95003AC40C /* AddGroupMembersScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40C2D218B95003AC40C /* AddGroupMembersScreen.swift */; };
+		752DE40D2D218B95003AC40C /* GroupMembersSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40C2D218B95003AC40C /* GroupMembersSelectionScreen.swift */; };
 		752DE4102D219557003AC40C /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40F2D219557003AC40C /* UserView.swift */; };
 		753185E92C22123300C4F9F4 /* UIButton + extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753185E82C22123300C4F9F4 /* UIButton + extensions.swift */; };
 		753186132C26F8B900C4F9F4 /* UITextView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */; };
@@ -65,6 +65,7 @@
 		757AB0FC2BB9D81B00A64DA4 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0FB2BB9D81B00A64DA4 /* GoogleSignIn */; };
 		757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0FD2BB9D81B00A64DA4 /* GoogleSignInSwift */; };
 		757AB1012BB9D85100A64DA4 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB1002BB9D85100A64DA4 /* SkeletonView */; };
+		757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757E81B42D232EC400727277 /* SelectedGroupMembersView.swift */; };
 		75855AF52CF0393A00FF8E9E /* ConversationTableViewTitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75855AF42CF0393A00FF8E9E /* ConversationTableViewTitleCell.swift */; };
 		75855B3F2CF14B5300FF8E9E /* ReuseIdentifire.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75855B3E2CF14B5300FF8E9E /* ReuseIdentifire.swift */; };
 		7587CE1B2C77DA7D002D60CE /* Query+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */; };
@@ -164,7 +165,7 @@
 		751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesBadge.swift; sourceTree = "<group>"; };
 		7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingListCell.swift; sourceTree = "<group>"; };
 		752DE4082D217003003AC40C /* GroupCreationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationViewModel.swift; sourceTree = "<group>"; };
-		752DE40C2D218B95003AC40C /* AddGroupMembersScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGroupMembersScreen.swift; sourceTree = "<group>"; };
+		752DE40C2D218B95003AC40C /* GroupMembersSelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembersSelectionScreen.swift; sourceTree = "<group>"; };
 		752DE40F2D219557003AC40C /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
 		753185E82C22123300C4F9F4 /* UIButton + extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + extensions.swift"; sourceTree = "<group>"; };
 		753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Extensions.swift"; sourceTree = "<group>"; };
@@ -204,6 +205,7 @@
 		7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewController.swift; sourceTree = "<group>"; };
 		7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewModel.swift; sourceTree = "<group>"; };
 		757900752BF1768D00DE5A2F /* ConversationTableViewHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewHeader.swift; sourceTree = "<group>"; };
+		757E81B42D232EC400727277 /* SelectedGroupMembersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedGroupMembersView.swift; sourceTree = "<group>"; };
 		75855AF42CF0393A00FF8E9E /* ConversationTableViewTitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewTitleCell.swift; sourceTree = "<group>"; };
 		75855B3E2CF14B5300FF8E9E /* ReuseIdentifire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReuseIdentifire.swift; sourceTree = "<group>"; };
 		7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Query+Extensions.swift"; sourceTree = "<group>"; };
@@ -303,7 +305,7 @@
 			children = (
 				752DE40E2D219549003AC40C /* Subviews */,
 				75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */,
-				752DE40C2D218B95003AC40C /* AddGroupMembersScreen.swift */,
+				752DE40C2D218B95003AC40C /* GroupMembersSelectionScreen.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -320,6 +322,7 @@
 			isa = PBXGroup;
 			children = (
 				752DE40F2D219557003AC40C /* UserView.swift */,
+				757E81B42D232EC400727277 /* SelectedGroupMembersView.swift */,
 			);
 			path = Subviews;
 			sourceTree = "<group>";
@@ -905,6 +908,7 @@
 				75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */,
 				75A0861A2D1977DB00DE5333 /* ImageCropper.swift in Sources */,
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
+				757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */,
 				75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
@@ -967,7 +971,7 @@
 				756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */,
 				7563F87C2ADE25E6006FA374 /* ConversationViewDataSource.swift in Sources */,
 				754439302B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift in Sources */,
-				752DE40D2D218B95003AC40C /* AddGroupMembersScreen.swift in Sources */,
+				752DE40D2D218B95003AC40C /* GroupMembersSelectionScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
