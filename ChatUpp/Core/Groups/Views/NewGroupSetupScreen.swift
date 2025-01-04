@@ -10,10 +10,12 @@ import SwiftUI
 struct NewGroupSetupScreen: View
 {
     @State private var textFieldText: String = ""
+    @ObservedObject var viewModel: GroupCreationViewModel
 
     var body: some View {
         List {
             headerSection()
+            addedMembersSection()
         }
         .navigationTitle("New Group")
         .navigationBarTitleDisplayMode(.inline)
@@ -21,8 +23,20 @@ struct NewGroupSetupScreen: View
             toolbarTrailingItem()
         }
     }
+    
+    private func toolbarTrailingItem() -> some ToolbarContent
+    {
+        ToolbarItem(placement: .topBarTrailing) {
+            Button {
+                
+            } label: {
+                Text("Create")
+            }
+        }
+    }
 }
 
+//MARK: Sections
 extension NewGroupSetupScreen
 {
     private func headerSection() -> some View
@@ -36,6 +50,19 @@ extension NewGroupSetupScreen
         }
     }
     
+    private func addedMembersSection() -> some View
+    {
+        Section {
+            ForEach(viewModel.selectedGroupMembers) { user in
+                UserView(userItem: user)
+            }
+        }
+    }
+}
+
+//MARK: Section Components
+extension NewGroupSetupScreen
+{
     private func addPictureButton() -> some View
     {
         Button {
@@ -80,22 +107,11 @@ extension NewGroupSetupScreen
         }
         .buttonStyle(.plain)
     }
-    
-    private func toolbarTrailingItem() -> some ToolbarContent
-    {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                
-            } label: {
-                Text("Create")
-            }
-        }
-    }
 }
 
 
 #Preview {
     NavigationStack {
-        NewGroupSetupScreen()        
+        NewGroupSetupScreen(viewModel: GroupCreationViewModel())
     }
 }

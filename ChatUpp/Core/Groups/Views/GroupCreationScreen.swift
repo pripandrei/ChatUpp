@@ -62,7 +62,7 @@ extension GroupCreationScreen
         case .addGroupMembers:
             GroupMembersSelectionScreen(viewModel: groupCreationViewModel)
         case .setupGroupDetails:
-            NewGroupSetupScreen()
+            NewGroupSetupScreen(viewModel: groupCreationViewModel)
         }
     }
 }
