@@ -62,7 +62,7 @@ extension GroupCreationScreen
         case .addGroupMembers:
             GroupMembersSelectionScreen(viewModel: groupCreationViewModel)
         case .setupGroupDetails:
-            Text("group details")
+            NewGroupSetupScreen()
         }
     }
 }
@@ -157,7 +157,7 @@ enum NewChatOption: String, CaseIterable, Identifiable
         }
     }
 }
- 
+
 
 
 struct UserItem: Identifiable
@@ -169,7 +169,7 @@ struct UserItem: Identifiable
         let bios = ["I am thankful for support", "Have a nice life", "Get things done", "Smile some", "Lucky we", "can do this", "I am happy"]
         let names = ["kevin", "Adam", "Lilly", "Derik", "Faitha", "gabriel", "Barbara"]
         
-        let userItems = (1..<12).map { number in
+        let userItems = (1..<17).map { number in
             UserItem(name: names.randomElement()!, bio: bios.randomElement()!)
         }
 

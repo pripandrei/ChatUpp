@@ -19,9 +19,14 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
     @Published var navigationStack = [GroupCreationRoute]()
     @Published var selectedGroupMembers = [UserItem]()
     
+    var disableNextButton: Bool
+    {
+        return selectedGroupMembers.isEmpty
+    }
+    
     var showSelectedUsers: Bool
     {
-        selectedGroupMembers.count > 0
+        return selectedGroupMembers.count > 0
     }
     
     func toggleUserSelection(_ user: UserItem)

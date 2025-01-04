@@ -30,10 +30,14 @@ struct GroupMembersSelectionScreen: View
                 }
             }
         }
+        .animation(.easeInOut, value: viewModel.showSelectedUsers)
         .searchable(text: $searchText,
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: "Search users")
-        .animation(.easeInOut, value: viewModel.showSelectedUsers)
+        .toolbar {
+            toolbarContent()
+        }
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -57,6 +61,38 @@ extension GroupMembersSelectionScreen
         return image
             .font(.system(size: 24))
             .foregroundStyle(foregroundColor)
+    }
+}
+
+//MARK: - Toolbar items
+extension GroupMembersSelectionScreen
+{
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent
+    {
+        ToolbarItem(placement: .principal)
+        {
+            let selectedParticipants = viewModel.selectedGroupMembers.count
+            VStack {
+                Text("Add participants")
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                Text("\(selectedParticipants)/30")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.gray)
+            }
+        }
+        
+        ToolbarItem(placement: .topBarTrailing)
+        {
+            let foregroundColor = viewModel.disableNextButton ? Color.gray : Color.white
+            Button("Next") {
+                viewModel.navigationStack.append(.setupGroupDetails)
+            }
+            .fontWeight(.bold)
+            .foregroundStyle(foregroundColor)
+            .disabled(viewModel.disableNextButton)
+        }
     }
 }
 
