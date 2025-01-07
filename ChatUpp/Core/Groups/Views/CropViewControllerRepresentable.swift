@@ -6,19 +6,22 @@
 //
 
 import SwiftUI
+import PhotosUI
 import CropViewController
 
 struct CropViewControllerRepresentable: UIViewControllerRepresentable
 {
-    private let image: UIImage
+    private var image: UIImage?
+    private let imageData: Data
     
-    init(image: UIImage) {
-        self.image = image
+    init(imageData: Data)
+    {
+        self.imageData = imageData
     }
     
     func makeUIViewController(context: Context) -> some UIViewController
-    {        
-        let cropViewController = CropViewController(image: image)
+    {
+        let cropViewController = CropViewController(image: UIImage(data: imageData) ?? UIImage())
         cropViewController.view.backgroundColor = .blue
         return cropViewController
     }
@@ -28,3 +31,16 @@ struct CropViewControllerRepresentable: UIViewControllerRepresentable
         
     }
 }
+
+//MARK: - Helper functions
+//extension CropViewControllerRepresentable
+//{
+//    private func extractImageFromPickerItem() async -> UIImage
+//    {
+//        if let data = try? await pickerItem.loadTransferable(type: Data.self),
+//           let image = UIImage(data: data)
+//        {
+//            return image
+//        }
+//    }
+//}

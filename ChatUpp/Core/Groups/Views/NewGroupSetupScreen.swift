@@ -15,8 +15,10 @@ struct NewGroupSetupScreen: View
     
     @State private var profilePhotoItem: PhotosPickerItem?
     @State private var profileImage: Image?
+    @State private var imageData: Data?
+    
 //    @State private var profileUIImage: UIImage?
-    @State private var profileUIImage: IdentifiableUIImage?
+//    @State private var profileUIImage: IdentifiableUIImage?
     
     @State private var showCropVC: Bool = false
     
@@ -55,12 +57,15 @@ extension NewGroupSetupScreen
                 textField()
                 removeTextButton()
             }
-            .onChange(of: profilePhotoItem) { item in
-                extractImage(from: item)
+            .onChange(of: profilePhotoItem) { _ in
+                extractImageData()
+                showCropVC = true
             }
         }
-        .sheet(item: $profileUIImage) { identifiableImage in
-            CropViewControllerRepresentable(image: identifiableImage.image)
+        .sheet(isPresented: $showCropVC) {
+            if let data = imageData {
+                CropViewControllerRepresentable(imageData: data)
+            }
         }
     }
     
@@ -141,6 +146,14 @@ extension NewGroupSetupScreen
 //MARK: - Helper functions
 extension NewGroupSetupScreen
 {
+    
+    private func extractImageData()
+    {
+        Task {
+            self.imageData = try await self.profilePhotoItem?.loadTransferable(type: Data.self)
+        }
+    }
+    
 //    private func setImage() {
 ////        Task {
 ////            if let image = try? await profilePhotoItem?.loadTransferable(type: Image.self) {
@@ -158,17 +171,17 @@ extension NewGroupSetupScreen
 //        }
 //    }
     
-    private func extractImage(from pickerItem: PhotosPickerItem?)
-    {
-        Task {
-            if let data = try? await pickerItem?.loadTransferable(type: Data.self),
-               let uiimage = UIImage(data: data)
-            {
-                self.profileUIImage = IdentifiableUIImage(image: uiimage)
-//                self.profileUIImage = uiimage
-            }
-        }
-    }
+//    private func extractImage(from pickerItem: PhotosPickerItem?)
+//    {
+//        Task {
+//            if let data = try? await pickerItem?.loadTransferable(type: Data.self),
+//               let uiimage = UIImage(data: data)
+//            {
+//                self.profileUIImage = IdentifiableUIImage(image: uiimage)
+////                self.profileUIImage = uiimage
+//            }
+//        }
+//    }
 }
 
 #Preview {
