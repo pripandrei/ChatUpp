@@ -85,6 +85,7 @@
 		75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */; };
 		75B5C4C32A49AB0B00F63A5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */; };
 		75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C42A49AB0B00F63A5A /* LaunchScreen.storyboard */; };
+		75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */; };
 		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
@@ -225,6 +226,7 @@
 		75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		75B5C4C52A49AB0B00F63A5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		75B5C4C72A49AB0B00F63A5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropViewControllerRepresentable.swift; sourceTree = "<group>"; };
 		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
@@ -305,6 +307,7 @@
 		752DE4022D216FB2003AC40C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */,
 				752DE40E2D219549003AC40C /* Subviews */,
 				75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */,
 				752DE40C2D218B95003AC40C /* GroupMembersSelectionScreen.swift */,
@@ -951,6 +954,7 @@
 				756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */,
 				75855B3F2CF14B5300FF8E9E /* ReuseIdentifire.swift in Sources */,
 				754439532B3FCFF30044A84B /* ProfileEditingViewController.swift in Sources */,
+				75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */,
 				757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
 				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
