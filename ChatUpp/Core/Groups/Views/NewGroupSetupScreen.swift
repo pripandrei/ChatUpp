@@ -14,12 +14,9 @@ struct NewGroupSetupScreen: View
     @ObservedObject var viewModel: GroupCreationViewModel
     
     @State private var profilePhotoItem: PhotosPickerItem?
-    @State private var profileImage: Image?
-    @State private var imageData: Data?
-    
-//    @State private var profileUIImage: UIImage?
-//    @State private var profileUIImage: IdentifiableUIImage?
-    
+    @State private var profileImage: UIImage?
+    @State private var imageDataContainer: ImageDataContainer?
+
     @State private var showCropVC: Bool = false
     
     var body: some View {
@@ -49,25 +46,25 @@ struct NewGroupSetupScreen: View
 //MARK: Sections
 extension NewGroupSetupScreen
 {
-    private func headerSection() -> some View
-    {
-        Section {
-            HStack {
-                profilePicture()
-                textField()
-                removeTextButton()
-            }
-            .onChange(of: profilePhotoItem) { _ in
-                extractImageData()
-                showCropVC = true
-            }
-        }
-        .sheet(isPresented: $showCropVC) {
-            if let data = imageData {
-                CropViewControllerRepresentable(imageData: data)
-            }
-        }
-    }
+    private func headerSection() -> some View {
+           Section {
+               HStack {
+                   profilePicture()
+                   textField()
+                   removeTextButton()
+               }
+               .onChange(of: profilePhotoItem) { _ in
+                   Task {
+                       if let imageData = await extractImageData() {
+                           self.imageDataContainer = ImageDataContainer(data: imageData)
+                       }
+                   }
+               }
+           }
+           .sheet(item: $imageDataContainer) { container in
+               CropViewControllerRepresentable(imageData: container.data, cropedImage: $profileImage)
+           }
+       }
     
     private func addedMembersSection() -> some View
     {
@@ -95,7 +92,7 @@ extension NewGroupSetupScreen
                 photoLibrary: .shared()
             ) {
                 if let image = profileImage {
-                    image
+                    Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
                         .frame(width: circleSize, height: circleSize)
@@ -147,38 +144,17 @@ extension NewGroupSetupScreen
 extension NewGroupSetupScreen
 {
     
-    private func extractImageData()
+    private func extractImageData() async -> Data?
     {
-        Task {
-            self.imageData = try await self.profilePhotoItem?.loadTransferable(type: Data.self)
-        }
+        return try? await self.profilePhotoItem?.loadTransferable(type: Data.self)
     }
     
-//    private func setImage() {
-////        Task {
-////            if let image = try? await profilePhotoItem?.loadTransferable(type: Image.self) {
-////                self.profileImage = image
-////            }
-////        }
-//        
-//        Task {
-//            if let imageData = try? await profilePhotoItem?.loadTransferable(type: Data.self),
-//               let uIImage = UIImage(data: imageData)
-//            {
-//                
-//                self.profileImage = Image(uiImage: uIImage)
-//            }
-//        }
-//    }
-    
-//    private func extractImage(from pickerItem: PhotosPickerItem?)
+//    private func onProfilePhotoItemChange()
 //    {
 //        Task {
-//            if let data = try? await pickerItem?.loadTransferable(type: Data.self),
-//               let uiimage = UIImage(data: data)
+//            if let data = await extractImageData()
 //            {
-//                self.profileUIImage = IdentifiableUIImage(image: uiimage)
-////                self.profileUIImage = uiimage
+//                self.imageData = data
 //            }
 //        }
 //    }
@@ -190,8 +166,8 @@ extension NewGroupSetupScreen
     }
 }
 
-
-struct IdentifiableUIImage: Identifiable {
-    let id: String = UUID().uuidString
-    var image: UIImage
+struct ImageDataContainer: Identifiable
+{
+    let id = UUID()
+    let data: Data
 }
