@@ -10,14 +10,12 @@ import PhotosUI
 
 struct NewGroupSetupScreen: View
 {
-    @State private var textFieldText: String = ""
     @ObservedObject var viewModel: GroupCreationViewModel
     
+    @State private var imageDataContainer: IdentifiableItem<Data>?
     @State private var profilePhotoItem: PhotosPickerItem?
     @State private var profileImage: UIImage?
-    @State private var imageDataContainer: ImageDataContainer?
-
-    @State private var showCropVC: Bool = false
+    @State private var textFieldText: String = ""
     
     var body: some View {
         List {
@@ -56,13 +54,13 @@ extension NewGroupSetupScreen
                .onChange(of: profilePhotoItem) { _ in
                    Task {
                        if let imageData = await extractImageData() {
-                           self.imageDataContainer = ImageDataContainer(data: imageData)
+                           self.imageDataContainer = IdentifiableItem(item: imageData)
                        }
                    }
                }
            }
            .sheet(item: $imageDataContainer) { container in
-               CropViewControllerRepresentable(imageData: container.data, cropedImage: $profileImage)
+               CropViewControllerRepresentable(imageData: container.item, cropedImage: $profileImage)
            }
        }
     
@@ -143,31 +141,20 @@ extension NewGroupSetupScreen
 //MARK: - Helper functions
 extension NewGroupSetupScreen
 {
-    
     private func extractImageData() async -> Data?
     {
         return try? await self.profilePhotoItem?.loadTransferable(type: Data.self)
     }
-    
-//    private func onProfilePhotoItemChange()
-//    {
-//        Task {
-//            if let data = await extractImageData()
-//            {
-//                self.imageData = data
-//            }
-//        }
-//    }
+}
+
+struct IdentifiableItem<T>: Identifiable
+{
+    let id = UUID()
+    let item: T
 }
 
 #Preview {
     NavigationStack {
         NewGroupSetupScreen(viewModel: GroupCreationViewModel())
     }
-}
-
-struct ImageDataContainer: Identifiable
-{
-    let id = UUID()
-    let data: Data
 }

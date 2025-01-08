@@ -14,7 +14,6 @@ struct CropViewControllerRepresentable: UIViewControllerRepresentable
     @Binding var cropedImage: UIImage?
     private let imageData: Data
     
-    
     init(imageData: Data, cropedImage: Binding<UIImage?>)
     {
         self.imageData = imageData
@@ -54,9 +53,12 @@ extension CropViewControllerRepresentable
             self._cropedImage = cropedImage
         }
         
-        func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int)
+        func cropViewController(_ cropViewController: CropViewController,
+                                didCropToImage image: UIImage,
+                                withRect cropRect: CGRect,
+                                angle: Int)
         {
-            self.cropedImage = image
+            self.cropedImage = downsampleImage(image)
             cropViewController.dismiss(animated: true)
         }
     }
@@ -64,8 +66,8 @@ extension CropViewControllerRepresentable
 }
 
 //MARK: - Helper functions
-//extension CropViewControllerRepresentable
-//{
+extension CropViewControllerRepresentable.Coordinator
+{
 //    private func extractImageFromPickerItem() async -> UIImage
 //    {
 //        if let data = try? await pickerItem.loadTransferable(type: Data.self),
@@ -74,4 +76,16 @@ extension CropViewControllerRepresentable
 //            return image
 //        }
 //    }
-//}
+    
+    private func downsampleImage(_ image: UIImage) -> UIImage?
+    {
+        let repository = ImageSampleRepository(image: image, type: .user)
+        
+        if let smallImage = repository.samples[.small]
+        {
+            print("Downsmalled image: ",smallImage)
+            return UIImage(data: smallImage)
+        }
+        return nil
+    }
+}

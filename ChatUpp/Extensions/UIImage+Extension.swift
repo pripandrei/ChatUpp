@@ -18,7 +18,7 @@ enum ImageSample
         switch self {
         case .user:
             return [
-                .original: CGSize(width: 1024, height: 1024),
+                .original: CGSize(width: 720, height: 720),
                 .medium: CGSize(width: 200, height: 200),
                 .small: CGSize(width: 100, height: 100)
             ]
@@ -131,44 +131,4 @@ extension UIImage
 //        return formatter.string(fromByteCount: Int64(bytes))
 //    }
 }
-//
-//
-//enum ImageSample2
-//{
-//    case user
-//    case message
-//    
-//    private enum Size
-//    {
-//        case original
-//        case medium
-//        case small
-//        case thumbnail
-//        
-//        var value: CGSize {
-//            switch self {
-//            case .original: return CGSize(width: 1024, height: 1024)
-//            case .medium: return CGSize(width: 200, height: 200)
-//            case .small: return CGSize(width: 80, height: 80)
-//            case .thumbnail: return CGSize(width: 480, height: 480)
-//            }
-//        }
-//    }
-//    
-//    var sizes: [CGSize] {
-//        switch self {
-//        case .user:
-//            return [
-//                Size.original.value,
-//                Size.medium.value,
-//                Size.small.value
-//            ]
-//        case .message:
-//            return [
-//                Size.original.value,
-//                Size.thumbnail.value,
-//                Size.small.value
-//            ]
-//        }
-//    }
-//}
+
