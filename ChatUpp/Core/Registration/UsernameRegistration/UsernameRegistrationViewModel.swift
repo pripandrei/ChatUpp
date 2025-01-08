@@ -45,22 +45,24 @@ final class UsernameRegistrationViewModel
  
     private func saveImageDataToFirebase(_ data: Data, path: String) async throws
     {
-        let (_, _) = try await FirebaseStorageManager.shared.saveUserImage(
+        let imageMetadata = try await FirebaseStorageManager.shared.saveImage(
             data: data,
-            userId: authUser.uid,
-            path: path
+            to: .user(authUser.uid),
+            imagePath: path
         )
     }
     
-    private func processImageSamples() async throws {
-           guard let sampleRepository = imageSampleRepository else { return }
-           
-           for (key, imageData) in sampleRepository.samples {
-               let path = sampleRepository.imagePath(for: key)
-               try await saveImageDataToFirebase(imageData, path: path)
-               CacheManager.shared.saveImageData(imageData, toPath: path)
-           }
-       }
+    private func processImageSamples() async throws
+    {
+        guard let sampleRepository = imageSampleRepository else { return }
+        
+        for (key, imageData) in sampleRepository.samples
+        {
+            let path = sampleRepository.imagePath(for: key)
+            try await saveImageDataToFirebase(imageData, path: path)
+            CacheManager.shared.saveImageData(imageData, toPath: path)
+        }
+    }
 
     private func updateUser() async throws
     {

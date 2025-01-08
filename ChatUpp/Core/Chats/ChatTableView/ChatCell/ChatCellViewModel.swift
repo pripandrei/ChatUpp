@@ -232,7 +232,7 @@ extension ChatCellViewModel
               let userProfilePhotoURL = profileImageThumbnailPath else {
             return nil
         }
-        let photoData = try await FirebaseStorageManager.shared.getUserImage(userID: user.id, path: userProfilePhotoURL)
+        let photoData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: userProfilePhotoURL)
         return photoData
     }
 }

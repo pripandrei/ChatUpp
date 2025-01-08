@@ -51,7 +51,7 @@ final class ConversationCellViewModel {
         guard let message = cellMessage else {return}
         Task {
             do {
-                self.imageData = try await FirebaseStorageManager.shared.getMessageImage(messageId: message.id, path: message.imagePath!)
+                self.imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
             } catch {
                 print("Error fetching image from storage: ", error)
             }

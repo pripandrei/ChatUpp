@@ -51,7 +51,7 @@ final class SettingsViewModel
         self.user = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
         
         if let photoUrl = user.photoUrl {
-            self.profileImageData = try await FirebaseStorageManager.shared.getUserImage(userID: user.id, path: photoUrl)
+            self.profileImageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: photoUrl)
         }
     }
     
@@ -90,7 +90,7 @@ final class SettingsViewModel
         try await FirebaseChatService.shared.replaceUserId(user.id, with: deletedUserID)
         
         if let imgUrl = user.photoUrl {
-            try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: user.id, path: imgUrl)
+            try await FirebaseStorageManager.shared.deleteImage(from: .user(user.id), imagePath: imgUrl)
         }
         try await FirestoreUserService.shared.deleteUserFromDB(userID: user.id)
     }

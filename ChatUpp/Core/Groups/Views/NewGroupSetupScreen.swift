@@ -88,7 +88,7 @@ extension NewGroupSetupScreen
                 matching: .images,
                 photoLibrary: .shared()
             ) {
-                if let image = viewModel.imageRepository?.samples[.small],
+                if let image = viewModel.imageSampleRepository?.samples[.small],
                    let image = UIImage(data: image)
                 {
                     Image(uiImage: image)

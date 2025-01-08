@@ -58,7 +58,8 @@ extension CropViewControllerRepresentable
                                 withRect cropRect: CGRect,
                                 angle: Int)
         {
-            viewModel.imageRepository = ImageSampleRepository(image: image, type: .user)
+            let imageRepository = ImageSampleRepository(image: image, type: .user)
+            viewModel.updateImageRepository(repository: imageRepository)
             cropViewController.dismiss(animated: true)
         }
     }

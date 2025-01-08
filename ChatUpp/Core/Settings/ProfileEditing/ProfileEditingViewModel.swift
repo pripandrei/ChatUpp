@@ -118,10 +118,8 @@ extension ProfileEditingViewModel
     {
         if let editedPhoto = editedProfilePhoto
         {
-            let (_,name) = try await FirebaseStorageManager.shared.saveUserImage(data: editedPhoto,
-                                                                                 userId: authUser.uid,
-                                                                                 path: "testPath")
-            profilePictureURL = name
+            let metaData = try await FirebaseStorageManager.shared.saveImage(data: editedPhoto, to: .user(authUser.uid), imagePath: "testPath")
+            profilePictureURL = metaData.name
         }
     }
     
@@ -142,7 +140,7 @@ extension ProfileEditingViewModel
     
     private func removeProfileImage(ofUser userID: String, urlPath: String) async throws
     {
-        try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: userID, path: urlPath)
+        try await FirebaseStorageManager.shared.deleteImage(from: .user(userID), imagePath: urlPath)
     }
     
     func updateProfilePhotoData(_ data: Data?) {

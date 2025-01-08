@@ -343,24 +343,24 @@ final class ConversationViewModel
         guard let message = messageGroups.first?.cellViewModels.first?.cellMessage else {return}
         
         Task {
-            let (path,name) = try await FirebaseStorageManager
+            let imageMetaData = try await FirebaseStorageManager
                 .shared
-                .saveMessageImage(data: data, messageID: message.id)
+                .saveImage(data: data, to: .message(message.id))
             
             try await FirebaseChatService
                 .shared
                 .updateMessageImagePath(messageID: message.id,
                                         chatDocumentPath: conversation.id,
-                                        path: name)
+                                        path: imageMetaData.name)
             
             try await FirebaseChatService
                 .shared
                 .updateMessageImageSize(messageID: message.id,
                                         chatDocumentPath: conversation.id,
                                         imageSize: size)
-            print("Success saving image: \(path) \(name)")
+            print("Success saving image: \(imageMetaData.path) \(imageMetaData.name)")
             
-            CacheManager.shared.saveImageData(data, toPath: name)
+            CacheManager.shared.saveImageData(data, toPath: imageMetaData.name)
             
             await MainActor.run {
                 addMessageToRealmChat(message)

@@ -45,7 +45,7 @@ final class ProfileDeletionViewModel {
         try await AuthenticationManager.shared.deleteAuthUser()
         try await FirebaseChatService.shared.replaceUserId(user.id, with: deletedUserID)
         if let photoURL = user.photoUrl {
-            try await FirebaseStorageManager.shared.deleteProfileImage(ofUser: user.id, path: photoURL)
+            try await FirebaseStorageManager.shared.deleteImage(from: .user(user.id), imagePath: photoURL)
         }
         try await FirestoreUserService.shared.deleteUserFromDB(userID: user.id)
     }
