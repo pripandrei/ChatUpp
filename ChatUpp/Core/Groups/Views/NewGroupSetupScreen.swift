@@ -14,7 +14,6 @@ struct NewGroupSetupScreen: View
     
     @State private var imageDataContainer: IdentifiableItem<Data>?
     @State private var profilePhotoItem: PhotosPickerItem?
-    @State private var profileImage: UIImage?
     @State private var textFieldText: String = ""
     
     var body: some View {
@@ -47,7 +46,7 @@ extension NewGroupSetupScreen
     private func headerSection() -> some View {
            Section {
                HStack {
-                   profilePicture()
+                   groupImage()
                    textField()
                    removeTextButton()
                }
@@ -60,7 +59,7 @@ extension NewGroupSetupScreen
                }
            }
            .sheet(item: $imageDataContainer) { container in
-               CropViewControllerRepresentable(imageData: container.item, cropedImage: $profileImage)
+               CropViewControllerRepresentable(imageData: container.item, viewModel: viewModel)
            }
        }
     
@@ -77,7 +76,7 @@ extension NewGroupSetupScreen
 //MARK: Header Components
 extension NewGroupSetupScreen
 {
-    private func profilePicture() -> some View
+    private func groupImage() -> some View
     {
         let systemImageSize: CGFloat = 35
         let padding: CGFloat = 15
@@ -89,7 +88,9 @@ extension NewGroupSetupScreen
                 matching: .images,
                 photoLibrary: .shared()
             ) {
-                if let image = profileImage {
+                if let image = viewModel.imageRepository?.samples[.small],
+                   let image = UIImage(data: image)
+                {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()

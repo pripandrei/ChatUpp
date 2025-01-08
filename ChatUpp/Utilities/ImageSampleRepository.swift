@@ -8,7 +8,7 @@
 import UIKit
 
 
-//MARK: - repository for resized samples of userProfile/messages images
+//MARK: - resizes and stores samples of users/groups/messages images
 
 struct ImageSampleRepository
 {

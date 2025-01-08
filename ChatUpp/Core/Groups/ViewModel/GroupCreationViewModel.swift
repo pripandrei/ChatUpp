@@ -19,6 +19,12 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
     @Published var navigationStack = [GroupCreationRoute]()
     @Published var selectedGroupMembers = [UserItem]()
     
+    @Published var imageRepository: ImageSampleRepository? {
+        didSet {
+            print("samples: ", imageRepository?.samples)
+        }
+    }
+    
     var disableNextButton: Bool
     {
         return selectedGroupMembers.isEmpty
@@ -44,4 +50,10 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
         let isSelected = selectedGroupMembers.contains(where: { return $0.id == user.id })
         return isSelected
     }
+}
+
+extension GroupCreationViewModel
+{
+    
+    
 }

@@ -11,13 +11,13 @@ import CropViewController
 
 struct CropViewControllerRepresentable: UIViewControllerRepresentable
 {
-    @Binding var cropedImage: UIImage?
     private let imageData: Data
+    @ObservedObject private var viewModel: GroupCreationViewModel
     
-    init(imageData: Data, cropedImage: Binding<UIImage?>)
+    init(imageData: Data, viewModel: GroupCreationViewModel)
     {
         self.imageData = imageData
-        self._cropedImage = cropedImage
+        self.viewModel = viewModel
     }
     
     func makeUIViewController(context: Context) -> some UIViewController
@@ -37,7 +37,7 @@ struct CropViewControllerRepresentable: UIViewControllerRepresentable
     }
     
     func makeCoordinator() -> Coordinator {
-        return Coordinator(cropedImage: $cropedImage)
+        return Coordinator(viewModel: viewModel)
     }
 }
 
@@ -47,10 +47,10 @@ extension CropViewControllerRepresentable
 {
     class Coordinator: NSObject, CropViewControllerDelegate
     {
-        @Binding var cropedImage: UIImage?
+        @ObservedObject var viewModel: GroupCreationViewModel
         
-        init(cropedImage: Binding<UIImage?>) {
-            self._cropedImage = cropedImage
+        init(viewModel: GroupCreationViewModel) {
+            self.viewModel = viewModel
         }
         
         func cropViewController(_ cropViewController: CropViewController,
@@ -58,34 +58,8 @@ extension CropViewControllerRepresentable
                                 withRect cropRect: CGRect,
                                 angle: Int)
         {
-            self.cropedImage = downsampleImage(image)
+            viewModel.imageRepository = ImageSampleRepository(image: image, type: .user)
             cropViewController.dismiss(animated: true)
         }
-    }
-    
-}
-
-//MARK: - Helper functions
-extension CropViewControllerRepresentable.Coordinator
-{
-//    private func extractImageFromPickerItem() async -> UIImage
-//    {
-//        if let data = try? await pickerItem.loadTransferable(type: Data.self),
-//           let image = UIImage(data: data)
-//        {
-//            return image
-//        }
-//    }
-    
-    private func downsampleImage(_ image: UIImage) -> UIImage?
-    {
-        let repository = ImageSampleRepository(image: image, type: .user)
-        
-        if let smallImage = repository.samples[.small]
-        {
-            print("Downsmalled image: ",smallImage)
-            return UIImage(data: smallImage)
-        }
-        return nil
     }
 }
