@@ -57,19 +57,19 @@ extension GroupCreationViewModel
         self.imageSampleRepository = repository
     }
     
-//    private func processImageSamples() async throws {
-//        guard let sampleRepository = imageSampleRepository else { return }
-//        
-//        for (key, imageData) in sampleRepository.samples {
-//            let path = sampleRepository.imagePath(for: key)
-//            try await saveImageDataToFirebase(imageData, path: path)
-//            CacheManager.shared.saveImageData(imageData, toPath: path)
-//        }
-//    }
-//    
-//    private func saveImageDataToFirebase(_ data: Data, id: String, path: String) async throws
-//    {
-////        let childObject = StorageChildObject.groups(id: groupID!)
-//        let (_, _) = try await FirebaseStorageManager.shared.saveImage(data: data, storageChildObject: <#T##StorageChildObject#>)
-//    }
+    private func processImageSamples() async throws
+    {
+        guard let sampleRepository = imageSampleRepository else { return }
+        
+        for (key, imageData) in sampleRepository.samples {
+            let path = sampleRepository.imagePath(for: key)
+            try await saveImage(imageData, path: path)
+        }
+    }
+    
+    private func saveImage(_ imageData: Data, path: String) async throws
+    {
+        let _ = try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .group(groupID!), imagePath: path)
+        CacheManager.shared.saveImageData(imageData, toPath: path)
+    }
 }

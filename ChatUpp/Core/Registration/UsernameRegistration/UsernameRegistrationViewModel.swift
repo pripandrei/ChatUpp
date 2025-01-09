@@ -43,15 +43,6 @@ final class UsernameRegistrationViewModel
         self.imageSampleRepository = sampleRepository
     }
  
-    private func saveImageDataToFirebase(_ data: Data, path: String) async throws
-    {
-        let imageMetadata = try await FirebaseStorageManager.shared.saveImage(
-            data: data,
-            to: .user(authUser.uid),
-            imagePath: path
-        )
-    }
-    
     private func processImageSamples() async throws
     {
         guard let sampleRepository = imageSampleRepository else { return }
@@ -59,9 +50,14 @@ final class UsernameRegistrationViewModel
         for (key, imageData) in sampleRepository.samples
         {
             let path = sampleRepository.imagePath(for: key)
-            try await saveImageDataToFirebase(imageData, path: path)
-            CacheManager.shared.saveImageData(imageData, toPath: path)
+            try await saveImage(imageData, path: path)
         }
+    }
+    
+    private func saveImage(_ imageData: Data, path: String) async throws
+    {
+        let _ = try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .user(authUser.uid), imagePath: path)
+        CacheManager.shared.saveImageData(imageData, toPath: path)
     }
 
     private func updateUser() async throws
@@ -101,5 +97,29 @@ final class UsernameRegistrationViewModel
                 print("Error finishing registration: ", error.localizedDescription)
             }
         }
+    }
+}
+
+
+struct ImageStorageProcessor
+{
+    private let sampleRepository: ImageSampleRepository
+    private let storagePathType: StoragePathType
+    
+    private func processImageSamples() async throws
+    {
+//        guard let sampleRepository = imageSampleRepository else { return }
+        
+        for (key, imageData) in sampleRepository.samples
+        {
+            let path = sampleRepository.imagePath(for: key)
+            try await saveImage(imageData, path: path)
+        }
+    }
+    
+    private func saveImage(_ imageData: Data, path: String) async throws
+    {
+        let _ = try await FirebaseStorageManager.shared.saveImage(data: imageData, to: storagePathType, imagePath: path)
+        CacheManager.shared.saveImageData(imageData, toPath: path)
     }
 }

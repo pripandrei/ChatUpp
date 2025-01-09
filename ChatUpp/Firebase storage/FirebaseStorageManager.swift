@@ -49,7 +49,10 @@ final class FirebaseStorageManager
         try await path.reference.child(imagePath).downloadURL()
     }
     
-    func saveImage(data: Data, to path: StoragePathType, imagePath: String? = nil) async throws -> ImageMetadata
+    @discardableResult
+    func saveImage(data: Data,
+                   to path: StoragePathType,
+                   imagePath: String? = nil) async throws -> ImageMetadata
     {
         let meta = StorageMetadata()
         meta.contentType = "image/jpeg"
@@ -62,7 +65,6 @@ final class FirebaseStorageManager
               let returnedName = metaData.name else {
             throw URLError(.badServerResponse)
         }
-        
         return ImageMetadata(path: returnedPath, name: returnedName)
     }
     

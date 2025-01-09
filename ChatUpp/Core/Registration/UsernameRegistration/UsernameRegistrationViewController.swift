@@ -173,9 +173,9 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
             
             Task { @MainActor in
                 
-                guard let processedImage = await self.processImage(image) else { return }
+                guard let cropedImage = await self.cropImage(image) else { return }
                 
-                let repository = ImageSampleRepository(image: processedImage, type: .user)
+                let repository = ImageSampleRepository(image: cropedImage, type: .user)
                 
                 if let mediumImage = repository.samples[.medium]
                 {
@@ -186,7 +186,7 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
         }
     }
     
-    private func processImage(_ image: UIImage?) async -> UIImage? {
+    private func cropImage(_ image: UIImage?) async -> UIImage? {
         guard let image else { return nil }
         
         let cropper = ImageCropper(image: image)
