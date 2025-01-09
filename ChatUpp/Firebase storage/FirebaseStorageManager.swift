@@ -15,6 +15,8 @@ enum StoragePathType
     case message(String)
     case group(String)
     
+    static private var storage = Storage.storage().reference()
+    
     var reference: StorageReference {
         let storage = Storage.storage().reference()
         switch self {

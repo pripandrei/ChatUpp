@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 //MARK: - resizes and stores samples of users/groups/messages images
 
 struct ImageSampleRepository

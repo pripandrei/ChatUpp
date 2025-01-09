@@ -31,7 +31,6 @@ struct GroupCreationScreen: View
                     }
                 } header: {
                     Text("Users")
-                    //                        .textCase(nil)
                         .font(.subheadline)
                         .bold()
                 }
@@ -48,6 +47,12 @@ struct GroupCreationScreen: View
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarTrailingItem()
+            }
+            .onAppear {
+                Task {
+                    try await Task.sleep(for: .seconds(0.5))
+                    groupCreationViewModel.selectedGroupMembers.removeAll()
+                }
             }
         }
     }
