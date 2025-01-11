@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import UIKit
-//import RealmSwift
 
 enum MessageValueModification 
 {
@@ -65,8 +64,10 @@ extension ConversationViewModel
     }
 }
 
-final class ConversationViewModel 
+class ConversationViewModel
 {
+    private(set) var realmService: ConversationRealmService
+    
     private(set) var conversation        : Chat?
     private(set) var userObserver        : RealtimeDBObserver?
     private(set) var messageGroups       : [ConversationMessageGroup] = []
@@ -97,7 +98,7 @@ final class ConversationViewModel
     }
     
     private var shouldDisplayLastMessage: Bool {
-        authParticipantUnreadMessagesCount == getUnreadMessagesCountFromRealm()
+        authParticipantUnreadMessagesCount == realmService.getUnreadMessagesCountFromRealm()
     }
     
     private var firstMessage: Message? {
@@ -108,7 +109,7 @@ final class ConversationViewModel
         guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
             return false
         }
-        return ( authParticipantUnreadMessagesCount != getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
+        return ( authParticipantUnreadMessagesCount != realmService.getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
     }
     
     /// - Life cycle
@@ -118,6 +119,8 @@ final class ConversationViewModel
         self.conversation = conversation
         self.memberProfileImage = imageData
         self.unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? 0
+        
+        self.realmService = ConversationRealmService(conversation: conversation)
         
         if conversationExists {
             initiateConversation()
@@ -204,7 +207,7 @@ final class ConversationViewModel
         let message = createNewMessage(messageText)
         
         resetCurrentReplyMessageIfNeeded()
-        addMessageToRealmChat(message)
+        realmService.addMessageToRealmChat(message)
         createMessageGroupsWith([message], ascending: true)
         
         updateUnseenMessageCounter(shouldIncrement: true)
@@ -220,7 +223,7 @@ final class ConversationViewModel
         {
             let chat = createChat()
             conversation = chat
-            addChatToRealm(chat)
+            realmService.addChatToRealm(chat)
             
             let freezedChat = chat.freeze()
             
@@ -363,7 +366,7 @@ final class ConversationViewModel
             CacheManager.shared.saveImageData(data, toPath: imageMetaData.name)
             
             await MainActor.run {
-                addMessageToRealmChat(message)
+                realmService.addMessageToRealmChat(message)
             }
         }
     }
@@ -388,7 +391,7 @@ extension ConversationViewModel
         Task { @MainActor in
             do {
                 let messages = try await fetchConversationMessages()
-                addMessagesToConversationInRealm(messages)
+                realmService.addMessagesToConversationInRealm(messages)
                 initiateConversationUsingLocalData()
             } catch {
                 print("Error while initiating conversation: - \(error)")
@@ -416,67 +419,67 @@ extension ConversationViewModel
 
 // MARK: - Realm functions
 
-extension ConversationViewModel
-{
-    func addMessagesToConversationInRealm(_ messages: [Message]) 
-    {
-        guard let conversation = conversation else { return }
-        
-        RealmDataBase.shared.update(object: conversation) { chat in
-            
-            let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
-            let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
-            
-            chat.conversationMessages.append(objectsIn: newMessages)
-        }
-    }
-    
-    func updateChatOpenStatusIfNeeded()
-    {
-        guard let conversation = conversation else { return }
-        
-        if conversation.isFirstTimeOpened != false {
-            RealmDataBase.shared.update(object: conversation) { $0.isFirstTimeOpened = false }
-        }
-    }
-    
-    private func addMessageToRealmChat(_ message: Message)
-    {
-        guard let conversation = conversation else { return }
-        
-        RealmDataBase.shared.update(object: conversation) { chat in
-            chat.conversationMessages.append(message)
-        }
-    }
-    
-    private func retrieveMessageFromRealm(_ message: Message) -> Message? {
-        return RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
-    }
-    
-    private func addChatToRealm(_ chat: Chat) {
-        RealmDataBase.shared.add(object: chat)
-    }
-    
-    private func updateMessage(_ message: Message) {
-        RealmDataBase.shared.add(object: message)
-    }
-    
-    private func getUnreadMessagesCountFromRealm() -> Int
-    {
-        guard let conversation = conversation else { return 0 }
-        
-        let filter = NSPredicate(format: "messageSeen == false AND senderId != %@", authenticatedUserID)
-        let count = conversation.conversationMessages.filter(filter).count
-        
-        return count
-    }
-    
-    private func removeMessageFromRealm(message: Message)
-    {
-        guard let realmMessage = retrieveMessageFromRealm(message) else {return}
-        RealmDataBase.shared.delete(object: realmMessage)
-    }
-}
+//extension ConversationViewModel
+//{
+//    func addMessagesToConversationInRealm(_ messages: [Message]) 
+//    {
+//        guard let conversation = conversation else { return }
+//        
+//        RealmDataBase.shared.update(object: conversation) { chat in
+//            
+//            let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
+//            let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
+//            
+//            chat.conversationMessages.append(objectsIn: newMessages)
+//        }
+//    }
+//    
+//    func updateChatOpenStatusIfNeeded()
+//    {
+//        guard let conversation = conversation else { return }
+//        
+//        if conversation.isFirstTimeOpened != false {
+//            RealmDataBase.shared.update(object: conversation) { $0.isFirstTimeOpened = false }
+//        }
+//    }
+//    
+//    private func addMessageToRealmChat(_ message: Message)
+//    {
+//        guard let conversation = conversation else { return }
+//        
+//        RealmDataBase.shared.update(object: conversation) { chat in
+//            chat.conversationMessages.append(message)
+//        }
+//    }
+//    
+//    private func retrieveMessageFromRealm(_ message: Message) -> Message? {
+//        return RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
+//    }
+//    
+//    private func addChatToRealm(_ chat: Chat) {
+//        RealmDataBase.shared.add(object: chat)
+//    }
+//    
+//    private func updateMessage(_ message: Message) {
+//        RealmDataBase.shared.add(object: message)
+//    }
+//    
+//    private func getUnreadMessagesCountFromRealm() -> Int
+//    {
+//        guard let conversation = conversation else { return 0 }
+//        
+//        let filter = NSPredicate(format: "messageSeen == false AND senderId != %@", authenticatedUserID)
+//        let count = conversation.conversationMessages.filter(filter).count
+//        
+//        return count
+//    }
+//    
+//    private func removeMessageFromRealm(message: Message)
+//    {
+//        guard let realmMessage = retrieveMessageFromRealm(message) else {return}
+//        RealmDataBase.shared.delete(object: realmMessage)
+//    }
+//}
 
 //MARK: - Firestore functions
 extension ConversationViewModel
@@ -645,8 +648,8 @@ extension ConversationViewModel
 {
     private func handleAddedMessage(_ message: Message)
     {
-        guard let _ = retrieveMessageFromRealm(message) else {
-            addMessageToRealmChat(message)
+        guard let _ = realmService.retrieveMessageFromRealm(message) else {
+            realmService.addMessageToRealmChat(message)
             // TODO: - if chat unseen message counter is heigher than local unseen count,
             // dont create messageGroup with this new message
             createMessageGroupsWith([message], ascending: true)
@@ -656,7 +659,7 @@ extension ConversationViewModel
             return
         }
         Task { @MainActor in
-            updateMessage(message)
+            realmService.updateMessage(message)
         }
     }
     
@@ -668,7 +671,7 @@ extension ConversationViewModel
         
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
         
-        updateMessage(message)
+        realmService.updateMessage(message)
         if message.senderId == authenticatedUserID {
 //            messageChangedType = .modified(indexPath, modificationValue)
             messageChangedTypes.append(.modified(indexPath, modificationValue))
@@ -681,7 +684,7 @@ extension ConversationViewModel
         
         messageGroups.removeCellViewModel(at: indexPath)
         removeMessageGroup(at: indexPath)
-        removeMessageFromRealm(message: message)
+        realmService.removeMessageFromRealm(message: message)
         
         if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
 //        messageChangedType = .removed
@@ -860,7 +863,7 @@ extension ConversationViewModel
         {
             addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
         }
-        addMessagesToConversationInRealm(newMessages)
+        realmService.addMessagesToConversationInRealm(newMessages)
         
         return (newRows, newSections)
     }
@@ -925,4 +928,13 @@ extension ConversationViewModel {
 //          let limit = conversation?.conversationMessages.count else {
 //        return
 //    }
+}
+
+
+class GroupViewModel: ConversationViewModel
+{
+        
+    override func handleImageDrop(imageData: Data, size: MessageImageSize) {
+        super.handleImageDrop(imageData: imageData, size: size)
+    }
 }

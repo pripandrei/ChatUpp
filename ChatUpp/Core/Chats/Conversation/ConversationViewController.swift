@@ -157,7 +157,7 @@ final class ConversationViewController: UIViewController {
         conversationViewModel.insertUnseenMessagesTitle()
         refreshTableView()
         conversationViewModel.addListeners()
-        conversationViewModel.updateChatOpenStatusIfNeeded()
+        conversationViewModel.realmService.updateChatOpenStatusIfNeeded()
     }
     
     //MARK: - Bindings
