@@ -68,9 +68,10 @@ class ConversationViewModel
 {
     private(set) var realmService: ConversationRealmService
     private(set) var firestoreService: ConversationFirestoreService
+    private(set) var userListenerService : ConversationUserListinerService
     
     private(set) var conversation        : Chat?
-    private(set) var userObserver        : RealtimeDBObserver?
+//    private(set) var userObserver        : RealtimeObservable?
     private(set) var messageGroups       : [ConversationMessageGroup] = []
     private(set) var memberProfileImage  : Data?
     private(set) var authenticatedUserID : String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
@@ -123,6 +124,7 @@ class ConversationViewModel
         
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
+        self.userListenerService = ConversationUserListinerService(chatUser: conversationUser)
         
         if conversationExists {
             initiateConversation()
@@ -145,8 +147,8 @@ class ConversationViewModel
     /// - listeners
     
     func addListeners() {
-        addUsersListener()
-        addUserObserver()
+        userListenerService.addUsersListener()
+        userListenerService.addUserObserver()
         observeParticipantChanges()
         
         guard let startMessage = messageGroups.last?.cellViewModels.last?.cellMessage,
@@ -156,12 +158,12 @@ class ConversationViewModel
         addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
     }
     
-    func removeAllListeners() 
-    {
-        listeners.forEach{ $0.remove() }
-        userObserver?.removeAllObservers()
-    }
-    
+//    func removeAllListeners() 
+//    {
+//        listeners.forEach{ $0.remove() }
+//        userObserver?.removeAllObservers()
+//    }
+//    
     func resetCurrentReplyMessageIfNeeded() {
         if currentlyReplyToMessageID != nil {
             currentlyReplyToMessageID = nil
@@ -559,41 +561,41 @@ extension ConversationViewModel
 
 // MARK: - Users listener
 
-extension ConversationViewModel
-{
-    /// - Temporary fix while firebase functions are deactivated
-    func addUserObserver() 
-    {
-        userObserver = RealtimeUserService
-            .shared
-            .addObserverToUsers(chatUser.id) { [weak self] realtimeDBUser in
-                
-            guard let self = self else {return}
-            
-            if realtimeDBUser.isActive != self.chatUser.isActive
-            {
-                if let date = realtimeDBUser.lastSeen,
-                    let isActive = realtimeDBUser.isActive
-                {
-                    self.chatUser = self.chatUser.updateActiveStatus(lastSeenDate: date,isActive: isActive)
-                }
-            }
-        }
-    }
-    
-    func addUsersListener()
-    {
-        let userListener = FirestoreUserService
-            .shared
-            .addListenerToUsers([chatUser.id]) { [weak self] users, documentsTypes in
-            guard let self = self else {return}
-            // since we are listening only for one user, we can just get the first user and docType
-            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self.chatUser = user
-        }
-        self.listeners.append(userListener)
-    }
-}
+//extension ConversationViewModel
+//{
+//    /// - Temporary fix while firebase functions are deactivated
+//    func addUserObserver() 
+//    {
+//        userObserver = RealtimeUserService
+//            .shared
+//            .addObserverToUsers(chatUser.id) { [weak self] realtimeDBUser in
+//                
+//            guard let self = self else {return}
+//            
+//            if realtimeDBUser.isActive != self.chatUser.isActive
+//            {
+//                if let date = realtimeDBUser.lastSeen,
+//                    let isActive = realtimeDBUser.isActive
+//                {
+//                    self.chatUser = self.chatUser.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+//                }
+//            }
+//        }
+//    }
+//    
+//    func addUsersListener()
+//    {
+//        let userListener = FirestoreUserService
+//            .shared
+//            .addListenerToUsers([chatUser.id]) { [weak self] users, documentsTypes in
+//            guard let self = self else {return}
+//            // since we are listening only for one user, we can just get the first user and docType
+//            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
+//            self.chatUser = user
+//        }
+//        self.listeners.append(userListener)
+//    }
+//}
 
 // MARK: - Messages listener
 

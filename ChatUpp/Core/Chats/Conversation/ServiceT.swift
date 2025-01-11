@@ -158,3 +158,57 @@ final class ConversationFirestoreService
         }
     }
 }
+
+
+//MARK: - Users listener
+
+final class ConversationUserListinerService
+{
+    private(set) var userObserver: RealtimeObservable?
+    private var listeners: [Listener] = []
+    
+    private var chatUser: User
+    
+    init(chatUser: User) {
+        self.chatUser = chatUser
+    }
+    
+    func removeAllListeners()
+    {
+        listeners.forEach{ $0.remove() }
+        userObserver?.removeAllObservers()
+    }
+    
+    /// - Temporary fix while firebase functions are deactivated
+    func addUserObserver()
+    {
+        userObserver = RealtimeUserService
+            .shared
+            .addObserverToUsers(chatUser.id) { [weak self] realtimeDBUser in
+                
+            guard let self = self else {return}
+            
+            if realtimeDBUser.isActive != self.chatUser.isActive
+            {
+                if let date = realtimeDBUser.lastSeen,
+                    let isActive = realtimeDBUser.isActive
+                {
+                    self.chatUser = self.chatUser.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                }
+            }
+        }
+    }
+    
+    func addUsersListener()
+    {
+        let userListener = FirestoreUserService
+            .shared
+            .addListenerToUsers([chatUser.id]) { [weak self] users, documentsTypes in
+            guard let self = self else {return}
+            // since we are listening only for one user, we can just get the first user and docType
+            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
+            self.chatUser = user
+        }
+        self.listeners.append(userListener)
+    }
+}

@@ -26,8 +26,12 @@ import FirebaseDatabaseSwift
 
 typealias RealtimeDBObserver = DatabaseReference
 
-final class RealtimeUserService {
+protocol RealtimeObservable {
+    func removeAllObservers()
+}
 
+final class RealtimeUserService {
+    
     private init() {}
     
     static let shared = RealtimeUserService()
@@ -72,7 +76,8 @@ final class RealtimeUserService {
         try await onDisconnectRefListener?.cancelDisconnectOperations()
     }
     
-    func addObserverToUsers(_ userID: String, complition: @escaping (User) -> Void) -> RealtimeDBObserver {
+    func addObserverToUsers(_ userID: String, complition: @escaping (User) -> Void) -> RealtimeObservable
+    {
         let userRef = usersReference.child(userID)
 
         userRef.observe(.value) { snapshot in
@@ -86,6 +91,9 @@ final class RealtimeUserService {
         return userRef
     }
 }
+
+extension DatabaseReference: RealtimeObservable {}
+
 
 
 

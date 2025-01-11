@@ -13,7 +13,7 @@ class ChatCellViewModel
 {
     private(set) var chat: Chat
     private var usersListener: Listener?
-    private var userObserver: RealtimeDBObserver?
+    private var userObserver: RealtimeObservable?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     private var cancellables = Set<AnyCancellable>()
     private(set) var imageDataUpdateSubject = PassthroughSubject<Void,Never>()

@@ -273,7 +273,7 @@ final class ConversationViewController: UIViewController {
     
     private func cleanUp() {
         NotificationCenter.default.removeObserver(self)
-        conversationViewModel.removeAllListeners()
+        conversationViewModel.userListenerService.removeAllListeners()
         coordinatorDelegate = nil
         conversationViewModel = nil
         tableViewDataSource = nil
