@@ -67,6 +67,7 @@ extension ConversationViewModel
 class ConversationViewModel
 {
     private(set) var realmService: ConversationRealmService
+    private(set) var firestoreService: ConversationFirestoreService
     
     private(set) var conversation        : Chat?
     private(set) var userObserver        : RealtimeDBObserver?
@@ -121,6 +122,7 @@ class ConversationViewModel
         self.unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? 0
         
         self.realmService = ConversationRealmService(conversation: conversation)
+        self.firestoreService = ConversationFirestoreService(conversation: conversation)
         
         if conversationExists {
             initiateConversation()
@@ -213,8 +215,8 @@ class ConversationViewModel
         updateUnseenMessageCounter(shouldIncrement: true)
         
         Task { @MainActor in
-            await addMessageToFirestoreDataBase(message)
-            await updateRecentMessageFromFirestoreChat(messageID: message.id)
+            await firestoreService.addMessageToFirestoreDataBase(message)
+            await firestoreService.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
     }
     
@@ -228,7 +230,7 @@ class ConversationViewModel
             let freezedChat = chat.freeze()
             
             Task(priority: .high, operation: { @MainActor in
-                await addChatToFirestore(freezedChat)
+                await firestoreService.addChatToFirestore(freezedChat)
                 
                 guard let timestamp = self.conversation?.getLastMessage()?.timestamp,
                       let limit = conversation?.conversationMessages.count else {return}
@@ -328,6 +330,16 @@ class ConversationViewModel
         {
             let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
             (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
+        }
+    }
+    
+    func getMessageSenderName(usingSenderID id: String) -> String?
+    {
+        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else { return nil }
+        if id == user.uid {
+            return user.name
+        } else {
+            return chatUser.name
         }
     }
     
@@ -482,78 +494,68 @@ extension ConversationViewModel
 //}
 
 //MARK: - Firestore functions
-extension ConversationViewModel
-{
-    private func getFirstUnseenMessageFromFirestore(from chatID: String) async throws -> Message?
-    {
-        return try await FirebaseChatService.shared.getFirstUnseenMessage(fromChatDocumentPath: chatID,
-                                                                   whereSenderIDNotEqualTo: authenticatedUserID)
-    }
-
-    private func addChatToFirestore(_ chat: Chat) async {
-        do {
-            try await FirebaseChatService.shared.createNewChat(chat: chat)
-        } catch {
-            print("Error creating conversation", error.localizedDescription)
-        }
-    }
-    
-    @MainActor
-    private func addMessageToFirestoreDataBase(_ message: Message) async
-    {
-        guard let conversation = conversation else {return}
-        do {
-            try await FirebaseChatService.shared.createMessage(message: message, atChatPath: conversation.id)
-        } catch {
-            print("error occur while trying to create message in DB: ", error.localizedDescription)
-        }
-    }
-    
-    @MainActor
-    func updateRecentMessageFromFirestoreChat(messageID: String) async 
-    {
-        guard let chatID = conversation?.id else { print("chatID is nil") ; return}
-        do {
-            try await FirebaseChatService.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
-        } catch {
-            print("Error updating chat last message:", error.localizedDescription)
-        }
-    }
-    
-    func deleteMessageFromFirestore(messageID: String) {
-        Task { @MainActor in
-            do {
-                try await FirebaseChatService.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
-            } catch {
-                print("Error deleting message: ",error.localizedDescription)
-            }
-        }
-    }
-    
-    @MainActor
-    func editMessageTextFromFirestore(_ messageText: String, messageID: String) {
-        Task {
-            try await FirebaseChatService.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
-        }
-    }
-    
-    func getMessageSenderName(usingSenderID id: String) -> String?
-    {
-        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else { return nil }
-        if id == user.uid {
-            return user.name
-        } else {
-            return chatUser.name
-        }
-    }
-    
-    private func updateLastMessageFromFirestoreChat() {
-        Task { @MainActor in
-            guard let messageID = messageGroups[0].cellViewModels[0].cellMessage?.id else {return}
-            await updateRecentMessageFromFirestoreChat(messageID: messageID)
-        }
-    }
-}
+//extension ConversationViewModel
+//{
+//    private func getFirstUnseenMessageFromFirestore(from chatID: String) async throws -> Message?
+//    {
+//        return try await FirebaseChatService.shared.getFirstUnseenMessage(fromChatDocumentPath: chatID,
+//                                                                   whereSenderIDNotEqualTo: authenticatedUserID)
+//    }
+//
+//    private func addChatToFirestore(_ chat: Chat) async {
+//        do {
+//            try await FirebaseChatService.shared.createNewChat(chat: chat)
+//        } catch {
+//            print("Error creating conversation", error.localizedDescription)
+//        }
+//    }
+//    
+//    @MainActor
+//    private func addMessageToFirestoreDataBase(_ message: Message) async
+//    {
+//        guard let conversation = conversation else {return}
+//        do {
+//            try await FirebaseChatService.shared.createMessage(message: message, atChatPath: conversation.id)
+//        } catch {
+//            print("error occur while trying to create message in DB: ", error.localizedDescription)
+//        }
+//    }
+//    
+//    @MainActor
+//    func updateRecentMessageFromFirestoreChat(messageID: String) async 
+//    {
+//        guard let chatID = conversation?.id else { print("chatID is nil") ; return}
+//        do {
+//            try await FirebaseChatService.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
+//        } catch {
+//            print("Error updating chat last message:", error.localizedDescription)
+//        }
+//    }
+//    
+//    func deleteMessageFromFirestore(messageID: String) {
+//        Task { @MainActor in
+//            do {
+//                try await FirebaseChatService.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
+//            } catch {
+//                print("Error deleting message: ",error.localizedDescription)
+//            }
+//        }
+//    }
+//    
+//    @MainActor
+//    func editMessageTextFromFirestore(_ messageText: String, messageID: String) {
+//        Task {
+//            try await FirebaseChatService.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
+//        }
+//    }
+//    
+//    private func updateLastMessageFromFirestoreChat() {
+//        Task { @MainActor in
+//            guard let messageID = messageGroups[0].cellViewModels[0].cellMessage?.id else {return}
+//            await updateRecentMessageFromFirestoreChat(messageID: messageID)
+//        }
+//    }
+//}
 
 // MARK: - Users listener
 
@@ -686,7 +688,10 @@ extension ConversationViewModel
         removeMessageGroup(at: indexPath)
         realmService.removeMessageFromRealm(message: message)
         
-        if isLastMessage(indexPath) { updateLastMessageFromFirestoreChat() }
+        if isLastMessage(indexPath) {
+            guard let lastMessageID = messageGroups.first?.cellViewModels.first?.cellMessage?.id else {return}
+            firestoreService.updateLastMessageFromFirestoreChat(lastMessageID)
+        }
 //        messageChangedType = .removed
         messageChangedTypes.append(.removed(indexPath))
     }
@@ -787,7 +792,7 @@ extension ConversationViewModel
     {
         guard let conversation = conversation else { return .none }
 
-        if let firstUnseenMessage = try await getFirstUnseenMessageFromFirestore(from: conversation.id)
+        if let firstUnseenMessage = try await firestoreService.getFirstUnseenMessageFromFirestore(from: conversation.id)
         {
             return isChatFetchedFirstTime ? .hybrit(startAtMessage: firstUnseenMessage) : .ascending(startAtMessage: firstUnseenMessage, included: true)
         }

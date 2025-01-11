@@ -880,13 +880,13 @@ extension ConversationViewController: UITableViewDelegate
                         self.rootView.messageTextView.text = cell.messageLabel.text
                         self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
                         self.conversationViewModel.shouldEditMessage = { [cellMessage] edditedMessage in
-                            self.conversationViewModel.editMessageTextFromFirestore(edditedMessage, messageID: cellMessage.id)
+                            self.conversationViewModel.firestoreService.editMessageTextFromFirestore(edditedMessage, messageID: cellMessage.id)
                         }
                     }
                 }
                 let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: attributesForDeleteAction) { [weak self] action in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        self?.conversationViewModel.deleteMessageFromFirestore(messageID: cellMessage.id)
+                        self?.conversationViewModel.firestoreService.deleteMessageFromFirestore(messageID: cellMessage.id)
                     }
                 }
                 return UIMenu(title: "", children: [replyAction, editAction, copyAction, deleteAction])
