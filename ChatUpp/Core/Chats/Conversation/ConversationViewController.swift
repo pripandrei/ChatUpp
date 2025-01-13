@@ -489,11 +489,11 @@ extension ConversationViewController
     }
     
     private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
-        let cellMessage = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row].cellMessage
+        let message = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row].message
         let authUserID = conversationViewModel.authenticatedUserID
         
-        guard cellMessage?.messageSeen == false,
-              cellMessage?.senderId != authUserID,
+        guard message?.messageSeen == false,
+              message?.senderId != authUserID,
               let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return false
         }
@@ -850,12 +850,12 @@ extension ConversationViewController: UITableViewDelegate
             return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
                 
                 let selectedCellMessageText = cell.messageLabel.text
-                guard let cellMessage = cell.cellViewModel.cellMessage else {return nil}
+                guard let message = cell.cellViewModel.message else {return nil}
                 
                 let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
                     DispatchQueue.main.async {
-                        let replyMessageId = cellMessage.id
-                        let replyMessageSenderID = cellMessage.senderId
+                        let replyMessageId = message.id
+                        let replyMessageSenderID = message.senderId
                         let messageSenderName = self.conversationViewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
                         self.conversationViewModel.currentlyReplyToMessageID = replyMessageId
                         self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
@@ -869,7 +869,7 @@ extension ConversationViewController: UITableViewDelegate
                 }
                 
                 /// display edit/delete actions only on messages that authenticated user sent
-                let messageBelongsToAuthenticatedUser = cellMessage.senderId == self.conversationViewModel.authenticatedUserID
+                let messageBelongsToAuthenticatedUser = message.senderId == self.conversationViewModel.authenticatedUserID
                 let attributesForEditAction = messageBelongsToAuthenticatedUser ? [] : UIMenuElement.Attributes.hidden
                 let attributesForDeleteAction = messageBelongsToAuthenticatedUser ? .destructive : UIMenuElement.Attributes.hidden
                 
@@ -879,14 +879,14 @@ extension ConversationViewController: UITableViewDelegate
                     {
                         self.rootView.messageTextView.text = cell.messageLabel.text
                         self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
-                        self.conversationViewModel.shouldEditMessage = { [cellMessage] edditedMessage in
-                            self.conversationViewModel.firestoreService.editMessageTextFromFirestore(edditedMessage, messageID: cellMessage.id)
+                        self.conversationViewModel.shouldEditMessage = { [message] edditedMessage in
+                            self.conversationViewModel.firestoreService.editMessageTextFromFirestore(edditedMessage, messageID: message.id)
                         }
                     }
                 }
                 let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: attributesForDeleteAction) { [weak self] action in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        self?.conversationViewModel.firestoreService.deleteMessageFromFirestore(messageID: cellMessage.id)
+                        self?.conversationViewModel.firestoreService.deleteMessageFromFirestore(messageID: message.id)
                     }
                 }
                 return UIMenu(title: "", children: [replyAction, editAction, copyAction, deleteAction])

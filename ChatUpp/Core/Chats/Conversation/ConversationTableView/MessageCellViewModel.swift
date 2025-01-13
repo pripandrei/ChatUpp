@@ -23,7 +23,7 @@ final class ConversationUnseenCellViewModel {
 final class MessageCellViewModel
 {    
     @Published var imageData: Data?
-    var cellMessage: Message?
+    var message: Message?
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
     
@@ -31,9 +31,9 @@ final class MessageCellViewModel
     
     var displayUnseenMessagesTitle: Bool?
     
-    convenience init(cellMessage: Message) {
+    convenience init(message: Message) {
         self.init()
-        self.cellMessage = cellMessage
+        self.message = message
     }
     
     convenience init(isUnseenCell: Bool) {
@@ -42,13 +42,13 @@ final class MessageCellViewModel
     }
     
     var timestamp: String? {
-        let hoursAndMinutes = cellMessage?.timestamp.formatToHoursAndMinutes()
+        let hoursAndMinutes = message?.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
     }
 
     @MainActor
     func fetchImageData() {
-        guard let message = cellMessage else {return}
+        guard let message = message else {return}
         Task {
             do {
                 self.imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
@@ -59,9 +59,9 @@ final class MessageCellViewModel
     }
     
     func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification? {
-        if cellMessage?.messageBody != newMessage.messageBody {
+        if message?.messageBody != newMessage.messageBody {
             return .text
-        } else if cellMessage?.messageSeen != newMessage.messageSeen {
+        } else if message?.messageSeen != newMessage.messageSeen {
             return .seenStatus
         }
         return nil
@@ -91,7 +91,7 @@ extension MessageCellViewModel
 {
     @MainActor
     func updateFirestoreMessageSeenStatus(from chatID: String) async {
-        guard let message = cellMessage else {return}
+        guard let message = message else {return}
         do {
             try await FirebaseChatService.shared.updateMessageSeenStatus(messageID: message.id, chatID: chatID)
         } catch {
@@ -100,7 +100,7 @@ extension MessageCellViewModel
     }
     
     func updateRealmMessageSeenStatus() {
-        guard let message = cellMessage else {return}
+        guard let message = message else {return}
         RealmDataBase.shared.update(object: message) { message in
             message.messageSeen = true
         }

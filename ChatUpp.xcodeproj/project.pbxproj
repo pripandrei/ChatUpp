@@ -88,6 +88,7 @@
 		75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */; };
 		75BA23852D2F02F700A4C508 /* ImageSaveble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23842D2F02E600A4C508 /* ImageSaveble.swift */; };
 		75BA23BC2D32272F00A4C508 /* ServiceT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23BB2D32272800A4C508 /* ServiceT.swift */; };
+		75BA7E4F2D34AE0C00A4C508 /* IndexPath+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */; };
 		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
@@ -231,6 +232,7 @@
 		75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropViewControllerRepresentable.swift; sourceTree = "<group>"; };
 		75BA23842D2F02E600A4C508 /* ImageSaveble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSaveble.swift; sourceTree = "<group>"; };
 		75BA23BB2D32272800A4C508 /* ServiceT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceT.swift; sourceTree = "<group>"; };
+		75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IndexPath+Extensions.swift"; sourceTree = "<group>"; };
 		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
@@ -707,6 +709,7 @@
 		75FB78FF2AC3188C00C2743A /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */,
 				75FB79002AC318D600C2743A /* UIView+Extensions.swift */,
 				75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */,
 				75D7C5CF2ADD9C3300F6D4B9 /* Date+Extensions.swift */,
@@ -982,6 +985,7 @@
 				7563F8C42AE8D2D1006FA374 /* String+Extensions.swift in Sources */,
 				75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */,
 				75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */,
+				75BA7E4F2D34AE0C00A4C508 /* IndexPath+Extensions.swift in Sources */,
 				753185E92C22123300C4F9F4 /* UIButton + extensions.swift in Sources */,
 				75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */,
 				756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */,

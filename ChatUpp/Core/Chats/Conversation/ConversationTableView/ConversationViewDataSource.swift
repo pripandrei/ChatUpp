@@ -36,7 +36,7 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire, for: indexPath) as? ConversationTableViewCell else { fatalError("Could not dequeu custom collection cell") }
 
-        let message = viewModel.cellMessage
+        let message = viewModel.message
         let authUserID = conversationViewModel.authenticatedUserID
         
         let cellSide = message?.senderId == authUserID ?

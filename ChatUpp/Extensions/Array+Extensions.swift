@@ -9,16 +9,16 @@ import Foundation
 
 extension Array where Element == ConversationViewModel.MessageCluster
 {
-    mutating func removeCellViewModel(at indexPath: IndexPath) {
+    mutating func removeClusterItem(at indexPath: IndexPath) {
         self[indexPath.section].items.remove(at: indexPath.row)
     }
-    
+
     func getCellViewModel(at indexPath: IndexPath) -> MessageCellViewModel {
         return self[indexPath.section].items[indexPath.row]
     }
     
     func contains(elementWithID id: String) -> Bool {
-        let existingMessageIDs: Set<String> = Set(self.flatMap { $0.items.compactMap { $0.cellMessage?.id } })
+        let existingMessageIDs: Set<String> = Set(self.flatMap { $0.items.compactMap { $0.message?.id } })
         return existingMessageIDs.contains(id)
     }
 }

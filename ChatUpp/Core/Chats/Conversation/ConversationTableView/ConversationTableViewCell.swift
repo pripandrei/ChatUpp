@@ -88,7 +88,7 @@ final class ConversationTableViewCell: UITableViewCell
         self.setupBinding()
         self.adjustMessageSide()
         
-        if viewModel.cellMessage?.messageBody != "" {
+        if viewModel.message?.messageBody != "" {
             self.messageLabel.attributedText = self.makeAttributedStringForMessage()
             self.handleMessageBubbleLayout()
             return
@@ -98,7 +98,7 @@ final class ConversationTableViewCell: UITableViewCell
     
     private func configureMessageSeenStatus()
     {
-        guard let message = cellViewModel.cellMessage else {return}
+        guard let message = cellViewModel.message else {return}
         let iconSize = message.messageSeen ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
         let seenStatusIcon = message.messageSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
         guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
@@ -110,7 +110,7 @@ final class ConversationTableViewCell: UITableViewCell
     
     private func makeAttributedStringForMessage() -> NSAttributedString?
     {
-        guard let message = cellViewModel.cellMessage else {return nil}
+        guard let message = cellViewModel.message else {return nil}
         
         let attributes: [NSAttributedString.Key : Any] =
         [
@@ -182,7 +182,7 @@ extension ConversationTableViewCell
     
     private func setupEditedLabel()
     {
-        guard cellViewModel.cellMessage?.isEdited == true else {return}
+        guard cellViewModel.message?.isEdited == true else {return}
         
         editedLabel = UILabel()
         messageLabel.addSubviews(editedLabel!)
@@ -341,7 +341,7 @@ extension ConversationTableViewCell
     }
 
     private func setMessageImageSize() {
-        if let cellImageSize = cellViewModel.cellMessage?.imageSize {
+        if let cellImageSize = cellViewModel.message?.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             let testSize = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
             messageImage = messageImage?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
