@@ -129,6 +129,7 @@ class ConversationViewModel
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
         
         if conversationExists {
+            bindToMessages()
             initiateConversation()
         }
     }
@@ -160,11 +161,11 @@ class ConversationViewModel
         messageListenerService.addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
     }
     
-//    func removeAllListeners() 
-//    {
-//        listeners.forEach{ $0.remove() }
-//        userObserver?.removeAllObservers()
-//    }
+    func removeAllListeners() 
+    {
+        messageListenerService.removeAllListeners()
+        userListenerService.removeAllListeners()
+    }
 //    
     func resetCurrentReplyMessageIfNeeded() {
         if currentlyReplyToMessageID != nil {
