@@ -829,35 +829,31 @@ extension ConversationViewModel
 {
     private func createMessageClustersWith(_ messages: [Message], ascending: Bool? = nil)
     {
-        var tempMessageClusters: [MessageCluster] = self.messageClusters
-        var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageClusters.enumerated().map { ($0.element.date, $0.offset) })
-        
-       messages.forEach { message in
+        var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
+        var tempMessageClusters = self.messageClusters
+
+        messages.forEach { message in
             guard let date = message.timestamp.formatToYearMonthDay() else { return }
-            let cellViewModel = MessageCellViewModel(message: message)
-            
-            if let index = groupIndexDict[date] {
-                if ascending == true {
-                    tempMessageClusters[index].items.insert(cellViewModel, at: 0)
-                } else {
-                    tempMessageClusters[index].items.append(cellViewModel)
-                }
+            let messageItem = MessageItem(message: message)
+
+            if let index = dateToIndex[date] {
+                ascending == true
+                    ? tempMessageClusters[index].items.insert(messageItem, at: 0)
+                    : tempMessageClusters[index].items.append(messageItem)
             } else {
+                let newCluster = MessageCluster(date: date, items: [messageItem])
                 if ascending == true {
-                    let newMessageGroup = MessageCluster(date: date, items: [cellViewModel])
-                    tempMessageClusters.insert(newMessageGroup, at: 0)
-                    groupIndexDict[date] = 0
-                }
-                else {
-                    let newMessageGroup = MessageCluster(date: date, items: [cellViewModel])
-                    tempMessageClusters.append(newMessageGroup)
-                    groupIndexDict[date] = tempMessageClusters.count - 1
+                    tempMessageClusters.insert(newCluster, at: 0)
+                    dateToIndex[date] = 0
+                } else {
+                    tempMessageClusters.append(newCluster)
+                    dateToIndex[date] = tempMessageClusters.count - 1
                 }
             }
         }
         self.messageClusters = tempMessageClusters
     }
-    
+
     @MainActor
     private func prepareMessageClustersUpdate(withMessages messages: [Message], inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
     {
