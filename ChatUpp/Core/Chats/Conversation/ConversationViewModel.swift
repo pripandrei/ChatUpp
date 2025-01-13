@@ -222,7 +222,7 @@ class ConversationViewModel
         
         resetCurrentReplyMessageIfNeeded()
         realmService.addMessageToRealmChat(message)
-        createConversationSectionsWith([message], ascending: true)
+        createMessageClustersWith([message], ascending: true)
         
         updateUnseenMessageCounter(shouldIncrement: true)
         
@@ -438,7 +438,7 @@ extension ConversationViewModel
         if shouldDisplayLastMessage == false {
             messages.removeFirst()
         }
-        createConversationSectionsWith(messages)
+        createMessageClustersWith(messages)
     }
 }
 
@@ -687,7 +687,7 @@ extension ConversationViewModel
             realmService.addMessageToRealmChat(message)
             // TODO: - if chat unseen message counter is heigher than local unseen count,
             // dont create messageGroup with this new message
-            createConversationSectionsWith([message], ascending: true)
+            createMessageClustersWith([message], ascending: true)
 //            messageChangedType = .added
             messageChangedTypes.append(.added)
 //            unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? unseenMessagesCount
@@ -824,13 +824,13 @@ extension ConversationViewModel
     }
 }
 
-// MARK: - message groups functions
+// MARK: - messageCluster functions
 extension ConversationViewModel
 {
-    private func createConversationSectionsWith(_ messages: [Message], ascending: Bool? = nil)
+    private func createMessageClustersWith(_ messages: [Message], ascending: Bool? = nil)
     {
-        var tempMessageGroups: [MessageCluster] = self.messageClusters
-        var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageGroups.enumerated().map { ($0.element.date, $0.offset) })
+        var tempMessageClusters: [MessageCluster] = self.messageClusters
+        var groupIndexDict: [Date: Int] = Dictionary(uniqueKeysWithValues: tempMessageClusters.enumerated().map { ($0.element.date, $0.offset) })
         
        messages.forEach { message in
             guard let date = message.timestamp.formatToYearMonthDay() else { return }
@@ -838,49 +838,49 @@ extension ConversationViewModel
             
             if let index = groupIndexDict[date] {
                 if ascending == true {
-                    tempMessageGroups[index].items.insert(cellViewModel, at: 0)
+                    tempMessageClusters[index].items.insert(cellViewModel, at: 0)
                 } else {
-                    tempMessageGroups[index].items.append(cellViewModel)
+                    tempMessageClusters[index].items.append(cellViewModel)
                 }
             } else {
                 if ascending == true {
                     let newMessageGroup = MessageCluster(date: date, items: [cellViewModel])
-                    tempMessageGroups.insert(newMessageGroup, at: 0)
+                    tempMessageClusters.insert(newMessageGroup, at: 0)
                     groupIndexDict[date] = 0
                 }
                 else {
                     let newMessageGroup = MessageCluster(date: date, items: [cellViewModel])
-                    tempMessageGroups.append(newMessageGroup)
-                    groupIndexDict[date] = tempMessageGroups.count - 1
+                    tempMessageClusters.append(newMessageGroup)
+                    groupIndexDict[date] = tempMessageClusters.count - 1
                 }
             }
         }
-        self.messageClusters = tempMessageGroups
+        self.messageClusters = tempMessageClusters
     }
     
     @MainActor
-    private func prepareMessageGroupsUpdate(withMessages messages: [Message], inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
+    private func prepareMessageClustersUpdate(withMessages messages: [Message], inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
     {
-        let messageGroupsBeforeUpdate = messageClusters
+        let messageClustersBeforeUpdate = messageClusters
         let startSectionCount = inAscendingOrder ? 0 : messageClusters.count
         
-        createConversationSectionsWith(messages, ascending: inAscendingOrder)
+        createMessageClustersWith(messages, ascending: inAscendingOrder)
         
-        let endSectionCount = inAscendingOrder ? (messageClusters.count - messageGroupsBeforeUpdate.count) : messageClusters.count
+        let endSectionCount = inAscendingOrder ? (messageClusters.count - messageClustersBeforeUpdate.count) : messageClusters.count
         
-        let newRows = findNewRowIndexPaths(inMessageGroups: messageGroupsBeforeUpdate, ascending: inAscendingOrder)
+        let newRows = findNewRowIndexPaths(inMessageClusters: messageClustersBeforeUpdate, ascending: inAscendingOrder)
         let newSections = findNewSectionIndexSet(startSectionCount: startSectionCount, endSectionCount: endSectionCount)
         
         return (newRows, newSections)
     }
     
     @MainActor
-    func handleAdditionalMessageGroupUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)? {
+    func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)? {
         
         let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
         guard !newMessages.isEmpty else { return nil }
         
-        let (newRows, newSections) = try await prepareMessageGroupsUpdate(withMessages: newMessages, inAscendingOrder: order)
+        let (newRows, newSections) = try await prepareMessageClustersUpdate(withMessages: newMessages, inAscendingOrder: order)
         
         if let timestamp = newMessages.first?.timestamp 
         {
@@ -891,11 +891,11 @@ extension ConversationViewModel
         return (newRows, newSections)
     }
     
-    private func findNewRowIndexPaths(inMessageGroups messageGroups: [MessageCluster], ascending: Bool) -> [IndexPath]
+    private func findNewRowIndexPaths(inMessageClusters messageClusters: [MessageCluster], ascending: Bool) -> [IndexPath]
     {
-        guard let sectionBeforeUpdate = ascending ? messageGroups.first?.items : messageGroups.last?.items else {return []}
+        guard let sectionBeforeUpdate = ascending ? messageClusters.first?.items : messageClusters.last?.items else {return []}
         
-        let sectionIndex = ascending ? 0 : messageGroups.count - 1
+        let sectionIndex = ascending ? 0 : messageClusters.count - 1
         
         return self.messageClusters[sectionIndex].items
             .enumerated()
@@ -931,7 +931,7 @@ extension ConversationViewModel {
     
     
     //    private func sortCellViewModels() {
-    //        if var lastMessageGroup = messageGroups.first {
+    //        if var lastMessageGroup = messageClusters.first {
     //            lastMessageGroup.cellViewModels.sort(by: { $0.message.timestamp > $1.message.timestamp })
     //            if let lastIndex = messageGroups.indices.first {
     //                messageGroups[lastIndex] = lastMessageGroup

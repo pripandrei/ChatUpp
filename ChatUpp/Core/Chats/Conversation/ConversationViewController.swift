@@ -797,7 +797,7 @@ extension ConversationViewController: UITableViewDelegate
             
             guard let self = self else { return }
             
-            if let (newRows, newSections) = try await self.conversationViewModel.handleAdditionalMessageGroupUpdate(inAscendingOrder: order)
+            if let (newRows, newSections) = try await self.conversationViewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
             {
                 self.performeTableViewUpdate(with: newRows, sections: newSections)
             }
