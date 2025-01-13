@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 //MARK: - realm service
 
@@ -210,5 +211,68 @@ final class ConversationUserListinerService
             self.chatUser = user
         }
         self.listeners.append(userListener)
+    }
+}
+
+final class ConversationMessageListenerService
+{
+    private let conversation: Chat?
+    private var listeners: [Listener] = []
+    
+    private(set) var addedMessage = PassthroughSubject<Message,Never>()
+    private(set) var removedMessage = PassthroughSubject<Message,Never>()
+    private(set) var modifiedMessage = PassthroughSubject<Message,Never>()
+    
+    init(conversation: Chat?) {
+        self.conversation = conversation
+    }
+    
+    func removeAllListeners()
+    {
+        listeners.forEach{ $0.remove() }
+    }
+    
+    func addListenerToUpcomingMessages()
+    {
+        guard let conversationID = conversation?.id,
+              let startMessageID = conversation?.getLastMessage()?.id else { return }
+ 
+        Task { @MainActor in
+            
+            let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
+                inChat: conversationID,
+                startingAfterMessage: startMessageID) { [weak self] message, changeType in
+                    
+                    guard let self = self else {return}
+                    
+                    switch changeType {
+                    case .added: self.addedMessage.send(message)
+                    case .removed: self.removedMessage.send(message)
+                    case .modified: self.modifiedMessage.send(message)
+                    }
+                }
+            self.listeners.append(listener)
+        }
+    }
+    
+    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100)
+    {
+        guard let conversationID = conversation?.id else { return }
+        
+        let listener = FirebaseChatService.shared.addListenerForExistingMessages(
+            inChat: conversationID,
+            startAtTimestamp: startAtTimestamp,
+            ascending: ascending,
+            limit: limit) { [weak self] message, changeType in
+                
+                guard let self = self else {return}
+                
+                switch changeType {
+                case .removed: self.removedMessage.send(message)
+                case .modified: self.modifiedMessage.send(message)
+                default: break
+                }
+            }
+        listeners.append(listener)
     }
 }

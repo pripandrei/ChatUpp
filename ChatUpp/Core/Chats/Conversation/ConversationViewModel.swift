@@ -69,6 +69,7 @@ class ConversationViewModel
     private(set) var realmService: ConversationRealmService
     private(set) var firestoreService: ConversationFirestoreService
     private(set) var userListenerService : ConversationUserListinerService
+    private(set) var messageListenerService : ConversationMessageListenerService
     
     private(set) var conversation        : Chat?
 //    private(set) var userObserver        : RealtimeObservable?
@@ -125,6 +126,7 @@ class ConversationViewModel
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
         self.userListenerService = ConversationUserListinerService(chatUser: conversationUser)
+        self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
         
         if conversationExists {
             initiateConversation()
@@ -154,8 +156,8 @@ class ConversationViewModel
         guard let startMessage = messageGroups.last?.cellViewModels.last?.cellMessage,
               let limit = conversation?.conversationMessages.count else {return}
         
-        addListenerToUpcomingMessages()
-        addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
+        messageListenerService.addListenerToUpcomingMessages()
+        messageListenerService.addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
     }
     
 //    func removeAllListeners() 
@@ -222,7 +224,8 @@ class ConversationViewModel
         }
     }
     
-    func createConversationIfNeeded() {
+    func createConversationIfNeeded()
+    {
         if !conversationExists
         {
             let chat = createChat()
@@ -237,7 +240,7 @@ class ConversationViewModel
                 guard let timestamp = self.conversation?.getLastMessage()?.timestamp,
                       let limit = conversation?.conversationMessages.count else {return}
                 
-                addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: true, limit: limit)
+                messageListenerService.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: true, limit: limit)
             })
         }
     }
@@ -598,51 +601,71 @@ extension ConversationViewModel
 //}
 
 // MARK: - Messages listener
+//extension ConversationViewModel
+//{
+//    private func addListenerToUpcomingMessages()
+//    {
+//        guard let conversationID = conversation?.id,
+//              let startMessageID = conversation?.getLastMessage()?.id else { return }
+// 
+//        Task { @MainActor in
+//            
+//            let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
+//                inChat: conversationID,
+//                startingAfterMessage: startMessageID) { [weak self] message, changeType in
+//                    
+//                    guard let self = self else {return}
+//                    
+//                    switch changeType {
+//                    case .added: self.handleAddedMessage(message)
+//                    case .removed: self.handleRemovedMessage(message)
+//                    case .modified: self.handleModifiedMessage(message)
+//                    }
+//                }
+//            self.listeners.append(listener)
+//        }
+//    }
+//    
+//    private func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100)
+//    {
+//        guard let conversationID = conversation?.id else { return }
+//        
+//        let listener = FirebaseChatService.shared.addListenerForExistingMessages(
+//            inChat: conversationID,
+//            startAtTimestamp: startAtTimestamp,
+//            ascending: ascending,
+//            limit: limit) { [weak self] message, changeType in
+//                
+//                guard let self = self else {return}
+//                
+//                switch changeType {
+//                case .removed: self.handleRemovedMessage(message)
+//                case .modified: self.handleModifiedMessage(message)
+//                default: break
+//                }
+//            }
+//        listeners.append(listener)
+//    }
+//}
 
 extension ConversationViewModel
 {
-    private func addListenerToUpcomingMessages()
+    private func bindToMessages()
     {
-        guard let conversationID = conversation?.id,
-              let startMessageID = conversation?.getLastMessage()?.id else { return }
- 
-        Task { @MainActor in
-            
-            let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
-                inChat: conversationID,
-                startingAfterMessage: startMessageID) { [weak self] message, changeType in
-                    
-                    guard let self = self else {return}
-                    
-                    switch changeType {
-                    case .added: self.handleAddedMessage(message)
-                    case .removed: self.handleRemovedMessage(message)
-                    case .modified: self.handleModifiedMessage(message)
-                    }
-                }
-            self.listeners.append(listener)
-        }
-    }
-    
-    private func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100)
-    {
-        guard let conversationID = conversation?.id else { return }
+        messageListenerService.addedMessage
+            .sink { addedMessage in
+                self.handleAddedMessage(addedMessage)
+            }.store(in: &cancellables)
         
-        let listener = FirebaseChatService.shared.addListenerForExistingMessages(
-            inChat: conversationID,
-            startAtTimestamp: startAtTimestamp,
-            ascending: ascending,
-            limit: limit) { [weak self] message, changeType in
-                
-                guard let self = self else {return}
-                
-                switch changeType {
-                case .removed: self.handleRemovedMessage(message)
-                case .modified: self.handleModifiedMessage(message)
-                default: break
-                }
-            }
-        listeners.append(listener)
+        messageListenerService.modifiedMessage
+            .sink { modifiedMessage in
+                self.handleModifiedMessage(modifiedMessage)
+            }.store(in: &cancellables)
+        
+        messageListenerService.removedMessage
+            .sink { removedMessage in
+                self.handleRemovedMessage(removedMessage)
+            }.store(in: &cancellables)
     }
 }
 
@@ -677,7 +700,6 @@ extension ConversationViewModel
         
         realmService.updateMessage(message)
         if message.senderId == authenticatedUserID {
-//            messageChangedType = .modified(indexPath, modificationValue)
             messageChangedTypes.append(.modified(indexPath, modificationValue))
         }
     }
@@ -694,7 +716,6 @@ extension ConversationViewModel
             guard let lastMessageID = messageGroups.first?.cellViewModels.first?.cellMessage?.id else {return}
             firestoreService.updateLastMessageFromFirestoreChat(lastMessageID)
         }
-//        messageChangedType = .removed
         messageChangedTypes.append(.removed(indexPath))
     }
 
@@ -868,7 +889,7 @@ extension ConversationViewModel
         
         if let timestamp = newMessages.first?.timestamp 
         {
-            addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
+            messageListenerService.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
         }
         realmService.addMessagesToConversationInRealm(newMessages)
         

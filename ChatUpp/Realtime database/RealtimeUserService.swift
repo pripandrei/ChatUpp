@@ -24,11 +24,13 @@ import Foundation
 import FirebaseDatabase
 import FirebaseDatabaseSwift
 
-typealias RealtimeDBObserver = DatabaseReference
+//typealias RealtimeDBObserver = DatabaseReference
 
 protocol RealtimeObservable {
     func removeAllObservers()
 }
+
+extension DatabaseReference: RealtimeObservable {}
 
 final class RealtimeUserService {
     
@@ -92,7 +94,6 @@ final class RealtimeUserService {
     }
 }
 
-extension DatabaseReference: RealtimeObservable {}
 
 
 
