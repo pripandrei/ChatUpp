@@ -461,7 +461,7 @@ extension ConversationViewController {
     }
     
     private func checkIfNewSectionWasAdded() -> Bool {
-        if rootView.tableView.numberOfSections < conversationViewModel.messageGroups.count {
+        if rootView.tableView.numberOfSections < conversationViewModel.messageClusters.count {
             return true
         }
         return false
@@ -489,7 +489,7 @@ extension ConversationViewController
     }
     
     private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
-        let cellMessage = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row].cellMessage
+        let cellMessage = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row].cellMessage
         let authUserID = conversationViewModel.authenticatedUserID
         
         guard cellMessage?.messageSeen == false,
@@ -742,7 +742,7 @@ extension ConversationViewController: UITableViewDelegate
         guard !tableView.sk.isSkeletonActive,
               let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? FooterSectionView else { return nil }
         
-        let dateForSection = conversationViewModel.messageGroups[section].date.formatToYearMonthDayCustomString()
+        let dateForSection = conversationViewModel.messageClusters[section].date.formatToYearMonthDayCustomString()
         footerView.setDate(dateText: dateForSection)
         return footerView
     }
@@ -768,12 +768,12 @@ extension ConversationViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) 
     {
-        guard conversationViewModel.messageGroups.count != 0,
+        guard conversationViewModel.messageClusters.count != 0,
               didFinishInitialScroll == true
         else {return}
         
-        let lastSectionIndex = conversationViewModel.messageGroups.count - 1
-        let lastRowIndex = conversationViewModel.messageGroups[lastSectionIndex].cellViewModels.count - 1
+        let lastSectionIndex = conversationViewModel.messageClusters.count - 1
+        let lastRowIndex = conversationViewModel.messageClusters[lastSectionIndex].items.count - 1
         let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
         

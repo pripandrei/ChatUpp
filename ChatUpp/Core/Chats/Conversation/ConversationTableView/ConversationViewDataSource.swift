@@ -18,16 +18,16 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
     }
 //
     func numberOfSections(in tableView: UITableView) -> Int {
-        return conversationViewModel.messageGroups.count
+        return conversationViewModel.messageClusters.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return conversationViewModel.messageGroups[section].cellViewModels.count
+        return conversationViewModel.messageClusters[section].items.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-        let viewModel = conversationViewModel.messageGroups[indexPath.section].cellViewModels[indexPath.row]
+        let viewModel = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row]
         
         if viewModel.displayUnseenMessagesTitle == true {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire, for: indexPath) as? ConversationTableViewTitleCell else { fatalError("Could not dequeu custom collection cell") }
