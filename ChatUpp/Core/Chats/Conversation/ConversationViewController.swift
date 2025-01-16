@@ -490,7 +490,7 @@ extension ConversationViewController
     
     private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
         let message = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row].message
-        let authUserID = conversationViewModel.authenticatedUserID
+        let authUserID = conversationViewModel.authUser.uid
         
         guard message?.messageSeen == false,
               message?.senderId != authUserID,
@@ -869,7 +869,7 @@ extension ConversationViewController: UITableViewDelegate
                 }
                 
                 /// display edit/delete actions only on messages that authenticated user sent
-                let messageBelongsToAuthenticatedUser = message.senderId == self.conversationViewModel.authenticatedUserID
+                let messageBelongsToAuthenticatedUser = message.senderId == self.conversationViewModel.authUser.uid
                 let attributesForEditAction = messageBelongsToAuthenticatedUser ? [] : UIMenuElement.Attributes.hidden
                 let attributesForDeleteAction = messageBelongsToAuthenticatedUser ? .destructive : UIMenuElement.Attributes.hidden
                 

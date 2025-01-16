@@ -32,7 +32,7 @@ protocol RealtimeObservable {
 
 extension DatabaseReference: RealtimeObservable {}
 
-final class RealtimeUserService {
+final class RealtimeUserService: AuthUserProtocol {
     
     private init() {}
     
@@ -52,7 +52,6 @@ final class RealtimeUserService {
     
     /// - update active status
     func updateUserActiveStatus(isActive: Bool) {
-        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() else {return}
         let userData: [String: Any] = [
             "is_active": isActive
         ]
@@ -67,7 +66,6 @@ final class RealtimeUserService {
             "last_seen": Date().timeIntervalSince1970
         ]
         do {
-            let authUser = try AuthenticationManager.shared.getAuthenticatedUser()
             self.onDisconnectRefListener = try await usersReference.child(authUser.uid).onDisconnectUpdateChildValues(userData)
         } catch {
             print(error.localizedDescription)

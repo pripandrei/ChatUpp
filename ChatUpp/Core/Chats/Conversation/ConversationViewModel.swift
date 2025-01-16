@@ -10,63 +10,6 @@ import Foundation
 import Combine
 import UIKit
 
-enum MessageValueModification 
-{
-    case text
-    case seenStatus
-    
-    var animationType: UITableView.RowAnimation {
-        switch self {
-        case .text: return .left
-        case .seenStatus: return .none
-        }
-    }
-}
-
-enum MessageChangeType {
-    case modified(IndexPath, MessageValueModification)
-    case added
-    case removed(IndexPath)
-}
-
-enum MessageFetchStrategy 
-{
-    case ascending(startAtMessage: Message?, included: Bool)
-    case descending(startAtMessage: Message?, included: Bool)
-    case hybrit(startAtMessage: Message)
-    case none
-}
-
-enum MessagesFetchDirection {
-    case ascending
-    case descending
-    case both
-}
-
-enum ConversationInitializationStatus {
-    case inProgress
-    case finished
-}
-
-enum MessagesListenerRange
-{
-    case forExisting(startAtMessage: Message, endAtMessage: Message)
-    case forPaged(startAtMessage: Message, endAtMessage: Message)
-}
-
-
-//MARK: - Model representing section of messages
-extension ConversationViewModel
-{
-    typealias MessageItem = MessageCellViewModel
-    
-    struct MessageCluster
-    {
-        let date: Date
-        var items: [MessageItem]
-    }
-}
-
 class ConversationViewModel
 {
     private(set) var realmService: ConversationRealmService
@@ -75,11 +18,9 @@ class ConversationViewModel
     private(set) var messageListenerService : ConversationMessageListenerService
     
     private(set) var conversation        : Chat?
-//    private(set) var userObserver      : RealtimeObservable?
     private(set) var messageClusters     : [MessageCluster] = []
     private(set) var memberProfileImage  : Data?
-    private(set) var authenticatedUserID : String = (try! AuthenticationManager.shared.getAuthenticatedUser()).uid
-//    private      var listeners           : [Listener] = []
+    private(set) var authUser            : AuthDataResultModel = (try! AuthenticationManager.shared.getAuthenticatedUser())
     private var cancellables             = Set<AnyCancellable>()
     
     @Published private(set) var unseenMessagesCount              : Int 
@@ -100,7 +41,7 @@ class ConversationViewModel
     }
     
     var authParticipantUnreadMessagesCount: Int {
-        conversation?.participants.first(where: { $0.userID == authenticatedUserID })?.unseenMessagesCount ?? 0
+        conversation?.participants.first(where: { $0.userID == authUser.uid })?.unseenMessagesCount ?? 0
     }
     
     private var isChatFetchedFirstTime: Bool {
@@ -128,7 +69,7 @@ class ConversationViewModel
         self.chatUser = conversationUser
         self.conversation = conversation
         self.memberProfileImage = imageData
-        self.unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? 0
+        self.unseenMessagesCount = conversation?.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
@@ -144,7 +85,7 @@ class ConversationViewModel
     private func observeParticipantChanges()
     {
         guard let chat = conversation else {return}
-        guard let participant = chat.getParticipant(byID: authenticatedUserID) else {return}
+        guard let participant = chat.getParticipant(byID: authUser.uid) else {return}
         
         RealmDataBase.shared.observeChanges(for: participant)
             .receive(on: DispatchQueue.main)
@@ -197,7 +138,7 @@ class ConversationViewModel
     
     private func createParticipants() -> [ChatParticipant]
     {
-        let firstParticipant = ChatParticipant(userID: authenticatedUserID, unseenMessageCount: 0)
+        let firstParticipant = ChatParticipant(userID: authUser.uid, unseenMessageCount: 0)
         let secondParticipant = ChatParticipant(userID: chatUser.id, unseenMessageCount: 0)
         return [firstParticipant,secondParticipant]
     }
@@ -207,7 +148,7 @@ class ConversationViewModel
         
         return Message(id: messageID,
                        messageBody: messageBody,
-                       senderId: authenticatedUserID,
+                       senderId: authUser.uid,
                        timestamp: Date(),
                        messageSeen: false,
                        isEdited: false,
@@ -257,7 +198,7 @@ class ConversationViewModel
     
     func updateUnseenMessageCounter(shouldIncrement: Bool) 
     {
-        let participantUserID = shouldIncrement ? chatUser.id : authenticatedUserID
+        let participantUserID = shouldIncrement ? chatUser.id : authUser.uid
  
         guard let conversation = conversation else { return }
 
@@ -302,7 +243,7 @@ class ConversationViewModel
     func findFirstUnseenMessageIndex() -> IndexPath?
     {
         guard let unseenMessage = RealmDataBase.shared.retrieveObjects(ofType: Message.self)?
-            .filter("messageSeen == false AND senderId != %@", authenticatedUserID)
+            .filter("messageSeen == false AND senderId != %@", authUser.uid)
             .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
             .first else { return nil }
 
@@ -442,220 +383,6 @@ extension ConversationViewModel
     }
 }
 
-// MARK: - Realm functions
-
-//extension ConversationViewModel
-//{
-//    func addMessagesToConversationInRealm(_ messages: [Message]) 
-//    {
-//        guard let conversation = conversation else { return }
-//        
-//        RealmDataBase.shared.update(object: conversation) { chat in
-//            
-//            let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
-//            let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
-//            
-//            chat.conversationMessages.append(objectsIn: newMessages)
-//        }
-//    }
-//    
-//    func updateChatOpenStatusIfNeeded()
-//    {
-//        guard let conversation = conversation else { return }
-//        
-//        if conversation.isFirstTimeOpened != false {
-//            RealmDataBase.shared.update(object: conversation) { $0.isFirstTimeOpened = false }
-//        }
-//    }
-//    
-//    private func addMessageToRealmChat(_ message: Message)
-//    {
-//        guard let conversation = conversation else { return }
-//        
-//        RealmDataBase.shared.update(object: conversation) { chat in
-//            chat.conversationMessages.append(message)
-//        }
-//    }
-//    
-//    private func retrieveMessageFromRealm(_ message: Message) -> Message? {
-//        return RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
-//    }
-//    
-//    private func addChatToRealm(_ chat: Chat) {
-//        RealmDataBase.shared.add(object: chat)
-//    }
-//    
-//    private func updateMessage(_ message: Message) {
-//        RealmDataBase.shared.add(object: message)
-//    }
-//    
-//    private func getUnreadMessagesCountFromRealm() -> Int
-//    {
-//        guard let conversation = conversation else { return 0 }
-//        
-//        let filter = NSPredicate(format: "messageSeen == false AND senderId != %@", authenticatedUserID)
-//        let count = conversation.conversationMessages.filter(filter).count
-//        
-//        return count
-//    }
-//    
-//    private func removeMessageFromRealm(message: Message)
-//    {
-//        guard let realmMessage = retrieveMessageFromRealm(message) else {return}
-//        RealmDataBase.shared.delete(object: realmMessage)
-//    }
-//}
-
-//MARK: - Firestore functions
-//extension ConversationViewModel
-//{
-//    private func getFirstUnseenMessageFromFirestore(from chatID: String) async throws -> Message?
-//    {
-//        return try await FirebaseChatService.shared.getFirstUnseenMessage(fromChatDocumentPath: chatID,
-//                                                                   whereSenderIDNotEqualTo: authenticatedUserID)
-//    }
-//
-//    private func addChatToFirestore(_ chat: Chat) async {
-//        do {
-//            try await FirebaseChatService.shared.createNewChat(chat: chat)
-//        } catch {
-//            print("Error creating conversation", error.localizedDescription)
-//        }
-//    }
-//    
-//    @MainActor
-//    private func addMessageToFirestoreDataBase(_ message: Message) async
-//    {
-//        guard let conversation = conversation else {return}
-//        do {
-//            try await FirebaseChatService.shared.createMessage(message: message, atChatPath: conversation.id)
-//        } catch {
-//            print("error occur while trying to create message in DB: ", error.localizedDescription)
-//        }
-//    }
-//    
-//    @MainActor
-//    func updateRecentMessageFromFirestoreChat(messageID: String) async 
-//    {
-//        guard let chatID = conversation?.id else { print("chatID is nil") ; return}
-//        do {
-//            try await FirebaseChatService.shared.updateChatRecentMessage(recentMessageID: messageID, chatID: chatID)
-//        } catch {
-//            print("Error updating chat last message:", error.localizedDescription)
-//        }
-//    }
-//    
-//    func deleteMessageFromFirestore(messageID: String) {
-//        Task { @MainActor in
-//            do {
-//                try await FirebaseChatService.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
-//            } catch {
-//                print("Error deleting message: ",error.localizedDescription)
-//            }
-//        }
-//    }
-//    
-//    @MainActor
-//    func editMessageTextFromFirestore(_ messageText: String, messageID: String) {
-//        Task {
-//            try await FirebaseChatService.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
-//        }
-//    }
-//    
-//    private func updateLastMessageFromFirestoreChat() {
-//        Task { @MainActor in
-//            guard let messageID = messageGroups[0].cellViewModels[0].message?.id else {return}
-//            await updateRecentMessageFromFirestoreChat(messageID: messageID)
-//        }
-//    }
-//}
-
-// MARK: - Users listener
-
-//extension ConversationViewModel
-//{
-//    /// - Temporary fix while firebase functions are deactivated
-//    func addUserObserver() 
-//    {
-//        userObserver = RealtimeUserService
-//            .shared
-//            .addObserverToUsers(chatUser.id) { [weak self] realtimeDBUser in
-//                
-//            guard let self = self else {return}
-//            
-//            if realtimeDBUser.isActive != self.chatUser.isActive
-//            {
-//                if let date = realtimeDBUser.lastSeen,
-//                    let isActive = realtimeDBUser.isActive
-//                {
-//                    self.chatUser = self.chatUser.updateActiveStatus(lastSeenDate: date,isActive: isActive)
-//                }
-//            }
-//        }
-//    }
-//    
-//    func addUsersListener()
-//    {
-//        let userListener = FirestoreUserService
-//            .shared
-//            .addListenerToUsers([chatUser.id]) { [weak self] users, documentsTypes in
-//            guard let self = self else {return}
-//            // since we are listening only for one user, we can just get the first user and docType
-//            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-//            self.chatUser = user
-//        }
-//        self.listeners.append(userListener)
-//    }
-//}
-
-// MARK: - Messages listener
-//extension ConversationViewModel
-//{
-//    private func addListenerToUpcomingMessages()
-//    {
-//        guard let conversationID = conversation?.id,
-//              let startMessageID = conversation?.getLastMessage()?.id else { return }
-// 
-//        Task { @MainActor in
-//            
-//            let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
-//                inChat: conversationID,
-//                startingAfterMessage: startMessageID) { [weak self] message, changeType in
-//                    
-//                    guard let self = self else {return}
-//                    
-//                    switch changeType {
-//                    case .added: self.handleAddedMessage(message)
-//                    case .removed: self.handleRemovedMessage(message)
-//                    case .modified: self.handleModifiedMessage(message)
-//                    }
-//                }
-//            self.listeners.append(listener)
-//        }
-//    }
-//    
-//    private func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100)
-//    {
-//        guard let conversationID = conversation?.id else { return }
-//        
-//        let listener = FirebaseChatService.shared.addListenerForExistingMessages(
-//            inChat: conversationID,
-//            startAtTimestamp: startAtTimestamp,
-//            ascending: ascending,
-//            limit: limit) { [weak self] message, changeType in
-//                
-//                guard let self = self else {return}
-//                
-//                switch changeType {
-//                case .removed: self.handleRemovedMessage(message)
-//                case .modified: self.handleModifiedMessage(message)
-//                default: break
-//                }
-//            }
-//        listeners.append(listener)
-//    }
-//}
-
 extension ConversationViewModel
 {
     private func bindToMessages()
@@ -707,7 +434,7 @@ extension ConversationViewModel
         guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
         
         realmService.updateMessage(message)
-        if message.senderId == authenticatedUserID {
+        if message.senderId == authUser.uid {
             messageChangedTypes.append(.modified(indexPath, modificationValue))
         }
     }

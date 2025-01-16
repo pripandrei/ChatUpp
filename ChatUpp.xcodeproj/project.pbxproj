@@ -77,6 +77,9 @@
 		75A086162D19619E00DE5333 /* CropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 75A086152D19619E00DE5333 /* CropViewController */; };
 		75A086182D19619E00DE5333 /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 75A086172D19619E00DE5333 /* TOCropViewController */; };
 		75A0861A2D1977DB00DE5333 /* ImageCropper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A086192D1977D200DE5333 /* ImageCropper.swift */; };
+		75A7AFC72D396D1D00E081DF /* ConversationViewModel+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFC22D396D1400E081DF /* ConversationViewModel+Extensions.swift */; };
+		75A7AFCA2D39717B00E081DF /* Conversation+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFC92D39717800E081DF /* Conversation+Enums.swift */; };
+		75A7AFCC2D39740800E081DF /* AuthUserProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */; };
 		75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A9184A2C942E15006ED4CA /* CacheManager.swift */; };
 		75B48B572AF6837700A5FBFC /* ConversationRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B562AF6837700A5FBFC /* ConversationRootView.swift */; };
 		75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */; };
@@ -219,6 +222,9 @@
 		7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSampleRepository.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
 		75A086192D1977D200DE5333 /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropper.swift; sourceTree = "<group>"; };
+		75A7AFC22D396D1400E081DF /* ConversationViewModel+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationViewModel+Extensions.swift"; sourceTree = "<group>"; };
+		75A7AFC92D39717800E081DF /* Conversation+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+Enums.swift"; sourceTree = "<group>"; };
+		75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthUserProtocol.swift; sourceTree = "<group>"; };
 		75A9184A2C942E15006ED4CA /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		75B48B562AF6837700A5FBFC /* ConversationRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRootView.swift; sourceTree = "<group>"; };
 		75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableController.swift; sourceTree = "<group>"; };
@@ -364,8 +370,9 @@
 				75BA23BB2D32272800A4C508 /* ServiceT.swift */,
 				7543BE322ACC87CA003001BF /* ConversationViewController.swift */,
 				7543BE342ACC87E1003001BF /* ConversationViewModel.swift */,
-				75007AF02C5564CF006B1D6E /* Subviews */,
 				75F608832BEC2F560065DA83 /* ConversationTextViewDelegate.swift */,
+				75A7AFC92D39717800E081DF /* Conversation+Enums.swift */,
+				75007AF02C5564CF006B1D6E /* Subviews */,
 				7563F87D2ADE2C1A006FA374 /* ConversationTableView */,
 			);
 			path = Conversation;
@@ -464,6 +471,7 @@
 		757033A32BC2D829002732B5 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */,
 				75BA23842D2F02E600A4C508 /* ImageSaveble.swift */,
 				757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */,
 			);
@@ -709,6 +717,7 @@
 		75FB78FF2AC3188C00C2743A /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				75A7AFC22D396D1400E081DF /* ConversationViewModel+Extensions.swift */,
 				75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */,
 				75FB79002AC318D600C2743A /* UIView+Extensions.swift */,
 				75D7C5CB2ADAD40600F6D4B9 /* CGFloat+Extension.swift */,
@@ -921,6 +930,7 @@
 				755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */,
 				7543BE2A2ACB0EDA003001BF /* FirebaseChatService.swift in Sources */,
 				75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */,
+				75A7AFC72D396D1D00E081DF /* ConversationViewModel+Extensions.swift in Sources */,
 				75A0861A2D1977DB00DE5333 /* ImageCropper.swift in Sources */,
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
 				757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */,
@@ -943,6 +953,7 @@
 				75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */,
 				7543BE332ACC87CA003001BF /* ConversationViewController.swift in Sources */,
 				75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */,
+				75A7AFCC2D39740800E081DF /* AuthUserProtocol.swift in Sources */,
 				75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */,
 				75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */,
 				75F608842BEC2F560065DA83 /* ConversationTextViewDelegate.swift in Sources */,
@@ -955,6 +966,7 @@
 				751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */,
 				7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
+				75A7AFCA2D39717B00E081DF /* Conversation+Enums.swift in Sources */,
 				7533D9BB2B167ED80057EBC7 /* PhoneSigninViewModel.swift in Sources */,
 				7543BE302ACC86AE003001BF /* MessageModel.swift in Sources */,
 				7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */,

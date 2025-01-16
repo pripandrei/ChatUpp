@@ -110,16 +110,6 @@ extension ChatsViewModel
         RealmDataBase.shared.delete(object: chat)
     }
     
-//    private func updateRealmChat(_ chat: Chat)
-//    {
-//        RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
-//            dbChat.recentMessageID = chat.recentMessageID
-//            
-//            dbChat.participants.removeAll()
-//            dbChat.participants.append(objectsIn: chat.participants)
-//        }
-//    }
-    
     private func updateRealmChat(_ chat: Chat)
     {
         RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
@@ -247,14 +237,5 @@ extension ChatsViewModel
                 print("Error removing chat: ", error.localizedDescription)
             }
         }
-    }
-}
-
-extension Array where Element: Equatable 
-{
-    mutating func move(element: Element, toIndex destinationIndex: Int) {
-        guard let elementIndex = self.firstIndex(of: element) else {return}
-        let removedElement = self.remove(at: elementIndex)
-        insert(removedElement, at: destinationIndex)
     }
 }

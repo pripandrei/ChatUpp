@@ -22,3 +22,12 @@ extension Array where Element == ConversationViewModel.MessageCluster
         return existingMessageIDs.contains(id)
     }
 }
+
+extension Array where Element: Equatable
+{
+    mutating func move(element: Element, toIndex destinationIndex: Int) {
+        guard let elementIndex = self.firstIndex(of: element) else {return}
+        let removedElement = self.remove(at: elementIndex)
+        insert(removedElement, at: destinationIndex)
+    }
+}

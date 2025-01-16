@@ -12,22 +12,12 @@ enum ConversationCellType {
     case unseenMessagesTitle
 }
 
-final class ConversationMessageCellViewModel {
-    
-}
-
-final class ConversationUnseenCellViewModel {
-    
-}
-
 final class MessageCellViewModel
 {    
     @Published var imageData: Data?
     var message: Message?
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
-    
-//    private(set) var authUserID: String = try! AuthenticationManager.shared.getAuthenticatedUser().uid
     
     var displayUnseenMessagesTitle: Bool?
     
