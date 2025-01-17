@@ -10,7 +10,7 @@ import UIKit
 import SkeletonView
 import YYText
 
-final class ConversationRootView: UIView {
+final class ChatRoomRootView: UIView {
     
     // MARK: - UI Elements
     
@@ -41,6 +41,7 @@ final class ConversationRootView: UIView {
         return badge
     }()
     
+    /// Conversation table view
     private(set) var tableView: UITableView = {
         
         // Bottom of table view has padding due to navigation controller 
@@ -55,7 +56,7 @@ final class ConversationRootView: UIView {
         tableView.estimatedRowHeight            = 50
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
-        tableView.register(ConversationTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
+        tableView.register(ChatRoomTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
         tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
         tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
         tableView.register(ConversationTableViewTitleCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
@@ -199,7 +200,7 @@ final class ConversationRootView: UIView {
 }
 
 // MARK: - SETUP EDIT VIEW
-extension ConversationRootView 
+extension ChatRoomRootView 
 {
     private func setupInputBarHeaderView(mode: InputBarHeaderView.Mode) {
         destroyinputBarHeaderView()
@@ -227,7 +228,7 @@ extension ConversationRootView
 }
 
 // MARK: - SETUP SUBVIEW'S CONSTRAINTS
-extension ConversationRootView
+extension ChatRoomRootView
 {
     private func setupUnseenMessageCounterBadgeConstraints() 
     {

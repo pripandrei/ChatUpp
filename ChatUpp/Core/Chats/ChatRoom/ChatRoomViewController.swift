@@ -17,7 +17,7 @@ import SkeletonView
 
 
 //MARK: - SCROLL VIEW DELEGATE
-extension ConversationViewController: UIScrollViewDelegate
+extension ChatRoomViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
@@ -55,16 +55,16 @@ extension ConversationViewController: UIScrollViewDelegate
     }
 }
 
-final class ConversationViewController: UIViewController {
+final class ChatRoomViewController: UIViewController {
     
     var shouldAdjustScroll: Bool = false
     var tableViewUpdatedContentOffset: CGFloat = 0.0
     
     weak var coordinatorDelegate :Coordinator?
-    private var tableViewDataSource :ConversationViewDataSource!
+    private var tableViewDataSource :ChatRoomTableViewDataSource!
     private var customNavigationBar :ConversationCustomNavigationBar!
-    private var rootView = ConversationRootView()
-    private var conversationViewModel :ConversationViewModel!
+    private var rootView = ChatRoomRootView()
+    private var conversationViewModel :ChatRoomViewModel!
     private var rootViewTextViewDelegate: ConversationTextViewDelegate!
 
     private var isContextMenuPresented: Bool = false
@@ -80,7 +80,7 @@ final class ConversationViewController: UIViewController {
     
     //MARK: - Lifecycle
     
-    convenience init(conversationViewModel: ConversationViewModel) {
+    convenience init(conversationViewModel: ChatRoomViewModel) {
         self.init()
         self.conversationViewModel = conversationViewModel
     }
@@ -281,7 +281,7 @@ final class ConversationViewController: UIViewController {
     }
     
     private func configureTableView() {
-        tableViewDataSource = ConversationViewDataSource(conversationViewModel: conversationViewModel)
+        tableViewDataSource = ChatRoomTableViewDataSource(conversationViewModel: conversationViewModel)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = tableViewDataSource
     }
@@ -356,7 +356,7 @@ final class ConversationViewController: UIViewController {
         /// - data source is not empty and table didn't layed out cells yet, return true
         guard !table.visibleCells.isEmpty else {return true}
         
-        guard let lastCell = table.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell else {
+        guard let lastCell = table.cellForRow(at: lastCellIndexPath) as? ChatRoomTableViewCell else {
             return false
         }
 
@@ -375,7 +375,7 @@ final class ConversationViewController: UIViewController {
     
     private func reloadCellRow(at indexPath: IndexPath, with animation: UITableView.RowAnimation)
     {
-        guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
+        guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ChatRoomTableViewCell else { return }
         self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
     }
     
@@ -393,7 +393,7 @@ final class ConversationViewController: UIViewController {
 }
 
 //MARK: - Handle cell message insertion
-extension ConversationViewController {
+extension ChatRoomViewController {
     
     private func handleMessageBubbleCreation(messageText: String = "")
     {
@@ -445,7 +445,7 @@ extension ConversationViewController {
     
     private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath) {
         let currentOffSet = self.rootView.tableView.contentOffset
-        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
+        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ChatRoomTableViewCell else { return }
         
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
@@ -469,13 +469,13 @@ extension ConversationViewController {
 }
 
 //MARK: - Message seen status handler
-extension ConversationViewController 
+extension ChatRoomViewController 
 {
     private func updateMessageSeenStatusIfNeeded() {
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
 
         for indexPath in visibleIndices {
-            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell,
+            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ChatRoomTableViewCell,
                   checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
                 continue
             }
@@ -518,7 +518,7 @@ extension ConversationViewController
 
 
 //MARK: - VIEW BUTTON'S TARGET'S
-extension ConversationViewController {
+extension ChatRoomViewController {
     
     private func addTargetToScrollToBottomBtn() {
         rootView.scrollBadgeButton.addTarget(self, action: #selector(scrollToBottomBtnWasTapped), for: .touchUpInside)
@@ -566,7 +566,7 @@ extension ConversationViewController {
 }
 
 //MARK: - Helper functions
-extension ConversationViewController
+extension ChatRoomViewController
 {
     private func getTrimmedString() -> String {
         return rootView.messageTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -581,7 +581,7 @@ extension ConversationViewController
 }
 
 //MARK: - TABLE OFFSET HANDLER
-extension ConversationViewController 
+extension ChatRoomViewController 
 {
 //    private func handleTableViewOffset(usingKeyboardSize keyboardSize: CGRect)
 //    {
@@ -686,7 +686,7 @@ extension ConversationViewController
 }
 
 //MARK: - PHOTO PICKER CONFIGURATION & DELEGATE
-extension ConversationViewController: PHPickerViewControllerDelegate {
+extension ChatRoomViewController: PHPickerViewControllerDelegate {
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         picker.dismiss(animated: true)
@@ -710,7 +710,7 @@ extension ConversationViewController: PHPickerViewControllerDelegate {
 }
 
 //MARK: - GESTURES
-extension ConversationViewController {
+extension ChatRoomViewController {
     
     private func addGestureToTableView() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
@@ -736,7 +736,7 @@ extension ConversationViewController {
 
 
 //MARK: - TABLE  DELEGATE
-extension ConversationViewController: UITableViewDelegate
+extension ChatRoomViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         guard !tableView.sk.isSkeletonActive,
@@ -808,14 +808,14 @@ extension ConversationViewController: UITableViewDelegate
     
     private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?)
     {
-        var visibleCell: ConversationTableViewCell? = nil
+        var visibleCell: ChatRoomTableViewCell? = nil
         let currentOffsetY = self.rootView.tableView.contentOffset.y
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
         self.rootView.tableView.performBatchUpdates({
-            visibleCell = self.rootView.tableView.visibleCells.first as? ConversationTableViewCell
+            visibleCell = self.rootView.tableView.visibleCells.first as? ChatRoomTableViewCell
             
             if let sections = sections {
                 self.rootView.tableView.insertSections(sections, with: .none)
@@ -841,7 +841,7 @@ extension ConversationViewController: UITableViewDelegate
     //MARK: - Context menu configuration
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         
-        guard let cell = tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+        guard let cell = tableView.cellForRow(at: indexPath) as? ChatRoomTableViewCell else {return nil}
         let tapLocationInCell = cell.contentView.convert(point, from: tableView)
         
         if cell.messageBubbleContainer.frame.contains(tapLocationInCell) {
@@ -914,7 +914,7 @@ extension ConversationViewController: UITableViewDelegate
     
     private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+              let cell = rootView.tableView.cellForRow(at: indexPath) as? ChatRoomTableViewCell else {return nil}
         
         let parameter = UIPreviewParameters()
         parameter.backgroundColor = .clear
@@ -934,7 +934,7 @@ extension ConversationViewController: UITableViewDelegate
 
 
 //MARK: - SkeletonView animation
-extension ConversationViewController
+extension ChatRoomViewController
 {
     private func toggleSkeletonAnimation(_ state: SkeletonAnimationState) {
         switch state {

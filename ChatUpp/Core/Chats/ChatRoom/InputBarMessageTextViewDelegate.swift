@@ -9,15 +9,16 @@
 import UIKit
 import Combine
 
-final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
-
-    private var conversationView: ConversationRootView!
+final class InputBarMessageTextViewDelegate: NSObject, UITextViewDelegate
+{
+    private var conversationView: ChatRoomRootView!
     private(set) var messageTextViewNumberOfLines = 1
     private(set) var lineNumberModificationSubject = PassthroughSubject<(Int,Int), Never>()
     private var _invalidateTextViewSize: Bool = false
     
-    convenience init(view: ConversationRootView) {
-        self.init(frame: .zero)
+    convenience init(view: ChatRoomRootView) {
+//        self.init(frame: .zero)
+        self.init()
         conversationView = view
         setupDelegate()
     }
@@ -69,7 +70,7 @@ final class ConversationTextViewDelegate: UIView, UITextViewDelegate {
 }
 
 //MARK: - Helper functions
-extension ConversationTextViewDelegate
+extension InputBarMessageTextViewDelegate
 {
     func getNumberOfLines(from textView: UITextView) -> Int
     {

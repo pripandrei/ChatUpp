@@ -282,7 +282,7 @@ class ConversationMessageFetcherService
 {
     private var conversation: Chat
     private let firestoreService: ConversationFirestoreService
-    private var messageClusters: [ConversationViewModel.MessageCluster]
+    private var messageClusters: [ChatRoomViewModel.MessageCluster]
     
     private var isChatFetchedFirstTime: Bool {
         conversation.isFirstTimeOpened ?? true
@@ -290,7 +290,7 @@ class ConversationMessageFetcherService
     
     init(conversation: Chat,
          firestoreService: ConversationFirestoreService,
-         messageClusterers: [ConversationViewModel.MessageCluster])
+         messageClusterers: [ChatRoomViewModel.MessageCluster])
     {
         self.conversation = conversation
         self.firestoreService = firestoreService

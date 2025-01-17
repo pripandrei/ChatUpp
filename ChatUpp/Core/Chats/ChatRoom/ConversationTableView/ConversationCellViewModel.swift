@@ -8,11 +8,11 @@
 import Foundation
 
 enum ConversationCellType {
-    case message(content: MessageCellViewModel)
+    case message(content: ConversationCellViewModel)
     case unseenMessagesTitle
 }
 
-final class MessageCellViewModel
+final class ConversationCellViewModel
 {    
     @Published var imageData: Data?
     var message: Message?
@@ -77,7 +77,7 @@ final class MessageCellViewModel
 
 
 //MARK: - Message update in realm/firestore DB
-extension MessageCellViewModel
+extension ConversationCellViewModel
 {
     @MainActor
     func updateFirestoreMessageSeenStatus(from chatID: String) async {
@@ -98,7 +98,7 @@ extension MessageCellViewModel
 }
 
 
-extension MessageCellViewModel
+extension ConversationCellViewModel
 {
     func getCellAspectRatio(forImageSize size: CGSize) -> CGSize 
     {

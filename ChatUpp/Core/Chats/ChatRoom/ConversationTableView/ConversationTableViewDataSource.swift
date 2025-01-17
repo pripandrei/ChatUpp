@@ -9,10 +9,11 @@ import UIKit
 import SkeletonView
 
 
-final class ConversationViewDataSource: NSObject, UITableViewDataSource {
-    var conversationViewModel: ConversationViewModel!
+final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
+{
+    var conversationViewModel: ChatRoomViewModel!
     
-    init(conversationViewModel: ConversationViewModel) {
+    init(conversationViewModel: ChatRoomViewModel) {
         self.conversationViewModel = conversationViewModel
         super.init()
     }
@@ -54,7 +55,7 @@ final class ConversationViewDataSource: NSObject, UITableViewDataSource {
 
 
 // MARK: - SKELETONVIEW DATASOURCE
-extension ConversationViewDataSource: SkeletonTableViewDataSource
+extension ConversationTableViewDataSource: SkeletonTableViewDataSource
 {
     func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
        return ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire

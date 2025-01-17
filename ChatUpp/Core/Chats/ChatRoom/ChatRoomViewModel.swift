@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import UIKit
 
-class ConversationViewModel
+class ChatRoomViewModel
 {
     private(set) var realmService: ConversationRealmService
     private(set) var firestoreService: ConversationFirestoreService
@@ -347,7 +347,7 @@ class ConversationViewModel
 
 //MARK: - Conversation initialization
 
-extension ConversationViewModel
+extension ChatRoomViewModel
 {
     private func initiateConversation()
     {
@@ -391,7 +391,7 @@ extension ConversationViewModel
 }
 
 //MARK: - Message listener bindings
-extension ConversationViewModel
+extension ChatRoomViewModel
 {
     private func bindToMessages()
     {
@@ -414,7 +414,7 @@ extension ConversationViewModel
 
 // MARK: - Message listener helper functions
 
-extension ConversationViewModel
+extension ChatRoomViewModel
 {
     private func handleAddedMessage(_ message: Message)
     {
@@ -482,7 +482,7 @@ extension ConversationViewModel
 
 // MARK: - messages fetch
 
-extension ConversationViewModel
+extension ChatRoomViewModel
 {
     @MainActor
     func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message] 
@@ -557,7 +557,7 @@ extension ConversationViewModel
 }
 
 // MARK: - messageCluster functions
-extension ConversationViewModel
+extension ChatRoomViewModel
 {
     private func createMessageClustersWith(_ messages: [Message], ascending: Bool? = nil)
     {
@@ -645,7 +645,7 @@ extension ConversationViewModel
 
 //MARK: - Not in use
 
-extension ConversationViewModel {
+extension ChatRoomViewModel {
     
 //    func contains(_ message: Message) -> Bool
 //    {
@@ -689,7 +689,7 @@ extension ConversationViewModel {
 }
 
 
-class GroupViewModel: ConversationViewModel
+class GroupViewModel: ChatRoomViewModel
 {
         
     override func handleImageDrop(imageData: Data, size: MessageImageSize) {
