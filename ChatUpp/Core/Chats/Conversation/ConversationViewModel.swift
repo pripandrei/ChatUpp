@@ -127,71 +127,78 @@ class ConversationViewModel
     
     /// - chat components creation
     
-    private func createChat() -> Chat
-    {
+    private func createChat() -> Chat {
         let chatId = UUID().uuidString
-        let participants = createParticipants()
+        let participants = [
+            ChatParticipant(userID: authUser.uid, unseenMessageCount: 0),
+            ChatParticipant(userID: chatUser.id, unseenMessageCount: 0)
+        ]
         let recentMessageID = lastMessageItem?.message?.id
         let messagesCount = messageClusters.first?.items.count
-        return Chat(id: chatId, participants: participants, recentMessageID: recentMessageID, messagesCount: messagesCount, isFirstTimeOpened: false)
-    }
-    
-    private func createParticipants() -> [ChatParticipant]
-    {
-        let firstParticipant = ChatParticipant(userID: authUser.uid, unseenMessageCount: 0)
-        let secondParticipant = ChatParticipant(userID: chatUser.id, unseenMessageCount: 0)
-        return [firstParticipant,secondParticipant]
+        
+        return Chat(
+            id: chatId,
+            participants: participants,
+            recentMessageID: recentMessageID,
+            messagesCount: messagesCount,
+            isFirstTimeOpened: false
+        )
     }
     
     private func createNewMessage(_ messageBody: String) -> Message {
-        let messageID = UUID().uuidString
-        
-        return Message(id: messageID,
-                       messageBody: messageBody,
-                       senderId: authUser.uid,
-                       timestamp: Date(),
-                       messageSeen: false,
-                       isEdited: false,
-                       imagePath: nil,
-                       imageSize: nil,
-                       repliedTo: currentlyReplyToMessageID)
+        Message(
+            id: UUID().uuidString,
+            messageBody: messageBody,
+            senderId: authUser.uid,
+            timestamp: Date(),
+            messageSeen: false,
+            isEdited: false,
+            imagePath: nil,
+            imageSize: nil,
+            repliedTo: currentlyReplyToMessageID
+        )
     }
     
-    func manageMessageCreation(_ messageText: String)
-    {
+    func manageMessageCreation(_ messageText: String) {
         let message = createNewMessage(messageText)
-        
         resetCurrentReplyMessageIfNeeded()
+        
+        // Local updates
         realmService.addMessageToRealmChat(message)
         createMessageClustersWith([message], ascending: true)
-        
         updateUnseenMessageCounter(shouldIncrement: true)
         
+        // Remote updates
         Task { @MainActor in
             await firestoreService.addMessageToFirestoreDataBase(message)
             await firestoreService.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
     }
     
-    func createConversationIfNeeded()
-    {
-        if !conversationExists
-        {
-            let chat = createChat()
-            conversation = chat
-            realmService.addChatToRealm(chat)
-            
-            let freezedChat = chat.freeze()
-            
-            Task(priority: .high, operation: { @MainActor in
-                await firestoreService.addChatToFirestore(freezedChat)
-                
-                guard let timestamp = self.conversation?.getLastMessage()?.timestamp,
-                      let limit = conversation?.conversationMessages.count else {return}
-                
-                messageListenerService.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: true, limit: limit)
-            })
+    func createConversationIfNeeded() {
+        guard !conversationExists else { return }
+        
+        let chat = createChat()
+        conversation = chat
+        realmService.addChatToRealm(chat)
+        
+        let freezedChat = chat.freeze()
+        
+        Task(priority: .high) { @MainActor in
+            await firestoreService.addChatToFirestore(freezedChat)
+            setupMessageListenerOnChatCreation()
         }
+    }
+    
+    private func setupMessageListenerOnChatCreation() {
+        guard let timestamp = conversation?.getLastMessage()?.timestamp,
+              let limit = conversation?.conversationMessages.count else { return }
+        
+        messageListenerService.addListenerToExistingMessages(
+            startAtTimestamp: timestamp,
+            ascending: true,
+            limit: limit
+        )
     }
     
     /// - update messages components
@@ -383,6 +390,7 @@ extension ConversationViewModel
     }
 }
 
+//MARK: - Message listener bindings
 extension ConversationViewModel
 {
     private func bindToMessages()
@@ -427,11 +435,9 @@ extension ConversationViewModel
     
     private func handleModifiedMessage(_ message: Message) 
     {
-        guard let indexPath = indexPath(of: message) else { return }
-        
-        let cellVM = messageClusters.getCellViewModel(at: indexPath)
-        
-        guard let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
+        guard let indexPath = indexPath(of: message),
+              let cellVM = messageClusters.getCellViewModel(at: indexPath),
+              let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
         
         realmService.updateMessage(message)
         if message.senderId == authUser.uid {
@@ -444,7 +450,6 @@ extension ConversationViewModel
         guard let indexPath = indexPath(of: message) else { return }
         
         messageClusters.removeClusterItem(at: indexPath)
-        
         if messageClusters[indexPath.section].items.isEmpty {
             messageClusters.remove(at: indexPath.section)
         }
@@ -457,8 +462,8 @@ extension ConversationViewModel
         }
         messageChangedTypes.append(.removed(indexPath))
     }
-
-    private func indexPath(of message: Message) -> IndexPath? 
+    
+    private func indexPath(of message: Message) -> IndexPath?
     {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
@@ -582,7 +587,8 @@ extension ConversationViewModel
     }
 
     @MainActor
-    private func prepareMessageClustersUpdate(withMessages messages: [Message], inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
+    private func prepareMessageClustersUpdate(withMessages messages: [Message],
+                                              inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
     {
         let messageClustersBeforeUpdate = messageClusters
         let startSectionCount = inAscendingOrder ? 0 : messageClusters.count

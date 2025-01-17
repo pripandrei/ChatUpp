@@ -276,3 +276,183 @@ final class ConversationMessageListenerService
         listeners.append(listener)
     }
 }
+
+
+class ConversationMessageFetcherService
+{
+    private var conversation: Chat
+    private let firestoreService: ConversationFirestoreService
+    private var messageClusters: [ConversationViewModel.MessageCluster]
+    
+    private var isChatFetchedFirstTime: Bool {
+        conversation.isFirstTimeOpened ?? true
+    }
+    
+    init(conversation: Chat,
+         firestoreService: ConversationFirestoreService,
+         messageClusterers: [ConversationViewModel.MessageCluster])
+    {
+        self.conversation = conversation
+        self.firestoreService = firestoreService
+        self.messageClusters = messageClusterers
+    }
+    
+    @MainActor
+    func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message]
+    {
+        let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
+        
+        switch fetchStrategy
+        {
+        case .ascending(let startAtMessage, let included):
+            return try await FirebaseChatService.shared.fetchMessagesFromChat(
+                chatID: conversation.id,
+                startingFrom: startAtMessage?.id,
+                inclusive: included,
+                fetchDirection: .ascending
+            )
+        case .descending(let startAtMessage, let included):
+            return try await FirebaseChatService.shared.fetchMessagesFromChat(
+                chatID: conversation.id,
+                startingFrom: startAtMessage?.id,
+                inclusive: included,
+                fetchDirection: .descending
+            )
+        case .hybrit(let startAtMessage):
+            let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
+                chatID: conversation.id,
+                startingFrom: startAtMessage.id,
+                inclusive: true,
+                fetchDirection: .descending
+            )
+            let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
+                chatID: conversation.id,
+                startingFrom: startAtMessage.id,
+                inclusive: false,
+                fetchDirection: .ascending
+            )
+            return descendingMessages + ascendingMessages
+        default: return []
+        }
+    }
+    
+    private func loadAdditionalMessages(inAscendingOrder ascendingOrder: Bool) async throws -> [Message]
+    {
+        guard let startMessage = ascendingOrder
+                ? messageClusters.first?.items.first?.message
+                : messageClusters.last?.items.last?.message else {return []}
+        
+        switch ascendingOrder {
+        case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage, included: false))
+        case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage, included: false))
+        }
+    }
+    
+    @MainActor
+    private func determineFetchStrategy() async throws -> MessageFetchStrategy
+    {
+        if let firstUnseenMessage = try await firestoreService.getFirstUnseenMessageFromFirestore(from: conversation.id)
+        {
+            return isChatFetchedFirstTime ? .hybrit(startAtMessage: firstUnseenMessage) : .ascending(startAtMessage: firstUnseenMessage, included: true)
+        }
+        
+        if let lastSeenMessage = conversation.getLastMessage()
+        {
+            return .descending(startAtMessage: lastSeenMessage, included: true)
+        }
+
+        return .none // would trigger only if isChatFetchedFirstTime and chat is empty
+    }
+}
+
+//
+//class MessageClusterManager {
+//    
+//    @Published var messageClusters: [MessageCluster]
+//    
+//    init(messageCluster: MessageCluster) {
+//        self.messageClusters = messageCluster
+//    }
+//
+//        private func createMessageClustersWith(_ messages: [Message], ascending: Bool? = nil)
+//        {
+//            var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
+//            var tempMessageClusters = self.messageClusters
+//
+//            messages.forEach { message in
+//                guard let date = message.timestamp.formatToYearMonthDay() else { return }
+//                let messageItem = MessageItem(message: message)
+//
+//                if let index = dateToIndex[date] {
+//                    ascending == true
+//                        ? tempMessageClusters[index].items.insert(messageItem, at: 0)
+//                        : tempMessageClusters[index].items.append(messageItem)
+//                } else {
+//                    let newCluster = MessageCluster(date: date, items: [messageItem])
+//                    if ascending == true {
+//                        tempMessageClusters.insert(newCluster, at: 0)
+//                        dateToIndex[date] = 0
+//                    } else {
+//                        tempMessageClusters.append(newCluster)
+//                        dateToIndex[date] = tempMessageClusters.count - 1
+//                    }
+//                }
+//            }
+//            self.messageClusters = tempMessageClusters
+//        }
+//
+//        @MainActor
+//        private func prepareMessageClustersUpdate(withMessages messages: [Message], inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
+//        {
+//            let messageClustersBeforeUpdate = messageClusters
+//            let startSectionCount = inAscendingOrder ? 0 : messageClusters.count
+//            
+//            createMessageClustersWith(messages, ascending: inAscendingOrder)
+//            
+//            let endSectionCount = inAscendingOrder ? (messageClusters.count - messageClustersBeforeUpdate.count) : messageClusters.count
+//            
+//            let newRows = findNewRowIndexPaths(inMessageClusters: messageClustersBeforeUpdate, ascending: inAscendingOrder)
+//            let newSections = findNewSectionIndexSet(startSectionCount: startSectionCount, endSectionCount: endSectionCount)
+//            
+//            return (newRows, newSections)
+//        }
+//        
+//        @MainActor
+//        func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)? {
+//            
+//            let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
+//            guard !newMessages.isEmpty else { return nil }
+//            
+//            let (newRows, newSections) = try await prepareMessageClustersUpdate(withMessages: newMessages, inAscendingOrder: order)
+//            
+//            if let timestamp = newMessages.first?.timestamp
+//            {
+//                messageListenerService.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
+//            }
+//            realmService.addMessagesToConversationInRealm(newMessages)
+//            
+//            return (newRows, newSections)
+//        }
+//        
+//        private func findNewRowIndexPaths(inMessageClusters messageClusters: [MessageCluster], ascending: Bool) -> [IndexPath]
+//        {
+//            guard let sectionBeforeUpdate = ascending ? messageClusters.first?.items : messageClusters.last?.items else {return []}
+//            
+//            let sectionIndex = ascending ? 0 : messageClusters.count - 1
+//            
+//            return self.messageClusters[sectionIndex].items
+//                .enumerated()
+//                .compactMap { index, viewModel in
+//                    return sectionBeforeUpdate.contains { $0.message == viewModel.message }
+//                    ? nil
+//                    : IndexPath(row: index, section: sectionIndex)
+//                }
+//        }
+//        
+//        private func findNewSectionIndexSet(startSectionCount: Int, endSectionCount: Int) -> IndexSet?
+//        {
+//            return (startSectionCount < endSectionCount)
+//            ? IndexSet(integersIn: startSectionCount..<endSectionCount)
+//            : nil
+//        }
+//}

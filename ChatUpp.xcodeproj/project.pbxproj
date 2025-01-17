@@ -80,6 +80,7 @@
 		75A7AFC72D396D1D00E081DF /* ConversationViewModel+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFC22D396D1400E081DF /* ConversationViewModel+Extensions.swift */; };
 		75A7AFCA2D39717B00E081DF /* Conversation+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFC92D39717800E081DF /* Conversation+Enums.swift */; };
 		75A7AFCC2D39740800E081DF /* AuthUserProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */; };
+		75A7AFCE2D399B4B00E081DF /* ConversationViewModel+MessageClusterHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFCD2D399B1A00E081DF /* ConversationViewModel+MessageClusterHandler.swift */; };
 		75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A9184A2C942E15006ED4CA /* CacheManager.swift */; };
 		75B48B572AF6837700A5FBFC /* ConversationRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B562AF6837700A5FBFC /* ConversationRootView.swift */; };
 		75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */; };
@@ -225,6 +226,7 @@
 		75A7AFC22D396D1400E081DF /* ConversationViewModel+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationViewModel+Extensions.swift"; sourceTree = "<group>"; };
 		75A7AFC92D39717800E081DF /* Conversation+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Conversation+Enums.swift"; sourceTree = "<group>"; };
 		75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthUserProtocol.swift; sourceTree = "<group>"; };
+		75A7AFCD2D399B1A00E081DF /* ConversationViewModel+MessageClusterHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationViewModel+MessageClusterHandler.swift"; sourceTree = "<group>"; };
 		75A9184A2C942E15006ED4CA /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		75B48B562AF6837700A5FBFC /* ConversationRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationRootView.swift; sourceTree = "<group>"; };
 		75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableController.swift; sourceTree = "<group>"; };
@@ -367,6 +369,7 @@
 		7543BE312ACC879D003001BF /* Conversation */ = {
 			isa = PBXGroup;
 			children = (
+				75A7AFCD2D399B1A00E081DF /* ConversationViewModel+MessageClusterHandler.swift */,
 				75BA23BB2D32272800A4C508 /* ServiceT.swift */,
 				7543BE322ACC87CA003001BF /* ConversationViewController.swift */,
 				7543BE342ACC87E1003001BF /* ConversationViewModel.swift */,
@@ -922,6 +925,7 @@
 				7543BE352ACC87E1003001BF /* ConversationViewModel.swift in Sources */,
 				75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */,
 				756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */,
+				75A7AFCE2D399B4B00E081DF /* ConversationViewModel+MessageClusterHandler.swift in Sources */,
 				756525CA2A8127F5005DC594 /* Observable.swift in Sources */,
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
 				7597CE5B2D1494F000CFD1B8 /* ImageSampleRepository.swift in Sources */,
