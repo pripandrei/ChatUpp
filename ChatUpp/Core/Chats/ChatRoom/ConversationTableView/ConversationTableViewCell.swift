@@ -25,7 +25,7 @@ final class ConversationTableViewCell: UITableViewCell
     private(set) var messageLabel = YYLabel()
     private(set) var seenStatusMark = YYLabel()
     private(set) var editedLabel: UILabel?
-    private(set) var cellViewModel: MessageCellViewModel!
+    private(set) var cellViewModel: ConversationCellViewModel!
     
     private let cellSpacing = 3.0
     private var messageSide: MessageSide!
@@ -76,7 +76,7 @@ final class ConversationTableViewCell: UITableViewCell
     
     /// - cell configuration
     ///
-    func configureCell(usingViewModel viewModel: MessageCellViewModel, forSide side: MessageSide)
+    func configureCell(usingViewModel viewModel: ConversationCellViewModel, forSide side: MessageSide)
     {
         self.cleanupCellContent()
         

@@ -7,13 +7,13 @@
 
 import Foundation
 
-extension Array where Element == ConversationViewModel.MessageCluster
+extension Array where Element == ChatRoomViewModel.MessageCluster
 {
     mutating func removeClusterItem(at indexPath: IndexPath) {
         self[indexPath.section].items.remove(at: indexPath.row)
     }
 
-    func getCellViewModel(at indexPath: IndexPath) -> MessageCellViewModel? {
+    func getCellViewModel(at indexPath: IndexPath) -> ConversationCellViewModel? {
         return self[indexPath.section].items[indexPath.row]
     }
     

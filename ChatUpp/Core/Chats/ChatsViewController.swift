@@ -278,7 +278,7 @@ extension ChatsViewController: UITableViewDelegate
         let chat = cellVM.chat
         let memberPhoto = cellVM.retrieveProfileImageFromCache()
         
-        let conversationViewModel = ConversationViewModel(conversationUser: user, conversation: chat, imageData: memberPhoto)
+        let conversationViewModel = ChatRoomViewModel(conversationUser: user, conversation: chat, imageData: memberPhoto)
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
     

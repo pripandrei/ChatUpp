@@ -19,7 +19,7 @@ protocol Coordinator: AnyObject {
     func pushUsernameRegistration()
     func dismissNaviagtionController()
     func pushMailSignInController(viewModel: LoginViewModel)
-    func openConversationVC(conversationViewModel: ConversationViewModel)
+    func openConversationVC(conversationViewModel: ChatRoomViewModel)
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
     func showProfileDeletionVC(viewModel: ProfileDeletionViewModel)
     
@@ -96,8 +96,8 @@ class MainCoordinator: Coordinator {
         Utilities.windowRoot = tabBar
     }
     
-    func openConversationVC(conversationViewModel: ConversationViewModel) {
-        let conversationVC = ConversationViewController(conversationViewModel: conversationViewModel)
+    func openConversationVC(conversationViewModel: ChatRoomViewModel) {
+        let conversationVC = ChatRoomViewController(conversationViewModel: conversationViewModel)
         conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
         tabBar.chatsNavigationController?.pushViewController(conversationVC, animated: true)

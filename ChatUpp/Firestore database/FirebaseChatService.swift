@@ -11,7 +11,13 @@ import FirebaseFirestoreSwift
 import Combine
 
 
+
 typealias Listener = ListenerRegistration
+
+struct MessageUpdate<T> {
+    let data: T
+    let changeType: DocumentChangeType
+}
 
 struct ChatUpdate<T> {
     let data: T
@@ -247,7 +253,7 @@ extension FirebaseChatService
     // messages listners
     func addListenerForUpcomingMessages(inChat chatID: String,
                                         startingAfterMessage messageID: String,
-                                        onNewMessageReceived:  @escaping (Message, DocumentChangeType) -> Void) async throws -> Listener
+                                        onNewMessageReceived:  @escaping (MessageUpdate<Message>) -> Void) async throws -> Listener
     {
         let document = try await chatsCollection.document(chatID)
             .collection(FirestoreCollection.messages.rawValue)
@@ -264,7 +270,7 @@ extension FirebaseChatService
                 
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
-                    onNewMessageReceived(message, document.type)
+                    onNewMessageReceived(MessageUpdate(data: message, changeType: document.type))
                 }
                 
             }
@@ -274,7 +280,7 @@ extension FirebaseChatService
                                         startAtTimestamp startTimestamp: Date,
                                         ascending: Bool,
                                         limit: Int,
-                                        onMessageUpdated: @escaping (Message, DocumentChangeType) -> Void) -> Listener
+                                        onMessageUpdated: @escaping (MessageUpdate<Message>) -> Void) -> Listener
     {
         
         return chatDocument(documentPath: chatID)
@@ -288,7 +294,7 @@ extension FirebaseChatService
                 
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
-                    onMessageUpdated(message, document.type)
+                    onMessageUpdated(MessageUpdate(data: message, changeType: document.type))
                 }
             }
     }

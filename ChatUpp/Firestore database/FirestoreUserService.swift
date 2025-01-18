@@ -117,7 +117,8 @@ final class FirestoreUserService {
     // MARK: - Add listener to users
     
     @discardableResult
-    func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([User], [DocumentChangeType]) -> Void) -> Listener {
+    func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([User], [DocumentChangeType]) -> Void) -> Listener
+    {
         return usersCollection.whereField("user_id", in: usersID).addSnapshotListener { snapshot, error in
             guard error == nil else { print(error!.localizedDescription); return }
             guard let documents = snapshot?.documentChanges else { print("No user to listen to"); return }

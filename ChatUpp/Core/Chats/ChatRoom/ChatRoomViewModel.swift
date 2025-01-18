@@ -13,6 +13,7 @@ import UIKit
 class ChatRoomViewModel
 {
     private(set) var realmService: ConversationRealmService
+//    private(set) var messageFetcher : ConversationMessageFetcher
     private(set) var firestoreService: ConversationFirestoreService
     private(set) var userListenerService : ConversationUserListinerService
     private(set) var messageListenerService : ConversationMessageListenerService
@@ -75,6 +76,7 @@ class ChatRoomViewModel
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
         self.userListenerService = ConversationUserListinerService(chatUser: conversationUser)
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
+//        self.messageFetcher = ConversationMessageFetcher(conversation: conversation!, firestoreService: firestoreService)
         
         if conversationExists {
             bindToMessages()
@@ -127,7 +129,8 @@ class ChatRoomViewModel
     
     /// - chat components creation
     
-    private func createChat() -> Chat {
+    private func createChat() -> Chat
+    {
         let chatId = UUID().uuidString
         let participants = [
             ChatParticipant(userID: authUser.uid, unseenMessageCount: 0),
@@ -190,7 +193,8 @@ class ChatRoomViewModel
         }
     }
     
-    private func setupMessageListenerOnChatCreation() {
+    private func setupMessageListenerOnChatCreation()
+    {
         guard let timestamp = conversation?.getLastMessage()?.timestamp,
               let limit = conversation?.conversationMessages.count else { return }
         
@@ -234,7 +238,7 @@ class ChatRoomViewModel
     }
 
     @MainActor
-    func updateMessageSeenStatus(from cellViewModel: MessageCellViewModel) async
+    func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
     {
         guard let chatID = conversation?.id else { return }
         await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
@@ -267,7 +271,7 @@ class ChatRoomViewModel
     {
         guard let indexPath = findFirstUnseenMessageIndex() else {return}
 //        let indexPath = IndexPath(row: 13, section: 3)
-        let conversationCellVM = MessageCellViewModel(isUnseenCell: true)
+        let conversationCellVM = ConversationCellViewModel(isUnseenCell: true)
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
     
@@ -286,11 +290,12 @@ class ChatRoomViewModel
         return repliedMessage
     }
     
-    func setReplyMessageData(fromReplyMessageID id: String, toViewModel viewModel: MessageCellViewModel) {
+    func setReplyMessageData(fromReplyMessageID id: String, toViewModel viewModel: ConversationCellViewModel) {
         if let messageToBeReplied = getRepliedToMessage(messageID: id) 
         {
             let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
-            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) = (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
+            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) =
+            (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
         }
     }
     
@@ -395,19 +400,15 @@ extension ChatRoomViewModel
 {
     private func bindToMessages()
     {
-        messageListenerService.addedMessage
-            .sink { addedMessage in
-                self.handleAddedMessage(addedMessage)
-            }.store(in: &cancellables)
-        
-        messageListenerService.modifiedMessage
-            .sink { modifiedMessage in
-                self.handleModifiedMessage(modifiedMessage)
-            }.store(in: &cancellables)
-        
-        messageListenerService.removedMessage
-            .sink { removedMessage in
-                self.handleRemovedMessage(removedMessage)
+        messageListenerService.updatedMessage
+            .sink { messageType in
+                let message = messageType.data
+
+                switch messageType.changeType {
+                case .added: self.handleAddedMessage(message)
+                case .modified: self.handleModifiedMessage(message)
+                case .removed: self.handleRemovedMessage(message)
+                }
             }.store(in: &cancellables)
     }
 }
@@ -603,9 +604,17 @@ extension ChatRoomViewModel
         return (newRows, newSections)
     }
     
+//    private func getStartMessageForFetching(ascendingOrder: Bool) -> Message? {
+//        guard let startMessage = ascendingOrder
+//                ? messageClusters.first?.items.first?.message
+//                : messageClusters.last?.items.last?.message else {return nil}
+//        return startMessage
+//    }
+    
     @MainActor
     func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)? {
         
+//        guard let startFromMessage = getStartMessageForFetching(ascendingOrder: order) else {return nil}
         let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
         guard !newMessages.isEmpty else { return nil }
         
@@ -620,9 +629,11 @@ extension ChatRoomViewModel
         return (newRows, newSections)
     }
     
-    private func findNewRowIndexPaths(inMessageClusters messageClusters: [MessageCluster], ascending: Bool) -> [IndexPath]
+    private func findNewRowIndexPaths(inMessageClusters messageClusters: [MessageCluster],
+                                      ascending: Bool) -> [IndexPath]
     {
-        guard let sectionBeforeUpdate = ascending ? messageClusters.first?.items : messageClusters.last?.items else {return []}
+        guard let sectionBeforeUpdate = ascending ?
+                messageClusters.first?.items : messageClusters.last?.items else {return []}
         
         let sectionIndex = ascending ? 0 : messageClusters.count - 1
         
@@ -640,59 +651,5 @@ extension ChatRoomViewModel
         return (startSectionCount < endSectionCount)
         ? IndexSet(integersIn: startSectionCount..<endSectionCount)
         : nil
-    }
-}
-
-//MARK: - Not in use
-
-extension ChatRoomViewModel {
-    
-//    func contains(_ message: Message) -> Bool
-//    {
-//        let existingMessageIDs: Set<String> = Set(messageClusters.flatMap { $0.items.compactMap { $0.message?.id } })
-//        return existingMessageIDs.contains(message.id)
-//    }
-    
-    //    @Published var firstUnseenMessageIndex: IndexPath?
-    //    @Published var skeletonAnimationState: SkeletonAnimationState = .none
-    //    private(set) var conversationListenersInitiationSubject = PassthroughSubject<Void,Never>()
-    
-    
-    
-    //    private func sortCellViewModels() {
-    //        if var lastMessageGroup = messageClusters.first {
-    //            lastMessageGroup.cellViewModels.sort(by: { $0.message.timestamp > $1.message.timestamp })
-    //            if let lastIndex = messageGroups.indices.first {
-    //                messageGroups[lastIndex] = lastMessageGroup
-    //            }
-    //        }
-    //    }
-    
-    
-    //    private func getMessagesCountFromRealm() -> Int {
-    //        guard let conversationID = conversation?.id else {return 0}
-    //        let chat = RealmDBManager.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversationID)?.conversationMessages.count
-    //        return RealmDBManager.shared.getObjectsCount(ofType: Message.self)
-    //    }
-    //
-    
-    //    private func getUnseenMessageCountFromRealm() -> Int {
-    //        let filter = NSPredicate(format: "messageSeen == false AND senderId == %@", userMember.userId)
-    //        return RealmDBManager.shared.retrieveObjects(ofType: Message.self, filter: filter).count
-    //    }
-    
-//    guard case .message(content: let conversationCellVM) = messageGroups.last?.cellViewModels.last,
-//          let startMessage = conversationCellVM.message,
-//          let limit = conversation?.conversationMessages.count else {
-//        return
-//    }
-}
-
-
-class GroupViewModel: ChatRoomViewModel
-{
-        
-    override func handleImageDrop(imageData: Data, size: MessageImageSize) {
-        super.handleImageDrop(imageData: imageData, size: size)
     }
 }

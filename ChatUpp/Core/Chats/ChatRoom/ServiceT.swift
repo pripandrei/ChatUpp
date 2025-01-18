@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+
 //MARK: - realm service
 
 final class ConversationRealmService
@@ -205,24 +206,32 @@ final class ConversationUserListinerService
         let userListener = FirestoreUserService
             .shared
             .addListenerToUsers([chatUser.id]) { [weak self] users, documentsTypes in
-            guard let self = self else {return}
-            // since we are listening only for one user, we can just get the first user and docType
-            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self.chatUser = user
+                guard let self = self else {return}
+                // since we are listening only for one user, we can just get the first user and docType
+                guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
+                self.chatUser = user
         }
         self.listeners.append(userListener)
     }
+}
+
+enum MessageUpdateType {
+    case added(_ message: Message)
+    case removed(_ message: Message)
+    case modified(_ message: Message)
+}
+
+protocol MessageTypeChangeble {
+    
 }
 
 final class ConversationMessageListenerService
 {
     private let conversation: Chat?
     private var listeners: [Listener] = []
-    
-    private(set) var addedMessage = PassthroughSubject<Message,Never>()
-    private(set) var removedMessage = PassthroughSubject<Message,Never>()
-    private(set) var modifiedMessage = PassthroughSubject<Message,Never>()
-    
+
+    private(set) var updatedMessage = PassthroughSubject<MessageUpdate<Message>,Never>()
+
     init(conversation: Chat?) {
         self.conversation = conversation
     }
@@ -241,15 +250,9 @@ final class ConversationMessageListenerService
             
             let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
                 inChat: conversationID,
-                startingAfterMessage: startMessageID) { [weak self] message, changeType in
-                    
+                startingAfterMessage: startMessageID) { [weak self] messageUpdate in
                     guard let self = self else {return}
-                    
-                    switch changeType {
-                    case .added: self.addedMessage.send(message)
-                    case .removed: self.removedMessage.send(message)
-                    case .modified: self.modifiedMessage.send(message)
-                    }
+                    self.updatedMessage.send(messageUpdate)
                 }
             self.listeners.append(listener)
         }
@@ -263,107 +266,100 @@ final class ConversationMessageListenerService
             inChat: conversationID,
             startAtTimestamp: startAtTimestamp,
             ascending: ascending,
-            limit: limit) { [weak self] message, changeType in
-                
+            limit: limit) { [weak self] messageUpdate in
                 guard let self = self else {return}
-                
-                switch changeType {
-                case .removed: self.removedMessage.send(message)
-                case .modified: self.modifiedMessage.send(message)
-                default: break
-                }
+                self.updatedMessage.send(messageUpdate)
+
             }
         listeners.append(listener)
     }
 }
 
 
-class ConversationMessageFetcherService
-{
-    private var conversation: Chat
-    private let firestoreService: ConversationFirestoreService
-    private var messageClusters: [ChatRoomViewModel.MessageCluster]
-    
-    private var isChatFetchedFirstTime: Bool {
-        conversation.isFirstTimeOpened ?? true
-    }
-    
-    init(conversation: Chat,
-         firestoreService: ConversationFirestoreService,
-         messageClusterers: [ChatRoomViewModel.MessageCluster])
-    {
-        self.conversation = conversation
-        self.firestoreService = firestoreService
-        self.messageClusters = messageClusterers
-    }
-    
-    @MainActor
-    func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message]
-    {
-        let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
-        
-        switch fetchStrategy
-        {
-        case .ascending(let startAtMessage, let included):
-            return try await FirebaseChatService.shared.fetchMessagesFromChat(
-                chatID: conversation.id,
-                startingFrom: startAtMessage?.id,
-                inclusive: included,
-                fetchDirection: .ascending
-            )
-        case .descending(let startAtMessage, let included):
-            return try await FirebaseChatService.shared.fetchMessagesFromChat(
-                chatID: conversation.id,
-                startingFrom: startAtMessage?.id,
-                inclusive: included,
-                fetchDirection: .descending
-            )
-        case .hybrit(let startAtMessage):
-            let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
-                chatID: conversation.id,
-                startingFrom: startAtMessage.id,
-                inclusive: true,
-                fetchDirection: .descending
-            )
-            let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
-                chatID: conversation.id,
-                startingFrom: startAtMessage.id,
-                inclusive: false,
-                fetchDirection: .ascending
-            )
-            return descendingMessages + ascendingMessages
-        default: return []
-        }
-    }
-    
-    private func loadAdditionalMessages(inAscendingOrder ascendingOrder: Bool) async throws -> [Message]
-    {
-        guard let startMessage = ascendingOrder
-                ? messageClusters.first?.items.first?.message
-                : messageClusters.last?.items.last?.message else {return []}
-        
-        switch ascendingOrder {
-        case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage, included: false))
-        case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage, included: false))
-        }
-    }
-    
-    @MainActor
-    private func determineFetchStrategy() async throws -> MessageFetchStrategy
-    {
-        if let firstUnseenMessage = try await firestoreService.getFirstUnseenMessageFromFirestore(from: conversation.id)
-        {
-            return isChatFetchedFirstTime ? .hybrit(startAtMessage: firstUnseenMessage) : .ascending(startAtMessage: firstUnseenMessage, included: true)
-        }
-        
-        if let lastSeenMessage = conversation.getLastMessage()
-        {
-            return .descending(startAtMessage: lastSeenMessage, included: true)
-        }
-
-        return .none // would trigger only if isChatFetchedFirstTime and chat is empty
-    }
-}
+//class ConversationMessageFetcher
+//{
+//    private var conversation: Chat
+//    private let firestoreService: ConversationFirestoreService
+////    private var messageClusters: [ChatRoomViewModel.MessageCluster]
+//    
+//    private var isChatFetchedFirstTime: Bool {
+//        conversation.isFirstTimeOpened ?? true
+//    }
+//    
+//    init(conversation: Chat,
+//         firestoreService: ConversationFirestoreService
+//    )
+////         messageClusterers: [ChatRoomViewModel.MessageCluster])
+//    {
+//        self.conversation = conversation
+//        self.firestoreService = firestoreService
+////        self.messageClusters = messageClusterers
+//    }
+//    
+//    @MainActor
+//    func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message]
+//    {
+//        let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
+//        
+//        switch fetchStrategy
+//        {
+//        case .ascending(let startAtMessage, let included):
+//            return try await FirebaseChatService.shared.fetchMessagesFromChat(
+//                chatID: conversation.id,
+//                startingFrom: startAtMessage?.id,
+//                inclusive: included,
+//                fetchDirection: .ascending
+//            )
+//        case .descending(let startAtMessage, let included):
+//            return try await FirebaseChatService.shared.fetchMessagesFromChat(
+//                chatID: conversation.id,
+//                startingFrom: startAtMessage?.id,
+//                inclusive: included,
+//                fetchDirection: .descending
+//            )
+//        case .hybrit(let startAtMessage):
+//            let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
+//                chatID: conversation.id,
+//                startingFrom: startAtMessage.id,
+//                inclusive: true,
+//                fetchDirection: .descending
+//            )
+//            let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
+//                chatID: conversation.id,
+//                startingFrom: startAtMessage.id,
+//                inclusive: false,
+//                fetchDirection: .ascending
+//            )
+//            return descendingMessages + ascendingMessages
+//        default: return []
+//        }
+//    }
+//    
+//    func loadAdditionalMessages(inAscendingOrder ascendingOrder: Bool,
+//                                        startMessage: Message) async throws -> [Message]
+//    {
+//        switch ascendingOrder {
+//        case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage, included: false))
+//        case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage, included: false))
+//        }
+//    }
+//    
+//    @MainActor
+//    private func determineFetchStrategy() async throws -> MessageFetchStrategy
+//    {
+//        if let firstUnseenMessage = try await firestoreService.getFirstUnseenMessageFromFirestore(from: conversation.id)
+//        {
+//            return isChatFetchedFirstTime ? .hybrit(startAtMessage: firstUnseenMessage) : .ascending(startAtMessage: firstUnseenMessage, included: true)
+//        }
+//        
+//        if let lastSeenMessage = conversation.getLastMessage()
+//        {
+//            return .descending(startAtMessage: lastSeenMessage, included: true)
+//        }
+//
+//        return .none // would trigger only if isChatFetchedFirstTime and chat is empty
+//    }
+//}
 
 //
 //class MessageClusterManager {
