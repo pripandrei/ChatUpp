@@ -337,15 +337,15 @@ final class ChatRoomViewController: UIViewController
     
     /// - Navigation bar items setup
     private func setNavigationBarItems() {
-        let imageData = conversationViewModel.memberProfileImage 
-        let member = conversationViewModel.chatUser
-        var memberActiveStatus: String
-        
-        memberActiveStatus = member.isActive ?? false ?
-        "Online" : "last seen \(member.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
+//        let imageData = conversationViewModel.memberProfileImage 
+//        let member = conversationViewModel.chatUser
+//        var memberActiveStatus: String
+//        
+//        memberActiveStatus = member.isActive ?? false ?
+//        "Online" : "last seen \(member.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
 
         customNavigationBar = ConversationCustomNavigationBar(viewController: self)
-        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: member.name ?? "unknow", memberActiveStatus: memberActiveStatus)
+//        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: member.name ?? "unknow", memberActiveStatus: memberActiveStatus)
     }
     
     private func checkIfLastCellIsFullyVisible() -> Bool 

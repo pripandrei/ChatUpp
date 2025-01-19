@@ -128,7 +128,6 @@ class ChatsViewController: UIViewController {
         navigationItem.searchController = searchController
         definesPresentationContext = true
         navigationItem.hidesSearchBarWhenScrolling = true
-        
     }
     
     func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {

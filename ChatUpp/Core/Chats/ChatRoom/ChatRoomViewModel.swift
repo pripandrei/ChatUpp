@@ -68,7 +68,7 @@ class ChatRoomViewModel
     init(conversationUser: User, conversation: Chat? = nil, imageData: Data?)
     {
         self.chatUser = conversationUser
-        self.conversation = conversation
+//        self.conversation = conversation == nil ? Self.createChat(with: <#T##[ChatParticipant]#>) : conversation
         self.memberProfileImage = imageData
         self.unseenMessagesCount = conversation?.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         
@@ -148,6 +148,20 @@ class ChatRoomViewModel
         )
     }
     
+    static func createChat(with participants: [ChatParticipant]) -> Chat
+    {
+        let chatId = UUID().uuidString
+        return Chat(
+            id: chatId,
+            participants: participants,
+            recentMessageID: nil,
+            messagesCount: nil,
+            isFirstTimeOpened: false
+        )
+    }
+    
+    var chatParticipants: [ChatParticipant] = []
+    
     private func createNewMessage(_ messageBody: String) -> Message {
         Message(
             id: UUID().uuidString,
@@ -207,27 +221,33 @@ class ChatRoomViewModel
     
     /// - update messages components
     
-    func updateUnseenMessageCounter(shouldIncrement: Bool) 
+    func updateUnseenMessageCounter(shouldIncrement: Bool)
     {
-        let participantUserID = shouldIncrement ? chatUser.id : authUser.uid
- 
         guard let conversation = conversation else { return }
 
         RealmDataBase.shared.update(object: conversation) { dbChat in
-            
-            if let participant = dbChat.getParticipant(byID: participantUserID) 
-            {
-                participant.unseenMessagesCount += shouldIncrement ? 1 : -1
-            } 
+            if shouldIncrement {
+                for participant in dbChat.participants where participant.userID != self.authUser.uid {
+                    participant.unseenMessagesCount += 1
+                }
+            }
             else {
-                print("Participant not found for ID: \(participantUserID)")
+                if let participant = dbChat.getParticipant(byID: self.authUser.uid)
+                {
+                    participant.unseenMessagesCount = max(0, participant.unseenMessagesCount - 1)
+                }
             }
         }
-
+        
         Task { @MainActor in
+            
+            let targetIDs = shouldIncrement
+            ? conversation.participants.filter { $0.userID != self.authUser.uid }.map { $0.userID }
+            : [authUser.uid]
+            
             do {
                 try await FirebaseChatService.shared.updateUnreadMessageCount(
-                    for: participantUserID,
+                    for: targetIDs,
                     inChatWithID: conversation.id,
                     increment: shouldIncrement
                 )

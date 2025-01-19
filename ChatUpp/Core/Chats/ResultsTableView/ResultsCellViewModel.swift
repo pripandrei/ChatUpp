@@ -9,8 +9,8 @@ import Foundation
 
 // MARK: - RESULTSCELL VIEWMODEL
 
-final class ResultsCellViewModel {
-    
+final class ResultsCellViewModel
+{
     let chat: Chat?
     let participant: User
     var userImageData: ObservableObject<Data?> = ObservableObject(nil)
