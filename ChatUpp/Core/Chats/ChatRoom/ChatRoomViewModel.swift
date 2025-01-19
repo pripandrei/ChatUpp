@@ -27,7 +27,6 @@ class ChatRoomViewModel
     @Published private(set) var unseenMessagesCount              : Int 
     @Published private(set) var chatUser                         : User
     @Published private(set) var messageChangedTypes              : [MessageChangeType] = []
-    
     @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus?
     
     var shouldEditMessage: ((String) -> Void)?
@@ -66,7 +65,8 @@ class ChatRoomViewModel
     
     /// - Life cycle
     
-    init(conversationUser: User, conversation: Chat? = nil, imageData: Data?) {
+    init(conversationUser: User, conversation: Chat? = nil, imageData: Data?)
+    {
         self.chatUser = conversationUser
         self.conversation = conversation
         self.memberProfileImage = imageData
@@ -301,12 +301,8 @@ class ChatRoomViewModel
     
     func getMessageSenderName(usingSenderID id: String) -> String?
     {
-        guard let user = try? AuthenticationManager.shared.getAuthenticatedUser() else { return nil }
-        if id == user.uid {
-            return user.name
-        } else {
-            return chatUser.name
-        }
+        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: id)
+        return user?.name
     }
     
     /// - save image from message

@@ -183,7 +183,7 @@ final class ChatRoomViewController: UIViewController
                 }
             }.store(in: &subscriptions)
         
-        conversationViewModel.$chatUser
+        conversationViewModel.userListenerService.$chatUser
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
                 guard let self = self else {return}

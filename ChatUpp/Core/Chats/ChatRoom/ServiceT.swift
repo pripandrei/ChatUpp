@@ -169,7 +169,7 @@ final class ConversationUserListinerService
     private(set) var userObserver: RealtimeObservable?
     private var listeners: [Listener] = []
     
-    private var chatUser: User
+    @Published private(set) var chatUser: User
     
     init(chatUser: User) {
         self.chatUser = chatUser
