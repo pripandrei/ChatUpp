@@ -28,7 +28,7 @@ final class ChatRoomNavigationBar {
     }
     
     private func setupNavigationContainer() {
-        self.navigationItemsContainer = NavigationTitleContainer(name: viewModel.title, lastSeen: viewModel.status)
+        self.navigationItemsContainer = NavigationTitleContainer(name: viewModel._title, lastSeen: viewModel._status)
         viewController.navigationItem.titleView = self.navigationItemsContainer
     }
     
@@ -38,7 +38,8 @@ final class ChatRoomNavigationBar {
         
         var image: UIImage?
         
-        if let imageData = viewModel.getImageFromCache(viewModel.imageUrl) {
+        if let imgUrl = viewModel._imageUrl,
+            let imageData = viewModel.getImageFromCache(imgUrl) {
             image = UIImage(data: imageData)
         } else {
             image = UIImage(named: "default_profile_photo")
@@ -83,7 +84,7 @@ extension ChatRoomNavigationBar
         private var temporaryDimmView: UIView!
         private var temporaryImageView: UIView!
         
-        init(name: String, lastSeen: String) {
+        init(name: String?, lastSeen: String?) {
             titleLabel = UILabel()
             statusLabel = UILabel()
             
@@ -96,7 +97,7 @@ extension ChatRoomNavigationBar
             fatalError("init(coder:) has not been implemented")
         }
         
-        private func setupViews(name: String, lastSeen: String) {
+        private func setupViews(name: String?, lastSeen: String?) {
             titleLabel.text = name
             titleLabel.textColor = .white
             titleLabel.font = UIFont(name:"HelveticaNeue-Bold", size: 17)
@@ -286,7 +287,7 @@ final class ChatRoomNavigationBarViewModel
         }
         
         let updatedChatStatus = "\(updatedChat.participants.count) participants"
-        if updatedChatStatus != status {
+        if updatedChatStatus != _status {
             _status = updatedChatStatus
         }
     }
@@ -312,104 +313,104 @@ final class ChatRoomNavigationBarViewModel
     }
     
     
-    
-    
-    private func setNavigationBarItems() {
-        self._title = title
-        self._status = status
-        self._imageUrl = imageUrl
-    }
-    
-    var otherParticipant: User?
-    {
-        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser(),
-              let participant = conversation?.participants.first(where: { $0.userID != authUser.uid })else {return nil}
-        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: participant.userID)
-        return user
-    }
-    
-    var title: String
-    {
-        get {
-            return conversation?.name ?? otherParticipant?.name ?? "Unknown"
-        }
-        set {
-            self._title = newValue
-        }
-    }
-    
-    
-    var status: String {
-        get {
-            if conversation?.isGroup == true {
-                return "\(conversation?.participants.count ?? 0) participants"
-            }
-            
-            return getParticipantStatus(user: otherParticipant) ?? "last seen recently"
-        }
-        set {
-            self._status = newValue
-        }
-    }
-    
-    var imageUrl: String {
-        get {
-            if conversation?.isGroup == true {
-                return conversation?.thumbnailURL ?? "default_profile_photo"
-            }
-            return otherParticipant?.photoUrl ?? "default_profile_photo"
-        }
-        set {
-            _imageUrl = newValue
-        }
-    }
-    
-    private func getParticipantStatus(user: User?) -> String?
-    {
-        if user?.isActive == true {
-            return "Online"
-        }
-        return user?.lastSeen?.formatToYearMonthDayCustomString()
-    }
-    
-    private func observeItemsChanges()
-    {
-        guard let conversation = conversation else {return}
-        guard let observeObject = conversation.isGroup ? conversation : otherParticipant else {return}
-        
-        RealmDataBase.shared.observeChanges(for: observeObject)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] change in
-                self?.updateField(changedField: NavigationItemChangeField(rawValue: change.name), typeChangeValue: change.newValue)
-            }
-            .store(in: &cancellables)
-    }
-    
-    private func updateField(changedField: NavigationItemChangeField?, typeChangeValue: Any?)
-    {
-        guard let field = changedField else {return}
-        
-        switch field {
-        case .name:
-            if let value = typeChangeValue as? String {
-                self.title = value
-            }
-        case .photoUrl:
-            if let value = typeChangeValue as? String {
-                self.imageUrl = value
-            }
-        case .isActive:
-            if let status = typeChangeValue as? Bool {
-                self._status = status ? "Online" : "last seen recently"
-            }
-        case .lastSeen:
-            self.status = (typeChangeValue as? Date)?.formatToYearMonthDayCustomString() ?? self.status
-        case .thumbnailURL:
-            if let value = typeChangeValue as? String {
-                self.imageUrl = value
-            }
-        }
-    }
+//    
+//    
+//    private func setNavigationBarItems() {
+//        self._title = title
+//        self._status = status
+//        self._imageUrl = imageUrl
+//    }
+//    
+//    var otherParticipant: User?
+//    {
+//        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser(),
+//              let participant = conversation?.participants.first(where: { $0.userID != authUser.uid })else {return nil}
+//        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: participant.userID)
+//        return user
+//    }
+//    
+//    var title: String
+//    {
+//        get {
+//            return conversation?.name ?? otherParticipant?.name ?? "Unknown"
+//        }
+//        set {
+//            self._title = newValue
+//        }
+//    }
+//    
+//    
+//    var status: String {
+//        get {
+//            if conversation?.isGroup == true {
+//                return "\(conversation?.participants.count ?? 0) participants"
+//            }
+//            
+//            return getParticipantStatus(user: otherParticipant) ?? "last seen recently"
+//        }
+//        set {
+//            self._status = newValue
+//        }
+//    }
+//    
+//    var imageUrl: String {
+//        get {
+//            if conversation?.isGroup == true {
+//                return conversation?.thumbnailURL ?? "default_profile_photo"
+//            }
+//            return otherParticipant?.photoUrl ?? "default_profile_photo"
+//        }
+//        set {
+//            _imageUrl = newValue
+//        }
+//    }
+//    
+//    private func getParticipantStatus(user: User?) -> String?
+//    {
+//        if user?.isActive == true {
+//            return "Online"
+//        }
+//        return user?.lastSeen?.formatToYearMonthDayCustomString()
+//    }
+//    
+//    private func observeItemsChanges()
+//    {
+//        guard let conversation = conversation else {return}
+//        guard let observeObject = conversation.isGroup ? conversation : otherParticipant else {return}
+//        
+//        RealmDataBase.shared.observeChanges(for: observeObject)
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] change in
+//                self?.updateField(changedField: NavigationItemChangeField(rawValue: change.name), typeChangeValue: change.newValue)
+//            }
+//            .store(in: &cancellables)
+//    }
+//    
+//    private func updateField(changedField: NavigationItemChangeField?, typeChangeValue: Any?)
+//    {
+//        guard let field = changedField else {return}
+//        
+//        switch field {
+//        case .name:
+//            if let value = typeChangeValue as? String {
+//                self.title = value
+//            }
+//        case .photoUrl:
+//            if let value = typeChangeValue as? String {
+//                self.imageUrl = value
+//            }
+//        case .isActive:
+//            if let status = typeChangeValue as? Bool {
+//                self._status = status ? "Online" : "last seen recently"
+//            }
+//        case .lastSeen:
+//            self.status = (typeChangeValue as? Date)?.formatToYearMonthDayCustomString() ?? self.status
+//        case .thumbnailURL:
+//            if let value = typeChangeValue as? String {
+//                self.imageUrl = value
+//            }
+//        }
+//    }
 }
 
 //MARK: - cache retrieve

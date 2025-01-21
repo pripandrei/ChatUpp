@@ -7,13 +7,15 @@
 
 import UIKit
 import SkeletonView
+import Combine
 
 final class ResultsTableCell: UITableViewCell {
     
     private var cellViewModel: ResultsCellViewModel!
-    var userNameLabel = UILabel()
-    var userImage = UIImageView()
-    var userImageURL: String?
+    var titleLabel = UILabel()
+    var profileImageView = UIImageView()
+    var imageURL: String?
+    private var cancellables = Set<AnyCancellable>()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -33,64 +35,65 @@ final class ResultsTableCell: UITableViewCell {
         self.cellViewModel = viewModel
         setupBinding()
         
-        userNameLabel.text = cellViewModel.participant.name!
+        titleLabel.text = cellViewModel.participant.name
 
-        if cellViewModel.participant.photoUrl == nil {
-            self.userImage.image = UIImage(named: "default_profile_photo")
+        if cellViewModel.imageURL == nil {
+            self.profileImageView.image = UIImage(named: "default_profile_photo")
             return
         }
         
-        if self.userImageURL != cellViewModel.participant.photoUrl {
-            self.userImage.image = nil
-            self.cellViewModel.fetchImageData()
-            self.userImageURL = cellViewModel.participant.photoUrl
+        if self.imageURL != cellViewModel.imageURL
+        {
+            self.profileImageView.image = nil
+            self.cellViewModel.setImageData()
+            self.imageURL = cellViewModel.imageURL
         }
     }
     
     private func setupBinding() {
-        cellViewModel.userImageData.bind { [weak self, url = cellViewModel.participant.photoUrl] data in
-            if let imageData = data
-                , url == self?.userImageURL
-            {
-                let image = UIImage(data: imageData)
-                DispatchQueue.main.async {
-                    self?.userImage.image = image
+        cellViewModel.$imageData
+            .receive(on: DispatchQueue.main)
+            .compactMap { $0 }
+            .sink { [weak self, url = cellViewModel.participant.photoUrl] data in
+                if url == self?.imageURL
+                {
+                    let image = UIImage(data: data)
+                    self?.profileImageView.image = image
                 }
-            }
-        }
+            }.store(in: &cancellables)
     }
     
     private func setupUserImage() {
-        contentView.addSubview(userImage)
+        contentView.addSubview(profileImageView)
         
-        userImage.isSkeletonable = true
-        userImage.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.isSkeletonable = true
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            userImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            userImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
-            userImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
-            userImage.widthAnchor.constraint(equalToConstant: 45)
+            profileImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            profileImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            profileImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
+            profileImageView.widthAnchor.constraint(equalToConstant: 45)
         ])
     }
     
     private func setupUserName() {
-        contentView.addSubview(userNameLabel)
+        contentView.addSubview(titleLabel)
         
-        userNameLabel.isSkeletonable = true
-        userNameLabel.skeletonTextLineHeight = .fixed(10)
-        userNameLabel.skeletonTextNumberOfLines = .custom(3)
-        userNameLabel.linesCornerRadius = 4
-        userNameLabel.lastLineFillPercent = 30
+        titleLabel.isSkeletonable = true
+        titleLabel.skeletonTextLineHeight = .fixed(10)
+        titleLabel.skeletonTextNumberOfLines = .custom(3)
+        titleLabel.linesCornerRadius = 4
+        titleLabel.lastLineFillPercent = 30
         
 //        userNameLabel.skeletonPaddingInsets
 //        userNameLabel.backgroundColor = .green
-        userNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            userNameLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            userNameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 10),
-            userNameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
+            titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
         ])
     }
 }
