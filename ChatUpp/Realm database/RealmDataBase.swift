@@ -109,7 +109,7 @@ final class RealmDataBase {
         })
     }
     
-    func observeChanges<T: EmbeddedObject>(for object: T) -> AnyPublisher<PropertyChange, Never>
+    func observeChanges<T: ObservableRealmObjectProcotol>(for object: T) -> AnyPublisher<PropertyChange, Never>
     {
         let subject = PassthroughSubject<PropertyChange, Never>()
         
@@ -136,6 +136,7 @@ final class RealmDataBase {
         notificationTokens?.removeAll { $0 == token }
     }
 }
+
 
 //MARK: - Migrations
 
@@ -246,6 +247,30 @@ extension Results
         return Array(self)
     }
 }
+
+protocol ObservableRealmObjectProcotol {
+    func observe<T>(
+        keyPaths: [String]?,
+        on queue: DispatchQueue?,
+        _ block: @escaping (ObjectChange<T>) -> Void
+    ) -> NotificationToken where T : RLMObjectBase
+}
+
+extension ObservableRealmObjectProcotol
+{
+    func observe<T>(
+        keyPaths: [String]? = nil,
+        on queue: DispatchQueue? = nil,
+        _ block: @escaping (ObjectChange<T>) -> Void
+    ) -> NotificationToken where T : RLMObjectBase
+    {
+        return observe(keyPaths: keyPaths, on: queue, block)
+    }
+}
+
+extension EmbeddedObject: ObservableRealmObjectProcotol {}
+extension Object: ObservableRealmObjectProcotol {}
+
 
 
 

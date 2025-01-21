@@ -90,7 +90,7 @@ final class FirestoreUserService {
     // MARK: - GET USER FROM DB
     
     func getUserFromDB(userID: String) async throws -> User {
-        return try await userDocument(userID: userID).getDocument(as: User.self)
+        return try await userDocument(userID: userID).getDocument(as: User.self, source: .server)
     }
     
     // MARK: - GET USER PROFILE IMAGE

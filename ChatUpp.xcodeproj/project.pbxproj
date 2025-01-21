@@ -81,7 +81,7 @@
 		75A7AFCA2D39717B00E081DF /* ChatRoomViewModel+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFC92D39717800E081DF /* ChatRoomViewModel+Enums.swift */; };
 		75A7AFCC2D39740800E081DF /* AuthUserProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */; };
 		75A7AFCE2D399B4B00E081DF /* ConversationViewModel+MessageClusterHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFCD2D399B1A00E081DF /* ConversationViewModel+MessageClusterHandler.swift */; };
-		75A7AFD82D3C38C900E081DF /* ConversationCustomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFD72D3C38C700E081DF /* ConversationCustomNavigationBar.swift */; };
+		75A7AFD82D3C38C900E081DF /* ChatRoomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFD72D3C38C700E081DF /* ChatRoomNavigationBar.swift */; };
 		75A7AFDA2D3C394800E081DF /* InputBarContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A7AFD92D3C394100E081DF /* InputBarContainer.swift */; };
 		75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A9184A2C942E15006ED4CA /* CacheManager.swift */; };
 		75B48B572AF6837700A5FBFC /* ChatRoomRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B562AF6837700A5FBFC /* ChatRoomRootView.swift */; };
@@ -229,7 +229,7 @@
 		75A7AFC92D39717800E081DF /* ChatRoomViewModel+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatRoomViewModel+Enums.swift"; sourceTree = "<group>"; };
 		75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthUserProtocol.swift; sourceTree = "<group>"; };
 		75A7AFCD2D399B1A00E081DF /* ConversationViewModel+MessageClusterHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationViewModel+MessageClusterHandler.swift"; sourceTree = "<group>"; };
-		75A7AFD72D3C38C700E081DF /* ConversationCustomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCustomNavigationBar.swift; sourceTree = "<group>"; };
+		75A7AFD72D3C38C700E081DF /* ChatRoomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomNavigationBar.swift; sourceTree = "<group>"; };
 		75A7AFD92D3C394100E081DF /* InputBarContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarContainer.swift; sourceTree = "<group>"; };
 		75A9184A2C942E15006ED4CA /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		75B48B562AF6837700A5FBFC /* ChatRoomRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomRootView.swift; sourceTree = "<group>"; };
@@ -309,7 +309,7 @@
 			isa = PBXGroup;
 			children = (
 				75A7AFD92D3C394100E081DF /* InputBarContainer.swift */,
-				75A7AFD72D3C38C700E081DF /* ConversationCustomNavigationBar.swift */,
+				75A7AFD72D3C38C700E081DF /* ChatRoomNavigationBar.swift */,
 				75B48B562AF6837700A5FBFC /* ChatRoomRootView.swift */,
 				75F608852BEC33400065DA83 /* InputBarHeaderView.swift */,
 			);
@@ -961,7 +961,7 @@
 				7587CE1B2C77DA7D002D60CE /* Query+Extensions.swift in Sources */,
 				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
 				75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */,
-				75A7AFD82D3C38C900E081DF /* ConversationCustomNavigationBar.swift in Sources */,
+				75A7AFD82D3C38C900E081DF /* ChatRoomNavigationBar.swift in Sources */,
 				7543BE332ACC87CA003001BF /* ChatRoomViewController.swift in Sources */,
 				75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */,
 				75A7AFCC2D39740800E081DF /* AuthUserProtocol.swift in Sources */,

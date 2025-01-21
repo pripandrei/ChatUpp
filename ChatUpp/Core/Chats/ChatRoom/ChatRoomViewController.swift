@@ -62,9 +62,9 @@ final class ChatRoomViewController: UIViewController
     
     weak var coordinatorDelegate :Coordinator?
     private var tableViewDataSource :ConversationTableViewDataSource!
-    private var customNavigationBar :ConversationCustomNavigationBar!
+    private var customNavigationBar :ChatRoomNavigationBar!
     private var rootView = ChatRoomRootView()
-    private var conversationViewModel :ChatRoomViewModel!
+    private var viewModel: ChatRoomViewModel!
     private var inputMessageTextViewDelegate: InputBarMessageTextViewDelegate!
 
     private var isContextMenuPresented: Bool = false
@@ -82,7 +82,7 @@ final class ChatRoomViewController: UIViewController
     
     convenience init(conversationViewModel: ChatRoomViewModel) {
         self.init()
-        self.conversationViewModel = conversationViewModel
+        self.viewModel = conversationViewModel
     }
     
     override func loadView() {
@@ -137,7 +137,7 @@ final class ChatRoomViewController: UIViewController
         self.rootView.tableView.reloadData()
         self.view.layoutIfNeeded()
 //        let indexPathTest = IndexPath(row: 13, section: 3)
-        if let indexPath = self.conversationViewModel.findFirstUnseenMessageIndex() {
+        if let indexPath = self.viewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPath)
         }
         self.didFinishInitialScroll = true
@@ -147,30 +147,30 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        if conversationViewModel.conversationInitializationStatus == .finished {
+        if viewModel.conversationInitializationStatus == .finished {
             finalizeConversationSetup()
         }
     }
     
     private func finalizeConversationSetup() {
-        conversationViewModel.resetInitializationStatus()
-        conversationViewModel.insertUnseenMessagesTitle()
+        viewModel.resetInitializationStatus()
+        viewModel.insertUnseenMessagesTitle()
         refreshTableView()
-        conversationViewModel.addListeners()
-        conversationViewModel.realmService.updateChatOpenStatusIfNeeded()
+        viewModel.addListeners()
+        viewModel.realmService?.updateChatOpenStatusIfNeeded()
     }
     
     //MARK: - Bindings
     
     private func setupBinding()
     {
-        conversationViewModel.$unseenMessagesCount
+        viewModel.$unseenMessagesCount
             .receive(on: DispatchQueue.main)
             .sink { [weak self] unseenCount in
                 self?.rootView.unseenMessagesBadge.unseenCount = unseenCount
             }.store(in: &subscriptions)
         
-        conversationViewModel.$conversationInitializationStatus
+        viewModel.$conversationInitializationStatus
             .debounce(for: .milliseconds(50), scheduler: DispatchQueue.main)
             .sink { [weak self] initializationStatus in
                 guard let self = self else {return}
@@ -183,26 +183,26 @@ final class ChatRoomViewController: UIViewController
                 }
             }.store(in: &subscriptions)
         
-        conversationViewModel.userListenerService.$chatUser
+        viewModel.userListenerService?.$chatUser
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
                 guard let self = self else {return}
                 
-                if self.customNavigationBar.navigationItemsContainer.nameLabel.text != user.name {
-                    self.customNavigationBar.navigationItemsContainer.nameLabel.text = user.name
+                if self.customNavigationBar.navigationItemsContainer?.titleLabel.text != user.name {
+                    self.customNavigationBar.navigationItemsContainer?.titleLabel.text = user.name
                     return
                 }
                 
-                self.customNavigationBar.navigationItemsContainer.lastSeenLabel.text = user.isActive ?? false ?
+                self.customNavigationBar.navigationItemsContainer?.statusLabel.text = user.isActive ?? false ?
                 "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
             }.store(in: &subscriptions)
         
-        conversationViewModel.$messageChangedTypes
+        viewModel.$messageChangedTypes
             .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else {return}
                 performBatchUpdateWithMessageChanges(changeTypes)
-                conversationViewModel.clearMessageChanges()
+                viewModel.clearMessageChanges()
             }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.lineNumberModificationSubject
@@ -273,15 +273,15 @@ final class ChatRoomViewController: UIViewController
     
     private func cleanUp() {
         NotificationCenter.default.removeObserver(self)
-        conversationViewModel.removeAllListeners()
+        viewModel.removeAllListeners()
         coordinatorDelegate = nil
-        conversationViewModel = nil
+        viewModel = nil
         tableViewDataSource = nil
         customNavigationBar = nil
     }
     
     private func configureTableView() {
-        tableViewDataSource = ConversationTableViewDataSource(conversationViewModel: conversationViewModel)
+        tableViewDataSource = ConversationTableViewDataSource(conversationViewModel: viewModel)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = tableViewDataSource
     }
@@ -337,14 +337,32 @@ final class ChatRoomViewController: UIViewController
     
     /// - Navigation bar items setup
     private func setNavigationBarItems() {
-//        let imageData = conversationViewModel.memberProfileImage 
+//        let navBarVM = ChatRoomNavigationBarViewModel(conversation: viewModel.conversation!)
+        
+//        let imageData = conversationViewModel.memberProfileImage
 //        let member = conversationViewModel.chatUser
 //        var memberActiveStatus: String
 //        
 //        memberActiveStatus = member.isActive ?? false ?
 //        "Online" : "last seen \(member.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
 
-        customNavigationBar = ConversationCustomNavigationBar(viewController: self)
+//        customNavigationBar = ConversationNavigationBar(viewController: self)
+//        customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarVM)
+        
+        /// -- create an enum that will hold conversation and user types
+        /// check weather conversation is group or private
+        /// based on previous step, create navigationBar with either conversation or with user (two inits will be implemented)
+       if viewModel.conversation?.isGroup == true {
+           let navBarViewModel = ChatRoomNavigationBarViewModel(conversation: viewModel.conversation)
+           customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarViewModel)
+       } else {
+           let navBarViewModel = ChatRoomNavigationBarViewModel(participant: viewModel.participant)
+           customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarViewModel)
+       }
+        /// -- in navigationBar, switch on enum object that holds conversation/user type
+        /// for each case , add listener to either conversation or user
+        /// apply updateds to nav items
+        ///
 //        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: member.name ?? "unknow", memberActiveStatus: memberActiveStatus)
     }
     
@@ -397,7 +415,7 @@ extension ChatRoomViewController {
     
     private func handleMessageBubbleCreation(messageText: String = "")
     {
-        self.conversationViewModel.manageMessageCreation(messageText)
+        self.viewModel.manageMessageCreation(messageText)
         
         Task { @MainActor in
             self.handleTableViewCellInsertion(scrollToBottom: true)
@@ -461,7 +479,7 @@ extension ChatRoomViewController {
     }
     
     private func checkIfNewSectionWasAdded() -> Bool {
-        if rootView.tableView.numberOfSections < conversationViewModel.messageClusters.count {
+        if rootView.tableView.numberOfSections < viewModel.messageClusters.count {
             return true
         }
         return false
@@ -482,15 +500,15 @@ extension ChatRoomViewController
             cell.cellViewModel.updateRealmMessageSeenStatus()
             
             Task { @MainActor in
-                await conversationViewModel.updateMessageSeenStatus(from: cell.cellViewModel)
-                conversationViewModel.updateUnseenMessageCounter(shouldIncrement: false)
+                await viewModel.updateMessageSeenStatus(from: cell.cellViewModel)
+                viewModel.updateUnseenMessageCounter(shouldIncrement: false)
             }
         }
     }
     
     private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
-        let message = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row].message
-        let authUserID = conversationViewModel.authUser.uid
+        let message = viewModel.messageClusters[indexPath.section].items[indexPath.row].message
+        let authUserID = viewModel.authUser.uid
         
         guard message?.messageSeen == false,
               message?.senderId != authUserID,
@@ -527,7 +545,7 @@ extension ChatRoomViewController {
     
     @objc func editMessageBtnWasTapped() {
         guard let editedMessage = rootView.messageTextView.text else {return}
-        conversationViewModel.shouldEditMessage?(editedMessage)
+        viewModel.shouldEditMessage?(editedMessage)
         rootView.sendEditMessageButton.isHidden = true
         rootView.messageTextView.text.removeAll()
         animateInputBarHeaderViewDestruction()
@@ -541,7 +559,7 @@ extension ChatRoomViewController {
             removeTextViewText()
             inputMessageTextViewDelegate.invalidateTextViewSize()
             callTextViewDidChange()
-            conversationViewModel.createConversationIfNeeded()
+            viewModel.createConversationIfNeeded()
             handleMessageBubbleCreation(messageText: trimmedString)
             closeInputBarHeaderView()
         }
@@ -665,7 +683,7 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                 let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 
                 self?.handleMessageBubbleCreation()
-                self?.conversationViewModel.handleImageDrop(imageData: downsampledImage, size: imageSize)
+                self?.viewModel.handleImageDrop(imageData: downsampledImage, size: imageSize)
             }
         }
     }
@@ -690,7 +708,7 @@ extension ChatRoomViewController {
     }
     @objc func closeInputBarHeaderView() {
         if rootView.inputBarHeader != nil {
-            conversationViewModel.resetCurrentReplyMessageIfNeeded()
+            viewModel.resetCurrentReplyMessageIfNeeded()
             animateInputBarHeaderViewDestruction()
         }
     }
@@ -704,7 +722,7 @@ extension ChatRoomViewController: UITableViewDelegate
         guard !tableView.sk.isSkeletonActive,
               let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? FooterSectionView else { return nil }
         
-        let dateForSection = conversationViewModel.messageClusters[section].date.formatToYearMonthDayCustomString()
+        let dateForSection = viewModel.messageClusters[section].date.formatToYearMonthDayCustomString()
         footerView.setDate(dateText: dateForSection)
         return footerView
     }
@@ -722,7 +740,7 @@ extension ChatRoomViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if conversationViewModel.conversationInitializationStatus == .inProgress {
+        if viewModel.conversationInitializationStatus == .inProgress {
             return CGFloat((70...120).randomElement()!)
         }
        return  UITableView.automaticDimension
@@ -730,12 +748,12 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) 
     {
-        guard conversationViewModel.messageClusters.count != 0,
+        guard viewModel.messageClusters.count != 0,
               didFinishInitialScroll == true
         else {return}
         
-        let lastSectionIndex = conversationViewModel.messageClusters.count - 1
-        let lastRowIndex = conversationViewModel.messageClusters[lastSectionIndex].items.count - 1
+        let lastSectionIndex = viewModel.messageClusters.count - 1
+        let lastRowIndex = viewModel.messageClusters[lastSectionIndex].items.count - 1
         let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
         
@@ -743,7 +761,7 @@ extension ChatRoomViewController: UITableViewDelegate
         {
             updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: false)
         }
-        else if isFirstCellDisplayed && conversationViewModel.shouldFetchNewMessages
+        else if isFirstCellDisplayed && viewModel.shouldFetchNewMessages
         {
             updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: true)
         }
@@ -759,7 +777,7 @@ extension ChatRoomViewController: UITableViewDelegate
             
             guard let self = self else { return }
             
-            if let (newRows, newSections) = try await self.conversationViewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
+            if let (newRows, newSections) = try await self.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
             {
                 self.performeTableViewUpdate(with: newRows, sections: newSections)
             }
@@ -818,8 +836,8 @@ extension ChatRoomViewController: UITableViewDelegate
                     DispatchQueue.main.async {
                         let replyMessageId = message.id
                         let replyMessageSenderID = message.senderId
-                        let messageSenderName = self.conversationViewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
-                        self.conversationViewModel.currentlyReplyToMessageID = replyMessageId
+                        let messageSenderName = self.viewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
+                        self.viewModel.currentlyReplyToMessageID = replyMessageId
                         self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
                         self.rootView.inputBarHeader?.updateTitleLabel(usingText: messageSenderName)
                     }
@@ -831,7 +849,7 @@ extension ChatRoomViewController: UITableViewDelegate
                 }
                 
                 /// display edit/delete actions only on messages that authenticated user sent
-                let messageBelongsToAuthenticatedUser = message.senderId == self.conversationViewModel.authUser.uid
+                let messageBelongsToAuthenticatedUser = message.senderId == self.viewModel.authUser.uid
                 let attributesForEditAction = messageBelongsToAuthenticatedUser ? [] : UIMenuElement.Attributes.hidden
                 let attributesForDeleteAction = messageBelongsToAuthenticatedUser ? .destructive : UIMenuElement.Attributes.hidden
                 
@@ -841,14 +859,14 @@ extension ChatRoomViewController: UITableViewDelegate
                     {
                         self.rootView.messageTextView.text = cell.messageLabel.text
                         self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
-                        self.conversationViewModel.shouldEditMessage = { [message] edditedMessage in
-                            self.conversationViewModel.firestoreService.editMessageTextFromFirestore(edditedMessage, messageID: message.id)
+                        self.viewModel.shouldEditMessage = { [message] edditedMessage in
+                            self.viewModel.firestoreService?.editMessageTextFromFirestore(edditedMessage, messageID: message.id)
                         }
                     }
                 }
                 let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: attributesForDeleteAction) { [weak self] action in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        self?.conversationViewModel.firestoreService.deleteMessageFromFirestore(messageID: message.id)
+                        self?.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
                     }
                 }
                 return UIMenu(title: "", children: [replyAction, editAction, copyAction, deleteAction])

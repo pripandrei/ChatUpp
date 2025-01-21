@@ -41,6 +41,10 @@ final class ChatsViewModel {
         print(RealmDataBase.realmFilePath ?? "unknown realm file path")
         setupCellViewModels()
         observeChats()
+        Task {
+            let user = try await FirestoreUserService.shared.getUserFromDB(userID: "ze6thKy1D2YuBuGDylpeUzbpSoq1")
+            print(user)
+        }
     }
     deinit {
         print("deinit chats view model")

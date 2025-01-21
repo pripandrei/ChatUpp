@@ -12,20 +12,18 @@ import UIKit
 
 class ChatRoomViewModel
 {
-    private(set) var realmService: ConversationRealmService
+    private(set) var realmService: ConversationRealmService?
 //    private(set) var messageFetcher : ConversationMessageFetcher
-    private(set) var firestoreService: ConversationFirestoreService
-    private(set) var userListenerService : ConversationUserListinerService
-    private(set) var messageListenerService : ConversationMessageListenerService
+    private(set) var firestoreService: ConversationFirestoreService?
+    private(set) var userListenerService : ConversationUserListinerService?
+    private(set) var messageListenerService : ConversationMessageListenerService?
     
     private(set) var conversation        : Chat?
     private(set) var messageClusters     : [MessageCluster] = []
-    private(set) var memberProfileImage  : Data?
     private(set) var authUser            : AuthDataResultModel = (try! AuthenticationManager.shared.getAuthenticatedUser())
     private var cancellables             = Set<AnyCancellable>()
     
-    @Published private(set) var unseenMessagesCount              : Int 
-    @Published private(set) var chatUser                         : User
+    @Published private(set) var unseenMessagesCount              : Int
     @Published private(set) var messageChangedTypes              : [MessageChangeType] = []
     @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus?
     
@@ -49,7 +47,7 @@ class ChatRoomViewModel
     }
     
     private var shouldDisplayLastMessage: Bool {
-        authParticipantUnreadMessagesCount == realmService.getUnreadMessagesCountFromRealm()
+        authParticipantUnreadMessagesCount == realmService?.getUnreadMessagesCountFromRealm()
     }
     
     private var firstMessage: Message? {
@@ -60,29 +58,50 @@ class ChatRoomViewModel
         guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
             return false
         }
-        return ( authParticipantUnreadMessagesCount != realmService.getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
+        return ( authParticipantUnreadMessagesCount != realmService?.getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
     }
+    
+//    var participant: User?
+//    {
+//        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() else {return nil}
+//        guard let chatParticipant = conversation?.participants.first(where: { $0.userID != authUser.uid }) else {return nil}
+//        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: chatParticipant.userID)
+//    }
     
     /// - Life cycle
     
-    init(conversationUser: User, conversation: Chat? = nil, imageData: Data?)
+    init(conversation: Chat? = nil)
     {
-        self.chatUser = conversationUser
+        self.conversation = conversation
+//        self.chatUser = conversationUser
 //        self.conversation = conversation == nil ? Self.createChat(with: <#T##[ChatParticipant]#>) : conversation
-        self.memberProfileImage = imageData
+//        self.memberProfileImage = imageData
         self.unseenMessagesCount = conversation?.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
-        self.userListenerService = ConversationUserListinerService(chatUser: conversationUser)
+        self.userListenerService = ConversationUserListinerService(chatUser: User())
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
 //        self.messageFetcher = ConversationMessageFetcher(conversation: conversation!, firestoreService: firestoreService)
         
-        if conversationExists {
+//        if conversationExists {
+//            bindToMessages()
+//            initiateConversation()
+//        }
+        
+        if conversation?.realm != nil {
             bindToMessages()
             initiateConversation()
         }
     }
+    
+    init(participant: User?)
+    {
+        self.participant = participant
+        self.unseenMessagesCount = 0
+    }
+    
+    private(set) var participant: User?
     
     private func observeParticipantChanges()
     {
@@ -100,21 +119,21 @@ class ChatRoomViewModel
     /// - listeners
     
     func addListeners() {
-        userListenerService.addUsersListener()
-        userListenerService.addUserObserver()
+        userListenerService?.addUsersListener()
+        userListenerService?.addUserObserver()
         observeParticipantChanges()
         
         guard let startMessage = messageClusters.last?.items.last?.message,
               let limit = conversation?.conversationMessages.count else {return}
         
-        messageListenerService.addListenerToUpcomingMessages()
-        messageListenerService.addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
+        messageListenerService?.addListenerToUpcomingMessages()
+        messageListenerService?.addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
     }
     
     func removeAllListeners() 
     {
-        messageListenerService.removeAllListeners()
-        userListenerService.removeAllListeners()
+        messageListenerService?.removeAllListeners()
+        userListenerService?.removeAllListeners()
     }
 //    
     func resetCurrentReplyMessageIfNeeded() {
@@ -134,7 +153,7 @@ class ChatRoomViewModel
         let chatId = UUID().uuidString
         let participants = [
             ChatParticipant(userID: authUser.uid, unseenMessageCount: 0),
-            ChatParticipant(userID: chatUser.id, unseenMessageCount: 0)
+            ChatParticipant(userID: "chatUser.id", unseenMessageCount: 0)
         ]
         let recentMessageID = lastMessageItem?.message?.id
         let messagesCount = messageClusters.first?.items.count
@@ -181,14 +200,14 @@ class ChatRoomViewModel
         resetCurrentReplyMessageIfNeeded()
         
         // Local updates
-        realmService.addMessageToRealmChat(message)
+        realmService?.addMessageToRealmChat(message)
         createMessageClustersWith([message], ascending: true)
         updateUnseenMessageCounter(shouldIncrement: true)
         
         // Remote updates
         Task { @MainActor in
-            await firestoreService.addMessageToFirestoreDataBase(message)
-            await firestoreService.updateRecentMessageFromFirestoreChat(messageID: message.id)
+            await firestoreService?.addMessageToFirestoreDataBase(message)
+            await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
     }
     
@@ -197,12 +216,12 @@ class ChatRoomViewModel
         
         let chat = createChat()
         conversation = chat
-        realmService.addChatToRealm(chat)
+        realmService?.addChatToRealm(chat)
         
         let freezedChat = chat.freeze()
         
         Task(priority: .high) { @MainActor in
-            await firestoreService.addChatToFirestore(freezedChat)
+            await firestoreService?.addChatToFirestore(freezedChat)
             setupMessageListenerOnChatCreation()
         }
     }
@@ -212,7 +231,7 @@ class ChatRoomViewModel
         guard let timestamp = conversation?.getLastMessage()?.timestamp,
               let limit = conversation?.conversationMessages.count else { return }
         
-        messageListenerService.addListenerToExistingMessages(
+        messageListenerService?.addListenerToExistingMessages(
             startAtTimestamp: timestamp,
             ascending: true,
             limit: limit
@@ -222,6 +241,12 @@ class ChatRoomViewModel
     /// - update messages components
     
     func updateUnseenMessageCounter(shouldIncrement: Bool)
+    {
+        updateUnseenMessageCounterLocal(shouldIncrement: shouldIncrement)
+        updateUnseenMessageCounterRemote(shouldIncrement: shouldIncrement)
+    }
+    
+    private func updateUnseenMessageCounterLocal(shouldIncrement: Bool)
     {
         guard let conversation = conversation else { return }
 
@@ -238,13 +263,15 @@ class ChatRoomViewModel
                 }
             }
         }
-        
+    }
+    private func updateUnseenMessageCounterRemote(shouldIncrement: Bool)
+    {
+        guard let conversation = conversation else { return }
+
         Task { @MainActor in
-            
             let targetIDs = shouldIncrement
             ? conversation.participants.filter { $0.userID != self.authUser.uid }.map { $0.userID }
             : [authUser.uid]
-            
             do {
                 try await FirebaseChatService.shared.updateUnreadMessageCount(
                     for: targetIDs,
@@ -360,7 +387,7 @@ class ChatRoomViewModel
             CacheManager.shared.saveImageData(data, toPath: imageMetaData.name)
             
             await MainActor.run {
-                realmService.addMessageToRealmChat(message)
+                realmService?.addMessageToRealmChat(message)
             }
         }
     }
@@ -385,7 +412,7 @@ extension ChatRoomViewModel
         Task { @MainActor in
             do {
                 let messages = try await fetchConversationMessages()
-                realmService.addMessagesToConversationInRealm(messages)
+                realmService?.addMessagesToConversationInRealm(messages)
                 initiateConversationUsingLocalData()
             } catch {
                 print("Error while initiating conversation: - \(error)")
@@ -416,7 +443,7 @@ extension ChatRoomViewModel
 {
     private func bindToMessages()
     {
-        messageListenerService.updatedMessage
+        messageListenerService?.updatedMessage
             .sink { messageType in
                 let message = messageType.data
 
@@ -435,8 +462,8 @@ extension ChatRoomViewModel
 {
     private func handleAddedMessage(_ message: Message)
     {
-        guard let _ = realmService.retrieveMessageFromRealm(message) else {
-            realmService.addMessageToRealmChat(message)
+        guard let _ = realmService?.retrieveMessageFromRealm(message) else {
+            realmService?.addMessageToRealmChat(message)
             // TODO: - if chat unseen message counter is heigher than local unseen count,
             // dont create messageGroup with this new message
             createMessageClustersWith([message], ascending: true)
@@ -446,7 +473,7 @@ extension ChatRoomViewModel
             return
         }
         Task { @MainActor in
-            realmService.updateMessage(message)
+            realmService?.updateMessage(message)
         }
     }
     
@@ -456,7 +483,7 @@ extension ChatRoomViewModel
               let cellVM = messageClusters.getCellViewModel(at: indexPath),
               let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
         
-        realmService.updateMessage(message)
+        realmService?.updateMessage(message)
         if message.senderId == authUser.uid {
             messageChangedTypes.append(.modified(indexPath, modificationValue))
         }
@@ -471,11 +498,11 @@ extension ChatRoomViewModel
             messageClusters.remove(at: indexPath.section)
         }
         
-        realmService.removeMessageFromRealm(message: message)
+        realmService?.removeMessageFromRealm(message: message)
         
         if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
         {
-            firestoreService.updateLastMessageFromFirestoreChat(lastMessageID)
+            firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
         }
         messageChangedTypes.append(.removed(indexPath))
     }
@@ -559,7 +586,7 @@ extension ChatRoomViewModel
     {
         guard let conversation = conversation else { return .none }
 
-        if let firstUnseenMessage = try await firestoreService.getFirstUnseenMessageFromFirestore(from: conversation.id)
+        if let firstUnseenMessage = try await firestoreService?.getFirstUnseenMessageFromFirestore(from: conversation.id)
         {
             return isChatFetchedFirstTime ? .hybrit(startAtMessage: firstUnseenMessage) : .ascending(startAtMessage: firstUnseenMessage, included: true)
         }
@@ -638,9 +665,9 @@ extension ChatRoomViewModel
         
         if let timestamp = newMessages.first?.timestamp 
         {
-            messageListenerService.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
+            messageListenerService?.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
         }
-        realmService.addMessagesToConversationInRealm(newMessages)
+        realmService?.addMessagesToConversationInRealm(newMessages)
         
         return (newRows, newSections)
     }

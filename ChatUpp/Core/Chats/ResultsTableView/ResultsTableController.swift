@@ -157,11 +157,25 @@ extension ResultsTableController
         
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
             let user = self.filteredUsers[indexPath.item].participant
-            let chat = self.filteredUsers[indexPath.item].chat
-            let memberPhoto = self.filteredUsers[indexPath.item].userImageData.value
-            let conversationViewModel = ChatRoomViewModel(conversationUser: user, conversation: chat, imageData: memberPhoto)
-            
-            self.coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
+            var conversationViewModel: ChatRoomViewModel!
+        
+            defer {
+                self.coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
+            }
+
+            if let existingChat = self.filteredUsers[indexPath.item].chat {
+                conversationViewModel = ChatRoomViewModel(conversation: existingChat)
+            } else {
+                conversationViewModel = ChatRoomViewModel(participant: user)
+            }
+//            else if let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() {
+//                let participants = [
+//                    ChatParticipant(userID: authUser.uid, unseenMessageCount: 0),
+//                    ChatParticipant(userID: user.id, unseenMessageCount: 0)
+//                ]
+//                let newChat = ChatRoomViewModel.createChat(with: participants)
+//                conversationViewModel = ChatRoomViewModel(conversation: newChat)
+//            }
         }
     }
 }

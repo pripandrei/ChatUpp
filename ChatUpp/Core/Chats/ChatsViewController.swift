@@ -131,33 +131,59 @@ class ChatsViewController: UIViewController {
     }
     
     func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
+        let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
         
-        return chatsViewModel.cellViewModels.enumerated().compactMap ({ index, chatCell in
-           
-            let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
+        let filteredSearchText = searchText
+            .components(separatedBy: delimiters)
+            .joined(separator: " ")
+        let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
+        
+        return chatsViewModel.cellViewModels.compactMap { chatCell in
+            guard let user = chatCell.chatUser, let userName = user.name else { return nil }
             
-            let searchTextComponents = searchText.components(separatedBy: delimiters)
-            let filteredSearchText = searchTextComponents.joined(separator: " ")
-            let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
+            let lowercasedUserName = userName.lowercased()
+            let nameSubstrings = lowercasedUserName.components(separatedBy: delimiters)
             
-            let conversation = chatsViewModel.cellViewModels[index].chat
+            let isMatching = nameSubstrings.contains { $0.hasPrefix(trimmedSearchText) }
+                          || lowercasedUserName.hasPrefix(trimmedSearchText)
             
-            guard let user = chatCell.chatUser,
-                  let userName = user.name else {return nil}
+            guard isMatching else { return nil }
             
-            let nameSubstrings = userName.lowercased().components(separatedBy: delimiters)
-            
-            for substring in nameSubstrings {
-                if substring.hasPrefix(trimmedSearchText) {
-                    return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.retrieveProfileImageFromCache(), unreadMessageCount: chatCell.unreadMessageCount)
-                }
-            }
-            if userName.lowercased().hasPrefix(trimmedSearchText) {
-                return ResultsCellViewModel(memberUser: user, chat: conversation, imageData: chatCell.retrieveProfileImageFromCache(), unreadMessageCount: chatCell.unreadMessageCount)
-            }
-            return nil
-        })
+            return ResultsCellViewModel(
+                memberUser: user,
+                chat: chatCell.chat,
+                imageData: chatCell.retrieveProfileImageFromCache(),
+                unreadMessageCount: chatCell.unreadMessageCount
+            )
+        }
     }
+    
+//    func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
+//        
+//        return chatsViewModel.cellViewModels.enumerated().compactMap ({ index, chatCell in
+//           
+//            let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
+//            
+//            let searchTextComponents = searchText.components(separatedBy: delimiters)
+//            let filteredSearchText = searchTextComponents.joined(separator: " ")
+//            let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
+//
+//            guard let user = chatCell.chatUser,
+//                  let userName = user.name else {return nil}
+//            
+//            let nameSubstrings = userName.lowercased().components(separatedBy: delimiters)
+//            
+//            for substring in nameSubstrings {
+//                if substring.hasPrefix(trimmedSearchText) {
+//                    return ResultsCellViewModel(memberUser: user, chat: chatCell.chat, imageData: chatCell.retrieveProfileImageFromCache(), unreadMessageCount: chatCell.unreadMessageCount)
+//                }
+//            }
+//            if userName.lowercased().hasPrefix(trimmedSearchText) {
+//                return ResultsCellViewModel(memberUser: user, chat: chatCell.chat, imageData: chatCell.retrieveProfileImageFromCache(), unreadMessageCount: chatCell.unreadMessageCount)
+//            }
+//            return nil
+//        })
+//    }
     
     func removeExcessiveSpaces(from input: String) -> String {
         do {
@@ -277,7 +303,7 @@ extension ChatsViewController: UITableViewDelegate
         let chat = cellVM.chat
         let memberPhoto = cellVM.retrieveProfileImageFromCache()
         
-        let conversationViewModel = ChatRoomViewModel(conversationUser: user, conversation: chat, imageData: memberPhoto)
+        let conversationViewModel = ChatRoomViewModel(conversation: chat)
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }
     

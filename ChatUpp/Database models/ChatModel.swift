@@ -51,7 +51,8 @@ class ChatParticipant: EmbeddedObject, Codable
     }
 }
 
-class Chat: Object, Codable 
+
+class Chat: Object, Codable
 {
     @Persisted(primaryKey: true) var id: String
     @Persisted var recentMessageID: String?
@@ -61,6 +62,8 @@ class Chat: Object, Codable
     /// isFirstTimeOpened and conversationMessages fields are ment only for local database
     @Persisted var isFirstTimeOpened: Bool?
     @Persisted var conversationMessages: List<Message>
+    var name: String?
+    var thumbnailURL: String?
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
@@ -130,6 +133,34 @@ class Chat: Object, Codable
     
     func getParticipant(byID ID: String) -> ChatParticipant? {
         return participants.first(where: { $0.userID == ID })
+    }
+    
+    
+    // MARK: - Test functions
+    
+    var title: String
+    {
+        if let name = name { return name }
+        
+        if let authUser = try? AuthenticationManager.shared.getAuthenticatedUser(),
+           let participant = participants.first(where: { $0.userID != authUser.uid }),
+           let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: participant.userID)
+        {
+            return user.name ?? "Unknown"
+        }
+        return "Unknown"
+    }
+
+    
+    var members: [User] {
+        let participants = Array( participants.map { $0.userID } )
+        let filter = NSPredicate(format: "id IN %@", argumentArray: participants)
+        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
+        return users ?? []
+    }
+    
+    var isGroup: Bool {
+        participants.count > 2
     }
     
 //    func incrementMessageCount() {

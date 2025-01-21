@@ -246,6 +246,28 @@ extension FirebaseChatService
 
 extension FirebaseChatService 
 {
+    
+    func singleChatPublisher(for chatID: String) -> AnyPublisher<ChatUpdate<Chat>, Never>
+    {
+        let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
+        
+        chatsCollection
+            .whereField("id", isEqualTo: chatID)
+            .addSnapshotListener { snapshot, error in
+                guard error == nil else { print(error!); return }
+                
+                if let change = snapshot?.documentChanges.first
+                {
+                    if let chat = try? change.document.data(as: Chat.self)
+                    {
+                        let update = ChatUpdate(data: chat, changeType: change.type)
+                        subject.send(update)
+                    }
+                }
+            }
+        return subject.eraseToAnyPublisher()
+    }
+    
     func chatsPublisher(containingParticipantUserID participantUserID: String) -> AnyPublisher<ChatUpdate<Chat>, Never>
     {
         let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
@@ -253,7 +275,7 @@ extension FirebaseChatService
         chatsCollection
             .whereField("participants.\(participantUserID).is_deleted", isEqualTo: false)
             .addSnapshotListener { snapshot, error in
-                guard error == nil else { print(error!.localizedDescription); return }
+                guard error == nil else { print(error!); return }
                 
                 snapshot?.documentChanges.forEach { change in
                     if let chat = try? change.document.data(as: Chat.self) {
