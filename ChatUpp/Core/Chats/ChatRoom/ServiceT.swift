@@ -166,8 +166,10 @@ final class ConversationFirestoreService
 
 final class ConversationUserListinerService
 {
-    private(set) var userObserver: RealtimeObservable?
-    private var listeners: [Listener] = []
+//    private(set) var userObserver: RealtimeObservable?
+//    private var listeners: [Listener] = []
+    
+    private var cancellables = Set<AnyCancellable>()
     
     @Published private(set) var chatUser: User
     
@@ -177,41 +179,49 @@ final class ConversationUserListinerService
     
     func removeAllListeners()
     {
-        listeners.forEach{ $0.remove() }
-        userObserver?.removeAllObservers()
+//        listeners.forEach{ $0.remove() }
+//        userObserver?.removeAllObservers()
     }
     
     /// - Temporary fix while firebase functions are deactivated
     func addUserObserver()
     {
-        userObserver = RealtimeUserService
+        RealtimeUserService
             .shared
-            .addObserverToUsers(chatUser.id) { [weak self] realtimeDBUser in
+            .addObserverToUsers(chatUser.id)
+            .sink(receiveValue: { [weak self] updatedUser in
+                guard let self = self else {return}
                 
-            guard let self = self else {return}
-            
-            if realtimeDBUser.isActive != self.chatUser.isActive
-            {
-                if let date = realtimeDBUser.lastSeen,
-                    let isActive = realtimeDBUser.isActive
+                if updatedUser.isActive != self.chatUser.isActive
                 {
-                    self.chatUser = self.chatUser.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    if let date = updatedUser.lastSeen,
+                       let isActive = updatedUser.isActive
+                    {
+                        self.chatUser = self.chatUser.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    }
                 }
-            }
-        }
+            }).store(in: &cancellables)
     }
     
     func addUsersListener()
     {
-        let userListener = FirestoreUserService
+        FirestoreUserService
             .shared
-            .addListenerToUsers([chatUser.id]) { [weak self] users, documentsTypes in
-                guard let self = self else {return}
-                // since we are listening only for one user, we can just get the first user and docType
-                guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-                self.chatUser = user
-        }
-        self.listeners.append(userListener)
+            .addListenerToUsers([chatUser.id])
+            .sink(receiveValue: { [weak self] userUpdatedObject in
+                if userUpdatedObject.changeType == .modified {
+                    self?.chatUser = userUpdatedObject.data
+                }
+            }).store(in: &cancellables)
+        
+        
+//        { [weak self] users, documentsTypes in
+//                guard let self = self else {return}
+//                // since we are listening only for one user, we can just get the first user and docType
+//                guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
+//                self.chatUser = user
+//        }
+//        self.listeners.append(userListener)
     }
 }
 

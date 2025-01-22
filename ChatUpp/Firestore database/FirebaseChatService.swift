@@ -24,6 +24,13 @@ struct ChatUpdate<T> {
     let changeType: DocumentChangeType
 }
 
+
+struct DatabaseChangedObject<T>
+{
+    let data: T
+    let changeType: DocumentChangeType
+}
+
 final class FirebaseChatService {
 
     static let shared = FirebaseChatService()
@@ -251,7 +258,7 @@ extension FirebaseChatService
     {
         let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
         
-        chatsCollection
+        let listener = chatsCollection
             .whereField("id", isEqualTo: chatID)
             .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!); return }
@@ -265,14 +272,16 @@ extension FirebaseChatService
                     }
                 }
             }
-        return subject.eraseToAnyPublisher()
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
     }
     
     func chatsPublisher(containingParticipantUserID participantUserID: String) -> AnyPublisher<ChatUpdate<Chat>, Never>
     {
         let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
         
-        chatsCollection
+        let listener = chatsCollection
             .whereField("participants.\(participantUserID).is_deleted", isEqualTo: false)
             .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!); return }
@@ -284,7 +293,9 @@ extension FirebaseChatService
                     }
                 }
             }
-        return subject.eraseToAnyPublisher()
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
     }
     
     // messages listners

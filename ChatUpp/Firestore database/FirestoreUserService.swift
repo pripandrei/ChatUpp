@@ -9,6 +9,7 @@ import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseDatabase
+import Combine
 
 enum ResponseStatus {
     case success
@@ -116,21 +117,44 @@ final class FirestoreUserService {
     
     // MARK: - Add listener to users
     
+//    @discardableResult
+//    func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([User], [DocumentChangeType]) -> Void) -> Listener
+//    {
+//        return usersCollection.whereField("user_id", in: usersID).addSnapshotListener { snapshot, error in
+//            guard error == nil else { print(error!.localizedDescription); return }
+//            guard let documents = snapshot?.documentChanges else { print("No user to listen to"); return }
+//            
+//            var docType = [DocumentChangeType]()
+//            
+//            let users = documents.compactMap { userDocument in
+//                docType.append(userDocument.type)
+//                return try? userDocument.document.data(as: User.self)
+//            }
+//            complitionHandler(users, docType)
+//        }
+//    }
+    
     @discardableResult
-    func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([User], [DocumentChangeType]) -> Void) -> Listener
+    func addListenerToUsers(_ usersID: [String]) -> AnyPublisher<DatabaseChangedObject<User>, Never>
     {
-        return usersCollection.whereField("user_id", in: usersID).addSnapshotListener { snapshot, error in
+        let subject = PassthroughSubject<DatabaseChangedObject<User>, Never>()
+        
+        let listener = usersCollection.whereField("user_id", in: usersID).addSnapshotListener { snapshot, error in
+            
             guard error == nil else { print(error!.localizedDescription); return }
             guard let documents = snapshot?.documentChanges else { print("No user to listen to"); return }
             
             var docType = [DocumentChangeType]()
             
-            let users = documents.compactMap { userDocument in
-                docType.append(userDocument.type)
-                return try? userDocument.document.data(as: User.self)
+            documents.forEach { userDocument in
+                guard let user = try? userDocument.document.data(as: User.self) else {return}
+                let updatedChatObject = DatabaseChangedObject(data: user, changeType: userDocument.type)
+                subject.send(updatedChatObject)
             }
-            complitionHandler(users, docType)
         }
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
     }
 }
 

@@ -16,7 +16,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "297"
             endingLineNumber = "297"
-            landmarkName = "updateNavItems(withUser:)"
+            landmarkName = "setNavigationItems(usingUser:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

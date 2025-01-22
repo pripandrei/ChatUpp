@@ -23,6 +23,7 @@
 import Foundation
 import FirebaseDatabase
 import FirebaseDatabaseSwift
+import Combine
 
 //typealias RealtimeDBObserver = DatabaseReference
 
@@ -76,19 +77,37 @@ final class RealtimeUserService: AuthUserProtocol {
         try await onDisconnectRefListener?.cancelDisconnectOperations()
     }
     
-    func addObserverToUsers(_ userID: String, complition: @escaping (User) -> Void) -> RealtimeObservable
+//    func addObserverToUsers(_ userID: String, complition: @escaping (User) -> Void) -> RealtimeObservable
+//    {
+//        let userRef = usersReference.child(userID)
+//
+//        userRef.observe(.value) { snapshot in
+//            do {
+//                let user = try snapshot.data(as: User.self)
+//                complition(user)
+//            } catch {
+//                print("Could not decode Realtime DBUser: ", error.localizedDescription)
+//            }
+//        }
+//        return userRef
+//    }
+//    
+    func addObserverToUsers(_ userID: String) -> AnyPublisher<User, Never>
     {
+        let subject = PassthroughSubject<User, Never>()
         let userRef = usersReference.child(userID)
 
         userRef.observe(.value) { snapshot in
             do {
                 let user = try snapshot.data(as: User.self)
-                complition(user)
+                subject.send(user)
             } catch {
                 print("Could not decode Realtime DBUser: ", error.localizedDescription)
             }
         }
-        return userRef
+        return subject
+            .handleEvents(receiveCancel: { userRef.removeAllObservers() })
+            .eraseToAnyPublisher()
     }
 }
 

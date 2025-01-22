@@ -12,8 +12,8 @@ import Kingfisher
 class ChatCellViewModel
 {
     private(set) var chat: Chat
-    private var usersListener: Listener?
-    private var userObserver: RealtimeObservable?
+//    private var usersListener: Listener?
+//    private var userObserver: RealtimeObservable?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     private var cancellables = Set<AnyCancellable>()
     private(set) var imageDataUpdateSubject = PassthroughSubject<Void,Never>()
@@ -246,16 +246,28 @@ extension ChatCellViewModel {
     private func addObserverToUser() {
         guard let member = chatUser else {return}
         
-        self.userObserver = RealtimeUserService.shared.addObserverToUsers(member.id) { [weak self] realtimeDBUser in
-            
-            if realtimeDBUser.isActive != self?.chatUser?.isActive
-            {
-                if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive 
+        RealtimeUserService.shared.addObserverToUsers(member.id)
+            .sink(receiveValue: { [weak self] user in
+                if user.isActive != self?.chatUser?.isActive
                 {
-                    self?.chatUser = self?.chatUser?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    if let date = user.lastSeen, let isActive = user.isActive
+                    {
+                        self?.chatUser = self?.chatUser?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                    }
                 }
-            }
-        }
+            }).store(in: &cancellables)
+//        {
+//            
+//            [weak self] realtimeDBUser in
+//            
+//            if realtimeDBUser.isActive != self?.chatUser?.isActive
+//            {
+//                if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive 
+//                {
+//                    self?.chatUser = self?.chatUser?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+//                }
+//            }
+//        }
     }
     
     /// Listen to user from Firestore db
@@ -264,13 +276,23 @@ extension ChatCellViewModel {
     {
         guard let memberID = chatUser?.id else {return}
         
-        self.usersListener = FirestoreUserService.shared.addListenerToUsers([memberID]) { [weak self] users, documentsTypes in
-            guard let self = self else {return}
-            // since we are listening only for one user here
-            // we can just get the first user and docType
-            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-            self.chatUser = user
-        }
+        FirestoreUserService.shared.addListenerToUsers([memberID])
+            .sink(receiveValue: {
+                [weak self] userUpdateObject in
+                if userUpdateObject.changeType == .modified {
+                    self?.chatUser = userUpdateObject.data
+                }
+            }).store(in: &cancellables)
+        
+//        {
+//            
+//            [weak self] users, documentsTypes in
+//            guard let self = self else {return}
+//            // since we are listening only for one user here
+//            // we can just get the first user and docType
+//            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
+//            self.chatUser = user
+//        }
     }
 }
 
