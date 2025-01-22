@@ -58,27 +58,42 @@ class Chat: Object, Codable
     @Persisted var recentMessageID: String?
     @Persisted var messagesCount: Int?
     @Persisted var participants: List<ChatParticipant>
+    @Persisted var dateCreated: Date?
+    
+    @Persisted var name: String?
+    @Persisted var thumbnailURL: String?
+    @Persisted var admins: List<String>
     
     /// isFirstTimeOpened and conversationMessages fields are ment only for local database
     @Persisted var isFirstTimeOpened: Bool?
     @Persisted var conversationMessages: List<Message>
-    var name: String?
-    var thumbnailURL: String?
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case participants = "participants"
         case recentMessageID = "recent_message"
         case messagesCount = "messages_count"
+        case name = "name"
+        case thumbnailURL = "thumbnail_url"
+        case admins = "admins"
+        case dateCreated = "date_created"
     }
     
-    required convenience init(from decoder: Decoder) throws {
+    required convenience init(from decoder: Decoder) throws
+    {
         self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(String.self, forKey: .id)
         self.recentMessageID = try container.decodeIfPresent(String.self, forKey: .recentMessageID)
         self.messagesCount = try container.decodeIfPresent(Int.self, forKey: .messagesCount)
+        self.name = try container.decodeIfPresent(String.self, forKey: .name)
+        self.thumbnailURL = try container.decodeIfPresent(String.self, forKey: .thumbnailURL)
+        self.dateCreated = try container.decodeIfPresent(Date.self, forKey: .dateCreated)
+        
+        if let admins = try container.decodeIfPresent([String].self, forKey: .admins) {
+            self.admins.append(objectsIn: admins)
+        }
         
         let participants = try container.decode([String:ChatParticipant].self, forKey: .participants)
         for participant in participants.values {
@@ -86,12 +101,19 @@ class Chat: Object, Codable
         }
     }
     
-    func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws
+    {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.id, forKey: .id)
         try container.encode(self.participants, forKey: .participants)
         try container.encodeIfPresent(self.recentMessageID, forKey: .recentMessageID)
         try container.encodeIfPresent(self.messagesCount, forKey: .messagesCount)
+        try container.encodeIfPresent(self.name, forKey: .name)
+        try container.encodeIfPresent(self.thumbnailURL, forKey: .thumbnailURL)
+        try container.encodeIfPresent(self.dateCreated, forKey: .dateCreated)
+        
+        let encodedAdmins = Array(self.admins)
+        try container.encode(encodedAdmins, forKey: .admins)
         
         var dictParticipants: [String:ChatParticipant] = [:]
         for participant in participants {
@@ -104,7 +126,11 @@ class Chat: Object, Codable
                      participants: [ChatParticipant],
                      recentMessageID: String?,
                      messagesCount: Int? = 0,
-                     isFirstTimeOpened: Bool? = nil)
+                     isFirstTimeOpened: Bool? = nil,
+                     dateCreated: Date? = nil,
+                     name: String? = nil,
+                     thumbnailURL: String? = nil,
+                     admins: [String]? = nil)
     {
         self.init()
         
@@ -113,6 +139,13 @@ class Chat: Object, Codable
         self.recentMessageID = recentMessageID
         self.messagesCount = messagesCount
         self.isFirstTimeOpened = isFirstTimeOpened
+        self.dateCreated = dateCreated
+        self.name = name
+        self.thumbnailURL = thumbnailURL
+        
+        if let admins = admins {
+            self.admins.append(objectsIn: admins)
+        }
     }
     
     func appendConversationMessage(_ message: Message) {
