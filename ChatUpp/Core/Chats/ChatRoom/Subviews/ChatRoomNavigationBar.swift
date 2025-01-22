@@ -19,7 +19,9 @@ final class ChatRoomNavigationBar {
     
     private var cancellables: Set<AnyCancellable> = []
     
-    init(viewController: UIViewController, viewModel: ChatRoomNavigationBarViewModel) {
+    init(viewController: UIViewController,
+         viewModel: ChatRoomNavigationBarViewModel)
+    {
         self.viewController = viewController
         self.viewModel = viewModel
         setupNavigationBarItems()
@@ -27,15 +29,20 @@ final class ChatRoomNavigationBar {
         
     }
     
-    private func setupNavigationContainer() {
+    private func setupNavigationBarItems()
+    {
+        setupNavigationTitleContainer()
+        setuoNavigationImage()
+    }
+    
+    private func setupNavigationTitleContainer()
+    {
         self.navigationItemsContainer = NavigationTitleContainer(name: viewModel._title, lastSeen: viewModel._status)
         viewController.navigationItem.titleView = self.navigationItemsContainer
     }
     
-    private func setupNavigationBarItems()
+    private func setuoNavigationImage()
     {
-        setupNavigationContainer()
-        
         var image: UIImage?
         
         if let imgUrl = viewModel._imageUrl,
@@ -222,28 +229,21 @@ final class ChatRoomNavigationBarViewModel
     private var participant: User?
     private var cancellables: Set<AnyCancellable> = []
     
-    @Published var _title: String?
-    @Published var _status: String?
-    @Published var _imageUrl: String?
+    @Published private(set) var _title: String?
+    @Published private(set) var _status: String?
+    @Published private(set) var _imageUrl: String?
 
     init(conversation: Chat?) {
         self.conversation = conversation
-        updateNavItems(withChat: conversation!)
+        setNavigationItems(usingChat: conversation!)
         addListener()
-//        setNavigationBarItems()
-//        observeItemsChanges()
     }
     
     init(participant: User?)
     {
         self.participant = participant
-        updateNavItems(withUser: participant!)
+        setNavigationItems(usingUser: participant!)
         addListener()
-//        if let participant = participant {
-//            self.participant = participant
-//        } else {return nil}
-//        setNavigationBarItems()
-//        observeItemsChanges()
     }
     
     
@@ -265,7 +265,7 @@ final class ChatRoomNavigationBarViewModel
             .receive(on: DispatchQueue.main)
             .sink { [weak self] chatUpdate in
                 switch chatUpdate.changeType {
-                case .modified: self?.updateNavItems(withChat: chatUpdate.data)
+                case .modified: self?.setNavigationItems(usingChat: chatUpdate.data)
                 default: break
                 }
             }.store(in: &cancellables)
@@ -276,38 +276,38 @@ final class ChatRoomNavigationBarViewModel
         
     }
     
-    private func updateNavItems(withChat updatedChat: Chat)
+    private func setNavigationItems(usingChat chat: Chat)
     {
-        if updatedChat.name != self._title {
-            self._title = updatedChat.name
+        if chat.name != self._title {
+            self._title = chat.name
         }
         
-        if updatedChat.thumbnailURL != self._imageUrl {
-            self._imageUrl = updatedChat.thumbnailURL
+        if chat.thumbnailURL != self._imageUrl {
+            self._imageUrl = chat.thumbnailURL
         }
         
-        let updatedChatStatus = "\(updatedChat.participants.count) participants"
-        if updatedChatStatus != _status {
-            _status = updatedChatStatus
+        let chatStatus = "\(chat.participants.count) participants"
+        if chatStatus != _status {
+            _status = chatStatus
         }
     }
     
-    private func updateNavItems(withUser updatedUser: User)
+    private func setNavigationItems(usingUser user: User)
     {
-        if updatedUser.name != self._title {
-            self._title = updatedUser.name
+        if user.name != self._title {
+            self._title = user.name
         }
         
-        if updatedUser.photoUrl != self._imageUrl {
-            self._imageUrl = updatedUser.photoUrl
+        if user.photoUrl != self._imageUrl {
+            self._imageUrl = user.photoUrl
         }
         
-        if updatedUser.isActive != self.participant?.isActive
+        if user.isActive != self.participant?.isActive
         {
-            if updatedUser.isActive == true {
+            if user.isActive == true {
                 self._status = "Online"
             } else {
-                self._status = updatedUser.lastSeen?.formatToYearMonthDayCustomString()
+                self._status = user.lastSeen?.formatToYearMonthDayCustomString()
             }
         }
     }
