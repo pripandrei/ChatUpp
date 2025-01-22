@@ -237,35 +237,21 @@ enum NavigationBarDataProvider {
 
 final class ChatRoomNavigationBarViewModel
 {
-//    private var conversation: Chat?
-//    private var participant: User?
     private var cancellables: Set<AnyCancellable> = []
-    private let dataProvider: NavigationBarDataProvider
     
     @Published private(set) var _title: String?
     @Published private(set) var _status: String?
     @Published private(set) var _imageUrl: String?
-
-//    init(conversation: Chat?) {
-//        self.conversation = conversation
-//        setNavigationItems(usingChat: conversation!)
-////        addListener(to: conversation!)
-//    }
-//    
-//    init(participant: User?)
-//    {
-//        self.participant = participant
-//        setNavigationItems(usingUser: participant!)
-////        addListener()
-//    }
     
     init(dataProvider: NavigationBarDataProvider)
     {
-//        guard let provider = dataProvider else {return nil}
-        self.dataProvider = dataProvider
+        switch dataProvider {
+        case .chat(let chat): setNavigationItems(usingChat: chat)
+        case .user(let user): setNavigationItems(usingUser: user)
+        }
+        
         addListener(to: dataProvider)
     }
-    
     
     private func addListener(to objectDataProvider: NavigationBarDataProvider)
     {
@@ -274,19 +260,9 @@ final class ChatRoomNavigationBarViewModel
         case .user(let user): addParticipantListener(user)
         }
     }
-//    
-//    private func addListener()
-//    {
-//        if let conversation = self.conversation
-//        {
-//            addConversationListener(conversation)
-//        }
-//        else if let participant = self.participant
-//        {
-//            addParticipantListener(participant)
-//        }
-//    }
-    
+
+    // MARK: - Listeners
+    ///
     private func addConversationListener(_ conversation: Chat)
     {
         FirebaseChatService.shared.singleChatPublisher(for: conversation.id)
@@ -301,9 +277,18 @@ final class ChatRoomNavigationBarViewModel
     
     private func addParticipantListener(_ participant: User)
     {
-        
+        FirestoreUserService.shared.addListenerToUsers([participant.id])
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] userUpdate in
+                switch userUpdate.changeType {
+                case .modified: self?.setNavigationItems(usingUser: userUpdate.data)
+                default: break
+                }
+            }.store(in: &cancellables)
     }
     
+    // MARK: - Navigation items set
+    ///
     private func setNavigationItems(usingChat chat: Chat)
     {
         if chat.name != self._title {
@@ -329,19 +314,12 @@ final class ChatRoomNavigationBarViewModel
         if user.photoUrl != self._imageUrl {
             self._imageUrl = user.photoUrl
         }
-//        if let participant = self.dataProvider.provider as? User {
-//            if participant.isActive != user {
-//                
-//            }
-//        }
-//        if user.isActive != self.participant?.isActive
-//        {
-            if user.isActive == true {
-                self._status = "Online"
-            } else {
-                self._status = user.lastSeen?.formatToYearMonthDayCustomString()
-            }
-//        }
+        
+        if user.isActive == true {
+            self._status = "Online"
+        } else {
+            self._status = user.lastSeen?.formatToYearMonthDayCustomString()
+        }
     }
     
     
@@ -445,7 +423,7 @@ final class ChatRoomNavigationBarViewModel
 //    }
 }
 
-//MARK: - cache retrieve
+//MARK: - cache
 extension ChatRoomNavigationBarViewModel
 {
     func getImageFromCache(_ url: String) -> Data? {
