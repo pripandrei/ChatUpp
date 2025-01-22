@@ -69,13 +69,13 @@ final class ChatRoomNavigationBar {
         viewModel.$_status
             .compactMap({$0})
             .sink { [weak self] status in
-                self?.navigationItemsContainer?.titleLabel.text = status
+                self?.navigationItemsContainer?.statusLabel.text = status
             }.store(in: &cancellables)
         
         viewModel.$_title
             .compactMap({$0})
             .sink { [weak self] title in
-                self?.navigationItemsContainer?.statusLabel.text = title
+                self?.navigationItemsContainer?.titleLabel.text = title
             }.store(in: &cancellables)
     }
 }
