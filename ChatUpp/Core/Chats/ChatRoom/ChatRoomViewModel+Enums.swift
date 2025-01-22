@@ -33,40 +33,40 @@ enum MessageFetchStrategy
     case hybrit(startAtMessage: Message)
     case none
     
-    func fetch(from objectID: String) async throws -> [Message] {
-        switch self
-        {
-        case .ascending(let startAtMessage, let included):
-            return try await FirebaseChatService.shared.fetchMessagesFromChat(
-                chatID: objectID,
-                startingFrom: startAtMessage?.id,
-                inclusive: included,
-                fetchDirection: .ascending
-            )
-        case .descending(let startAtMessage, let included):
-            return try await FirebaseChatService.shared.fetchMessagesFromChat(
-                chatID: objectID,
-                startingFrom: startAtMessage?.id,
-                inclusive: included,
-                fetchDirection: .descending
-            )
-        case .hybrit(let startAtMessage):
-            let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
-                chatID: objectID,
-                startingFrom: startAtMessage.id,
-                inclusive: true,
-                fetchDirection: .descending
-            )
-            let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
-                chatID: objectID,
-                startingFrom: startAtMessage.id,
-                inclusive: false,
-                fetchDirection: .ascending
-            )
-            return descendingMessages + ascendingMessages
-        default: return []
-        }
-    }
+//    func fetch(from objectID: String) async throws -> [Message] {
+//        switch self
+//        {
+//        case .ascending(let startAtMessage, let included):
+//            return try await FirebaseChatService.shared.fetchMessagesFromChat(
+//                chatID: objectID,
+//                startingFrom: startAtMessage?.id,
+//                inclusive: included,
+//                fetchDirection: .ascending
+//            )
+//        case .descending(let startAtMessage, let included):
+//            return try await FirebaseChatService.shared.fetchMessagesFromChat(
+//                chatID: objectID,
+//                startingFrom: startAtMessage?.id,
+//                inclusive: included,
+//                fetchDirection: .descending
+//            )
+//        case .hybrit(let startAtMessage):
+//            let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
+//                chatID: objectID,
+//                startingFrom: startAtMessage.id,
+//                inclusive: true,
+//                fetchDirection: .descending
+//            )
+//            let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
+//                chatID: objectID,
+//                startingFrom: startAtMessage.id,
+//                inclusive: false,
+//                fetchDirection: .ascending
+//            )
+//            return descendingMessages + ascendingMessages
+//        default: return []
+//        }
+//    }
 }
 
 enum MessagesFetchDirection {

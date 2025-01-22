@@ -74,7 +74,6 @@ class ChatRoomViewModel
     {
         self.conversation = conversation
 //        self.chatUser = conversationUser
-//        self.conversation = conversation == nil ? Self.createChat(with: <#T##[ChatParticipant]#>) : conversation
 //        self.memberProfileImage = imageData
         self.unseenMessagesCount = conversation?.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         
@@ -84,12 +83,7 @@ class ChatRoomViewModel
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
 //        self.messageFetcher = ConversationMessageFetcher(conversation: conversation!, firestoreService: firestoreService)
         
-//        if conversationExists {
-//            bindToMessages()
-//            initiateConversation()
-//        }
-        
-        if conversation?.realm != nil {
+        if conversationExists {
             bindToMessages()
             initiateConversation()
         }

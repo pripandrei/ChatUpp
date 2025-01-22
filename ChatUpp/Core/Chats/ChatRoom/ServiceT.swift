@@ -208,16 +208,6 @@ final class ConversationUserListinerService
     }
 }
 
-enum MessageUpdateType {
-    case added(_ message: Message)
-    case removed(_ message: Message)
-    case modified(_ message: Message)
-}
-
-protocol MessageTypeChangeble {
-    
-}
-
 final class ConversationMessageListenerService
 {
     private let conversation: Chat?
@@ -267,6 +257,13 @@ final class ConversationMessageListenerService
         listeners.append(listener)
     }
 }
+
+
+//enum MessageUpdateType {
+//    case added(_ message: Message)
+//    case removed(_ message: Message)
+//    case modified(_ message: Message)
+//}
 
 
 //class ConversationMessageFetcher
