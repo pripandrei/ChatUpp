@@ -166,9 +166,6 @@ final class ConversationFirestoreService
 
 final class ConversationUserListinerService
 {
-//    private(set) var userObserver: RealtimeObservable?
-//    private var listeners: [Listener] = []
-    
     private var cancellables = Set<AnyCancellable>()
     
     @Published private(set) var chatUser: User
@@ -177,13 +174,8 @@ final class ConversationUserListinerService
         self.chatUser = chatUser
     }
     
-    func removeAllListeners()
-    {
-//        listeners.forEach{ $0.remove() }
-//        userObserver?.removeAllObservers()
-    }
-    
     /// - Temporary fix while firebase functions are deactivated
+    /// 
     func addUserObserver()
     {
         RealtimeUserService
@@ -213,15 +205,6 @@ final class ConversationUserListinerService
                     self?.chatUser = userUpdatedObject.data
                 }
             }).store(in: &cancellables)
-        
-        
-//        { [weak self] users, documentsTypes in
-//                guard let self = self else {return}
-//                // since we are listening only for one user, we can just get the first user and docType
-//                guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-//                self.chatUser = user
-//        }
-//        self.listeners.append(userListener)
     }
 }
 

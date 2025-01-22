@@ -336,22 +336,8 @@ final class ChatRoomViewController: UIViewController
     }
     
     /// - Navigation bar items setup
-    private func setNavigationBarItems() {
-//        let navBarVM = ChatRoomNavigationBarViewModel(conversation: viewModel.conversation!)
-        
-//        let imageData = conversationViewModel.memberProfileImage
-//        let member = conversationViewModel.chatUser
-//        var memberActiveStatus: String
-//        
-//        memberActiveStatus = member.isActive ?? false ?
-//        "Online" : "last seen \(member.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
-
-//        customNavigationBar = ConversationNavigationBar(viewController: self)
-//        customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarVM)
-        
-        /// -- create an enum that will hold conversation and user types
-        /// check weather conversation is group or private
-        /// based on previous step, create navigationBar with either conversation or with user (two inits will be implemented)
+    private func setNavigationBarItems()
+    {
         let dataProvider: NavigationBarDataProvider
 
         if let conversation = viewModel.conversation, conversation.isGroup {
@@ -361,14 +347,9 @@ final class ChatRoomViewController: UIViewController
         } else {
             return
         }
-
+        
         let navBarViewModel = ChatRoomNavigationBarViewModel(dataProvider: dataProvider)
         customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarViewModel)
-        /// -- in navigationBar, switch on enum object that holds conversation/user type
-        /// for each case , add listener to either conversation or user
-        /// apply updateds to nav items
-        ///
-//        customNavigationBar.setupNavigationBarItems(with: imageData, memberName: member.name ?? "unknow", memberActiveStatus: memberActiveStatus)
     }
     
     private func checkIfLastCellIsFullyVisible() -> Bool 

@@ -133,9 +133,8 @@ class ChatRoomViewModel
     func removeAllListeners() 
     {
         messageListenerService?.removeAllListeners()
-        userListenerService?.removeAllListeners()
     }
-//    
+ 
     func resetCurrentReplyMessageIfNeeded() {
         if currentlyReplyToMessageID != nil {
             currentlyReplyToMessageID = nil
@@ -460,28 +459,30 @@ extension ChatRoomViewModel
 
 extension ChatRoomViewModel
 {
-    private func handleAddedMessage(_ message: Message)
-    {
-        guard let _ = realmService?.retrieveMessageFromRealm(message) else {
-            realmService?.addMessageToRealmChat(message)
-            // TODO: - if chat unseen message counter is heigher than local unseen count,
-            // dont create messageGroup with this new message
-            createMessageClustersWith([message], ascending: true)
-//            messageChangedType = .added
-            messageChangedTypes.append(.added)
-//            unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? unseenMessagesCount
+    private func handleAddedMessage(_ message: Message) {
+        // If message exists, just update it
+        guard realmService?.retrieveMessageFromRealm(message) == nil else
+        {
+            Task { @MainActor in
+                realmService?.updateMessage(message)
+            }
             return
         }
-        Task { @MainActor in
-            realmService?.updateMessage(message)
-        }
+        // Handle new message
+        realmService?.addMessageToRealmChat(message)
+        // TODO: - if chat unseen message counter is heigher than local unseen count,
+        // dont create messageGroup with this new message
+        createMessageClustersWith([message], ascending: true)
+        //        unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? unseenMessagesCount
+        messageChangedTypes.append(.added)
     }
     
-    private func handleModifiedMessage(_ message: Message) 
+    private func handleModifiedMessage(_ message: Message)
     {
         guard let indexPath = indexPath(of: message),
               let cellVM = messageClusters.getCellViewModel(at: indexPath),
-              let modificationValue = cellVM.getModifiedValueOfMessage(message) else { return }
+              let modificationValue = cellVM.getModifiedValueOfMessage(message)
+        else { return }
         
         realmService?.updateMessage(message)
         if message.senderId == authUser.uid {
@@ -507,17 +508,13 @@ extension ChatRoomViewModel
         messageChangedTypes.append(.removed(indexPath))
     }
     
-    private func indexPath(of message: Message) -> IndexPath?
-    {
+    private func indexPath(of message: Message) -> IndexPath? {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
-        for groupIndex in 0..<messageClusters.count {
-            let group = messageClusters[groupIndex]
-            
-            if group.date == date {
-                if let messageIndex = group.items.firstIndex(where: { $0.message?.id == message.id }) {
-                    return IndexPath(row: messageIndex, section: groupIndex)
-                }
+        for (groupIndex, group) in messageClusters.enumerated() {
+            if group.date == date,
+               let messageIndex = group.items.firstIndex(where: { $0.message?.id == message.id }) {
+                return IndexPath(row: messageIndex, section: groupIndex)
             }
         }
         return nil
