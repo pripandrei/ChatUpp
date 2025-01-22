@@ -14,15 +14,15 @@ import Combine
 
 typealias Listener = ListenerRegistration
 
-struct MessageUpdate<T> {
-    let data: T
-    let changeType: DocumentChangeType
-}
-
-struct ChatUpdate<T> {
-    let data: T
-    let changeType: DocumentChangeType
-}
+//struct MessageUpdate<T> {
+//    let data: T
+//    let changeType: DocumentChangeType
+//}
+//
+//struct ChatUpdate<T> {
+//    let data: T
+//    let changeType: DocumentChangeType
+//}
 
 
 struct DatabaseChangedObject<T>
@@ -254,9 +254,9 @@ extension FirebaseChatService
 extension FirebaseChatService 
 {
     
-    func singleChatPublisher(for chatID: String) -> AnyPublisher<ChatUpdate<Chat>, Never>
+    func singleChatPublisher(for chatID: String) -> AnyPublisher<DatabaseChangedObject<Chat>, Never>
     {
-        let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
+        let subject = PassthroughSubject<DatabaseChangedObject<Chat>, Never>()
         
         let listener = chatsCollection
             .whereField("id", isEqualTo: chatID)
@@ -267,7 +267,7 @@ extension FirebaseChatService
                 {
                     if let chat = try? change.document.data(as: Chat.self)
                     {
-                        let update = ChatUpdate(data: chat, changeType: change.type)
+                        let update = DatabaseChangedObject(data: chat, changeType: change.type)
                         subject.send(update)
                     }
                 }
@@ -277,9 +277,9 @@ extension FirebaseChatService
             .eraseToAnyPublisher()
     }
     
-    func chatsPublisher(containingParticipantUserID participantUserID: String) -> AnyPublisher<ChatUpdate<Chat>, Never>
+    func chatsPublisher(containingParticipantUserID participantUserID: String) -> AnyPublisher<DatabaseChangedObject<Chat>, Never>
     {
-        let subject = PassthroughSubject<ChatUpdate<Chat>, Never>()
+        let subject = PassthroughSubject<DatabaseChangedObject<Chat>, Never>()
         
         let listener = chatsCollection
             .whereField("participants.\(participantUserID).is_deleted", isEqualTo: false)
@@ -288,7 +288,7 @@ extension FirebaseChatService
                 
                 snapshot?.documentChanges.forEach { change in
                     if let chat = try? change.document.data(as: Chat.self) {
-                        let update = ChatUpdate(data: chat, changeType: change.type)
+                        let update = DatabaseChangedObject(data: chat, changeType: change.type)
                         subject.send(update)
                     }
                 }
@@ -301,7 +301,7 @@ extension FirebaseChatService
     // messages listners
     func addListenerForUpcomingMessages(inChat chatID: String,
                                         startingAfterMessage messageID: String,
-                                        onNewMessageReceived:  @escaping (MessageUpdate<Message>) -> Void) async throws -> Listener
+                                        onNewMessageReceived:  @escaping (DatabaseChangedObject<Message>) -> Void) async throws -> Listener
     {
         let document = try await chatsCollection.document(chatID)
             .collection(FirestoreCollection.messages.rawValue)
@@ -318,7 +318,7 @@ extension FirebaseChatService
                 
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
-                    onNewMessageReceived(MessageUpdate(data: message, changeType: document.type))
+                    onNewMessageReceived(DatabaseChangedObject(data: message, changeType: document.type))
                 }
                 
             }
@@ -328,7 +328,7 @@ extension FirebaseChatService
                                         startAtTimestamp startTimestamp: Date,
                                         ascending: Bool,
                                         limit: Int,
-                                        onMessageUpdated: @escaping (MessageUpdate<Message>) -> Void) -> Listener
+                                        onMessageUpdated: @escaping (DatabaseChangedObject<Message>) -> Void) -> Listener
     {
         
         return chatDocument(documentPath: chatID)
@@ -342,7 +342,7 @@ extension FirebaseChatService
                 
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
-                    onMessageUpdated(MessageUpdate(data: message, changeType: document.type))
+                    onMessageUpdated(DatabaseChangedObject(data: message, changeType: document.type))
                 }
             }
     }

@@ -154,7 +154,7 @@ extension ChatsViewModel {
 
 extension ChatsViewModel {
     
-    private func handleChatUpdate(_ update: ChatUpdate<Chat>)
+    private func handleChatUpdate(_ update: DatabaseChangedObject<Chat>)
     {
         switch update.changeType
         {

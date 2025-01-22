@@ -240,7 +240,7 @@ final class ConversationMessageListenerService
     private let conversation: Chat?
     private var listeners: [Listener] = []
 
-    private(set) var updatedMessage = PassthroughSubject<MessageUpdate<Message>,Never>()
+    private(set) var updatedMessage = PassthroughSubject<DatabaseChangedObject<Message>,Never>()
 
     init(conversation: Chat?) {
         self.conversation = conversation
