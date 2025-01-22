@@ -46,8 +46,8 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomNavigationBar.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "334"
-            endingLineNumber = "334"
+            startingLineNumber = "318"
+            endingLineNumber = "318"
             landmarkName = "getImageFromCache(_:)"
             landmarkType = "7">
          </BreakpointContent>

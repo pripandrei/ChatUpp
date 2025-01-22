@@ -183,20 +183,20 @@ final class ChatRoomViewController: UIViewController
                 }
             }.store(in: &subscriptions)
         
-        viewModel.userListenerService?.$chatUser
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] user in
-                guard let self = self else {return}
-                
-                if self.customNavigationBar.navigationItemsContainer?.titleLabel.text != user.name {
-                    self.customNavigationBar.navigationItemsContainer?.titleLabel.text = user.name
-                    return
-                }
-                
-                self.customNavigationBar.navigationItemsContainer?.statusLabel.text = user.isActive ?? false ?
-                "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
-            }.store(in: &subscriptions)
-        
+//        viewModel.userListenerService?.$chatUser
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] user in
+//                guard let self = self else {return}
+//                
+//                if self.customNavigationBar.navigationItemsContainer?.titleLabel.text != user.name {
+//                    self.customNavigationBar.navigationItemsContainer?.titleLabel.text = user.name
+//                    return
+//                }
+//                
+//                self.customNavigationBar.navigationItemsContainer?.statusLabel.text = user.isActive ?? false ?
+//                "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
+//            }.store(in: &subscriptions)
+//        
         viewModel.$messageChangedTypes
             .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] changeTypes in
@@ -352,7 +352,7 @@ final class ChatRoomViewController: UIViewController
         /// -- create an enum that will hold conversation and user types
         /// check weather conversation is group or private
         /// based on previous step, create navigationBar with either conversation or with user (two inits will be implemented)
-        let dataProvider: ChatRoomNavigationBarViewModel.NavigationBarDataProvider
+        let dataProvider: NavigationBarDataProvider
 
         if let conversation = viewModel.conversation, conversation.isGroup {
             dataProvider = .chat(conversation)

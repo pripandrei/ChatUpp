@@ -81,7 +81,7 @@ final class ChatRoomNavigationBar {
 }
 
 //MARK: - Navigation items conteiner view
-
+//
 extension ChatRoomNavigationBar
 {
     final class NavigationTitleContainer: UIView {
@@ -302,27 +302,11 @@ final class ChatRoomNavigationBarViewModel
         if user.photoUrl != self._imageUrl {
             self._imageUrl = user.photoUrl
         }
-        
+
         if user.isActive == true {
             self._status = "Online"
         } else {
-            self._status = user.lastSeen?.formatToYearMonthDayCustomString()
-        }
-    }
-}
-
-//MARK: Navigation items data provider
-extension ChatRoomNavigationBarViewModel
-{
-    enum NavigationBarDataProvider {
-        case chat(Chat)
-        case user(User)
-        
-        var provider: Any {
-            switch self {
-            case .chat(let chat): return chat
-            case .user(let user): return user
-            }
+            self._status = "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
         }
     }
 }
@@ -332,6 +316,18 @@ extension ChatRoomNavigationBarViewModel
 {
     func getImageFromCache(_ url: String) -> Data? {
         return CacheManager.shared.retrieveImageData(from: url)
+    }
+}
+
+enum NavigationBarDataProvider {
+    case chat(Chat)
+    case user(User)
+    
+    var provider: Any {
+        switch self {
+        case .chat(let chat): return chat
+        case .user(let user): return user
+        }
     }
 }
 
