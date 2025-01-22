@@ -352,7 +352,7 @@ final class ChatRoomViewController: UIViewController
         /// -- create an enum that will hold conversation and user types
         /// check weather conversation is group or private
         /// based on previous step, create navigationBar with either conversation or with user (two inits will be implemented)
-        let dataProvider: NavigationBarDataProvider
+        let dataProvider: ChatRoomNavigationBarViewModel.NavigationBarDataProvider
 
         if let conversation = viewModel.conversation, conversation.isGroup {
             dataProvider = .chat(conversation)

@@ -223,18 +223,6 @@ extension ChatRoomNavigationBar
 }
 
 
-enum NavigationBarDataProvider {
-    case chat(Chat)
-    case user(User)
-    
-    var provider: Any {
-        switch self {
-        case .chat(let chat): return chat
-        case .user(let user): return user
-        }
-    }
-}
-
 final class ChatRoomNavigationBarViewModel
 {
     private var cancellables: Set<AnyCancellable> = []
@@ -321,106 +309,22 @@ final class ChatRoomNavigationBarViewModel
             self._status = user.lastSeen?.formatToYearMonthDayCustomString()
         }
     }
-    
-    
-//    
-//    
-//    private func setNavigationBarItems() {
-//        self._title = title
-//        self._status = status
-//        self._imageUrl = imageUrl
-//    }
-//    
-//    var otherParticipant: User?
-//    {
-//        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser(),
-//              let participant = conversation?.participants.first(where: { $0.userID != authUser.uid })else {return nil}
-//        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: participant.userID)
-//        return user
-//    }
-//    
-//    var title: String
-//    {
-//        get {
-//            return conversation?.name ?? otherParticipant?.name ?? "Unknown"
-//        }
-//        set {
-//            self._title = newValue
-//        }
-//    }
-//    
-//    
-//    var status: String {
-//        get {
-//            if conversation?.isGroup == true {
-//                return "\(conversation?.participants.count ?? 0) participants"
-//            }
-//            
-//            return getParticipantStatus(user: otherParticipant) ?? "last seen recently"
-//        }
-//        set {
-//            self._status = newValue
-//        }
-//    }
-//    
-//    var imageUrl: String {
-//        get {
-//            if conversation?.isGroup == true {
-//                return conversation?.thumbnailURL ?? "default_profile_photo"
-//            }
-//            return otherParticipant?.photoUrl ?? "default_profile_photo"
-//        }
-//        set {
-//            _imageUrl = newValue
-//        }
-//    }
-//    
-//    private func getParticipantStatus(user: User?) -> String?
-//    {
-//        if user?.isActive == true {
-//            return "Online"
-//        }
-//        return user?.lastSeen?.formatToYearMonthDayCustomString()
-//    }
-//    
-//    private func observeItemsChanges()
-//    {
-//        guard let conversation = conversation else {return}
-//        guard let observeObject = conversation.isGroup ? conversation : otherParticipant else {return}
-//        
-//        RealmDataBase.shared.observeChanges(for: observeObject)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] change in
-//                self?.updateField(changedField: NavigationItemChangeField(rawValue: change.name), typeChangeValue: change.newValue)
-//            }
-//            .store(in: &cancellables)
-//    }
-//    
-//    private func updateField(changedField: NavigationItemChangeField?, typeChangeValue: Any?)
-//    {
-//        guard let field = changedField else {return}
-//        
-//        switch field {
-//        case .name:
-//            if let value = typeChangeValue as? String {
-//                self.title = value
-//            }
-//        case .photoUrl:
-//            if let value = typeChangeValue as? String {
-//                self.imageUrl = value
-//            }
-//        case .isActive:
-//            if let status = typeChangeValue as? Bool {
-//                self._status = status ? "Online" : "last seen recently"
-//            }
-//        case .lastSeen:
-//            self.status = (typeChangeValue as? Date)?.formatToYearMonthDayCustomString() ?? self.status
-//        case .thumbnailURL:
-//            if let value = typeChangeValue as? String {
-//                self.imageUrl = value
-//            }
-//        }
-//    }
+}
+
+//MARK: Navigation items data provider
+extension ChatRoomNavigationBarViewModel
+{
+    enum NavigationBarDataProvider {
+        case chat(Chat)
+        case user(User)
+        
+        var provider: Any {
+            switch self {
+            case .chat(let chat): return chat
+            case .user(let user): return user
+            }
+        }
+    }
 }
 
 //MARK: - cache
