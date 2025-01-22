@@ -223,41 +223,69 @@ extension ChatRoomNavigationBar
 }
 
 
+enum NavigationBarDataProvider {
+    case chat(Chat)
+    case user(User)
+    
+    var provider: Any {
+        switch self {
+        case .chat(let chat): return chat
+        case .user(let user): return user
+        }
+    }
+}
+
 final class ChatRoomNavigationBarViewModel
 {
-    private var conversation: Chat?
-    private var participant: User?
+//    private var conversation: Chat?
+//    private var participant: User?
     private var cancellables: Set<AnyCancellable> = []
+    private let dataProvider: NavigationBarDataProvider
     
     @Published private(set) var _title: String?
     @Published private(set) var _status: String?
     @Published private(set) var _imageUrl: String?
 
-    init(conversation: Chat?) {
-        self.conversation = conversation
-        setNavigationItems(usingChat: conversation!)
-        addListener()
-    }
+//    init(conversation: Chat?) {
+//        self.conversation = conversation
+//        setNavigationItems(usingChat: conversation!)
+////        addListener(to: conversation!)
+//    }
+//    
+//    init(participant: User?)
+//    {
+//        self.participant = participant
+//        setNavigationItems(usingUser: participant!)
+////        addListener()
+//    }
     
-    init(participant: User?)
+    init(dataProvider: NavigationBarDataProvider)
     {
-        self.participant = participant
-        setNavigationItems(usingUser: participant!)
-        addListener()
+//        guard let provider = dataProvider else {return nil}
+        self.dataProvider = dataProvider
+        addListener(to: dataProvider)
     }
     
     
-    private func addListener()
+    private func addListener(to objectDataProvider: NavigationBarDataProvider)
     {
-        if let conversation = self.conversation
-        {
-            addConversationListener(conversation)
-        }
-        else if let participant = self.participant
-        {
-            addParticipantListener(participant)
+        switch objectDataProvider {
+        case .chat(let chat): addConversationListener(chat)
+        case .user(let user): addParticipantListener(user)
         }
     }
+//    
+//    private func addListener()
+//    {
+//        if let conversation = self.conversation
+//        {
+//            addConversationListener(conversation)
+//        }
+//        else if let participant = self.participant
+//        {
+//            addParticipantListener(participant)
+//        }
+//    }
     
     private func addConversationListener(_ conversation: Chat)
     {
@@ -301,15 +329,19 @@ final class ChatRoomNavigationBarViewModel
         if user.photoUrl != self._imageUrl {
             self._imageUrl = user.photoUrl
         }
-        
-        if user.isActive != self.participant?.isActive
-        {
+//        if let participant = self.dataProvider.provider as? User {
+//            if participant.isActive != user {
+//                
+//            }
+//        }
+//        if user.isActive != self.participant?.isActive
+//        {
             if user.isActive == true {
                 self._status = "Online"
             } else {
                 self._status = user.lastSeen?.formatToYearMonthDayCustomString()
             }
-        }
+//        }
     }
     
     
@@ -432,11 +464,11 @@ enum NavigationItemChangeField: String
 
 
 
-extension ChatRoomNavigationBarViewModel {
-    var members: [User] {
-        let participants = Array( conversation?.participants.map { $0.userID } ?? [] )
-        let filter = NSPredicate(format: "id IN %@", argumentArray: participants)
-        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
-        return users ?? []
-    }
-}
+//extension ChatRoomNavigationBarViewModel {
+//    var members: [User] {
+//        let participants = Array( conversation?.participants.map { $0.userID } ?? [] )
+//        let filter = NSPredicate(format: "id IN %@", argumentArray: participants)
+//        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
+//        return users ?? []
+//    }
+//}

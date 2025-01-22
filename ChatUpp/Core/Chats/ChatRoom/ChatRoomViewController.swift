@@ -352,13 +352,18 @@ final class ChatRoomViewController: UIViewController
         /// -- create an enum that will hold conversation and user types
         /// check weather conversation is group or private
         /// based on previous step, create navigationBar with either conversation or with user (two inits will be implemented)
-       if viewModel.conversation?.isGroup == true {
-           let navBarViewModel = ChatRoomNavigationBarViewModel(conversation: viewModel.conversation)
-           customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarViewModel)
-       } else {
-           let navBarViewModel = ChatRoomNavigationBarViewModel(participant: viewModel.participant)
-           customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarViewModel)
-       }
+        let dataProvider: NavigationBarDataProvider
+
+        if let conversation = viewModel.conversation, conversation.isGroup {
+            dataProvider = .chat(conversation)
+        } else if let user = viewModel.participant {
+            dataProvider = .user(user)
+        } else {
+            return
+        }
+
+        let navBarViewModel = ChatRoomNavigationBarViewModel(dataProvider: dataProvider)
+        customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarViewModel)
         /// -- in navigationBar, switch on enum object that holds conversation/user type
         /// for each case , add listener to either conversation or user
         /// apply updateds to nav items

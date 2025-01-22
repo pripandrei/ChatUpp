@@ -14,17 +14,6 @@ import Combine
 
 typealias Listener = ListenerRegistration
 
-//struct MessageUpdate<T> {
-//    let data: T
-//    let changeType: DocumentChangeType
-//}
-//
-//struct ChatUpdate<T> {
-//    let data: T
-//    let changeType: DocumentChangeType
-//}
-
-
 struct DatabaseChangedObject<T>
 {
     let data: T

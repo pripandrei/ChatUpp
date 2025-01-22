@@ -144,8 +144,6 @@ final class FirestoreUserService {
             guard error == nil else { print(error!.localizedDescription); return }
             guard let documents = snapshot?.documentChanges else { print("No user to listen to"); return }
             
-            var docType = [DocumentChangeType]()
-            
             documents.forEach { userDocument in
                 guard let user = try? userDocument.document.data(as: User.self) else {return}
                 let updatedChatObject = DatabaseChangedObject(data: user, changeType: userDocument.type)
