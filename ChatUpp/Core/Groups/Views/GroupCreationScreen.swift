@@ -23,17 +23,11 @@ struct GroupCreationScreen: View
                             groupCreationViewModel.navigationStack.append(.addGroupMembers)
                         }
                 }
-                
                 Section {
                     
                     ForEach(groupCreationViewModel.allUsers) { member in
                         UserView(userItem: member)
                     }
-//                    
-//                    let dommyData = UserItem(name: "Avior Makory", bio: "hello there world")
-//                    ForEach(0..<15) { _ in
-//                        UserView(userItem: User.dummy)
-//                    }
                 } header: {
                     Text("Users")
                         .font(.subheadline)

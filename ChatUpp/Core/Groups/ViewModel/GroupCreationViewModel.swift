@@ -17,24 +17,12 @@ enum GroupCreationRoute
 final class GroupCreationViewModel: SwiftUI.ObservableObject
 {
     private var groupID: String?
-    private(set) var allUsers: [User] = []
+    @Published private(set) var allUsers: [User] = []
     
+    @Published private(set) var imageSampleRepository: ImageSampleRepository?
     @Published var navigationStack = [GroupCreationRoute]()
-//    @Published var selectedGroupMembers = [UserItem]()
-    @Published var selectedGroupMembers = [User]() {
-        didSet {
-            print("Set users: ", selectedGroupMembers)
-        }
-    }
-    @Published var imageSampleRepository: ImageSampleRepository?
-    
-//    init(groupID: String? = nil, navigationStack: [GroupCreationRoute] = [GroupCreationRoute](), selectedGroupMembers: [User] = [User](), imageSampleRepository: ImageSampleRepository? = nil, disableNextButton: Bool, showSelectedUsers: Bool) {
-//        self.groupID = groupID
-//        self.navigationStack = navigationStack
-//        self.selectedGroupMembers = selectedGroupMembers
-//        self.imageSampleRepository = imageSampleRepository
-//    }
-    
+    @Published var selectedGroupMembers = [User]()
+
     init() {
         self.presentUsers()
     }
@@ -72,9 +60,9 @@ extension GroupCreationViewModel
     {
         let users = retrieveUsers()
         if users.isEmpty {
-            self.allUsers = users
-        } else {
             Task { await fetchUsers() }
+        } else {
+            self.allUsers = users
         }
     }
     
