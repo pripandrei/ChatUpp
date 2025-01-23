@@ -25,10 +25,15 @@ struct GroupCreationScreen: View
                 }
                 
                 Section {
-                    let dommyData = UserItem(name: "Avior Makory", bio: "hello there world")
-                    ForEach(0..<15) { _ in
-                        UserView(userItem: dommyData)
+                    
+                    ForEach(groupCreationViewModel.allUsers) { member in
+                        UserView(userItem: member)
                     }
+//                    
+//                    let dommyData = UserItem(name: "Avior Makory", bio: "hello there world")
+//                    ForEach(0..<15) { _ in
+//                        UserView(userItem: User.dummy)
+//                    }
                 } header: {
                     Text("Users")
                         .font(.subheadline)
@@ -181,10 +186,18 @@ struct UserItem: Identifiable
         return userItems
     }()
     
-    let id: String = UUID().uuidString
+    let id: String
     let name: String
     var bio: String?
     var image: Data?
+    
+    init(id: String = UUID().uuidString, name: String, bio: String? = nil, image: Data? = nil)
+    {
+        self.id = id
+        self.name = name
+        self.bio = bio
+        self.image = image
+    }
 
 }
 

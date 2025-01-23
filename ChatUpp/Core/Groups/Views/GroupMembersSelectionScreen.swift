@@ -20,7 +20,7 @@ struct GroupMembersSelectionScreen: View
             }
             
             Section {
-                ForEach(UserItem.placeholders) { user in
+                ForEach(viewModel.allUsers) { user in
                     Button {
                         viewModel.toggleUserSelection(user)
                     } label: {
@@ -44,7 +44,7 @@ struct GroupMembersSelectionScreen: View
 //MARK: - List row
 extension GroupMembersSelectionScreen
 {
-    private func rowView(for user: UserItem) -> some View
+    private func rowView(for user: User) -> some View
     {
         UserView(userItem: user)
         {

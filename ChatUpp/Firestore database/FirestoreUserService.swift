@@ -94,6 +94,12 @@ final class FirestoreUserService {
         return try await userDocument(userID: userID).getDocument(as: User.self, source: .server)
     }
     
+    func fetchUsers() async throws -> [User] {
+        let limit = 50
+        return try await usersCollection.limit(to: limit).getDocuments(as: User.self)
+//        return try await userDocument(userID: userID).getDocument(as: User.self, source: .server)
+    }
+    
     // MARK: - GET USER PROFILE IMAGE
     
 //    func getProfileImageData(urlPath: String?) async throws -> Data {

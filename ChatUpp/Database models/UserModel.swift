@@ -10,7 +10,7 @@ import RealmSwift
 
 // MARK: - User model
 
-class User: Object, Codable
+class User: Object, Codable, Identifiable
 {
     @Persisted(primaryKey: true) var id: String
     @Persisted var name: String?
@@ -116,4 +116,9 @@ extension User {
     }
 }
 
-
+//MARK: - Dummym data
+extension User {
+    static var dummy: User = {
+        return User(userId: "1234567890", name: "Dummy User", email: "dummy@example.com", photoUrl: "", phoneNumber: "", nickName: "", dateCreated: Date(), lastSeen: Date(), isActive: true)
+    }()
+}

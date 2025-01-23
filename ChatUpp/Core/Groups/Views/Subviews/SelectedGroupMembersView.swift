@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SelectedGroupMembersView: View
 {
-    @Binding var selectedMembers: [UserItem]
+    @Binding var selectedMembers: [User]
     
     var body: some View
     {
@@ -23,7 +23,7 @@ struct SelectedGroupMembersView: View
         .scrollIndicators(.hidden)
     }
     
-    private func selectedMemberItem(_ user: UserItem) -> some View
+    private func selectedMemberItem(_ user: User) -> some View
     {
         VStack {
             Circle()
@@ -33,14 +33,14 @@ struct SelectedGroupMembersView: View
                     cancelButton(for: user)
                 }
             
-            Text(user.name)
+            Text(user.name ?? "Unknow")
                 .font(Font.system(.subheadline))
                 .fontWeight(.semibold)
                 .foregroundStyle(Color(#colorLiteral(red: 0.2674642503, green: 0.2521909475, blue: 0.2465424836, alpha: 1)))
         }
     }
     
-    private func cancelButton(for user: UserItem) -> some View {
+    private func cancelButton(for user: User) -> some View {
         Button {
             selectedMembers.removeAll(where: { $0.id == user.id })
         } label: {
@@ -55,5 +55,5 @@ struct SelectedGroupMembersView: View
     }
 }
 #Preview {
-    SelectedGroupMembersView(selectedMembers: .constant(UserItem.placeholders))
+    SelectedGroupMembersView(selectedMembers: .constant([User.dummy]))
 }
