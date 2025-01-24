@@ -22,6 +22,8 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
     @Published private(set) var imageSampleRepository: ImageSampleRepository?
     @Published var navigationStack = [GroupCreationRoute]()
     @Published var selectedGroupMembers = [User]()
+    
+    @Published var groupName: String = ""
 
     init() {
         self.presentUsers()
@@ -54,6 +56,34 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
     }
 }
 
+//MARK: - Group creation functions
+extension GroupCreationViewModel
+{
+    private func createGroup() -> Chat?
+    {
+        guard let authenticatedUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {return nil}
+        
+        let selfParticipant = ChatParticipant(userID: authenticatedUserID, unseenMessageCount: 0)
+        var participants = selectedGroupMembers.map { ChatParticipant(userID: $0.id , unseenMessageCount: 0) }
+        participants.append(selfParticipant)
+        
+        let group = Chat(id: UUID().uuidString, participants: participants, recentMessageID: "Group created", messagesCount: 0, isFirstTimeOpened: true, dateCreated: Date(), name: self.groupName, thumbnailURL: imageSampleRepository?.imagePath(for: .original), admins: [authenticatedUserID])
+        return group
+    }
+    
+    func finishGroupCreation() async throws -> Chat?
+    {
+        guard let group = createGroup() else {return nil}
+        try await FirebaseChatService.shared.createNewChat(chat: group)
+        try await processImageSamples()
+        RealmDataBase.shared.add(object: group)
+        RealmDataBase.shared.add(objects: selectedGroupMembers)
+        return group
+    }
+}
+
+
+//MARK: - Retrieve/fetch users
 extension GroupCreationViewModel
 {
     private func presentUsers()
@@ -81,7 +111,7 @@ extension GroupCreationViewModel
     }
 }
 
-//MARK: Image update
+//MARK: - Image update
 extension GroupCreationViewModel
 {
     func updateImageRepository(repository: ImageSampleRepository)
@@ -101,7 +131,7 @@ extension GroupCreationViewModel
     
     private func saveImage(_ imageData: Data, path: String) async throws
     {
-        let _ = try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .group(groupID!), imagePath: path)
+        try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .group(groupID!), imagePath: path)
         CacheManager.shared.saveImageData(imageData, toPath: path)
     }
 }

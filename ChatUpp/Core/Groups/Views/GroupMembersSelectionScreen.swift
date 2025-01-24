@@ -26,7 +26,6 @@ struct GroupMembersSelectionScreen: View
                     } label: {
                         rowView(for: user)
                     }.buttonStyle(.plain)
-                    
                 }
             }
         }

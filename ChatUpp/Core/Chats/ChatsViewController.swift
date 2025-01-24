@@ -401,11 +401,12 @@ extension ChatsViewController
     
     @objc private func presentGropupOptionScreen()
     {
-        let groupCreationScreen = GroupCreationScreen()
-        let hostingController = UIHostingController(rootView: groupCreationScreen)
-        hostingController.modalPresentationStyle = .pageSheet
-        hostingController.modalTransitionStyle = .coverVertical
-        present(hostingController, animated: true)
+        coordinatorDelegate?.showGroupCreationScreen()
+//        let groupCreationScreen = GroupCreationScreen()
+//        let hostingController = UIHostingController(rootView: groupCreationScreen)
+//        hostingController.modalPresentationStyle = .pageSheet
+//        hostingController.modalTransitionStyle = .coverVertical
+//        present(hostingController, animated: true)
     }
     
 }

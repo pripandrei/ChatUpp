@@ -98,10 +98,29 @@ final class RealmDataBase {
     }
     
     public func add<T: Object>(object: T) {
+        realm?.add(object)
         try? realm?.write {
             realm?.add(object, update: .modified)
         }
     }
+    
+    public func add<T: Object>(objects: [T]) {
+        realm?.add(objects)
+        
+        try? realm?.write {
+            realm?.add(objects, update: .modified)
+        }
+    }
+    
+//    public func add<T: Object>(object: T, objects: [T] = [])
+//    {
+//        realm?.add(object)
+//        
+//        try? realm?.write
+//        {
+//            realm?.add(objects.isEmpty ? [object] : objects, update: .modified)
+//        }
+//    }
     
     public func delete<T: Object>(object: T) {
         try? realm?.write({

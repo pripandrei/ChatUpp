@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 
 protocol Coordinator: AnyObject {
 //    var tabBar: TabBarViewController { get set }
@@ -25,9 +26,10 @@ protocol Coordinator: AnyObject {
     
     func pushProfileEditingVC(viewModel:ProfileEditingViewModel)
     func dismissEditProfileVC()
+    func showGroupCreationScreen()
 }
 
-class MainCoordinator: Coordinator {
+class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
     
     private var tabBar: TabBarViewController
     private var navControllerForLoginVC: UINavigationController!
@@ -142,5 +144,14 @@ class MainCoordinator: Coordinator {
         profileDeletionVC.modalPresentationStyle = .pageSheet
         profileDeletionVC.modalTransitionStyle = .coverVertical
         tabBar.settingsNavigationController?.present(profileDeletionVC, animated: true)
+    }
+    
+    func showGroupCreationScreen()
+    {
+        let groupCreationScreen = GroupCreationScreen().environmentObject(self)
+        let hostingController = UIHostingController(rootView: groupCreationScreen)
+        hostingController.modalPresentationStyle = .pageSheet
+        hostingController.modalTransitionStyle = .coverVertical
+        tabBar.present(hostingController, animated: true)
     }
 }

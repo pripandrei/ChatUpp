@@ -10,11 +10,11 @@ import PhotosUI
 
 struct NewGroupSetupScreen: View
 {
+    @EnvironmentObject var coordinator: MainCoordinator
     @ObservedObject var viewModel: GroupCreationViewModel
     
     @State private var imageDataContainer: IdentifiableItem<Data>?
     @State private var profilePhotoItem: PhotosPickerItem?
-    @State private var textFieldText: String = ""
     
     var body: some View {
         List {
@@ -32,7 +32,12 @@ struct NewGroupSetupScreen: View
     {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                
+                Task {
+                    guard let group = try await viewModel.finishGroupCreation() else {return}
+                    let chatRoomVM = ChatRoomViewModel(conversation: group)
+                    coordinator.openConversationVC(conversationViewModel: chatRoomVM)
+                    Utilities.windowRoot?.dismiss(animated: true)
+                }
             } label: {
                 Text("Create")
             }
@@ -47,7 +52,7 @@ extension NewGroupSetupScreen
            Section {
                HStack {
                    groupImage()
-                   textField()
+                   groupNameTextField()
                    removeTextButton()
                }
                .onChange(of: profilePhotoItem) { _ in
@@ -111,8 +116,8 @@ extension NewGroupSetupScreen
         }
     }
     
-    private func textField() -> some View {
-        TextField("Group Name", text: $textFieldText)
+    private func groupNameTextField() -> some View {
+        TextField("Group Name", text: $viewModel.groupName)
             .padding(.leading, 10)
             .font(Font.system(size: 19, weight: .semibold))
             .foregroundStyle(Color(#colorLiteral(red: 0.4086711407, green: 0.4086711407, blue: 0.4086711407, alpha: 1)))
@@ -121,7 +126,7 @@ extension NewGroupSetupScreen
     private func removeTextButton() -> some View
     {
         Button {
-            textFieldText = ""
+            viewModel.groupName = ""
         } label: {
             ZStack {
                 Circle()
