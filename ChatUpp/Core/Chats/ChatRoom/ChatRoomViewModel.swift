@@ -34,7 +34,7 @@ class ChatRoomViewModel
         return messageClusters.first?.items.first
     }
     
-    private var conversationExists: Bool {
+    var conversationExists: Bool {
         return self.conversation != nil
     }
     
@@ -68,6 +68,29 @@ class ChatRoomViewModel
 //        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: chatParticipant.userID)
 //    }
     
+//    var members: [User] {
+//        guard let conversation = conversation else {return []}
+//        let participantsID = Array( conversation.participants.map { $0.userID } )
+//        let filter = NSPredicate(format: "id IN %@", argumentArray: participantsID)
+//        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
+//        return users ?? []
+//    }
+//    
+    var members: [User] {
+        guard let conversation = conversation else { return [] }
+        
+        // Convert participants to an array of user IDs
+        let participantsID = Array( conversation.participants.map { $0.userID } )
+        
+        // Ensure array is properly formatted for NSPredicate
+        let filter = NSPredicate(format: "id IN %@", participantsID)
+        
+        // Retrieve users from Realm
+        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
+        
+        return users ?? []
+    }
+    
     /// - Life cycle
     
     init(conversation: Chat? = nil)
@@ -76,10 +99,10 @@ class ChatRoomViewModel
 //        self.chatUser = conversationUser
 //        self.memberProfileImage = imageData
         self.unseenMessagesCount = conversation?.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
-        
+        print(members)
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
-        self.userListenerService = ConversationUserListinerService(chatUser: User())
+        self.userListenerService = ConversationUserListinerService(chatUsers: members)
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
 //        self.messageFetcher = ConversationMessageFetcher(conversation: conversation!, firestoreService: firestoreService)
         
@@ -141,12 +164,14 @@ class ChatRoomViewModel
     
     /// - chat components creation
     
-    private func createChat() -> Chat
+    private func createChat() -> Chat?
     {
+        guard let participant = self.participant else {return nil}
+        
         let chatId = UUID().uuidString
         let participants = [
             ChatParticipant(userID: authUser.uid, unseenMessageCount: 0),
-            ChatParticipant(userID: "chatUser.id", unseenMessageCount: 0)
+            ChatParticipant(userID: participant.id, unseenMessageCount: 0)
         ]
         let recentMessageID = lastMessageItem?.message?.id
         let messagesCount = messageClusters.first?.items.count
@@ -159,18 +184,18 @@ class ChatRoomViewModel
             isFirstTimeOpened: false
         )
     }
-    
-    static func createChat(with participants: [ChatParticipant]) -> Chat
-    {
-        let chatId = UUID().uuidString
-        return Chat(
-            id: chatId,
-            participants: participants,
-            recentMessageID: nil,
-            messagesCount: nil,
-            isFirstTimeOpened: false
-        )
-    }
+//    
+//    static func createChat(with participants: [ChatParticipant]) -> Chat
+//    {
+//        let chatId = UUID().uuidString
+//        return Chat(
+//            id: chatId,
+//            participants: participants,
+//            recentMessageID: nil,
+//            messagesCount: nil,
+//            isFirstTimeOpened: false
+//        )
+//    }
     
     var chatParticipants: [ChatParticipant] = []
     
@@ -188,9 +213,9 @@ class ChatRoomViewModel
         )
     }
     
-    func manageMessageCreation(_ messageText: String) {
+    func manageMessageCreation(_ messageText: String = "")
+    {
         let message = createNewMessage(messageText)
-        resetCurrentReplyMessageIfNeeded()
         
         // Local updates
         realmService?.addMessageToRealmChat(message)
@@ -202,13 +227,15 @@ class ChatRoomViewModel
             await firestoreService?.addMessageToFirestoreDataBase(message)
             await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
+        
+        resetCurrentReplyMessageIfNeeded()
     }
     
-    func createConversationIfNeeded() {
-        guard !conversationExists else { return }
+    func setupConversation()
+    {
+        guard let chat = createChat() else {return}
         
-        let chat = createChat()
-        conversation = chat
+        self.conversation = chat
         realmService?.addChatToRealm(chat)
         
         let freezedChat = chat.freeze()
@@ -257,6 +284,7 @@ class ChatRoomViewModel
             }
         }
     }
+    
     private func updateUnseenMessageCounterRemote(shouldIncrement: Bool)
     {
         guard let conversation = conversation else { return }

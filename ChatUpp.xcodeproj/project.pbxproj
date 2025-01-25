@@ -112,6 +112,7 @@
 		75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */; };
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
 		75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */; };
+		75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */; };
 		75F608842BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift */; };
 		75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* InputBarHeaderView.swift */; };
 		75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -260,6 +261,7 @@
 		75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSignInViewController.swift; sourceTree = "<group>"; };
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
 		75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeUserService.swift; sourceTree = "<group>"; };
+		75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableRealmObjectProcotol.swift; sourceTree = "<group>"; };
 		75F608832BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarMessageTextViewDelegate.swift; sourceTree = "<group>"; };
 		75F608852BEC33400065DA83 /* InputBarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarHeaderView.swift; sourceTree = "<group>"; };
 		75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
@@ -480,6 +482,7 @@
 		757033A32BC2D829002732B5 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */,
 				75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */,
 				75BA23842D2F02E600A4C508 /* ImageSaveble.swift */,
 				757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */,
@@ -1001,6 +1004,7 @@
 				7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */,
 				7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */,
 				75BA23852D2F02F700A4C508 /* ImageSaveble.swift in Sources */,
+				75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */,
 				756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */,
 				75A7AFDA2D3C394800E081DF /* InputBarContainer.swift in Sources */,
 				75D7C5952AD72DBC00F6D4B9 /* ConversationTableViewCell.swift in Sources */,

@@ -32,11 +32,15 @@ struct NewGroupSetupScreen: View
     {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                Task {
+                Task { @MainActor in
                     guard let group = try await viewModel.finishGroupCreation() else {return}
                     let chatRoomVM = ChatRoomViewModel(conversation: group)
-                    coordinator.openConversationVC(conversationViewModel: chatRoomVM)
                     Utilities.windowRoot?.dismiss(animated: true)
+                    Task { @MainActor in
+                        try await Task.sleep(for: .seconds(1.0))
+                        coordinator.openConversationVC(conversationViewModel: chatRoomVM)
+                    }
+//                    coordinator.openConversationVC(conversationViewModel: chatRoomVM)
                 }
             } label: {
                 Text("Create")

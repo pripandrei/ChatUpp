@@ -10,23 +10,6 @@ import RealmSwift
 import Realm
 import Combine
 
-enum RealmRetrieveError: Error, LocalizedError {
-    case objectNotPresent
-    case chatNotPresent
-    case memberNotPresent
-    case messageNotPresent
-    case imageNotPresent
-    
-    var errorDescription: String? {
-        switch self {
-        case .objectNotPresent: return "object not present"
-        case .chatNotPresent: return "chat not present"
-        case .memberNotPresent: return "member not present"
-        case .messageNotPresent: return "message not present"
-        case .imageNotPresent: return "image not present"
-        }
-    }
-}
 
 final class RealmDataBase {
     
@@ -50,22 +33,6 @@ final class RealmDataBase {
         } catch {
             print("Error initiating Realm database: ", error)
         }
-    }
-    
-    private func createConfiguration() -> Realm.Configuration
-    {
-        return Realm.Configuration(
-            schemaVersion: RealmDataBase.schemaVersion,
-            migrationBlock: { [weak self] migration, oldSchemaVersion in
-                if oldSchemaVersion < 11 { self?.migrateToVersion11(migration: migration) }
-                if oldSchemaVersion < 13 { self?.migrateToVersion13(migration: migration) }
-                if oldSchemaVersion < 14 { self?.migrateToVersion14(migration: migration) }
-                if oldSchemaVersion < 15 { self?.migrateToVersion15(migration: migration) }
-                if oldSchemaVersion < 16 { self?.migrateToVersion16(migration: migration) }
-                if oldSchemaVersion < 17 { self?.migrateToVersion17(migration: migration) }
-            },
-            objectTypes: [Chat.self, User.self, Message.self, MessageImageSize.self, ChatParticipant.self]
-        )
     }
     
     public func retrieveObjects<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Results<T>?
@@ -97,37 +64,30 @@ final class RealmDataBase {
         }
     }
     
+    /// - add single object
     public func add<T: Object>(object: T) {
-        realm?.add(object)
         try? realm?.write {
             realm?.add(object, update: .modified)
         }
     }
     
+    /// - add multiple objects
     public func add<T: Object>(objects: [T]) {
-        realm?.add(objects)
-        
         try? realm?.write {
             realm?.add(objects, update: .modified)
         }
     }
-    
-//    public func add<T: Object>(object: T, objects: [T] = [])
-//    {
-//        realm?.add(object)
-//        
-//        try? realm?.write
-//        {
-//            realm?.add(objects.isEmpty ? [object] : objects, update: .modified)
-//        }
-//    }
     
     public func delete<T: Object>(object: T) {
         try? realm?.write({
             realm?.delete(object)
         })
     }
-    
+}
+
+//MARK: - realm object observer
+extension RealmDataBase
+{
     func observeChanges<T: ObservableRealmObjectProcotol>(for object: T) -> AnyPublisher<PropertyChange, Never>
     {
         let subject = PassthroughSubject<PropertyChange, Never>()
@@ -156,6 +116,24 @@ final class RealmDataBase {
     }
 }
 
+//MARK: - Realm configuration
+extension RealmDataBase {
+    private func createConfiguration() -> Realm.Configuration
+    {
+        return Realm.Configuration(
+            schemaVersion: RealmDataBase.schemaVersion,
+            migrationBlock: { [weak self] migration, oldSchemaVersion in
+                if oldSchemaVersion < 11 { self?.migrateToVersion11(migration: migration) }
+                if oldSchemaVersion < 13 { self?.migrateToVersion13(migration: migration) }
+                if oldSchemaVersion < 14 { self?.migrateToVersion14(migration: migration) }
+                if oldSchemaVersion < 15 { self?.migrateToVersion15(migration: migration) }
+                if oldSchemaVersion < 16 { self?.migrateToVersion16(migration: migration) }
+                if oldSchemaVersion < 17 { self?.migrateToVersion17(migration: migration) }
+            },
+            objectTypes: [Chat.self, User.self, Message.self, MessageImageSize.self, ChatParticipant.self]
+        )
+    }
+}
 
 //MARK: - Migrations
 
@@ -267,29 +245,23 @@ extension Results
     }
 }
 
-protocol ObservableRealmObjectProcotol {
-    func observe<T>(
-        keyPaths: [String]?,
-        on queue: DispatchQueue?,
-        _ block: @escaping (ObjectChange<T>) -> Void
-    ) -> NotificationToken where T : RLMObjectBase
-}
-
-extension ObservableRealmObjectProcotol
-{
-    func observe<T>(
-        keyPaths: [String]? = nil,
-        on queue: DispatchQueue? = nil,
-        _ block: @escaping (ObjectChange<T>) -> Void
-    ) -> NotificationToken where T : RLMObjectBase
-    {
-        return observe(keyPaths: keyPaths, on: queue, block)
+enum RealmRetrieveError: Error, LocalizedError {
+    case objectNotPresent
+    case chatNotPresent
+    case memberNotPresent
+    case messageNotPresent
+    case imageNotPresent
+    
+    var errorDescription: String? {
+        switch self {
+        case .objectNotPresent: return "object not present"
+        case .chatNotPresent: return "chat not present"
+        case .memberNotPresent: return "member not present"
+        case .messageNotPresent: return "message not present"
+        case .imageNotPresent: return "image not present"
+        }
     }
 }
-
-extension EmbeddedObject: ObservableRealmObjectProcotol {}
-extension Object: ObservableRealmObjectProcotol {}
-
 
 
 

@@ -399,12 +399,12 @@ final class ChatRoomViewController: UIViewController
 //MARK: - Handle cell message insertion
 extension ChatRoomViewController {
     
-    private func handleMessageBubbleCreation(messageText: String = "")
+    private func createMessageBubble(from messageText: String = "")
     {
-        self.viewModel.manageMessageCreation(messageText)
+        viewModel.manageMessageCreation(messageText)
         
         Task { @MainActor in
-            self.handleTableViewCellInsertion(scrollToBottom: true)
+            handleTableViewCellInsertion(scrollToBottom: true)
         }
     }
     
@@ -447,7 +447,8 @@ extension ChatRoomViewController {
         }
     }
     
-    private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath) {
+    private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath)
+    {
         let currentOffSet = self.rootView.tableView.contentOffset
         guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
         
@@ -545,8 +546,10 @@ extension ChatRoomViewController {
             removeTextViewText()
             inputMessageTextViewDelegate.invalidateTextViewSize()
             callTextViewDidChange()
-            viewModel.createConversationIfNeeded()
-            handleMessageBubbleCreation(messageText: trimmedString)
+
+            if !viewModel.conversationExists { viewModel.setupConversation() }
+            
+            createMessageBubble()
             closeInputBarHeaderView()
         }
     }
@@ -668,7 +671,7 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                 
                 let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 
-                self?.handleMessageBubbleCreation()
+                self?.createMessageBubble()
                 self?.viewModel.handleImageDrop(imageData: downsampledImage, size: imageSize)
             }
         }

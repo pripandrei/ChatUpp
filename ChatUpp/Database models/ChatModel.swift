@@ -186,8 +186,8 @@ class Chat: Object, Codable
 
     
     var members: [User] {
-        let participants = Array( participants.map { $0.userID } )
-        let filter = NSPredicate(format: "id IN %@", argumentArray: participants)
+        let participantsID = Array( participants.map { $0.userID } )
+        let filter = NSPredicate(format: "id IN %@", argumentArray: participantsID)
         let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
         return users ?? []
     }

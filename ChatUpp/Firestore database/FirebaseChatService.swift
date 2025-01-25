@@ -37,6 +37,7 @@ final class FirebaseChatService {
         return chatsCollection.document(documentPath)
     }
     
+    @MainActor
     func createNewChat(chat: Chat) async throws {
         try chatDocument(documentPath: chat.id).setData(from: chat, merge: false)
     }
