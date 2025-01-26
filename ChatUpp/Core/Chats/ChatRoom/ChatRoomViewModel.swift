@@ -12,6 +12,8 @@ import UIKit
 
 class ChatRoomViewModel
 {
+    private var setupConversationTask: Task<Void, Never>?
+    
     private(set) var realmService: ConversationRealmService?
 //    private(set) var messageFetcher : ConversationMessageFetcher
     private(set) var firestoreService: ConversationFirestoreService?
@@ -199,6 +201,21 @@ class ChatRoomViewModel
     
     var chatParticipants: [ChatParticipant] = []
     
+    func setupConversation()
+    {
+        guard let chat = createChat() else {return}
+        
+        self.conversation = chat
+        realmService?.addChatToRealm(chat)
+        
+        let freezedChat = chat.freeze()
+        
+        self.setupConversationTask = Task(priority: .high) { @MainActor in
+            await firestoreService?.addChatToFirestore(freezedChat)
+            setupMessageListenerOnChatCreation()
+        }
+    }
+    
     private func createNewMessage(_ messageBody: String) -> Message {
         Message(
             id: UUID().uuidString,
@@ -224,26 +241,12 @@ class ChatRoomViewModel
         
         // Remote updates
         Task { @MainActor in
+            await setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
             await firestoreService?.addMessageToFirestoreDataBase(message)
             await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
         
         resetCurrentReplyMessageIfNeeded()
-    }
-    
-    func setupConversation()
-    {
-        guard let chat = createChat() else {return}
-        
-        self.conversation = chat
-        realmService?.addChatToRealm(chat)
-        
-        let freezedChat = chat.freeze()
-        
-        Task(priority: .high) { @MainActor in
-            await firestoreService?.addChatToFirestore(freezedChat)
-            setupMessageListenerOnChatCreation()
-        }
     }
     
     private func setupMessageListenerOnChatCreation()
