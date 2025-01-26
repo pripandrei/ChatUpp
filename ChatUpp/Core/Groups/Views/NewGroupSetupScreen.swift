@@ -33,14 +33,7 @@ struct NewGroupSetupScreen: View
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 Task { @MainActor in
-                    guard let group = try await viewModel.finishGroupCreation() else {return}
-                    let chatRoomVM = ChatRoomViewModel(conversation: group)
-                    Utilities.windowRoot?.dismiss(animated: true)
-                    Task { @MainActor in
-                        try await Task.sleep(for: .seconds(1.0))
-                        coordinator.openConversationVC(conversationViewModel: chatRoomVM)
-                    }
-//                    coordinator.openConversationVC(conversationViewModel: chatRoomVM)
+                    await finishGroupCreation()
                 }
             } label: {
                 Text("Create")
@@ -154,6 +147,22 @@ extension NewGroupSetupScreen
     private func extractImageData() async -> Data?
     {
         return try? await self.profilePhotoItem?.loadTransferable(type: Data.self)
+    }
+    
+    private func finishGroupCreation() async
+    {
+        guard let group = viewModel.createGroup() else {return}
+        
+        do {
+            try await viewModel.finishGroupCreation(group)
+            
+            let chatRoomVM = ChatRoomViewModel(conversation: group)
+            Utilities.windowRoot?.dismiss(animated: true)
+            try await Task.sleep(for: .seconds(0.5))
+            coordinator.openConversationVC(conversationViewModel: chatRoomVM)
+        } catch {
+            print("Could not create group: \(error)")
+        }
     }
 }
 

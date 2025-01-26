@@ -59,8 +59,7 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
 //MARK: - Group creation functions
 extension GroupCreationViewModel
 {
-    
-    private func createGroup() -> Chat?
+    func createGroup() -> Chat?
     {
         guard let authenticatedUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {return nil}
         
@@ -73,14 +72,14 @@ extension GroupCreationViewModel
     }
     
     @MainActor
-    func finishGroupCreation() async throws -> Chat?
+    func finishGroupCreation(_ group: Chat) async throws
     {
-        guard let group = createGroup() else {return nil}
+        self.groupID = group.id
+        
         try await FirebaseChatService.shared.createNewChat(chat: group)
         try await processImageSamples()
         RealmDataBase.shared.add(objects: selectedGroupMembers)
         RealmDataBase.shared.add(object: group)
-        return group
     }
 }
 
