@@ -297,12 +297,8 @@ extension ChatsViewController: UITableViewDelegate
         tableView.deselectRow(at: indexPath, animated: false)
         
         let cellVM = self.chatsViewModel.cellViewModels[indexPath.item]
-        
-        guard let user = cellVM.chatUser else {return}
-        
         let chat = cellVM.chat
-        let memberPhoto = cellVM.retrieveImageFromCache()
-        
+
         let conversationViewModel = ChatRoomViewModel(conversation: chat)
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
     }

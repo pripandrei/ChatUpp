@@ -50,7 +50,6 @@ class ChatsCell: UITableViewCell {
         self.cellViewModel = viewModel
         
         setupBinding()
-//        prepareImage()
     }
     
     private func setOnlineStatusActivity() {
@@ -76,12 +75,6 @@ class ChatsCell: UITableViewCell {
     
     private func setupBinding()
     {
-//        cellViewModel.imageDataUpdateSubject
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self]_ in
-////                self?.prepareImage()
-//            }.store(in: &subscriptions)
-//        
         cellViewModel.imageDataSubject
             .compactMap( { $0 } )
             .receive(on: DispatchQueue.main)
@@ -92,14 +85,14 @@ class ChatsCell: UITableViewCell {
         cellViewModel.$chatUser
             .receive(on: DispatchQueue.main)
             .sink { member in
-//                if let member = member {
-//                    self.stopSkeletonAnimationFor(self.nameLabel)
-//                    
-//                    if self.nameLabel.text != member.name {
-//                        self.nameLabel.text = member.name
-//                    }
-//                    self.setOnlineStatusActivity()
-//                }
+                if let member = member {
+                    self.stopSkeletonAnimationFor(self.nameLabel)
+                    
+                    if self.nameLabel.text != member.name {
+                        self.nameLabel.text = member.name
+                    }
+                    self.setOnlineStatusActivity()
+                }
             }.store(in: &subscriptions)
         
         cellViewModel.$chat
@@ -143,22 +136,7 @@ class ChatsCell: UITableViewCell {
     }
     
     //MARK: - Image setup
-    
-//    private func prepareImage()
-//    {
-//        guard let member = cellViewModel.chatUser else { return }
-//        
-//        if member.photoUrl == nil {
-//            /// set local/default image
-//            setImage()
-//            return
-//        }
-//        if let imageData = cellViewModel.retrieveImageFromCache() {
-//            /// set fetched image
-//            setImage(imageData)
-//        }
-//    }
-    
+
     private func setImage(_ imageData: Data? = nil)
     {
         Task { @MainActor in

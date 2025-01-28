@@ -16,7 +16,6 @@ class ChatCellViewModel
 //    private var userObserver: RealtimeObservable?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     private var cancellables = Set<AnyCancellable>()
-//    private(set) var imageDataUpdateSubject = PassthroughSubject<Void,Never>()
     private(set) var imageDataSubject = PassthroughSubject<Data?,Never>()
     
     @Published private(set) var chatUser: User?
@@ -141,7 +140,8 @@ extension ChatCellViewModel {
     {
         self.unreadMessageCount = try retrieveAuthParticipant().unseenMessagesCount
         self.recentMessage = try retrieveRecentMessage()
-        self.chatUser = try retrieveMember()
+        
+        if !chat.isGroup { self.chatUser = try retrieveMember() }
     }
     
     private func retrieveMember() throws -> User 
@@ -187,36 +187,28 @@ extension ChatCellViewModel
     @MainActor
     private func fetchDataFromFirestore() async
     {
-        do {
-//            async let loadRecentMessage = await loadRecentMessage()
-            self.recentMessage = await loadRecentMessage()
+        self.recentMessage = await loadRecentMessage()
+        
+        if !chat.isGroup
+        {
+            self.chatUser = await loadOtherMemberOfChat()
             
-            if !chat.isGroup
+            if profileImageChanged
             {
-                self.chatUser = await loadOtherMemberOfChat()
-                
-                if profileImageChanged
-                {
-                    try await performImageDataUpdate()
-                }
+                await performImageDataUpdate()
             }
-//            async let loadUser          = await loadOtherMemberOfChat()
-            
-//            (recentMessage, chatUser)   = await (loadRecentMessage, loadUser)
-            
-//            if profileImageChanged { try await performImageDataUpdate() }
-            
-        } catch {
-            print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
     }
     
-    private func performImageDataUpdate() async throws
+    private func performImageDataUpdate() async
     {
-        guard let imageData = try await fetchImageData() else {return}
-        await cacheImageData(imageData)
-//        self.imageDataUpdateSubject.send()
-        self.imageDataSubject.send(imageData)
+        do {
+            guard let imageData = try await fetchImageData() else {return}
+            await cacheImageData(imageData)
+            self.imageDataSubject.send(imageData)
+        } catch {
+            print("Could not perform image data update: ", error)
+        }
     }
     
     @MainActor
