@@ -59,6 +59,10 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
 //MARK: - Group creation functions
 extension GroupCreationViewModel
 {
+//    func createRecentMessage() {
+//        
+//    }
+    
     func createGroup() -> Chat?
     {
         guard let authenticatedUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {return nil}

@@ -11,17 +11,19 @@ import Kingfisher
 
 class ChatCellViewModel
 {
-    private(set) var chat: Chat
+    @Published private(set) var chat: Chat
 //    private var usersListener: Listener?
 //    private var userObserver: RealtimeObservable?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     private var cancellables = Set<AnyCancellable>()
-    private(set) var imageDataUpdateSubject = PassthroughSubject<Void,Never>()
+//    private(set) var imageDataUpdateSubject = PassthroughSubject<Void,Never>()
+    private(set) var imageDataSubject = PassthroughSubject<Data?,Never>()
     
     @Published private(set) var chatUser: User?
     @Published private(set) var recentMessage: Message?
     @Published private(set) var unreadMessageCount: Int?
     
+    @Published private(set) var titleName: String?
     
     init(chat: Chat) {
         self.chat = chat
@@ -57,27 +59,27 @@ class ChatCellViewModel
     @MainActor
     private func cacheImageData(_ data: Data)
     {
-        if let path = profileImageThumbnailPath {
+        if let path = imageThumbnailPath {
             CacheManager.shared.saveImageData(data, toPath: path)
         }
     }
     
-    func retrieveProfileImageFromCache() -> Data?
+    func retrieveImageFromCache() -> Data?
     {
-        guard let userProfilePhotoURL = profileImageThumbnailPath else { return nil }
-        return CacheManager.shared.retrieveImageData(from: userProfilePhotoURL)
+        guard let photoURL = imageThumbnailPath else { return nil }
+        return CacheManager.shared.retrieveImageData(from: photoURL)
     }
 }
 
 //MARK: - Computed properties
 extension ChatCellViewModel
 {
-    private var profileImageThumbnailPath: String?
+    private var imageThumbnailPath: String?
     {
-//        let thumbnailString = "_" + ImageSample.SizeKey.small.rawValue
-        let thumbnailString = "_" + "thumbnail"
-        let path = chatUser?.photoUrl?.replacingOccurrences(of: ".jpg", with: "\(thumbnailString).jpg")
-        return path
+        guard let originalURL = chat.isGroup ? chat.thumbnailURL : chatUser?.photoUrl else {
+            return nil
+        }
+        return originalURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
     }
     
     private var profileImageChanged: Bool
@@ -102,6 +104,8 @@ extension ChatCellViewModel
 
 extension ChatCellViewModel {
     
+    // TODO:  add aditional update chekers
+    // or better, add listener to chat realm and apply needed code to different update field scenario
     func updateChatParameters()
     {
         if findMemberID() != chatUser?.id {
@@ -184,12 +188,24 @@ extension ChatCellViewModel
     private func fetchDataFromFirestore() async
     {
         do {
-            async let loadRecentMessage = await loadRecentMessage()
-            async let loadUser          = await loadOtherMemberOfChat()
+//            async let loadRecentMessage = await loadRecentMessage()
+            self.recentMessage = await loadRecentMessage()
             
-            (recentMessage, chatUser)   = await (loadRecentMessage, loadUser)
+            if !chat.isGroup
+            {
+                self.chatUser = await loadOtherMemberOfChat()
+                
+                if profileImageChanged
+                {
+                    try await performImageDataUpdate()
+                }
+            }
+//            async let loadUser          = await loadOtherMemberOfChat()
             
-            if profileImageChanged { try await performImageDataUpdate() }
+//            (recentMessage, chatUser)   = await (loadRecentMessage, loadUser)
+            
+//            if profileImageChanged { try await performImageDataUpdate() }
+            
         } catch {
             print("Could not fetch ChatCellVM data from Firestore: ", error.localizedDescription)
         }
@@ -199,7 +215,8 @@ extension ChatCellViewModel
     {
         guard let imageData = try await fetchImageData() else {return}
         await cacheImageData(imageData)
-        self.imageDataUpdateSubject.send()
+//        self.imageDataUpdateSubject.send()
+        self.imageDataSubject.send(imageData)
     }
     
     @MainActor
@@ -228,11 +245,11 @@ extension ChatCellViewModel
 
     func fetchImageData() async throws -> Data? 
     {
-        guard let user = self.chatUser,
-              let userProfilePhotoURL = profileImageThumbnailPath else {
-            return nil
-        }
-        let photoData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: userProfilePhotoURL)
+        guard let thumbnailURL = imageThumbnailPath else { return nil }
+        
+        let storagePathType: StoragePathType = chat.isGroup ? .group(chat.id) : .user(chatUser?.id ?? "Unknown")
+        
+        let photoData = try await FirebaseStorageManager.shared.getImage(from: storagePathType, imagePath: thumbnailURL)
         return photoData
     }
 }
@@ -256,18 +273,6 @@ extension ChatCellViewModel {
                     }
                 }
             }).store(in: &cancellables)
-//        {
-//            
-//            [weak self] realtimeDBUser in
-//            
-//            if realtimeDBUser.isActive != self?.chatUser?.isActive
-//            {
-//                if let date = realtimeDBUser.lastSeen, let isActive = realtimeDBUser.isActive 
-//                {
-//                    self?.chatUser = self?.chatUser?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
-//                }
-//            }
-//        }
     }
     
     /// Listen to user from Firestore db
@@ -283,16 +288,6 @@ extension ChatCellViewModel {
                     self?.chatUser = userUpdateObject.data
                 }
             }).store(in: &cancellables)
-        
-//        {
-//            
-//            [weak self] users, documentsTypes in
-//            guard let self = self else {return}
-//            // since we are listening only for one user here
-//            // we can just get the first user and docType
-//            guard let docType = documentsTypes.first, let user = users.first, docType == .modified else {return}
-//            self.chatUser = user
-//        }
     }
 }
 

@@ -50,7 +50,7 @@ class ChatsCell: UITableViewCell {
         self.cellViewModel = viewModel
         
         setupBinding()
-        prepareImage()
+//        prepareImage()
     }
     
     private func setOnlineStatusActivity() {
@@ -76,22 +76,42 @@ class ChatsCell: UITableViewCell {
     
     private func setupBinding()
     {
-        cellViewModel.imageDataUpdateSubject
+//        cellViewModel.imageDataUpdateSubject
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self]_ in
+////                self?.prepareImage()
+//            }.store(in: &subscriptions)
+//        
+        cellViewModel.imageDataSubject
+            .compactMap( { $0 } )
             .receive(on: DispatchQueue.main)
-            .sink { [weak self]_ in
-                self?.prepareImage()
+            .sink { [weak self] imageData in
+                self?.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$chatUser
             .receive(on: DispatchQueue.main)
             .sink { member in
-                if let member = member {
+//                if let member = member {
+//                    self.stopSkeletonAnimationFor(self.nameLabel)
+//                    
+//                    if self.nameLabel.text != member.name {
+//                        self.nameLabel.text = member.name
+//                    }
+//                    self.setOnlineStatusActivity()
+//                }
+            }.store(in: &subscriptions)
+        
+        cellViewModel.$chat
+            .receive(on: DispatchQueue.main)
+            .sink { chat in
+                if chat.isGroup {
                     self.stopSkeletonAnimationFor(self.nameLabel)
+                    self.nameLabel.text = chat.name
                     
-                    if self.nameLabel.text != member.name {
-                        self.nameLabel.text = member.name
-                    }
-                    self.setOnlineStatusActivity()
+                    var imageData: Data?
+                    imageData = self.cellViewModel.retrieveImageFromCache()
+                    self.setImage(imageData)
                 }
             }.store(in: &subscriptions)
         
@@ -124,20 +144,20 @@ class ChatsCell: UITableViewCell {
     
     //MARK: - Image setup
     
-    private func prepareImage()
-    {
-        guard let member = cellViewModel.chatUser else { return }
-        
-        if member.photoUrl == nil {
-            /// set local/default image
-            setImage()
-            return
-        }
-        if let imageData = cellViewModel.retrieveProfileImageFromCache() {
-            /// set fetched image
-            setImage(imageData)
-        }
-    }
+//    private func prepareImage()
+//    {
+//        guard let member = cellViewModel.chatUser else { return }
+//        
+//        if member.photoUrl == nil {
+//            /// set local/default image
+//            setImage()
+//            return
+//        }
+//        if let imageData = cellViewModel.retrieveImageFromCache() {
+//            /// set fetched image
+//            setImage(imageData)
+//        }
+//    }
     
     private func setImage(_ imageData: Data? = nil)
     {
@@ -145,7 +165,8 @@ class ChatsCell: UITableViewCell {
             stopSkeletonAnimationFor(profileImage)
             
             guard let imageData = imageData else {
-                self.profileImage.image = UIImage(named: "default_profile_photo")
+                let defaultImageName = cellViewModel.chat.isGroup ? "default_group_photo" : "default_profile_photo"
+                self.profileImage.image = UIImage(named: defaultImageName)
                 return
             }
             let image = UIImage(data: imageData)

@@ -155,7 +155,7 @@ class Chat: Object, Codable
     func getMessages() -> [Message] {
         return Array(conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false))
     }
-
+    
     func getLastMessage() -> Message? {
         return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false).first
     }
@@ -183,7 +183,7 @@ class Chat: Object, Codable
         }
         return "Unknown"
     }
-
+    
     
     var members: [User] {
         let participantsID = Array( participants.map { $0.userID } )
@@ -192,8 +192,12 @@ class Chat: Object, Codable
         return users ?? []
     }
     
+//    var isGroup: Bool {
+//        participants.count > 2
+//    }
+    
     var isGroup: Bool {
-        participants.count > 2
+        return name != nil
     }
     
 //    func incrementMessageCount() {

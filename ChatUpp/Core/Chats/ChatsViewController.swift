@@ -152,7 +152,7 @@ class ChatsViewController: UIViewController {
             return ResultsCellViewModel(
                 memberUser: user,
                 chat: chatCell.chat,
-                imageData: chatCell.retrieveProfileImageFromCache(),
+                imageData: chatCell.retrieveImageFromCache(),
                 unreadMessageCount: chatCell.unreadMessageCount
             )
         }
@@ -301,7 +301,7 @@ extension ChatsViewController: UITableViewDelegate
         guard let user = cellVM.chatUser else {return}
         
         let chat = cellVM.chat
-        let memberPhoto = cellVM.retrieveProfileImageFromCache()
+        let memberPhoto = cellVM.retrieveImageFromCache()
         
         let conversationViewModel = ChatRoomViewModel(conversation: chat)
         coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
