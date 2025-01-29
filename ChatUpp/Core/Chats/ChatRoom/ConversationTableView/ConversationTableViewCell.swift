@@ -76,22 +76,26 @@ final class ConversationTableViewCell: UITableViewCell
 //        
         cellViewModel.$message
             .receive(on: DispatchQueue.main)
+            .compactMap({ $0 })
             .sink { [weak self] message in
-                
-                guard let message = message else {return}
-                
-                if message.messageBody != "" {
-                    self?.messageLabel.attributedText = self?.makeAttributedString(for: message)
-                    self?.handleMessageBubbleLayout()
-                    return
-                }
-                
-                guard let imagePath = message.imagePath else {return}
-                let url = URL(string: imagePath)
-                self?.messageImage?.kf.setImage(with: url)
-                self?.configureImageAttachment()
-                
+                self?.setupCell()
             }.store(in: &subscribers)
+    }
+    
+    private func setupCell()
+    {
+        guard let message = cellViewModel.message else {return}
+        
+        if message.messageBody != "" {
+            messageLabel.attributedText = makeAttributedString(for: message)
+            handleMessageBubbleLayout()
+            return
+        }
+        
+        guard let imagePath = cellViewModel.message?.imagePath else {return}
+        let url = URL(string: imagePath)
+        messageImage?.kf.setImage(with: url)
+        configureImageAttachment()
     }
     
     
@@ -106,8 +110,9 @@ final class ConversationTableViewCell: UITableViewCell
         self.timeStamp.text = viewModel.timestamp
         self.setupReplyMessage()
         self.setupEditedLabel()
-        self.setupBinding()
+//        self.setupBinding()
         self.adjustMessageSide()
+        self.setupCell()
         
 //        if viewModel.message?.messageBody != "" {
 //            self.messageLabel.attributedText = self.makeAttributedStringForMessage()

@@ -108,9 +108,9 @@ extension ChatCellViewModel {
     // or better, add listener to chat realm and apply needed code to different update field scenario
     func updateChatParameters()
     {
-        if findMemberID() != chatUser?.id {
-            Task { await updateUserAfterDeletion() }
-        }
+//        if findMemberID() != chatUser?.id {
+//            Task { await updateUserAfterDeletion() }
+//        }
         if chat.recentMessageID != recentMessage?.id {
             Task {
                 recentMessage = await loadRecentMessage()

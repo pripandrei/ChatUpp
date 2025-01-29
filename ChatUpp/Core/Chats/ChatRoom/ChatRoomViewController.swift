@@ -549,7 +549,7 @@ extension ChatRoomViewController {
 
             if !viewModel.conversationExists { viewModel.setupConversation() }
             
-            createMessageBubble()
+            createMessageBubble(from: trimmedString)
             closeInputBarHeaderView()
         }
     }

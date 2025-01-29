@@ -121,6 +121,9 @@ extension ChatsViewModel
     {
         RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
             dbChat.recentMessageID = chat.recentMessageID
+            dbChat.name = chat.name
+            dbChat.thumbnailURL = chat.thumbnailURL
+            dbChat.admins = chat.admins
             
             chat.participants.forEach { participant in
                 if let existingParticipant = dbChat.participants.first(where: { $0.userID == participant.userID})
