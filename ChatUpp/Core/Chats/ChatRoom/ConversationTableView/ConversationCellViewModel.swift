@@ -6,16 +6,23 @@
 //
 
 import Foundation
+import Combine
 
-enum ConversationCellType {
-    case message(content: ConversationCellViewModel)
-    case unseenMessagesTitle
-}
+//enum ConversationCellType {
+//    case message(content: ConversationCellViewModel)
+//    case unseenMessagesTitle
+//}
 
 final class ConversationCellViewModel
 {    
     @Published var imageData: Data?
-    var message: Message?
+    var imageDataSubject = PassthroughSubject<Data?, Never>() {
+        didSet {
+            print("data send")
+        }
+    }
+    
+    @Published var message: Message?
     var messageToBeReplied: Message?
     var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
     
@@ -57,6 +64,11 @@ final class ConversationCellViewModel
         return nil
     }
     
+    private func cacheImage(data: Data)
+    {
+        guard let path = message?.imagePath else {return}
+        CacheManager.shared.saveImageData(data, toPath: path)
+    }
 //
 //    func editMessageTextFromFirestore(_ messageText: String, from chatID: String) {
 //        Task {

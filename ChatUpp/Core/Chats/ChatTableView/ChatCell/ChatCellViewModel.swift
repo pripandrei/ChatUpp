@@ -44,13 +44,14 @@ class ChatCellViewModel
         }
     }
     
-    private func addDataToRealm() {
-        
-        guard let member = chatUser else {return}
-        
+    private func addDataToRealm()
+    {
         Task { @MainActor in
-            RealmDataBase.shared.add(object: member)
             addMessageToRealm()
+            
+            guard let member = chatUser else {return}
+            
+            RealmDataBase.shared.add(object: member)
         }
     }
     
@@ -67,6 +68,12 @@ class ChatCellViewModel
     {
         guard let photoURL = imageThumbnailPath else { return nil }
         return CacheManager.shared.retrieveImageData(from: photoURL)
+    }
+    
+    /// other (not self) member in private chat if any
+    ///
+    private func findMemberID() -> String? {
+        return chat.participants.first(where: { $0.userID != authUser.uid } )?.userID
     }
 }
 
@@ -87,15 +94,9 @@ extension ChatCellViewModel
         return self.chatUser?.photoUrl != dbUser?.photoUrl
     }
     
-    private func findMemberID() -> String? {
-        return chat.participants.first(where: { $0.userID != authUser.uid } )?.userID
-    }
-    
     var isRecentMessagePresent: Bool?
     {
-        guard chatUser != nil else { return nil }
-        if let _ = chat.recentMessageID { return true }
-        return false
+        return chat.recentMessageID != nil
     }
 }
 
@@ -169,9 +170,13 @@ extension ChatCellViewModel {
         throw NSError(domain: "com.chatUpp.retrieve.participant.error", code: 1, userInfo: [NSLocalizedDescriptionKey: "Auth participant is missing"])
     }
     
-    private func addMessageToRealm() {
-        if let recentMessage = recentMessage,
-            !chat.conversationMessages.contains(where: { $0.id == recentMessage.id} )
+    private func addMessageToRealm()
+    {
+        guard let recentMessage = recentMessage else {return}
+        
+        RealmDataBase.shared.add(object: recentMessage)
+        
+        if !chat.conversationMessages.contains(where: { $0.id == recentMessage.id} )
         {
             RealmDataBase.shared.update(object: chat) { chat in
                 chat.conversationMessages.append(recentMessage)
@@ -188,7 +193,7 @@ extension ChatCellViewModel
     private func fetchDataFromFirestore() async
     {
         self.recentMessage = await loadRecentMessage()
-        
+ 
         if !chat.isGroup
         {
             self.chatUser = await loadOtherMemberOfChat()

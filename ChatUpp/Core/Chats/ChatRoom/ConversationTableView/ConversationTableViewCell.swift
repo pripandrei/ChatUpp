@@ -9,6 +9,7 @@ import UIKit
 import YYText
 import Combine
 import SkeletonView
+import Kingfisher
 
 final class ConversationTableViewCell: UITableViewCell
 {
@@ -16,7 +17,7 @@ final class ConversationTableViewCell: UITableViewCell
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     private var messageLabelTopConstraints: NSLayoutConstraint!
     
-    private var messageImage: UIImage?
+    private var messageImage: UIImageView?
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
     private var subscribers = Set<AnyCancellable>()
@@ -64,15 +65,35 @@ final class ConversationTableViewCell: UITableViewCell
     ///
     private func setupBinding()
     {
-        cellViewModel.$imageData
+//        cellViewModel.$imageData
+//            .receive(on: DispatchQueue.main)
+//            .sink(receiveValue: { [weak self] data in
+//                guard let data = data else {return}
+//                if data == self?.cellViewModel.imageData {
+//                    self?.configureImageAttachment(data: data)
+//                }
+//            }).store(in: &subscribers)
+//        
+        cellViewModel.$message
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] data in
-                guard let data = data else {return}
-                if data == self?.cellViewModel.imageData {
-                    self?.configureImageAttachment(data: data)
+            .sink { [weak self] message in
+                
+                guard let message = message else {return}
+                
+                if message.messageBody != "" {
+                    self?.messageLabel.attributedText = self?.makeAttributedString(for: message)
+                    self?.handleMessageBubbleLayout()
+                    return
                 }
-            }).store(in: &subscribers)
+                
+                guard let imagePath = message.imagePath else {return}
+                let url = URL(string: imagePath)
+                self?.messageImage?.kf.setImage(with: url)
+                self?.configureImageAttachment()
+                
+            }.store(in: &subscribers)
     }
+    
     
     /// - cell configuration
     ///
@@ -88,12 +109,12 @@ final class ConversationTableViewCell: UITableViewCell
         self.setupBinding()
         self.adjustMessageSide()
         
-        if viewModel.message?.messageBody != "" {
-            self.messageLabel.attributedText = self.makeAttributedStringForMessage()
-            self.handleMessageBubbleLayout()
-            return
-        }
-        configureImageAttachment(data: viewModel.imageData)
+//        if viewModel.message?.messageBody != "" {
+//            self.messageLabel.attributedText = self.makeAttributedStringForMessage()
+//            self.handleMessageBubbleLayout()
+//            return
+//        }
+//        configureImageAttachment(data: viewModel.imageData)
     }
     
     private func configureMessageSeenStatus()
@@ -108,10 +129,8 @@ final class ConversationTableViewCell: UITableViewCell
         seenStatusMark.attributedText = imageAttributedString
     }
     
-    private func makeAttributedStringForMessage() -> NSAttributedString?
+    private func makeAttributedString(for message: Message) -> NSAttributedString?
     {
-        guard let message = cellViewModel.message else {return nil}
-        
         let attributes: [NSAttributedString.Key : Any] =
         [
             .font: UIFont(name: "Helvetica", size: 17)!,
@@ -323,8 +342,8 @@ extension ConversationTableViewCell
 // MARK: - HANDLE IMAGE OF MESSAGE SETUP
 extension ConversationTableViewCell
 {
-    private func configureImageAttachment(data: Data?) {
-        setMessageImage(imageData: data)
+    private func configureImageAttachment(data: Data? = nil) {
+//        setMessageImage(imageData: data)
         setMessageImageSize()
         setMessageLabelAttributedTextImage()
         setupTimestampBackgroundForImage()
@@ -333,9 +352,9 @@ extension ConversationTableViewCell
 
     private func setMessageImage(imageData: Data?) {
         if let imageData = imageData, let image = convertDataToImage(imageData) {
-            messageImage = image
+            messageImage?.image = image
         } else {
-            messageImage = UIImage()
+            messageImage?.image = UIImage()
             cellViewModel.fetchImageData()
         }
     }
@@ -344,12 +363,12 @@ extension ConversationTableViewCell
         if let cellImageSize = cellViewModel.message?.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             let testSize = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
-            messageImage = messageImage?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
+            messageImage?.image = messageImage?.image?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
         }
     }
 
     private func setMessageLabelAttributedTextImage() {
-        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: messageImage, contentMode: .center, attachmentSize: messageImage!.size, alignTo: UIFont(name: "Helvetica", size: 17)!, alignment: .center)
+        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: messageImage, contentMode: .center, attachmentSize: messageImage!.image!.size, alignTo: UIFont(name: "Helvetica", size: 17)!, alignment: .center)
 
         messageLabel.attributedText = imageAttributedString
     }
