@@ -401,8 +401,8 @@ extension ChatRoomViewController {
     
     private func createMessageBubble(from messageText: String = "")
     {
+
         viewModel.manageMessageCreation(messageText)
-        
         Task { @MainActor in
             handleTableViewCellInsertion(scrollToBottom: true)
         }
@@ -671,8 +671,10 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                 
                 let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 
-                self?.createMessageBubble()
-                self?.viewModel.handleImageDrop(imageData: downsampledImage, size: imageSize)
+                Task { @MainActor in
+                    self?.createMessageBubble()
+                    self?.viewModel.handleImageDrop(imageData: downsampledImage, size: imageSize)                    
+                }
             }
         }
     }

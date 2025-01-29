@@ -60,7 +60,8 @@ class ChatRoomViewModel
         guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
             return false
         }
-        return ( authParticipantUnreadMessagesCount != realmService?.getUnreadMessagesCountFromRealm() ) || isChatFetchedFirstTime
+        let unreadMessagesCount = realmService?.getUnreadMessagesCountFromRealm()
+        return ( authParticipantUnreadMessagesCount != unreadMessagesCount ) || isChatFetchedFirstTime
     }
     
 //    var participant: User?
@@ -380,8 +381,12 @@ class ChatRoomViewModel
     
     func handleImageDrop(imageData: Data, size: MessageImageSize)
     {
-        self.lastMessageItem?.imageData = imageData
-        self.lastMessageItem?.message?.imageSize = size
+//        self.lastMessageItem?.imageData = imageData
+        if let message = lastMessageItem?.message {
+            RealmDataBase.shared.update(object: message) { message in
+                message.imageSize = size
+            }
+        }
         self.saveImage(data: imageData, size: size)
     }
     
@@ -389,8 +394,9 @@ class ChatRoomViewModel
     {
         guard let conversation = conversation else {return}
         guard let message = lastMessageItem?.message else {return}
-        
-        Task {
+        Task { @MainActor in
+            // create image path an pass to saveImage
+            // or consider creating firstly image and from returned path create than message 
             let imageMetaData = try await FirebaseStorageManager
                 .shared
                 .saveImage(data: data, to: .message(message.id))

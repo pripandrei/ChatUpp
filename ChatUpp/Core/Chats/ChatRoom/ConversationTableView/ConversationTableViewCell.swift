@@ -17,7 +17,7 @@ final class ConversationTableViewCell: UITableViewCell
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     private var messageLabelTopConstraints: NSLayoutConstraint!
     
-    private var messageImage: UIImageView?
+    private var messageImage: UIImage?
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
     private var subscribers = Set<AnyCancellable>()
@@ -65,37 +65,98 @@ final class ConversationTableViewCell: UITableViewCell
     ///
     private func setupBinding()
     {
-//        cellViewModel.$imageData
-//            .receive(on: DispatchQueue.main)
-//            .sink(receiveValue: { [weak self] data in
-//                guard let data = data else {return}
-//                if data == self?.cellViewModel.imageData {
-//                    self?.configureImageAttachment(data: data)
-//                }
-//            }).store(in: &subscribers)
-//        
+        cellViewModel.imageDataSubject
+            .receive(on: DispatchQueue.main)
+            .compactMap({ $0 })
+            .sink(receiveValue: { [weak self] imageData in
+                //                if data == self?.cellViewModel.imageData {
+                self?.messageImage = UIImage(data: imageData)
+                self?.configureImageAttachment(data: imageData)
+                //                }
+            }).store(in: &subscribers)
+        //
         cellViewModel.$message
             .receive(on: DispatchQueue.main)
             .compactMap({ $0 })
             .sink { [weak self] message in
-                self?.setupCell()
+                self?.setupCellData(with: message)
             }.store(in: &subscribers)
     }
     
-    private func setupCell()
+    private func setupCellData(with message: Message)
     {
-        guard let message = cellViewModel.message else {return}
-        
         if message.messageBody != "" {
             messageLabel.attributedText = makeAttributedString(for: message)
             handleMessageBubbleLayout()
             return
         }
         
-        guard let imagePath = cellViewModel.message?.imagePath else {return}
-        let url = URL(string: imagePath)
-        messageImage?.kf.setImage(with: url)
-        configureImageAttachment()
+        guard let imagePath = message.imagePath else {return}
+        
+        if let imageData = cellViewModel.retrieveImageData()
+        {
+            messageImage = UIImage(data: imageData)
+            self.configureImageAttachment()
+        } else
+        {
+            cellViewModel.fetchImageData()
+//            Task {
+//                guard let imageData = try await cellViewModel.fetchImageData() else {return}
+//                cellViewModel.cacheImage(data: imageData)
+//                messageImage = UIImage(data: imageData)
+//                self.configureImageAttachment()
+//            }
+        }
+        
+//        ImageCache.default.retrieveImage(forKey: imagePath, options: .none, callbackQueue: .mainCurrentOrAsync) { result in
+//            switch result {
+//            case .success(let value):
+//                Task { @MainActor in
+//                    self.messageImage?.image = value.image
+//                    self.configureImageAttachment()
+//                }
+//            default: break
+//            }
+//        }
+        
+//        Task { @MainActor in
+//            let cachedImage = try await ImageCache.default.retrieveImage(forKey: imagePath)
+//            
+//            if let image = cachedImage.image
+//            {
+//                if imagePath == cellViewModel.message?.imagePath
+//                {
+//                    self.messageImage?.image = image
+//                    self.configureImageAttachment()
+//                }
+//            } else {
+//                guard let url = try await cellViewModel.getImagePathURL() else {return}
+//                let resource = KF.ImageResource(downloadURL: url, cacheKey: imagePath)
+//                self.messageImage?.kf.setImage(with: resource) { result in
+//                    switch result {
+//                    case .success(_): self.configureImageAttachment()
+//                    default: break
+//                    }
+//                }
+//            }
+//        }
+        
+//        ImageCache.default.retrieveImage(forKey: imagePath) { result in
+//            switch result {
+//            case .success(let value): self.messageImage?.image = value.image
+//            case .failure(let error): print(error, "error")
+//            }
+//        }
+//        
+//        let url = URL(string: imagePath)
+//        messageImage?.kf.setImage(with: url) { result in
+//            switch result {
+//            case .success(let value): print(value, "value image")
+//                self.configureImageAttachment()
+//            case .failure(let error): print(error, "error")
+//            }
+//        }
+//        configureImageAttachment()
     }
     
     
@@ -110,9 +171,12 @@ final class ConversationTableViewCell: UITableViewCell
         self.timeStamp.text = viewModel.timestamp
         self.setupReplyMessage()
         self.setupEditedLabel()
-//        self.setupBinding()
+        self.setupBinding()
         self.adjustMessageSide()
-        self.setupCell()
+        
+        if let message = viewModel.message {
+            self.setupCellData(with: message)
+        }
         
 //        if viewModel.message?.messageBody != "" {
 //            self.messageLabel.attributedText = self.makeAttributedStringForMessage()
@@ -162,6 +226,11 @@ final class ConversationTableViewCell: UITableViewCell
         editedLabel?.text = nil
         replyMessageLabel.removeFromSuperview()
         applyMessagePadding(strategy: .initial)
+        
+        subscribers.forEach { subscriber in
+            subscriber.cancel()
+        }
+        subscribers.removeAll()
         
         // Layout with no animation to hide resizing animation of cells on keyboard show/hide
         // or any other table view content offset change
@@ -355,25 +424,33 @@ extension ConversationTableViewCell
         applyMessagePadding(strategy: .image)
     }
 
-    private func setMessageImage(imageData: Data?) {
-        if let imageData = imageData, let image = convertDataToImage(imageData) {
-            messageImage?.image = image
-        } else {
-            messageImage?.image = UIImage()
-            cellViewModel.fetchImageData()
-        }
-    }
+//    private func setMessageImage(imageData: Data?)
+//    {
+////        guard let imageData = cellViewModel.retrieveImageData() else {
+////            cellViewModel.fetchImageData()
+////            return
+////        }
+////        
+////        messageImage?.image = UIImage(data: imageData)
+//        
+//        if let imageData = imageData, let image = convertDataToImage(imageData) {
+//            messageImage?.image = image
+//        } else {
+//            messageImage?.image = UIImage()
+//            cellViewModel.fetchImageData()
+//        }
+//    }
 
     private func setMessageImageSize() {
         if let cellImageSize = cellViewModel.message?.imageSize {
             let cgSize = CGSize(width: cellImageSize.width, height: cellImageSize.height)
             let testSize = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
-            messageImage?.image = messageImage?.image?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
+            messageImage = messageImage?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
         }
     }
 
     private func setMessageLabelAttributedTextImage() {
-        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: messageImage, contentMode: .center, attachmentSize: messageImage!.image!.size, alignTo: UIFont(name: "Helvetica", size: 17)!, alignment: .center)
+        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: messageImage, contentMode: .center, attachmentSize: messageImage!.size, alignTo: UIFont(name: "Helvetica", size: 17)!, alignment: .center)
 
         messageLabel.attributedText = imageAttributedString
     }

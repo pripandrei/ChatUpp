@@ -15,12 +15,15 @@ import Combine
 
 final class ConversationCellViewModel
 {    
-    @Published var imageData: Data?
-    var imageDataSubject = PassthroughSubject<Data?, Never>() {
-        didSet {
-            print("data send")
-        }
-    }
+//    @Published var imageData: Data?
+    var imageDataSubject = PassthroughSubject<Data?, Never>()
+//    {
+//        didSet {
+//            print("data send")
+//        }
+//    }
+    
+    @Published var imagePathURL: URL?
     
     @Published var message: Message?
     var messageToBeReplied: Message?
@@ -43,16 +46,42 @@ final class ConversationCellViewModel
         return hoursAndMinutes
     }
 
+//    @MainActor
+//    func fetchImageData() {
+//        guard let message = message else {return}
+//        Task {
+//            do {
+////                self.imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
+//                self.imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
+//            } catch {
+//                print("Error fetching image from storage: ", error)
+//            }
+//        }
+    //    }
+    
+//    @MainActor
+//    func fetchImageData() async throws -> Data? {
+//        guard let message = message else {return nil}
+//        return try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
+//    }
+    
     @MainActor
     func fetchImageData() {
         guard let message = message else {return}
         Task {
-            do {
-                self.imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
-            } catch {
-                print("Error fetching image from storage: ", error)
-            }
+            let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
+            cacheImage(data: imageData)
+            imageDataSubject.send(imageData)
         }
+    }
+    
+    @MainActor
+    func getImagePathURL() async throws -> URL?
+    {
+        guard let message = self.message,
+                let imagePath = message.imagePath else {return nil}
+        let url = try await FirebaseStorageManager.shared.getImageURL(from: .message(message.id), imagePath: imagePath)
+        return url
     }
     
     func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification? {
@@ -64,10 +93,16 @@ final class ConversationCellViewModel
         return nil
     }
     
-    private func cacheImage(data: Data)
+    func cacheImage(data: Data)
     {
         guard let path = message?.imagePath else {return}
         CacheManager.shared.saveImageData(data, toPath: path)
+    }
+    
+    func retrieveImageData() -> Data?
+    {
+        guard let path = message?.imagePath else {return nil}
+        return CacheManager.shared.retrieveImageData(from: path)
     }
 //
 //    func editMessageTextFromFirestore(_ messageText: String, from chatID: String) {
