@@ -437,12 +437,13 @@ extension ChatRoomViewController {
             return
         } else {
             UIView.performWithoutAnimation {
-                if self.rootView.tableView.visibleCells.isEmpty {
-                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+//                if self.rootView.tableView.visibleCells.isEmpty {
+//                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+                self.rootView.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .none)
                     self.rootView.tableView.reloadData()
-                } else {
-                    self.rootView.tableView.reloadData()
-                }
+//                } else {
+//                    self.rootView.tableView.reloadData()
+//                }
             }
         }
     }
@@ -493,7 +494,8 @@ extension ChatRoomViewController
         }
     }
     
-    private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool {
+    private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool
+    {
         let message = viewModel.messageClusters[indexPath.section].items[indexPath.row].message
         let authUserID = viewModel.authUser.uid
         
