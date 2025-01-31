@@ -216,19 +216,20 @@ final class ChatRoomViewController: UIViewController
     
     private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
     {
-        rootView.tableView.performBatchUpdates {
             for changeType in changes
             {
-                switch changeType {
-                case .modified(let indexPath, let modifiedValue):
-                    self.reloadCellRow(at: indexPath, with: modifiedValue.animationType)
+                switch changeType
+                {
                 case .added:
                     self.handleTableViewCellInsertion(scrollToBottom: false)
                 case .removed(let removedIndex):
-                    self.reloadTableWithCrossDissolve(at: removedIndex)
+                    rootView.tableView.performBatchUpdates { self.reloadTableWithCrossDissolve(at: removedIndex) }
+                case .modified(let indexPath, let modifiedValue):
+                    rootView.tableView.performBatchUpdates {
+                        self.reloadCellRow(at: indexPath, with: modifiedValue.animationType)
+                    }
                 }
             }
-        }
     }
     
     //MARK: - Keyboard notification observers
@@ -408,7 +409,8 @@ extension ChatRoomViewController {
         }
     }
     
-    private func handleTableViewCellInsertion(with indexPath: IndexPath = IndexPath(row: 0, section: 0), scrollToBottom: Bool)
+    private func handleTableViewCellInsertion(with indexPath: IndexPath = IndexPath(row: 0, section: 0),
+                                              scrollToBottom: Bool)
     {
         isNewSectionAdded = checkIfNewSectionWasAdded()
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
@@ -437,13 +439,14 @@ extension ChatRoomViewController {
             return
         } else {
             UIView.performWithoutAnimation {
+                if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections {
 //                if self.rootView.tableView.visibleCells.isEmpty {
-//                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-                self.rootView.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .none)
-                    self.rootView.tableView.reloadData()
-//                } else {
+                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
 //                    self.rootView.tableView.reloadData()
-//                }
+                } else {
+                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+                    self.rootView.tableView.reloadData()
+                }
             }
         }
     }
