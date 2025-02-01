@@ -516,9 +516,9 @@ extension ChatRoomViewModel
         else { return }
         
         realmService?.updateMessage(message)
-        if message.senderId == authUser.uid {
+//        if message.senderId == authUser.uid {
             messageChangedTypes.append(.modified(indexPath, modificationValue))
-        }
+//        }
     }
     
     private func handleRemovedMessage(_ message: Message)

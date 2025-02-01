@@ -111,12 +111,20 @@ extension ChatCellViewModel {
 //        if findMemberID() != chatUser?.id {
 //            Task { await updateUserAfterDeletion() }
 //        }
-        if chat.recentMessageID != recentMessage?.id {
-            Task {
-                recentMessage = await loadRecentMessage()
-                await MainActor.run { addMessageToRealm() }
+        if recentMessage?.isInvalidated == true {
+            if chat.recentMessageID != recentMessage?.id {
+                Task {
+                    recentMessage = await loadRecentMessage()
+                    await MainActor.run { addMessageToRealm() }
+                }
             }
         }
+//        if chat.recentMessageID != recentMessage?.id {
+//            Task {
+//                recentMessage = await loadRecentMessage()
+//                await MainActor.run { addMessageToRealm() }
+//            }
+//        }
     }
 
     /// - updated user after deletion
