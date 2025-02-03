@@ -325,10 +325,15 @@ class ChatRoomViewModel
     /// @MainActor
     func findFirstUnseenMessageIndex() -> IndexPath?
     {
-        guard let unseenMessage = RealmDataBase.shared.retrieveObjects(ofType: Message.self)?
+        guard let unseenMessage = conversation?.conversationMessages
             .filter("messageSeen == false AND senderId != %@", authUser.uid)
             .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
             .first else { return nil }
+        
+//        guard let unseenMessage = RealmDataBase.shared.retrieveObjects(ofType: Message.self)?
+//            .filter("messageSeen == false AND senderId != %@", authUser.uid)
+//            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
+//            .first else { return nil }
 
         for (groupIndex, messageGroup) in messageClusters.enumerated()
         {
