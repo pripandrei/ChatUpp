@@ -242,6 +242,8 @@ final class ConversationMessageListenerService
 {
     private let conversation: Chat?
     private var listeners: [Listener] = []
+    
+    private var cancellables: Set<AnyCancellable> = []
 
     private(set) var updatedMessage = PassthroughSubject<DatabaseChangedObject<Message>,Never>()
 
@@ -271,6 +273,27 @@ final class ConversationMessageListenerService
         }
     }
     
+    func addListenerToExistingMessages(startAtMesssageWithID messageID: String, ascending: Bool, limit: Int = 100)
+    {
+        guard let conversationID = conversation?.id else { return }
+        
+        Task { @MainActor in
+            try await FirebaseChatService.shared.addListenerForExistingMessages(
+                inChat: conversationID,
+                startAtMessageWithID: messageID,
+                ascending: ascending,
+                limit: limit)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] messageUpdate in
+                    guard let self = self else {return}
+                    self.updatedMessage.send(messageUpdate)
+                }.store(in: &cancellables)
+        }
+    }
+    
+    // TODO:
+    // Refactore code to fit version of function above
+    // and remove this function
     func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 100)
     {
         guard let conversationID = conversation?.id else { return }
@@ -282,7 +305,6 @@ final class ConversationMessageListenerService
             limit: limit) { [weak self] messageUpdate in
                 guard let self = self else {return}
                 self.updatedMessage.send(messageUpdate)
-
             }
         listeners.append(listener)
     }

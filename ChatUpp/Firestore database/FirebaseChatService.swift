@@ -315,6 +315,43 @@ extension FirebaseChatService
     }
     
     func addListenerForExistingMessages(inChat chatID: String,
+                                        startAtMessageWithID messageID: String,
+                                        ascending: Bool,
+                                        limit: Int) async throws -> AnyPublisher<DatabaseChangedObject<Message>, Never>
+    {
+        let subject = PassthroughSubject<DatabaseChangedObject<Message>, Never>()
+        
+        let document = try await chatsCollection.document(chatID)
+            .collection(FirestoreCollection.messages.rawValue)
+            .document(messageID)
+            .getDocument()
+        
+        
+        let listener = chatDocument(documentPath: chatID)
+            .collection(FirestoreCollection.messages.rawValue)
+            .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
+            .start(atDocument: document)
+            .limit(to: limit)
+            .addSnapshotListener { snapshot, error in
+                guard error == nil else { print(error!.localizedDescription); return }
+                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
+                
+                for document in documents {
+                    guard let message = try? document.document.data(as: Message.self) else { continue }
+                    let object = DatabaseChangedObject(data: message, changeType: document.type)
+                    subject.send(object)
+                }
+            }
+        
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
+    }
+    
+    // TODO:
+    // Refactore code to fit async version of function above
+    // and remove this function
+    func addListenerForExistingMessages(inChat chatID: String,
                                         startAtTimestamp startTimestamp: Date,
                                         ascending: Bool,
                                         limit: Int,

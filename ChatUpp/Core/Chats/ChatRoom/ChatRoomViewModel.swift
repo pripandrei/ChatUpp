@@ -102,7 +102,6 @@ class ChatRoomViewModel
 //        self.chatUser = conversationUser
 //        self.memberProfileImage = imageData
         self.unseenMessagesCount = conversation?.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
-        print(members)
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
         self.userListenerService = ConversationUserListinerService(chatUsers: members)
@@ -147,7 +146,8 @@ class ChatRoomViewModel
               let limit = conversation?.conversationMessages.count else {return}
         
         messageListenerService?.addListenerToUpcomingMessages()
-        messageListenerService?.addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
+//        messageListenerService?.addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
+        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startMessage.id, ascending: true, limit: limit)
     }
     
     func removeAllListeners() 
