@@ -111,7 +111,7 @@ extension ChatCellViewModel {
 //        if findMemberID() != chatUser?.id {
 //            Task { await updateUserAfterDeletion() }
 //        }
-        if recentMessage?.isInvalidated == true {
+        if recentMessage?.isInvalidated == false {
             if chat.recentMessageID != recentMessage?.id {
                 Task {
                     recentMessage = await loadRecentMessage()
