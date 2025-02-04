@@ -146,7 +146,6 @@ class ChatRoomViewModel
               let limit = conversation?.conversationMessages.count else {return}
         
         messageListenerService?.addListenerToUpcomingMessages()
-//        messageListenerService?.addListenerToExistingMessages(startAtTimestamp: startMessage.timestamp, ascending: true, limit: limit)
         messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startMessage.id, ascending: true, limit: limit)
     }
     
@@ -474,6 +473,7 @@ extension ChatRoomViewModel
     private func bindToMessages()
     {
         messageListenerService?.updatedMessage
+            .receive(on: DispatchQueue.main)
             .sink { messageType in
                 let message = messageType.data
 
@@ -494,9 +494,9 @@ extension ChatRoomViewModel
         // If message exists, just update it
         guard realmService?.retrieveMessageFromRealm(message) == nil else
         {
-            Task { @MainActor in
-                realmService?.updateMessage(message)
-            }
+//            Task { 
+//                realmService?.updateMessage(message)
+//            }
             return
         }
         // Handle new message

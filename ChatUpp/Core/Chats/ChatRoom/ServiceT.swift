@@ -178,6 +178,10 @@ final class ConversationUserListinerService
         self.chatUsers = chatUsers
     }
     
+    func removeSubscribers() {
+        cancellables.forEach { $0.cancel() }
+    }
+    
     /// - Temporary fix while firebase functions are deactivated
     ///
     ///
@@ -254,6 +258,9 @@ final class ConversationMessageListenerService
     func removeAllListeners()
     {
         listeners.forEach{ $0.remove() }
+        cancellables.forEach { subscriber in
+            subscriber.cancel()
+        }
     }
     
     func addListenerToUpcomingMessages()
@@ -277,17 +284,16 @@ final class ConversationMessageListenerService
     {
         guard let conversationID = conversation?.id else { return }
         
-        Task { @MainActor in
+        Task {
             try await FirebaseChatService.shared.addListenerForExistingMessages(
                 inChat: conversationID,
                 startAtMessageWithID: messageID,
                 ascending: ascending,
                 limit: limit)
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] messageUpdate in
-                    guard let self = self else {return}
-                    self.updatedMessage.send(messageUpdate)
-                }.store(in: &cancellables)
+            .sink { [weak self] messageUpdate in
+                guard let self = self else {return}
+                self.updatedMessage.send(messageUpdate)
+            }.store(in: &cancellables)
         }
     }
     

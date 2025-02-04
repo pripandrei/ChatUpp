@@ -216,8 +216,9 @@ final class ChatRoomViewController: UIViewController
     
     private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
     {
-        var modifiedIndexPaths: [IndexPath] = []
+        var modifiedIndexPathsOriginal: [IndexPath] = []
         var removedIndexPaths: [IndexPath] = []
+        var modifiedIndexPaths: (path: [IndexPath], animation: [UITableView.RowAnimation]) = ([],[])
         
         for changeType in changes
         {
@@ -227,15 +228,43 @@ final class ChatRoomViewController: UIViewController
                 self.handleTableViewCellInsertion(scrollToBottom: false)
             case .removed(let removedIndex):
                 removedIndexPaths.append(removedIndex)
-            case .modified(let indexPath, _):
-                modifiedIndexPaths.append(indexPath)
+            case .modified(let indexPath, let valueModification):
+                modifiedIndexPaths.path.append(indexPath)
+//                modifiedIndexPathsOriginal.append(indexPath)
+                modifiedIndexPaths.animation.append(valueModification.animationType)
             }
         }
 
-        if !modifiedIndexPaths.isEmpty {
+        if !modifiedIndexPaths.path.isEmpty {
             rootView.tableView.performBatchUpdates
             {
-                self.rootView.tableView.reloadRows(at: modifiedIndexPaths, with: .automatic)
+//                var seenStatusPaths: [IndexPath] = []
+//                var updateStatusPaths: [IndexPath] = []
+//                for (index, indexPath) in modifiedIndexPaths.path.enumerated() {
+//                    if modifiedIndexPaths.animation[index] == .none {
+//                        seenStatusPaths.append(indexPath)
+//                    }
+//                    if modifiedIndexPaths.animation[index] == .right {
+//                        updateStatusPaths.append(indexPath)
+//                    }
+//                }
+          
+
+//                self.rootView.tableView.reloadRows(at: modifiedIndexPaths.path, with: modifiedIndexPaths.animation)
+//                self.rootView.tableView.reloadRows(at: seenStatusPaths, with: .automatic)
+//                self.rootView.tableView.reloadRows(at: updateStatusPaths, with: .right)
+//                UIView.performWithoutAnimation {
+                
+//                for (index, indexPath) in modifiedIndexPaths.path.enumerated() {
+//                    if modifiedIndexPaths.animation[index] == .none {
+//                        self.rootView.tableView.reloadRows(at: [indexPath], with: .none)
+//                    }
+//                    if modifiedIndexPaths.animation[index] == .right {
+//                        self.rootView.tableView.reloadRows(at: [indexPath], with: .right)
+//                    }
+//                }
+                self.rootView.tableView.reloadRows(at: modifiedIndexPaths.path, with: modifiedIndexPaths.animation.first ?? .none)
+//                }
             }
         }
         
