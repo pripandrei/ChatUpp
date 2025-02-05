@@ -56,10 +56,12 @@ class ChatRoomViewModel
         conversation?.getFirstMessage()
     }
     
-    var shouldFetchNewMessages: Bool {
+    var shouldFetchNewMessages: Bool
+    {
         guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
             return false
         }
+
         let unreadMessagesCount = realmService?.getUnreadMessagesCountFromRealm()
         return ( authParticipantUnreadMessagesCount != unreadMessagesCount ) || isChatFetchedFirstTime
     }
