@@ -494,7 +494,8 @@ extension ChatRoomViewController {
 //MARK: - Message seen status handler
 extension ChatRoomViewController 
 {
-    private func updateMessageSeenStatusIfNeeded() {
+    private func updateMessageSeenStatusIfNeeded()
+    {
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
 
         for indexPath in visibleIndices {
@@ -502,7 +503,9 @@ extension ChatRoomViewController
                   checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
                 continue
             }
-            cell.cellViewModel.updateRealmMessageSeenStatus()
+            
+            let isGroup = viewModel.conversation?.isGroup ?? false
+            cell.cellViewModel.updateRealmMessageSeenStatus(by: isGroup ? viewModel.authUser.uid : nil)
             
             Task { @MainActor in
                 await viewModel.updateMessageSeenStatus(from: cell.cellViewModel)

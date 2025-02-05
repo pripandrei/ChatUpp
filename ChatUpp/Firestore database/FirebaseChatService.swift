@@ -177,6 +177,16 @@ extension FirebaseChatService
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
+    func updateMessageSeenStatus(by userID: String,
+                                 messageID: String,
+                                 chatID: String) async throws
+    {
+        let data: [String: [Any]] = [
+            Message.CodingKeys.seenBy.rawValue : [userID]
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
+    }
+    
     func updateChatRecentMessage(recentMessageID: String ,chatID: String) async throws {
         let data: [String: Any] = [
             Chat.CodingKeys.recentMessageID.rawValue : recentMessageID

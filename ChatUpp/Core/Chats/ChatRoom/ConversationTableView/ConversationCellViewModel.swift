@@ -102,19 +102,29 @@ final class ConversationCellViewModel
 extension ConversationCellViewModel
 {
     @MainActor
-    func updateFirestoreMessageSeenStatus(from chatID: String) async {
+    func updateFirestoreMessageSeenStatus(by userID: String? = nil, from chatID: String) async {
         guard let message = message else {return}
         do {
-            try await FirebaseChatService.shared.updateMessageSeenStatus(messageID: message.id, chatID: chatID)
+            guard let userID = userID else {
+                try await FirebaseChatService.shared.updateMessageSeenStatus(messageID: message.id, chatID: chatID)
+                return
+            }
+            try await FirebaseChatService.shared.updateMessageSeenStatus(by: userID, messageID: message.id, chatID: chatID)
         } catch {
             print("Error updating message seen status in Firestore: ", error.localizedDescription)
         }
     }
     
-    func updateRealmMessageSeenStatus() {
+    func updateRealmMessageSeenStatus(by userID: String? = nil)
+    {
         guard let message = message else {return}
+        
         RealmDataBase.shared.update(object: message) { message in
-            message.messageSeen = true
+            if let id = userID {
+                message.seenBy.append(id)
+            } else {
+                message.messageSeen = true
+            }
         }
     }
 }

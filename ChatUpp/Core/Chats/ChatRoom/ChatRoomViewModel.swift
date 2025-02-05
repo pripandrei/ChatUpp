@@ -202,13 +202,17 @@ class ChatRoomViewModel
         }
     }
     
-    private func createNewMessage(_ messageBody: String) -> Message {
-        Message(
+    private func createNewMessage(_ messageBody: String) -> Message
+    {
+        let isGroupChat = conversation?.isGroup == true
+        
+        return Message(
             id: UUID().uuidString,
             messageBody: messageBody,
             senderId: authUser.uid,
             timestamp: Date(),
-            messageSeen: false,
+            messageSeen: isGroupChat ? nil : false,
+            seenBy: isGroupChat ? [] : nil,
             isEdited: false,
             imagePath: nil,
             imageSize: nil,
@@ -298,7 +302,9 @@ class ChatRoomViewModel
     func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
     {
         guard let chatID = conversation?.id else { return }
-        await cellViewModel.updateFirestoreMessageSeenStatus(from: chatID)
+        
+        let isGroup = conversation?.isGroup ?? false
+        await cellViewModel.updateFirestoreMessageSeenStatus(by: isGroup ? authUser.uid : nil, from: chatID)
     }
     
     func clearMessageChanges() {
