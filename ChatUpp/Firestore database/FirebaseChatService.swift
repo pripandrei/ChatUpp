@@ -181,8 +181,8 @@ extension FirebaseChatService
                                  messageID: String,
                                  chatID: String) async throws
     {
-        let data: [String: [Any]] = [
-            Message.CodingKeys.seenBy.rawValue : [userID]
+        let data: [String: Any] = [
+            Message.CodingKeys.seenBy.rawValue: FieldValue.arrayUnion([userID])
         ]
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
