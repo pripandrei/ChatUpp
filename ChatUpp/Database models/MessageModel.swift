@@ -50,8 +50,9 @@ class Message: Object, Codable
     @Persisted var messageBody: String
     @Persisted var senderId: String
     @Persisted var timestamp: Date
-    @Persisted var messageSeen: Bool
     @Persisted var isEdited: Bool
+    @Persisted var messageSeen: Bool?
+    @Persisted var seenBy: List<String>
     @Persisted var imagePath: String?
     @Persisted var repliedTo: String?
     
@@ -64,6 +65,7 @@ class Message: Object, Codable
         case imagePath = "image_path"
         case timestamp = "timestamp"
         case messageSeen = "message_seen"
+        case seenBy = "seen_by"
         case imageSize = "image_size"
         case isEdited = "is_edited"
         case repliedTo = "replied_to"
@@ -78,10 +80,13 @@ class Message: Object, Codable
         self.senderId = try container.decode(String.self, forKey: .senderId)
         self.imagePath = try container.decodeIfPresent(String.self, forKey: .imagePath)
         self.timestamp = try container.decode(Date.self, forKey: .timestamp)
-        self.messageSeen = try container.decode(Bool.self, forKey: .messageSeen)
+        self.messageSeen = try container.decodeIfPresent(Bool.self, forKey: .messageSeen)
         self.isEdited = try container.decode(Bool.self, forKey: .isEdited)
         self.imageSize = try container.decodeIfPresent(MessageImageSize.self, forKey: .imageSize)
         self.repliedTo = try container.decodeIfPresent(String.self, forKey: .repliedTo)
+        
+        let seenBy = try container.decodeIfPresent([String].self, forKey: .seenBy)
+        self.seenBy.append(objectsIn: seenBy ?? [])
     }
     
     func encode(to encoder: Encoder) throws {
@@ -91,21 +96,25 @@ class Message: Object, Codable
         try container.encode(self.senderId, forKey: .senderId)
         try container.encodeIfPresent(self.imagePath, forKey: .imagePath)
         try container.encode(self.timestamp, forKey: .timestamp)
-        try container.encode(self.messageSeen, forKey: .messageSeen)
+        try container.encodeIfPresent(self.messageSeen, forKey: .messageSeen)
         try container.encode(self.isEdited, forKey: .isEdited)
         try container.encodeIfPresent(self.imageSize, forKey: .imageSize)
         try container.encodeIfPresent(self.repliedTo, forKey: .repliedTo)
+        
+        let seenBy = Array(self.seenBy)
+        try container.encodeIfPresent(seenBy, forKey: .seenBy)
     }
     
     convenience init(id: String,
-         messageBody: String,
-         senderId: String,
-         timestamp: Date,
-         messageSeen: Bool,
-         isEdited: Bool,
-         imagePath: String?,
-         imageSize: MessageImageSize?,
-         repliedTo: String?
+                     messageBody: String,
+                     senderId: String,
+                     timestamp: Date,
+                     messageSeen: Bool?,
+                     seenBy: [String]? = nil,
+                     isEdited: Bool,
+                     imagePath: String?,
+                     imageSize: MessageImageSize?,
+                     repliedTo: String?
     )
     {
         
@@ -117,6 +126,7 @@ class Message: Object, Codable
         self.imagePath = imagePath
         self.timestamp = timestamp
         self.messageSeen = messageSeen
+        self.seenBy.append(objectsIn: seenBy ?? [])
         self.imageSize = imageSize
         self.isEdited = isEdited
         self.repliedTo = repliedTo

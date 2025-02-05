@@ -189,8 +189,8 @@ final class ConversationTableViewCell: UITableViewCell
     private func configureMessageSeenStatus()
     {
         guard let message = cellViewModel.message else {return}
-        let iconSize = message.messageSeen ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
-        let seenStatusIcon = message.messageSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
+        let iconSize = message.messageSeen == true ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
+        let seenStatusIcon = message.messageSeen == true ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
         guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
         
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
