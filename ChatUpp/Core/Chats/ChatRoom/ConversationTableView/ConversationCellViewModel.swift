@@ -14,15 +14,9 @@ import Combine
 //}
 
 final class ConversationCellViewModel
-{    
-//    @Published var imageData: Data?
+{
     var imageDataSubject = PassthroughSubject<Data?, Never>()
-//    {
-//        didSet {
-//            print("data send")
-//        }
-//    }
-    
+
     @Published var imagePathURL: URL?
     
     @Published var message: Message?
@@ -46,25 +40,6 @@ final class ConversationCellViewModel
         return hoursAndMinutes
     }
 
-//    @MainActor
-//    func fetchImageData() {
-//        guard let message = message else {return}
-//        Task {
-//            do {
-////                self.imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
-//                self.imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
-//            } catch {
-//                print("Error fetching image from storage: ", error)
-//            }
-//        }
-    //    }
-    
-//    @MainActor
-//    func fetchImageData() async throws -> Data? {
-//        guard let message = message else {return nil}
-//        return try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
-//    }
-    
     @MainActor
     func fetchImageData() {
         guard let message = message else {return}

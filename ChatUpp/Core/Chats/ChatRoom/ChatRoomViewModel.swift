@@ -79,16 +79,12 @@ class ChatRoomViewModel
 //        return users ?? []
 //    }
 //    
-    var members: [User] {
+    var members: [User]
+    {
         guard let conversation = conversation else { return [] }
         
-        // Convert participants to an array of user IDs
         let participantsID = Array( conversation.participants.map { $0.userID } )
-        
-        // Ensure array is properly formatted for NSPredicate
         let filter = NSPredicate(format: "id IN %@", participantsID)
-        
-        // Retrieve users from Realm
         let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
         
         return users ?? []
@@ -104,7 +100,7 @@ class ChatRoomViewModel
         self.unseenMessagesCount = conversation?.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
-        self.userListenerService = ConversationUserListinerService(chatUsers: members)
+        self.userListenerService = ConversationUserListinerService(chatUsers: self.members)
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
 //        self.messageFetcher = ConversationMessageFetcher(conversation: conversation!, firestoreService: firestoreService)
         
@@ -186,19 +182,7 @@ class ChatRoomViewModel
             isFirstTimeOpened: false
         )
     }
-//    
-//    static func createChat(with participants: [ChatParticipant]) -> Chat
-//    {
-//        let chatId = UUID().uuidString
-//        return Chat(
-//            id: chatId,
-//            participants: participants,
-//            recentMessageID: nil,
-//            messagesCount: nil,
-//            isFirstTimeOpened: false
-//        )
-//    }
-    
+
     var chatParticipants: [ChatParticipant] = []
     
     func setupConversation()
@@ -380,7 +364,6 @@ class ChatRoomViewModel
     
     func handleImageDrop(imageData: Data, size: MessageImageSize)
     {
-//        self.lastMessageItem?.imageData = imageData
         if let message = lastMessageItem?.message {
             RealmDataBase.shared.update(object: message) { message in
                 message.imageSize = size
@@ -511,9 +494,7 @@ extension ChatRoomViewModel
         else { return }
         
         realmService?.updateMessage(message)
-//        if message.senderId == authUser.uid {
-            messageChangedTypes.append(.modified(indexPath, modificationValue))
-//        }
+        messageChangedTypes.append(.modified(indexPath, modificationValue))
     }
     
     private func handleRemovedMessage(_ message: Message)
@@ -670,17 +651,9 @@ extension ChatRoomViewModel
         return (newRows, newSections)
     }
     
-//    private func getStartMessageForFetching(ascendingOrder: Bool) -> Message? {
-//        guard let startMessage = ascendingOrder
-//                ? messageClusters.first?.items.first?.message
-//                : messageClusters.last?.items.last?.message else {return nil}
-//        return startMessage
-//    }
-    
     @MainActor
     func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)? {
         
-//        guard let startFromMessage = getStartMessageForFetching(ascendingOrder: order) else {return nil}
         let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
         guard !newMessages.isEmpty else { return nil }
         
