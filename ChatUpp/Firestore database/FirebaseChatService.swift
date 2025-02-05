@@ -319,7 +319,6 @@ extension FirebaseChatService
                                         ascending: Bool,
                                         limit: Int) async throws -> AnyPublisher<DatabaseChangedObject<Message>, Never>
     {
-//        let subject = PassthroughSubject<[DatabaseChangedObject<Message>], Never>()
         let subject = PassthroughSubject<DatabaseChangedObject<Message>, Never>()
         
         let document = try await chatsCollection.document(chatID)
@@ -337,15 +336,11 @@ extension FirebaseChatService
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
                 
-//                var objects: [DatabaseChangedObject<Message>] = []
                 for document in documents {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
                     let object = DatabaseChangedObject(data: message, changeType: document.type)
-//                    objects.append(object)
-//                    print("Entered !!! ")
                     subject.send(object)
                 }
-//                subject.send(objects)
             }
         
         return subject

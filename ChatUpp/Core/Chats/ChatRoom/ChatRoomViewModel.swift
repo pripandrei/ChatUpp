@@ -492,13 +492,8 @@ extension ChatRoomViewModel
 {
     private func handleAddedMessage(_ message: Message) {
         // If message exists, just update it
-        guard realmService?.retrieveMessageFromRealm(message) == nil else
-        {
-//            Task { 
-//                realmService?.updateMessage(message)
-//            }
-            return
-        }
+        guard realmService?.retrieveMessageFromRealm(message) == nil else { return }
+        
         // Handle new message
         realmService?.addMessageToRealmChat(message)
         // TODO: - if chat unseen message counter is heigher than local unseen count,

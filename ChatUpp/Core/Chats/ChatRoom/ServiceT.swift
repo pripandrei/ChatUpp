@@ -185,7 +185,8 @@ final class ConversationUserListinerService
     /// - Temporary fix while firebase functions are deactivated
     ///
     ///
-    func addUserObserver() {
+    func addUserObserver()
+    {
         let userPublishers = chatUsers.map { user in
             RealtimeUserService.shared.addObserverToUsers(user.id)
         }
