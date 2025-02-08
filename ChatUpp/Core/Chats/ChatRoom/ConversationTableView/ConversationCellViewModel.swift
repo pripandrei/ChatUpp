@@ -39,7 +39,18 @@ final class ConversationCellViewModel
         let hoursAndMinutes = message?.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
     }
-
+    
+    lazy var messageSender: User? = {
+        guard let key = message?.senderId else {return nil}
+        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+    }()
+    
+    var isReplayToMessage: Bool {
+        guard senderNameOfMessageToBeReplied != nil,
+              textOfMessageToBeReplied != nil else {return false}
+        return true
+    }
+    
     @MainActor
     func fetchImageData() {
         guard let message = message else {return}

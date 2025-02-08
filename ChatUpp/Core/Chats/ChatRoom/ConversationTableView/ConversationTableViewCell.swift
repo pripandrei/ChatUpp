@@ -17,6 +17,8 @@ final class ConversationTableViewCell: UITableViewCell
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     private var messageLabelTopConstraints: NSLayoutConstraint!
     
+    private var messageSenderNameLabel: UILabel?
+    
     private var messageImage: UIImage?
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
@@ -162,13 +164,21 @@ final class ConversationTableViewCell: UITableViewCell
     
     /// - cell configuration
     ///
-    func configureCell(usingViewModel viewModel: ConversationCellViewModel, forSide side: MessageSide)
+    func configureCell(usingViewModel viewModel: ConversationCellViewModel,
+                       forSide side: MessageSide)
     {
         self.cleanupCellContent()
         
         self.cellViewModel = viewModel
         self.messageSide = side
         self.timeStamp.text = viewModel.timestamp
+        
+        if side == .left {
+            self.setupSenderNameLabel()
+        }
+        
+        self.setMessageLabelTopConstraints()
+        
         self.setupReplyMessage()
         self.setupEditedLabel()
         self.setupBinding()
@@ -228,6 +238,8 @@ final class ConversationTableViewCell: UITableViewCell
         timeStamp.textContainerInset = .zero
         editedLabel?.text = nil
         replyMessageLabel.removeFromSuperview()
+        messageSenderNameLabel?.removeFromSuperview()
+        messageSenderNameLabel = nil
         applyMessagePadding(strategy: .initial)
         
         subscribers.forEach { subscriber in
@@ -467,14 +479,17 @@ extension ConversationTableViewCell
 //MARK: - Reply message setup
 extension ConversationTableViewCell
 {
-    private func setupReplyMessage() {
-        if messageLabelTopConstraints != nil { messageLabelTopConstraints.isActive = false }
-        
-        guard let messageSenderName = cellViewModel.senderNameOfMessageToBeReplied, let messageText = cellViewModel.textOfMessageToBeReplied  else {
-            messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor)
-            messageLabelTopConstraints.isActive = true
+    private func setupReplyMessage()
+    {
+        guard let messageSenderName = cellViewModel.senderNameOfMessageToBeReplied,
+              let messageText = cellViewModel.textOfMessageToBeReplied else
+        {
+//            messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor)
+//            messageLabelTopConstraints.isActive = true
             return
         }
+        
+//        if messageLabelTopConstraints != nil { messageLabelTopConstraints.isActive = false }
         
         replyMessageLabel.attributedText = createReplyMessageAttributedText(with: messageSenderName, messageText: messageText)
         replyMessageLabel.numberOfLines = 2
@@ -484,11 +499,13 @@ extension ConversationTableViewCell
         replyMessageLabel.translatesAutoresizingMaskIntoConstraints = false
         messageBubbleContainer.addSubview(replyMessageLabel)
         
-        replyMessageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor, constant: 10).isActive = true
+        let topAnchor = messageSenderNameLabel == nil ? messageBubbleContainer.topAnchor : messageSenderNameLabel!.bottomAnchor
+        
+        replyMessageLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10).isActive = true
         replyMessageLabel.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor, constant: -10).isActive = true
         replyMessageLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
-        messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor)
-        messageLabelTopConstraints.isActive = true
+//        messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor)
+//        messageLabelTopConstraints.isActive = true
     }
     
     private func createReplyMessageAttributedText(with senderName: String, messageText: String) -> NSMutableAttributedString
@@ -501,8 +518,13 @@ extension ConversationTableViewCell
         
         return attributedText
     }
-    
+}
+
+//MARK: - Reply message label
+extension ConversationTableViewCell
+{
     /// Customized reply message to simplify left side indentation color fill and text inset
+    /// 
     class ReplyMessageLabel: UILabel
     {
         private let textInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 8)
@@ -568,6 +590,62 @@ class SkeletonViewCell: UITableViewCell
             customSkeletonView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             customSkeletonView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5)
         ])
+    }
+}
+
+//MARK: - message layout for group
+
+extension ConversationTableViewCell
+{
+    private func setupSenderNameLabel()
+    {
+        if messageSenderNameLabel == nil {
+            messageSenderNameLabel = UILabel()
+            messageBubbleContainer.addSubview(messageSenderNameLabel!)
+        }
+        
+        messageSenderNameLabel?.text = cellViewModel.messageSender?.name
+        messageSenderNameLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        messageSenderNameLabel?.textColor = #colorLiteral(red: 0.08701276034, green: 0.4072838724, blue: 0.2583613992, alpha: 1)
+        messageSenderNameLabel?.numberOfLines = 1
+        messageSenderNameLabel?.translatesAutoresizingMaskIntoConstraints = false
+//        messageSenderNameLabel?.backgroundColor = .orange
+        setupSenderNameLabelConstraints()
+    }
+     
+    private func setupSenderNameLabelConstraints()
+    {
+        guard let messageSenderNameLabel = messageSenderNameLabel else { return }
+        
+        messageSenderNameLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor, constant: 5).isActive = true
+        messageSenderNameLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
+        messageSenderNameLabel.widthAnchor.constraint(lessThanOrEqualTo: messageBubbleContainer.widthAnchor, multiplier: 0.80).isActive = true
+//        messageSenderNameLabel.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
+        
+//        messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor)
+//        messageLabelTopConstraints.isActive = true
+    }
+    
+    private func setMessageLabelTopConstraints()
+    {
+        if messageLabelTopConstraints != nil { messageLabelTopConstraints.isActive = false }
+        
+        if cellViewModel.isReplayToMessage
+        {
+            messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor)
+        }
+        else if messageSenderNameLabel != nil
+        {
+            let widthConstant = messageSenderNameLabel!.intrinsicContentSize.width * 1.2
+            messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageSenderNameLabel!.bottomAnchor, constant: -5)
+            messageBubbleContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
+//            messageBubbleContainer.widthAnchor.constraint(greaterThanOrEqualTo: messageSenderNameLabel!.widthAnchor, multiplier: 1.2).isActive = true
+        }
+        else if messageLabelTopConstraints == nil {
+            messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor)
+        }
+        
+        messageLabelTopConstraints.isActive = true
     }
 }
 
