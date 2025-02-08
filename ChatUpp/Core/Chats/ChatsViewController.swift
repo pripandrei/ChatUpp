@@ -43,6 +43,7 @@ class ChatsViewController: UIViewController {
         setupSearchController()
         chatsViewModel.activateOnDisconnect()
         setupNavigationBarItems()
+//        TestHelper.shared.downlaodUserAvatar()
     }
     
     override func viewDidAppear(_ animated: Bool) {

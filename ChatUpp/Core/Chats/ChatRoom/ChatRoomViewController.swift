@@ -94,11 +94,6 @@ final class ChatRoomViewController: UIViewController
         super.viewDidLoad()
         
         setupController()
-        // remove later
-//        Task {
-//            let user = try await FirestoreUserService.shared.getUserFromDB(userID: "DESg2qjjJPP20KQDWfKpJJnozv53")
-//            RealmDataBase.shared.add(object: user)
-//        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {

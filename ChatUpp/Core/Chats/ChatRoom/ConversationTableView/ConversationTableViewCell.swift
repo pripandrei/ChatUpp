@@ -644,6 +644,8 @@ extension ConversationTableViewCell
             messageSenderAvatar = UIImageView()
             messageBubbleContainer.addSubview(messageSenderAvatar!)
         }
+        messageSenderAvatar?.layer.cornerRadius = (messageLayoutConfiguration.avatarSize?.width ?? 40) / 2
+        messageSenderAvatar?.clipsToBounds = true
         messageSenderAvatar?.translatesAutoresizingMaskIntoConstraints = false
         setupSenderAvatarConstraints()
         
@@ -656,10 +658,10 @@ extension ConversationTableViewCell
         guard let messageSenderAvatar = messageSenderAvatar,
               let avatarSize = messageLayoutConfiguration.avatarSize else {return}
 
-        messageSenderAvatar.trailingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: -7).isActive = true
+        messageSenderAvatar.trailingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: -8).isActive = true
         messageSenderAvatar.widthAnchor.constraint(equalToConstant: avatarSize.width).isActive = true
         messageSenderAvatar.heightAnchor.constraint(equalToConstant: avatarSize.height).isActive = true
-        messageSenderAvatar.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
+        messageSenderAvatar.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3).isActive = true
     }
     
     private func setMessageLabelTopConstraints()
@@ -733,7 +735,7 @@ struct PrivateChatMessageLayout: MessageLayoutConfiguration
 
 struct GroupChatMessageLayout: MessageLayoutConfiguration
 {
-    var leadingConstraintConstant: CGFloat = 80
+    var leadingConstraintConstant: CGFloat = 52
     var shouldShowSenderName: Bool = true
     var shouldShowAvatar: Bool = true
     var avatarSize: CGSize? = CGSize(width: 40, height: 40)

@@ -132,3 +132,27 @@ class Message: Object, Codable
         self.repliedTo = repliedTo
     }
 }
+
+
+//MARK: - manager for fetching test data
+final class TestHelper
+{
+    static let shared = TestHelper()
+    
+    private init() {}
+    
+    func downloadUser() {
+        Task {
+            let user = try await FirestoreUserService.shared.getUserFromDB(userID: "DESg2qjjJPP20KQDWfKpJJnozv53")
+            RealmDataBase.shared.add(object: user)
+        }
+    }
+    
+    func downlaodUserAvatar() {
+        Task {
+            let path = "D131B2EF-2DCC-4483-BB1E-98F0B49014A0_small.jpeg"
+            let imageData = try await FirebaseStorageManager.shared.getImage(from: .user("DESg2qjjJPP20KQDWfKpJJnozv53"), imagePath: path)
+            CacheManager.shared.saveImageData(imageData, toPath: path)
+        }
+    }
+}
