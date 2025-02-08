@@ -47,7 +47,10 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         if let repliedToMessageID = message?.repliedTo {
             conversationViewModel.setReplyMessageData(fromReplyMessageID: repliedToMessageID, toViewModel: viewModel)
         }
-        cell.configureCell(usingViewModel: viewModel, forSide: cellSide)
+        
+        let chatType: ChatType = ((conversationViewModel.conversation?.isGroup) != nil) ? ._group : ._private
+        let messageLayoutConfiguration = MessageLayoutConfigurationFactory.makeConfiguration(for: chatType)
+        cell.configureCell(usingViewModel: viewModel, layoutConfiguration: messageLayoutConfiguration, forSide: cellSide)
 
         return cell
     }

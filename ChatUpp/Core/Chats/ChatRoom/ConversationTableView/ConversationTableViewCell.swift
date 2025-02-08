@@ -13,11 +13,14 @@ import Kingfisher
 
 final class ConversationTableViewCell: UITableViewCell
 {
+    private var messageLayoutConfiguration: MessageLayoutConfiguration!
+    
     private var messageContainerLeadingConstraint: NSLayoutConstraint!
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     private var messageLabelTopConstraints: NSLayoutConstraint!
     
     private var messageSenderNameLabel: UILabel?
+    private var messageSenderAvatar: UIImageView?
     
     private var messageImage: UIImage?
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
@@ -165,6 +168,7 @@ final class ConversationTableViewCell: UITableViewCell
     /// - cell configuration
     ///
     func configureCell(usingViewModel viewModel: ConversationCellViewModel,
+                       layoutConfiguration: MessageLayoutConfiguration,
                        forSide side: MessageSide)
     {
         self.cleanupCellContent()
@@ -172,9 +176,16 @@ final class ConversationTableViewCell: UITableViewCell
         self.cellViewModel = viewModel
         self.messageSide = side
         self.timeStamp.text = viewModel.timestamp
+        self.messageLayoutConfiguration = layoutConfiguration
         
-        if side == .left {
-            self.setupSenderNameLabel()
+        if side == .left
+        {
+            if layoutConfiguration.shouldShowSenderName {
+                self.setupSenderNameLabel()
+            }
+            if layoutConfiguration.shouldShowAvatar {
+                self.setupSenderAvatar()
+            }
         }
         
         self.setMessageLabelTopConstraints()
@@ -233,13 +244,16 @@ final class ConversationTableViewCell: UITableViewCell
         messageLabel.attributedText = nil
         timeStamp.text = nil
         timeStamp.backgroundColor = .clear
-        messageImage = nil
-        seenStatusMark.attributedText = nil
         timeStamp.textContainerInset = .zero
-        editedLabel?.text = nil
-        replyMessageLabel.removeFromSuperview()
         messageSenderNameLabel?.removeFromSuperview()
         messageSenderNameLabel = nil
+        messageImage = nil
+        messageSenderAvatar?.image = nil
+        messageSenderAvatar = nil
+        seenStatusMark.attributedText = nil
+        editedLabel?.text = nil
+        replyMessageLabel.removeFromSuperview()
+        
         applyMessagePadding(strategy: .initial)
         
         subscribers.forEach { subscriber in
@@ -283,6 +297,7 @@ extension ConversationTableViewCell
         messageBubbleContainer.addSubview(messageLabel)
         messageBubbleContainer.layer.cornerRadius = 15
         messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
+        
         messageBubbleContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         messageBubbleContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellSpacing).isActive = true
         messageBubbleContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
@@ -344,7 +359,9 @@ extension ConversationTableViewCell
     private func adjustMessageSide() {
         if messageContainerLeadingConstraint != nil { messageContainerLeadingConstraint.isActive = false }
         if messageContainerTrailingConstraint != nil { messageContainerTrailingConstraint.isActive = false }
-
+        
+        let leadingConstant = messageLayoutConfiguration.leadingConstraintConstant
+        
         switch messageSide {
         case .right:
             configureMessageSeenStatus()
@@ -355,7 +372,7 @@ extension ConversationTableViewCell
             messageContainerTrailingConstraint.isActive = true
             messageBubbleContainer.backgroundColor = #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
         case .left:
-            messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10)
+            messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: leadingConstant)
             messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
@@ -609,7 +626,6 @@ extension ConversationTableViewCell
         messageSenderNameLabel?.textColor = #colorLiteral(red: 0.08701276034, green: 0.4072838724, blue: 0.2583613992, alpha: 1)
         messageSenderNameLabel?.numberOfLines = 1
         messageSenderNameLabel?.translatesAutoresizingMaskIntoConstraints = false
-//        messageSenderNameLabel?.backgroundColor = .orange
         setupSenderNameLabelConstraints()
     }
      
@@ -620,10 +636,30 @@ extension ConversationTableViewCell
         messageSenderNameLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor, constant: 5).isActive = true
         messageSenderNameLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
         messageSenderNameLabel.widthAnchor.constraint(lessThanOrEqualTo: messageBubbleContainer.widthAnchor, multiplier: 0.80).isActive = true
-//        messageSenderNameLabel.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
+    }
+    
+    private func setupSenderAvatar()
+    {
+        if messageSenderAvatar == nil {
+            messageSenderAvatar = UIImageView()
+            messageBubbleContainer.addSubview(messageSenderAvatar!)
+        }
+        messageSenderAvatar?.translatesAutoresizingMaskIntoConstraints = false
+        setupSenderAvatarConstraints()
         
-//        messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor)
-//        messageLabelTopConstraints.isActive = true
+        guard let imageData = cellViewModel.retrieveSenderAvatarData() else {return }
+        messageSenderAvatar?.image = UIImage(data: imageData)
+    }
+    
+    private func setupSenderAvatarConstraints()
+    {
+        guard let messageSenderAvatar = messageSenderAvatar,
+              let avatarSize = messageLayoutConfiguration.avatarSize else {return}
+
+        messageSenderAvatar.trailingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: -7).isActive = true
+        messageSenderAvatar.widthAnchor.constraint(equalToConstant: avatarSize.width).isActive = true
+        messageSenderAvatar.heightAnchor.constraint(equalToConstant: avatarSize.height).isActive = true
+        messageSenderAvatar.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
     }
     
     private func setMessageLabelTopConstraints()
@@ -636,10 +672,8 @@ extension ConversationTableViewCell
         }
         else if messageSenderNameLabel != nil
         {
-            let widthConstant = messageSenderNameLabel!.intrinsicContentSize.width * 1.2
             messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageSenderNameLabel!.bottomAnchor, constant: -5)
             messageBubbleContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
-//            messageBubbleContainer.widthAnchor.constraint(greaterThanOrEqualTo: messageSenderNameLabel!.widthAnchor, multiplier: 1.2).isActive = true
         }
         else if messageLabelTopConstraints == nil {
             messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor)
@@ -681,5 +715,47 @@ extension ConversationTableViewCell
     }
 }
 
+protocol MessageLayoutConfiguration
+{
+    var shouldShowSenderName: Bool { get }
+    var shouldShowAvatar: Bool { get }
+    var avatarSize: CGSize? { get }
+    var leadingConstraintConstant: CGFloat { get }
+}
 
+struct PrivateChatMessageLayout: MessageLayoutConfiguration
+{
+    var leadingConstraintConstant: CGFloat = 10
+    var shouldShowSenderName: Bool = false
+    var shouldShowAvatar: Bool = false
+    var avatarSize: CGSize? = nil
+}
+
+struct GroupChatMessageLayout: MessageLayoutConfiguration
+{
+    var leadingConstraintConstant: CGFloat = 80
+    var shouldShowSenderName: Bool = true
+    var shouldShowAvatar: Bool = true
+    var avatarSize: CGSize? = CGSize(width: 40, height: 40)
+}
+
+
+enum MessageLayoutConfigurationFactory
+{
+    static func makeConfiguration(for chatType: ChatType) -> MessageLayoutConfiguration
+    {
+        switch chatType {
+        case ._private:
+            return PrivateChatMessageLayout()
+        case ._group:
+            return GroupChatMessageLayout()
+        }
+    }
+}
+
+enum ChatType
+{
+    case _private
+    case _group
+}
 

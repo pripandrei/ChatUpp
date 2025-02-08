@@ -14,25 +14,9 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/ConversationTableViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "176"
-            endingLineNumber = "176"
-            landmarkName = "configureCell(usingViewModel:forSide:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "51596847-74CF-4D76-99F4-540E69AE26FE"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/ConversationTableViewCell.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "641"
-            endingLineNumber = "641"
-            landmarkName = "setMessageLabelTopConstraints()"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
+            landmarkName = "configureCell(usingViewModel:layoutConfiguration:forSide:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

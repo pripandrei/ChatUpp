@@ -90,6 +90,12 @@ final class ConversationCellViewModel
         guard let path = message?.imagePath else {return nil}
         return CacheManager.shared.retrieveImageData(from: path)
     }
+    
+    func retrieveSenderAvatarData() -> Data?
+    {
+        guard let path = messageSender?.photoUrl else {return nil}
+        return CacheManager.shared.retrieveImageData(from: path)
+    }
 //
 //    func editMessageTextFromFirestore(_ messageText: String, from chatID: String) {
 //        Task {
