@@ -666,7 +666,7 @@ extension ConversationTableViewCell
     
     private func setMessageLabelTopConstraints()
     {
-        if messageLabelTopConstraints != nil { messageLabelTopConstraints.isActive = false }
+        if messageLabelTopConstraints != nil { messageLabelTopConstraints.isActive = false ; messageLabelTopConstraints = nil }
         
         if cellViewModel.isReplayToMessage
         {
@@ -680,7 +680,6 @@ extension ConversationTableViewCell
         else if messageLabelTopConstraints == nil {
             messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor)
         }
-        
         messageLabelTopConstraints.isActive = true
     }
 }

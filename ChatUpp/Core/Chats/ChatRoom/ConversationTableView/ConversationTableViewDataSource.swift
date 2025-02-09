@@ -63,14 +63,14 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         var messageLayoutConfiguration = MessageLayoutConfigurationFactory.makeConfiguration(for: chatType)
         
         if chatType == ._group {
-            let shouldShowUserAvatar = shouldShowAvatarForCell(at: indexPath)
+            let shouldShowUserAvatar = shouldShowUserAvatarForCell(at: indexPath)
             messageLayoutConfiguration.shouldShowAvatar = shouldShowUserAvatar
         }
         
         return messageLayoutConfiguration
     }
     
-    private func shouldShowAvatarForCell(at indexPath: IndexPath) -> Bool
+    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool
     {
         if indexPath.row == 0 { return true }
         let messageItems = conversationViewModel.messageClusters[indexPath.section].items
