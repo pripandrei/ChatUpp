@@ -717,28 +717,35 @@ extension ConversationTableViewCell
     }
 }
 
+
+
+
+
+
+
+
 protocol MessageLayoutConfiguration
 {
     var shouldShowSenderName: Bool { get }
-    var shouldShowAvatar: Bool { get }
+    var shouldShowAvatar: Bool { get set }
     var avatarSize: CGSize? { get }
     var leadingConstraintConstant: CGFloat { get }
 }
 
 struct PrivateChatMessageLayout: MessageLayoutConfiguration
 {
-    var leadingConstraintConstant: CGFloat = 10
-    var shouldShowSenderName: Bool = false
+    let leadingConstraintConstant: CGFloat = 10
+    let shouldShowSenderName: Bool = false
     var shouldShowAvatar: Bool = false
-    var avatarSize: CGSize? = nil
+    let avatarSize: CGSize? = nil
 }
 
 struct GroupChatMessageLayout: MessageLayoutConfiguration
 {
-    var leadingConstraintConstant: CGFloat = 52
-    var shouldShowSenderName: Bool = true
-    var shouldShowAvatar: Bool = true
-    var avatarSize: CGSize? = CGSize(width: 40, height: 40)
+    let leadingConstraintConstant: CGFloat = 52
+    let shouldShowSenderName: Bool = true
+    var shouldShowAvatar: Bool = false
+    let avatarSize: CGSize? = CGSize(width: 40, height: 40)
 }
 
 

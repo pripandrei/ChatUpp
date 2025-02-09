@@ -48,12 +48,38 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
             conversationViewModel.setReplyMessageData(fromReplyMessageID: repliedToMessageID, toViewModel: viewModel)
         }
         
-        let chatType: ChatType = ((conversationViewModel.conversation?.isGroup) != nil) ? ._group : ._private
-        let messageLayoutConfiguration = MessageLayoutConfigurationFactory.makeConfiguration(for: chatType)
-        cell.configureCell(usingViewModel: viewModel, layoutConfiguration: messageLayoutConfiguration, forSide: cellSide)
+        let messageLayoutConfiguration = makeLayoutConfigurationForCell(at: indexPath)
+        
+        cell.configureCell(usingViewModel: viewModel,
+                           layoutConfiguration: messageLayoutConfiguration,
+                           forSide: cellSide)
 
         return cell
     }
+    
+    private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
+    {
+        let chatType: ChatType = ((conversationViewModel.conversation?.isGroup) != nil) ? ._group : ._private
+        var messageLayoutConfiguration = MessageLayoutConfigurationFactory.makeConfiguration(for: chatType)
+        
+        if chatType == ._group {
+            let shouldShowUserAvatar = shouldShowAvatarForCell(at: indexPath)
+            messageLayoutConfiguration.shouldShowAvatar = shouldShowUserAvatar
+        }
+        
+        return messageLayoutConfiguration
+    }
+    
+    private func shouldShowAvatarForCell(at indexPath: IndexPath) -> Bool
+    {
+        if indexPath.row == 0 { return true }
+        let messageItems = conversationViewModel.messageClusters[indexPath.section].items
+        return messageItems[indexPath.row].message?.senderId != messageItems[indexPath.row - 1].message?.senderId
+    }
+    
+    //    private func establishCellMessageSide(for indexPath: IndexPath) -> MessageSide {
+    //
+    //    }
 }
 
 

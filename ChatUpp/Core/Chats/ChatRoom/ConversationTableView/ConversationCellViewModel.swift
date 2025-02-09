@@ -170,3 +170,5 @@ extension ConversationCellViewModel
         }
     }
 }
+
+//extension ConversationCellViewModel: ConversationMessageIdentifiable {}
