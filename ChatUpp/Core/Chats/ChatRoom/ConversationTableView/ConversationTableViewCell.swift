@@ -39,6 +39,12 @@ final class ConversationTableViewCell: UITableViewCell
         return 292.0
     }
     
+    private var messageSenderNameColor: UIColor
+    {
+        let senderID = cellViewModel.message?.senderId
+        return ColorManager.color(for: senderID ?? "12345")
+    }
+    
     /// - lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -623,7 +629,7 @@ extension ConversationTableViewCell
         
         messageSenderNameLabel?.text = cellViewModel.messageSender?.name
         messageSenderNameLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
-        messageSenderNameLabel?.textColor = #colorLiteral(red: 0.08701276034, green: 0.4072838724, blue: 0.2583613992, alpha: 1)
+        messageSenderNameLabel?.textColor = messageSenderNameColor
         messageSenderNameLabel?.numberOfLines = 1
         messageSenderNameLabel?.translatesAutoresizingMaskIntoConstraints = false
         setupSenderNameLabelConstraints()
@@ -766,4 +772,3 @@ enum ChatType
     case _private
     case _group
 }
-
