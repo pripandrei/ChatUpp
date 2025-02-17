@@ -437,14 +437,6 @@ extension ChatRoomViewModel
             if conversation?.isGroup == true
             {
                 try await syncGroupUsers(for: messages)
-//                let missingUserIDs = findMissingUserIDs(from: messages)
-//            
-//                if !missingUserIDs.isEmpty
-//                {
-//                    let users = try await FirestoreUserService.shared.fetchUsers(with: missingUserIDs)
-//                    RealmDataBase.shared.add(objects: users)
-//                    await fetchAvatars(forUsers: users)
-//                }
             }
             realmService?.addMessagesToConversationInRealm(messages)
             initializeWithLocalData()
@@ -513,23 +505,6 @@ extension ChatRoomViewModel
             await group.waitForAll()
         }
     }
-    
-//    private func fetchAvatars(forUsers users: [User]) async
-//    {
-//        for user in users
-//        {
-//            if var avatarURL = user.photoUrl
-//            {
-//                do {
-//                    avatarURL = avatarURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
-//                    let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: avatarURL)
-//                    CacheManager.shared.saveImageData(imageData, toPath: avatarURL)
-//                } catch {
-//                    print("Error fetching avatar image data: \(error)")
-//                }
-//            }
-//        }
-//    }
 }
 
 
