@@ -385,6 +385,7 @@ class ChatRoomViewModel
         guard let conversation = conversation else {return}
         guard let message = lastMessageItem?.message else {return}
         Task { @MainActor in
+            //TODO: - Image resolve
             // create image path an pass to saveImage
             // or consider creating firstly image and from returned path create than message 
             let imageMetaData = try await FirebaseStorageManager
@@ -419,44 +420,118 @@ extension ChatRoomViewModel
 {
     private func initiateConversation()
     {
-        guard !shouldFetchNewMessages else {
+        if shouldFetchNewMessages
+        {
             conversationInitializationStatus = .inProgress
-            initiateConversationWithRemoteData()
-            return
+            Task { await initializeWithRemoteData() }
         }
-        initiateConversationUsingLocalData()
+        else { initializeWithLocalData() }
     }
     
-    private func initiateConversationWithRemoteData()
+    @MainActor
+    private func initializeWithRemoteData() async
     {
-        Task { @MainActor in
-            do {
-                let messages = try await fetchConversationMessages()
-                realmService?.addMessagesToConversationInRealm(messages)
-                initiateConversationUsingLocalData()
-            } catch {
-                print("Error while initiating conversation: - \(error)")
+        do {
+            let messages = try await fetchConversationMessages()
+            
+            if conversation?.isGroup == true
+            {
+                try await syncGroupUsers(for: messages)
+//                let missingUserIDs = findMissingUserIDs(from: messages)
+//            
+//                if !missingUserIDs.isEmpty
+//                {
+//                    let users = try await FirestoreUserService.shared.fetchUsers(with: missingUserIDs)
+//                    RealmDataBase.shared.add(objects: users)
+//                    await fetchAvatars(forUsers: users)
+//                }
             }
+            realmService?.addMessagesToConversationInRealm(messages)
+            initializeWithLocalData()
+        } catch {
+            print("Error while initiating conversation: - \(error)")
         }
     }
     
-    private func initiateConversationUsingLocalData() 
-    {
-        setupConversationMessageGroups()
-        conversationInitializationStatus = .finished
-    }
-    
-    private func setupConversationMessageGroups()
+    private func initializeWithLocalData()
     {
         guard var messages = conversation?.getMessages(),
-                !messages.isEmpty else { return }
+              !messages.isEmpty else { return }
         
-        if shouldDisplayLastMessage == false {
+        if !shouldDisplayLastMessage {
             messages.removeFirst()
         }
         createMessageClustersWith(messages)
+        conversationInitializationStatus = .finished
     }
+    
+    
+    // MARK: - Group Chat Handling
+    
+    private func syncGroupUsers(for messages: [Message]) async throws
+    {
+        let missingUserIDs = findMissingUserIDs(from: messages)
+        
+        guard !missingUserIDs.isEmpty else { return }
+        
+        let users = try await FirestoreUserService.shared.fetchUsers(with: missingUserIDs)
+        RealmDataBase.shared.add(objects: users)
+        await fetchAvatars(for: users)
+    }
+
+    private func findMissingUserIDs(from messages: [Message]) -> [String] {
+        let senderIDs = Set(messages.map(\.senderId))
+        let existingUsers = getRealmUsers(with: senderIDs)
+        let existingUserIds = Set(existingUsers.map(\.id))
+        
+        return Array(senderIDs.subtracting(existingUserIds))
+    }
+    
+    private func getRealmUsers(with userIDs: Set<String>) -> [User] {
+        let filter = NSPredicate(format: "id IN %@", Array(userIDs))
+        return RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray() ?? []
+    }
+    
+    
+    private func fetchAvatars(for users: [User]) async
+    {
+        await withTaskGroup(of: Void.self) { group in
+            for user in users
+            {
+                guard var avatarURL = user.photoUrl else { continue }
+
+                group.addTask {
+                    do {
+                        let optimizedURL = avatarURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+                        let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: optimizedURL)
+                        CacheManager.shared.saveImageData(imageData, toPath: optimizedURL)
+                    } catch {
+                        print("Error fetching avatar image data for user: \(user.id); Error: \(error)")
+                    }
+                }
+            }
+            await group.waitForAll()
+        }
+    }
+    
+//    private func fetchAvatars(forUsers users: [User]) async
+//    {
+//        for user in users
+//        {
+//            if var avatarURL = user.photoUrl
+//            {
+//                do {
+//                    avatarURL = avatarURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+//                    let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: avatarURL)
+//                    CacheManager.shared.saveImageData(imageData, toPath: avatarURL)
+//                } catch {
+//                    print("Error fetching avatar image data: \(error)")
+//                }
+//            }
+//        }
+//    }
 }
+
 
 //MARK: - Message listener bindings
 extension ChatRoomViewModel
@@ -660,10 +735,12 @@ extension ChatRoomViewModel
     }
     
     @MainActor
-    func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)? {
-        
+    func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
+    {
         let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
         guard !newMessages.isEmpty else { return nil }
+
+        try await syncGroupUsers(for: newMessages)
         
         let (newRows, newSections) = try await prepareMessageClustersUpdate(withMessages: newMessages, inAscendingOrder: order)
         
@@ -700,3 +777,13 @@ extension ChatRoomViewModel
         : nil
     }
 }
+
+
+
+
+
+
+
+
+
+

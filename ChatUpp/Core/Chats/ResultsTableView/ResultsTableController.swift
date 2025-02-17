@@ -179,3 +179,140 @@ extension ResultsTableController
         }
     }
 }
+
+
+
+
+
+
+//
+//
+//
+//
+//// MARK: - Conversation Initialization
+//extension ChatRoomViewModel {
+//    private enum ConversationError: Error {
+//        case noMessages
+//        case fetchError(Error)
+//        case avatarError(Error)
+//    }
+//    
+//    private func initiateConversation() async {
+//        do {
+//            conversationInitializationStatus = .inProgress
+//            
+//            if shouldFetchNewMessages {
+//                try await initializeWithRemoteData()
+//            } else {
+//                try initializeWithLocalData()
+//            }
+//            
+//            conversationInitializationStatus = .finished
+//        } catch {
+//            conversationInitializationStatus = .failed
+//            handleError(error)
+//        }
+//    }
+//    
+//    private func initializeWithRemoteData() async throws {
+//        let messages = try await fetchConversationMessages()
+//        
+//        if conversation?.isGroup == true {
+//            try await syncGroupUsers(for: messages)
+//        }
+//        
+//        await realmService?.addMessagesToConversationInRealm(messages)
+//        try initializeWithLocalData()
+//    }
+//    
+//    private func initializeWithLocalData() throws {
+//        guard var messages = conversation?.getMessages(),
+//              !messages.isEmpty else {
+//            throw ConversationError.noMessages
+//        }
+//        
+//        if !shouldDisplayLastMessage {
+//            messages.removeFirst()
+//        }
+//        
+//        createMessageClustersWith(messages)
+//    }
+//    
+//    // MARK: - Group Chat Handling
+//    
+//    private func syncGroupUsers(for messages: [Message]) async throws {
+//        let missingUserIDs = findMissingUserIDs(from: messages)
+//        
+//        guard !missingUserIDs.isEmpty else { return }
+//        
+//        let users = try await fetchAndStoreUsers(with: missingUserIDs)
+//        try await fetchAndCacheAvatars(for: users)
+//    }
+//    
+//    private func findMissingUserIDs(from messages: [Message]) -> [String] {
+//        let senderIDs = Set(messages.map(\.senderId))
+//        let existingUsers = fetchExistingUsers(with: senderIDs)
+//        let existingUserIds = Set(existingUsers.map(\.id))
+//        
+//        return Array(senderIDs.subtracting(existingUserIds))
+//    }
+//    
+//    private func fetchExistingUsers(with senderIDs: Set<String>) -> [User] {
+//        let filter = NSPredicate(format: "id IN %@", Array(senderIDs))
+//        return RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray() ?? []
+//    }
+//    
+//    private func fetchAndStoreUsers(with userIDs: [String]) async throws -> [User] {
+//        let users = try await FirestoreUserService.shared.fetchUsers(with: userIDs)
+//        RealmDataBase.shared.add(objects: users)
+//        return users
+//    }
+//    
+//    // MARK: - Avatar Handling
+//    
+//    private func fetchAndCacheAvatars(for users: [User]) async throws {
+//        try await withThrowingTaskGroup(of: Void.self) { group in
+//            for user in users {
+//                group.addTask {
+//                    try await self.fetchAndCacheAvatar(for: user)
+//                }
+//            }
+//            try await group.waitForAll()
+//        }
+//    }
+//    
+//    private func fetchAndCacheAvatar(for user: User) async throws {
+//        guard var avatarURL = user.photoUrl else { return }
+//        
+//        avatarURL = avatarURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+//        
+//        do {
+//            let imageData = try await FirebaseStorageManager.shared.getImage(
+//                from: .user(user.id),
+//                imagePath: avatarURL
+//            )
+//            CacheManager.shared.saveImageData(imageData, toPath: avatarURL)
+//        } catch {
+//            throw ConversationError.avatarError(error)
+//        }
+//    }
+//    
+//    // MARK: - Error Handling
+//    
+//    private func handleError(_ error: Error) {
+//        let errorMessage: String
+//        
+//        switch error {
+//        case ConversationError.noMessages:
+//            errorMessage = "No messages found in conversation"
+//        case ConversationError.fetchError(let underlyingError):
+//            errorMessage = "Failed to fetch conversation: \(underlyingError.localizedDescription)"
+//        case ConversationError.avatarError(let underlyingError):
+//            errorMessage = "Failed to fetch avatar: \(underlyingError.localizedDescription)"
+//        default:
+//            errorMessage = "An unexpected error occurred: \(error.localizedDescription)"
+//        }
+//        
+//        Logger.error(errorMessage)
+//    }
+//}

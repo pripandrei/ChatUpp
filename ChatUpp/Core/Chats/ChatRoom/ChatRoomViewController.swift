@@ -783,20 +783,20 @@ extension ChatRoomViewController: UITableViewDelegate
     private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)
     {
         didFinishInitialScroll = false
-
-        Task { @MainActor [weak self] in
-            
-            try await Task.sleep(nanoseconds: 500_000_000)
-            
-            guard let self = self else { return }
-            
-            if let (newRows, newSections) = try await self.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
-            {
-                self.performeTableViewUpdate(with: newRows, sections: newSections)
-            }
-            self.didFinishInitialScroll = true
-        }
         
+        Task { @MainActor [weak self] in
+            do {
+                try await Task.sleep(nanoseconds: 500_000_000)
+                
+                if let (newRows, newSections) = try await self?.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
+                {
+                    self?.performeTableViewUpdate(with: newRows, sections: newSections)
+                }
+            } catch {
+                print("Could not update conversation with additional messages: \(error)")
+            }
+            self?.didFinishInitialScroll = true
+        }
     }
     
     private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?)

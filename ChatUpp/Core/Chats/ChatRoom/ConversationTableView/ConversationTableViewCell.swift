@@ -772,3 +772,4 @@ enum ChatType
     case _private
     case _group
 }
+
