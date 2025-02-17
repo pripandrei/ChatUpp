@@ -76,7 +76,14 @@ final class ConversationTableViewCell: UITableViewCell
     ///
     private func setupBinding()
     {
-        cellViewModel.imageDataSubject
+        cellViewModel.senderImageDataSubject
+            .receive(on: DispatchQueue.main)
+            .compactMap({ $0 })
+            .sink(receiveValue: { [weak self] imageData in
+                self?.messageSenderAvatar?.image = UIImage(data: imageData)
+            }).store(in: &subscribers)
+        
+        cellViewModel.messageImageDataSubject
             .receive(on: DispatchQueue.main)
             .compactMap({ $0 })
             .sink(receiveValue: { [weak self] imageData in
@@ -110,7 +117,7 @@ final class ConversationTableViewCell: UITableViewCell
             self.configureImageAttachment()
         } else
         {
-            cellViewModel.fetchImageData()
+            cellViewModel.fetchMessageImageData()
 //            Task {
 //                guard let imageData = try await cellViewModel.fetchImageData() else {return}
 //                cellViewModel.cacheImage(data: imageData)
@@ -655,8 +662,17 @@ extension ConversationTableViewCell
         messageSenderAvatar?.translatesAutoresizingMaskIntoConstraints = false
         setupSenderAvatarConstraints()
         
-        guard let imageData = cellViewModel.retrieveSenderAvatarData() else {return }
-        messageSenderAvatar?.image = UIImage(data: imageData)
+        
+        if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "medium") {
+            messageSenderAvatar?.image = UIImage(data: imageData)
+            return
+        }
+        
+        cellViewModel.fetchSenderAvatartImageData() //fetch medium size image
+        
+        if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "small") {
+            messageSenderAvatar?.image = UIImage(data: imageData)
+        }
     }
     
     private func setupSenderAvatarConstraints()

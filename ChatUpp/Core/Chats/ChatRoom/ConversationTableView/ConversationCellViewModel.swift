@@ -15,7 +15,8 @@ import Combine
 
 final class ConversationCellViewModel
 {
-    var imageDataSubject = PassthroughSubject<Data?, Never>()
+    var messageImageDataSubject = PassthroughSubject<Data?, Never>()
+    var senderImageDataSubject = PassthroughSubject<Data?, Never>()
 
     @Published var imagePathURL: URL?
     
@@ -52,12 +53,24 @@ final class ConversationCellViewModel
     }
     
     @MainActor
-    func fetchImageData() {
-        guard let message = message else {return}
+    func fetchMessageImageData()
+    {
+        guard let message = message, let imgatePath = message.imagePath else { return }
         Task {
-            let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: message.imagePath!)
+            let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: imgatePath)
             cacheImage(data: imageData)
-            imageDataSubject.send(imageData)
+            messageImageDataSubject.send(imageData)
+        }
+    }
+    
+    func fetchSenderAvatartImageData()
+    {
+        guard let user = messageSender, var path = messageSender?.photoUrl else { return }
+        Task {
+            path = path.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+            let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: path)
+            cacheImage(data: imageData)
+            senderImageDataSubject.send(imageData)
         }
     }
     
@@ -65,12 +78,13 @@ final class ConversationCellViewModel
     func getImagePathURL() async throws -> URL?
     {
         guard let message = self.message,
-                let imagePath = message.imagePath else {return nil}
+                let imagePath = message.imagePath else { return nil }
         let url = try await FirebaseStorageManager.shared.getImageURL(from: .message(message.id), imagePath: imagePath)
         return url
     }
     
-    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification? {
+    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification?
+    {
         if message?.messageBody != newMessage.messageBody {
             return .text
         } else if message?.messageSeen != newMessage.messageSeen {
@@ -91,11 +105,38 @@ final class ConversationCellViewModel
         return CacheManager.shared.retrieveImageData(from: path)
     }
     
-    func retrieveSenderAvatarData() -> Data?
+//    func retrieveSenderAvatarData() -> Data?
+//    {
+//        guard let path = messageSender?.photoUrl else {return nil}
+//        return CacheManager.shared.retrieveImageData(from: path)
+//    }
+    
+    func retrieveSenderAvatarData(ofSize size: String) -> Data?
     {
-        guard let path = messageSender?.photoUrl else {return nil}
+        guard var path = messageSender?.photoUrl else {return nil}
+        path = path.replacingOccurrences(of: ".jpg", with: "_\(size).jpg")
         return CacheManager.shared.retrieveImageData(from: path)
     }
+    
+//    func retrieveSenderAvatar() -> Data?
+//    {
+//        guard var path = message?.imagePath else {return nil}
+//        
+//        let mediumSizeImagePath = path.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+//        let smallSizeImagePath = path.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+//        
+//        if let imageData = CacheManager.shared.retrieveImageData(from: mediumSizeImagePath) {
+//            return imageData
+//        }
+//        
+//        Task { await fetchImageData() }
+//        
+//        if let imageData = CacheManager.shared.retrieveImageData(from: smallSizeImagePath) {
+//            return imageData
+//        }
+//        
+//        return nil
+//    }
 //
 //    func editMessageTextFromFirestore(_ messageText: String, from chatID: String) {
 //        Task {
@@ -171,4 +212,3 @@ extension ConversationCellViewModel
     }
 }
 
-//extension ConversationCellViewModel: ConversationMessageIdentifiable {}
