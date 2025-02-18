@@ -8,24 +8,15 @@
 import Foundation
 import Combine
 
-//enum ConversationCellType {
-//    case message(content: ConversationCellViewModel)
-//    case unseenMessagesTitle
-//}
-
 final class ConversationCellViewModel
 {
+    @Published private(set) var imagePathURL: URL?
+    @Published private(set) var message: Message?
+    
+    private(set) var referencedMessage: Message?
+    private(set) var displayUnseenMessagesTitle: Bool?
     private(set) var messageImageDataSubject = PassthroughSubject<Data, Never>()
     private(set) var senderImageDataSubject = PassthroughSubject<Data, Never>()
-
-    @Published private(set) var imagePathURL: URL?
-    
-    @Published private(set) var message: Message?
-//    private(set) var messageToBeReplied: Message?
-//    private(set) var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
-    private(set) var referencedMessage: Message?
-    
-    private(set) var displayUnseenMessagesTitle: Bool?
     
     convenience init(message: Message) {
         self.init()
@@ -37,10 +28,10 @@ final class ConversationCellViewModel
         self.displayUnseenMessagesTitle = isUnseenCell
     }
     
-    var timestamp: String? {
-        let hoursAndMinutes = message?.timestamp.formatToHoursAndMinutes()
-        return hoursAndMinutes
-    }
+    lazy var messageSender: User? = {
+        guard let key = message?.senderId else {return nil}
+        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+    }()
     
     var referencedMessageSenderName: String?
     {
@@ -50,10 +41,10 @@ final class ConversationCellViewModel
         return user?.name
     }
     
-    lazy var messageSender: User? = {
-        guard let key = message?.senderId else {return nil}
-        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
-    }()
+    var timestamp: String? {
+        let hoursAndMinutes = message?.timestamp.formatToHoursAndMinutes()
+        return hoursAndMinutes
+    }
     
     var isReplayToMessage: Bool {
         guard referencedMessageSenderName != nil,
@@ -61,12 +52,28 @@ final class ConversationCellViewModel
         return true
     }
     
+    /// internal functions
+    ///
     func setReferencedMessage(usingMessageID messageID: String)
     {
         let referencedMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID)
         self.referencedMessage = referencedMessage
     }
     
+    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification?
+    {
+        if message?.messageBody != newMessage.messageBody {
+            return .text
+        } else if message?.messageSeen != newMessage.messageSeen {
+            return .seenStatus
+        }
+        return nil
+    }
+}
+
+//MARK: - Image fetch
+extension ConversationCellViewModel
+{
     @MainActor
     func fetchMessageImageData()
     {
@@ -93,21 +100,15 @@ final class ConversationCellViewModel
     func getImagePathURL() async throws -> URL?
     {
         guard let message = self.message,
-                let imagePath = message.imagePath else { return nil }
+              let imagePath = message.imagePath else { return nil }
         let url = try await FirebaseStorageManager.shared.getImageURL(from: .message(message.id), imagePath: imagePath)
         return url
     }
-    
-    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification?
-    {
-        if message?.messageBody != newMessage.messageBody {
-            return .text
-        } else if message?.messageSeen != newMessage.messageSeen {
-            return .seenStatus
-        }
-        return nil
-    }
-    
+}
+
+//MARK: - Image cache
+extension ConversationCellViewModel
+{
     func cacheImage(data: Data)
     {
         guard let path = message?.imagePath else {return}
@@ -119,59 +120,18 @@ final class ConversationCellViewModel
         guard let path = message?.imagePath else {return nil}
         return CacheManager.shared.retrieveImageData(from: path)
     }
-    
-//    func retrieveSenderAvatarData() -> Data?
-//    {
-//        guard let path = messageSender?.photoUrl else {return nil}
-//        return CacheManager.shared.retrieveImageData(from: path)
-//    }
-    
+
     func retrieveSenderAvatarData(ofSize size: String) -> Data?
     {
         guard var path = messageSender?.photoUrl else {return nil}
         path = path.replacingOccurrences(of: ".jpg", with: "_\(size).jpg")
         return CacheManager.shared.retrieveImageData(from: path)
     }
-    
-//    func retrieveSenderAvatar() -> Data?
-//    {
-//        guard var path = message?.imagePath else {return nil}
-//        
-//        let mediumSizeImagePath = path.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
-//        let smallSizeImagePath = path.replacingOccurrences(of: ".jpg", with: "_small.jpg")
-//        
-//        if let imageData = CacheManager.shared.retrieveImageData(from: mediumSizeImagePath) {
-//            return imageData
-//        }
-//        
-//        Task { await fetchImageData() }
-//        
-//        if let imageData = CacheManager.shared.retrieveImageData(from: smallSizeImagePath) {
-//            return imageData
-//        }
-//        
-//        return nil
-//    }
-//
-//    func editMessageTextFromFirestore(_ messageText: String, from chatID: String) {
-//        Task {
-//            try await ChatsManager.shared.updateMessageText(messageText, messageID: cellMessage.id, chatID: chatID)
-//        }
-//    }
-//    
-//    func deleteMessageFromFirestore(from chatID: String) {
-//        Task {
-//            do {
-//                try await ChatsManager.shared.removeMessage(messageID: cellMessage.id, conversationID: chatID)
-//            } catch {
-//                print("Error deleting message: ",error.localizedDescription)
-//            }
-//        }
-//    }
 }
 
 
-//MARK: - Message update in realm/firestore DB
+//MARK: - realm/firestore message update
+
 extension ConversationCellViewModel
 {
     @MainActor
@@ -227,3 +187,40 @@ extension ConversationCellViewModel
     }
 }
 
+
+
+//    func retrieveSenderAvatar() -> Data?
+//    {
+//        guard var path = message?.imagePath else {return nil}
+//
+//        let mediumSizeImagePath = path.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+//        let smallSizeImagePath = path.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+//
+//        if let imageData = CacheManager.shared.retrieveImageData(from: mediumSizeImagePath) {
+//            return imageData
+//        }
+//
+//        Task { await fetchImageData() }
+//
+//        if let imageData = CacheManager.shared.retrieveImageData(from: smallSizeImagePath) {
+//            return imageData
+//        }
+//
+//        return nil
+//    }
+//
+//    func editMessageTextFromFirestore(_ messageText: String, from chatID: String) {
+//        Task {
+//            try await ChatsManager.shared.updateMessageText(messageText, messageID: cellMessage.id, chatID: chatID)
+//        }
+//    }
+//
+//    func deleteMessageFromFirestore(from chatID: String) {
+//        Task {
+//            do {
+//                try await ChatsManager.shared.removeMessage(messageID: cellMessage.id, conversationID: chatID)
+//            } catch {
+//                print("Error deleting message: ",error.localizedDescription)
+//            }
+//        }
+//    }
