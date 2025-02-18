@@ -337,36 +337,41 @@ class ChatRoomViewModel
         let conversationCellVM = ConversationCellViewModel(isUnseenCell: true)
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
+//    
+//    func getRepliedToMessage(messageID: String) -> Message? 
+//    {
+//        var repliedMessage: Message?
+//        
+//        messageClusters.forEach { conversationGroups in
+//            conversationGroups.items.forEach { conversationCellViewModel in
+//                if conversationCellViewModel.message?.id == messageID {
+//                    repliedMessage = conversationCellViewModel.message
+//                    return
+//                }
+//            }
+//        }
+//        return repliedMessage
+//    }
     
-    func getRepliedToMessage(messageID: String) -> Message? 
-    {
-        var repliedMessage: Message?
-        
-        messageClusters.forEach { conversationGroups in
-            conversationGroups.items.forEach { conversationCellViewModel in
-                if conversationCellViewModel.message?.id == messageID {
-                    repliedMessage = conversationCellViewModel.message
-                    return
-                }
-            }
-        }
-        return repliedMessage
-    }
+//    func setReplyMessageData(fromReplyMessageID id: String,
+//                             toViewModel viewModel: ConversationCellViewModel)
+//    {
+////        let messageToBeReplied = getRepliedToMessage(messageID: id)
+////        viewModel.updateReferenceMessage(messageToBeReplied)
+////        viewModel.setReferenceMessage(messageToBeReplied)
+////        if let messageToBeReplied = getRepliedToMessage(messageID: id)
+////        {
+////            let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
+////            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) =
+////            (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
+////        }
+//    }
     
-    func setReplyMessageData(fromReplyMessageID id: String, toViewModel viewModel: ConversationCellViewModel) {
-        if let messageToBeReplied = getRepliedToMessage(messageID: id) 
-        {
-            let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
-            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) =
-            (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
-        }
-    }
-    
-    func getMessageSenderName(usingSenderID id: String) -> String?
-    {
-        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: id)
-        return user?.name
-    }
+//    func getMessageSenderName(usingSenderID id: String) -> String?
+//    {
+//        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: id)
+//        return user?.name
+//    }
     
     /// - save image from message
     

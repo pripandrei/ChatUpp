@@ -15,16 +15,17 @@ import Combine
 
 final class ConversationCellViewModel
 {
-    var messageImageDataSubject = PassthroughSubject<Data?, Never>()
-    var senderImageDataSubject = PassthroughSubject<Data?, Never>()
+    private(set) var messageImageDataSubject = PassthroughSubject<Data, Never>()
+    private(set) var senderImageDataSubject = PassthroughSubject<Data, Never>()
 
-    @Published var imagePathURL: URL?
+    @Published private(set) var imagePathURL: URL?
     
-    @Published var message: Message?
-    var messageToBeReplied: Message?
-    var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
+    @Published private(set) var message: Message?
+//    private(set) var messageToBeReplied: Message?
+//    private(set) var (senderNameOfMessageToBeReplied, textOfMessageToBeReplied): (String?, String?)
+    private(set) var referencedMessage: Message?
     
-    var displayUnseenMessagesTitle: Bool?
+    private(set) var displayUnseenMessagesTitle: Bool?
     
     convenience init(message: Message) {
         self.init()
@@ -41,15 +42,29 @@ final class ConversationCellViewModel
         return hoursAndMinutes
     }
     
+    var referencedMessageSenderName: String?
+    {
+        guard let referencedMessageID = referencedMessage?.senderId else { return nil }
+        
+        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: referencedMessageID)
+        return user?.name
+    }
+    
     lazy var messageSender: User? = {
         guard let key = message?.senderId else {return nil}
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
     
     var isReplayToMessage: Bool {
-        guard senderNameOfMessageToBeReplied != nil,
-              textOfMessageToBeReplied != nil else {return false}
+        guard referencedMessageSenderName != nil,
+              referencedMessage != nil else {return false}
         return true
+    }
+    
+    func setReferencedMessage(usingMessageID messageID: String)
+    {
+        let referencedMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID)
+        self.referencedMessage = referencedMessage
     }
     
     @MainActor

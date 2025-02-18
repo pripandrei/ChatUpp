@@ -45,7 +45,8 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         
         /// set sender name and text of message messageToBeReplied if any
         if let repliedToMessageID = message?.repliedTo {
-            conversationViewModel.setReplyMessageData(fromReplyMessageID: repliedToMessageID, toViewModel: viewModel)
+            viewModel.setReferencedMessage(usingMessageID: repliedToMessageID)
+//            conversationViewModel.setReplyMessageData(fromReplyMessageID: repliedToMessageID, toViewModel: viewModel)
         }
         
         let messageLayoutConfiguration = makeLayoutConfigurationForCell(at: indexPath)

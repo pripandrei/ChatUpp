@@ -78,14 +78,12 @@ final class ConversationTableViewCell: UITableViewCell
     {
         cellViewModel.senderImageDataSubject
             .receive(on: DispatchQueue.main)
-            .compactMap({ $0 })
             .sink(receiveValue: { [weak self] imageData in
                 self?.messageSenderAvatar?.image = UIImage(data: imageData)
             }).store(in: &subscribers)
         
         cellViewModel.messageImageDataSubject
             .receive(on: DispatchQueue.main)
-            .compactMap({ $0 })
             .sink(receiveValue: { [weak self] imageData in
                 //                if data == self?.cellViewModel.imageData {
                 self?.messageImage = UIImage(data: imageData)
@@ -511,8 +509,8 @@ extension ConversationTableViewCell
 {
     private func setupReplyMessage()
     {
-        guard let messageSenderName = cellViewModel.senderNameOfMessageToBeReplied,
-              let messageText = cellViewModel.textOfMessageToBeReplied else
+        guard let messageSenderName = cellViewModel.referencedMessageSenderName,
+              let messageText = cellViewModel.referencedMessage?.messageBody else
         {
 //            messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor)
 //            messageLabelTopConstraints.isActive = true

@@ -848,9 +848,10 @@ extension ChatRoomViewController: UITableViewDelegate
                 let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
                     DispatchQueue.main.async {
                         let replyMessageId = message.id
-                        let replyMessageSenderID = message.senderId
-                        let messageSenderName = self.viewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
-                        self.viewModel.currentlyReplyToMessageID = replyMessageId
+//                        let replyMessageSenderID = message.senderId
+//                        let messageSenderName = self.viewModel.getMessageSenderName(usingSenderID: replyMessageSenderID)
+                        let messageSenderName = cell.cellViewModel.messageSender?.name
+                        self.viewModel.currentlyReplyToMessageID = message.id
                         self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
                         self.rootView.inputBarHeader?.updateTitleLabel(usingText: messageSenderName)
                     }
