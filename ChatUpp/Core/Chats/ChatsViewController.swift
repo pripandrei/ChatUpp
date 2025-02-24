@@ -34,16 +34,14 @@ class ChatsViewController: UIViewController {
     // MARK: - UI SETUP
     override func viewDidLoad() {
         super.viewDidLoad()
-
-//        try? AuthenticationManager.shared.signOut()
-//        let user = try! AuthenticationManager.shared.getAuthenticatedUser()
+        
         self.chatsViewModel = ChatsViewModel()
         setupBinding()
         configureTableView()
         setupSearchController()
         chatsViewModel.activateOnDisconnect()
         setupNavigationBarItems()
-//        TestHelper.shared.downlaodUserAvatar()
+//        testFunction()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -406,4 +404,31 @@ extension ChatsViewController
 //        present(hostingController, animated: true)
     }
     
+}
+
+
+//MARK: - Test functions
+extension ChatsViewController
+{
+    private func testFunction()
+    {
+        
+        /// - observe subcollections with user id
+        ///
+//        Task {
+//            await FirebaseChatService.shared.observeUserChats(userId: "DESg2qjjJPP20KQDWfKpJJnozv53")
+//                .receive(on: DispatchQueue.main)
+//                .sink { chats in
+//                    print("Count: \(chats.count) \n Chats: \(chats)")
+//                }.store(in: &subscriptions)
+//        }
+        
+        /// - avatar downlaod
+        ///
+//        TestHelper.shared.downlaodUserAvatar()
+        
+        /// - sing out
+        ///
+//        try? AuthenticationManager.shared.signOut()
+    }
 }

@@ -426,7 +426,69 @@ extension FirebaseChatService
 }
 
 //MARK: Testing functions
-extension FirebaseChatService {
+extension FirebaseChatService
+{
+    
+    func observeUserChats(userId: String) async -> AnyPublisher<[Chat], Never>
+    {
+        let subject = PassthroughSubject<[Chat], Never>()
+        
+        let listener = db.collectionGroup("participants_info")
+            .whereField("user_id", isEqualTo: "DESg2qjjJPP20KQDWfKpJJnozv53")
+            .addSnapshotListener { snapshot, error in
+                guard let snapshot = snapshot else {
+                    print("Error fetching chats: \(error?.localizedDescription ?? "")")
+                    return
+                }
+                
+                // Process chat documents
+                Task {
+                    var chats: [Chat] = []
+                    for participantDoc in snapshot.documentChanges {
+//                        participantDoc.document.reference
+                        if let chatRef = participantDoc.document.reference.parent.parent {
+                            do {
+                                let chatDoc = try await chatRef.getDocument()
+                                if let chat = try? chatDoc.data(as: Chat.self) {
+                                    chats.append(chat)
+                                }
+                            } catch {
+                                print("Error fetching chat: \(error)")
+                            }
+                        }
+                    }
+                    subject.send(chats)
+                }
+            }
+        return subject
+            .handleEvents(receiveCancel: { listener.remove() })
+            .eraseToAnyPublisher()
+    }
+    func fetchChatsForUser(userId: String) async throws -> [Chat]
+    {
+        
+        let userID = "DESg2qjjJPP20KQDWfKpJJnozv53"
+        // This gets all 'participants' subcollections across all chat documents
+        let participantsRef = db.collectionGroup("participants_info")
+            .whereField("user_id", isEqualTo: userID)
+        
+        let snapshot = try await participantsRef.getDocuments()
+        
+        // Get parent documents (chats)
+        var chats: [Chat] = []
+        for participantDoc in snapshot.documents {
+            // Get the reference to the parent chat document
+            let chatRef = participantDoc.reference.parent.parent
+            if let chatRef = chatRef {
+                let chatDoc = try await chatRef.getDocument()
+                if let chat = try? chatDoc.data(as: Chat.self) {
+                    chats.append(chat)
+                }
+            }
+        }
+        
+        return chats
+    }
     
     static func cleanFirestoreCache() async throws {
         do {
@@ -607,6 +669,5 @@ extension FirebaseChatService {
                 }
             }
         }
-
     }
 }
