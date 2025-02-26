@@ -34,32 +34,33 @@ final class ResultsTableCell: UITableViewCell {
     func configure(viewModel: ResultsCellViewModel) {
         self.cellViewModel = viewModel
         setupBinding()
-        
-        titleLabel.text = cellViewModel.participant?.name
 
-        if cellViewModel.imageURL == nil {
-            self.profileImageView.image = UIImage(named: "default_profile_photo")
+        titleLabel.text = cellViewModel.titleName
+
+        guard let imageURL = cellViewModel.imageURL else {
+            self.profileImageView.image = cellViewModel.chat?.isGroup == true ? UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
             return
         }
         
-        if self.imageURL != cellViewModel.imageURL
-        {
+//        if self.imageURL != imageURL
+//        {
             self.profileImageView.image = nil
             self.cellViewModel.setImageData()
             self.imageURL = cellViewModel.imageURL
-        }
+//        }
     }
     
     private func setupBinding() {
         cellViewModel.$imageData
             .receive(on: DispatchQueue.main)
             .compactMap { $0 }
-            .sink { [weak self, url = cellViewModel.participant?.photoUrl] data in
-                if url == self?.imageURL
-                {
+            .sink { [weak self, url = cellViewModel.imageURL] data in
+//                print("URL: ", url)
+//                if url == self?.imageURL
+//                {
                     let image = UIImage(data: data)
                     self?.profileImageView.image = image
-                }
+//                }
             }.store(in: &cancellables)
     }
     

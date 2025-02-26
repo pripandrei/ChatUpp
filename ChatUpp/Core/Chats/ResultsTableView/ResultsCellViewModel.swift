@@ -34,25 +34,38 @@ final class ResultsCellViewModel
         self.participant = nil
     }
     
-    init(chat: Chat?, user: User?) {
-        self.chat = chat
-        self.participant = user
+//    init(chat: Chat?, user: User?) {
+//        self.chat = chat
+//        self.participant = user
+//    }
+    
+    var titleName: String
+    {
+        if let chatName = chat?.name {
+            return chatName
+        }
+        if let participantName = participant?.name {
+            return participantName
+        }
+        return "No Name"
+//        return chat?.name != nil ? chat?.name : participant?.name
     }
     
     var imageURL: String?
     {
         if let chatImageURL = chat?.thumbnailURL {
-            return chatImageURL
+            return chatImageURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
         }
         if let participantImageURL = participant?.photoUrl {
-            return participantImageURL
+            return participantImageURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
         }
         return nil
     }
 
-    func setImageData() {
+    func setImageData()
+    {
         guard let data = retrieveImageData() else {
-            Task {
+            Task { @MainActor in
                 if let imageData = await fetchImageData() {
                     self.imageData = imageData
                     cacheImageData(imageData, path: imageURL!)
@@ -69,9 +82,13 @@ final class ResultsCellViewModel
     @MainActor
     private func fetchImageData() async -> Data?
     {
-        guard let imageURL = imageURL, let userID = participant?.id else {return nil}
+        guard let imageURL = imageURL else {return nil}
+        
+        guard let id = participant?.id ?? chat?.id else {return nil}
+        
+        let pathType: StoragePathType = chat?.isGroup == true ? .group(id) : .user(id)
         do {
-            return try await FirebaseStorageManager.shared.getImage(from: .user(userID), imagePath: imageURL)
+            return try await FirebaseStorageManager.shared.getImage(from: pathType, imagePath: imageURL)
         } catch {
             print("Error getting user image form storage: ", error)
         }
