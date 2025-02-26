@@ -17,7 +17,7 @@ final class AlgoliaSearchManager {
     private let groupsClient = SearchClient(appID: "TRVTKK4YUR", apiKey: "6c88391e8a0c760cd91bfa9d49e88f4a")
   
     private lazy var usersIndex = usersClient.index(withName: "Users")
-    private lazy var groupsIndex = groupsClient.index(withName: "Groups")
+    private lazy var groupsIndex = groupsClient.index(withName: "Chats")
     
     private init() { }
 

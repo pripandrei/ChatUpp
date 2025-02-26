@@ -7,40 +7,8 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "4E5EF522-AE8F-4899-A8C1-46099FD23827"
+            uuid = "E46BFC01-B2F4-4D39-87DF-F57B902F93DD"
             shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Database models/MessageModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "154"
-            endingLineNumber = "154"
-            landmarkName = "downlaodUserAvatar()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "8C0DA956-CA10-41F8-9495-E1132AC80934"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Database models/MessageModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "155"
-            endingLineNumber = "155"
-            landmarkName = "downlaodUserAvatar()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "67C0897F-B208-44A5-B79E-46A10E764214"
-            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
@@ -55,112 +23,112 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "79F2E534-F19E-4443-998D-D69A0529FB8E"
-            shouldBeEnabled = "No"
+            uuid = "B42D94C0-D365-4F6D-AD80-161D5FD28BEE"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewController.swift"
+            filePath = "ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "289"
-            endingLineNumber = "289"
-            landmarkName = "updateSearchResults(for:)"
+            startingLineNumber = "64"
+            endingLineNumber = "64"
+            landmarkName = "searchInGroupsIndex(withQuery:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7DE77B4C-4031-46E3-95C6-136276880442"
+            uuid = "DDD98068-D703-4DF6-B181-12EB6E9BA8F8"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
+            filePath = "ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "85"
-            endingLineNumber = "85"
-            landmarkName = "fetchImageData()"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
+            landmarkName = "searchInGroupsIndex(withQuery:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7E355E79-5219-4A15-880C-7E08950D31A9"
+            uuid = "69E1590D-99E2-465E-84B1-FF6AD896CDD8"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
+            filePath = "ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "67"
-            endingLineNumber = "67"
-            landmarkName = "setImageData()"
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "performSearch(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "4689625B-B6D3-448D-A475-CEB6820C11DC"
+            uuid = "2A57CB7B-B00F-4D81-827D-735F0C5376A3"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
+            filePath = "ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "68"
             endingLineNumber = "68"
-            landmarkName = "setImageData()"
+            landmarkName = "searchInGroupsIndex(withQuery:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "081FFD2C-C6ED-425B-9480-2A2015FA0A38"
+            uuid = "CFA75DB3-127E-45B5-A084-A7FB38DF2378"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
+            filePath = "ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "74"
-            endingLineNumber = "74"
-            landmarkName = "setImageData()"
+            startingLineNumber = "66"
+            endingLineNumber = "66"
+            landmarkName = "searchInGroupsIndex(withQuery:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "DC54EC2E-31BA-4960-A573-9E76E939C6BA"
+            uuid = "35011A50-9033-4C18-9E5D-785688D66ADF"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsCellViewModel.swift"
+            filePath = "ChatUpp/AlgoliaSearch/AlgoliaSearchManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "76"
-            endingLineNumber = "76"
-            landmarkName = "setImageData()"
+            startingLineNumber = "65"
+            endingLineNumber = "65"
+            landmarkName = "searchInGroupsIndex(withQuery:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "19A74335-F02A-4510-8AAE-6A314FC9E6B8"
+            uuid = "8B02954B-2287-47E0-A96F-601C5F37C16A"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ResultsTableView/ResultsTableCell.swift"
+            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "62"
-            endingLineNumber = "62"
-            landmarkName = "setupBinding()"
+            startingLineNumber = "65"
+            endingLineNumber = "65"
+            landmarkName = "fetchChat(withID:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
