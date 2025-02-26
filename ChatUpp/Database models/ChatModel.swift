@@ -64,7 +64,7 @@ class Chat: Object, Codable
     @Persisted var thumbnailURL: String?
     @Persisted var admins: List<String>
     
-    /// isFirstTimeOpened and conversationMessages fields are ment only for local database
+    /// Fields that are ment only for local database:
     @Persisted var isFirstTimeOpened: Bool?
     @Persisted var conversationMessages: List<Message>
     

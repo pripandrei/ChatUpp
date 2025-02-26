@@ -35,7 +35,7 @@ final class ResultsTableCell: UITableViewCell {
         self.cellViewModel = viewModel
         setupBinding()
         
-        titleLabel.text = cellViewModel.participant.name
+        titleLabel.text = cellViewModel.participant?.name
 
         if cellViewModel.imageURL == nil {
             self.profileImageView.image = UIImage(named: "default_profile_photo")
@@ -54,7 +54,7 @@ final class ResultsTableCell: UITableViewCell {
         cellViewModel.$imageData
             .receive(on: DispatchQueue.main)
             .compactMap { $0 }
-            .sink { [weak self, url = cellViewModel.participant.photoUrl] data in
+            .sink { [weak self, url = cellViewModel.participant?.photoUrl] data in
                 if url == self?.imageURL
                 {
                     let image = UIImage(data: data)

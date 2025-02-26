@@ -55,9 +55,14 @@ final class FirebaseChatService {
 }
 
 //MARK: - fetch chats
-extension FirebaseChatService {
+extension FirebaseChatService
+{
     func fetchChats(containingUserID userID: String) async throws -> [Chat] {
         return try await chatsCollection.whereField(Chat.CodingKeys.participants.rawValue, arrayContainsAny: [userID]).getDocuments(as: Chat.self)
+    }
+    
+    func fetchChat(withID id: String) async throws -> Chat {
+        return try await chatDocument(documentPath: id).getDocument(as: Chat.self)
     }
 }
 

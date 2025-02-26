@@ -129,7 +129,8 @@ class ChatsViewController: UIViewController {
         navigationItem.hidesSearchBarWhenScrolling = true
     }
     
-    func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
+    func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel]
+    {
         let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
         
         let filteredSearchText = searchText
@@ -138,24 +139,62 @@ class ChatsViewController: UIViewController {
         let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
         
         return chatsViewModel.cellViewModels.compactMap { chatCell in
-            guard let user = chatCell.chatUser, let userName = user.name else { return nil }
+            let searchedTitle: String? = chatCell.chat.isGroup ? chatCell.chat.name : chatCell.chatUser?.name
             
-            let lowercasedUserName = userName.lowercased()
-            let nameSubstrings = lowercasedUserName.components(separatedBy: delimiters)
+            guard let title = searchedTitle?.lowercased(), !title.isEmpty else { return nil }
             
-            let isMatching = nameSubstrings.contains { $0.hasPrefix(trimmedSearchText) }
-                          || lowercasedUserName.hasPrefix(trimmedSearchText)
+            let resultSubstrings = title.components(separatedBy: delimiters)
+            
+            let isMatching = resultSubstrings.contains { $0.hasPrefix(trimmedSearchText) }
+                          || title.contains(trimmedSearchText)
             
             guard isMatching else { return nil }
             
-            return ResultsCellViewModel(
-                memberUser: user,
-                chat: chatCell.chat,
-                imageData: chatCell.retrieveImageFromCache(),
-                unreadMessageCount: chatCell.unreadMessageCount
-            )
+            if let user = chatCell.chatUser {
+                return ResultsCellViewModel(memberUser: user)
+            }
+            return ResultsCellViewModel(chat: chatCell.chat)
         }
     }
+    
+    
+//    func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
+//        let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
+//        
+//        let filteredSearchText = searchText
+//            .components(separatedBy: delimiters)
+//            .joined(separator: " ")
+//        let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
+//        
+//        return chatsViewModel.cellViewModels.compactMap { chatCell in
+//            
+//            var searchedTitle: String?
+//            
+//            if chatCell.chat.isGroup {
+//                searchedTitle = chatCell.chat.name
+//            } else {
+//                searchedTitle = chatCell.chatUser?.name
+//            }
+//            
+//            guard let user = chatCell.chatUser, let userName = user.name else { return nil }
+//            
+//            let lowercasedResult = searchedTitle?.lowercased()
+//            let resultSubstrings = lowercasedResult?.components(separatedBy: delimiters)
+//            
+//            let isMatching = resultSubstrings.contains { $0.hasPrefix(trimmedSearchText) }
+//                          || lowercasedResult.hasPrefix(trimmedSearchText)
+//            
+//            guard isMatching else { return nil }
+//            
+//            return ResultsCellViewModel(chat: chatCell.chat, user: user)
+////            return ResultsCellViewModel(
+////                memberUser: user,
+////                chat: chatCell.chat,
+////                imageData: chatCell.retrieveImageFromCache(),
+////                unreadMessageCount: chatCell.unreadMessageCount
+////            )
+//        }
+//    }
     
 //    func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
 //        
@@ -249,13 +288,13 @@ extension ChatsViewController: UISearchResultsUpdating {
         // If search bar contains local names
         let filteredResults = filterContentForSearchText(searchBar.text!)
         guard filteredResults.isEmpty else {
-            resultsTableController.userSearch = .local
+            resultsTableController.searchType = .local
             updateTableView(withResults: filteredResults, toggleSkeletonAnimation: .terminated)
             return
         }
 
         // If search is performed globaly (database)
-        if resultsTableController.filteredUsers.isEmpty {
+        if resultsTableController.filteredResults.isEmpty {
             resultsTableController.toggleSkeletonAnimation(.initiated)
         }
         lastSearchedText = text
@@ -266,7 +305,7 @@ extension ChatsViewController: UISearchResultsUpdating {
     }
     
     private func updateTableView(withResults filteredResults: [ResultsCellViewModel], toggleSkeletonAnimation value: SkeletonAnimationState) {
-        resultsTableController.filteredUsers = filteredResults
+        resultsTableController.filteredResults = filteredResults
         resultsTableController.tableView.reloadData()
         resultsTableController.toggleSkeletonAnimation(value)
     }
@@ -274,13 +313,25 @@ extension ChatsViewController: UISearchResultsUpdating {
     // TODO: Transfer to viewModel
     private func performSearch(_ text: String) {
         Task {
-            let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
-            if text == lastSearchedText {
-                let filteredResults = searchResultData.compactMap { resultData in
-                    return ResultsCellViewModel(memberUser: resultData)
+            if text == lastSearchedText
+            {
+                let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
+//                let filteredResults = searchResultData.compactMap { resultData in
+//                    return ResultsCellViewModel(memberUser: resultData)
+//                }
+                
+                let usersResults = searchResultData?.users.compactMap { users in
+                    return ResultsCellViewModel(memberUser: users)
                 }
+                
+                let groupsResults = searchResultData?.groups.compactMap { groups in
+                    return ResultsCellViewModel(chat: groups)
+                }
+                
+                let filteredResults: [ResultsCellViewModel] = (usersResults ?? []) + (groupsResults ?? [])
+                
                 await MainActor.run {
-                    resultsTableController.userSearch = .global
+                    resultsTableController.searchType = .global
                     updateTableView(withResults: filteredResults, toggleSkeletonAnimation: .terminated)
                 }
             }

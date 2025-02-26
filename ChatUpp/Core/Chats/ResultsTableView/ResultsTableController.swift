@@ -16,7 +16,7 @@ enum SkeletonAnimationState {
 
 final class ResultsTableController: UITableViewController {
     
-    enum UsersSearch {
+    enum SearchType {
         case local
         case global
     }
@@ -25,8 +25,8 @@ final class ResultsTableController: UITableViewController {
     
     var searchBar: UISearchBar?
     
-    var filteredUsers: [ResultsCellViewModel] = [] 
-    var userSearch: UsersSearch!
+    var filteredResults: [ResultsCellViewModel] = [] 
+    var searchType: SearchType!
     private var noUserWasFoundLabel = UILabel()
     
     override func viewDidLoad() {
@@ -100,14 +100,14 @@ extension ResultsTableController: SkeletonTableViewDataSource {
 extension ResultsTableController {
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        if !filteredUsers.isEmpty {
+        if !filteredResults.isEmpty {
             return 1
         }
         return 0
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredUsers.count
+        return filteredResults.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -115,7 +115,7 @@ extension ResultsTableController {
                                                        for: indexPath) as? ResultsTableCell
         else {fatalError("Could not dequeue Results cell")}
         
-        cell.configure(viewModel: filteredUsers[indexPath.item])
+        cell.configure(viewModel: filteredResults[indexPath.item])
         noUserWasFoundLabel.isHidden = true
         
         return cell
@@ -131,7 +131,7 @@ extension ResultsTableController
         let tableViewHeaderFooterView = UITableViewHeaderFooterView()
         var configuration = UIListContentConfiguration.subtitleCell()
         
-        if userSearch == .local {
+        if searchType == .local {
             configuration.text = "Chats".uppercased()
         } else {
             configuration.text = "Global search".uppercased()
@@ -156,14 +156,14 @@ extension ResultsTableController
         searchBar?.resignFirstResponder()
         
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
-            let user = self.filteredUsers[indexPath.item].participant
+            let user = self.filteredResults[indexPath.item].participant
             var conversationViewModel: ChatRoomViewModel!
         
             defer {
                 self.coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
             }
 
-            if let existingChat = self.filteredUsers[indexPath.item].chat {
+            if let existingChat = self.filteredResults[indexPath.item].chat {
                 conversationViewModel = ChatRoomViewModel(conversation: existingChat)
             } else {
                 conversationViewModel = ChatRoomViewModel(participant: user)
