@@ -138,10 +138,24 @@ final class ChatRoomRootView: UIView {
         return scrollToBottomBtn
     }()
     
+    private(set) lazy var joinChatRoomButton: UIButton = {
+        let joinButton = UIButton()
+        joinButton.configuration                             = .plain()
+        joinButton.configuration?.title                      = "Join"
+        joinButton.configuration?.baseForegroundColor        = .link
+        joinButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        var attributedTitle = AttributedString("Join")
+        attributedTitle.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        joinButton.configuration?.attributedTitle = attributedTitle
+        
+        return joinButton
+    }()
+    
     private func setupScrollToBottomBtn() {
         addSubview(scrollBadgeButton)
         
-        scrollToBottomBtnBottomConstraint = scrollBadgeButton.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: -10)
+        scrollToBottomBtnBottomConstraint          = scrollBadgeButton.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: -10)
         scrollToBottomBtnBottomConstraint.isActive = true
         
         scrollBadgeButton.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -10).isActive = true
@@ -162,13 +176,15 @@ final class ChatRoomRootView: UIView {
         super.init(frame: frame)
         setupLayout()
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     // MARK: - SETUP CONSTRAINTS
     
-    private func setupLayout() {
+    private func setupLayout()
+    {
         setupTableViewConstraints()
         setupInputBarContainerConstraints()
         setupMessageTextViewConstraints()
@@ -177,6 +193,7 @@ final class ChatRoomRootView: UIView {
         setupSendEditMessageButtonConstraints()
         setupScrollToBottomBtn()
         setupUnseenMessageCounterBadgeConstraints()
+        setupJoinChatRoomButtonConstraints()
 //        setupUnseenMessagesBadgeConstraints()
     }
     
@@ -196,6 +213,14 @@ final class ChatRoomRootView: UIView {
     
     func setTextViewDelegate(to delegate: UITextViewDelegate) {
         messageTextView.delegate = delegate
+    }
+    
+    func setInputBarParametersVisibility(shouldHideJoinButton: Bool)
+    {
+        joinChatRoomButton.isHidden = shouldHideJoinButton
+        messageTextView.isHidden = !shouldHideJoinButton
+        sendMessageButton.isHidden = !shouldHideJoinButton
+        addPictureButton.isHidden = !shouldHideJoinButton
     }
 }
 
@@ -230,7 +255,17 @@ extension ChatRoomRootView
 // MARK: - SETUP SUBVIEW'S CONSTRAINTS
 extension ChatRoomRootView
 {
-    private func setupUnseenMessageCounterBadgeConstraints() 
+    private func setupJoinChatRoomButtonConstraints()
+    {
+        inputBarContainer.addSubview(joinChatRoomButton)
+        
+        NSLayoutConstraint.activate([
+            joinChatRoomButton.centerXAnchor.constraint(equalTo: inputBarContainer.centerXAnchor),
+            joinChatRoomButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor,constant: 10),
+        ])
+    }
+    
+    private func setupUnseenMessageCounterBadgeConstraints()
     {
         scrollBadgeButton.addSubview(unseenMessagesBadge)
         NSLayoutConstraint.activate([

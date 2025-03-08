@@ -120,6 +120,7 @@ final class ChatRoomViewController: UIViewController
         self.addGestureToTableView()
         self.setNavigationBarItems()
         self.addTargetsToButtons()
+        self.rootView.setInputBarParametersVisibility(shouldHideJoinButton: viewModel.isChatPresentInLocalDB)
         self.addKeyboardNotificationObservers()
         self.setupBinding()
     }

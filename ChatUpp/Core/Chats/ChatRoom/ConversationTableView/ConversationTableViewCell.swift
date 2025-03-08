@@ -107,7 +107,7 @@ final class ConversationTableViewCell: UITableViewCell
             return
         }
         
-        guard let imagePath = message.imagePath else {return}
+        guard let _ = message.imagePath else {return}
         
         if let imageData = cellViewModel.retrieveImageData()
         {
@@ -199,9 +199,9 @@ final class ConversationTableViewCell: UITableViewCell
             }
         }
         
-        self.setMessageLabelTopConstraints()
         
         self.setupReplyMessage()
+        self.setMessageLabelTopConstraints()
         self.setupEditedLabel()
         self.setupBinding()
         self.adjustMessageSide()
@@ -659,7 +659,6 @@ extension ConversationTableViewCell
         messageSenderAvatar?.clipsToBounds = true
         messageSenderAvatar?.translatesAutoresizingMaskIntoConstraints = false
         setupSenderAvatarConstraints()
-        
         
         if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "medium") {
             messageSenderAvatar?.image = UIImage(data: imageData)

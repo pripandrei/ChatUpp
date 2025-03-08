@@ -88,7 +88,7 @@ extension ConversationCellViewModel
     func fetchSenderAvatartImageData()
     {
         guard let user = messageSender, var path = messageSender?.photoUrl else { return }
-        Task {
+        Task { @MainActor in
             path = path.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
             let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: path)
             cacheImage(data: imageData)

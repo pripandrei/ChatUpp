@@ -235,8 +235,8 @@ final class ConversationUserListinerService
             .shared
             .addListenerToUsers(usersID)
             .sink(receiveValue: { [weak self] userUpdatedObject in
-                if userUpdatedObject.changeType == .modified {
-//                    self?.chatUser = userUpdatedObject.data
+                if userUpdatedObject.changeType == .modified
+                {
                     if let index = self?.chatUsers.firstIndex(where: { $0.id == userUpdatedObject.data.id })
                     {
                         self?.chatUsers[index] = userUpdatedObject.data

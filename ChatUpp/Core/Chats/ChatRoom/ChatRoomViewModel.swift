@@ -44,6 +44,11 @@ class ChatRoomViewModel
         conversation?.participants.first(where: { $0.userID == authUser.uid })?.unseenMessagesCount ?? 0
     }
     
+    var isChatPresentInLocalDB: Bool {
+        guard let conversation = conversation else { return false }
+        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
+    }
+    
     private var isChatFetchedFirstTime: Bool {
         conversation?.isFirstTimeOpened ?? true
     }
@@ -58,13 +63,18 @@ class ChatRoomViewModel
     
     var shouldFetchNewMessages: Bool
     {
+        if conversation?.realm == nil {
+            return true
+        }
+        
         guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
             return false
         }
 
         let unreadMessagesCount = realmService?.getUnreadMessagesCountFromRealm()
-        return ( authParticipantUnreadMessagesCount != unreadMessagesCount ) || isChatFetchedFirstTime
+        return ( authParticipantUnreadMessagesCount != unreadMessagesCount ) || isChatFetchedFirstTime || conversation?.realm == nil
     }
+    
     
 //    var participant: User?
 //    {
@@ -316,6 +326,7 @@ class ChatRoomViewModel
     /// @MainActor
     func findFirstUnseenMessageIndex() -> IndexPath?
     {
+        guard conversation?.realm != nil else { return nil }
         guard let unseenMessage = conversation?.conversationMessages
             .filter("messageSeen == false AND senderId != %@", authUser.uid)
             .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
@@ -443,8 +454,10 @@ extension ChatRoomViewModel
             {
                 try await syncGroupUsers(for: messages)
             }
-            realmService?.addMessagesToConversationInRealm(messages)
-            initializeWithLocalData()
+//            if conversation?.realm != nil {
+                realmService?.addMessagesToConversationInRealm(messages)
+                initializeWithLocalData()
+//            }
         } catch {
             print("Error while initiating conversation: - \(error)")
         }
@@ -452,14 +465,16 @@ extension ChatRoomViewModel
     
     private func initializeWithLocalData()
     {
-        guard var messages = conversation?.getMessages(),
+        defer { conversationInitializationStatus = .finished }
+        
+        guard conversation?.realm != nil,
+              var messages = conversation?.getMessages(),
               !messages.isEmpty else { return }
         
         if !shouldDisplayLastMessage {
             messages.removeFirst()
         }
         createMessageClustersWith(messages)
-        conversationInitializationStatus = .finished
     }
     
     
@@ -467,7 +482,7 @@ extension ChatRoomViewModel
     
     private func syncGroupUsers(for messages: [Message]) async throws
     {
-        let missingUserIDs = findMissingUserIDs(from: messages)
+        let missingUserIDs = await findMissingUserIDs(from: messages)
         
         guard !missingUserIDs.isEmpty else { return }
         
@@ -476,6 +491,7 @@ extension ChatRoomViewModel
         await fetchAvatars(for: users)
     }
 
+    @MainActor
     private func findMissingUserIDs(from messages: [Message]) -> [String] {
         let senderIDs = Set(messages.map(\.senderId))
         let existingUsers = getRealmUsers(with: senderIDs)
@@ -495,7 +511,7 @@ extension ChatRoomViewModel
         await withTaskGroup(of: Void.self) { group in
             for user in users
             {
-                guard var avatarURL = user.photoUrl else { continue }
+                guard let avatarURL = user.photoUrl else { continue }
 
                 group.addTask {
                     do {

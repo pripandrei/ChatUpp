@@ -59,7 +59,7 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
     
     private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
     {
-        let chatType: ChatType = ((conversationViewModel.conversation?.isGroup) != nil) ? ._group : ._private
+        let chatType: ChatType = conversationViewModel.conversation?.isGroup == true ? ._group : ._private
         var messageLayoutConfiguration = MessageLayoutConfigurationFactory.makeConfiguration(for: chatType)
         
         if chatType == ._group {
@@ -76,10 +76,6 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         let messageItems = conversationViewModel.messageClusters[indexPath.section].items
         return messageItems[indexPath.row].message?.senderId != messageItems[indexPath.row - 1].message?.senderId
     }
-    
-    //    private func establishCellMessageSide(for indexPath: IndexPath) -> MessageSide {
-    //
-    //    }
 }
 
 
