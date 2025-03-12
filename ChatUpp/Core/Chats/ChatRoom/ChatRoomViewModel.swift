@@ -10,6 +10,13 @@ import Foundation
 import Combine
 import UIKit
 
+enum GroupMembershipStatus
+{
+    case isMember
+    case notAMember
+    case pendingInvite
+}
+
 class ChatRoomViewModel
 {
     private var setupConversationTask: Task<Void, Never>?
@@ -17,7 +24,7 @@ class ChatRoomViewModel
     private(set) var realmService: ConversationRealmService?
 //    private(set) var messageFetcher : ConversationMessageFetcher
     private(set) var firestoreService: ConversationFirestoreService?
-    private(set) var userListenerService : ConversationUserListinerService?
+    private(set) var userListenerService : ConversationUsersListinerService?
     private(set) var messageListenerService : ConversationMessageListenerService?
     
     private(set) var conversation        : Chat?
@@ -44,10 +51,18 @@ class ChatRoomViewModel
         conversation?.participants.first(where: { $0.userID == authUser.uid })?.unseenMessagesCount ?? 0
     }
     
-    var isChatPresentInLocalDB: Bool {
-        guard let conversation = conversation else { return false }
+//    var isChatPresentInLocalDB: Bool {
+//        guard let conversation = conversation else { return false }
+//        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
+//    }
+    
+    var shouldHideJoinGroupOption: Bool
+    {
+        if conversation?.isGroup == false { return true }
+        guard let conversation = conversation else { return true }
         return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
     }
+    
     
     private var isChatFetchedFirstTime: Bool {
         conversation?.isFirstTimeOpened ?? true
@@ -96,7 +111,7 @@ class ChatRoomViewModel
         guard let conversation = conversation else { return [] }
         
         let participantsID = Array( conversation.participants.map { $0.userID } )
-        let filter = NSPredicate(format: "id IN %@", participantsID)
+        let filter = NSPredicate(format: "id IN %@ AND id != %@", participantsID, authUser.uid)
         let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
         
         return users ?? []
@@ -104,16 +119,19 @@ class ChatRoomViewModel
     
     /// - Life cycle
     
-    init(conversation: Chat? = nil)
+    init(conversation: Chat)
     {
         self.conversation = conversation
 //        self.chatUser = conversationUser
 //        self.memberProfileImage = imageData
-        self.unseenMessagesCount = conversation?.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
+        self.unseenMessagesCount = conversation.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
-        self.userListenerService = ConversationUserListinerService(chatUsers: self.members)
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
+        //        self.userListenerService = ConversationUserListinerService(chatUsers: self.members)
+        if conversation.isGroup {
+            self.userListenerService = ConversationUsersListinerService(chatUsers: Array(conversation.participants))
+        }
 //        self.messageFetcher = ConversationMessageFetcher(conversation: conversation!, firestoreService: firestoreService)
         
         if conversationExists {
@@ -145,7 +163,8 @@ class ChatRoomViewModel
 
     /// - listeners
     
-    func addListeners() {
+    func addListeners()
+    {
         userListenerService?.addUsersListener()
         userListenerService?.addUserObserver()
         observeParticipantChanges()
@@ -170,6 +189,19 @@ class ChatRoomViewModel
     
     func resetInitializationStatus() {
         conversationInitializationStatus = nil
+    }
+    
+    @MainActor
+    func joinGroup() async throws
+    {
+        guard let conversation = conversation else { return }
+        
+        let participant = ChatParticipant(userID: authUser.uid, unseenMessageCount: 0)
+        conversation.participants.append(participant)
+        RealmDataBase.shared.add(object: conversation)
+//        Task {
+            try await FirebaseChatService.shared.addParticipant(participant: participant, toChat: conversation.id)
+//        }
     }
     
     /// - chat components creation

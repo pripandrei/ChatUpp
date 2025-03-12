@@ -167,18 +167,23 @@ final class ConversationFirestoreService
 
 //MARK: - Users listener
 
-final class ConversationUserListinerService
+final class ConversationUsersListinerService
 {
     private var cancellables = Set<AnyCancellable>()
     
-    @Published private(set) var chatUsers: [User]
+    @Published private(set) var chatUsers: [User] = []
+    @Published private(set) var chatParticipants: [ChatParticipant]
     
 //    init(chatUser: User) {
 //        self.chatUser = chatUser
 //    }
     
-    init(chatUsers: [User]) {
-        self.chatUsers = chatUsers
+//    init(chatUsers: [User]) {
+//        self.chatUsers = chatUsers
+//    }
+    
+    init(chatUsers: [ChatParticipant]) {
+        self.chatParticipants = chatUsers
     }
     
     func removeSubscribers() {
@@ -190,17 +195,19 @@ final class ConversationUserListinerService
     ///
     func addUserObserver()
     {
-        let userPublishers = chatUsers.map { user in
-            RealtimeUserService.shared.addObserverToUsers(user.id)
+        let userPublishers = chatParticipants.map { participant in
+            RealtimeUserService.shared.addObserverToUsers(participant.userID)
         }
         
         Publishers.MergeMany(userPublishers)
             .sink(receiveValue: { [weak self] updatedUser in
                 guard let self = self else { return }
                 
-                if let index = self.chatUsers.firstIndex(where: { $0.id == updatedUser.id })
+                if let index = self.chatParticipants.firstIndex(where: { $0.userID == updatedUser.id })
                 {
-                    self.chatUsers[index] = updatedUser
+//                    self.chatUsers[index] = updatedUser // TODO: - shoul save to realm and attache listener to objects
+                    
+                    
 //                    let currentUser = self.chatUsers[index]
 //                    if updatedUser.isActive != currentUser.isActive {
 //                        self.chatUsers[index] = currentUser.updateActiveStatus(lastSeenDate: updatedUser.lastSeen, isActive: updatedUser.isActive)
@@ -209,28 +216,10 @@ final class ConversationUserListinerService
             })
             .store(in: &cancellables)
     }
-//    func addUserObserver()
-//    {
-//        RealtimeUserService
-//            .shared
-//            .addObserverToUsers(chatUser.id)
-//            .sink(receiveValue: { [weak self] updatedUser in
-//                guard let self = self else {return}
-//                
-//                if updatedUser.isActive != self.chatUser.isActive
-//                {
-//                    if let date = updatedUser.lastSeen,
-//                       let isActive = updatedUser.isActive
-//                    {
-//                        self.chatUser = self.chatUser.updateActiveStatus(lastSeenDate: date,isActive: isActive)
-//                    }
-//                }
-//            }).store(in: &cancellables)
-//    }
     
     func addUsersListener()
     {
-        let usersID = chatUsers.map { $0.id }
+        let usersID = chatParticipants.map { $0.userID }
         FirestoreUserService
             .shared
             .addListenerToUsers(usersID)
@@ -239,7 +228,7 @@ final class ConversationUserListinerService
                 {
                     if let index = self?.chatUsers.firstIndex(where: { $0.id == userUpdatedObject.data.id })
                     {
-                        self?.chatUsers[index] = userUpdatedObject.data
+//                        self?.chatUsers[index] = userUpdatedObject.data // TODO: - shoul save to realm and attache listener to objects
                     }
                 }
             }).store(in: &cancellables)

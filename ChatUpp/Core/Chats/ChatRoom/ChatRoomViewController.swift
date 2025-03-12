@@ -116,11 +116,11 @@ final class ChatRoomViewController: UIViewController
 
     private func setupController()
     {
+        self.rootView.setInputBarParametersVisibility(shouldHideJoinButton: viewModel.shouldHideJoinGroupOption)
         self.configureTableView()
         self.addGestureToTableView()
         self.setNavigationBarItems()
         self.addTargetsToButtons()
-        self.rootView.setInputBarParametersVisibility(shouldHideJoinButton: viewModel.isChatPresentInLocalDB)
         self.addKeyboardNotificationObservers()
         self.setupBinding()
     }
@@ -130,6 +130,7 @@ final class ChatRoomViewController: UIViewController
         addTargetToAddPictureBtn()
         addTargetToEditMessageBtn()
         addTargetToScrollToBottomBtn()
+        addTargetToJoinGroupBtn()
     }
     
     private func refreshTableView() 
@@ -548,7 +549,20 @@ extension ChatRoomViewController {
     private func addTargetToEditMessageBtn() {
         rootView.sendEditMessageButton.addTarget(self, action: #selector(editMessageBtnWasTapped), for: .touchUpInside)
     }
+    private func addTargetToJoinGroupBtn() {
+        rootView.joinChatRoomButton.addTarget(self, action: #selector(joinGroupBtnWasTapped), for: .touchUpInside)
+    }
     
+    @objc func joinGroupBtnWasTapped()
+    {
+        rootView.joinChatRoomButton.isHidden = true
+        // activate spinner
+        Task { @MainActor in
+            try await viewModel.joinGroup()
+            rootView.setInputBarParametersVisibility(shouldHideJoinButton: viewModel.shouldHideJoinGroupOption)
+        }
+    }
+
     @objc func scrollToBottomBtnWasTapped() {
         rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }

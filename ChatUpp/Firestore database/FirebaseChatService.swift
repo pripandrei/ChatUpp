@@ -251,6 +251,13 @@ extension FirebaseChatService
 //        try await chatsCollection.document(chatID).updateData( [isDeletedField: true] )
         try await chatDocument(documentPath: chatID).updateData( [isDeletedField: true] )
     }
+    
+    @MainActor   
+    func addParticipant(participant: ChatParticipant, toChat chatID: String) async throws
+    {
+        let newParticipant = [participant.userID : participant]
+        try chatDocument(documentPath: chatID).setData(from: ["participants": newParticipant], merge: true)
+    }
 }
 
 
