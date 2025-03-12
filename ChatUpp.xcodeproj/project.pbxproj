@@ -45,6 +45,9 @@
 		756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D42AB50079005DC594 /* FirestoreUserService.swift */; };
 		756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */; };
 		756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */; };
+		756E6D162D820D1F0065CADB /* ActivityIndicatorView in Frameworks */ = {isa = PBXBuildFile; productRef = 756E6D152D820D1F0065CADB /* ActivityIndicatorView */; };
+		756E6D1D2D8210890065CADB /* NVActivityIndicatorView in Frameworks */ = {isa = PBXBuildFile; productRef = 756E6D1C2D8210890065CADB /* NVActivityIndicatorView */; };
+		756E6D1F2D8210890065CADB /* NVActivityIndicatorViewExtended in Frameworks */ = {isa = PBXBuildFile; productRef = 756E6D1E2D8210890065CADB /* NVActivityIndicatorViewExtended */; };
 		757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */; };
 		7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */; };
 		7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */; };
@@ -284,15 +287,18 @@
 				757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */,
 				757AB0E62BB9D70D00A64DA4 /* FirebaseDatabaseSwift in Frameworks */,
 				757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */,
+				756E6D162D820D1F0065CADB /* ActivityIndicatorView in Frameworks */,
 				757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */,
 				752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */,
 				757AB0F02BB9D70D00A64DA4 /* FirebaseFunctions in Frameworks */,
 				757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */,
+				756E6D1D2D8210890065CADB /* NVActivityIndicatorView in Frameworks */,
 				757AB0F92BB9D7DD00A64DA4 /* AlgoliaSearchClient in Frameworks */,
 				7587CE222C7CC403002D60CE /* RealmSwift in Frameworks */,
 				757AB0E82BB9D70D00A64DA4 /* FirebaseDynamicLinks in Frameworks */,
 				75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */,
 				757AB0EA2BB9D70D00A64DA4 /* FirebaseFirestore in Frameworks */,
+				756E6D1F2D8210890065CADB /* NVActivityIndicatorViewExtended in Frameworks */,
 				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */,
 				757AB0EE2BB9D70D00A64DA4 /* FirebaseFirestoreSwift in Frameworks */,
@@ -820,6 +826,9 @@
 				752514B92D0CD2FF003330E7 /* Kingfisher */,
 				75A086152D19619E00DE5333 /* CropViewController */,
 				75A086172D19619E00DE5333 /* TOCropViewController */,
+				756E6D152D820D1F0065CADB /* ActivityIndicatorView */,
+				756E6D1C2D8210890065CADB /* NVActivityIndicatorView */,
+				756E6D1E2D8210890065CADB /* NVActivityIndicatorViewExtended */,
 			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
@@ -857,6 +866,8 @@
 				7587CE202C7CC403002D60CE /* XCRemoteSwiftPackageReference "realm-swift" */,
 				752514B82D0CD2FF003330E7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				75A086142D19619E00DE5333 /* XCRemoteSwiftPackageReference "TOCropViewController" */,
+				756E6D142D820D1F0065CADB /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */,
+				756E6D1B2D8210890065CADB /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */,
 			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
@@ -1241,6 +1252,22 @@
 				minimumVersion = 8.1.2;
 			};
 		};
+		756E6D142D820D1F0065CADB /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/ActivityIndicatorView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.1;
+			};
+		};
+		756E6D1B2D8210890065CADB /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ninjaprox/NVActivityIndicatorView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.0;
+			};
+		};
 		757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
@@ -1296,6 +1323,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 752514B82D0CD2FF003330E7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		756E6D152D820D1F0065CADB /* ActivityIndicatorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 756E6D142D820D1F0065CADB /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */;
+			productName = ActivityIndicatorView;
+		};
+		756E6D1C2D8210890065CADB /* NVActivityIndicatorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 756E6D1B2D8210890065CADB /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */;
+			productName = NVActivityIndicatorView;
+		};
+		756E6D1E2D8210890065CADB /* NVActivityIndicatorViewExtended */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 756E6D1B2D8210890065CADB /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */;
+			productName = NVActivityIndicatorViewExtended;
 		};
 		757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;

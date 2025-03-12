@@ -555,11 +555,19 @@ extension ChatRoomViewController {
     
     @objc func joinGroupBtnWasTapped()
     {
-        rootView.joinChatRoomButton.isHidden = true
-        // activate spinner
-        Task { @MainActor in
-            try await viewModel.joinGroup()
-            rootView.setInputBarParametersVisibility(shouldHideJoinButton: viewModel.shouldHideJoinGroupOption)
+        UIView.animate(withDuration: 0.4) {
+            self.rootView.joinChatRoomButton.layer.opacity = 0.0
+        } completion: { _ in
+            self.rootView.joinChatRoomButton.isHidden = true
+            self.rootView.joinActivityIndicator.startAnimating()
+            
+            Task { @MainActor in
+                try await Task.sleep(for: .seconds(1))
+                try await self.viewModel.joinGroup()
+                self.rootView.joinActivityIndicator.stopAnimating()
+                
+                self.rootView.setInputBarParametersVisibility(shouldHideJoinButton: true, shouldAnimate: true)
+            }
         }
     }
 

@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import SkeletonView
 import YYText
+import NVActivityIndicatorView
 
 final class ChatRoomRootView: UIView {
     
@@ -152,6 +153,12 @@ final class ChatRoomRootView: UIView {
         return joinButton
     }()
     
+    private(set) lazy var joinActivityIndicator: NVActivityIndicatorView = {
+        let activityIndicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height: 40), type: .circleStrokeSpin, color: .link, padding: 2)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
+    }()
+    
     private func setupScrollToBottomBtn() {
         addSubview(scrollBadgeButton)
         
@@ -194,6 +201,7 @@ final class ChatRoomRootView: UIView {
         setupScrollToBottomBtn()
         setupUnseenMessageCounterBadgeConstraints()
         setupJoinChatRoomButtonConstraints()
+        setupActivityIndicatorConstraint()
 //        setupUnseenMessagesBadgeConstraints()
     }
     
@@ -215,12 +223,24 @@ final class ChatRoomRootView: UIView {
         messageTextView.delegate = delegate
     }
     
-    func setInputBarParametersVisibility(shouldHideJoinButton: Bool)
+    func setInputBarParametersVisibility(shouldHideJoinButton: Bool, shouldAnimate: Bool = false)
     {
         joinChatRoomButton.isHidden = shouldHideJoinButton
-        messageTextView.isHidden = !shouldHideJoinButton
-        sendMessageButton.isHidden = !shouldHideJoinButton
-        addPictureButton.isHidden = !shouldHideJoinButton
+        
+        self.messageTextView.layer.opacity = 0.0
+        self.sendMessageButton.layer.opacity = 0.0
+        self.addPictureButton.layer.opacity = 0.0
+        
+        UIView.animate(withDuration: shouldAnimate ? 0.5 : 0.0)
+        {
+            self.messageTextView.isHidden = !shouldHideJoinButton
+            self.sendMessageButton.isHidden = !shouldHideJoinButton
+            self.addPictureButton.isHidden = !shouldHideJoinButton
+            
+            self.messageTextView.layer.opacity = 1.0
+            self.sendMessageButton.layer.opacity = 1.0
+            self.addPictureButton.layer.opacity = 1.0
+        }
     }
 }
 
@@ -255,6 +275,16 @@ extension ChatRoomRootView
 // MARK: - SETUP SUBVIEW'S CONSTRAINTS
 extension ChatRoomRootView
 {
+    private func setupActivityIndicatorConstraint()
+    {
+        inputBarContainer.addSubview(joinActivityIndicator)
+        
+        NSLayoutConstraint.activate([
+            joinActivityIndicator.centerXAnchor.constraint(equalTo: inputBarContainer.centerXAnchor),
+            joinActivityIndicator.topAnchor.constraint(equalTo: inputBarContainer.topAnchor,constant: 10),
+        ])
+    }
+    
     private func setupJoinChatRoomButtonConstraints()
     {
         inputBarContainer.addSubview(joinChatRoomButton)
