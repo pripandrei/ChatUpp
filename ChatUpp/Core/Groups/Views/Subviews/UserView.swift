@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-protocol UserItemProtocol {
-    var id: String { get }
-    var name: String? { get }
-    var lastSeen: Date? { get }
-}
-
 // MARK: - Users section
 struct UserView<Content: View>: View
 {

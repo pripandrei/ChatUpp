@@ -555,7 +555,8 @@ extension ChatRoomViewController {
     
     @objc func joinGroupBtnWasTapped()
     {
-        UIView.animate(withDuration: 0.4) {
+        UIView.animate(withDuration: 0.4)
+        {
             self.rootView.joinChatRoomButton.layer.opacity = 0.0
         } completion: { _ in
             self.rootView.joinChatRoomButton.isHidden = true
@@ -564,8 +565,8 @@ extension ChatRoomViewController {
             Task { @MainActor in
                 try await Task.sleep(for: .seconds(1))
                 try await self.viewModel.joinGroup()
-                self.rootView.joinActivityIndicator.stopAnimating()
                 
+                self.rootView.joinActivityIndicator.stopAnimating()
                 self.rootView.setInputBarParametersVisibility(shouldHideJoinButton: true, shouldAnimate: true)
             }
         }

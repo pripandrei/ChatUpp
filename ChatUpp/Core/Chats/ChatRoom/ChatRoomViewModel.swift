@@ -198,10 +198,8 @@ class ChatRoomViewModel
         
         let participant = ChatParticipant(userID: authUser.uid, unseenMessageCount: 0)
         conversation.participants.append(participant)
-//        Task {
         try await FirebaseChatService.shared.addParticipant(participant: participant, toChat: conversation.id)
         RealmDataBase.shared.add(object: conversation)
-//        }
     }
     
     /// - chat components creation

@@ -157,72 +157,6 @@ class ChatsViewController: UIViewController {
         }
     }
     
-    
-//    func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
-//        let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
-//        
-//        let filteredSearchText = searchText
-//            .components(separatedBy: delimiters)
-//            .joined(separator: " ")
-//        let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
-//        
-//        return chatsViewModel.cellViewModels.compactMap { chatCell in
-//            
-//            var searchedTitle: String?
-//            
-//            if chatCell.chat.isGroup {
-//                searchedTitle = chatCell.chat.name
-//            } else {
-//                searchedTitle = chatCell.chatUser?.name
-//            }
-//            
-//            guard let user = chatCell.chatUser, let userName = user.name else { return nil }
-//            
-//            let lowercasedResult = searchedTitle?.lowercased()
-//            let resultSubstrings = lowercasedResult?.components(separatedBy: delimiters)
-//            
-//            let isMatching = resultSubstrings.contains { $0.hasPrefix(trimmedSearchText) }
-//                          || lowercasedResult.hasPrefix(trimmedSearchText)
-//            
-//            guard isMatching else { return nil }
-//            
-//            return ResultsCellViewModel(chat: chatCell.chat, user: user)
-////            return ResultsCellViewModel(
-////                memberUser: user,
-////                chat: chatCell.chat,
-////                imageData: chatCell.retrieveImageFromCache(),
-////                unreadMessageCount: chatCell.unreadMessageCount
-////            )
-//        }
-//    }
-    
-//    func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel] {
-//        
-//        return chatsViewModel.cellViewModels.enumerated().compactMap ({ index, chatCell in
-//           
-//            let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
-//            
-//            let searchTextComponents = searchText.components(separatedBy: delimiters)
-//            let filteredSearchText = searchTextComponents.joined(separator: " ")
-//            let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
-//
-//            guard let user = chatCell.chatUser,
-//                  let userName = user.name else {return nil}
-//            
-//            let nameSubstrings = userName.lowercased().components(separatedBy: delimiters)
-//            
-//            for substring in nameSubstrings {
-//                if substring.hasPrefix(trimmedSearchText) {
-//                    return ResultsCellViewModel(memberUser: user, chat: chatCell.chat, imageData: chatCell.retrieveProfileImageFromCache(), unreadMessageCount: chatCell.unreadMessageCount)
-//                }
-//            }
-//            if userName.lowercased().hasPrefix(trimmedSearchText) {
-//                return ResultsCellViewModel(memberUser: user, chat: chatCell.chat, imageData: chatCell.retrieveProfileImageFromCache(), unreadMessageCount: chatCell.unreadMessageCount)
-//            }
-//            return nil
-//        })
-//    }
-    
     func removeExcessiveSpaces(from input: String) -> String {
         do {
             let regex = try NSRegularExpression(pattern: "\\s+", options: .caseInsensitive)
@@ -448,11 +382,6 @@ extension ChatsViewController
     @objc private func presentGropupOptionScreen()
     {
         coordinatorDelegate?.showGroupCreationScreen()
-//        let groupCreationScreen = GroupCreationScreen()
-//        let hostingController = UIHostingController(rootView: groupCreationScreen)
-//        hostingController.modalPresentationStyle = .pageSheet
-//        hostingController.modalTransitionStyle = .coverVertical
-//        present(hostingController, animated: true)
     }
     
 }
