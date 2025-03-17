@@ -14,7 +14,7 @@ enum ValidationStatus {
 }
 
 //MARK: - Username registration View Model
- 
+
 final class UsernameRegistrationViewModel
 {
     private(set) var registrationCompleted: ObservableObject<Bool?> = ObservableObject(nil)
@@ -100,7 +100,7 @@ final class UsernameRegistrationViewModel
     }
 }
 
-
+/// Not in use
 struct ImageStorageProcessor
 {
     private let sampleRepository: ImageSampleRepository

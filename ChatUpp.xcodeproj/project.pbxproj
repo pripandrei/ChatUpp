@@ -48,6 +48,7 @@
 		756E6D162D820D1F0065CADB /* ActivityIndicatorView in Frameworks */ = {isa = PBXBuildFile; productRef = 756E6D152D820D1F0065CADB /* ActivityIndicatorView */; };
 		756E6D1D2D8210890065CADB /* NVActivityIndicatorView in Frameworks */ = {isa = PBXBuildFile; productRef = 756E6D1C2D8210890065CADB /* NVActivityIndicatorView */; };
 		756E6D1F2D8210890065CADB /* NVActivityIndicatorViewExtended in Frameworks */ = {isa = PBXBuildFile; productRef = 756E6D1E2D8210890065CADB /* NVActivityIndicatorViewExtended */; };
+		756E6D242D88A65C0065CADB /* ChatRoomInformationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756E6D232D88A64D0065CADB /* ChatRoomInformationScreen.swift */; };
 		757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */; };
 		7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */; };
 		7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */; };
@@ -217,6 +218,7 @@
 		756525D42AB50079005DC594 /* FirestoreUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreUserService.swift; sourceTree = "<group>"; };
 		756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameRegistrationViewController.swift; sourceTree = "<group>"; };
 		756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsCellViewModel.swift; sourceTree = "<group>"; };
+		756E6D232D88A64D0065CADB /* ChatRoomInformationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomInformationScreen.swift; sourceTree = "<group>"; };
 		757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewShadowConfigurable.swift; sourceTree = "<group>"; };
 		7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewController.swift; sourceTree = "<group>"; };
 		7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewModel.swift; sourceTree = "<group>"; };
@@ -385,6 +387,7 @@
 		7543BE312ACC879D003001BF /* ChatRoom */ = {
 			isa = PBXGroup;
 			children = (
+				756E6D222D88A5A00065CADB /* ChatRoomInformation */,
 				75A7AFCD2D399B1A00E081DF /* ConversationViewModel+MessageClusterHandler.swift */,
 				75BA23BB2D32272800A4C508 /* ServiceT.swift */,
 				7543BE322ACC87CA003001BF /* ChatRoomViewController.swift */,
@@ -486,6 +489,14 @@
 				7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */,
 			);
 			path = "Firestore database";
+			sourceTree = "<group>";
+		};
+		756E6D222D88A5A00065CADB /* ChatRoomInformation */ = {
+			isa = PBXGroup;
+			children = (
+				756E6D232D88A64D0065CADB /* ChatRoomInformationScreen.swift */,
+			);
+			path = ChatRoomInformation;
 			sourceTree = "<group>";
 		};
 		757033A32BC2D829002732B5 /* Protocols */ = {
@@ -972,6 +983,7 @@
 				75B48B572AF6837700A5FBFC /* ChatRoomRootView.swift in Sources */,
 				756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */,
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
+				756E6D242D88A65C0065CADB /* ChatRoomInformationScreen.swift in Sources */,
 				75FB78F82AC311D000C2743A /* ChatsViewModel.swift in Sources */,
 				755A3F7B2AD0689500739861 /* ChatsTableViewDataSource.swift in Sources */,
 				757900762BF1768D00DE5A2F /* ConversationTableViewHeader.swift in Sources */,
