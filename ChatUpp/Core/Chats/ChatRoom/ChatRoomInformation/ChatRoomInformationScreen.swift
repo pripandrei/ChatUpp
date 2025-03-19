@@ -39,21 +39,25 @@ struct ChatRoomInformationScreen: View
                 }
             }
             .padding(.trailing, 30)
-            .padding(.top, -40)
+            .padding(.top, -45)
             
             List {
                 Section {
                     ForEach(0..<10) { item in
                         Text("Item \(item)")
+//                            .listRowInsets(EdgeInsets(top: 0, leading: 70, bottom: 0, trailing: 0))
                     }
                 } header: {
                     Text("Members")
                         .font(.subheadline)
                         .bold()
+                        .foregroundStyle(Color.white)
                 }
                 .listRowBackground(Color(cgColor: #colorLiteral(red: 0.7054647803, green: 0.7069373131, blue: 0.8391894698, alpha: 1)))
+                .listRowInsets(.init(top: 10, leading: 20, bottom: 10, trailing: 0))
             }
             .scrollContentBackground(.hidden)
+//            .background(Color(cgColor: #colorLiteral(red: 0.4392156899, green: 0.01176470611, blue: 0.1921568662, alpha: 1)))
             .padding(.top, 15)
         }
         .background(Color(cgColor: #colorLiteral(red: 0.5539219975, green: 0.5661839247, blue: 0.656108439, alpha: 1)))
@@ -100,12 +104,13 @@ extension ChatRoomInformationScreen
                 Image(systemName: item.icon)
                     .resizable()
                     .frame(width: 30, height: 30, alignment: .center)
-                    .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.4667027593, green: 0.2827162743, blue: 0.9599718451, alpha: 1)))
+                    .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.92651546, green: 0.7966771722, blue: 1, alpha: 1)))
                     
                 Text(item.rawValue)
-//                    .font(.system(size: 12, weight: .semibold, design: .serif))
-                    .font(.custom("HelveticaNeue", size: 14))
-                    .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.4667027593, green: 0.2827162743, blue: 0.9599718451, alpha: 1)))
+                    .font(.system(size: 13, weight: .semibold))
+//                    .font(.custom("HelveticaNeue", size: 14))
+//                    .fontWeight(.bold)
+                    .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.92651546, green: 0.7966771722, blue: 1, alpha: 1)))
             }
             .frame(width: 80, height: 50)
             .padding(.horizontal, 8)
