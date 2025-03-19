@@ -24,7 +24,6 @@ struct GroupCreationScreen: View
                         }
                 }
                 Section {
-                    
                     ForEach(groupCreationViewModel.allUsers) { member in
                         UserView(userItem: member)
                     }

@@ -11,39 +11,52 @@ struct ChatRoomInformationScreen: View
 {
     var body: some View
     {
-        ZStack(alignment: .bottomLeading) {
-            VStack {
-                Image("default_group_photo")
-                    .resizable()
-                    .scaledToFill()
+        VStack(spacing: 0) {
+            ZStack(alignment: .bottomLeading) {
+                VStack {
+                    Image("default_group_photo")
+                        .resizable()
+                        .scaledToFill()
+                }
+                
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Chat Room Name")
+                        .font(.system(size: 24, weight: .semibold))
+                    Text("34 members")
+                        .font(.system(size: 15))
+                }
+                .foregroundStyle(.white)
+                .padding(.leading, 20)
+                .padding(.bottom, 20)
             }
+            .frame(width: UIScreen.main.bounds.width, height: 400)
+            .ignoresSafeArea(.all)
             
-            VStack(alignment: .leading, spacing: 1) {
-                Text("Chat Room Name")
-                    .font(.system(size: 24, weight: .semibold))
-                Text("34 members")
-                    .font(.system(size: 15))
-            }
-            .foregroundStyle(.white)
-            .padding(.leading, 20)
-            .padding(.bottom, 20)
-            
-        }
-        .frame(width: UIScreen.main.bounds.width, height: 400)
-        .ignoresSafeArea(.all)
-        
-        HStack {
-            Spacer()
             HStack {
+                Spacer()
                 ForEach(ButtonOption.allCases) { item in
                     ButtonOptionView(item: item)
                 }
             }
+            .padding(.trailing, 30)
+            .padding(.top, -40)
+            
+            List {
+                Section {
+                    ForEach(0..<10) { item in
+                        Text("Item \(item)")
+                    }
+                } header: {
+                    Text("Members")
+                        .font(.subheadline)
+                        .bold()
+                }
+                .listRowBackground(Color(cgColor: #colorLiteral(red: 0.7054647803, green: 0.7069373131, blue: 0.8391894698, alpha: 1)))
+            }
+            .scrollContentBackground(.hidden)
+            .padding(.top, 15)
         }
-        .padding(.trailing, 30)
-        .padding(.top, -45)
-        
-        Spacer()
+        .background(Color(cgColor: #colorLiteral(red: 0.5539219975, green: 0.5661839247, blue: 0.656108439, alpha: 1)))
     }
 }
 
@@ -99,37 +112,6 @@ extension ChatRoomInformationScreen
             .padding(.vertical, 8)
             .background(Color(cgColor: #colorLiteral(red: 0.4245440364, green: 0.4465940595, blue: 1, alpha: 1)).opacity(0.4))
             .clipShape(.rect(cornerRadius: 12))
-        }
-    }
-    
-    
-    private struct NewChatOptionHeaderView: View
-    {
-        let item: NewChatOption
-        
-        var body: some View {
-            Button {
-                
-            } label: {
-                setupButtonLabel()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-            }
-        }
-        
-        private func setupButtonLabel() -> some View
-        {
-            VStack {
-                Image(systemName: item.imageName)
-                    .font(.system(size: 15))
-                    .frame(width: 37, height: 37)
-                    .background(Color(.systemGray6))
-                    .clipShape(.circle)
-                    .padding(.trailing, 10)
-                
-                Text(item.title)
-                    .font(.system(size: 16))
-            }
         }
     }
 }
