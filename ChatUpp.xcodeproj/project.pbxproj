@@ -19,6 +19,7 @@
 		7533D9BB2B167ED80057EBC7 /* PhoneSigninViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7533D9BA2B167ED80057EBC7 /* PhoneSigninViewModel.swift */; };
 		753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753D0B682AC1FA6100C22AC4 /* Utilities.swift */; };
 		7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7541615B2ABDDABC007CF0FA /* EmailCredentialsValidator.swift */; };
+		7541EF072D8B6F0D00ABC8BA /* ChatRoomInformationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7541EF062D8B6EFC00ABC8BA /* ChatRoomInformationViewModel.swift */; };
 		7543BE2A2ACB0EDA003001BF /* FirebaseChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE292ACB0EDA003001BF /* FirebaseChatService.swift */; };
 		7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2B2ACC864A003001BF /* UserModel.swift */; };
 		7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7543BE2D2ACC868B003001BF /* ChatModel.swift */; };
@@ -192,6 +193,7 @@
 		753D3FF42BEFC1DB00BA26A4 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = SOURCE_ROOT; };
 		753D3FFA2BEFC23700BA26A4 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = SOURCE_ROOT; };
 		7541615B2ABDDABC007CF0FA /* EmailCredentialsValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailCredentialsValidator.swift; sourceTree = "<group>"; };
+		7541EF062D8B6EFC00ABC8BA /* ChatRoomInformationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomInformationViewModel.swift; sourceTree = "<group>"; };
 		7543BE292ACB0EDA003001BF /* FirebaseChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseChatService.swift; sourceTree = "<group>"; };
 		7543BE2B2ACC864A003001BF /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		7543BE2D2ACC868B003001BF /* ChatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatModel.swift; sourceTree = "<group>"; };
@@ -384,6 +386,22 @@
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
+		7541EF002D8B6EEC00ABC8BA /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				7541EF062D8B6EFC00ABC8BA /* ChatRoomInformationViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		7541EF052D8B6EF200ABC8BA /* View */ = {
+			isa = PBXGroup;
+			children = (
+				756E6D232D88A64D0065CADB /* ChatRoomInformationScreen.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		7543BE312ACC879D003001BF /* ChatRoom */ = {
 			isa = PBXGroup;
 			children = (
@@ -494,7 +512,8 @@
 		756E6D222D88A5A00065CADB /* ChatRoomInformation */ = {
 			isa = PBXGroup;
 			children = (
-				756E6D232D88A64D0065CADB /* ChatRoomInformationScreen.swift */,
+				7541EF052D8B6EF200ABC8BA /* View */,
+				7541EF002D8B6EEC00ABC8BA /* ViewModel */,
 			);
 			path = ChatRoomInformation;
 			sourceTree = "<group>";
@@ -960,6 +979,7 @@
 				75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */,
 				756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */,
 				75A7AFCE2D399B4B00E081DF /* ConversationViewModel+MessageClusterHandler.swift in Sources */,
+				7541EF072D8B6F0D00ABC8BA /* ChatRoomInformationViewModel.swift in Sources */,
 				756525CA2A8127F5005DC594 /* Observable.swift in Sources */,
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
 				7597CE5B2D1494F000CFD1B8 /* ImageSampleRepository.swift in Sources */,

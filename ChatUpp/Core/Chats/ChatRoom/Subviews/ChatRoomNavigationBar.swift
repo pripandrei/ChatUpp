@@ -12,6 +12,8 @@ import Combine
 // MARK: - SETUP NAVIGATION BAR ITEMS
 final class ChatRoomNavigationBar {
     
+    private weak var coordinator: Coordinator?
+    
     private let viewController: UIViewController!
     var navigationItemsContainer: NavigationTitleContainer?
     var navImage: NavigationProfileImageView?
@@ -20,10 +22,12 @@ final class ChatRoomNavigationBar {
     private var cancellables: Set<AnyCancellable> = []
     
     init(viewController: UIViewController,
-         viewModel: ChatRoomNavigationBarViewModel)
+         viewModel: ChatRoomNavigationBarViewModel,
+         coordinator: Coordinator?)
     {
         self.viewController = viewController
         self.viewModel = viewModel
+        self.coordinator = coordinator
         setupNavigationBarItems()
         self.bind()
         
@@ -32,7 +36,8 @@ final class ChatRoomNavigationBar {
     private func setupNavigationBarItems()
     {
         setupNavigationTitleContainer()
-        setuoNavigationImage()
+        setupNavigationImage()
+        setupNavItemsTarget()
     }
     
     private func setupNavigationTitleContainer()
@@ -41,7 +46,7 @@ final class ChatRoomNavigationBar {
         viewController.navigationItem.titleView = self.navigationItemsContainer
     }
     
-    private func setuoNavigationImage()
+    private func setupNavigationImage()
     {
         var image: UIImage?
         
@@ -55,8 +60,31 @@ final class ChatRoomNavigationBar {
         let barButtonItem = UIBarButtonItem(customView: imageView)
         
         viewController.navigationItem.rightBarButtonItem = barButtonItem
+        
+        self.navImage = imageView
     }
     
+    private func setupNavItemsTarget()
+    {
+        if let _ = viewModel.dataProvider.provider as? Chat
+        {
+            let gesture1 = UITapGestureRecognizer(target: self, action: #selector(openChatRoomInformationScreen))
+            let gesture2 = UITapGestureRecognizer(target: self, action: #selector(openChatRoomInformationScreen))
+            
+            viewController.navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(gesture1)
+            viewController.navigationItem.titleView?.addGestureRecognizer(gesture2)
+        } else {
+            navImage?.setupGesture()
+        }
+    }
+
+    @objc private func openChatRoomInformationScreen()
+    {
+        guard let chat = viewModel.dataProvider.provider as? Chat else { return }
+        let viewModel = ChatRoomInformationViewModel(chat: chat)
+        coordinator?.showChatRoomInformationScreen(viewModel: viewModel)
+    }
+
     private func bind()
     {
         viewModel.$_imageUrl
@@ -150,8 +178,8 @@ extension ChatRoomNavigationBar
         }
         
         private func setupSelf() {
-            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(animateProfileImage))
-            addGestureRecognizer(tapGesture)
+//            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(animateProfileImage))
+//            addGestureRecognizer(tapGesture)
 
             contentMode                               = .scaleToFill
             layer.cornerRadius                        = profileImageSize / 2
@@ -160,6 +188,11 @@ extension ChatRoomNavigationBar
             
             widthAnchor.constraint(equalToConstant: profileImageSize).isActive  = true
             heightAnchor.constraint(equalToConstant: profileImageSize).isActive = true
+        }
+        
+        func setupGesture() {
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(animateProfileImage))
+            addGestureRecognizer(tapGesture)
         }
         
         @objc func animateProfileImage() {
@@ -231,8 +264,12 @@ final class ChatRoomNavigationBarViewModel
     @Published private(set) var _status: String?
     @Published private(set) var _imageUrl: String?
     
+    private(set) var dataProvider: NavigationBarDataProvider
+    
     init(dataProvider: NavigationBarDataProvider)
     {
+        self.dataProvider = dataProvider
+        
         switch dataProvider {
         case .chat(let chat): setNavigationItems(usingChat: chat)
         case .user(let user): setNavigationItems(usingUser: user)

@@ -110,7 +110,6 @@ final class FirestoreUserService {
 //        return try await userDocument(userID: userID).getDocument(as: User.self, source: .server)
     }
     
-    
     // MARK: - GET USER PROFILE IMAGE
     
 //    func getProfileImageData(urlPath: String?) async throws -> Data {

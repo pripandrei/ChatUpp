@@ -369,8 +369,25 @@ final class ChatRoomViewController: UIViewController
         }
         
         let navBarViewModel = ChatRoomNavigationBarViewModel(dataProvider: dataProvider)
-        customNavigationBar = ChatRoomNavigationBar(viewController: self, viewModel: navBarViewModel)
+        customNavigationBar = ChatRoomNavigationBar(viewController: self,
+                                                    viewModel: navBarViewModel,
+                                                    coordinator: coordinatorDelegate)
+        
+//        if viewModel.conversation?.isGroup == true {
+//            let gesture = UITapGestureRecognizer(target: self, action: #selector(openChatRoomInformationScreen))
+//            self.navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(gesture)
+//            self.navigationItem.titleView?.addGestureRecognizer(gesture)
+//        } else {
+//            customNavigationBar.navImage?.setupGesture()
+//        }
     }
+    
+//    @objc private func openChatRoomInformationScreen()
+//    {
+//        guard let conversation = viewModel.conversation else {return}
+//        let viewModel = ChatRoomInformationViewModel(chat: conversation)
+//        coordinatorDelegate?.showChatRoomInformationScreen(viewModel: viewModel)
+//    }
     
     private func checkIfLastCellIsFullyVisible() -> Bool 
     {

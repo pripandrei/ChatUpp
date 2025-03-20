@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ChatRoomInformationScreen: View
 {
+    @ObservedObject var viewModel: ChatRoomInformationViewModel
+    
     var body: some View
     {
         VStack(spacing: 0) {
@@ -43,10 +45,15 @@ struct ChatRoomInformationScreen: View
             
             List {
                 Section {
-                    ForEach(0..<10) { item in
-                        Text("Item \(item)")
-//                            .listRowInsets(EdgeInsets(top: 0, leading: 70, bottom: 0, trailing: 0))
+                    ForEach(viewModel.members) { member in
+                        UserView(userItem: member)
                     }
+                    
+//                    ForEach(0..<10) { item in
+//                        UserView(userItem: User(userId: "asdads3423", name: "Amiamin", email: "er", photoUrl: nil, phoneNumber: nil, nickName: nil, dateCreated: Date(), lastSeen: Date(), isActive: false))
+////                        Text("Item \(item)")
+//////                            .listRowInsets(EdgeInsets(top: 0, leading: 70, bottom: 0, trailing: 0))
+//                    }
                 } header: {
                     Text("Members")
                         .font(.subheadline)
@@ -122,5 +129,5 @@ extension ChatRoomInformationScreen
 }
 
 #Preview {
-    ChatRoomInformationScreen()
+    ChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel(chat: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")))
 }

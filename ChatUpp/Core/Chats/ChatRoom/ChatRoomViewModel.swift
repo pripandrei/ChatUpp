@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import UIKit
+import SwiftUI
 
 enum GroupMembershipStatus
 {
@@ -17,7 +18,7 @@ enum GroupMembershipStatus
     case pendingInvite
 }
 
-class ChatRoomViewModel
+class ChatRoomViewModel : SwiftUI.ObservableObject
 {
     private var setupConversationTask: Task<Void, Never>?
     
@@ -143,6 +144,10 @@ class ChatRoomViewModel
     init(participant: User?)
     {
         self.participant = participant
+        self.unseenMessagesCount = 0
+    }
+    
+    init() {
         self.unseenMessagesCount = 0
     }
     

@@ -27,6 +27,7 @@ protocol Coordinator: AnyObject {
     func pushProfileEditingVC(viewModel:ProfileEditingViewModel)
     func dismissEditProfileVC()
     func showGroupCreationScreen()
+    func showChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel)
 }
 
 class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
@@ -153,5 +154,12 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
         hostingController.modalPresentationStyle = .pageSheet
         hostingController.modalTransitionStyle = .coverVertical
         tabBar.present(hostingController, animated: true)
+    }
+    
+    func showChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel)
+    {
+        let chatRoomInfoScreen = ChatRoomInformationScreen(viewModel: viewModel).environmentObject(self)
+        let hostingController = UIHostingController(rootView: chatRoomInfoScreen)
+        tabBar.chatsNavigationController?.pushViewController(hostingController, animated: true)
     }
 }
