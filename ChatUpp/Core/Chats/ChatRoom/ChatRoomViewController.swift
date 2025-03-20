@@ -98,7 +98,7 @@ final class ChatRoomViewController: UIViewController
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        cleanUp()
+//        cleanUp()
     }
     
     private func scrollToCell(at indexPath: IndexPath)
@@ -111,6 +111,7 @@ final class ChatRoomViewController: UIViewController
     }
     
     deinit {
+        cleanUp()
         print("====ConversationVC Deinit")
     }
 
@@ -294,10 +295,10 @@ final class ChatRoomViewController: UIViewController
     private func cleanUp() {
         NotificationCenter.default.removeObserver(self)
         viewModel.removeAllListeners()
-        coordinatorDelegate = nil
-        viewModel = nil
-        tableViewDataSource = nil
-        customNavigationBar = nil
+//        coordinatorDelegate = nil
+//        viewModel = nil
+//        tableViewDataSource = nil
+//        customNavigationBar = nil
     }
     
     private func configureTableView() {
@@ -372,23 +373,8 @@ final class ChatRoomViewController: UIViewController
         customNavigationBar = ChatRoomNavigationBar(viewController: self,
                                                     viewModel: navBarViewModel,
                                                     coordinator: coordinatorDelegate)
-        
-//        if viewModel.conversation?.isGroup == true {
-//            let gesture = UITapGestureRecognizer(target: self, action: #selector(openChatRoomInformationScreen))
-//            self.navigationItem.rightBarButtonItem?.customView?.addGestureRecognizer(gesture)
-//            self.navigationItem.titleView?.addGestureRecognizer(gesture)
-//        } else {
-//            customNavigationBar.navImage?.setupGesture()
-//        }
     }
-    
-//    @objc private func openChatRoomInformationScreen()
-//    {
-//        guard let conversation = viewModel.conversation else {return}
-//        let viewModel = ChatRoomInformationViewModel(chat: conversation)
-//        coordinatorDelegate?.showChatRoomInformationScreen(viewModel: viewModel)
-//    }
-    
+
     private func checkIfLastCellIsFullyVisible() -> Bool 
     {
         let table = rootView.tableView

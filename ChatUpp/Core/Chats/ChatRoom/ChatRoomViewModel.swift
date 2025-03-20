@@ -184,6 +184,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     func removeAllListeners() 
     {
         messageListenerService?.removeAllListeners()
+        cancellables.forEach { subscriber in
+            subscriber.cancel()
+        }
+        cancellables.removeAll()
     }
  
     func resetCurrentReplyMessageIfNeeded() {

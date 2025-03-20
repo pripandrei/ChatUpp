@@ -12,6 +12,7 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
 {
     private let chat: Chat
     
+    @Published var navStack = [GroupCreationRoute]()
     @Published var members: [User] = []
     
     init(chat: Chat) {

@@ -13,11 +13,11 @@ import Combine
 final class ChatRoomNavigationBar {
     
     private weak var coordinator: Coordinator?
+    private weak var viewController: UIViewController!
     
-    private let viewController: UIViewController!
-    var navigationItemsContainer: NavigationTitleContainer?
-    var navImage: NavigationProfileImageView?
-    var viewModel: ChatRoomNavigationBarViewModel
+    private var navigationItemsContainer: NavigationTitleContainer?
+    private var navImage: NavigationProfileImageView?
+    private var viewModel: ChatRoomNavigationBarViewModel
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -30,7 +30,6 @@ final class ChatRoomNavigationBar {
         self.coordinator = coordinator
         setupNavigationBarItems()
         self.bind()
-        
     }
     
     private func setupNavigationBarItems()
@@ -266,6 +265,9 @@ final class ChatRoomNavigationBarViewModel
     
     private(set) var dataProvider: NavigationBarDataProvider
     
+    deinit {
+        print("nav bar vm deinit")
+    }
     init(dataProvider: NavigationBarDataProvider)
     {
         self.dataProvider = dataProvider

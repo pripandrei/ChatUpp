@@ -158,8 +158,9 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
     
     func showChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel)
     {
-        let chatRoomInfoScreen = ChatRoomInformationScreen(viewModel: viewModel).environmentObject(self)
+        let chatRoomInfoScreen = ChatRoomInformationScreen(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: chatRoomInfoScreen)
+        
         tabBar.chatsNavigationController?.pushViewController(hostingController, animated: true)
     }
 }

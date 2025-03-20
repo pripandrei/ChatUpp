@@ -251,9 +251,11 @@ final class ConversationMessageListenerService
     func removeAllListeners()
     {
         listeners.forEach{ $0.remove() }
+        listeners.removeAll()
         cancellables.forEach { subscriber in
             subscriber.cancel()
         }
+        cancellables.removeAll()
     }
     
     func addListenerToUpcomingMessages()
