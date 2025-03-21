@@ -11,85 +11,67 @@ struct ChatRoomInformationScreen: View
 {
     @ObservedObject var viewModel: ChatRoomInformationViewModel
     
+    @State private var showLeaveAlert: Bool = false
+    
     var body: some View
     {
-//        NavigationStack(path: $viewModel.navStack) {
-            VStack(spacing: 0) {
-                ZStack(alignment: .bottomLeading) {
-                    VStack {
-                        Image("default_group_photo")
-                            .resizable()
-                            .scaledToFill()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(viewModel.groupName)
-                            .font(.system(size: 24, weight: .semibold))
-                        Text("\(viewModel.membersCount) members")
-                            .font(.system(size: 15))
-                    }
-                    .foregroundStyle(.white)
-                    .padding(.leading, 20)
-                    .padding(.bottom, 20)
-                    
-                    HStack {
-                        Spacer()
-                        ForEach(ButtonOption.allCases) { item in
-                            ButtonOptionView(item: item)
-                        }
-                    }
-                    .padding(.trailing, 30)
-//                    .padding(.top, -120)
-                    .padding(.bottom, -45)
-                    
-                    
+        VStack(spacing: 0) {
+            ZStack(alignment: .bottomLeading) {
+                VStack {
+                    Image("default_group_photo")
+                        .resizable()
+                        .scaledToFill()
                 }
-                .frame(width: UIScreen.main.bounds.width, height: 400)
-                .ignoresSafeArea(.all)
                 
-//                HStack {
-//                    Spacer()
-//                    ForEach(ButtonOption.allCases) { item in
-//                        ButtonOptionView(item: item)
-//                    }
-//                }
-//                .padding(.trailing, 30)
-//                .padding(.top, -120)
-//                
-//                
-                List {
-                    Section {
-                        ForEach(viewModel.members) { member in
-                            UserView(userItem: member)
-                        }
-                        
-                        //                    ForEach(0..<10) { item in
-                        //                        UserView(userItem: User(userId: "asdads3423", name: "Amiamin", email: "er", photoUrl: nil, phoneNumber: nil, nickName: nil, dateCreated: Date(), lastSeen: Date(), isActive: false))
-                        ////                        Text("Item \(item)")
-                        //////                            .listRowInsets(EdgeInsets(top: 0, leading: 70, bottom: 0, trailing: 0))
-                        //                    }
-                    } header: {
-                        Text("Members")
-                            .font(.subheadline)
-                            .bold()
-                            .foregroundStyle(Color.white)
-                    }
-                    .listRowBackground(Color(cgColor: #colorLiteral(red: 0.7054647803, green: 0.7069373131, blue: 0.8391894698, alpha: 1)))
-                    .listRowInsets(.init(top: 10, leading: 20, bottom: 10, trailing: 0))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(viewModel.groupName)
+                        .font(.system(size: 24, weight: .semibold))
+                    Text("\(viewModel.membersCount) members")
+                        .font(.system(size: 15))
                 }
-                .scrollContentBackground(.hidden)
-                //            .background(Color(cgColor: #colorLiteral(red: 0.4392156899, green: 0.01176470611, blue: 0.1921568662, alpha: 1)))
-//                .padding(.top, -13)
+                .foregroundStyle(.white)
+                .padding(.leading, 20)
+                .padding(.bottom, 20)
+                
+                HStack {
+                    Spacer()
+                    ForEach(ButtonOption.allCases) { option in
+                        ButtonOptionView(option: option) {
+                            handleButtonTap(for: option)
+                        }
+                    }
+                }
+                .padding(.trailing, 30)
+                .padding(.bottom, -45)
             }
-            .toolbarBackground(.clear, for: .navigationBar)
-            .background(Color(cgColor: #colorLiteral(red: 0.5539219975, green: 0.5661839247, blue: 0.656108439, alpha: 1)))
-            .padding(.top, -45)
+            .frame(width: UIScreen.main.bounds.width, height: 400)
+            .ignoresSafeArea(.all)
+            
+            List {
+                Section {
+                    ForEach(viewModel.members) { member in
+                        UserView(userItem: member)
+                    }
+                } header: {
+                    Text("Members")
+                        .font(.subheadline)
+                        .bold()
+                        .foregroundStyle(Color.white)
+                }
+                .listRowBackground(Color(cgColor: #colorLiteral(red: 0.7054647803, green: 0.7069373131, blue: 0.8391894698, alpha: 1)))
+                .listRowInsets(.init(top: 10, leading: 20, bottom: 10, trailing: 0))
+            }
+            .scrollContentBackground(.hidden)
         }
-    
-//    }
+        .toolbarBackground(.clear, for: .navigationBar)
+        .background(Color(cgColor: #colorLiteral(red: 0.5539219975, green: 0.5661839247, blue: 0.656108439, alpha: 1)))
+        .padding(.top, -45)
+        
+        LeaveChatAlert(isPresented: $showLeaveAlert)
+    }
 }
 
-//MARK: Info Buttons
+//MARK: Button options
 extension ChatRoomInformationScreen
 {
     enum ButtonOption: String, CaseIterable, Identifiable
@@ -112,29 +94,44 @@ extension ChatRoomInformationScreen
     
     private struct ButtonOptionView: View
     {
-        let item: ButtonOption
+        let option: ButtonOption
+        let action: () -> Void
+//        @State var showAlert = false
         
-        var body: some View {
+        var body: some View
+        {
             Button {
-                
+//                switch option {
+//                case .edit: break
+//                case .leaveGroup: showAlert = true
+//                }
+                action()
             } label: {
                 setupButtonOptionLabel()
             }
             .buttonStyle(.plain)
+//            .alert("Leave group", isPresented: $showAlert) {
+//                Button("Cancel", role: .cancel) {
+//                    showAlert = false
+//                }
+//                Button("Leave", role: .destructive) {
+//                    
+//                }
+//            } message: {
+//                Text("Are you sure you want to leave this group?")
+//            }
         }
         
         private func setupButtonOptionLabel() -> some View
         {
             VStack {
-                Image(systemName: item.icon)
+                Image(systemName: option.icon)
                     .resizable()
                     .frame(width: 30, height: 30, alignment: .center)
                     .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.92651546, green: 0.7966771722, blue: 1, alpha: 1)))
                     
-                Text(item.rawValue)
+                Text(option.rawValue)
                     .font(.system(size: 13, weight: .semibold))
-//                    .font(.custom("HelveticaNeue", size: 14))
-//                    .fontWeight(.bold)
                     .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.92651546, green: 0.7966771722, blue: 1, alpha: 1)))
             }
             .frame(width: 80, height: 50)
@@ -144,9 +141,50 @@ extension ChatRoomInformationScreen
             .clipShape(.rect(cornerRadius: 12))
         }
     }
+    
+    private func handleButtonTap(for option: ButtonOption)
+    {
+        switch option {
+        case .edit:
+            break
+        case .leaveGroup:
+            showLeaveAlert = true
+        }
+    }
+}
+
+//MARK: Leave chat alert
+extension ChatRoomInformationScreen
+{
+    private struct LeaveChatAlert: View
+    {
+        @Binding var isPresented: Bool
+        
+        var body: some View
+        {
+            VStack {}
+                .alert("Leave group", isPresented: $isPresented) {
+                    Button("Cancel", role: .cancel) {
+                        isPresented = false
+                    }
+                    Button("Leave", role: .destructive) {
+                        
+                    }
+                } message: {
+                    Text("Are you sure you want to leave this group?")
+                }
+        }
+    }
 }
 
 #Preview {
     ChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel(chat: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")))
 //    ChatRoomInformationScreen()
 }
+
+
+//                    ForEach(0..<10) { item in
+//                        UserView(userItem: User(userId: "asdads3423", name: "Amiamin", email: "er", photoUrl: nil, phoneNumber: nil, nickName: nil, dateCreated: Date(), lastSeen: Date(), isActive: false))
+////                        Text("Item \(item)")
+//////                            .listRowInsets(EdgeInsets(top: 0, leading: 70, bottom: 0, trailing: 0))
+//                    }

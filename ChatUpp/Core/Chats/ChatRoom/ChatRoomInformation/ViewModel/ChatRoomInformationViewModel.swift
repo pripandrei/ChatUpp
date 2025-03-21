@@ -58,3 +58,30 @@ extension ChatRoomInformationViewModel
         return RealmDataBase.shared.retrieveObjects(ofType: User.self)?.toArray() ?? []
     }
 }
+
+
+//MARK: - Leave group
+
+extension ChatRoomInformationViewModel
+{
+    func leaveGroup() async throws
+    {
+        guard let authUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {return}
+        removeRealmParticipant(with: authUserID)
+        try await removeFirestoreParticipant(with: authUserID)
+    }
+
+    private func removeRealmParticipant(with authUserID: String)
+    {
+        RealmDataBase.shared.update(object: chat) { realmChat in
+            guard let authParticipantIndex = realmChat.participants.firstIndex(where: { $0.userID == authUserID }) else {return}
+            realmChat.participants.remove(at: authParticipantIndex)
+        }
+    }
+    
+    private func removeFirestoreParticipant(with authUserID: String) async throws
+    {
+        try await FirebaseChatService.shared.removeParticipant(participantID: authUserID, fromChatWithID: chat.id)
+    }
+    
+}
