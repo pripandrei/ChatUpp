@@ -23,27 +23,40 @@ struct ChatRoomInformationScreen: View
                     }
                     
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("Chat Room Name")
+                        Text(viewModel.groupName)
                             .font(.system(size: 24, weight: .semibold))
-                        Text("34 members")
+                        Text("\(viewModel.membersCount) members")
                             .font(.system(size: 15))
                     }
                     .foregroundStyle(.white)
                     .padding(.leading, 20)
                     .padding(.bottom, 20)
+                    
+                    HStack {
+                        Spacer()
+                        ForEach(ButtonOption.allCases) { item in
+                            ButtonOptionView(item: item)
+                        }
+                    }
+                    .padding(.trailing, 30)
+//                    .padding(.top, -120)
+                    .padding(.bottom, -45)
+                    
+                    
                 }
                 .frame(width: UIScreen.main.bounds.width, height: 400)
                 .ignoresSafeArea(.all)
                 
-                HStack {
-                    Spacer()
-                    ForEach(ButtonOption.allCases) { item in
-                        ButtonOptionView(item: item)
-                    }
-                }
-                .padding(.trailing, 30)
-                .padding(.top, -45)
-                
+//                HStack {
+//                    Spacer()
+//                    ForEach(ButtonOption.allCases) { item in
+//                        ButtonOptionView(item: item)
+//                    }
+//                }
+//                .padding(.trailing, 30)
+//                .padding(.top, -120)
+//                
+//                
                 List {
                     Section {
                         ForEach(viewModel.members) { member in
@@ -66,10 +79,13 @@ struct ChatRoomInformationScreen: View
                 }
                 .scrollContentBackground(.hidden)
                 //            .background(Color(cgColor: #colorLiteral(red: 0.4392156899, green: 0.01176470611, blue: 0.1921568662, alpha: 1)))
-                .padding(.top, 15)
+//                .padding(.top, -13)
             }
+            .toolbarBackground(.clear, for: .navigationBar)
             .background(Color(cgColor: #colorLiteral(red: 0.5539219975, green: 0.5661839247, blue: 0.656108439, alpha: 1)))
+            .padding(.top, -45)
         }
+    
 //    }
 }
 

@@ -12,13 +12,21 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
 {
     private let chat: Chat
     
-    @Published var navStack = [GroupCreationRoute]()
+//    @Published var navStack = [GroupCreationRoute]()
     @Published var members: [User] = []
+    @Published var groupName: String = ""
+    @Published var membersCount: Int = 0
     
     init(chat: Chat) {
         self.chat = chat
+        self.groupName = chat.name ?? "No name"
+        self.membersCount = chat.participants.count
         self.presentMembers()
     }
+    
+//    var groupName: String {
+//        chat.name ?? "No name"
+//    }
 }
 
 //MARK: - Retrieve/fetch users

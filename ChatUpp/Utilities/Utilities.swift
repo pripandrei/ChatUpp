@@ -80,6 +80,17 @@ struct Utilities {
         UINavigationBar.appearance().scrollEdgeAppearance = nil
         UINavigationBar.appearance().backgroundColor = .clear
     }
+    
+    static public func configureTransparentNavigationBarAppearance(for controller: UIViewController)
+    {
+        let transparentAppearance = UINavigationBarAppearance()
+        transparentAppearance.configureWithTransparentBackground()
+        
+        // Set this appearance specifically for this view controller
+        controller.navigationItem.standardAppearance = transparentAppearance
+        controller.navigationItem.scrollEdgeAppearance = transparentAppearance
+        controller.navigationItem.compactAppearance = transparentAppearance
+    }
 
     static var windowRoot: TabBarViewController? {
         get {

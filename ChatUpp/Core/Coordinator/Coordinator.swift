@@ -161,6 +161,8 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
         let chatRoomInfoScreen = ChatRoomInformationScreen(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: chatRoomInfoScreen)
         
+        Utilities.configureTransparentNavigationBarAppearance(for: hostingController)
+
         tabBar.chatsNavigationController?.pushViewController(hostingController, animated: true)
     }
 }
