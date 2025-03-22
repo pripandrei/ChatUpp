@@ -10,7 +10,6 @@ import SwiftUI
 struct ChatRoomInformationScreen: View
 {
     @ObservedObject var viewModel: ChatRoomInformationViewModel
-    
     @State private var showLeaveAlert: Bool = false
     
     var body: some View
@@ -67,7 +66,7 @@ struct ChatRoomInformationScreen: View
         .background(Color(cgColor: #colorLiteral(red: 0.5539219975, green: 0.5661839247, blue: 0.656108439, alpha: 1)))
         .padding(.top, -45)
         
-        LeaveChatAlert(isPresented: $showLeaveAlert)
+        LeaveChatAlert(viewModel: viewModel, isPresented: $showLeaveAlert)
     }
 }
 
@@ -158,6 +157,7 @@ extension ChatRoomInformationScreen
 {
     private struct LeaveChatAlert: View
     {
+        @ObservedObject var viewModel: ChatRoomInformationViewModel
         @Binding var isPresented: Bool
         
         var body: some View
@@ -168,7 +168,11 @@ extension ChatRoomInformationScreen
                         isPresented = false
                     }
                     Button("Leave", role: .destructive) {
-                        
+                        Task {
+                            try await viewModel.leaveGroup()
+                            Utilities.windowRoot?.chatsNavigationController?.popViewController(animated: true)
+                            Utilities.windowRoot?.chatsNavigationController?.popToRootViewController(animated: true)
+                        }
                     }
                 } message: {
                     Text("Are you sure you want to leave this group?")

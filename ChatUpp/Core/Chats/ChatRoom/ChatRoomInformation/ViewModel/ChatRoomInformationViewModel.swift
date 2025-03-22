@@ -64,13 +64,14 @@ extension ChatRoomInformationViewModel
 
 extension ChatRoomInformationViewModel
 {
+    @MainActor
     func leaveGroup() async throws
     {
         guard let authUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {return}
         removeRealmParticipant(with: authUserID)
         try await removeFirestoreParticipant(with: authUserID)
     }
-
+    
     private func removeRealmParticipant(with authUserID: String)
     {
         RealmDataBase.shared.update(object: chat) { realmChat in
@@ -78,7 +79,7 @@ extension ChatRoomInformationViewModel
             realmChat.participants.remove(at: authParticipantIndex)
         }
     }
-    
+    @MainActor
     private func removeFirestoreParticipant(with authUserID: String) async throws
     {
         try await FirebaseChatService.shared.removeParticipant(participantID: authUserID, fromChatWithID: chat.id)
