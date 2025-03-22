@@ -32,16 +32,18 @@ struct ChatRoomInformationScreen: View
                 .padding(.leading, 20)
                 .padding(.bottom, 20)
                 
-                HStack {
-                    Spacer()
-                    ForEach(ButtonOption.allCases) { option in
-                        ButtonOptionView(option: option) {
-                            handleButtonTap(for: option)
+                if viewModel.isAuthUserGroupMember {
+                    HStack {
+                        Spacer()
+                        ForEach(ButtonOption.allCases) { option in
+                            ButtonOptionView(option: option) {
+                                handleButtonTap(for: option)
+                            }
                         }
                     }
+                    .padding(.trailing, 30)
+                    .padding(.bottom, -45)                    
                 }
-                .padding(.trailing, 30)
-                .padding(.bottom, -45)
             }
             .frame(width: UIScreen.main.bounds.width, height: 400)
             .ignoresSafeArea(.all)

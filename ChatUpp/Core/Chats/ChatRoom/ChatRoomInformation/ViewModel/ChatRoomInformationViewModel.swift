@@ -24,6 +24,10 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
         self.presentMembers()
     }
     
+    var isAuthUserGroupMember: Bool {
+        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) != nil
+    }
+    
 //    var groupName: String {
 //        chat.name ?? "No name"
 //    }
