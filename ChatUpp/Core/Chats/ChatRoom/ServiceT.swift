@@ -277,7 +277,7 @@ final class ConversationMessageListenerService
     
     func addListenerToExistingMessages(startAtMesssageWithID messageID: String, ascending: Bool, limit: Int = 100)
     {
-        guard let conversationID = conversation?.id else { return }
+        guard let conversationID = conversation?.id, limit > 0 else { return }
         
         Task {
             try await FirebaseChatService.shared.addListenerForExistingMessages(

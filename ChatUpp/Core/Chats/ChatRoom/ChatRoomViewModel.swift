@@ -57,6 +57,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
 //    }
     
+    var isAuthUserGroupMember: Bool {
+        guard let conversation = conversation else {return false}
+        let groupExists = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
+        if conversation.isGroup && groupExists { return true }
+        else { return false }
+    }
+    
     var shouldHideJoinGroupOption: Bool
     {
         if conversation?.isGroup == false { return true }
@@ -492,6 +499,12 @@ extension ChatRoomViewModel
             if conversation?.isGroup == true
             {
                 try await syncGroupUsers(for: messages)
+                
+                if !isAuthUserGroupMember
+                {
+                    initializeWithMessages(messages)
+                    return
+                }
             }
 //            if conversation?.realm != nil {
                 realmService?.addMessagesToConversationInRealm(messages)
@@ -514,6 +527,15 @@ extension ChatRoomViewModel
             messages.removeFirst()
         }
         createMessageClustersWith(messages)
+    }
+    
+    private func initializeWithMessages(_ messages: [Message])
+    {
+        if !messages.isEmpty
+        {
+            createMessageClustersWith(messages)
+        }
+        conversationInitializationStatus = .finished
     }
     
     
@@ -707,6 +729,12 @@ extension ChatRoomViewModel
     private func determineFetchStrategy() async throws -> MessageFetchStrategy 
     {
         guard let conversation = conversation else { return .none }
+        
+        if !isAuthUserGroupMember {
+            if let recentMessage = try await FirebaseChatService.shared.getRecentMessage(from: conversation) {
+                return .hybrit(startAtMessage: recentMessage)
+            }
+        }
 
         if let firstUnseenMessage = try await firestoreService?.getFirstUnseenMessageFromFirestore(from: conversation.id)
         {
@@ -783,7 +811,7 @@ extension ChatRoomViewModel
         {
             messageListenerService?.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
         }
-        realmService?.addMessagesToConversationInRealm(newMessages)
+//        realmService?.addMessagesToConversationInRealm(newMessages)
         
         return (newRows, newSections)
     }

@@ -161,6 +161,15 @@ extension FirebaseChatService
             return nil
         }
     }
+    
+    func getLatestMessages(fromChatWithID chatID: String, limit: Int) async throws -> [Message]
+    {
+        let messagesReference = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+        return try await messagesReference
+            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
+            .limit(to: limit)
+            .getDocuments(as: Message.self)
+    }
 }
 
 //MARK: - Update messages
