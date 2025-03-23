@@ -25,11 +25,6 @@ extension ChatRoomViewController: UIScrollViewDelegate
             updateMessageSeenStatusIfNeeded()
         }
         isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-//
-//        if shouldAdjustScroll {
-//            shouldAdjustScroll = false
-//            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
-//        }
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {

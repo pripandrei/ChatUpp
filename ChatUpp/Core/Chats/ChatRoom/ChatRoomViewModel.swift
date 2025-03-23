@@ -53,11 +53,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         conversation?.participants.first(where: { $0.userID == authUser.uid })?.unseenMessagesCount ?? 0
     }
     
-    //    var isChatPresentInLocalDB: Bool {
-    //        guard let conversation = conversation else { return false }
-    //        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
-    //    }
-    
     var isAuthUserGroupMember: Bool
     {
         guard let conversation = conversation else {return false}
@@ -100,39 +95,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return ( authParticipantUnreadMessagesCount != unreadMessagesCount ) || isChatFetchedFirstTime || conversation?.realm == nil
     }
     
-    
-    //    var participant: User?
-    //    {
-    //        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() else {return nil}
-    //        guard let chatParticipant = conversation?.participants.first(where: { $0.userID != authUser.uid }) else {return nil}
-    //        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: chatParticipant.userID)
-    //    }
-    
-    //    var members: [User] {
-    //        guard let conversation = conversation else {return []}
-    //        let participantsID = Array( conversation.participants.map { $0.userID } )
-    //        let filter = NSPredicate(format: "id IN %@", argumentArray: participantsID)
-    //        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
-    //        return users ?? []
-    //    }
-    //
-    var members: [User]
-    {
-        guard let conversation = conversation else { return [] }
-        
-        let participantsID = Array( conversation.participants.map { $0.userID } )
-        let filter = NSPredicate(format: "id IN %@ AND id != %@", participantsID, authUser.uid)
-        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
-        
-        return users ?? []
-    }
-    
     private func setupServices(using conversation: Chat)
     {
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
-        //        self.userListenerService = ConversationUserListinerService(chatUsers: self.members)
         if conversation.isGroup {
             self.userListenerService = ConversationUsersListinerService(chatUsers: Array(conversation.participants))
         }
@@ -145,19 +112,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         self.conversation = conversation
         self.unseenMessagesCount = conversation.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         self.setupServices(using: conversation)
-//        self.chatUser = conversationUser
-//        self.memberProfileImage = imageData
-        
-//        self.realmService = ConversationRealmService(conversation: conversation)
-//        self.firestoreService = ConversationFirestoreService(conversation: conversation)
-//        self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
-        
-        //        self.userListenerService = ConversationUserListinerService(chatUsers: self.members)
-//        if conversation.isGroup {
-//            self.userListenerService = ConversationUsersListinerService(chatUsers: Array(conversation.participants))
-//        }
-//        self.messageFetcher = ConversationMessageFetcher(conversation: conversation!, firestoreService: firestoreService)
-        
+
         if conversationExists {
             bindToMessages()
             initiateConversation()
@@ -411,41 +366,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let conversationCellVM = ConversationCellViewModel(isUnseenCell: true)
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
-//    
-//    func getRepliedToMessage(messageID: String) -> Message? 
-//    {
-//        var repliedMessage: Message?
-//        
-//        messageClusters.forEach { conversationGroups in
-//            conversationGroups.items.forEach { conversationCellViewModel in
-//                if conversationCellViewModel.message?.id == messageID {
-//                    repliedMessage = conversationCellViewModel.message
-//                    return
-//                }
-//            }
-//        }
-//        return repliedMessage
-//    }
-    
-//    func setReplyMessageData(fromReplyMessageID id: String,
-//                             toViewModel viewModel: ConversationCellViewModel)
-//    {
-////        let messageToBeReplied = getRepliedToMessage(messageID: id)
-////        viewModel.updateReferenceMessage(messageToBeReplied)
-////        viewModel.setReferenceMessage(messageToBeReplied)
-////        if let messageToBeReplied = getRepliedToMessage(messageID: id)
-////        {
-////            let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
-////            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) =
-////            (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
-////        }
-//    }
-    
-//    func getMessageSenderName(usingSenderID id: String) -> String?
-//    {
-//        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: id)
-//        return user?.name
-//    }
     
     /// - save image from message
     
@@ -523,10 +443,8 @@ extension ChatRoomViewModel
                     return
                 }
             }
-//            if conversation?.realm != nil {
-                realmService?.addMessagesToConversationInRealm(messages)
-                initializeWithLocalData()
-//            }
+            realmService?.addMessagesToConversationInRealm(messages)
+            initializeWithLocalData()
         } catch {
             print("Error while initiating conversation: - \(error)")
         }
@@ -831,7 +749,9 @@ extension ChatRoomViewModel
             messageListenerService?.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
         }
         
-//        realmService?.addMessagesToConversationInRealm(newMessages)
+        if conversation?.realm != nil {
+            realmService?.addMessagesToConversationInRealm(newMessages)            
+        }
         
         return (newRows, newSections)
     }
@@ -865,8 +785,56 @@ extension ChatRoomViewModel
 
 
 
+//MARK: - not in use
 
 
+//extension ChatRoomViewModel {
+//    var members: [User]
+//    {
+//        guard let conversation = conversation else { return [] }
+//        
+//        let participantsID = Array( conversation.participants.map { $0.userID } )
+//        let filter = NSPredicate(format: "id IN %@ AND id != %@", participantsID, authUser.uid)
+//        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
+//        
+//        return users ?? []
+//    }
 
+///= ==== = =
+//    func getRepliedToMessage(messageID: String) -> Message?
+//    {
+//        var repliedMessage: Message?
+//
+//        messageClusters.forEach { conversationGroups in
+//            conversationGroups.items.forEach { conversationCellViewModel in
+//                if conversationCellViewModel.message?.id == messageID {
+//                    repliedMessage = conversationCellViewModel.message
+//                    return
+//                }
+//            }
+//        }
+//        return repliedMessage
+//    }
+    
+//    func setReplyMessageData(fromReplyMessageID id: String,
+//                             toViewModel viewModel: ConversationCellViewModel)
+//    {
+////        let messageToBeReplied = getRepliedToMessage(messageID: id)
+////        viewModel.updateReferenceMessage(messageToBeReplied)
+////        viewModel.setReferenceMessage(messageToBeReplied)
+////        if let messageToBeReplied = getRepliedToMessage(messageID: id)
+////        {
+////            let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
+////            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) =
+////            (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
+////        }
+//    }
+    
+//    func getMessageSenderName(usingSenderID id: String) -> String?
+//    {
+//        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: id)
+//        return user?.name
+//    }
 
+//}
 
