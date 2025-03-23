@@ -23,12 +23,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private var setupConversationTask: Task<Void, Never>?
     
     private(set) var realmService: ConversationRealmService?
-//    private(set) var messageFetcher : ConversationMessageFetcher
+    //    private(set) var messageFetcher : ConversationMessageFetcher
     private(set) var firestoreService: ConversationFirestoreService?
     private(set) var userListenerService : ConversationUsersListinerService?
     private(set) var messageListenerService : ConversationMessageListenerService?
     
     private(set) var conversation        : Chat?
+    private(set) var participant         : User?
     private(set) var messageClusters     : [MessageCluster] = []
     private(set) var authUser            : AuthDataResultModel = (try! AuthenticationManager.shared.getAuthenticatedUser())
     private var cancellables             = Set<AnyCancellable>()
@@ -52,12 +53,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         conversation?.participants.first(where: { $0.userID == authUser.uid })?.unseenMessagesCount ?? 0
     }
     
-//    var isChatPresentInLocalDB: Bool {
-//        guard let conversation = conversation else { return false }
-//        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
-//    }
+    //    var isChatPresentInLocalDB: Bool {
+    //        guard let conversation = conversation else { return false }
+    //        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
+    //    }
     
-    var isAuthUserGroupMember: Bool {
+    var isAuthUserGroupMember: Bool
+    {
         guard let conversation = conversation else {return false}
         let groupExists = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
         if conversation.isGroup && groupExists { return true }
@@ -93,27 +95,27 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
             return false
         }
-
+        
         let unreadMessagesCount = realmService?.getUnreadMessagesCountFromRealm()
         return ( authParticipantUnreadMessagesCount != unreadMessagesCount ) || isChatFetchedFirstTime || conversation?.realm == nil
     }
     
     
-//    var participant: User?
-//    {
-//        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() else {return nil}
-//        guard let chatParticipant = conversation?.participants.first(where: { $0.userID != authUser.uid }) else {return nil}
-//        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: chatParticipant.userID)
-//    }
+    //    var participant: User?
+    //    {
+    //        guard let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() else {return nil}
+    //        guard let chatParticipant = conversation?.participants.first(where: { $0.userID != authUser.uid }) else {return nil}
+    //        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: chatParticipant.userID)
+    //    }
     
-//    var members: [User] {
-//        guard let conversation = conversation else {return []}
-//        let participantsID = Array( conversation.participants.map { $0.userID } )
-//        let filter = NSPredicate(format: "id IN %@", argumentArray: participantsID)
-//        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
-//        return users ?? []
-//    }
-//    
+    //    var members: [User] {
+    //        guard let conversation = conversation else {return []}
+    //        let participantsID = Array( conversation.participants.map { $0.userID } )
+    //        let filter = NSPredicate(format: "id IN %@", argumentArray: participantsID)
+    //        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
+    //        return users ?? []
+    //    }
+    //
     var members: [User]
     {
         guard let conversation = conversation else { return [] }
@@ -125,14 +127,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return users ?? []
     }
     
-    /// - Life cycle
-    
-    init(conversation: Chat)
+    private func setupServices(using conversation: Chat)
     {
-        self.conversation = conversation
-//        self.chatUser = conversationUser
-//        self.memberProfileImage = imageData
-        self.unseenMessagesCount = conversation.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
@@ -140,6 +136,26 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         if conversation.isGroup {
             self.userListenerService = ConversationUsersListinerService(chatUsers: Array(conversation.participants))
         }
+    }
+    
+    /// - Life cycle
+    
+    init(conversation: Chat)
+    {
+        self.conversation = conversation
+        self.unseenMessagesCount = conversation.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
+        self.setupServices(using: conversation)
+//        self.chatUser = conversationUser
+//        self.memberProfileImage = imageData
+        
+//        self.realmService = ConversationRealmService(conversation: conversation)
+//        self.firestoreService = ConversationFirestoreService(conversation: conversation)
+//        self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
+        
+        //        self.userListenerService = ConversationUserListinerService(chatUsers: self.members)
+//        if conversation.isGroup {
+//            self.userListenerService = ConversationUsersListinerService(chatUsers: Array(conversation.participants))
+//        }
 //        self.messageFetcher = ConversationMessageFetcher(conversation: conversation!, firestoreService: firestoreService)
         
         if conversationExists {
@@ -157,8 +173,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     init() {
         self.unseenMessagesCount = 0
     }
-    
-    private(set) var participant: User?
     
     private func observeParticipantChanges()
     {
@@ -248,6 +262,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let chat = createChat() else {return}
         
         self.conversation = chat
+        
+        setupServices(using: chat)
+        
         realmService?.addChatToRealm(chat)
         
         let freezedChat = chat.freeze()
@@ -283,11 +300,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         // Local updates
         realmService?.addMessageToRealmChat(message)
         createMessageClustersWith([message], ascending: true)
-        updateUnseenMessageCounter(shouldIncrement: true)
         
         // Remote updates
         Task { @MainActor in
             await setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
+            updateUnseenMessageCounter(shouldIncrement: true)
             await firestoreService?.addMessageToFirestoreDataBase(message)
             await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
@@ -732,7 +749,7 @@ extension ChatRoomViewModel
         
         if !isAuthUserGroupMember {
             if let recentMessage = try await FirebaseChatService.shared.getRecentMessage(from: conversation) {
-                return .hybrit(startAtMessage: recentMessage)
+                return .descending(startAtMessage: recentMessage, included: true)
             }
         }
 
@@ -803,7 +820,9 @@ extension ChatRoomViewModel
         let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
         guard !newMessages.isEmpty else { return nil }
 
-        try await syncGroupUsers(for: newMessages)
+        if conversation?.isGroup == true {
+            try await syncGroupUsers(for: newMessages)
+        }
         
         let (newRows, newSections) = try await prepareMessageClustersUpdate(withMessages: newMessages, inAscendingOrder: order)
         
@@ -811,6 +830,7 @@ extension ChatRoomViewModel
         {
             messageListenerService?.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
         }
+        
 //        realmService?.addMessagesToConversationInRealm(newMessages)
         
         return (newRows, newSections)

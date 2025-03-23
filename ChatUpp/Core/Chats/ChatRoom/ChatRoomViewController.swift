@@ -21,13 +21,15 @@ extension ChatRoomViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        updateMessageSeenStatusIfNeeded()
-        isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-
-        if shouldAdjustScroll {
-            shouldAdjustScroll = false
-            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
+        if viewModel.shouldHideJoinGroupOption {
+            updateMessageSeenStatusIfNeeded()
         }
+        isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+//
+//        if shouldAdjustScroll {
+//            shouldAdjustScroll = false
+//            self.rootView.tableView.contentOffset.y = tableViewUpdatedContentOffset
+//        }
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {

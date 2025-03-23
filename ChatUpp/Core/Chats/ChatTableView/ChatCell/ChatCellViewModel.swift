@@ -63,7 +63,7 @@ class ChatCellViewModel
             CacheManager.shared.saveImageData(data, toPath: path)
         }
     }
-    
+    @MainActor
     func retrieveImageFromCache() -> Data?
     {
         guard let photoURL = imageThumbnailPath else { return nil }
@@ -80,6 +80,7 @@ class ChatCellViewModel
 //MARK: - Computed properties
 extension ChatCellViewModel
 {
+    @MainActor
     private var imageThumbnailPath: String?
     {
         guard let originalURL = chat.isGroup ? chat.thumbnailURL : chatUser?.photoUrl else {
@@ -247,7 +248,7 @@ extension ChatCellViewModel
             return nil
         }
     }
-
+    @MainActor
     func fetchImageData() async throws -> Data? 
     {
         guard let thumbnailURL = imageThumbnailPath else { return nil }
