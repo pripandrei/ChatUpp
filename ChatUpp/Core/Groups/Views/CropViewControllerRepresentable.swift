@@ -9,6 +9,11 @@ import SwiftUI
 import PhotosUI
 import CropViewController
 
+protocol ImageRepositoryRepresentable
+{
+    func updateImageRepository(repository: ImageSampleRepository)
+}
+
 struct CropViewControllerRepresentable: UIViewControllerRepresentable
 {
     private let imageData: Data

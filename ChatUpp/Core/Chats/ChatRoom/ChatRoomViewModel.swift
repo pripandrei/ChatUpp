@@ -750,7 +750,7 @@ extension ChatRoomViewModel
         }
         
         if conversation?.realm != nil {
-            realmService?.addMessagesToConversationInRealm(newMessages)            
+            realmService?.addMessagesToConversationInRealm(newMessages)
         }
         
         return (newRows, newSections)
