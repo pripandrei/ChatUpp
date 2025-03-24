@@ -10,7 +10,7 @@ import SwiftUI
 struct ChatRoomInformationScreen: View
 {
     @ObservedObject var viewModel: ChatRoomInformationViewModel
-    @State private var showLeaveAlert: Bool = false
+    @State private var showLeaveGroupAlert: Bool = false
     @State private var presentEditScreen: Bool = false
     
     var body: some View
@@ -45,8 +45,10 @@ struct ChatRoomInformationScreen: View
                     .padding(.trailing, 30)
                     .padding(.bottom, -45)
                     .fullScreenCover(isPresented: $presentEditScreen) {
-                        let chatRoomIformationEditVM = ChatRoomIformationEditViewModel(conversation: viewModel.chat)
-                        ChatRoomIformationEditScreen(viewModel: chatRoomIformationEditVM)
+                        NavigationStack {
+                            let chatRoomIformationEditVM = ChatRoomIformationEditViewModel(conversation: viewModel.chat)
+                            ChatRoomIformationEditScreen(viewModel: chatRoomIformationEditVM)                            
+                        }
                     }
                 }
             }
@@ -73,7 +75,7 @@ struct ChatRoomInformationScreen: View
         .background(Color(cgColor: #colorLiteral(red: 0.5539219975, green: 0.5661839247, blue: 0.656108439, alpha: 1)))
         .padding(.top, -45)
         
-        LeaveChatAlert(viewModel: viewModel, isPresented: $showLeaveAlert)
+        LeaveChatAlert(viewModel: viewModel, isPresented: $showLeaveGroupAlert)
     }
 }
 
@@ -97,35 +99,19 @@ extension ChatRoomInformationScreen
         }
     }
     
-    
     private struct ButtonOptionView: View
     {
         let option: ButtonOption
         let action: () -> Void
-        //        @State var showAlert = false
         
         var body: some View
         {
             Button {
-                //                switch option {
-                //                case .edit: break
-                //                case .leaveGroup: showAlert = true
-                //                }
                 action()
             } label: {
                 setupButtonOptionLabel()
             }
             .buttonStyle(.plain)
-            //            .alert("Leave group", isPresented: $showAlert) {
-            //                Button("Cancel", role: .cancel) {
-            //                    showAlert = false
-            //                }
-            //                Button("Leave", role: .destructive) {
-            //                    
-            //                }
-            //            } message: {
-            //                Text("Are you sure you want to leave this group?")
-            //            }
         }
         
         private func setupButtonOptionLabel() -> some View
@@ -152,8 +138,7 @@ extension ChatRoomInformationScreen
     {
         switch option {
         case .edit: presentEditScreen = true
-        case .leaveGroup:
-            showLeaveAlert = true
+        case .leaveGroup: showLeaveGroupAlert = true
         }
     }
 }
@@ -191,10 +176,3 @@ extension ChatRoomInformationScreen
     ChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel(chat: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")))
     //    ChatRoomInformationScreen()
 }
-
-
-//                    ForEach(0..<10) { item in
-//                        UserView(userItem: User(userId: "asdads3423", name: "Amiamin", email: "er", photoUrl: nil, phoneNumber: nil, nickName: nil, dateCreated: Date(), lastSeen: Date(), isActive: false))
-////                        Text("Item \(item)")
-//////                            .listRowInsets(EdgeInsets(top: 0, leading: 70, bottom: 0, trailing: 0))
-//                    }

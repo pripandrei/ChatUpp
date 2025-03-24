@@ -10,26 +10,35 @@ import PhotosUI
 
 struct ChatRoomIformationEditScreen: View
 {
+    @Environment(\.dismiss) private var dismiss
+    
     @ObservedObject var viewModel: ChatRoomIformationEditViewModel
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var imageDataContainer: IdentifiableItem<Data>?
     
     var body: some View
     {
-        List {
-            Section {
-                ForEach(EditOptionFields.allCases) { option in
-                    switch option {
-                    case .title:  TextField(option.placeHolder, text: $viewModel.groupTitle)
-                    case .groupInfo: TextField(option.placeHolder, text: $viewModel.groupDescription)
+        NavigationStack {
+            List {
+                Section {
+                    ForEach(EditOptionFields.allCases) { option in
+                        switch option {
+                        case .title:  TextField(option.placeHolder, text: $viewModel.groupTitle)
+                        case .groupInfo: TextField(option.placeHolder, text: $viewModel.groupDescription)
+                        }
                     }
+                } header: {
+                    headerView()
                 }
-            } header: {
-                headerView()
             }
+            .toolbar {
+                toolbarContent()
+            }
+            .toolbarBackground(.hidden, for: .navigationBar)
         }
     }
 }
+
 
 
 //MARK: - Edit Option Fields
@@ -133,6 +142,46 @@ extension ChatRoomIformationEditScreen
         } catch {
             print("Error extracting image data from picker item: \(error)")
             return nil
+        }
+    }
+}
+
+//MARK: - Toolbar content
+extension ChatRoomIformationEditScreen
+{
+    @ToolbarContentBuilder
+    private func toolbarContent() -> some ToolbarContent
+    {
+        ToolbarItem(placement: .topBarTrailing) {
+            saveButton()
+        }
+        
+        ToolbarItem(placement: .topBarLeading) {
+            cancelButton()
+        }
+    }
+    
+    private func cancelButton() -> some View
+    {
+        Button {
+            dismiss()
+        } label: {
+            Text("Cancel")
+                .font(.system(size: 16))
+                .bold()
+                .foregroundStyle(.blue)
+        }
+    }
+    
+    private func saveButton() -> some View
+    {
+        Button {
+            dismiss()
+        } label: {
+            Text("Save")
+                .font(.system(size: 16))
+                .bold()
+                .foregroundStyle(.blue)
         }
     }
 }
