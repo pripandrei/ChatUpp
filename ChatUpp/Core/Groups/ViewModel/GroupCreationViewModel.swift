@@ -140,3 +140,5 @@ extension GroupCreationViewModel
         CacheManager.shared.saveImageData(imageData, toPath: path)
     }
 }
+
+extension GroupCreationViewModel : ImageRepositoryRepresentable {}

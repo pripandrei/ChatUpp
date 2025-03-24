@@ -17,12 +17,13 @@ protocol ImageRepositoryRepresentable
 struct CropViewControllerRepresentable: UIViewControllerRepresentable
 {
     private let imageData: Data
-    @ObservedObject private var viewModel: GroupCreationViewModel
+    private let imageRepositoryRepresentable: ImageRepositoryRepresentable
     
-    init(imageData: Data, viewModel: GroupCreationViewModel)
+    init(imageData: Data,
+         imageRepositoryRepresentable: ImageRepositoryRepresentable)
     {
         self.imageData = imageData
-        self.viewModel = viewModel
+        self.imageRepositoryRepresentable = imageRepositoryRepresentable
     }
     
     func makeUIViewController(context: Context) -> some UIViewController
@@ -42,7 +43,7 @@ struct CropViewControllerRepresentable: UIViewControllerRepresentable
     }
     
     func makeCoordinator() -> Coordinator {
-        return Coordinator(viewModel: viewModel)
+        return Coordinator(imageRepository: imageRepositoryRepresentable)
     }
 }
 
@@ -52,10 +53,10 @@ extension CropViewControllerRepresentable
 {
     class Coordinator: NSObject, CropViewControllerDelegate
     {
-        @ObservedObject var viewModel: GroupCreationViewModel
+        private var imageRepositoryRepresentable: ImageRepositoryRepresentable
         
-        init(viewModel: GroupCreationViewModel) {
-            self.viewModel = viewModel
+        init(imageRepository: ImageRepositoryRepresentable) {
+            self.imageRepositoryRepresentable = imageRepository
         }
         
         func cropViewController(_ cropViewController: CropViewController,
@@ -64,7 +65,7 @@ extension CropViewControllerRepresentable
                                 angle: Int)
         {
             let imageRepository = ImageSampleRepository(image: image, type: .user)
-            viewModel.updateImageRepository(repository: imageRepository)
+            imageRepositoryRepresentable.updateImageRepository(repository: imageRepository)
             cropViewController.dismiss(animated: true)
         }
     }

@@ -6,9 +6,11 @@
 //
 import SwiftUI
 
-final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject {
-    
+
+final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject, ImageRepositoryRepresentable
+{
     private let conversation: Chat
+    @Published private(set) var imageSampleRepository: ImageSampleRepository?
     
     @Published var groupTitle: String = ""
     @Published var groupDescription: String = "English study group for beginners"
@@ -35,4 +37,12 @@ final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject {
         }
         return nil
     }
+}
+
+extension ChatRoomIformationEditViewModel
+{
+    func updateImageRepository(repository: ImageSampleRepository) {
+        self.imageSampleRepository = repository
+    }
+    
 }

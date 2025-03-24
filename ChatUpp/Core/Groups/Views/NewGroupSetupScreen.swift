@@ -61,7 +61,7 @@ extension NewGroupSetupScreen
                }
            }
            .sheet(item: $imageDataContainer) { container in
-               CropViewControllerRepresentable(imageData: container.item, viewModel: viewModel)
+               CropViewControllerRepresentable(imageData: container.item, imageRepositoryRepresentable: viewModel)
            }
        }
     

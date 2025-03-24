@@ -71,7 +71,7 @@ extension ChatRoomIformationEditScreen
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical, 10)
         .sheet(item: $imageDataContainer) { item in
-//            CropViewControllerRepresentable(imageData: item.item, viewModel: viewModel)
+            CropViewControllerRepresentable(imageData: item.item, imageRepositoryRepresentable: viewModel)
         }
     }
     
@@ -93,18 +93,30 @@ extension ChatRoomIformationEditScreen
     {
         let imageSize = 120.0
         
-        return ZStack {
-            if let imageData = viewModel.retrieveImageData(),
-               let image = UIImage(data: imageData) {
+        return ZStack
+        {
+            if let imageFromRepository = viewModel.imageSampleRepository?.samples[.medium],
+                let image = UIImage(data: imageFromRepository)
+            {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
                     .frame(width: imageSize, height: imageSize)
                     .clipShape(.circle)
-            } else {
+            }
+            else if let imageData = viewModel.retrieveImageData(),
+               let image = UIImage(data: imageData)
+            {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: imageSize, height: imageSize)
+                    .clipShape(.circle)
+            }
+            else {
                 Image("default_group_photo")
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
                     .frame(width: imageSize, height: imageSize)
                     .clipShape(.circle)
             }
@@ -125,22 +137,7 @@ extension ChatRoomIformationEditScreen
     }
 }
 
-//
-//struct HeaderView: View {
-//    var body: some View {
-//        HStack {
-//            Image(systemName: "star.fill")
-//                .foregroundColor(.yellow)
-//            Text("Header Title")
-//                .font(.headline)
-//        }
-//        .padding()
-//        .background(Color.gray.opacity(0.2))
-//        .cornerRadius(10)
-//    }
-//}
-
 #Preview {
     ChatRoomIformationEditScreen(viewModel: ChatRoomIformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created"))
-                                                                           )
+    )
 }
