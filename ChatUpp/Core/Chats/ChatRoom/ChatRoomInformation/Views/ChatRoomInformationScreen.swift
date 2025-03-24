@@ -11,6 +11,7 @@ struct ChatRoomInformationScreen: View
 {
     @ObservedObject var viewModel: ChatRoomInformationViewModel
     @State private var showLeaveAlert: Bool = false
+    @State private var presentEditScreen: Bool = false
     
     var body: some View
     {
@@ -42,7 +43,11 @@ struct ChatRoomInformationScreen: View
                         }
                     }
                     .padding(.trailing, 30)
-                    .padding(.bottom, -45)                    
+                    .padding(.bottom, -45)
+                    .fullScreenCover(isPresented: $presentEditScreen) {
+                        let chatRoomIformationEditVM = ChatRoomIformationEditViewModel(conversation: viewModel.chat)
+                        ChatRoomIformationEditScreen(viewModel: chatRoomIformationEditVM)
+                    }
                 }
             }
             .frame(width: UIScreen.main.bounds.width, height: 400)
@@ -97,30 +102,30 @@ extension ChatRoomInformationScreen
     {
         let option: ButtonOption
         let action: () -> Void
-//        @State var showAlert = false
+        //        @State var showAlert = false
         
         var body: some View
         {
             Button {
-//                switch option {
-//                case .edit: break
-//                case .leaveGroup: showAlert = true
-//                }
+                //                switch option {
+                //                case .edit: break
+                //                case .leaveGroup: showAlert = true
+                //                }
                 action()
             } label: {
                 setupButtonOptionLabel()
             }
             .buttonStyle(.plain)
-//            .alert("Leave group", isPresented: $showAlert) {
-//                Button("Cancel", role: .cancel) {
-//                    showAlert = false
-//                }
-//                Button("Leave", role: .destructive) {
-//                    
-//                }
-//            } message: {
-//                Text("Are you sure you want to leave this group?")
-//            }
+            //            .alert("Leave group", isPresented: $showAlert) {
+            //                Button("Cancel", role: .cancel) {
+            //                    showAlert = false
+            //                }
+            //                Button("Leave", role: .destructive) {
+            //                    
+            //                }
+            //            } message: {
+            //                Text("Are you sure you want to leave this group?")
+            //            }
         }
         
         private func setupButtonOptionLabel() -> some View
@@ -130,7 +135,7 @@ extension ChatRoomInformationScreen
                     .resizable()
                     .frame(width: 30, height: 30, alignment: .center)
                     .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.92651546, green: 0.7966771722, blue: 1, alpha: 1)))
-                    
+                
                 Text(option.rawValue)
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.92651546, green: 0.7966771722, blue: 1, alpha: 1)))
@@ -146,8 +151,7 @@ extension ChatRoomInformationScreen
     private func handleButtonTap(for option: ButtonOption)
     {
         switch option {
-        case .edit:
-            break
+        case .edit: presentEditScreen = true
         case .leaveGroup:
             showLeaveAlert = true
         }
@@ -185,7 +189,7 @@ extension ChatRoomInformationScreen
 
 #Preview {
     ChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel(chat: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")))
-//    ChatRoomInformationScreen()
+    //    ChatRoomInformationScreen()
 }
 
 

@@ -10,7 +10,7 @@ import SwiftUI
 
 final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
 {
-    private let chat: Chat
+    private(set) var chat: Chat
     
 //    @Published var navStack = [GroupCreationRoute]()
     @Published var members: [User] = []
