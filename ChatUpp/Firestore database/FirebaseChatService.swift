@@ -66,6 +66,18 @@ extension FirebaseChatService
     }
 }
 
+//MARK: - update chat
+extension FirebaseChatService
+{
+    @MainActor
+    func updateChat(_ chat: Chat) throws
+    {
+//        try chatsCollection.document(chat.id).setData(from: chat, mergeFields: [Chat.CodingKeys.name.rawValue, Chat.CodingKeys.thumbnailURL.rawValue])
+        try chatsCollection.document(chat.id).setData(from: chat, merge: true)
+    }
+}
+
+
 //MARK: - remove chat
 extension FirebaseChatService 
 {

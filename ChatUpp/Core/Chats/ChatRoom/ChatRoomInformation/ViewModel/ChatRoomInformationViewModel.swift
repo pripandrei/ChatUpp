@@ -12,14 +12,13 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
 {
     private(set) var chat: Chat
     
-//    @Published var navStack = [GroupCreationRoute]()
     @Published var members: [User] = []
-    @Published var groupName: String = ""
+//    @Published var groupName: String = ""
     @Published var membersCount: Int = 0
     
     init(chat: Chat) {
         self.chat = chat
-        self.groupName = chat.name ?? "No name"
+//        self.groupName = chat.name ?? "No name"
         self.membersCount = chat.participants.count
         self.presentMembers()
     }
@@ -28,9 +27,17 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
         return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) != nil
     }
     
-//    var groupName: String {
-//        chat.name ?? "No name"
-//    }
+    var groupName: String {
+        chat.name ?? "unknown"
+    }
+    
+    func retrieveGroupImage() -> Data?
+    {
+        guard let path = chat.thumbnailURL else { return nil }
+        
+//        let path = imgURL.replacingOccurrences(of: ".jpg", with: ".jpg")
+        return CacheManager.shared.retrieveImageData(from: path)
+    }
 }
 
 //MARK: - Retrieve/fetch users

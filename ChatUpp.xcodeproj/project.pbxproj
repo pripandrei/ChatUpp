@@ -120,6 +120,7 @@
 		75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */; };
 		75E8AABE2D918C68007479E4 /* ChatRoomIformationEditScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABD2D918C68007479E4 /* ChatRoomIformationEditScreen.swift */; };
 		75E8AAC02D9192ED007479E4 /* ChatRoomIformationEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABF2D9192EC007479E4 /* ChatRoomIformationEditViewModel.swift */; };
+		75E8AAC22D9213F9007479E4 /* ImageRepositoryRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */; };
 		75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */; };
 		75F608842BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift */; };
 		75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* InputBarHeaderView.swift */; };
@@ -274,6 +275,7 @@
 		75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeUserService.swift; sourceTree = "<group>"; };
 		75E8AABD2D918C68007479E4 /* ChatRoomIformationEditScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomIformationEditScreen.swift; sourceTree = "<group>"; };
 		75E8AABF2D9192EC007479E4 /* ChatRoomIformationEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomIformationEditViewModel.swift; sourceTree = "<group>"; };
+		75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepositoryRepresentable.swift; sourceTree = "<group>"; };
 		75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableRealmObjectProcotol.swift; sourceTree = "<group>"; };
 		75F608832BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarMessageTextViewDelegate.swift; sourceTree = "<group>"; };
 		75F608852BEC33400065DA83 /* InputBarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarHeaderView.swift; sourceTree = "<group>"; };
@@ -527,6 +529,7 @@
 		757033A32BC2D829002732B5 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */,
 				75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */,
 				75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */,
 				75BA23842D2F02E600A4C508 /* ImageSaveble.swift */,
@@ -1073,6 +1076,7 @@
 				75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */,
 				756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */,
 				7563F87C2ADE25E6006FA374 /* ConversationTableViewDataSource.swift in Sources */,
+				75E8AAC22D9213F9007479E4 /* ImageRepositoryRepresentable.swift in Sources */,
 				754439302B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift in Sources */,
 				752DE40D2D218B95003AC40C /* GroupMembersSelectionScreen.swift in Sources */,
 			);

@@ -37,12 +37,47 @@ final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject, ImageRepo
         }
         return nil
     }
+    
+    func saveEditedData() async throws
+    {
+        try await processImageSamples()
+        await updateRealmConversation()
+        try await FirebaseChatService.shared.updateChat(conversation)
+    }
+    
+    @MainActor
+    private func updateRealmConversation()
+    {
+        RealmDataBase.shared.update(object: conversation) { realmChat in
+            realmChat.name = groupTitle
+            realmChat.thumbnailURL = imageSampleRepository?.imagePath(for: .original)
+        }
+    }
+    
 }
 
+//MARK: - Image update
 extension ChatRoomIformationEditViewModel
 {
     func updateImageRepository(repository: ImageSampleRepository) {
         self.imageSampleRepository = repository
+    }
+    
+    private func processImageSamples() async throws
+    {
+        guard let sampleRepository = imageSampleRepository else { return }
+        
+        for (key, imageData) in sampleRepository.samples {
+            let path = sampleRepository.imagePath(for: key)
+            try await saveImage(imageData, path: path)
+        }
+    }
+    
+    @MainActor
+    private func saveImage(_ imageData: Data, path: String) async throws
+    {
+        try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .group(conversation.id), imagePath: path)
+        CacheManager.shared.saveImageData(imageData, toPath: path)
     }
     
 }

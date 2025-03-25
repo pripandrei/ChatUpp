@@ -16,6 +16,8 @@ struct ChatRoomIformationEditScreen: View
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var imageDataContainer: IdentifiableItem<Data>?
     
+    @Binding var dataIsEdited: Bool 
+    
     var body: some View
     {
         NavigationStack {
@@ -176,7 +178,11 @@ extension ChatRoomIformationEditScreen
     private func saveButton() -> some View
     {
         Button {
-            dismiss()
+            Task {
+                try await viewModel.saveEditedData()
+                dataIsEdited = true
+                dismiss()
+            }
         } label: {
             Text("Save")
                 .font(.system(size: 16))
@@ -187,6 +193,6 @@ extension ChatRoomIformationEditScreen
 }
 
 #Preview {
-    ChatRoomIformationEditScreen(viewModel: ChatRoomIformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created"))
+    ChatRoomIformationEditScreen(viewModel: ChatRoomIformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")), dataIsEdited: .constant(false)
     )
 }

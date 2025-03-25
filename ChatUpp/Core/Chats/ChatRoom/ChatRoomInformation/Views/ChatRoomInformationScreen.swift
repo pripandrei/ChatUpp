@@ -12,19 +12,18 @@ struct ChatRoomInformationScreen: View
     @ObservedObject var viewModel: ChatRoomInformationViewModel
     @State private var showLeaveGroupAlert: Bool = false
     @State private var presentEditScreen: Bool = false
+    @State private var dataIsEdited: Bool = false
     
     var body: some View
     {
         VStack(spacing: 0) {
             ZStack(alignment: .bottomLeading) {
                 VStack {
-                    Image("default_group_photo")
-                        .resizable()
-                        .scaledToFill()
+                    groupImage().id(dataIsEdited)
                 }
                 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(viewModel.groupName)
+                    Text(viewModel.groupName).id(dataIsEdited)
                         .font(.system(size: 24, weight: .semibold))
                     Text("\(viewModel.membersCount) members")
                         .font(.system(size: 15))
@@ -47,7 +46,8 @@ struct ChatRoomInformationScreen: View
                     .fullScreenCover(isPresented: $presentEditScreen) {
                         NavigationStack {
                             let chatRoomIformationEditVM = ChatRoomIformationEditViewModel(conversation: viewModel.chat)
-                            ChatRoomIformationEditScreen(viewModel: chatRoomIformationEditVM)                            
+                            ChatRoomIformationEditScreen(viewModel: chatRoomIformationEditVM,
+                                                         dataIsEdited: $dataIsEdited)
                         }
                     }
                 }
@@ -76,6 +76,24 @@ struct ChatRoomInformationScreen: View
         .padding(.top, -45)
         
         LeaveChatAlert(viewModel: viewModel, isPresented: $showLeaveGroupAlert)
+    }
+}
+
+//MARK: Group image
+extension ChatRoomInformationScreen
+{
+    private func groupImage() -> some View
+    {
+        if let imageData = viewModel.retrieveGroupImage(),
+           let image = UIImage(data: imageData)
+        {
+            return Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+        }
+        return Image("default_group_photo")
+            .resizable()
+            .scaledToFill()
     }
 }
 
