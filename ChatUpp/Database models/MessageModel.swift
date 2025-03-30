@@ -8,6 +8,15 @@
 import Foundation
 import RealmSwift
 
+enum MessageType: String, PersistableEnum, Codable
+{
+    case text
+    case title
+    case image
+    case audio
+    case video
+}
+
 class MessageImageSize: EmbeddedObject, Codable
 {
     @Persisted var width: Int
@@ -56,6 +65,8 @@ class Message: Object, Codable
     @Persisted var imagePath: String?
     @Persisted var repliedTo: String?
     
+    @Persisted var type: MessageType?
+    
     @Persisted var imageSize: MessageImageSize?
     
     enum CodingKeys: String, CodingKey {
@@ -69,6 +80,7 @@ class Message: Object, Codable
         case imageSize = "image_size"
         case isEdited = "is_edited"
         case repliedTo = "replied_to"
+        case type = "type"
     }
     
     convenience required init(from decoder: Decoder) throws {
@@ -84,6 +96,7 @@ class Message: Object, Codable
         self.isEdited = try container.decode(Bool.self, forKey: .isEdited)
         self.imageSize = try container.decodeIfPresent(MessageImageSize.self, forKey: .imageSize)
         self.repliedTo = try container.decodeIfPresent(String.self, forKey: .repliedTo)
+        self.type = try container.decodeIfPresent(MessageType.self, forKey: .type)
         
         let seenBy = try container.decodeIfPresent([String].self, forKey: .seenBy)
         self.seenBy.append(objectsIn: seenBy ?? [])
@@ -100,6 +113,7 @@ class Message: Object, Codable
         try container.encode(self.isEdited, forKey: .isEdited)
         try container.encodeIfPresent(self.imageSize, forKey: .imageSize)
         try container.encodeIfPresent(self.repliedTo, forKey: .repliedTo)
+        try container.encodeIfPresent(self.type, forKey: .type)
         
         let seenBy = Array(self.seenBy)
         try container.encodeIfPresent(seenBy, forKey: .seenBy)
@@ -114,7 +128,8 @@ class Message: Object, Codable
                      isEdited: Bool,
                      imagePath: String?,
                      imageSize: MessageImageSize?,
-                     repliedTo: String?
+                     repliedTo: String?,
+                     type: MessageType? = nil
     )
     {
         
@@ -130,6 +145,7 @@ class Message: Object, Codable
         self.imageSize = imageSize
         self.isEdited = isEdited
         self.repliedTo = repliedTo
+        self.type = type
     }
 }
 

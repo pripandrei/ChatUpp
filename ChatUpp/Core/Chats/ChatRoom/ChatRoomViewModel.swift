@@ -554,6 +554,9 @@ extension ChatRoomViewModel
         
         // Handle new message
         realmService?.addMessageToRealmChat(message)
+        
+        
+        
         // TODO: - if chat unseen message counter is heigher than local unseen count,
         // dont create messageGroup with this new message
         createMessageClustersWith([message], ascending: true)
