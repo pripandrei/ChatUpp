@@ -23,7 +23,8 @@ final class PhoneSignInViewModel {
     
     let userCreationStatus: ObservableObject<UserCreationStatus?> = ObservableObject(nil)
     
-    func signInViaPhone(usingVerificationCode code: String) {
+    func signInViaPhone(usingVerificationCode code: String)
+    {
         guard let verificationID = verificationID else { print("missing verificationID"); return}
         Task {
             do {

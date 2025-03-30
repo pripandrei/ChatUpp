@@ -7,16 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "82FB21F2-5CB0-496E-AA0D-8690DA587E5C"
+            uuid = "378572AB-BCB4-4904-939B-5CB432D19C59"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomInformation/ViewModel/ChatRoomInformationViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "39"
-            endingLineNumber = "39"
-            landmarkName = "retrieveGroupImage()"
+            startingLineNumber = "521"
+            endingLineNumber = "521"
+            landmarkName = "checkIfCellMessageIsCurrentlyVisible(at:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A11990BF-838E-44EE-8820-AEC266F5657A"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "522"
+            endingLineNumber = "522"
+            landmarkName = "checkIfCellMessageIsCurrentlyVisible(at:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

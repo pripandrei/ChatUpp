@@ -71,7 +71,15 @@ extension GroupCreationViewModel
         var participants = selectedGroupMembers.map { ChatParticipant(userID: $0.id , unseenMessageCount: 0) }
         participants.append(selfParticipant)
         
-        let group = Chat(id: UUID().uuidString, participants: participants, recentMessageID: "Group created", messagesCount: 0, isFirstTimeOpened: true, dateCreated: Date(), name: self.groupName, thumbnailURL: imageSampleRepository?.imagePath(for: .original), admins: [])
+        let group = Chat(id: UUID().uuidString,
+                         participants: participants,
+                         recentMessageID: "Group created",
+                         messagesCount: 0,
+                         isFirstTimeOpened: true,
+                         dateCreated: Date(),
+                         name: self.groupName,
+                         thumbnailURL: imageSampleRepository?.imagePath(for: .original),
+                         admins: [])
         return group
     }
     

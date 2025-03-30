@@ -119,7 +119,8 @@ extension AuthenticationManager {
         }
     }
     
-    func signUpUser(email: String, password: String, complition: @escaping ((AuthDataResultModel?) -> Void))  {
+    func signUpUser(email: String, password: String, complition: @escaping ((AuthDataResultModel?) -> Void))
+    {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
                 print("There was an error during user registration: \(String(describing: error))")
@@ -176,7 +177,8 @@ extension AuthenticationManager {
         return PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
     }
     
-    func signinWithPhoneSMS(using verificationID:String, verificationCode: String) async throws -> AuthDataResultModel {
+    func signinWithPhoneSMS(using verificationID:String, verificationCode: String) async throws -> AuthDataResultModel
+    {
         let credentials = createOTPCredentials(with: verificationID, verificationCode: verificationCode)
         let result = try await Auth.auth().signIn(with: credentials)
         let authDataModel = AuthDataResultModel(firebaseAuthUser: result.user)

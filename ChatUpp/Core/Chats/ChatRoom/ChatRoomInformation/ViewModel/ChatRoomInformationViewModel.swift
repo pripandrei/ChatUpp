@@ -13,12 +13,10 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
     private(set) var chat: Chat
     
     @Published var members: [User] = []
-//    @Published var groupName: String = ""
     @Published var membersCount: Int = 0
     
     init(chat: Chat) {
         self.chat = chat
-//        self.groupName = chat.name ?? "No name"
         self.membersCount = chat.participants.count
         self.presentMembers()
     }
@@ -34,8 +32,6 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
     func retrieveGroupImage() -> Data?
     {
         guard let path = chat.thumbnailURL else { return nil }
-        
-//        let path = imgURL.replacingOccurrences(of: ".jpg", with: ".jpg")
         return CacheManager.shared.retrieveImageData(from: path)
     }
 }
@@ -64,9 +60,12 @@ extension ChatRoomInformationViewModel
         }
     }
     
-    private func retrieveUsers() -> [User] {
-//        return chat.members
-        return RealmDataBase.shared.retrieveObjects(ofType: User.self)?.toArray() ?? []
+    private func retrieveUsers() -> [User]
+    {
+        let membersID = Array(chat.participants.map { $0.userID })
+        let filter = NSPredicate(format: "id IN %@", membersID)
+        return RealmDataBase.shared.retrieveObjects(ofType: User.self,
+                                                    filter: filter)?.toArray() ?? []
     }
 }
 
@@ -86,14 +85,15 @@ extension ChatRoomInformationViewModel
     private func removeRealmParticipant(with authUserID: String)
     {
         RealmDataBase.shared.update(object: chat) { realmChat in
-            guard let authParticipantIndex = realmChat.participants.firstIndex(where: { $0.userID == authUserID }) else {return}
+            guard let authParticipantIndex = realmChat.participants.firstIndex(where: { $0.userID == authUserID }) else { return }
             realmChat.participants.remove(at: authParticipantIndex)
         }
     }
     @MainActor
     private func removeFirestoreParticipant(with authUserID: String) async throws
     {
-        try await FirebaseChatService.shared.removeParticipant(participantID: authUserID, fromChatWithID: chat.id)
+        try await FirebaseChatService.shared.removeParticipant(participantID: authUserID,
+                                                               fromChatWithID: chat.id)
     }
     
 }

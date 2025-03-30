@@ -508,7 +508,7 @@ extension ChatRoomViewModel
             for user in users
             {
                 guard let avatarURL = user.photoUrl else { continue }
-
+                
                 group.addTask {
                     do {
                         let optimizedURL = avatarURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
@@ -590,7 +590,8 @@ extension ChatRoomViewModel
         messageChangedTypes.append(.removed(indexPath))
     }
     
-    private func indexPath(of message: Message) -> IndexPath? {
+    private func indexPath(of message: Message) -> IndexPath?
+    {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
         for (groupIndex, group) in messageClusters.enumerated() {

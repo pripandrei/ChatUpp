@@ -19,16 +19,7 @@ final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject, ImageRepo
         self.conversation = conversation
         self.groupTitle = conversation.title
     }
-    
-//    private var imageURL: String
-//    {
-//        if let chatImageURL = conversation.thumbnailURL {
-//            return chatImageURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
-//        } else {
-//            return "default_group_photo"
-//        }
-//    }
-    
+
     func retrieveImageData() -> Data?
     {
         if let chatImageURL = conversation.thumbnailURL {

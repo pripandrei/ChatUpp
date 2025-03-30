@@ -118,7 +118,9 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     }
     
     @objc func receiveMessageButtonWasTapped() {
-        guard isPhoneNumberValid, let number = customizedFPNTextField.getFormattedPhoneNumber(format: .E164) else { presentInvalidNumberAlert() ; return}
+        guard isPhoneNumberValid,
+              let number = customizedFPNTextField.getFormattedPhoneNumber(format: .E164)
+        else { presentInvalidNumberAlert() ; return}
         Task {
             do {
                 try await phoneViewModel.sendSmsToPhoneNumber(number)
