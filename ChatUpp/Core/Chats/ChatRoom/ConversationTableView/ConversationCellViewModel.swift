@@ -13,6 +13,8 @@ final class ConversationCellViewModel
     @Published private(set) var imagePathURL: URL?
     @Published private(set) var message: Message?
     
+    @Published private(set) var senderName: String?
+    
     private(set) var referencedMessage: Message?
     private(set) var displayUnseenMessagesTitle: Bool?
     private(set) var messageImageDataSubject = PassthroughSubject<Data, Never>()
@@ -21,6 +23,10 @@ final class ConversationCellViewModel
     convenience init(message: Message) {
         self.init()
         self.message = message
+        
+        if message.type == .title {
+            setMessageSenderName()
+        }
     }
     
     convenience init(isUnseenCell: Bool) {
@@ -68,6 +74,33 @@ final class ConversationCellViewModel
             return .seenStatus
         }
         return nil
+    }
+    
+    //Test
+    
+    private func setMessageSenderName()
+    {
+//        guard let message = self.message else { return }
+//        guard let senderName = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: message.senderId)?.name
+        guard let senderName = messageSender?.name
+        else
+        {
+            Task {
+                do {
+                    self.senderName = try await fetchMessageSender().name
+                } catch {
+                    print("Error fetching sender from message: \(error)")
+                }
+            }
+            return
+        }
+        self.senderName = senderName
+    }
+    
+    @MainActor
+    private func fetchMessageSender() async throws -> User
+    {
+        return try await FirestoreUserService.shared.getUserFromDB(userID: message!.senderId) // this function is called from init with non nil message value, so yes, we can use !
     }
 }
 
