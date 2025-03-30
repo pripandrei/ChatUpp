@@ -536,7 +536,7 @@ extension ChatRoomViewModel
                 let message = messageType.data
 
                 switch messageType.changeType {
-                case .added: self.handleAddedMessage(message)
+                case .added: Task { await self.handleAddedMessage(message) }
                 case .modified: self.handleModifiedMessage(message)
                 case .removed: self.handleRemovedMessage(message)
                 }
@@ -548,19 +548,27 @@ extension ChatRoomViewModel
 
 extension ChatRoomViewModel
 {
-    private func handleAddedMessage(_ message: Message) {
-        // If message exists, just update it
+    @MainActor
+    private func handleAddedMessage(_ message: Message) async
+    {
         guard realmService?.retrieveMessageFromRealm(message) == nil else { return }
-        
-        // Handle new message
+
         realmService?.addMessageToRealmChat(message)
         
-        
+        if message.type == .title
+//            &&
+//            RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: message.senderId) == nil
+        {
+            do {
+                try await syncGroupUsers(for: [message])
+            } catch {
+                print("Error in synchronizing user from message title: ", error)
+            }
+        }
         
         // TODO: - if chat unseen message counter is heigher than local unseen count,
         // dont create messageGroup with this new message
         createMessageClustersWith([message], ascending: true)
-        //        unseenMessagesCount = conversation?.getParticipant(byID: authenticatedUserID)?.unseenMessagesCount ?? unseenMessagesCount
         messageChangedTypes.append(.added)
     }
     
