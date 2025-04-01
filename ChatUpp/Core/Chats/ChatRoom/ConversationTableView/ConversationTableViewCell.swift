@@ -35,21 +35,15 @@ final class ConversationTableViewCell: UITableViewCell
     private(set) var cellViewModel: ConversationCellViewModel!
     
     private let cellSpacing = 3.0
-//    private var messageSide: MessageAlignment!
     private var maxMessageWidth: CGFloat {
         return 292.0
     }
-//
-//    private var messageSide2: MessageAlignment {
-//        return cellViewModel.
-//    }
-//    
+
     private var messageSenderNameColor: UIColor
     {
         let senderID = cellViewModel.message?.senderId
         return ColorManager.color(for: senderID ?? "12345")
     }
-    
     
     /// - lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -155,14 +149,12 @@ final class ConversationTableViewCell: UITableViewCell
         ])
     }
     
-    func configureCell(usingViewModel viewModel: ConversationCellViewModel,
-                       layoutConfiguration: MessageLayoutConfiguration
-                       /*forSide side: MessageAlignment*/)
+    func configureCell(using viewModel: ConversationCellViewModel,
+                       layoutConfiguration: MessageLayoutConfiguration)
     {
         self.cleanupCellContent()
         
         self.cellViewModel = viewModel
-//        self.messageSide = side
         self.timeStamp.text = viewModel.timestamp
         self.messageLayoutConfiguration = layoutConfiguration
         
@@ -710,47 +702,80 @@ extension ConversationTableViewCell
 
 
 
-protocol MessageLayoutConfiguration
-{
-    var shouldShowSenderName: Bool { get }
-    var shouldShowAvatar: Bool { get set }
-    var avatarSize: CGSize? { get }
-    var leadingConstraintConstant: CGFloat { get }
+//protocol MessageLayoutConfiguration
+//{
+//    var shouldShowSenderName: Bool { get }
+//    var shouldShowAvatar: Bool { get set }
+//    var avatarSize: CGSize? { get }
+//    var leadingConstraintConstant: CGFloat { get }
+//}
+//
+//struct PrivateChatMessageLayout: MessageLayoutConfiguration
+//{
+//    let leadingConstraintConstant: CGFloat = 10
+//    let shouldShowSenderName: Bool = false
+//    var shouldShowAvatar: Bool = false
+//    let avatarSize: CGSize? = nil
+//}
+//
+//struct GroupChatMessageLayout: MessageLayoutConfiguration
+//{
+//    let leadingConstraintConstant: CGFloat = 52
+//    let shouldShowSenderName: Bool = true
+//    var shouldShowAvatar: Bool = false
+//    let avatarSize: CGSize? = CGSize(width: 40, height: 40)
+//}
+
+struct MessageLayoutConfiguration {
+    let shouldShowSenderName: Bool
+    let shouldShowAvatar: Bool
+    let avatarSize: CGSize?
+    let leadingConstraintConstant: CGFloat
 }
 
-struct PrivateChatMessageLayout: MessageLayoutConfiguration
+extension MessageLayoutConfiguration
 {
-    let leadingConstraintConstant: CGFloat = 10
-    let shouldShowSenderName: Bool = false
-    var shouldShowAvatar: Bool = false
-    let avatarSize: CGSize? = nil
-}
-
-struct GroupChatMessageLayout: MessageLayoutConfiguration
-{
-    let leadingConstraintConstant: CGFloat = 52
-    let shouldShowSenderName: Bool = true
-    var shouldShowAvatar: Bool = false
-    let avatarSize: CGSize? = CGSize(width: 40, height: 40)
-}
-
-
-enum MessageLayoutConfigurationFactory
-{
-    static func makeConfiguration(for chatType: ChatType) -> MessageLayoutConfiguration
+    func withUpdatedAvatar(_ shouldShow: Bool) -> MessageLayoutConfiguration
     {
-        switch chatType {
-        case ._private:
-            return PrivateChatMessageLayout()
-        case ._group:
-            return GroupChatMessageLayout()
-        }
+        return MessageLayoutConfiguration(shouldShowSenderName: shouldShowSenderName,
+                                          shouldShowAvatar: shouldShow,
+                                          avatarSize: avatarSize,
+                                          leadingConstraintConstant: leadingConstraintConstant)
     }
 }
+
+//enum MessageLayoutConfigurationFactory
+//{
+//    static func makeConfiguration(for chatType: ChatType) -> MessageLayoutConfiguration
+//    {
+//        switch chatType {
+//        case ._private:
+//            return PrivateChatMessageLayout()
+//        case ._group:
+//            return GroupChatMessageLayout()
+//        }
+//    }
+//}
 
 enum ChatType
 {
     case _private
     case _group
+    
+    var messageLayoutConfiguration: MessageLayoutConfiguration
+    {
+        switch self {
+        case ._private:
+            return MessageLayoutConfiguration(shouldShowSenderName: false,
+                                              shouldShowAvatar: false,
+                                              avatarSize: nil,
+                                              leadingConstraintConstant: 10)
+        case ._group:
+            return MessageLayoutConfiguration(shouldShowSenderName: true,
+                                              shouldShowAvatar: false, // Adjusted dynamically
+                                              avatarSize: CGSize(width: 40, height: 40),
+                                              leadingConstraintConstant: 52)
+        }
+    }
 }
 

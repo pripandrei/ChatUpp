@@ -56,13 +56,6 @@ final class ConversationCellViewModel
         return true
     }
     
-    var isOutgoingMessage: Bool
-    {
-        let authUserID = AuthenticationManager.shared.authenticatedUser?.uid
-        assert(authUserID != nil)
-        return message?.senderId == authUserID
-    }
-    
     var messageAlignment: MessageAlignment
     {
         if message?.type == .title {
