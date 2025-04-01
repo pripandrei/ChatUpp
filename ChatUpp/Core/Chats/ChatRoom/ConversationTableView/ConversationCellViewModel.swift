@@ -56,6 +56,22 @@ final class ConversationCellViewModel
         return true
     }
     
+    var isOutgoingMessage: Bool
+    {
+        let authUserID = AuthenticationManager.shared.authenticatedUser?.uid
+        assert(authUserID != nil)
+        return message?.senderId == authUserID
+    }
+    
+    var messageAlignment: MessageAlignment
+    {
+        if message?.type == .title {
+            return .center
+        }
+        let authUserID = AuthenticationManager.shared.authenticatedUser?.uid
+        return message?.senderId == authUserID ? .right : .left
+    }
+    
     /// internal functions
     ///
     
@@ -227,6 +243,15 @@ extension ConversationCellViewModel
         } else {
             return CGSize(width: equalWidth, height: equalHeight)
         }
+    }
+}
+
+extension ConversationCellViewModel
+{
+    enum MessageAlignment {
+        case left
+        case right
+        case center
     }
 }
 

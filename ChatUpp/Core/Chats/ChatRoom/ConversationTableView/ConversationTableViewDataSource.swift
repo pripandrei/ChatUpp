@@ -37,22 +37,16 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire, for: indexPath) as? ConversationTableViewCell else { fatalError("Could not dequeu custom collection cell") }
 
-        let message = viewModel.message
-        let authUserID = conversationViewModel.authUser.uid
-        
-        let cellSide = message?.senderId == authUserID ?
-        ConversationTableViewCell.MessageSide.right : ConversationTableViewCell.MessageSide.left
-        
-        /// set sender name and text of message messageToBeReplied if any
-//        if let repliedToMessageID = message?.repliedTo {
-//            viewModel.setReferencedMessage(usingMessageID: repliedToMessageID)
-//        }
+//        let message = viewModel.message
+//        let authUserID = conversationViewModel.authUser.uid
+//        
+//        let cellSide = message?.senderId == authUserID ?
+//        ConversationTableViewCell.MessageAlignment.right : ConversationTableViewCell.MessageAlignment.left
 //        
         let messageLayoutConfiguration = makeLayoutConfigurationForCell(at: indexPath)
         
         cell.configureCell(usingViewModel: viewModel,
-                           layoutConfiguration: messageLayoutConfiguration,
-                           forSide: cellSide)
+                           layoutConfiguration: messageLayoutConfiguration)
         return cell
     }
     
@@ -85,3 +79,6 @@ extension ConversationTableViewDataSource: SkeletonTableViewDataSource
        return ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire
     }
 }
+
+
+

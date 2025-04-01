@@ -28,7 +28,7 @@ final class UsernameRegistrationViewModel
         }
     }
     
-    private var authUser: AuthDataResultModel {
+    private var authUser: AuthenticatedUserData {
         if let user = try? AuthenticationManager.shared.getAuthenticatedUser() {
             return user
         }

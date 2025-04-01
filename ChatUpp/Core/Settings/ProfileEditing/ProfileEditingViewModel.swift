@@ -27,7 +27,7 @@ final class ProfileEditingViewModel
         return userDataMirror.children.map({ $0.value }) as! [String?]
     }
     
-    private var authUser: AuthDataResultModel {
+    private var authUser: AuthenticatedUserData {
         if let user = try? AuthenticationManager.shared.getAuthenticatedUser() {
             return user
         }

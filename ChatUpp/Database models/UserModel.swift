@@ -34,7 +34,7 @@ class User: Object, Codable, Identifiable
             case lastSeen = "last_seen"
         }
     
-    convenience init(auth: AuthDataResultModel) {
+    convenience init(auth: AuthenticatedUserData) {
         self.init()
         
         self.id = auth.uid

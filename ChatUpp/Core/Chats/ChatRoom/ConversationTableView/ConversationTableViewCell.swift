@@ -35,11 +35,15 @@ final class ConversationTableViewCell: UITableViewCell
     private(set) var cellViewModel: ConversationCellViewModel!
     
     private let cellSpacing = 3.0
-    private var messageSide: MessageSide!
+//    private var messageSide: MessageAlignment!
     private var maxMessageWidth: CGFloat {
         return 292.0
     }
-    
+//
+//    private var messageSide2: MessageAlignment {
+//        return cellViewModel.
+//    }
+//    
     private var messageSenderNameColor: UIColor
     {
         let senderID = cellViewModel.message?.senderId
@@ -152,17 +156,17 @@ final class ConversationTableViewCell: UITableViewCell
     }
     
     func configureCell(usingViewModel viewModel: ConversationCellViewModel,
-                       layoutConfiguration: MessageLayoutConfiguration,
-                       forSide side: MessageSide)
+                       layoutConfiguration: MessageLayoutConfiguration
+                       /*forSide side: MessageAlignment*/)
     {
         self.cleanupCellContent()
         
         self.cellViewModel = viewModel
-        self.messageSide = side
+//        self.messageSide = side
         self.timeStamp.text = viewModel.timestamp
         self.messageLayoutConfiguration = layoutConfiguration
         
-        if side == .left
+        if cellViewModel.messageAlignment == .left
         {
             if layoutConfiguration.shouldShowSenderName {
                 self.setupSenderNameLabel()
@@ -342,7 +346,7 @@ extension ConversationTableViewCell
         
         let leadingConstant = messageLayoutConfiguration.leadingConstraintConstant
         
-        switch messageSide {
+        switch cellViewModel.messageAlignment {
         case .right:
             configureMessageSeenStatus()
             
@@ -357,7 +361,7 @@ extension ConversationTableViewCell
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
             messageBubbleContainer.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
-        case .none:
+        case .center:
             break
         }
     }
@@ -408,7 +412,7 @@ extension ConversationTableViewCell
     /// computed properties
     private var messageComponentsWidth: CGFloat
     {
-        let sideWidth = messageSide == .right ? seenStatusMark.intrinsicContentSize.width : 0.0
+        let sideWidth = cellViewModel.messageAlignment == .right ? seenStatusMark.intrinsicContentSize.width : 0.0
         return timeStamp.intrinsicContentSize.width + sideWidth + editedMessageWidth + 4.0
     }
 
@@ -675,11 +679,6 @@ extension ConversationTableViewCell
 //MARK: - conversation cell enums
 extension ConversationTableViewCell
 {
-    enum MessageSide {
-        case left
-        case right
-    }
-    
     private enum SeenStatusIcon: String {
         case single = "icons8-done-64-6"
         case double = "icons8-double-tick-48-3"

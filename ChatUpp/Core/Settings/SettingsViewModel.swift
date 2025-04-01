@@ -15,7 +15,7 @@ final class SettingsViewModel
     private(set) var user: User!
     private(set) var authProvider: String!
  
-    private var authUser : AuthDataResultModel
+    private var authUser : AuthenticatedUserData
     {
         try! AuthenticationManager.shared.getAuthenticatedUser()
     }

@@ -19,7 +19,7 @@ enum AuthenticationStatus: Error {
 
 //MARK: - Authentication result model
 
-struct AuthDataResultModel {
+struct AuthenticatedUserData {
     let uid: String
     let email: String?
     let photoURL: String?
@@ -43,10 +43,18 @@ final class AuthenticationManager
     
     private init() {}
     
-    @discardableResult
-    func getAuthenticatedUser() throws -> AuthDataResultModel {
+    var authenticatedUser: AuthenticatedUserData?
+    {
         if let user = Auth.auth().currentUser {
-            return AuthDataResultModel(firebaseAuthUser: user)
+            return AuthenticatedUserData(firebaseAuthUser: user)
+        }
+        return nil
+    }
+    
+    @discardableResult
+    func getAuthenticatedUser() throws -> AuthenticatedUserData {
+        if let user = Auth.auth().currentUser {
+            return AuthenticatedUserData(firebaseAuthUser: user)
         }
         throw AuthenticationStatus.userIsNotAuthenticated
     }
@@ -107,19 +115,19 @@ final class AuthenticationManager
 //MARK: - Sign in with Email
 
 extension AuthenticationManager {
-    func signIn(email: String, password: String, complition: @escaping (AuthDataResultModel?) -> Void)  {
+    func signIn(email: String, password: String, complition: @escaping (AuthenticatedUserData?) -> Void)  {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
                 print("Could not log you in. Error: \(String(describing: error))")
                 complition(nil)
                 return
             }
-            let authDataResultModel = AuthDataResultModel(firebaseAuthUser: result.user)
+            let authDataResultModel = AuthenticatedUserData(firebaseAuthUser: result.user)
             complition(authDataResultModel)
         }
     }
     
-    func signUpUser(email: String, password: String, complition: @escaping ((AuthDataResultModel?) -> Void))
+    func signUpUser(email: String, password: String, complition: @escaping ((AuthenticatedUserData?) -> Void))
     {
         Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {
@@ -127,7 +135,7 @@ extension AuthenticationManager {
                 complition(nil)
                 return
             }
-            let authDataResultModel = AuthDataResultModel(firebaseAuthUser: result.user)
+            let authDataResultModel = AuthenticatedUserData(firebaseAuthUser: result.user)
             complition(authDataResultModel)
         }
     }
@@ -137,7 +145,7 @@ extension AuthenticationManager {
 
 extension AuthenticationManager {
     
-    func signInWithGoogle(usingTokens tokens: GoogleSignInResultModel, complition: @escaping (AuthDataResultModel?) -> Void) 
+    func signInWithGoogle(usingTokens tokens: GoogleSignInResultModel, complition: @escaping (AuthenticatedUserData?) -> Void) 
     {
         let credentials = GoogleAuthProvider.credential(withIDToken: tokens.idToken, accessToken: tokens.accessToken)
         
@@ -150,7 +158,7 @@ extension AuthenticationManager {
         }
     }
     
-    private func googleSignin(credentials: AuthCredential, complition: @escaping (AuthDataResultModel?) -> Void)
+    private func googleSignin(credentials: AuthCredential, complition: @escaping (AuthenticatedUserData?) -> Void)
     {
         Auth.auth().signIn(with: credentials) { authResult, error in
             guard let result = authResult, error == nil else {
@@ -159,7 +167,7 @@ extension AuthenticationManager {
                 return
             }
 //            result.user.
-            let authDataModel = AuthDataResultModel(firebaseAuthUser: result.user)
+            let authDataModel = AuthenticatedUserData(firebaseAuthUser: result.user)
             complition(authDataModel)
         }
     }
@@ -177,11 +185,11 @@ extension AuthenticationManager {
         return PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
     }
     
-    func signinWithPhoneSMS(using verificationID:String, verificationCode: String) async throws -> AuthDataResultModel
+    func signinWithPhoneSMS(using verificationID:String, verificationCode: String) async throws -> AuthenticatedUserData
     {
         let credentials = createOTPCredentials(with: verificationID, verificationCode: verificationCode)
         let result = try await Auth.auth().signIn(with: credentials)
-        let authDataModel = AuthDataResultModel(firebaseAuthUser: result.user)
+        let authDataModel = AuthenticatedUserData(firebaseAuthUser: result.user)
         return authDataModel
     }
 }

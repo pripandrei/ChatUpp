@@ -7,12 +7,12 @@
 import Foundation
 
 protocol AuthUserProtocol {
-    var authUser: AuthDataResultModel { get }
+    var authUser: AuthenticatedUserData { get }
 }
 
 extension AuthUserProtocol
 {
-    var authUser: AuthDataResultModel {
+    var authUser: AuthenticatedUserData {
         return try! AuthenticationManager.shared.getAuthenticatedUser()
     }
 }
