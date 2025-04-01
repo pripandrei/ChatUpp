@@ -53,7 +53,6 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         cell.configureCell(usingViewModel: viewModel,
                            layoutConfiguration: messageLayoutConfiguration,
                            forSide: cellSide)
-
         return cell
     }
     

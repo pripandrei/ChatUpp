@@ -17,7 +17,7 @@ final class RealmDataBase {
     
     static var shared = RealmDataBase()
     
-    static private let schemaVersion: UInt64 = 19
+    static private let schemaVersion: UInt64 = 20
     
     var realm: Realm?
     
@@ -130,6 +130,7 @@ extension RealmDataBase {
                 if oldSchemaVersion < 16 { self?.migrateToVersion16(migration: migration) }
                 if oldSchemaVersion < 17 { self?.migrateToVersion17(migration: migration) }
                 if oldSchemaVersion < 18 { self?.migrateToVersion18(migration: migration) }
+                if oldSchemaVersion < 19 { self?.migrateToVersion19(migration: migration) }
             },
             objectTypes: [Chat.self, User.self, Message.self, MessageImageSize.self, ChatParticipant.self]
         )
@@ -240,6 +241,13 @@ extension RealmDataBase
             } else {
                 newObject?["messageSeen"] = nil
             }
+        }
+    }
+    
+    private func migrateToVersion19(migration: Migration)
+    {
+        migration.enumerateObjects(ofType: Message.className()) { oldObject, newObject in
+            newObject?["type"] = "text"
         }
     }
 }
