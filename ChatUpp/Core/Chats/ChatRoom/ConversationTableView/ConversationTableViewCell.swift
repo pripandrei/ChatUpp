@@ -23,6 +23,7 @@ final class ConversationTableViewCell: UITableViewCell
     private var messageSenderAvatar: UIImageView?
     
     private var messageImage: UIImage?
+    private var messageTitleLabel: YYLabel?
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
     private var subscribers = Set<AnyCancellable>()
@@ -44,6 +45,7 @@ final class ConversationTableViewCell: UITableViewCell
         let senderID = cellViewModel.message?.senderId
         return ColorManager.color(for: senderID ?? "12345")
     }
+    
     
     /// - lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -116,68 +118,39 @@ final class ConversationTableViewCell: UITableViewCell
         } else
         {
             cellViewModel.fetchMessageImageData()
-//            Task {
-//                guard let imageData = try await cellViewModel.fetchImageData() else {return}
-//                cellViewModel.cacheImage(data: imageData)
-//                messageImage = UIImage(data: imageData)
-//                self.configureImageAttachment()
-//            }
         }
-        
-//        ImageCache.default.retrieveImage(forKey: imagePath, options: .none, callbackQueue: .mainCurrentOrAsync) { result in
-//            switch result {
-//            case .success(let value):
-//                Task { @MainActor in
-//                    self.messageImage?.image = value.image
-//                    self.configureImageAttachment()
-//                }
-//            default: break
-//            }
-//        }
-        
-//        Task { @MainActor in
-//            let cachedImage = try await ImageCache.default.retrieveImage(forKey: imagePath)
-//            
-//            if let image = cachedImage.image
-//            {
-//                if imagePath == cellViewModel.message?.imagePath
-//                {
-//                    self.messageImage?.image = image
-//                    self.configureImageAttachment()
-//                }
-//            } else {
-//                guard let url = try await cellViewModel.getImagePathURL() else {return}
-//                let resource = KF.ImageResource(downloadURL: url, cacheKey: imagePath)
-//                self.messageImage?.kf.setImage(with: resource) { result in
-//                    switch result {
-//                    case .success(_): self.configureImageAttachment()
-//                    default: break
-//                    }
-//                }
-//            }
-//        }
-        
-//        ImageCache.default.retrieveImage(forKey: imagePath) { result in
-//            switch result {
-//            case .success(let value): self.messageImage?.image = value.image
-//            case .failure(let error): print(error, "error")
-//            }
-//        }
-//        
-//        let url = URL(string: imagePath)
-//        messageImage?.kf.setImage(with: url) { result in
-//            switch result {
-//            case .success(let value): print(value, "value image")
-//                self.configureImageAttachment()
-//            case .failure(let error): print(error, "error")
-//            }
-//        }
-//        configureImageAttachment()
     }
-    
-    
+        
     /// - cell configuration
     ///
+    
+    private func setupTitleLabel()
+    {
+        guard let message = cellViewModel.message else {return}
+        
+        messageTitleLabel = YYLabel()
+        
+        messageTitleLabel?.numberOfLines = 0
+        messageTitleLabel?.preferredMaxLayoutWidth = 260
+        messageTitleLabel?.layer.cornerRadius = 12
+        messageTitleLabel?.translatesAutoresizingMaskIntoConstraints = false
+        messageTitleLabel?.attributedText = makeAttributedString(for: message)
+        
+        setupTitleLabelConstraints()
+    }
+    
+    private func setupTitleLabelConstraints()
+    {
+        guard let messageTitleLabel = messageTitleLabel else {return}
+        
+        NSLayoutConstraint.activate([
+            messageTitleLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor),
+            messageTitleLabel.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor),
+            messageTitleLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor),
+            messageTitleLabel.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor),
+        ])
+    }
+    
     func configureCell(usingViewModel viewModel: ConversationCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration,
                        forSide side: MessageSide)
@@ -199,7 +172,6 @@ final class ConversationTableViewCell: UITableViewCell
             }
         }
         
-        
         self.setupReplyMessage()
         self.setMessageLabelTopConstraints()
         self.setupEditedLabel()
@@ -209,13 +181,6 @@ final class ConversationTableViewCell: UITableViewCell
         if let message = viewModel.message {
             self.setupCellData(with: message)
         }
-        
-//        if viewModel.message?.messageBody != "" {
-//            self.messageLabel.attributedText = self.makeAttributedStringForMessage()
-//            self.handleMessageBubbleLayout()
-//            return
-//        }
-//        configureImageAttachment(data: viewModel.imageData)
     }
     
     private func configureMessageSeenStatus()
@@ -263,7 +228,11 @@ final class ConversationTableViewCell: UITableViewCell
         messageSenderAvatar = nil
         seenStatusMark.attributedText = nil
         editedLabel?.text = nil
+        messageTitleLabel?.removeFromSuperview()
+        messageTitleLabel = nil
         replyMessageLabel.removeFromSuperview()
+        
+//        messageLabel.removeFromSuperview()
         
         applyMessagePadding(strategy: .initial)
         

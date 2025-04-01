@@ -24,9 +24,7 @@ final class ConversationCellViewModel
         self.init()
         self.message = message
         
-        if message.type == .title {
-            setMessageSenderName()
-        }
+        self.setupComponents(from: message)
     }
     
     convenience init(isUnseenCell: Bool) {
@@ -60,7 +58,19 @@ final class ConversationCellViewModel
     
     /// internal functions
     ///
-    func setReferencedMessage(usingMessageID messageID: String)
+    
+    private func setupComponents(from message: Message)
+    {
+        if let repliedToMessageID = message.repliedTo {
+            setReferencedMessage(usingMessageID: repliedToMessageID)
+        }
+        
+        if message.type == .title {
+            setMessageSenderName()
+        }
+    }
+    
+    private func setReferencedMessage(usingMessageID messageID: String)
     {
         let referencedMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID)
         self.referencedMessage = referencedMessage

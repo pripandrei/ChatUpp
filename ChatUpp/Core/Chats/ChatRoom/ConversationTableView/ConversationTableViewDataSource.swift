@@ -44,10 +44,10 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         ConversationTableViewCell.MessageSide.right : ConversationTableViewCell.MessageSide.left
         
         /// set sender name and text of message messageToBeReplied if any
-        if let repliedToMessageID = message?.repliedTo {
-            viewModel.setReferencedMessage(usingMessageID: repliedToMessageID)
-        }
-        
+//        if let repliedToMessageID = message?.repliedTo {
+//            viewModel.setReferencedMessage(usingMessageID: repliedToMessageID)
+//        }
+//        
         let messageLayoutConfiguration = makeLayoutConfigurationForCell(at: indexPath)
         
         cell.configureCell(usingViewModel: viewModel,
