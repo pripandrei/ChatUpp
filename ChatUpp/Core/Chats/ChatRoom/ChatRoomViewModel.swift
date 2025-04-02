@@ -475,10 +475,10 @@ extension ChatRoomViewModel
     
     
     // MARK: - Group Chat Handling
-    
+    @MainActor
     private func syncGroupUsers(for messages: [Message]) async throws
     {
-        let missingUserIDs = await findMissingUserIDs(from: messages)
+        let missingUserIDs = findMissingUserIDs(from: messages)
         
         guard !missingUserIDs.isEmpty else { return }
         
