@@ -26,8 +26,6 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         return conversationViewModel.messageClusters[section].items.count
     }
     
-    
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let viewModel = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row]
         
@@ -36,9 +34,17 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
             return dequeueUnseenTitleCell(for: indexPath, in: tableView)
         }
         
+        if viewModel.message?.type == .title {
+            return dequeueMessageEventCell(for: indexPath, in: tableView, with: viewModel)
+        }
+        
         return dequeueMessageCell(for: indexPath, in: tableView, with: viewModel)
     }
-    
+}
+
+// MARK: - Dequeue cell
+extension ConversationTableViewDataSource
+{
     private func dequeueUnseenTitleCell(for indexPath: IndexPath,
                                         in tableView: UITableView) -> UITableViewCell
     {
@@ -48,6 +54,19 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         {
             fatalError("Could not dequeue unseen title cell")
         }
+        return cell
+    }
+    
+    private func dequeueMessageEventCell(for indexPath: IndexPath,
+                                         in tableView: UITableView,
+                                         with viewModel: MessageCellViewModel) -> UITableViewCell
+    {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ConversationTableCell.eventMessage.identifire,
+                                                       for: indexPath) as? MessageEventCell else
+        {
+            fatalError("Could not dequeue unseen title cell")
+        }
+        cell.configureCell(with: viewModel)
         return cell
     }
     
@@ -67,7 +86,11 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         
         return cell
     }
-    
+}
+
+// MARK: - Cell layout configuration provider functions
+extension ConversationTableViewDataSource
+{
     private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
     {
         let chatType: ChatType = conversationViewModel.conversation?.isGroup == true ? ._group : ._private
@@ -87,56 +110,7 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         
         return messageItems[indexPath.row].message?.senderId != messageItems[indexPath.row - 1].message?.senderId
     }
-    
-    
-    //
-//    
-//    
-//    
-//    
-//    
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
-//    {
-//        let viewModel = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row]
-//        
-//        if viewModel.displayUnseenMessagesTitle == true {
-//            guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire, for: indexPath) as? ConversationTableViewTitleCell else { fatalError("Could not dequeu custom collection cell") }
-//            return cell
-//        }
-//        
-//        guard let cell = tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire, for: indexPath) as? ConversationTableViewCell else { fatalError("Could not dequeu custom collection cell") }
-//        
-//        let messageLayoutConfiguration = makeLayoutConfigurationForCell(at: indexPath)
-//        
-//        cell.configureCell(usingViewModel: viewModel,
-//                           layoutConfiguration: messageLayoutConfiguration)
-//        return cell
-//    }
-//    
-//    private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
-//    {
-//        let chatType: ChatType = conversationViewModel.conversation?.isGroup == true ? ._group : ._private
-////        var messageLayoutConfiguration = MessageLayoutConfigurationFactory.makeConfiguration(for: chatType)
-//        var messageLayoutConfiguration = chatType.messageLayoutConfiguration
-//        
-//        if chatType == ._group {
-//            let shouldShowUserAvatar = shouldShowUserAvatarForCell(at: indexPath)
-//            messageLayoutConfiguration.shouldShowAvatar = shouldShowUserAvatar
-//        }
-//        
-//        return messageLayoutConfiguration
-//    }
-//    
-// 
-//    
-//    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool
-//    {
-//        if indexPath.row == 0 { return true }
-//        let messageItems = conversationViewModel.messageClusters[indexPath.section].items
-//        return messageItems[indexPath.row].message?.senderId != messageItems[indexPath.row - 1].message?.senderId
-//    }
 }
-
 
 // MARK: - SKELETONVIEW DATASOURCE
 extension ConversationTableViewDataSource: SkeletonTableViewDataSource

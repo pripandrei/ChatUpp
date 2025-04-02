@@ -15,7 +15,8 @@ enum ReuseIdentifire
     {
         case message,
              messageSekeleton,
-             unseenTitle
+             unseenTitle,
+             eventMessage
         
         var identifire: String
         {
@@ -23,6 +24,7 @@ enum ReuseIdentifire
             case .message: return rawValue.capitalized
             case .messageSekeleton: return rawValue.capitalized
             case .unseenTitle: return rawValue.capitalized
+            case .eventMessage: return rawValue.capitalized
             }
         }
     }

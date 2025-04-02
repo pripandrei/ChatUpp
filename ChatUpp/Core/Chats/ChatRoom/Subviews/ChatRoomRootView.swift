@@ -61,6 +61,7 @@ final class ChatRoomRootView: UIView {
         tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
         tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
         tableView.register(UnseenMessagesTitleTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
+        tableView.register(MessageEventCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.eventMessage.identifire)
         
         return tableView
     }()
