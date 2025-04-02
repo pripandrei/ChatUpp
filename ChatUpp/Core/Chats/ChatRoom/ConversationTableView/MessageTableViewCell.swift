@@ -11,7 +11,7 @@ import Combine
 import SkeletonView
 import Kingfisher
 
-final class ConversationTableViewCell: UITableViewCell
+final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
@@ -32,7 +32,7 @@ final class ConversationTableViewCell: UITableViewCell
     private(set) var messageLabel = YYLabel()
     private(set) var seenStatusMark = YYLabel()
     private(set) var editedLabel: UILabel?
-    private(set) var cellViewModel: ConversationCellViewModel!
+    private(set) var cellViewModel: MessageCellViewModel!
     
     private let cellSpacing = 3.0
     private var maxMessageWidth: CGFloat {
@@ -149,7 +149,7 @@ final class ConversationTableViewCell: UITableViewCell
         ])
     }
     
-    func configureCell(using viewModel: ConversationCellViewModel,
+    func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
         self.cleanupCellContent()
@@ -247,7 +247,7 @@ final class ConversationTableViewCell: UITableViewCell
     
 // MARK: - UI INITIAL STEUP
 
-extension ConversationTableViewCell
+extension MessageTableViewCell
 {
     private func setupMessageTextLabel()
     {
@@ -361,7 +361,7 @@ extension ConversationTableViewCell
 
 // MARK: - message bubble layout
 
-extension ConversationTableViewCell
+extension MessageTableViewCell
 {
     private func handleMessageBubbleLayout()
     {
@@ -422,7 +422,7 @@ extension ConversationTableViewCell
 }
 
 // MARK: - HANDLE IMAGE OF MESSAGE SETUP
-extension ConversationTableViewCell
+extension MessageTableViewCell
 {
     private func configureImageAttachment(data: Data? = nil) {
 //        setMessageImage(imageData: data)
@@ -470,7 +470,7 @@ extension ConversationTableViewCell
 }
 
 //MARK: - Reply message setup
-extension ConversationTableViewCell
+extension MessageTableViewCell
 {
     private func setupReplyMessage()
     {
@@ -514,7 +514,7 @@ extension ConversationTableViewCell
 }
 
 //MARK: - Reply message label
-extension ConversationTableViewCell
+extension MessageTableViewCell
 {
     /// Customized reply message to simplify left side indentation color fill and text inset
     /// 
@@ -588,7 +588,7 @@ class SkeletonViewCell: UITableViewCell
 
 //MARK: - message layout for group
 
-extension ConversationTableViewCell
+extension MessageTableViewCell
 {
     private func setupSenderNameLabel()
     {
@@ -669,7 +669,7 @@ extension ConversationTableViewCell
 }
 
 //MARK: - conversation cell enums
-extension ConversationTableViewCell
+extension MessageTableViewCell
 {
     private enum SeenStatusIcon: String {
         case single = "icons8-done-64-6"

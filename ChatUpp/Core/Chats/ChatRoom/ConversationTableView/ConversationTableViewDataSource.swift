@@ -44,7 +44,7 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
     {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire,
-            for: indexPath) as? ConversationTableViewTitleCell else
+            for: indexPath) as? UnseenMessagesTitleTableViewCell else
         {
             fatalError("Could not dequeue unseen title cell")
         }
@@ -53,12 +53,12 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
     
     private func dequeueMessageCell(for indexPath: IndexPath,
                                     in tableView: UITableView,
-                                    with viewModel: ConversationCellViewModel) -> UITableViewCell
+                                    with viewModel: MessageCellViewModel) -> UITableViewCell
     {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
             for: indexPath
-        ) as? ConversationTableViewCell else {
+        ) as? MessageTableViewCell else {
             fatalError("Could not dequeue conversation cell")
         }
         

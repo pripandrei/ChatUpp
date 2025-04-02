@@ -13,7 +13,7 @@ extension Array where Element == ChatRoomViewModel.MessageCluster
         self[indexPath.section].items.remove(at: indexPath.row)
     }
 
-    func getCellViewModel(at indexPath: IndexPath) -> ConversationCellViewModel? {
+    func getCellViewModel(at indexPath: IndexPath) -> MessageCellViewModel? {
         return self[indexPath.section].items[indexPath.row]
     }
     

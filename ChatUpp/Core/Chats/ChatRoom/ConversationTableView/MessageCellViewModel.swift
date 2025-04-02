@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-final class ConversationCellViewModel
+final class MessageCellViewModel
 {
     @Published private(set) var imagePathURL: URL?
     @Published private(set) var message: Message?
@@ -124,7 +124,7 @@ final class ConversationCellViewModel
 }
 
 //MARK: - Image fetch
-extension ConversationCellViewModel
+extension MessageCellViewModel
 {
     @MainActor
     func fetchMessageImageData()
@@ -159,7 +159,7 @@ extension ConversationCellViewModel
 }
 
 //MARK: - Image cache
-extension ConversationCellViewModel
+extension MessageCellViewModel
 {
     func cacheImage(data: Data)
     {
@@ -184,7 +184,7 @@ extension ConversationCellViewModel
 
 //MARK: - realm/firestore message update
 
-extension ConversationCellViewModel
+extension MessageCellViewModel
 {
     @MainActor
     func updateFirestoreMessageSeenStatus(by userID: String? = nil, from chatID: String) async {
@@ -215,7 +215,7 @@ extension ConversationCellViewModel
 }
 
 
-extension ConversationCellViewModel
+extension MessageCellViewModel
 {
     func getCellAspectRatio(forImageSize size: CGSize) -> CGSize 
     {
@@ -239,7 +239,7 @@ extension ConversationCellViewModel
     }
 }
 
-extension ConversationCellViewModel
+extension MessageCellViewModel
 {
     enum MessageAlignment {
         case left

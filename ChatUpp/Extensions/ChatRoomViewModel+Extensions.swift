@@ -10,7 +10,7 @@ import Foundation
 //MARK: - Model representing section of messages
 extension ChatRoomViewModel
 {
-    typealias MessageItem = ConversationCellViewModel
+    typealias MessageItem = MessageCellViewModel
     
     struct MessageCluster
     {

@@ -327,7 +327,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
 
     @MainActor
-    func updateMessageSeenStatus(from cellViewModel: ConversationCellViewModel) async
+    func updateMessageSeenStatus(from cellViewModel: MessageCellViewModel) async
     {
         guard let chatID = conversation?.id else { return }
         
@@ -363,7 +363,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard let indexPath = findFirstUnseenMessageIndex() else {return}
 //        let indexPath = IndexPath(row: 13, section: 3)
-        let conversationCellVM = ConversationCellViewModel(isUnseenCell: true)
+        let conversationCellVM = MessageCellViewModel(isUnseenCell: true)
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
     

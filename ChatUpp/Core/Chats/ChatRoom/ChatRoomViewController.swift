@@ -380,7 +380,7 @@ final class ChatRoomViewController: UIViewController
         /// - data source is not empty and table didn't layed out cells yet, return true
         guard !table.visibleCells.isEmpty else {return true}
         
-        guard let lastCell = table.cellForRow(at: lastCellIndexPath) as? ConversationTableViewCell else {
+        guard let lastCell = table.cellForRow(at: lastCellIndexPath) as? MessageTableViewCell else {
             return false
         }
 
@@ -399,7 +399,7 @@ final class ChatRoomViewController: UIViewController
     
     private func reloadCellRow(at indexPath: IndexPath, with animation: UITableView.RowAnimation)
     {
-        guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
+        guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
         self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
     }
     
@@ -470,7 +470,7 @@ extension ChatRoomViewController {
     private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath)
     {
         let currentOffSet = self.rootView.tableView.contentOffset
-        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else { return }
+        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
         
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
@@ -501,7 +501,7 @@ extension ChatRoomViewController
         guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
 
         for indexPath in visibleIndices {
-            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell,
+            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell,
                   checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
                 continue
             }
@@ -825,14 +825,14 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?)
     {
-        var visibleCell: ConversationTableViewCell? = nil
+        var visibleCell: MessageTableViewCell? = nil
         let currentOffsetY = self.rootView.tableView.contentOffset.y
         
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
         self.rootView.tableView.performBatchUpdates({
-            visibleCell = self.rootView.tableView.visibleCells.first as? ConversationTableViewCell
+            visibleCell = self.rootView.tableView.visibleCells.first as? MessageTableViewCell
             
             if let sections = sections {
                 self.rootView.tableView.insertSections(sections, with: .none)
@@ -858,7 +858,7 @@ extension ChatRoomViewController: UITableViewDelegate
     //MARK: - Context menu configuration
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         
-        guard let cell = tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+        guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return nil}
         let tapLocationInCell = cell.contentView.convert(point, from: tableView)
         
         if cell.messageBubbleContainer.frame.contains(tapLocationInCell) {
@@ -929,7 +929,7 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationTableViewCell else {return nil}
+              let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return nil}
         
         let parameter = UIPreviewParameters()
         parameter.backgroundColor = .clear

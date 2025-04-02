@@ -7,8 +7,8 @@
 
 import UIKit
 
-//MARK: - cell to displaying unseen messages title
-final class ConversationTableViewTitleCell: UITableViewCell
+//MARK: - cell that displays unseen messages title
+final class UnseenMessagesTitleTableViewCell: UITableViewCell
 {
     private var cellPadding: CGFloat = 8.0
     private var unseenMessagePadding: CGFloat = 5.0
