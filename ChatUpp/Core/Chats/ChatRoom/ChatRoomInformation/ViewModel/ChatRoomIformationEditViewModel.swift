@@ -7,7 +7,7 @@
 import SwiftUI
 
 
-final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject, ImageRepositoryRepresentable
+final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject
 {
     private let conversation: Chat
     @Published private(set) var imageSampleRepository: ImageSampleRepository?
@@ -32,8 +32,40 @@ final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject, ImageRepo
     func saveEditedData() async throws
     {
         try await processImageSamples()
+        
+        let senderName = AuthenticationManager.shared.authenticatedUser!.uid
+        
+        // Check for group title change
+        if conversation.title != groupTitle {
+            try await createMessage(messageText: "\(senderName) changed group name to '\(groupTitle)'")
+        }
+        
+        // Check for avatar change
+        let newImagePath = imageSampleRepository?.imagePath(for: .original)
+        if conversation.thumbnailURL != newImagePath {
+            try await createMessage(messageText: "\(senderName) changed group avatar")
+        }
+                
         await updateRealmConversation()
         try await FirebaseChatService.shared.updateChat(conversation)
+    }
+
+    private func createMessage(messageText text: String) async throws
+    {
+        let message = Message(
+            id: UUID().uuidString,
+            messageBody: text,
+            senderId: AuthenticationManager.shared.authenticatedUser!.uid,
+            timestamp: Date(),
+            messageSeen: false,
+            isEdited: false,
+            imagePath: nil,
+            imageSize: nil,
+            repliedTo: nil
+        )
+        
+        RealmDataBase.shared.add(object: message)
+        try await FirebaseChatService.shared.createMessage(message: message, atChatPath: conversation.id)
     }
     
     @MainActor
@@ -44,11 +76,10 @@ final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject, ImageRepo
             realmChat.thumbnailURL = imageSampleRepository?.imagePath(for: .original)
         }
     }
-    
 }
 
 //MARK: - Image update
-extension ChatRoomIformationEditViewModel
+extension ChatRoomIformationEditViewModel: ImageRepositoryRepresentable
 {
     func updateImageRepository(repository: ImageSampleRepository) {
         self.imageSampleRepository = repository

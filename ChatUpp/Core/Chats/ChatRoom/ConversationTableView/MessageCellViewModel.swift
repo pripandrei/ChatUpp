@@ -24,7 +24,7 @@ final class MessageCellViewModel
         self.init()
         self.message = message
         
-        self.setupComponents(from: message)
+//        self.setupComponents(from: message)
     }
     
     convenience init(isUnseenCell: Bool) {
@@ -68,6 +68,18 @@ final class MessageCellViewModel
     /// internal functions
     ///
     
+    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification?
+    {
+        if message?.messageBody != newMessage.messageBody {
+            return .text
+        } else if message?.messageSeen != newMessage.messageSeen {
+            return .seenStatus
+        }
+        return nil
+    }
+    
+    //Test --- 
+    
     private func setupComponents(from message: Message)
     {
         if let repliedToMessageID = message.repliedTo {
@@ -85,22 +97,8 @@ final class MessageCellViewModel
         self.referencedMessage = referencedMessage
     }
     
-    func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification?
-    {
-        if message?.messageBody != newMessage.messageBody {
-            return .text
-        } else if message?.messageSeen != newMessage.messageSeen {
-            return .seenStatus
-        }
-        return nil
-    }
-    
-    //Test
-    
     private func setMessageSenderName()
     {
-//        guard let message = self.message else { return }
-//        guard let senderName = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: message.senderId)?.name
         guard let senderName = messageSender?.name
         else
         {
