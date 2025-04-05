@@ -19,6 +19,11 @@ final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject
         self.conversation = conversation
         self.groupTitle = conversation.title
     }
+    
+    lazy var authenticatedUser: User? = {
+        guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
+        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+    }()
 
     func retrieveImageData() -> Data?
     {
@@ -33,17 +38,15 @@ final class ChatRoomIformationEditViewModel: SwiftUI.ObservableObject
     {
         try await processImageSamples()
         
-        let senderName = AuthenticationManager.shared.authenticatedUser!.uid
-        
         // Check for group title change
         if conversation.title != groupTitle {
-            try await createMessage(messageText: "\(senderName) changed group name to '\(groupTitle)'")
+            try await createMessage(messageText: "\(authenticatedUser?.name ?? "-") changed group name to '\(groupTitle)'")
         }
         
         // Check for avatar change
         let newImagePath = imageSampleRepository?.imagePath(for: .original)
         if conversation.thumbnailURL != newImagePath {
-            try await createMessage(messageText: "\(senderName) changed group avatar")
+            try await createMessage(messageText: "\(authenticatedUser?.name ?? "-") changed group avatar")
         }
                 
         await updateRealmConversation()

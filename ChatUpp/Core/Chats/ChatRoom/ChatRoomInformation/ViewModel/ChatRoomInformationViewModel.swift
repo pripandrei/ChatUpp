@@ -29,6 +29,11 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
         chat.name ?? "unknown"
     }
     
+    lazy var authenticatedUser: User? = {
+        guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
+        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+    }()
+    
     func retrieveGroupImage() -> Data?
     {
         guard let path = chat.thumbnailURL else { return nil }
@@ -80,6 +85,9 @@ extension ChatRoomInformationViewModel
         guard let authUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {return}
         removeRealmParticipant(with: authUserID)
         try await removeFirestoreParticipant(with: authUserID)
+        
+        let text = "\(authenticatedUser?.name ?? "-") has left the group"
+        try await createMessage(messageText: text)
     }
     
     private func removeRealmParticipant(with authUserID: String)
@@ -94,6 +102,24 @@ extension ChatRoomInformationViewModel
     {
         try await FirebaseChatService.shared.removeParticipant(participantID: authUserID,
                                                                fromChatWithID: chat.id)
+    }
+    
+    private func createMessage(messageText text: String) async throws
+    {
+        let message = Message(
+            id: UUID().uuidString,
+            messageBody: text,
+            senderId: AuthenticationManager.shared.authenticatedUser!.uid,
+            timestamp: Date(),
+            messageSeen: false,
+            isEdited: false,
+            imagePath: nil,
+            imageSize: nil,
+            repliedTo: nil
+        )
+        
+        RealmDataBase.shared.add(object: message)
+        try await FirebaseChatService.shared.createMessage(message: message, atChatPath: chat.id)
     }
     
 }
