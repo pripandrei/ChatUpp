@@ -22,10 +22,6 @@ final class MessageEventCell: UITableViewCell
         messageEventLabel.textColor = .white
         messageEventLabel.lineBreakMode = .byWordWrapping
         messageEventLabel.textAlignment = .center
-//        messageEventLabel.backgroundColor = .blue
-//        messageEventLabel.layer.cornerRadius = 12
-//        messageEventLabel.clipsToBounds = true
-//        messageEventLabel.textContainerInset = .init(top: 10, left: 5, bottom: 10, right: 5)
         messageEventLabel.translatesAutoresizingMaskIntoConstraints = false
         return messageEventLabel
     }()
@@ -55,16 +51,43 @@ final class MessageEventCell: UITableViewCell
     private func setupSelf() {
         transform = CGAffineTransform(scaleX: 1, y: -1)
         backgroundColor = .clear
-//        isUserInteractionEnabled = false
+        isUserInteractionEnabled = false
     }
     
     func configureCell(with viewModel: MessageCellViewModel)
     {
         self.cellViewModel = viewModel
         
-        messageEventLabel.text = "Andrei has changed group name to \"has not been implemented has not been implemented has not been implemented\""
+        let username = viewModel.messageSender?.name
+        let textMessage = viewModel.message?.messageBody
+        
+        messageEventLabel.attributedText = makeAttributedMessage(username: username,
+                                                                 text: textMessage)
     }
     
+    private func makeAttributedMessage(username: String?, text: String?) -> NSAttributedString
+    {
+        let attributedText = NSMutableAttributedString()
+
+        attributedText.append(NSAttributedString(
+            string: "\(username ?? "") ",
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 16, weight: .bold),
+                .foregroundColor: UIColor.white
+            ]
+        ))
+
+        attributedText.append(NSAttributedString(
+            string: "\(text ?? "")",
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 16, weight: .medium),
+                .foregroundColor: UIColor.white
+            ]
+        ))
+
+        return attributedText
+    }
+
     private func setupMessageEventContainerConstraints()
     {
         contentView.addSubview(messageEventContainer)
@@ -81,9 +104,5 @@ final class MessageEventCell: UITableViewCell
         messageEventLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -5).isActive = true
         messageEventLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 10).isActive = true
         messageEventLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -10).isActive = true
-//        messageEventLabel.centerXAnchor.constraint(equalTo: messageEventContainer.centerXAnchor).isActive = true
-        
-//        messageEventLabel.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
-//        messageEventLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
     }
 }
