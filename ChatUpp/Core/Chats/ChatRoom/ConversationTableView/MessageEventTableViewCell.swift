@@ -72,7 +72,7 @@ final class MessageEventCell: UITableViewCell
         attributedText.append(NSAttributedString(
             string: "\(username ?? "") ",
             attributes: [
-                .font: UIFont.systemFont(ofSize: 16, weight: .bold),
+                .font: UIFont.systemFont(ofSize: 15, weight: .bold),
                 .foregroundColor: UIColor.white
             ]
         ))
@@ -80,7 +80,7 @@ final class MessageEventCell: UITableViewCell
         attributedText.append(NSAttributedString(
             string: "\(text ?? "")",
             attributes: [
-                .font: UIFont.systemFont(ofSize: 16, weight: .medium),
+                .font: UIFont.systemFont(ofSize: 15, weight: .medium),
                 .foregroundColor: UIColor.white
             ]
         ))
