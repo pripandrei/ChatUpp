@@ -87,7 +87,28 @@ extension ChatRoomInformationViewModel
         try await removeFirestoreParticipant(with: authUserID)
         
         let text = "\(authenticatedUser?.name ?? "-") has left the group"
-        try await createMessage(messageText: text)
+        let message = try await createMessage(messageText: text)
+        
+        try await updateUnseenMessageCounterRemote()
+        try await FirebaseChatService.shared.updateChatRecentMessage(
+            recentMessageID: message.id,
+            chatID: chat.id
+        )
+    }
+    
+    @MainActor
+    private func updateUnseenMessageCounterRemote() async throws
+    {
+        let currentUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        let otherUserIDs = Array(chat.participants
+            .map(\.userID)
+            .filter { $0 != currentUserID })
+
+        try await FirebaseChatService.shared.updateUnreadMessageCount(
+            for: otherUserIDs,
+            inChatWithID: chat.id,
+            increment: true
+        )
     }
     
     private func removeRealmParticipant(with authUserID: String)
@@ -106,22 +127,24 @@ extension ChatRoomInformationViewModel
     }
     
     @MainActor
-    private func createMessage(messageText text: String) async throws
+    private func createMessage(messageText text: String) async throws -> Message
     {
         let message = Message(
             id: UUID().uuidString,
             messageBody: text,
             senderId: AuthenticationManager.shared.authenticatedUser!.uid,
             timestamp: Date(),
-            messageSeen: false,
+            messageSeen: nil,
+            seenBy: [],
             isEdited: false,
             imagePath: nil,
             imageSize: nil,
             repliedTo: nil
         )
         
-        RealmDataBase.shared.add(object: message)
         try await FirebaseChatService.shared.createMessage(message: message, atChatPath: chat.id)
+        
+        return message
     }
     
 }

@@ -37,14 +37,13 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
     @MainActor
     private func createMessage(text: String) async throws -> Message
     {
-        let isGroupChat = conversation.isGroup == true
         return Message(
             id: UUID().uuidString,
             messageBody: text,
             senderId: AuthenticationManager.shared.authenticatedUser!.uid,
             timestamp: Date(),
-            messageSeen: isGroupChat ? nil : false,
-            seenBy: isGroupChat ? [] : nil,
+            messageSeen: nil,
+            seenBy: [],
             isEdited: false,
             imagePath: nil,
             imageSize: nil,
