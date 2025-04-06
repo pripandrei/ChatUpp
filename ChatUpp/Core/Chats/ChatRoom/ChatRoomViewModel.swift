@@ -191,31 +191,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         RealmDataBase.shared.add(object: conversation)
         
         let text = "\(authenticatedUser?.name ?? "-") has joined the group"
-        createMessage(messageText: text)
-    }
-    
-    @MainActor
-    private func createMessage(messageText text: String) async throws
-    {
-        guard let conversation = conversation else {return}
+        let message = createNewMessage(text)
         
-        let message = Message(
-            id: UUID().uuidString,
-            messageBody: text,
-            senderId: AuthenticationManager.shared.authenticatedUser!.uid,
-            timestamp: Date(),
-            messageSeen: false,
-            isEdited: false,
-            imagePath: nil,
-            imageSize: nil,
-            repliedTo: nil
-        )
-        
-        RealmDataBase.shared.add(object: message)
-        try await FirebaseChatService.shared.createMessage(message: message, atChatPath: conversation.id)
+        try await FirebaseChatService.shared.createMessage(message: message,
+                                                           atChatPath: conversation.id)
+        await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
+        updateUnseenMessageCounter(shouldIncrement: true)
     }
-    
-    private func addNewMessage()
     
     /// - chat components creation
     
@@ -262,7 +244,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private func createNewMessage(_ messageBody: String) -> Message
     {
-        
         let isGroupChat = conversation?.isGroup == true
         
         return Message(
