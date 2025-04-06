@@ -47,7 +47,8 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
             isEdited: false,
             imagePath: nil,
             imageSize: nil,
-            repliedTo: nil
+            repliedTo: nil,
+            type: .title
         )
     }
 }

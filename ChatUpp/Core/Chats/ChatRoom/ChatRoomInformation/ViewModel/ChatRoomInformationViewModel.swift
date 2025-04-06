@@ -139,7 +139,8 @@ extension ChatRoomInformationViewModel
             isEdited: false,
             imagePath: nil,
             imageSize: nil,
-            repliedTo: nil
+            repliedTo: nil,
+            type: .title
         )
         
         try await FirebaseChatService.shared.createMessage(message: message, atChatPath: chat.id)

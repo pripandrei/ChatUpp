@@ -49,7 +49,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return self.conversation != nil
     }
     
-    var authParticipantUnreadMessagesCount: Int {
+    var authParticipantUnreadMessagesCount: Int
+    {
         conversation?.participants.first(where: { $0.userID == authUser.uid })?.unseenMessagesCount ?? 0
     }
     
@@ -87,16 +88,23 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     var shouldFetchNewMessages: Bool
     {
-        if conversation?.realm == nil {
+        // If conversation isn't in Realm, we need to fetch
+        guard conversation?.realm != nil else {
             return true
         }
         
-        guard let localMessagesCount = conversation?.conversationMessages.count, localMessagesCount > 0 else {
+        let messageCount = conversation?.conversationMessages.count ?? 0
+        
+        // Early returns for special cases
+        if messageCount == 1 {
+            return true
+        } else if messageCount == 0 {
             return false
         }
         
-        let unreadMessagesCount = realmService?.getUnreadMessagesCountFromRealm()
-        return ( authParticipantUnreadMessagesCount != unreadMessagesCount ) || isChatFetchedFirstTime || conversation?.realm == nil
+        // Compare local and global/remote unread counts
+        let localUnreadCount = realmService?.getUnreadMessagesCountFromRealm() ?? 0
+        return authParticipantUnreadMessagesCount != localUnreadCount
     }
     
     private func setupServices(using conversation: Chat)
@@ -191,7 +199,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         RealmDataBase.shared.add(object: conversation)
         
         let text = "\(authenticatedUser?.name ?? "-") has joined the group"
-        let message = createNewMessage(text)
+        let message = createNewMessage(text, ofType: .title)
         
         try await FirebaseChatService.shared.createMessage(message: message,
                                                            atChatPath: conversation.id)
@@ -242,7 +250,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
     }
     
-    private func createNewMessage(_ messageBody: String) -> Message
+    private func createNewMessage(_ messageBody: String,
+                                  ofType type: MessageType = .text) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
         
@@ -256,7 +265,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             isEdited: false,
             imagePath: nil,
             imageSize: nil,
-            repliedTo: currentlyReplyToMessageID
+            repliedTo: currentlyReplyToMessageID,
+            type: type
         )
     }
     
