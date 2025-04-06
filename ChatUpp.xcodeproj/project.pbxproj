@@ -120,7 +120,7 @@
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
 		75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */; };
 		75E8AABE2D918C68007479E4 /* ChatRoomIformationEditScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABD2D918C68007479E4 /* ChatRoomIformationEditScreen.swift */; };
-		75E8AAC02D9192ED007479E4 /* ChatRoomIformationEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABF2D9192EC007479E4 /* ChatRoomIformationEditViewModel.swift */; };
+		75E8AAC02D9192ED007479E4 /* ChatRoomInformationEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABF2D9192EC007479E4 /* ChatRoomInformationEditViewModel.swift */; };
 		75E8AAC22D9213F9007479E4 /* ImageRepositoryRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */; };
 		75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */; };
 		75F608842BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift */; };
@@ -276,7 +276,7 @@
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
 		75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeUserService.swift; sourceTree = "<group>"; };
 		75E8AABD2D918C68007479E4 /* ChatRoomIformationEditScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomIformationEditScreen.swift; sourceTree = "<group>"; };
-		75E8AABF2D9192EC007479E4 /* ChatRoomIformationEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomIformationEditViewModel.swift; sourceTree = "<group>"; };
+		75E8AABF2D9192EC007479E4 /* ChatRoomInformationEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomInformationEditViewModel.swift; sourceTree = "<group>"; };
 		75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepositoryRepresentable.swift; sourceTree = "<group>"; };
 		75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableRealmObjectProcotol.swift; sourceTree = "<group>"; };
 		75F608832BEC2F560065DA83 /* InputBarMessageTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarMessageTextViewDelegate.swift; sourceTree = "<group>"; };
@@ -397,7 +397,7 @@
 		7541EF002D8B6EEC00ABC8BA /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				75E8AABF2D9192EC007479E4 /* ChatRoomIformationEditViewModel.swift */,
+				75E8AABF2D9192EC007479E4 /* ChatRoomInformationEditViewModel.swift */,
 				7541EF062D8B6EFC00ABC8BA /* ChatRoomInformationViewModel.swift */,
 			);
 			path = ViewModel;
@@ -1045,7 +1045,7 @@
 				75CC9FE62D594042002051EB /* ColorManager.swift in Sources */,
 				7543BE302ACC86AE003001BF /* MessageModel.swift in Sources */,
 				7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */,
-				75E8AAC02D9192ED007479E4 /* ChatRoomIformationEditViewModel.swift in Sources */,
+				75E8AAC02D9192ED007479E4 /* ChatRoomInformationEditViewModel.swift in Sources */,
 				75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */,
 				75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */,
 				75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */,

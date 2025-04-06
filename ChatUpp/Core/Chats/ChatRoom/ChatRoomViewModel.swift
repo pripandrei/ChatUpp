@@ -68,6 +68,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
     }
     
+    private lazy var authenticatedUser: User? = {
+        guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
+        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+    }()
     
     private var isChatFetchedFirstTime: Bool {
         conversation?.isFirstTimeOpened ?? true
@@ -185,7 +189,33 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         conversation.participants.append(participant)
         try await FirebaseChatService.shared.addParticipant(participant: participant, toChat: conversation.id)
         RealmDataBase.shared.add(object: conversation)
+        
+        let text = "\(authenticatedUser?.name ?? "-") has joined the group"
+        createMessage(messageText: text)
     }
+    
+    @MainActor
+    private func createMessage(messageText text: String) async throws
+    {
+        guard let conversation = conversation else {return}
+        
+        let message = Message(
+            id: UUID().uuidString,
+            messageBody: text,
+            senderId: AuthenticationManager.shared.authenticatedUser!.uid,
+            timestamp: Date(),
+            messageSeen: false,
+            isEdited: false,
+            imagePath: nil,
+            imageSize: nil,
+            repliedTo: nil
+        )
+        
+        RealmDataBase.shared.add(object: message)
+        try await FirebaseChatService.shared.createMessage(message: message, atChatPath: conversation.id)
+    }
+    
+    private func addNewMessage()
     
     /// - chat components creation
     
@@ -232,6 +262,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private func createNewMessage(_ messageBody: String) -> Message
     {
+        
         let isGroupChat = conversation?.isGroup == true
         
         return Message(

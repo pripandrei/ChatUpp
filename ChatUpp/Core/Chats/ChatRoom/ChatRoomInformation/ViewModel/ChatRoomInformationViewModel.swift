@@ -97,6 +97,7 @@ extension ChatRoomInformationViewModel
             realmChat.participants.remove(at: authParticipantIndex)
         }
     }
+    
     @MainActor
     private func removeFirestoreParticipant(with authUserID: String) async throws
     {
@@ -104,6 +105,7 @@ extension ChatRoomInformationViewModel
                                                                fromChatWithID: chat.id)
     }
     
+    @MainActor
     private func createMessage(messageText text: String) async throws
     {
         let message = Message(

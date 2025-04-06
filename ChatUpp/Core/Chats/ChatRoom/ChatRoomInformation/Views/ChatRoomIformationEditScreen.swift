@@ -12,7 +12,7 @@ struct ChatRoomIformationEditScreen: View
 {
     @Environment(\.dismiss) private var dismiss
     
-    @ObservedObject var viewModel: ChatRoomIformationEditViewModel
+    @ObservedObject var viewModel: ChatRoomInformationEditViewModel
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var imageDataContainer: IdentifiableItem<Data>?
     
@@ -179,7 +179,11 @@ extension ChatRoomIformationEditScreen
     {
         Button {
             Task {
-                try await viewModel.saveEditedData()
+                do {
+                    try await viewModel.saveEditedData()                    
+                } catch {
+                    print("Error while saving edited data: \(error)")
+                }
                 dataIsEdited = true
                 dismiss()
             }
@@ -193,6 +197,6 @@ extension ChatRoomIformationEditScreen
 }
 
 #Preview {
-    ChatRoomIformationEditScreen(viewModel: ChatRoomIformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")), dataIsEdited: .constant(false)
+    ChatRoomIformationEditScreen(viewModel: ChatRoomInformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")), dataIsEdited: .constant(false)
     )
 }
