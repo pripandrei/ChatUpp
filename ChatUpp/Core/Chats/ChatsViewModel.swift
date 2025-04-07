@@ -203,7 +203,7 @@ extension ChatsViewModel {
         cellViewModels.remove(at: viewModelIndex)
         chatModificationType = .removed(position: viewModelIndex)
         
-        deleteRealmChat(chat)
+//        deleteRealmChat(chat)
     }
 }
 

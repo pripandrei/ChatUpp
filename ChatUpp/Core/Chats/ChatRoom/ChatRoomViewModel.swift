@@ -93,18 +93,18 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             return true
         }
         
-        let messageCount = conversation?.conversationMessages.count ?? 0
+        let localMessageCount = conversation?.conversationMessages.count ?? 0
         
         // Early returns for special cases
-        if messageCount == 1 {
+        if localMessageCount == 1 {
             return true
-        } else if messageCount == 0 {
+        } else if localMessageCount == 0 {
             return false
         }
         
-        // Compare local and global/remote unread counts
-        let localUnreadCount = realmService?.getUnreadMessagesCountFromRealm() ?? 0
-        return authParticipantUnreadMessagesCount != localUnreadCount
+        // Compare local and global/remote unread message counts
+        let localUnreadMessageCount = realmService?.getUnreadMessagesCountFromRealm() ?? 0
+        return authParticipantUnreadMessagesCount != localUnreadMessageCount
     }
     
     private func setupServices(using conversation: Chat)
@@ -254,14 +254,15 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                                   ofType type: MessageType = .text) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
+        let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
         
         return Message(
             id: UUID().uuidString,
             messageBody: messageBody,
-            senderId: authUser.uid,
+            senderId: authUserID,
             timestamp: Date(),
             messageSeen: isGroupChat ? nil : false,
-            seenBy: isGroupChat ? [] : nil,
+            seenBy: isGroupChat ? [authUserID] : nil,
             isEdited: false,
             imagePath: nil,
             imageSize: nil,

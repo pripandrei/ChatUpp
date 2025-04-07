@@ -395,13 +395,21 @@ extension ChatsViewController
         
         /// - observe subcollections with user id
         ///
-//        Task {
+        Task {
 //            await FirebaseChatService.shared.observeUserChats(userId: "DESg2qjjJPP20KQDWfKpJJnozv53")
 //                .receive(on: DispatchQueue.main)
 //                .sink { chats in
 //                    print("Count: \(chats.count) \n Chats: \(chats)")
 //                }.store(in: &subscriptions)
-//        }
+        
+        /// - update messages seen_by field from group with auth user id
+            ///
+            do {
+                try await FirebaseChatService.shared.markAllGroupMessagesAsSeen(by: AuthenticationManager.shared.authenticatedUser?.uid ?? "")
+            } catch {
+                print("Error marking all group messages as seen: \(error)")
+            }
+        }
         
         /// - avatar downlaod
         ///

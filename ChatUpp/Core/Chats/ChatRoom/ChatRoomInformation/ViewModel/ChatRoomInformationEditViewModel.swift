@@ -37,13 +37,14 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
     @MainActor
     private func createMessage(text: String) async throws -> Message
     {
+        let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
         return Message(
             id: UUID().uuidString,
             messageBody: text,
-            senderId: AuthenticationManager.shared.authenticatedUser!.uid,
+            senderId: authUserID,
             timestamp: Date(),
             messageSeen: nil,
-            seenBy: [],
+            seenBy: [authUserID],
             isEdited: false,
             imagePath: nil,
             imageSize: nil,

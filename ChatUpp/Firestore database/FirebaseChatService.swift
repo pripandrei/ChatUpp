@@ -468,6 +468,64 @@ extension FirebaseChatService
 extension FirebaseChatService
 {
     
+    // update messages seenBy field with authUserID
+
+    func markAllGroupMessagesAsSeen(by userID: String) async throws
+    {
+        let chatsRef = chatsCollection
+        
+        // 1. Query group chats (those with "name" field)
+        let groupChatsSnapshot = try await chatsRef.whereField("name", isGreaterThan: "").getDocuments()
+        
+        var currentBatch = db.batch()
+        var writeCount = 0
+        var batches: [WriteBatch] = []
+        
+        for chatDoc in groupChatsSnapshot.documents
+        {
+            //Chat participants
+            let chat = try chatDoc.data(as: Chat.self)
+            let participantsID: [String] = chat.participants.map { $0.userID }
+            
+            // Messages
+            let messagesRef = chatDoc.reference.collection("messages")
+            let messagesSnapshot = try await messagesRef.getDocuments()
+            
+            for messageDoc in messagesSnapshot.documents
+            {
+                let seenBy = messageDoc.get("seen_by") as? [String] ?? []
+//                let seenStatus = messageDoc.get("message_seen") as? Bool ?? nil
+//                let senderID = messageDoc.get("sent_by") as? String ?? ""
+                
+//                currentBatch.updateData(["message_seen": FieldValue.delete()], forDocument: messageDoc.reference)
+                for participantID in participantsID {
+                    // Only add to batch if user hasn't already seen it
+                    if !seenBy.contains(participantID) {
+                        currentBatch.updateData(["seen_by": FieldValue.arrayUnion([participantID])], forDocument: messageDoc.reference)
+                        //                currentBatch.updateData(["seen_by": FieldValue.arrayRemove([userID])], forDocument: messageDoc.reference)
+                        writeCount += 1
+                        
+                        if writeCount >= 500 {
+                            batches.append(currentBatch)
+                            currentBatch = db.batch()
+                            writeCount = 0
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Append the last batch if it has any writes
+        if writeCount > 0 {
+            batches.append(currentBatch)
+        }
+        
+        // Commit all batches sequentially
+        for batch in batches {
+            try await batch.commit()
+        }
+    }
+    
     func observeUserChats(userId: String) async -> AnyPublisher<[Chat], Never>
     {
         let subject = PassthroughSubject<[Chat], Never>()
