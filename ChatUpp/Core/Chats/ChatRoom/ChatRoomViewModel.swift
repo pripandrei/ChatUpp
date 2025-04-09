@@ -58,7 +58,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard let conversation = conversation,
               conversation.realm != nil,
-              let authParticipant = conversation.participants.filter("SELF == %@", authUser.uid).first else {return false}
+              let authParticipant = conversation.participants.filter("userID == %@", authUser.uid).first else {return false}
         //        let isAuthPresent = conversation.participants.contains(where: { participant in
         //            return participant.userID == authUser.uid
         //        })
