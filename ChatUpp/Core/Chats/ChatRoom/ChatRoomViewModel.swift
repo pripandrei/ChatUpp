@@ -530,7 +530,7 @@ extension ChatRoomViewModel
         return RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray() ?? []
     }
     
-    
+    @MainActor
     private func fetchAvatars(for users: [User]) async
     {
         await withTaskGroup(of: Void.self) { group in
@@ -538,7 +538,7 @@ extension ChatRoomViewModel
             {
                 guard let avatarURL = user.photoUrl else { continue }
                 
-                group.addTask {
+                group.addTask { @MainActor in
                     do {
                         let optimizedURL = avatarURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
                         let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: optimizedURL)
