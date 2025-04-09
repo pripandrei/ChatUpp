@@ -152,7 +152,8 @@ final class ChatRoomViewController: UIViewController
         }
     }
     
-    private func finalizeConversationSetup() {
+    private func finalizeConversationSetup()
+    {
         viewModel.resetInitializationStatus()
         viewModel.insertUnseenMessagesTitle()
         refreshTableView()

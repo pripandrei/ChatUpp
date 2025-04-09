@@ -58,7 +58,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard let conversation = conversation,
               conversation.realm != nil,
-              let authParticipant = conversation.participants.filter("userID == %@", authUser.uid).first else {return false}
+              let _ = conversation.participants.filter("userID == %@", authUser.uid).first else {return false}
         //        let isAuthPresent = conversation.participants.contains(where: { participant in
         //            return participant.userID == authUser.uid
         //        })
@@ -164,6 +164,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     func addListeners()
     {
+        guard conversation?.realm != nil else {return}
+        
         userListenerService?.addUsersListener()
         userListenerService?.addUserObserver()
         observeParticipantChanges()
@@ -211,6 +213,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                                                            atChatPath: conversation.id)
         await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         updateUnseenMessageCounter(shouldIncrement: true)
+        
+        addListeners()
     }
     
     /// - chat components creation
@@ -536,15 +540,16 @@ extension ChatRoomViewModel
         await withTaskGroup(of: Void.self) { group in
             for user in users
             {
+                let userID = user.id
                 guard let avatarURL = user.photoUrl else { continue }
                 
-                group.addTask { @MainActor in
+                group.addTask {
                     do {
                         let optimizedURL = avatarURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
-                        let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: optimizedURL)
+                        let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(userID), imagePath: optimizedURL)
                         CacheManager.shared.saveImageData(imageData, toPath: optimizedURL)
                     } catch {
-                        print("Error fetching avatar image data for user: \(user.id); Error: \(error)")
+                        print("Error fetching avatar image data for user: \(userID); Error: \(error)")
                     }
                 }
             }
@@ -581,12 +586,9 @@ extension ChatRoomViewModel
     private func handleAddedMessage(_ message: Message) async
     {
         guard realmService?.retrieveMessageFromRealm(message) == nil else { return }
-
         realmService?.addMessageToRealmChat(message)
         
         if message.type == .title
-//            &&
-//            RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: message.senderId) == nil
         {
             do {
                 try await syncGroupUsers(for: [message])
@@ -785,13 +787,11 @@ extension ChatRoomViewModel
         
         let (newRows, newSections) = try await prepareMessageClustersUpdate(withMessages: newMessages, inAscendingOrder: order)
         
-        if let timestamp = newMessages.first?.timestamp 
+        if conversation?.realm != nil
         {
-            messageListenerService?.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
-        }
-        
-        if conversation?.realm != nil {
+            let timestamp = newMessages.first!.timestamp
             realmService?.addMessagesToConversationInRealm(newMessages)
+            messageListenerService?.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
         }
         
         return (newRows, newSections)
