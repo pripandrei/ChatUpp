@@ -11,7 +11,7 @@ import RealmSwift
 
 class ChatParticipant: EmbeddedObject, Codable
 {
-    @Persisted var userID: String
+    @Persisted(indexed: true) var userID: String
     @Persisted var isDeleted: Bool
     @Persisted var unseenMessagesCount: Int
     

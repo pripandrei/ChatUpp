@@ -54,11 +54,17 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         conversation?.participants.first(where: { $0.userID == authUser.uid })?.unseenMessagesCount ?? 0
     }
     
-    var isAuthUserGroupMember: Bool
+    private var isAuthUserGroupMember: Bool
     {
-        guard let conversation = conversation else {return false}
-        let groupExists = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
-        if conversation.isGroup && groupExists { return true }
+        guard let conversation = conversation,
+              conversation.realm != nil,
+              let authParticipant = conversation.participants.filter("SELF == %@", authUser.uid).first else {return false}
+        //        let isAuthPresent = conversation.participants.contains(where: { participant in
+        //            return participant.userID == authUser.uid
+        //        })
+        
+        //        let groupExists = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
+        if conversation.isGroup { return true }
         else { return false }
     }
     
