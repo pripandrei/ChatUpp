@@ -44,7 +44,7 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: nil,
-            seenBy: [authUserID],
+            seenBy: nil,
             isEdited: false,
             imagePath: nil,
             imageSize: nil,

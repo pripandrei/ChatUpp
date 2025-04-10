@@ -71,6 +71,14 @@ final class ChatRoomViewController: UIViewController
     private var subscriptions = Set<AnyCancellable>()
     private var shouldScrollToFirstCell: Bool = false
     
+//    private lazy var contextMenuSelectedActionHandler: (_ actionOption: InputBarHeaderView.Mode, _ text: String?) -> Void = { actionOption, text in
+//        self.rootView.activateInputBarHeaderView(mode: actionOption)
+//        self.addGestureToCloseBtn()
+//        self.rootView.messageTextView.becomeFirstResponder()
+//        self.rootView.inputBarHeader?.setInputBarHeaderMessageText(text)
+//        self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
+//    }
+    
     private var isLastCellFullyVisible: Bool {
         checkIfLastCellIsFullyVisible()
     }
@@ -89,7 +97,6 @@ final class ChatRoomViewController: UIViewController
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupController()
     }
     
@@ -857,59 +864,123 @@ extension ChatRoomViewController: UITableViewDelegate
     }
     
     //MARK: - Context menu configuration
-    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+//    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration?
+//    {
+//        guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return nil}
+//        let tapLocationInCell = cell.contentView.convert(point, from: tableView)
+//        
+//        if cell.messageBubbleContainer.frame.contains(tapLocationInCell) {
+//            let identifire = indexPath as NSCopying
+//            
+//            return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
+//                
+//                let selectedCellMessageText = cell.messageLabel.text
+//                guard let message = cell.cellViewModel.message else {return nil}
+//                
+//                let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
+//                    DispatchQueue.main.async {
+//                        let messageSenderName = cell.cellViewModel.messageSender?.name
+//                        self.viewModel.currentlyReplyToMessageID = message.id
+//                        self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
+//                        self.rootView.inputBarHeader?.updateTitleLabel(usingText: messageSenderName)
+//                    }
+//                }
+//            
+//                let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
+//                    let pastBoard = UIPasteboard.general
+//                    pastBoard.string = cell.messageLabel.text
+//                }
+//                
+//                /// display edit/delete actions only on messages that authenticated user sent
+//                let messageBelongsToAuthenticatedUser = message.senderId == self.viewModel.authUser.uid
+//                let attributesForEditAction = messageBelongsToAuthenticatedUser ? [] : UIMenuElement.Attributes.hidden
+//                let attributesForDeleteAction = messageBelongsToAuthenticatedUser ? .destructive : UIMenuElement.Attributes.hidden
+//                
+//                
+//                let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble"), attributes: attributesForEditAction) { action in
+//                    DispatchQueue.main.async 
+//                    {
+//                        self.rootView.messageTextView.text = cell.messageLabel.text
+//                        self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
+//                        self.viewModel.shouldEditMessage = { [message] edditedMessage in
+//                            self.viewModel.firestoreService?.editMessageTextFromFirestore(edditedMessage, messageID: message.id)
+//                        }
+//                    }
+//                }
+//                let deleteAction = UIAction(title: "Delete",
+//                                            image: UIImage(systemName: "trash"),
+//                                            attributes: attributesForDeleteAction)
+//                { [weak self] action in
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+//                        self?.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
+//                    }
+//                }
+//                return UIMenu(title: "", children: [replyAction, editAction, copyAction, deleteAction])
+//            })
+//        }
+//        return nil
+//    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration?
+    {
+        guard let baseCell = tableView.cellForRow(at: indexPath) else { return nil }
+        let identifier = indexPath as NSCopying
         
-        guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return nil}
-        let tapLocationInCell = cell.contentView.convert(point, from: tableView)
-        
-        if cell.messageBubbleContainer.frame.contains(tapLocationInCell) {
-            let identifire = indexPath as NSCopying
+        if let messageCell = baseCell as? MessageTableViewCell,
+           let message = messageCell.cellViewModel.message
+        {
+            let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
+            guard messageCell.messageBubbleContainer.frame.contains(tapLocationInCell) else { return nil }
             
-            return UIContextMenuConfiguration(identifier: identifire, previewProvider: nil, actionProvider: { _ in
-                
-                let selectedCellMessageText = cell.messageLabel.text
-                guard let message = cell.cellViewModel.message else {return nil}
-                
-                let replyAction = UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { action in
-                    DispatchQueue.main.async {
-                        let messageSenderName = cell.cellViewModel.messageSender?.name
-                        self.viewModel.currentlyReplyToMessageID = message.id
-                        self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: selectedCellMessageText)
-                        self.rootView.inputBarHeader?.updateTitleLabel(usingText: messageSenderName)
-                    }
-                }
-            
-                let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { action in
-                    let pastBoard = UIPasteboard.general
-                    pastBoard.string = cell.messageLabel.text
-                }
-                
-                /// display edit/delete actions only on messages that authenticated user sent
-                let messageBelongsToAuthenticatedUser = message.senderId == self.viewModel.authUser.uid
-                let attributesForEditAction = messageBelongsToAuthenticatedUser ? [] : UIMenuElement.Attributes.hidden
-                let attributesForDeleteAction = messageBelongsToAuthenticatedUser ? .destructive : UIMenuElement.Attributes.hidden
-                
-                
-                let editAction = UIAction(title: "Edit", image: UIImage(systemName: "pencil.and.scribble"), attributes: attributesForEditAction) { action in
-                    DispatchQueue.main.async 
-                    {
-                        self.rootView.messageTextView.text = cell.messageLabel.text
-                        self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: selectedCellMessageText)
-                        self.viewModel.shouldEditMessage = { [message] edditedMessage in
-                            self.viewModel.firestoreService?.editMessageTextFromFirestore(edditedMessage, messageID: message.id)
-                        }
-                    }
-                }
-                let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: attributesForDeleteAction) { [weak self] action in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                        self?.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
-                    }
-                }
-                return UIMenu(title: "", children: [replyAction, editAction, copyAction, deleteAction])
-            })
+            return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
+                return self.buildUIMenuForMessageCell(messageCell, message: message)
+            }
+        }
+        else if let eventCell = baseCell as? MessageEventCell,
+                let message = eventCell.cellViewModel.message
+        {
+            return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
+                let deleteAction = self.createDeleteAction(for: message)
+                let copyAction = self.createCopyAction(text: message.messageBody)
+                return UIMenu(title: "", children: [deleteAction, copyAction])
+            }
         }
         return nil
     }
+    
+    // with MessageMenuBuilder
+//    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration?
+//    {
+//        guard let baseCell = tableView.cellForRow(at: indexPath) else { return nil }
+//        let identifier = indexPath as NSCopying
+//        
+//        let menuBuilder = MessageMenuBuilder(viewModel: self.viewModel, rootView: self.rootView) { actionOption, selectedMessageText in
+//            self.handleContextMenuSelectedAction(actionOption: actionOption, selectedMessageText: selectedMessageText)
+//        }
+//        
+//        if let messageCell = baseCell as? MessageTableViewCell,
+//           let message = messageCell.cellViewModel.message
+//        {
+//            let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
+//            guard messageCell.messageBubbleContainer.frame.contains(tapLocationInCell) else { return nil }
+//            
+//            return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
+//                return menuBuilder.buildUIMenuForMessageCell(messageCell, message: message)
+//            }
+//        }
+//        else if let eventCell = baseCell as? MessageEventCell,
+//                let message = eventCell.cellViewModel.message
+//        {
+//            return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
+//                return menuBuilder.buildUIMenuForEventCell(eventCell, message: message)
+//            }
+//        }
+//        return nil
+//    }
+    
+    
     
     func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         return makeConversationMessagePreview(for: configuration)
@@ -948,6 +1019,67 @@ extension ChatRoomViewController: UITableViewDelegate
     }
 }
 
+// MARK: - Context Menu Builder
+extension ChatRoomViewController
+{
+    private func buildUIMenuForMessageCell(_ cell: MessageTableViewCell, message: Message) -> UIMenu {
+        let selectedText = cell.messageLabel.text ?? ""
+        let isOwner = message.senderId == viewModel.authUser.uid
+        
+        let reply = createReplyAction(for: cell, message: message, text: selectedText)
+        let copy = createCopyAction(text: selectedText)
+        let edit = createEditAction(for: cell, message: message, text: selectedText, isOwner: isOwner)
+        let delete = createDeleteAction(for: message, isOwner: isOwner)
+        
+        return UIMenu(title: "", children: [reply, copy, edit, delete])
+    }
+
+    private func createReplyAction(for cell: MessageTableViewCell, message: Message, text: String) -> UIAction {
+        UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { _ in
+            DispatchQueue.main.async {
+                let senderName = cell.cellViewModel.messageSender?.name
+                self.viewModel.currentlyReplyToMessageID = message.id
+                self.handleContextMenuSelectedAction(actionOption: .reply, selectedMessageText: text)
+                self.rootView.inputBarHeader?.updateTitleLabel(usingText: senderName)
+            }
+        }
+    }
+
+    private func createCopyAction(text: String) -> UIAction {
+        UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
+            UIPasteboard.general.string = text
+        }
+    }
+
+    private func createEditAction(for cell: MessageTableViewCell, message: Message, text: String, isOwner: Bool) -> UIAction {
+        UIAction(
+            title: "Edit",
+            image: UIImage(systemName: "pencil.and.scribble"),
+            attributes: isOwner ? [] : .hidden
+        ) { _ in
+            DispatchQueue.main.async {
+                self.rootView.messageTextView.text = text
+                self.handleContextMenuSelectedAction(actionOption: .edit, selectedMessageText: text)
+                self.viewModel.shouldEditMessage = { [message] editedText in
+                    self.viewModel.firestoreService?.editMessageTextFromFirestore(editedText, messageID: message.id)
+                }
+            }
+        }
+    }
+
+    private func createDeleteAction(for message: Message, isOwner: Bool = true) -> UIAction {
+        UIAction(
+            title: "Delete",
+            image: UIImage(systemName: "trash"),
+            attributes: isOwner ? .destructive : .hidden
+        ) { _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
+            }
+        }
+    }
+}
+
 
 //MARK: - SkeletonView animation
 extension ChatRoomViewController
@@ -976,4 +1108,86 @@ extension ChatRoomViewController
         rootView.tableView.hideSkeleton(transition: SkeletonTransitionStyle.none)
     }
 }
+
+
+// MARK: - Context Menu Builder
+final class MessageMenuBuilder
+{
+    private var viewModel: ChatRoomViewModel!
+    private var rootView: ChatRoomRootView!
+    
+    private var contextMenuSelectedActionHandler: ((_ actionOption: InputBarHeaderView.Mode, _ text: String?) -> Void)?
+    
+    init(viewModel: ChatRoomViewModel!, rootView: ChatRoomRootView!, contextMenuSelectedActionHandler: ((_: InputBarHeaderView.Mode, _: String?) -> Void)? = nil) {
+        self.viewModel = viewModel
+        self.rootView = rootView
+        self.contextMenuSelectedActionHandler = contextMenuSelectedActionHandler
+    }
+    
+    func buildUIMenuForMessageCell(_ cell: MessageTableViewCell, message: Message) -> UIMenu {
+        let selectedText = cell.messageLabel.text ?? ""
+        let isOwner = message.senderId == viewModel.authUser.uid
+        
+        let reply = createReplyAction(for: cell, message: message, text: selectedText)
+        let copy = createCopyAction(text: selectedText)
+        let edit = createEditAction(for: cell, message: message, text: selectedText, isOwner: isOwner)
+        let delete = createDeleteAction(for: message, isOwner: isOwner)
+        
+        return UIMenu(title: "", children: [reply, copy, edit, delete])
+    }
+    
+    func buildUIMenuForEventCell(_ cell: MessageEventCell, message: Message) -> UIMenu
+    {
+        let deleteAction = self.createDeleteAction(for: message)
+        let copyAction = self.createCopyAction(text: message.messageBody)
+        return UIMenu(title: "", children: [deleteAction, copyAction])
+    }
+
+    private func createReplyAction(for cell: MessageTableViewCell, message: Message, text: String) -> UIAction {
+        UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { _ in
+            DispatchQueue.main.async {
+                let senderName = cell.cellViewModel.messageSender?.name
+                self.viewModel.currentlyReplyToMessageID = message.id
+                self.contextMenuSelectedActionHandler?(.reply, text)
+                self.rootView.inputBarHeader?.updateTitleLabel(usingText: senderName)
+            }
+        }
+    }
+
+    private func createCopyAction(text: String) -> UIAction {
+        UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
+            UIPasteboard.general.string = text
+        }
+    }
+
+    private func createEditAction(for cell: MessageTableViewCell, message: Message, text: String, isOwner: Bool) -> UIAction {
+        UIAction(
+            title: "Edit",
+            image: UIImage(systemName: "pencil.and.scribble"),
+            attributes: isOwner ? [] : .hidden
+        ) { _ in
+            DispatchQueue.main.async {
+                self.rootView.messageTextView.text = text
+                self.contextMenuSelectedActionHandler?(.edit, text)
+                self.viewModel.shouldEditMessage = { [message] editedText in
+                    self.viewModel.firestoreService?.editMessageTextFromFirestore(editedText, messageID: message.id)
+                }
+            }
+        }
+    }
+
+    private func createDeleteAction(for message: Message, isOwner: Bool = true) -> UIAction {
+        UIAction(
+            title: "Delete",
+            image: UIImage(systemName: "trash"),
+            attributes: isOwner ? .destructive : .hidden
+        ) { _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
+            }
+        }
+    }
+}
+
+
 

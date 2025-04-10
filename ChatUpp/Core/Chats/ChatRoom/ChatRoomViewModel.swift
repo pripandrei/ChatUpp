@@ -80,12 +80,16 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
     
-    private var isChatFetchedFirstTime: Bool {
-        conversation?.isFirstTimeOpened ?? true
+    private var isChatFetchedFirstTime: Bool
+    {
+        return conversation?.conversationMessages.count == 1
+//        conversation?.isFirstTimeOpened ?? true
     }
     
     private var shouldDisplayLastMessage: Bool {
-        authParticipantUnreadMessagesCount == realmService?.getUnreadMessagesCountFromRealm()
+        print("authParticipantUnreadMessagesCount: ",authParticipantUnreadMessagesCount)
+        print("Count: ", realmService?.getUnreadMessagesCountFromRealm())
+        return authParticipantUnreadMessagesCount == realmService?.getUnreadMessagesCountFromRealm()
     }
     
     private var firstMessage: Message? {
@@ -94,14 +98,12 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     var shouldFetchNewMessages: Bool
     {
-        // If conversation isn't in Realm, we need to fetch
         guard conversation?.realm != nil else {
             return true
         }
         
         let localMessageCount = conversation?.conversationMessages.count ?? 0
         
-        // Early returns for special cases
         if localMessageCount == 1 {
             return true
         } else if localMessageCount == 0 {
@@ -206,7 +208,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         try await FirebaseChatService.shared.addParticipant(participant: participant, toChat: conversation.id)
         RealmDataBase.shared.add(object: conversation)
         
-        let text = "\(authenticatedUser?.name ?? "-") has joined the group"
+        let text = "has joined the group"
         let message = createNewMessage(text, ofType: .title)
         
         try await FirebaseChatService.shared.createMessage(message: message,
@@ -265,6 +267,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         let isGroupChat = conversation?.isGroup == true
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        let seenByValue = (isGroupChat && type != .title) ? [authUserID] : nil
         
         return Message(
             id: UUID().uuidString,
@@ -272,7 +275,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: isGroupChat ? nil : false,
-            seenBy: isGroupChat ? [authUserID] : nil,
+            seenBy: seenByValue,
             isEdited: false,
             imagePath: nil,
             imageSize: nil,

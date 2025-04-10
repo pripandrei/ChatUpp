@@ -11,7 +11,7 @@ import YYText
 
 final class MessageEventCell: UITableViewCell
 {
-    private var cellViewModel: MessageCellViewModel!
+    private(set) var cellViewModel: MessageCellViewModel!
     
     private let messageEventLabel: UILabel =
     {
@@ -51,7 +51,7 @@ final class MessageEventCell: UITableViewCell
     private func setupSelf() {
         transform = CGAffineTransform(scaleX: 1, y: -1)
         backgroundColor = .clear
-        isUserInteractionEnabled = false
+//        isUserInteractionEnabled = false
     }
     
     func configureCell(with viewModel: MessageCellViewModel)
@@ -104,5 +104,51 @@ final class MessageEventCell: UITableViewCell
         messageEventLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -5).isActive = true
         messageEventLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 10).isActive = true
         messageEventLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -10).isActive = true
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// MARK: - Context Menu Types
+
+/// Represents available actions for message context menus
+enum MessageContextAction {
+    case reply(Message, String, String?)  // message, text, senderName
+    case copy(String)                     // text to copy
+    case edit(Message, String)            // message, current text
+    case delete(Message)                  // message to delete
+}
+
+/// Protocol for objects that can handle message context actions
+protocol MessageContextActionHandler: AnyObject {
+    func handle(_ action: MessageContextAction)
+}
+
+/// Configuration for building context menus
+struct MessageContextMenuConfiguration {
+    let message: Message
+    let displayText: String
+    let isOwner: Bool
+    let senderName: String?
+    
+    init(message: Message, displayText: String, isOwner: Bool, senderName: String? = nil) {
+        self.message = message
+        self.displayText = displayText
+        self.isOwner = isOwner
+        self.senderName = senderName
     }
 }

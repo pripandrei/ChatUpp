@@ -86,7 +86,7 @@ extension ChatRoomInformationViewModel
         removeRealmParticipant(with: authUserID)
         try await removeFirestoreParticipant(with: authUserID)
         
-        let text = "\(authenticatedUser?.name ?? "-") has left the group"
+        let text = "has left the group"
         let message = try await createMessage(messageText: text)
         
         try await updateUnseenMessageCounterRemote()
@@ -136,7 +136,7 @@ extension ChatRoomInformationViewModel
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: nil,
-            seenBy: [authUserID],
+            seenBy: nil,
             isEdited: false,
             imagePath: nil,
             imageSize: nil,
