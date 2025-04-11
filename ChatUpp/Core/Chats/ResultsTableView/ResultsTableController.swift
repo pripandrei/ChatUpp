@@ -168,14 +168,6 @@ extension ResultsTableController
             } else {
                 conversationViewModel = ChatRoomViewModel(participant: user)
             }
-//            else if let authUser = try? AuthenticationManager.shared.getAuthenticatedUser() {
-//                let participants = [
-//                    ChatParticipant(userID: authUser.uid, unseenMessageCount: 0),
-//                    ChatParticipant(userID: user.id, unseenMessageCount: 0)
-//                ]
-//                let newChat = ChatRoomViewModel.createChat(with: participants)
-//                conversationViewModel = ChatRoomViewModel(conversation: newChat)
-//            }
         }
     }
 }

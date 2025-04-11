@@ -31,9 +31,12 @@ final class ConversationRealmService
         RealmDataBase.shared.update(object: conversation) { chat in
             
             let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
-            let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
+            let newMessagesIDs = messages.map{$0.id}.filter {!existingMessageIDs.contains($0)}
+
+            let filter = NSPredicate(format: "id IN %@", newMessagesIDs)
+            guard let messagesToAdd = RealmDataBase.shared.retrieveObjects(ofType: Message.self, filter: filter) else {return}
             
-            chat.conversationMessages.append(objectsIn: newMessages)
+            chat.conversationMessages.append(objectsIn: messagesToAdd)
         }
     }
     

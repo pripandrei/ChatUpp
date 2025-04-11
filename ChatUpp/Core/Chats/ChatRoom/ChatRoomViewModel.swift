@@ -59,22 +59,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let conversation = conversation,
               conversation.realm != nil,
               let _ = conversation.participants.filter("userID == %@", authUser.uid).first else {return false}
-        //        let isAuthPresent = conversation.participants.contains(where: { participant in
-        //            return participant.userID == authUser.uid
-        //        })
-        
-        //        let groupExists = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
         if conversation.isGroup { return true }
         else { return false }
     }
-    
-//    var shouldHideJoinGroupOption: Bool
-//    {
-//        if conversation?.isGroup == false { return true }
-//        guard let conversation = conversation else { return true }
-//        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
-//    }
-    
+
     var shouldHideJoinGroupOption: Bool
     {
         if conversation?.isGroup == false { return true }
@@ -83,7 +71,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard conversation.realm != nil else { return false }
  
         let isAuthUserChatParticipant = !conversation.participants.filter("userID == %@", authUser.uid).isEmpty
-//        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
         return isAuthUserChatParticipant
     }
     
@@ -99,8 +86,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     private var shouldDisplayLastMessage: Bool {
-        print("authParticipantUnreadMessagesCount: ",authParticipantUnreadMessagesCount)
-        print("Count: ", realmService?.getUnreadMessagesCountFromRealm())
         return authParticipantUnreadMessagesCount == realmService?.getUnreadMessagesCountFromRealm()
     }
     
@@ -144,11 +129,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         self.conversation = conversation
         self.unseenMessagesCount = conversation.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         self.setupServices(using: conversation)
-
-        if conversationExists {
-            bindToMessages()
-            initiateConversation()
-        }
+        
+        bindToMessages()
+        initiateConversation()
     }
     
     init(participant: User?)
@@ -485,11 +468,11 @@ extension ChatRoomViewModel
             {
                 try await syncGroupUsers(for: messages)
                 
-                if !isAuthUserGroupMember
-                {
-                    initializeWithMessages(messages)
-                    return
-                }
+//                if !isAuthUserGroupMember
+//                {
+//                    initializeWithMessages(messages)
+//                    return
+//                }
             }
             realmService?.addMessagesToConversationInRealm(messages)
             initializeWithLocalData()
