@@ -211,7 +211,20 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         updateUnseenMessageCounter(shouldIncrement: true)
         
+        let messages = getCurrentMessagesFromCluster()
+        realmService?.addMessagesToConversationInRealm(messages)
+        
         addListeners()
+    }
+    
+    private func getCurrentMessagesFromCluster() -> [Message]
+    {
+        let messages: [Message] = messageClusters.flatMap { cluster in
+            cluster.items.compactMap { item in
+                item.message
+            }
+        }
+        return messages
     }
     
     /// - chat components creation
@@ -468,11 +481,11 @@ extension ChatRoomViewModel
             {
                 try await syncGroupUsers(for: messages)
                 
-//                if !isAuthUserGroupMember
-//                {
-//                    initializeWithMessages(messages)
-//                    return
-//                }
+                if !isAuthUserGroupMember
+                {
+                    initializeWithMessages(messages)
+                    return
+                }
             }
             realmService?.addMessagesToConversationInRealm(messages)
             initializeWithLocalData()

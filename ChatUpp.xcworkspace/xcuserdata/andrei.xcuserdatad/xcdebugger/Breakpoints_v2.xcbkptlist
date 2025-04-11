@@ -30,13 +30,13 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
+            startingLineNumber = "217"
+            endingLineNumber = "217"
             landmarkName = "joinGroup()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "08BFCFA1-5AB5-4649-8E8A-F235BEA10E28 - 2238d7a9f068e1c2"
+                  uuid = "08BFCFA1-5AB5-4649-8E8A-F235BEA10E28 - 2238d7a9f068e165"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -46,11 +46,11 @@
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "220"
-                  endingLineNumber = "220">
+                  startingLineNumber = "217"
+                  endingLineNumber = "217">
                </Location>
                <Location
-                  uuid = "08BFCFA1-5AB5-4649-8E8A-F235BEA10E28 - 92cacfe304de69c6"
+                  uuid = "08BFCFA1-5AB5-4649-8E8A-F235BEA10E28 - 92cacfe304de6961"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -60,8 +60,8 @@
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "220"
-                  endingLineNumber = "220">
+                  startingLineNumber = "217"
+                  endingLineNumber = "217">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -76,8 +76,8 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "586"
-            endingLineNumber = "586"
+            startingLineNumber = "599"
+            endingLineNumber = "599"
             landmarkName = "handleAddedMessage(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -192,7 +192,7 @@
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "CE9264AC-5BD0-42E4-9E27-534AB8E560CC - c09705b8c5e32b12"
+                  uuid = "CE9264AC-5BD0-42E4-9E27-534AB8E560CC - c09705b8c5e32a5c"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -202,11 +202,11 @@
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "177"
-                  endingLineNumber = "177">
+                  startingLineNumber = "171"
+                  endingLineNumber = "171">
                </Location>
                <Location
-                  uuid = "CE9264AC-5BD0-42E4-9E27-534AB8E560CC - c09705b8c5e32b12"
+                  uuid = "CE9264AC-5BD0-42E4-9E27-534AB8E560CC - c09705b8c5e32a5c"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -216,8 +216,8 @@
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "177"
-                  endingLineNumber = "177">
+                  startingLineNumber = "171"
+                  endingLineNumber = "171">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -248,13 +248,13 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "477"
-            endingLineNumber = "477"
+            startingLineNumber = "490"
+            endingLineNumber = "490"
             landmarkName = "initializeWithRemoteData()"
             landmarkType = "7">
             <Locations>
                <Location
-                  uuid = "CBF9349B-2FD6-4F73-9A2B-CDD611262FE0 - 483ec8b88ba42e57"
+                  uuid = "CBF9349B-2FD6-4F73-9A2B-CDD611262FE0 - 483ec8b88ba42f68"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -264,11 +264,11 @@
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "483"
-                  endingLineNumber = "483">
+                  startingLineNumber = "490"
+                  endingLineNumber = "490">
                </Location>
                <Location
-                  uuid = "CBF9349B-2FD6-4F73-9A2B-CDD611262FE0 - d783a83b0a876c55"
+                  uuid = "CBF9349B-2FD6-4F73-9A2B-CDD611262FE0 - d783a83b0a876d6a"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -278,8 +278,8 @@
                   urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "483"
-                  endingLineNumber = "483">
+                  startingLineNumber = "490"
+                  endingLineNumber = "490">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -346,6 +346,52 @@
             endingLineNumber = "40"
             landmarkName = "addMessagesToConversationInRealm(_:)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6CEC2D56-7B92-4662-9343-582A5C8503EA"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "214"
+            endingLineNumber = "214"
+            landmarkName = "joinGroup()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "6CEC2D56-7B92-4662-9343-582A5C8503EA - 2238d7a9f0689ef8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(5) suspend resume partial function for ChatUpp.ChatRoomViewModel.joinGroup() async throws -&gt; ()"
+                  moduleName = "ChatUpp.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "214"
+                  endingLineNumber = "214">
+               </Location>
+               <Location
+                  uuid = "6CEC2D56-7B92-4662-9343-582A5C8503EA - 92cacfe304de16fc"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(7) suspend resume partial function for ChatUpp.ChatRoomViewModel.joinGroup() async throws -&gt; ()"
+                  moduleName = "ChatUpp.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "214"
+                  endingLineNumber = "214">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
