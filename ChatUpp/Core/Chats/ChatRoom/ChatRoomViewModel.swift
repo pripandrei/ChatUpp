@@ -68,11 +68,23 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         else { return false }
     }
     
+//    var shouldHideJoinGroupOption: Bool
+//    {
+//        if conversation?.isGroup == false { return true }
+//        guard let conversation = conversation else { return true }
+//        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
+//    }
+    
     var shouldHideJoinGroupOption: Bool
     {
         if conversation?.isGroup == false { return true }
-        guard let conversation = conversation else { return true }
-        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
+        
+        guard let conversation = conversation else { return false }
+        guard conversation.realm != nil else { return false }
+ 
+        let isAuthUserChatParticipant = !conversation.participants.filter("userID == %@", authUser.uid).isEmpty
+//        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: conversation.id) != nil
+        return isAuthUserChatParticipant
     }
     
     private lazy var authenticatedUser: User? = {

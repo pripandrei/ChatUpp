@@ -54,6 +54,7 @@
 		757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */; };
 		7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */; };
 		7573E5C52B5E898C0096B4E6 /* ProfileDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */; };
+		7574D2232DA84A940007A1D6 /* MessageMenuBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7574D21E2DA84A820007A1D6 /* MessageMenuBuilder.swift */; };
 		757900762BF1768D00DE5A2F /* ConversationTableViewFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757900752BF1768D00DE5A2F /* ConversationTableViewFooter.swift */; };
 		757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0DF2BB9D70C00A64DA4 /* FirebaseAuth */; };
 		757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0E12BB9D70C00A64DA4 /* FirebaseAuthCombine-Community */; };
@@ -229,6 +230,7 @@
 		757033A42BC2D8C4002732B5 /* TextViewShadowConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewShadowConfigurable.swift; sourceTree = "<group>"; };
 		7573E5C22B5BD4500096B4E6 /* ProfileDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewController.swift; sourceTree = "<group>"; };
 		7573E5C42B5E898C0096B4E6 /* ProfileDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDeletionViewModel.swift; sourceTree = "<group>"; };
+		7574D21E2DA84A820007A1D6 /* MessageMenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuBuilder.swift; sourceTree = "<group>"; };
 		757900752BF1768D00DE5A2F /* ConversationTableViewFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewFooter.swift; sourceTree = "<group>"; };
 		757E81B42D232EC400727277 /* SelectedGroupMembersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedGroupMembersView.swift; sourceTree = "<group>"; };
 		757E81B62D29957F00727277 /* NewGroupSetupScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewGroupSetupScreen.swift; sourceTree = "<group>"; };
@@ -500,6 +502,7 @@
 		756525C82A8127CC005DC594 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				7574D21E2DA84A820007A1D6 /* MessageMenuBuilder.swift */,
 				75CC9FE12D59402F002051EB /* ColorManager.swift */,
 				75A086192D1977D200DE5333 /* ImageCropper.swift */,
 				7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */,
@@ -1015,6 +1018,7 @@
 				75D6DC332B0D735100D2CD26 /* MessageCellViewModel.swift in Sources */,
 				75B48B572AF6837700A5FBFC /* ChatRoomRootView.swift in Sources */,
 				756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */,
+				7574D2232DA84A940007A1D6 /* MessageMenuBuilder.swift in Sources */,
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
 				756E6D242D88A65C0065CADB /* ChatRoomInformationScreen.swift in Sources */,
 				75FB78F82AC311D000C2743A /* ChatsViewModel.swift in Sources */,
