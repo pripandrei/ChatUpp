@@ -214,6 +214,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let messages = getCurrentMessagesFromCluster()
         realmService?.addMessagesToConversationInRealm(messages)
         
+        //Add new chat row 
+        NotificationCenter.default.post(name: .didJoinNewChat, object: nil, userInfo: ["chatID": conversation.id])
+        
         addListeners()
     }
     

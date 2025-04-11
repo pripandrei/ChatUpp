@@ -27,16 +27,24 @@ final class ConversationRealmService
     func addMessagesToConversationInRealm(_ messages: [Message])
     {
         guard let conversation = conversation else { return }
-        
-        RealmDataBase.shared.update(object: conversation) { chat in
-            
-            let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
-            let newMessagesIDs = messages.map{$0.id}.filter {!existingMessageIDs.contains($0)}
 
-            let filter = NSPredicate(format: "id IN %@", newMessagesIDs)
-            guard let messagesToAdd = RealmDataBase.shared.retrieveObjects(ofType: Message.self, filter: filter) else {return}
-            
-            chat.conversationMessages.append(objectsIn: messagesToAdd)
+        RealmDataBase.shared.update(object: conversation) { chat in
+            guard let realm = chat.realm else { return }
+
+            let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
+            let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
+
+            var messagesToAppend: [Message] = []
+
+            for message in newMessages {
+                if message.realm == nil {
+                    realm.add(message, update: .all)
+                }
+
+                messagesToAppend.append(message)
+            }
+
+            chat.conversationMessages.append(objectsIn: messagesToAppend)
         }
     }
     

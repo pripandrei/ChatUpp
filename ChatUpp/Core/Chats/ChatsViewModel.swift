@@ -48,6 +48,7 @@ final class ChatsViewModel {
         
         setupCellViewModels()
         observeChats()
+        setChatJoinNotification()
     }
     deinit {
         print("deinit chats view model")
@@ -119,6 +120,8 @@ extension ChatsViewModel
     
     private func updateRealmChat(_ chat: Chat)
     {
+//        var didAddNewParticipant = false
+        
         RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
             dbChat.recentMessageID = chat.recentMessageID
             dbChat.name = chat.name
@@ -134,18 +137,26 @@ extension ChatsViewModel
                 }
                 else {
                     dbChat.participants.append(participant)
+//                    didAddNewParticipant = true
                 }
             }
-//            dbChat.participants.removeAll()
-//            dbChat.participants.append(objectsIn: chat.participants)
         }
+//        if didAddNewParticipant {
+//            Task { @MainActor in
+//                guard let chat = retrieveChatFromRealm(chat) else {return}
+//                try await Task.sleep(for: .milliseconds(500))
+//                addCellViewModel(using: chat)
+//                chatModificationType = .added
+//            }
+//        }
+        
     }
 }
 
 //MARK: - Listeners
 
-extension ChatsViewModel {
-    
+extension ChatsViewModel
+{
     private func observeChats()
     {
         FirebaseChatService.shared.chatsPublisher(containingParticipantUserID: authUser.uid)
@@ -154,6 +165,32 @@ extension ChatsViewModel {
                 self?.handleChatUpdate(update)
             }.store(in: &cancellables)
     }
+}
+
+//MARK: - Notofication on auth user chat join
+extension ChatsViewModel
+{
+    private func setChatJoinNotification() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(notifyOnJoinNewChat(_:)),
+                                               name: .didJoinNewChat,
+                                               object: nil)
+    }
+//
+    @objc private func notifyOnJoinNewChat(_ notification: Notification)
+    {
+        guard let chatID = notification.userInfo?["chatID"] as? String else { return }
+        
+        if let chat = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
+        {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7, execute: {
+                self.addChatToRealm(chat)
+                self.addCellViewModel(using: chat)
+                self.chatModificationType = .added
+            })
+        }
+    }
+    
 }
 
 //MARK: - Chat updates
@@ -170,7 +207,7 @@ extension ChatsViewModel {
         }
     }
     
-    private func handleAddedChat(_ chat: Chat)
+    @objc private func handleAddedChat(_ chat: Chat)
     {
         guard let _ = retrieveChatFromRealm(chat) else {
             addChatToRealm(chat)
@@ -248,4 +285,9 @@ extension ChatsViewModel
             }
         }
     }
+}
+
+
+extension Notification.Name {
+    static let didJoinNewChat = Notification.Name("didJoinNewChat")
 }

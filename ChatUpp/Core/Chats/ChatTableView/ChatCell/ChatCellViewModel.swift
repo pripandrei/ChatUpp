@@ -24,6 +24,10 @@ class ChatCellViewModel
     
     @Published private(set) var titleName: String?
     
+    deinit {
+        print("deinit")
+    }
+    
     init(chat: Chat) {
         self.chat = chat
         
