@@ -478,7 +478,7 @@ extension ChatRoomViewController {
     private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath)
     {
         let currentOffSet = self.rootView.tableView.contentOffset
-        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
+        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) else { return }
         
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
