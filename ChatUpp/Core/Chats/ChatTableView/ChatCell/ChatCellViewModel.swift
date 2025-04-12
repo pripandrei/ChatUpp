@@ -90,12 +90,6 @@ extension ChatCellViewModel
         return originalURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
     }
     
-//    private var profileImageChanged: Bool
-//    {
-//        let dbUser = try? retrieveMember()
-//        return self.chatUser?.photoUrl != dbUser?.photoUrl
-//    }
-    
     @MainActor
     private var shouldFetchImage: Bool
     {
@@ -214,11 +208,6 @@ extension ChatCellViewModel
         if !chat.isGroup
         {
             self.chatUser = await loadOtherMemberOfChat()
-            
-//            if profileImageChanged
-//            {
-//                await performImageDataUpdate()
-//            }
         }
         
         if shouldFetchImage

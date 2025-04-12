@@ -255,6 +255,12 @@ extension ChatRoomNavigationBar
 }
 
 
+
+
+
+
+
+
 final class ChatRoomNavigationBarViewModel
 {
     private var cancellables: Set<AnyCancellable> = []
@@ -323,7 +329,8 @@ final class ChatRoomNavigationBarViewModel
         }
         
         if chat.thumbnailURL != self._imageUrl {
-            self._imageUrl = chat.thumbnailURL
+            self._imageUrl = getThumbnailImagePath(from: chat.thumbnailURL)
+//            self._imageUrl = chat.thumbnailURL
         }
         
         let chatStatus = "\(chat.participants.count) participants"
@@ -339,7 +346,8 @@ final class ChatRoomNavigationBarViewModel
         }
         
         if user.photoUrl != self._imageUrl {
-            self._imageUrl = user.photoUrl
+            self._imageUrl = getThumbnailImagePath(from: user.photoUrl)
+//            self._imageUrl = user.photoUrl
         }
 
         if user.isActive == true {
@@ -347,6 +355,12 @@ final class ChatRoomNavigationBarViewModel
         } else {
             self._status = "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
         }
+    }
+    
+    private func getThumbnailImagePath(from url: String?) -> String?
+    {
+        guard let originalURL = url else {return nil}
+        return originalURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
     }
 }
 
