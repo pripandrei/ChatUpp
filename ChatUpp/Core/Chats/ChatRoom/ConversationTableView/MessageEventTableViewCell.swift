@@ -9,13 +9,26 @@ import UIKit
 import Foundation
 import YYText
 
+extension MessageEventCell : TargetPreviewable
+{
+    func getTargetViewForPreview() -> UIView
+    {
+        return messageEventContainer
+    }
+    
+    func getTargetedPreviewColor() -> UIColor
+    {
+        return #colorLiteral(red: 0.2971534729, green: 0.3519872129, blue: 0.7117250562, alpha: 1)
+    }
+}
+
 final class MessageEventCell: UITableViewCell
 {
     private(set) var cellViewModel: MessageCellViewModel!
     
-    private let messageEventLabel: UILabel =
+    let messageLabel: YYLabel =
     {
-        let messageEventLabel = UILabel()
+        let messageEventLabel = YYLabel()
         messageEventLabel.preferredMaxLayoutWidth = 250
         messageEventLabel.numberOfLines = 0
         messageEventLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
@@ -26,7 +39,7 @@ final class MessageEventCell: UITableViewCell
         return messageEventLabel
     }()
     
-    private let messageEventContainer: UIView =
+    let messageEventContainer: UIView =
     {
         let container = UIView()
         container.backgroundColor = #colorLiteral(red: 0.2971534729, green: 0.3519872129, blue: 0.7117250562, alpha: 1)
@@ -42,15 +55,23 @@ final class MessageEventCell: UITableViewCell
         setupSelf()
         setupMessageEventContainerConstraints()
         setupMessageEventLabelConstraints()
+        setupBackgroundSelectionView()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func setupBackgroundSelectionView()
+    {
+        let selectedView = UIView()
+        selectedView.backgroundColor = UIColor.clear
+        selectedBackgroundView = selectedView
+    }
+    
     private func setupSelf() {
         transform = CGAffineTransform(scaleX: 1, y: -1)
-        backgroundColor = .clear
+        contentView.backgroundColor = #colorLiteral(red: 0.146097213, green: 0.3935877383, blue: 0.5633711219, alpha: 1)
 //        isUserInteractionEnabled = false
     }
     
@@ -61,7 +82,7 @@ final class MessageEventCell: UITableViewCell
         let username = viewModel.messageSender?.name
         let textMessage = viewModel.message?.messageBody
         
-        messageEventLabel.attributedText = makeAttributedMessage(username: username,
+        messageLabel.attributedText = makeAttributedMessage(username: username,
                                                                  text: textMessage)
     }
     
@@ -91,19 +112,19 @@ final class MessageEventCell: UITableViewCell
     private func setupMessageEventContainerConstraints()
     {
         contentView.addSubview(messageEventContainer)
-        messageEventContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5).isActive = true
-        messageEventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        messageEventContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        messageEventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,  constant: -5).isActive = true
         messageEventContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
     }
     
     private func setupMessageEventLabelConstraints()
     {
-        messageEventContainer.addSubview(messageEventLabel)
+        messageEventContainer.addSubview(messageLabel)
         
-        messageEventLabel.topAnchor.constraint(equalTo: messageEventContainer.topAnchor, constant: 5).isActive = true
-        messageEventLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -5).isActive = true
-        messageEventLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 10).isActive = true
-        messageEventLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -10).isActive = true
+        messageLabel.topAnchor.constraint(equalTo: messageEventContainer.topAnchor, constant: 5).isActive = true
+        messageLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -5).isActive = true
+        messageLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 10).isActive = true
+        messageLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -10).isActive = true
     }
 }
 

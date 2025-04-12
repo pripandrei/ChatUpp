@@ -39,13 +39,7 @@ final class ChatsViewModel {
 
     init() {
         print(RealmDataBase.realmFilePath ?? "unknown realm file path")
-        
-        
-//        Task { @MainActor in
-//            let user = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
-//            RealmDataBase.shared.add(object: user)
-//        }
-        
+    
         setupCellViewModels()
         observeChats()
         setChatJoinNotification()
@@ -170,7 +164,8 @@ extension ChatsViewModel
 //MARK: - Notofication on auth user chat join
 extension ChatsViewModel
 {
-    private func setChatJoinNotification() {
+    private func setChatJoinNotification()
+    {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(notifyOnJoinNewChat(_:)),
                                                name: .didJoinNewChat,

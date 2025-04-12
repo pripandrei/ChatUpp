@@ -11,6 +11,7 @@
 		751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */; };
 		752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 752514B92D0CD2FF003330E7 /* Kingfisher */; };
 		7525150D2D0EE427003330E7 /* ProfileEditingListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */; };
+		752706522DAA6DEF002128DF /* TargetPreviewable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7527064D2DAA6DED002128DF /* TargetPreviewable.swift */; };
 		752DE4092D21700A003AC40C /* GroupCreationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE4082D217003003AC40C /* GroupCreationViewModel.swift */; };
 		752DE40D2D218B95003AC40C /* GroupMembersSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40C2D218B95003AC40C /* GroupMembersSelectionScreen.swift */; };
 		752DE4102D219557003AC40C /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40F2D219557003AC40C /* UserView.swift */; };
@@ -188,6 +189,7 @@
 		750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageEventTableViewCell.swift; sourceTree = "<group>"; };
 		751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesBadge.swift; sourceTree = "<group>"; };
 		7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingListCell.swift; sourceTree = "<group>"; };
+		7527064D2DAA6DED002128DF /* TargetPreviewable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetPreviewable.swift; sourceTree = "<group>"; };
 		752DE4082D217003003AC40C /* GroupCreationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationViewModel.swift; sourceTree = "<group>"; };
 		752DE40C2D218B95003AC40C /* GroupMembersSelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembersSelectionScreen.swift; sourceTree = "<group>"; };
 		752DE40F2D219557003AC40C /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
@@ -535,6 +537,7 @@
 		757033A32BC2D829002732B5 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				7527064D2DAA6DED002128DF /* TargetPreviewable.swift */,
 				75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */,
 				75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */,
 				75A7AFCB2D39740600E081DF /* AuthUserProtocol.swift */,
@@ -1020,6 +1023,7 @@
 				756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */,
 				7574D2232DA84A940007A1D6 /* MessageMenuBuilder.swift in Sources */,
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
+				752706522DAA6DEF002128DF /* TargetPreviewable.swift in Sources */,
 				756E6D242D88A65C0065CADB /* ChatRoomInformationScreen.swift in Sources */,
 				75FB78F82AC311D000C2743A /* ChatsViewModel.swift in Sources */,
 				755A3F7B2AD0689500739861 /* ChatsTableViewDataSource.swift in Sources */,

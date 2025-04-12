@@ -11,6 +11,18 @@ import Combine
 import SkeletonView
 import Kingfisher
 
+extension MessageTableViewCell: TargetPreviewable
+{
+    func getTargetViewForPreview() -> UIView
+    {
+        return messageBubbleContainer
+    }
+    
+    func getTargetedPreviewColor() -> UIColor {
+        return #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
+    }
+}
+
 final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
