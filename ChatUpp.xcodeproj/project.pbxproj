@@ -409,13 +409,13 @@
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
-		7541EF002D8B6EEC00ABC8BA /* ViewModel */ = {
+		7541EF002D8B6EEC00ABC8BA /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
 				75E8AABF2D9192EC007479E4 /* ChatRoomInformationEditViewModel.swift */,
 				7541EF062D8B6EFC00ABC8BA /* ChatRoomInformationViewModel.swift */,
 			);
-			path = ViewModel;
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		7541EF052D8B6EF200ABC8BA /* Views */ = {
@@ -540,7 +540,7 @@
 			isa = PBXGroup;
 			children = (
 				7541EF052D8B6EF200ABC8BA /* Views */,
-				7541EF002D8B6EEC00ABC8BA /* ViewModel */,
+				7541EF002D8B6EEC00ABC8BA /* ViewModels */,
 			);
 			path = ChatRoomInformation;
 			sourceTree = "<group>";

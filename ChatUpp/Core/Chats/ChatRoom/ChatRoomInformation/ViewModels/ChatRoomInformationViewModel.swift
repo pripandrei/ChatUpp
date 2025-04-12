@@ -29,6 +29,12 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
         chat.name ?? "unknown"
     }
     
+    var imageThumbnailPath: String?
+    {
+        guard let path = chat.thumbnailURL else { return nil }
+        return path.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+    }
+    
     lazy var authenticatedUser: User? = {
         guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
@@ -36,7 +42,7 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
     
     func retrieveGroupImage() -> Data?
     {
-        guard let path = chat.thumbnailURL else { return nil }
+        guard let path = imageThumbnailPath else { return nil }
         return CacheManager.shared.retrieveImageData(from: path)
     }
 }
