@@ -102,6 +102,9 @@ class ChatsCell: UITableViewCell {
                     self.stopSkeletonAnimationFor(self.nameLabel)
                     self.nameLabel.text = chat.name
                     
+                    if chat.name == " Cvvv 5" {
+                        print("stop")
+                    }
                     var imageData: Data?
                     imageData = self.cellViewModel.retrieveImageFromCache()
                     self.setImage(imageData)

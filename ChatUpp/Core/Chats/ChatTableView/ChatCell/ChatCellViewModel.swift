@@ -11,17 +11,14 @@ import Kingfisher
 
 class ChatCellViewModel
 {
-    @Published private(set) var chat: Chat
-//    private var usersListener: Listener?
-//    private var userObserver: RealtimeObservable?
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     private var cancellables = Set<AnyCancellable>()
     private(set) var imageDataSubject = PassthroughSubject<Data?,Never>()
     
+    @Published private(set) var chat: Chat
     @Published private(set) var chatUser: User?
     @Published private(set) var recentMessage: Message?
     @Published private(set) var unreadMessageCount: Int?
-    
     @Published private(set) var titleName: String?
     
     deinit {
@@ -93,10 +90,17 @@ extension ChatCellViewModel
         return originalURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
     }
     
-    private var profileImageChanged: Bool
+//    private var profileImageChanged: Bool
+//    {
+//        let dbUser = try? retrieveMember()
+//        return self.chatUser?.photoUrl != dbUser?.photoUrl
+//    }
+    
+    @MainActor
+    private var shouldFetchImage: Bool
     {
-        let dbUser = try? retrieveMember()
-        return self.chatUser?.photoUrl != dbUser?.photoUrl
+        guard let path = imageThumbnailPath else {return false}
+        return CacheManager.shared.doesImageExist(at: path) == false
     }
     
     var isRecentMessagePresent: Bool?
@@ -211,10 +215,15 @@ extension ChatCellViewModel
         {
             self.chatUser = await loadOtherMemberOfChat()
             
-            if profileImageChanged
-            {
-                await performImageDataUpdate()
-            }
+//            if profileImageChanged
+//            {
+//                await performImageDataUpdate()
+//            }
+        }
+        
+        if shouldFetchImage
+        {
+            await performImageDataUpdate()
         }
     }
     

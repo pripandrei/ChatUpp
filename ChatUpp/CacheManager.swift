@@ -28,7 +28,8 @@ final class CacheManager {
         
     }
     
-    func retrieveImageData(from path: String) -> Data? {
+    func retrieveImageData(from path: String) -> Data?
+    {
         guard let pathURL = cacheDirectory?.appending(path: path) else {return nil}
         
         if FileManager.default.fileExists(atPath: pathURL.path()) {
@@ -40,6 +41,12 @@ final class CacheManager {
             }
         }
         return nil
+    }
+    
+    func doesImageExist(at path: String) -> Bool
+    {
+        guard let pathURL = cacheDirectory?.appending(path: path) else {return false}
+        return FileManager.default.fileExists(atPath: pathURL.path())
     }
 }
 

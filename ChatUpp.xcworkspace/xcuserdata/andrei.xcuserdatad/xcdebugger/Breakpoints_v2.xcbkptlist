@@ -7,207 +7,143 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "74093CC5-0BDE-46A3-8A8E-F138FE83DA2C"
+            uuid = "68AA50AD-3190-4A9D-B244-1128F67A9A3F"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomNavigationBar.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
-            landmarkName = "performBatchUpdateWithMessageChanges(_:)"
+            startingLineNumber = "326"
+            endingLineNumber = "326"
+            landmarkName = "setNavigationItems(usingChat:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "47E551FF-10FE-4EBF-A8EE-B0BD40821142"
+            uuid = "40F4ED6D-4D93-426E-A002-8ADC6FAC7D01"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomNavigationBar.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "215"
-            endingLineNumber = "215"
-            landmarkName = "performBatchUpdateWithMessageChanges(_:)"
+            startingLineNumber = "342"
+            endingLineNumber = "342"
+            landmarkName = "setNavigationItems(usingUser:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C0304B36-F649-42AF-A969-5CB865DF3734"
+            uuid = "81BED10A-8818-4E19-882F-131003328379"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomNavigationBar.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "449"
-            endingLineNumber = "449"
-            landmarkName = "handleRowAndSectionInsertion(with:scrollToBottom:)"
+            startingLineNumber = "52"
+            endingLineNumber = "52"
+            landmarkName = "setupNavigationImage()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "0048B3E6-EBB5-4848-8FD6-84B8CA2C3993"
+            uuid = "A9A974D4-13A6-45C5-9D36-9F2690F155CB"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomNavigationBar.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "456"
-            endingLineNumber = "456"
-            landmarkName = "handleRowAndSectionInsertion(with:scrollToBottom:)"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "setupNavigationBarItems()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A1D134CA-C65B-4066-AC80-1A8570C6AEF0"
+            uuid = "B4882364-51DF-4614-AD59-F04681CB1A20"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomNavigationBar.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "232"
-            endingLineNumber = "232"
-            landmarkName = "performBatchUpdateWithMessageChanges(_:)"
+            startingLineNumber = "92"
+            endingLineNumber = "92"
+            landmarkName = "bind()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9DF427B0-F7C2-41DC-8E6E-25DC64B9002D"
+            uuid = "10D75664-E6C6-4791-A77E-CD3959FD8BD1"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomNavigationBar.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "219"
-            endingLineNumber = "219"
-            landmarkName = "performBatchUpdateWithMessageChanges(_:)"
+            startingLineNumber = "357"
+            endingLineNumber = "357"
+            landmarkName = "getImageFromCache(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "AD6D78DD-9237-47D0-AD2B-56FB98BFB162"
-            shouldBeEnabled = "Yes"
+            uuid = "DE5681F5-7BA5-4C77-B3B9-54BC795B26DE"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "239"
-            endingLineNumber = "239"
-            landmarkName = "performBatchUpdateWithMessageChanges(_:)"
+            startingLineNumber = "70"
+            endingLineNumber = "70"
+            landmarkName = "retrieveImageFromCache()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9FA8E0CB-8AC2-4CC7-8485-C39362EF605B"
+            uuid = "5E70ED76-A2A1-44B3-8088-CE46093CC594"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "805"
-            endingLineNumber = "805"
-            landmarkName = "handleAdditionalMessageClusterUpdate(inAscendingOrder:)"
+            startingLineNumber = "63"
+            endingLineNumber = "63"
+            landmarkName = "cacheImageData(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "60B60D2F-895D-4A3F-A61B-64BBF97B236F"
+            uuid = "BAA85308-D7FC-4533-934B-1FED36683631"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "606"
-            endingLineNumber = "606"
-            landmarkName = "handleAddedMessage(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A1EC6520-0EBD-4C8C-9A9C-49DB08537C53"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ServiceT.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "39"
-            endingLineNumber = "39"
-            landmarkName = "addMessagesToConversationInRealm(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A8EFAAF4-46D1-484B-B2EB-1BA1198BEA38"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ServiceT.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "47"
-            endingLineNumber = "47"
-            landmarkName = "addMessagesToConversationInRealm(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "4796B339-3276-4945-9FB8-E95291CD6ADB"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "810"
-            endingLineNumber = "810"
-            landmarkName = "handleAdditionalMessageClusterUpdate(inAscendingOrder:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A4589A33-E0B8-4C47-9C6B-0D2C31E3AFF5"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "199"
-            endingLineNumber = "199"
+            startingLineNumber = "109"
+            endingLineNumber = "109"
             landmarkName = "setupBinding()"
             landmarkType = "7">
          </BreakpointContent>
@@ -215,64 +151,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A85B5D77-4E9E-4758-8291-9409DD1BC74C"
+            uuid = "BD85340C-E562-4494-B069-2E6726B700EA"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatsCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "604"
-            endingLineNumber = "604"
-            landmarkName = "handleAddedMessage(_:)"
+            startingLineNumber = "106"
+            endingLineNumber = "106"
+            landmarkName = "setupBinding()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "FE507C8E-DF8E-4D4E-97D3-2D0FC8E21E99"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "389"
-            endingLineNumber = "389"
-            landmarkName = "addListenerForExistingMessages(inChat:startAtMessageWithID:ascending:limit:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "9521BBAB-6AF3-4C8B-A6A0-05E72372B01B"
+            uuid = "B29BAC2A-93D7-47CE-81AE-864C73E3148E"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Firestore database/FirebaseChatService.swift"
+            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "422"
-            endingLineNumber = "422"
-            landmarkName = "addListenerForExistingMessages(inChat:startAtTimestamp:ascending:limit:onMessageUpdated:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "069FD12D-230D-46EB-8A61-E2C8EB0CAA78"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "618"
-            endingLineNumber = "618"
-            landmarkName = "handleAddedMessage(_:)"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "retrieveImageFromCache()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
