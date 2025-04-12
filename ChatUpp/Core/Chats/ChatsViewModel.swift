@@ -114,8 +114,6 @@ extension ChatsViewModel
     
     private func updateRealmChat(_ chat: Chat)
     {
-//        var didAddNewParticipant = false
-        
         RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
             dbChat.recentMessageID = chat.recentMessageID
             dbChat.name = chat.name
@@ -131,19 +129,9 @@ extension ChatsViewModel
                 }
                 else {
                     dbChat.participants.append(participant)
-//                    didAddNewParticipant = true
                 }
             }
         }
-//        if didAddNewParticipant {
-//            Task { @MainActor in
-//                guard let chat = retrieveChatFromRealm(chat) else {return}
-//                try await Task.sleep(for: .milliseconds(500))
-//                addCellViewModel(using: chat)
-//                chatModificationType = .added
-//            }
-//        }
-        
     }
 }
 

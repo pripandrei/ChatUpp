@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SwiftUI
 import SkeletonView
 import Combine
 

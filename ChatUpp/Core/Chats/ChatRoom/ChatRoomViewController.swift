@@ -63,21 +63,13 @@ final class ChatRoomViewController: UIViewController
     private var rootView = ChatRoomRootView()
     private var viewModel: ChatRoomViewModel!
     private var inputMessageTextViewDelegate: InputBarMessageTextViewDelegate!
+    private var subscriptions = Set<AnyCancellable>()
 
     private var isContextMenuPresented: Bool = false
     private var isNewSectionAdded: Bool = false
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScroll: Bool = false
-    private var subscriptions = Set<AnyCancellable>()
     private var shouldScrollToFirstCell: Bool = false
-    
-//    private lazy var contextMenuSelectedActionHandler: (_ actionOption: InputBarHeaderView.Mode, _ text: String?) -> Void = { actionOption, text in
-//        self.rootView.activateInputBarHeaderView(mode: actionOption)
-//        self.addGestureToCloseBtn()
-//        self.rootView.messageTextView.becomeFirstResponder()
-//        self.rootView.inputBarHeader?.setInputBarHeaderMessageText(text)
-//        self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
-//    }
     
     private var isLastCellFullyVisible: Bool {
         checkIfLastCellIsFullyVisible()
@@ -99,12 +91,7 @@ final class ChatRoomViewController: UIViewController
         super.viewDidLoad()
         setupController()
     }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-//        cleanUp()
-    }
-    
+
     private func scrollToCell(at indexPath: IndexPath)
     {
         guard indexPath.row < self.rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
@@ -208,7 +195,7 @@ final class ChatRoomViewController: UIViewController
         viewModel.$messageChangedTypes
             .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] changeTypes in
-                guard let self = self, !changeTypes.isEmpty else {return}
+                guard let self = self, !changeTypes.isEmpty else { return }
                 performBatchUpdateWithMessageChanges(changeTypes)
                 viewModel.clearMessageChanges()
             }.store(in: &subscriptions)

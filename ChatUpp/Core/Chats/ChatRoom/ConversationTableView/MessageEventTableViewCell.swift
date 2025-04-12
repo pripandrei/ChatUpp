@@ -9,19 +9,6 @@ import UIKit
 import Foundation
 import YYText
 
-extension MessageEventCell : TargetPreviewable
-{
-    func getTargetViewForPreview() -> UIView
-    {
-        return messageEventContainer
-    }
-    
-    func getTargetedPreviewColor() -> UIColor
-    {
-        return #colorLiteral(red: 0.2971534729, green: 0.3519872129, blue: 0.7117250562, alpha: 1)
-    }
-}
-
 final class MessageEventCell: UITableViewCell
 {
     private(set) var cellViewModel: MessageCellViewModel!
@@ -171,5 +158,18 @@ struct MessageContextMenuConfiguration {
         self.displayText = displayText
         self.isOwner = isOwner
         self.senderName = senderName
+    }
+}
+
+extension MessageEventCell : TargetPreviewable
+{
+    func getTargetViewForPreview() -> UIView
+    {
+        return messageEventContainer
+    }
+    
+    func getTargetedPreviewColor() -> UIColor
+    {
+        return #colorLiteral(red: 0.2971534729, green: 0.3519872129, blue: 0.7117250562, alpha: 1)
     }
 }

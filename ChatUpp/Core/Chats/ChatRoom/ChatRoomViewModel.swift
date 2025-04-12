@@ -804,9 +804,12 @@ extension ChatRoomViewModel
         
         if conversation?.realm != nil
         {
-            let timestamp = newMessages.first!.timestamp
+//            let timestamp = newMessages.first!.timestamp
+            let startMessage = newMessages.first!
             realmService?.addMessagesToConversationInRealm(newMessages)
-            messageListenerService?.addListenerToExistingMessages(startAtTimestamp: timestamp, ascending: order)
+            messageListenerService?.addListenerToExistingMessages(
+                startAtMesssageWithID: startMessage.id,
+                ascending: order)
         }
         
         return (newRows, newSections)

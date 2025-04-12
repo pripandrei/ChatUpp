@@ -9,24 +9,6 @@ import UIKit
 import YYText
 import Combine
 import SkeletonView
-import Kingfisher
-
-extension MessageTableViewCell: TargetPreviewable
-{
-    func getTargetViewForPreview() -> UIView
-    {
-        return messageBubbleContainer
-    }
-    
-    func getTargetedPreviewColor() -> UIColor
-    {
-        switch cellViewModel.messageAlignment {
-        case .left: return #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
-        case .right: return #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
-        default: return .clear
-        }
-    }
-}
 
 final class MessageTableViewCell: UITableViewCell
 {
@@ -796,3 +778,19 @@ enum ChatType
     }
 }
 
+extension MessageTableViewCell: TargetPreviewable
+{
+    func getTargetViewForPreview() -> UIView
+    {
+        return messageBubbleContainer
+    }
+    
+    func getTargetedPreviewColor() -> UIColor
+    {
+        switch cellViewModel.messageAlignment {
+        case .left: return #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
+        case .right: return #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
+        default: return .clear
+        }
+    }
+}
