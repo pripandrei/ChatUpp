@@ -182,7 +182,7 @@ final class MessageTableViewCell: UITableViewCell
     {
         guard let message = cellViewModel.message else {return}
         
-        let isSeen = message.messageSeen ?? !message.seenBy.isEmpty
+        let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
 
         let iconSize = isSeen ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
         let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
