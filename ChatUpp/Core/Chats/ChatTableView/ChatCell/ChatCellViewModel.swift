@@ -131,28 +131,6 @@ extension ChatCellViewModel {
         }
         self.recentMessage = newMessage
     }
-    
-    
-//    func updateChatParameters()
-//    {
-////        if findMemberID() != chatUser?.id {
-////            Task { await updateUserAfterDeletion() }
-////        }
-//        if recentMessage?.isInvalidated == false {
-//            if chat.recentMessageID != recentMessage?.id {
-//                Task {
-//                    recentMessage = await loadRecentMessage()
-//                    await MainActor.run { addMessageToRealm() }
-//                }
-//            }
-//        }
-////        if chat.recentMessageID != recentMessage?.id {
-////            Task {
-////                recentMessage = await loadRecentMessage()
-////                await MainActor.run { addMessageToRealm() }
-////            }
-////        }
-//    }
 
     /// - updated user after deletion
     func updateUserAfterDeletion() async 
@@ -160,8 +138,8 @@ extension ChatCellViewModel {
         let deletedUserID = FirestoreUserService.mainDeletedUserID
         do {
             self.chatUser = try await FirestoreUserService.shared.getUserFromDB(userID: deletedUserID)
-            // TODO: this should be handleld
-//            self.memberProfileImage = try await self.fetchImageData()
+            let imageData = try await self.fetchImageData()
+            self.imageDataSubject.send(imageData)
         } catch {
             print("Error updating user while listening: ", error.localizedDescription)
         }
@@ -275,9 +253,9 @@ extension ChatCellViewModel
         }
     }
     @MainActor
-    func fetchImageData() async throws -> Data? 
+    func fetchImageData(_ path: String? = nil) async throws -> Data?
     {
-        guard let thumbnailURL = imageThumbnailPath else { return nil }
+        guard let thumbnailURL = (path == nil) ? imageThumbnailPath : path else { return nil }
         
         let storagePathType: StoragePathType = chat.isGroup ? .group(chat.id) : .user(chatUser?.id ?? "Unknown")
         

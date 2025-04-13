@@ -124,28 +124,7 @@ extension RealmDataBase
             })
             .eraseToAnyPublisher()
     }
-//    func observeChanges<T: ObservableRealmObjectProcotol>(for object: T) -> AnyPublisher<PropertyChange, Never>
-//    {
-//        let subject = PassthroughSubject<PropertyChange, Never>()
-//        
-//        let token = object.observe { change in
-//            switch change {
-//            case .change(_, let properties):
-//                properties.forEach { property in
-//                    subject.send(property)
-//                }
-//            default: break
-//            }
-//        }
-//        notificationTokens?.append(token)
-//        
-//        return subject
-//            .handleEvents(receiveCancel: { [weak self] in
-//                self?.invalidateToken(token)
-//            })
-//            .eraseToAnyPublisher()
-//    }
-
+    
     private func invalidateToken(_ token: NotificationToken) {
         token.invalidate()
         notificationTokens?.removeAll { $0 == token }
