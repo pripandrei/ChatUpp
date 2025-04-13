@@ -105,10 +105,10 @@ class ChatsCell: UITableViewCell {
                     if chat.name == " Cvvv 5" {
                         print("stop")
                     }
-                    var imageData: Data?
-                    imageData = self.cellViewModel.retrieveImageFromCache()
-                    self.setImage(imageData)
                 }
+                var imageData: Data?
+                imageData = self.cellViewModel.retrieveImageFromCache()
+                self.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$recentMessage

@@ -154,6 +154,9 @@ extension ChatCellViewModel {
         self.recentMessage = try retrieveRecentMessage()
         
         if !chat.isGroup { self.chatUser = try retrieveMember() }
+        if self.chatUser?.id == "mEUBd6kqDIUgxkDT7oiSNplhtZx1" {
+            print("stop")
+        }
     }
     
     private func retrieveMember() throws -> User 
