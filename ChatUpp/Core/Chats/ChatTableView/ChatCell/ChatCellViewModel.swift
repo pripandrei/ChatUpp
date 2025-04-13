@@ -9,6 +9,8 @@ import Foundation
 import Combine
 import Kingfisher
 
+
+
 class ChatCellViewModel
 {
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
@@ -29,12 +31,18 @@ class ChatCellViewModel
         self.chat = chat
         
         initiateChatDataLoad()
+        addObserverToChat()
         observeAuthParticipantChanges()
     }
     
     private func initiateChatDataLoad()
     {
-        try? retrieveDataFromRealm()
+        do {
+            try retrieveDataFromRealm()
+        }
+        catch {
+            print("Error retrieving data from Realm: \(error)")
+        }
         
         Task
         {
@@ -73,7 +81,8 @@ class ChatCellViewModel
     
     /// other (not self) member in private chat if any
     ///
-    private func findMemberID() -> String? {
+    private func findMemberID() -> String?
+    {
         return chat.participants.first(where: { $0.userID != authUser.uid } )?.userID
     }
 }
@@ -97,7 +106,7 @@ extension ChatCellViewModel
         return CacheManager.shared.doesImageExist(at: path) == false
     }
     
-    var isRecentMessagePresent: Bool?
+    var isRecentMessagePresent: Bool
     {
         return chat.recentMessageID != nil
     }
@@ -109,26 +118,41 @@ extension ChatCellViewModel {
     
     // TODO:  add aditional update chekers
     // or better, add listener to chat realm and apply needed code to different update field scenario
-    func updateChatParameters()
+    
+    private func setNewRecentMessage(messageID: String)
     {
-//        if findMemberID() != chatUser?.id {
-//            Task { await updateUserAfterDeletion() }
-//        }
-        if recentMessage?.isInvalidated == false {
-            if chat.recentMessageID != recentMessage?.id {
-                Task {
-                    recentMessage = await loadRecentMessage()
-                    await MainActor.run { addMessageToRealm() }
-                }
+        guard let newMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else
+        {
+            Task {
+                recentMessage = await loadRecentMessage()
+                await MainActor.run { addMessageToRealm() }
             }
+            return
         }
-//        if chat.recentMessageID != recentMessage?.id {
-//            Task {
-//                recentMessage = await loadRecentMessage()
-//                await MainActor.run { addMessageToRealm() }
+        self.recentMessage = newMessage
+    }
+    
+    
+//    func updateChatParameters()
+//    {
+////        if findMemberID() != chatUser?.id {
+////            Task { await updateUserAfterDeletion() }
+////        }
+//        if recentMessage?.isInvalidated == false {
+//            if chat.recentMessageID != recentMessage?.id {
+//                Task {
+//                    recentMessage = await loadRecentMessage()
+//                    await MainActor.run { addMessageToRealm() }
+//                }
 //            }
 //        }
-    }
+////        if chat.recentMessageID != recentMessage?.id {
+////            Task {
+////                recentMessage = await loadRecentMessage()
+////                await MainActor.run { addMessageToRealm() }
+////            }
+////        }
+//    }
 
     /// - updated user after deletion
     func updateUserAfterDeletion() async 
@@ -154,9 +178,6 @@ extension ChatCellViewModel {
         self.recentMessage = try retrieveRecentMessage()
         
         if !chat.isGroup { self.chatUser = try retrieveMember() }
-        if self.chatUser?.id == "mEUBd6kqDIUgxkDT7oiSNplhtZx1" {
-            print("stop")
-        }
     }
     
     private func retrieveMember() throws -> User 
@@ -265,10 +286,10 @@ extension ChatCellViewModel
     }
 }
 
-//MARK: - Listeners
+//MARK: - Observers/Listeners
 
-extension ChatCellViewModel {
-
+extension ChatCellViewModel
+{
     /// Observe user from Realtime db (Temporary fix while firebase functions are deactivated)
     @MainActor
     private func addObserverToUser() {
@@ -300,11 +321,9 @@ extension ChatCellViewModel {
                 }
             }).store(in: &cancellables)
     }
-}
-
-//MARK: - participant observer
-extension ChatCellViewModel
-{
+    
+    /// - participant observer
+    ///
     private func observeAuthParticipantChanges()
     {
         guard let participant = chat.getParticipant(byID: authUser.uid) else {return}
@@ -316,6 +335,30 @@ extension ChatCellViewModel
                 self.unreadMessageCount = change.newValue as? Int ?? self.unreadMessageCount
             }.store(in: &cancellables)
     }
+    
+    /// - chat observer
+    ///
+    
+    private func addObserverToChat()
+    {
+        RealmDataBase.shared.observeChanges(for: chat)
+            .receive(on: DispatchQueue.main)
+            .sink { propertyChange in
+                
+                switch propertyChange.name {
+                case "recentMessageID":
+                    guard let recentMessageID = propertyChange.newValue as? String else {return}
+                    self.setNewRecentMessage(messageID: recentMessageID)
+                case "participants":
+                    if !self.chat.isGroup,
+                        self.findMemberID() == nil
+                    {
+                        Task { await self.updateUserAfterDeletion() }
+                    }
+                default: break
+                }
+            }.store(in: &cancellables)
+    }
 }
 
 //MARK: - Equatable protocol subs
@@ -325,3 +368,4 @@ extension ChatCellViewModel: Equatable {
         lhs.chat == rhs.chat
     }
 }
+

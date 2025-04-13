@@ -88,20 +88,35 @@ final class RealmDataBase {
 //MARK: - realm object observer
 extension RealmDataBase
 {
-    func observeChanges<T: ObservableRealmObjectProcotol>(for object: T) -> AnyPublisher<PropertyChange, Never>
+    func observeChanges<T>(for object: T) -> AnyPublisher<PropertyChange, Never>
     {
         let subject = PassthroughSubject<PropertyChange, Never>()
         
-        let token = object.observe { change in
-            switch change {
-            case .change(_, let properties):
-                properties.forEach { property in
-                    subject.send(property)
+        let token: NotificationToken? =
+        {
+            switch object {
+            case let realmObject as Object:
+                return realmObject.observe { change in
+                    if case .change(_, let properties) = change {
+                        properties.forEach { property in
+                            subject.send(property)
+                        }
+                    }
                 }
-            default: break
+            case let embeddedObject as EmbeddedObject:
+                return embeddedObject.observe { change in
+                    if case .change(_, let properties) = change {
+                        properties.forEach { property in
+                            subject.send(property)
+                        }
+                    }
+                }
+            default:
+                return nil
             }
-        }
-        notificationTokens?.append(token)
+        }()
+        
+        guard let token = token else { return Empty().eraseToAnyPublisher() }
         
         return subject
             .handleEvents(receiveCancel: { [weak self] in
@@ -109,7 +124,28 @@ extension RealmDataBase
             })
             .eraseToAnyPublisher()
     }
-  
+//    func observeChanges<T: ObservableRealmObjectProcotol>(for object: T) -> AnyPublisher<PropertyChange, Never>
+//    {
+//        let subject = PassthroughSubject<PropertyChange, Never>()
+//        
+//        let token = object.observe { change in
+//            switch change {
+//            case .change(_, let properties):
+//                properties.forEach { property in
+//                    subject.send(property)
+//                }
+//            default: break
+//            }
+//        }
+//        notificationTokens?.append(token)
+//        
+//        return subject
+//            .handleEvents(receiveCancel: { [weak self] in
+//                self?.invalidateToken(token)
+//            })
+//            .eraseToAnyPublisher()
+//    }
+
     private func invalidateToken(_ token: NotificationToken) {
         token.invalidate()
         notificationTokens?.removeAll { $0 == token }

@@ -101,23 +101,19 @@ class ChatsCell: UITableViewCell {
                 if chat.isGroup {
                     self.stopSkeletonAnimationFor(self.nameLabel)
                     self.nameLabel.text = chat.name
-                    
-                    if chat.name == " Cvvv 5" {
-                        print("stop")
-                    }
                 }
-                var imageData: Data?
-                imageData = self.cellViewModel.retrieveImageFromCache()
+                var imageData = self.cellViewModel.retrieveImageFromCache()
                 self.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$recentMessage
             .receive(on: DispatchQueue.main)
+//            .compactMap { $0 }
             .sink { [weak self] message in
                 guard let self = self else {return}
-                
-                if let isPresent = cellViewModel.isRecentMessagePresent, !isPresent {
-                    self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
+ 
+                if !cellViewModel.isRecentMessagePresent {
+                    self.stopSkeletonAnimationFor(self.messageLable, self.dateLable)
                     return
                 }
                 if let message = message {
