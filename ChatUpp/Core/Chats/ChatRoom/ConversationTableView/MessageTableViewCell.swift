@@ -670,11 +670,6 @@ extension MessageTableViewCell
 //MARK: - conversation cell enums
 extension MessageTableViewCell
 {
-    private enum SeenStatusIcon: String {
-        case single = "icons8-done-64-6"
-        case double = "icons8-double-tick-48-3"
-    }
-    
     enum TextPaddingStrategy
     {
         case initial
@@ -692,6 +687,11 @@ extension MessageTableViewCell
             }
         }
     }
+}
+
+enum SeenStatusIcon: String {
+    case single = "icons8-done-64-6"
+    case double = "icons8-double-tick-48-3"
 }
 
 

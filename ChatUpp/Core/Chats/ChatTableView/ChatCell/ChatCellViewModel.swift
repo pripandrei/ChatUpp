@@ -19,9 +19,15 @@ class ChatCellViewModel
     
     @Published private(set) var chat: Chat
     @Published private(set) var chatUser: User?
-    @Published private(set) var recentMessage: Message?
     @Published private(set) var unreadMessageCount: Int?
     @Published private(set) var titleName: String?
+    @Published private(set) var recentMessage: Message? {
+        didSet {
+            if oldValue != recentMessage {
+                Task { try await addListernerToRecentMessage() }
+            }
+        }
+    }
     
     deinit {
         print("deinit")
@@ -33,6 +39,10 @@ class ChatCellViewModel
         initiateChatDataLoad()
         addObserverToChat()
         observeAuthParticipantChanges()
+    }
+    
+    var isAuthUserSenderOfRecentMessage: Bool {
+        return authUser.uid == recentMessage?.senderId
     }
     
     private func initiateChatDataLoad()
@@ -336,6 +346,28 @@ extension ChatCellViewModel
                 default: break
                 }
             }.store(in: &cancellables)
+    }
+    
+    @MainActor
+    private func addListernerToRecentMessage() async throws
+    {
+        guard let recentMessageID = recentMessage?.id else {return}
+        
+        try await FirebaseChatService.shared.addListenerForExistingMessages(
+            inChat: chat.id,
+            startAtMessageWithID: recentMessageID,
+            ascending: true,
+            limit: 1)
+        .receive(on: DispatchQueue.main)
+        .sink { changeObject in
+//            RealmDataBase.shared.update(object: changeObject.data) { realmObject in
+//                
+//            }
+            if changeObject.changeType == .modified {
+                RealmDataBase.shared.add(object: changeObject.data)
+                self.recentMessage = changeObject.data
+            }
+        }.store(in: &cancellables)
     }
 }
 

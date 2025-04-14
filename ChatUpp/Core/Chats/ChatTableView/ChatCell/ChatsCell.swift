@@ -9,6 +9,7 @@ import UIKit
 import SkeletonView
 import Combine
 import Kingfisher
+import YYText
 
 class ChatsCell: UITableViewCell {
     
@@ -19,6 +20,7 @@ class ChatsCell: UITableViewCell {
     private var dateLable = UILabel()
     private var unreadMessagesBadgeLabel = UnseenMessagesBadge()
     private var onlineStatusCircleView = UIView()
+    private var seenStatusMark: YYLabel = YYLabel()
     
     private var subscriptions = Set<AnyCancellable>()
     
@@ -71,6 +73,40 @@ class ChatsCell: UITableViewCell {
         }
     }
     
+    private func configureMessageSeenStatus()
+    {
+        guard let message = cellViewModel.recentMessage else {return}
+        
+        let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
+
+        let iconSize = isSeen ? CGSize(width: 18, height: 20) : CGSize(width: 20, height: 16)
+        let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
+        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
+        
+        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
+        
+        seenStatusMark.attributedText = imageAttributedString
+    }
+    
+    private func configureRecentMessage(_ message: Message?)
+    {
+        if !cellViewModel.isRecentMessagePresent {
+            self.stopSkeletonAnimationFor(self.messageLable, self.dateLable)
+            return
+        }
+        if let message = message
+        {
+            self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
+            self.messageLable.text = message.messageBody
+            self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
+            
+            if cellViewModel.isAuthUserSenderOfRecentMessage
+            {
+                configureMessageSeenStatus()
+            }
+        }
+    }
+    
     //MARK: - Binding
     
     private func setupBinding()
@@ -102,7 +138,7 @@ class ChatsCell: UITableViewCell {
                     self.stopSkeletonAnimationFor(self.nameLabel)
                     self.nameLabel.text = chat.name
                 }
-                var imageData = self.cellViewModel.retrieveImageFromCache()
+                let imageData = self.cellViewModel.retrieveImageFromCache()
                 self.setImage(imageData)
             }.store(in: &subscriptions)
         
@@ -111,16 +147,7 @@ class ChatsCell: UITableViewCell {
 //            .compactMap { $0 }
             .sink { [weak self] message in
                 guard let self = self else {return}
- 
-                if !cellViewModel.isRecentMessagePresent {
-                    self.stopSkeletonAnimationFor(self.messageLable, self.dateLable)
-                    return
-                }
-                if let message = message {
-                    self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
-                    self.messageLable.text = message.messageBody
-                    self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
-                }
+                self.configureRecentMessage(message)
             }.store(in: &subscriptions)
         
         cellViewModel.$unreadMessageCount
@@ -179,6 +206,7 @@ extension ChatsCell {
         setDateLable()
         setupUnreadMessagesCountLabel()
         createOnlineStatusView()
+        setupSeenStatusMark()
         initiateSkeletonAnimation()
     }
     
@@ -320,6 +348,19 @@ extension ChatsCell {
             dateLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
             dateLable.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
             dateLable.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.25)
+        ])
+    }
+    
+    private func setupSeenStatusMark()
+    {
+        contentView.addSubview(seenStatusMark)
+        
+        seenStatusMark.font = UIFont(name: "Helvetica", size: 8)
+        seenStatusMark.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            seenStatusMark.topAnchor.constraint(equalTo: self.topAnchor, constant: 6),
+            seenStatusMark.trailingAnchor.constraint(equalTo: dateLable.leadingAnchor, constant: -4),
         ])
     }
 }
