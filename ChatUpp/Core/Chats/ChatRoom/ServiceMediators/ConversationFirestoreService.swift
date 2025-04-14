@@ -27,8 +27,10 @@ final class ConversationFirestoreService
     
     func getFirstUnseenMessageFromFirestore(from chatID: String) async throws -> Message?
     {
-        return try await FirebaseChatService.shared.getFirstUnseenMessage(fromChatDocumentPath: chatID,
-                                                                   whereSenderIDNotEqualTo: authenticatedUserID ?? "")
+        return try await FirebaseChatService.shared.getFirstUnseenMessage(
+            fromChatDocumentPath: chatID,
+            whereSenderIDNotEqualTo: authenticatedUserID ?? ""
+        )
     }
 
     func addChatToFirestore(_ chat: Chat) async {

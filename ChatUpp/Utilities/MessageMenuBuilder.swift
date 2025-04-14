@@ -7,7 +7,7 @@
 
 import UIKit
 import Foundation
-
+import SwiftUI
 // MARK: - Context Menu Builder
 final class MessageMenuBuilder
 {
@@ -30,14 +30,18 @@ final class MessageMenuBuilder
         let selectedText = cell.messageLabel.text ?? ""
         let isOwner = message.senderId == viewModel.authUser.uid
         
+        let seen = createSeenAction(for: message, isOwner: isOwner)
         let reply = createReplyAction(for: cell, message: message, text: selectedText)
         let copy = createCopyAction(text: selectedText)
-        let edit = createEditAction(for: cell, message: message, text: selectedText, isOwner: isOwner)
+        let edit = createEditAction(for: message, text: selectedText, isOwner: isOwner)
         let delete = createDeleteAction(for: message, isOwner: isOwner)
         
-        return UIMenu(title: "", children: [reply, copy, edit, delete])
+        let firstSection = UIMenu(options: .displayInline, children: [seen])
+        let secondSection = UIMenu(options: .displayInline, children: [reply, copy, edit, delete])
+        return UIMenu(children: [firstSection, secondSection])
     }
     
+
     func buildUIMenuForEventCell(_ cell: MessageEventCell, message: Message) -> UIMenu
     {
         let deleteAction = self.createDeleteAction(for: message)
@@ -62,7 +66,7 @@ final class MessageMenuBuilder
         }
     }
 
-    private func createEditAction(for cell: MessageTableViewCell, message: Message, text: String, isOwner: Bool) -> UIAction {
+    private func createEditAction(for message: Message, text: String, isOwner: Bool) -> UIAction {
         UIAction(
             title: "Edit",
             image: UIImage(systemName: "pencil.and.scribble"),
@@ -87,6 +91,16 @@ final class MessageMenuBuilder
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 self.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
             }
+        }
+    }
+    
+    private func createSeenAction(for message: Message, isOwner: Bool) -> UIAction
+    {
+        return UIAction(title: "✔️ \(message.seenBy.count - 1) Seen",
+                        image: UIImage(systemName: "eye.fill"),
+                        attributes: (isOwner && message.seenBy.count > 1) ? [] : .hidden)
+        { _ in
+            
         }
     }
 }
