@@ -902,7 +902,8 @@ extension ChatRoomViewController: UITableViewDelegate
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.isContextMenuPresented = false
         }
-        return makeConversationMessagePreview(for: configuration, forHighlightingContext: false)
+//        return makeConversationMessagePreview(for: configuration, forHighlightingContext: false)
+        return makeTargetedDismissPreview(for: configuration)
     }
     
     func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?)
@@ -978,7 +979,8 @@ extension ChatRoomViewController
     
     
 
-    func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+    func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
+    {
         let reactionHeight: CGFloat = 40.0
         let spaceReactionHeight: CGFloat = 10.0
         let menuHeight: CGFloat = 200
@@ -987,13 +989,16 @@ extension ChatRoomViewController
               let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {
             return nil
         }
-
+        
         // Limit the snapshot to a visible height
         let maxSnapshotHeight = min(cell.bounds.height, UIScreen.main.bounds.height - reactionHeight - spaceReactionHeight - menuHeight)
-
-        guard let snapshot = cell.resizableSnapshotView(from: CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight)),
-                                                        afterScreenUpdates: false,
-                                                        withCapInsets: .zero) else {
+        
+        guard let snapshot = cell.resizableSnapshotView(
+            from: CGRect(origin: .zero, size: CGSize(
+                width: cell.bounds.width,
+                height: maxSnapshotHeight)),
+            afterScreenUpdates: false,
+            withCapInsets: .zero) else {
             return nil
         }
 
@@ -1006,14 +1011,9 @@ extension ChatRoomViewController
         reactionView.layer.masksToBounds = true
         reactionView.translatesAutoresizingMaskIntoConstraints = false
 
-        // Unflip reaction view (because parent will be flipped)
-//        reactionView.transform = CGAffineTransform(scaleX: 1, y: -1)
-
-        // Prepare snapshot
         snapshot.layer.cornerRadius = 10
         snapshot.layer.masksToBounds = true
         snapshot.translatesAutoresizingMaskIntoConstraints = false
-//        snapshot.transform = CGAffineTransform(scaleX: 1, y: -1) // Unflip snapshot
 
         // Wrap everything in a neutral (non-flipped) container
         let containerHeight = snapshot.bounds.height + reactionHeight + spaceReactionHeight
@@ -1022,7 +1022,6 @@ extension ChatRoomViewController
         container.backgroundColor = .clear
         container.addSubview(reactionView)
         container.addSubview(snapshot)
-//        container.transform = CGAffineTransform(scaleX: 1, y: -1) // Flip back so everything inside looks correct
 
         // Constraints
         NSLayoutConstraint.activate([
@@ -1054,6 +1053,64 @@ extension ChatRoomViewController
         return UITargetedPreview(view: container,
                                  parameters: parameters,
                                  target: previewTarget)
+    }
+    
+    func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
+    {
+        let reactionHeight: CGFloat = 40.0
+        let spaceReactionHeight: CGFloat = 10.0
+        let menuHeight: CGFloat = 200
+
+        guard let indexPath = configuration.identifier as? IndexPath,
+              let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {
+            return nil
+        }
+        
+        // Limit the snapshot to a visible height
+        let maxSnapshotHeight = min(cell.bounds.height, UIScreen.main.bounds.height - reactionHeight - spaceReactionHeight - menuHeight)
+        
+        guard let snapshot = cell.resizableSnapshotView(
+            from: CGRect(origin: .zero, size: CGSize(
+                width: cell.bounds.width,
+                height: maxSnapshotHeight)),
+            afterScreenUpdates: false,
+            withCapInsets: .zero) else {
+            return nil
+        }
+        let containerHeight = snapshot.bounds.height + reactionHeight + spaceReactionHeight
+        
+        let container = UIView(frame: CGRect(origin: .zero,
+                                             size: CGSize(width: cell.bounds.width,
+                                                          height: containerHeight)))
+        
+        container.addSubview(snapshot)
+        snapshot.layer.cornerRadius = 10
+        snapshot.layer.masksToBounds = true
+        snapshot.translatesAutoresizingMaskIntoConstraints = false
+        
+//        snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
+////        snapshot.topAnchor.constraint(equalTo: reactionView.bottomAnchor, constant: spaceReactionHeight).isActive = true
+//        snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
+//        snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
+//        snapshot.heightAnchor.constraint(equalToConstant: snapshot.bounds.height).isActive = true
+//        
+        snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
+//        snapshot.topAnchor.constraint(equalTo: container.bottomAnchor, constant: spaceReactionHeight).isActive = true
+        snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
+        snapshot.heightAnchor.constraint(equalToConstant: snapshot.bounds.height).isActive = true
+        snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
+        
+        let heightDifference = container.bounds.height - cell.bounds.height
+        let adjustedCenterY = cell.center.y + (heightDifference / 2)
+        
+        let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
+        let previewTarget = UIPreviewTarget(container: rootView.tableView, center: centerPoint, transform: CGAffineTransform(scaleX: 1, y: -1))
+        
+        let parameters = UIPreviewParameters()
+        parameters.backgroundColor = .clear
+        parameters.shadowPath = UIBezierPath()
+        
+        return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
     }
 }
 
