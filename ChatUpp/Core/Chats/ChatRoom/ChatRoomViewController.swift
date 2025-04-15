@@ -857,8 +857,15 @@ extension ChatRoomViewController: UITableViewDelegate
         guard let baseCell = tableView.cellForRow(at: indexPath) else { return nil }
         let identifier = indexPath as NSCopying
         
-        let menuBuilder = MessageMenuBuilder(viewModel: self.viewModel, rootView: self.rootView) { actionOption, selectedMessageText in
-            self.handleContextMenuSelectedAction(actionOption: actionOption, selectedMessageText: selectedMessageText)
+        let menuBuilder = MessageMenuBuilder(
+            viewModel: self.viewModel,
+            rootView: self.rootView
+        )
+        { actionOption, selectedMessageText in
+            self.handleContextMenuSelectedAction(
+                actionOption: actionOption,
+                selectedMessageText: selectedMessageText
+            )
         }
         
         if let messageCell = baseCell as? MessageTableViewCell,
@@ -926,8 +933,8 @@ extension ChatRoomViewController: UITableViewDelegate
         let parameter = UIPreviewParameters()
         parameter.backgroundColor = .clear
         
-        let preview = UITargetedPreview(view: cell.getTargetViewForPreview(), parameters: parameter)
-        return preview
+        return UITargetedPreview(view: cell.getTargetViewForPreview(),
+                                 parameters: parameter)
     }
     
     private func handleContextMenuSelectedAction(actionOption: InputBarHeaderView.Mode, selectedMessageText text: String?)

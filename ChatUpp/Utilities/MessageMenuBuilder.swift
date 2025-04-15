@@ -38,6 +38,10 @@ final class MessageMenuBuilder
         
         let firstSection = UIMenu(options: .displayInline, children: [seen])
         let secondSection = UIMenu(options: .displayInline, children: [reply, copy, edit, delete])
+//        let contextMenu = UIMenu(children: [firstSection, secondSection])
+//        if let contextView = contextMenu as? UIView {
+//            print("truee")
+//        }
         return UIMenu(children: [firstSection, secondSection])
     }
     

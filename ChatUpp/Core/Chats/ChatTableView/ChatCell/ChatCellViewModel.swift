@@ -21,6 +21,7 @@ class ChatCellViewModel
     @Published private(set) var chatUser: User?
     @Published private(set) var unreadMessageCount: Int?
     @Published private(set) var titleName: String?
+    
     @Published private(set) var recentMessage: Message? {
         didSet {
             if oldValue != recentMessage {
@@ -360,9 +361,6 @@ extension ChatCellViewModel
             limit: 1)
         .receive(on: DispatchQueue.main)
         .sink { changeObject in
-//            RealmDataBase.shared.update(object: changeObject.data) { realmObject in
-//                
-//            }
             if changeObject.changeType == .modified {
                 RealmDataBase.shared.add(object: changeObject.data)
                 self.recentMessage = changeObject.data
