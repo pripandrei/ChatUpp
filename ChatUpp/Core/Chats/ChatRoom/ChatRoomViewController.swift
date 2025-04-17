@@ -10,6 +10,7 @@
 
 
 import UIKit
+import SwiftUI
 import Photos
 import PhotosUI
 import Combine
@@ -976,13 +977,15 @@ extension ChatRoomViewController
         rootView.tableView.stopSkeletonAnimation()
         rootView.tableView.hideSkeleton(transition: SkeletonTransitionStyle.none)
     }
-    
-    
+}
 
+//MARK: - Targeted Preview creation
+extension ChatRoomViewController
+{
     func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
     {
-        let reactionHeight: CGFloat = 40.0
-        let spaceReactionHeight: CGFloat = 10.0
+        let reactionHeight: CGFloat = 45.0
+        let spaceReactionHeight: CGFloat = 14.0
         let menuHeight: CGFloat = 200
 
         guard let indexPath = configuration.identifier as? IndexPath,
@@ -1002,14 +1005,23 @@ extension ChatRoomViewController
             return nil
         }
 
+        let reactionViewSwiftUI = ReactionViewSwiftUI()
+        let hostingReactionVC = UIHostingController(rootView: reactionViewSwiftUI)
+        hostingReactionVC.view.backgroundColor = .clear
+//        hostingReactionVC.view.layer.cornerRadius = 10
+//        hostingReactionVC.view.layer.masksToBounds = true
+        
+        addChild(hostingReactionVC)
+        hostingReactionVC.view.translatesAutoresizingMaskIntoConstraints = false
+
         // Create and configure reaction view
-        let reactionView = ReactionView()
-        reactionView.onReaction = { [weak self] reactionType in
-            self?.dismiss(animated: true)
-        }
-        reactionView.layer.cornerRadius = 10
-        reactionView.layer.masksToBounds = true
-        reactionView.translatesAutoresizingMaskIntoConstraints = false
+//        let reactionView = ReactionView()
+//        reactionView.onReaction = { [weak self] reactionType in
+//            self?.dismiss(animated: true)
+//        }
+//        reactionView.layer.cornerRadius = 10
+//        reactionView.layer.masksToBounds = true
+//        reactionView.translatesAutoresizingMaskIntoConstraints = false
 
         snapshot.layer.cornerRadius = 10
         snapshot.layer.masksToBounds = true
@@ -1020,23 +1032,23 @@ extension ChatRoomViewController
         let container = UIView(frame: CGRect(origin: .zero,
                                              size: CGSize(width: cell.bounds.width, height: containerHeight)))
         container.backgroundColor = .clear
-        container.addSubview(reactionView)
+//        container.addSubview(reactionView)
         container.addSubview(snapshot)
+        container.addSubview(hostingReactionVC.view)
 
-        // Constraints
         NSLayoutConstraint.activate([
-            reactionView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
-            reactionView.topAnchor.constraint(equalTo: container.topAnchor),
-            reactionView.widthAnchor.constraint(equalToConstant: 50 * 4),
-            reactionView.heightAnchor.constraint(equalToConstant: reactionHeight),
+            hostingReactionVC.view.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
+            hostingReactionVC.view.topAnchor.constraint(equalTo: container.topAnchor),
+//            hostingReactionVC.view.widthAnchor.constraint(equalToConstant: 50 * 4),
+            hostingReactionVC.view.widthAnchor.constraint(equalToConstant: 306),
+            hostingReactionVC.view.heightAnchor.constraint(equalToConstant: 45),
 
             snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            snapshot.topAnchor.constraint(equalTo: reactionView.bottomAnchor, constant: spaceReactionHeight),
+            snapshot.topAnchor.constraint(equalTo: hostingReactionVC.view.bottomAnchor, constant: spaceReactionHeight),
             snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
 
-        // Position the preview so that it visually appears above the cell
         let heightDifference = container.bounds.height - cell.bounds.height
         let adjustedCenterY = cell.center.y + (heightDifference / 2) // In flipped space, add to go up
         let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
@@ -1087,15 +1099,8 @@ extension ChatRoomViewController
         snapshot.layer.cornerRadius = 10
         snapshot.layer.masksToBounds = true
         snapshot.translatesAutoresizingMaskIntoConstraints = false
-        
-//        snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
-////        snapshot.topAnchor.constraint(equalTo: reactionView.bottomAnchor, constant: spaceReactionHeight).isActive = true
-//        snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
-//        snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
-//        snapshot.heightAnchor.constraint(equalToConstant: snapshot.bounds.height).isActive = true
-//        
+ 
         snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
-//        snapshot.topAnchor.constraint(equalTo: container.bottomAnchor, constant: spaceReactionHeight).isActive = true
         snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
         snapshot.heightAnchor.constraint(equalToConstant: snapshot.bounds.height).isActive = true
         snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
@@ -1112,12 +1117,4 @@ extension ChatRoomViewController
         
         return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
     }
-}
-
-
-
-
-class CustomPreviewTarget: UIPreviewTarget
-{
-    
 }
