@@ -1009,8 +1009,13 @@ extension ChatRoomViewController
             return nil
         }
 
-        let reactionViewSwiftUI = ReactionViewSwiftUI()
-        let hostingReactionVC = UIHostingController(rootView: reactionViewSwiftUI)
+        var reactionPanelView = ReactionPanelView()
+        reactionPanelView.dismissParentVC = { [weak self] dismiss in
+            if dismiss {
+                self?.dismiss(animated: true)
+            }
+        }
+        let hostingReactionVC = UIHostingController(rootView: reactionPanelView)
         hostingReactionVC.view.backgroundColor = .clear
 //        hostingReactionVC.view.layer.cornerRadius = 10
 //        hostingReactionVC.view.layer.masksToBounds = true
