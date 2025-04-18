@@ -994,7 +994,11 @@ extension ChatRoomViewController
         }
         
         // Limit the snapshot to a visible height
-        let maxSnapshotHeight = min(cell.bounds.height, UIScreen.main.bounds.height - reactionHeight - spaceReactionHeight - menuHeight)
+        let maxSnapshotHeight = min(cell.bounds.height,
+                                    UIScreen.main.bounds.height -
+                                    reactionHeight -
+                                    spaceReactionHeight -
+                                    menuHeight)
         
         guard let snapshot = cell.resizableSnapshotView(
             from: CGRect(origin: .zero, size: CGSize(
