@@ -306,9 +306,10 @@ struct ReactionPanelView: View
     
     var dismissParentVC: ((Bool) -> Void)?
     
-    var body: some View {
-        ZStack(alignment: .leading) {
-            // Background
+    var body: some View
+    {
+        ZStack(alignment: .leading)
+        {
             RoundedRectangle(cornerRadius: 28)
                 .fill(Color(#colorLiteral(red: 0.8017910123, green: 0.6400276423, blue: 0.8262925148, alpha: 1)).opacity(0.4))
                 .frame(width: showReactionsBackground ? 312 : 0, height: 45)
@@ -318,7 +319,8 @@ struct ReactionPanelView: View
                 )
             
             // Reaction Emojis
-            HStack(spacing: 20) {
+            HStack(spacing: 20)
+            {
                 ForEach(ReactionType.allCases) { reaction in
                     Text(verbatim: reaction.rawValue)
                         .scaleEffect(visibleReactions.contains(reaction) ? 1.5 : 0)
