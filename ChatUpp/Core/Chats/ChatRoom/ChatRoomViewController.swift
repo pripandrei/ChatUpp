@@ -1078,8 +1078,8 @@ extension ChatRoomViewController
     
     func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
     {
-        let reactionHeight: CGFloat = 40.0
-        let spaceReactionHeight: CGFloat = 10.0
+        let reactionHeight: CGFloat = 45.0
+        let spaceReactionHeight: CGFloat = 14.0
         let menuHeight: CGFloat = 200
 
         guard let indexPath = configuration.identifier as? IndexPath,
