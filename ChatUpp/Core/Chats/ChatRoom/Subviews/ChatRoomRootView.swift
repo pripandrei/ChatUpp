@@ -11,6 +11,8 @@ import SkeletonView
 import YYText
 import NVActivityIndicatorView
 
+import SwiftUI
+
 final class ChatRoomRootView: UIView {
     
     // MARK: - UI Elements

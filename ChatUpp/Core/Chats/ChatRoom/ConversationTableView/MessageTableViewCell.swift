@@ -9,6 +9,7 @@ import UIKit
 import YYText
 import Combine
 import SkeletonView
+import SwiftUI
 
 final class MessageTableViewCell: UITableViewCell
 {
@@ -26,6 +27,7 @@ final class MessageTableViewCell: UITableViewCell
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
     private var subscribers = Set<AnyCancellable>()
+    private var reactionBadgeHostingView: UIView?
     
     private(set) var messageBubbleContainer = UIView()
     private(set) var messageLabel = YYLabel()
@@ -33,7 +35,7 @@ final class MessageTableViewCell: UITableViewCell
     private(set) var editedLabel: UILabel?
     private(set) var cellViewModel: MessageCellViewModel!
     
-    private let cellSpacing = 3.0
+//    private var cellSpacing = 3.0
     private var maxMessageWidth: CGFloat {
         return 292.0
     }
@@ -118,6 +120,26 @@ final class MessageTableViewCell: UITableViewCell
             cellViewModel.fetchMessageImageData()
         }
     }
+    
+    func setupReactionView(for message: Message)
+    {
+        let vm = ReactionViewModel(message: message)
+        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: vm))
+        
+        self.reactionBadgeHostingView = hostView.view
+        
+        hostView.view.backgroundColor = .clear
+        hostView.view.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(hostView.view)
+        
+        let horizontalConstraint = cellViewModel.messageAlignment == .right ?
+        hostView.view.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor, constant: -10) :
+        hostView.view.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10)
+        
+        hostView.view.topAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor, constant: -3).isActive = true
+        
+        horizontalConstraint.isActive = true
+    }
         
     /// - cell configuration
     ///
@@ -170,13 +192,23 @@ final class MessageTableViewCell: UITableViewCell
         
         self.setupReplyMessage()
         self.setMessageLabelTopConstraints()
+        self.setMessageBubbleContainerBottomConstraint()
         self.setupEditedLabel()
         self.setupBinding()
         self.adjustMessageSide()
         
         if let message = viewModel.message {
             self.setupCellData(with: message)
+            self.setupReactionView(for: message)
         }
+    }
+    
+    private var messageBubbleContainerBottomConstraint: NSLayoutConstraint!
+    
+    private func setMessageBubbleContainerBottomConstraint()
+    {
+        let messageHasReaction = true
+        self.messageBubbleContainerBottomConstraint.constant = messageHasReaction ? -25 : -3
     }
     
     private func configureMessageSeenStatus()
@@ -227,6 +259,8 @@ final class MessageTableViewCell: UITableViewCell
         messageTitleLabel?.removeFromSuperview()
         messageTitleLabel = nil
         replyMessageLabel.removeFromSuperview()
+        reactionBadgeHostingView?.removeFromSuperview()
+        reactionBadgeHostingView = nil
         
 //        messageLabel.removeFromSuperview()
         
@@ -274,8 +308,9 @@ extension MessageTableViewCell
         messageBubbleContainer.layer.cornerRadius = 15
         messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
         
+        self.messageBubbleContainerBottomConstraint = messageBubbleContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        self.messageBubbleContainerBottomConstraint.isActive = true
         messageBubbleContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        messageBubbleContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellSpacing).isActive = true
         messageBubbleContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
     }
     
