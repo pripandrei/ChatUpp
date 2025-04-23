@@ -11,7 +11,7 @@ import SwiftUI
 //{
 //    init(sourceMessage: Message)
 //    {
-//        self._viewModel = StateObject(wrappedValue:  ReactionViewModel(message: sourceMessage))
+//        self._viewModel = StateObject(wrappedValue: ReactionViewModel(message: sourceMessage))
 //    }
 //}
 
@@ -38,6 +38,10 @@ struct ReactionBadgeView: View
             RoundedRectangle(cornerRadius: 50)
                 .fill(Color(#colorLiteral(red: 0.6555908918, green: 0.5533221364, blue: 0.5700033307, alpha: 1)))
         }
+        .overlay(content: {
+            RoundedRectangle(cornerRadius: 50)
+                .stroke(Color(#colorLiteral(red: 0.4449622631, green: 0.3755400777, blue: 0.3865504265, alpha: 1)), lineWidth: 0.5)
+        })
         .onTapGesture {
             showReactionPresentationSheet = true
         }
@@ -77,8 +81,8 @@ struct ReactionPresentationSheetView: View
                 ////                UserView(userItem: viewModel.retreiveRealmUser(memberIDs.first!)!)
                 //            }
             }
-            //        .listStyle(.plain)
         }
+        .listStyle(.plain)
     }
 }
 
@@ -93,7 +97,7 @@ extension ReactionPresentationSheetView
                 UserView(userItem: user) {
                     Spacer()
                     Text(verbatim: reaction)
-                        .font(.system(size: 17))
+                        .font(.system(size: 24))
                 }
             }
         }

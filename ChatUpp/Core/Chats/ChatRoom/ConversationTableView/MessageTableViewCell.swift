@@ -137,7 +137,7 @@ final class MessageTableViewCell: UITableViewCell
         hostView.view.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor, constant: -10) :
         hostView.view.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10)
         
-        hostView.view.topAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor, constant: -3).isActive = true
+        hostView.view.topAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor, constant: -2).isActive = true
         
         horizontalConstraint.isActive = true
     }
