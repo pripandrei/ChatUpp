@@ -15,6 +15,7 @@ final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
+    private var messageBubbleContainerBottomConstraint: NSLayoutConstraint!
     private var messageContainerLeadingConstraint: NSLayoutConstraint!
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     private var messageLabelTopConstraints: NSLayoutConstraint!
@@ -201,14 +202,6 @@ final class MessageTableViewCell: UITableViewCell
             self.setupCellData(with: message)
             self.setupReactionView(for: message)
         }
-    }
-    
-    private var messageBubbleContainerBottomConstraint: NSLayoutConstraint!
-    
-    private func setMessageBubbleContainerBottomConstraint()
-    {
-        let messageHasReaction = true
-        self.messageBubbleContainerBottomConstraint.constant = messageHasReaction ? -25 : -3
     }
     
     private func configureMessageSeenStatus()
@@ -700,6 +693,13 @@ extension MessageTableViewCell
             messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor)
         }
         messageLabelTopConstraints.isActive = true
+    }
+    
+    private func setMessageBubbleContainerBottomConstraint()
+    {
+        //TODO: - check if message contains reactions instead of messageHasReaction variable
+        let messageHasReaction = true
+        self.messageBubbleContainerBottomConstraint.constant = messageHasReaction ? -25 : -3
     }
 }
 
