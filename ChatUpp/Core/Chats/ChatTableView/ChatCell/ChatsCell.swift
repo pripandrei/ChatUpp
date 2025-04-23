@@ -215,16 +215,18 @@ extension ChatsCell {
         contentView.addSubview(onlineStatusCircleView)
         
         onlineStatusCircleView.backgroundColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
-        onlineStatusCircleView.layer.cornerRadius = 12 / 2
+        onlineStatusCircleView.layer.borderColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1).cgColor
+        onlineStatusCircleView.layer.borderWidth = 2
+        onlineStatusCircleView.layer.cornerRadius = 18 / 2
         onlineStatusCircleView.clipsToBounds = true
         onlineStatusCircleView.translatesAutoresizingMaskIntoConstraints = false
         onlineStatusCircleView.isHidden = true
         
         NSLayoutConstraint.activate([
-            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 12),
-            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 12),
-            onlineStatusCircleView.trailingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: -3),
-            onlineStatusCircleView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -3),
+            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 18),
+            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 18),
+            onlineStatusCircleView.trailingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 2),
+            onlineStatusCircleView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -1),
         ])
     }
     
