@@ -17,6 +17,21 @@ enum MessageType: String, PersistableEnum, Codable
     case video
 }
 
+class Reaction: EmbeddedObject, Codable
+{
+    @Persisted var emoji: String
+    @Persisted var userIDs: List<String>
+//    @Persisted var userIDs: List<String>
+    
+//    init(emoji: String, userIDs: List<String>)
+//    {
+////        super.init()
+//        self.emoji = emoji
+//        self.userIDs = userIDs
+////        self.userIDs.append(objectsIn: userIDs)
+//    }
+}
+
 class MessageImageSize: EmbeddedObject, Codable
 {
     @Persisted var width: Int
@@ -64,6 +79,7 @@ class Message: Object, Codable
     @Persisted var seenBy: List<String>
     @Persisted var imagePath: String?
     @Persisted var repliedTo: String?
+    @Persisted var reactions: List<Reaction>
     
     @Persisted var type: MessageType?
     
@@ -81,6 +97,7 @@ class Message: Object, Codable
         case isEdited = "is_edited"
         case repliedTo = "replied_to"
         case type = "type"
+        case reactions = "reactions"
     }
     
     convenience required init(from decoder: Decoder) throws {
@@ -100,6 +117,9 @@ class Message: Object, Codable
         
         let seenBy = try container.decodeIfPresent([String].self, forKey: .seenBy)
         self.seenBy.append(objectsIn: seenBy ?? [])
+        
+        let reactionsMap = try container.decode([String: [String]].self, forKey: .reactions)
+        self.reactions = mapDecodedReactions(reactionsMap)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -117,6 +137,9 @@ class Message: Object, Codable
         
         let seenBy = Array(self.seenBy)
         try container.encodeIfPresent(seenBy, forKey: .seenBy)
+        
+        let mapedReactions = mapEncodedReactions(self.reactions)
+        try container.encode(mapedReactions, forKey: .reactions)
     }
     
     convenience init(id: String,
@@ -146,6 +169,34 @@ class Message: Object, Codable
         self.isEdited = isEdited
         self.repliedTo = repliedTo
         self.type = type
+        self.reactions = List<Reaction>()
+    }
+}
+
+//MARK: - map reactions firebase <--> realm
+extension Message
+{
+    private func mapDecodedReactions(_ reactions: [String: [String]]) -> List<Reaction>
+    {
+        var reactionsList = List<Reaction>()
+        for (emoji, userIDs) in reactions
+        {
+            let reaction = Reaction()
+            reaction.emoji = emoji
+            reaction.userIDs.append(objectsIn: userIDs)
+            reactionsList.append(reaction)
+        }
+        return reactionsList
+    }
+    
+    private func mapEncodedReactions(_ reactions: List<Reaction>) -> [String: [String]]
+    {
+        var mapedReactions = [String: [String]]()
+        for reaction in reactions
+        {
+            mapedReactions[reaction.emoji] = Array(reaction.userIDs)
+        }
+        return mapedReactions
     }
 }
 

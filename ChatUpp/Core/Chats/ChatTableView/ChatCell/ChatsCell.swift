@@ -219,8 +219,8 @@ extension ChatsCell {
         onlineStatusCircleView.layer.borderWidth = 2
         onlineStatusCircleView.layer.cornerRadius = 18 / 2
         onlineStatusCircleView.clipsToBounds = true
-        onlineStatusCircleView.translatesAutoresizingMaskIntoConstraints = false
         onlineStatusCircleView.isHidden = true
+        onlineStatusCircleView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 18),

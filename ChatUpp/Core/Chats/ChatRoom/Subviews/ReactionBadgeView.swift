@@ -140,8 +140,3 @@ class ReactionViewModel: SwiftUI.ObservableObject
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: userID)
     }
 }
-
-struct ReactionItem {
-    var emoji: String
-    var userID: String
-}
