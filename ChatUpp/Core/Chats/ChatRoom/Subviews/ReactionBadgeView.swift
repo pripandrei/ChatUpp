@@ -24,13 +24,21 @@ struct ReactionBadgeView: View
     {
         HStack(spacing: 3)
         {
-            ForEach(viewModel.reactions.sorted(by: { $0.value.count > $1.value.count }).prefix(4), id: \.key) { emoji, _ in
-                Text("\(emoji)")
+//            ForEach(viewModel.reactions.sorted(by: { $0.value.count > $1.value.count }).prefix(4), id: \.key) { emoji, _ in
+//                Text("\(emoji)")
+//                    .font(.system(size: 15))
+//            }
+//            
+            ForEach(viewModel.message.reactions.prefix(4), id: \.emoji) { reaction in
+                Text("\(reaction.emoji)")
                     .font(.system(size: 15))
             }
             
-            Text(verbatim: "\(viewModel.reactions.values.reduce(0) { $0 + $1.count})")
+            Text(verbatim: "\(viewModel.message.reactions.reduce(0) { $0 + $1.userIDs.count})")
                 .font(.system(size: 14))
+            
+//            Text(verbatim: "\(viewModel.reactions.values.reduce(0) { $0 + $1.count})")
+//                .font(.system(size: 14))
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 2)

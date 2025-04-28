@@ -132,7 +132,8 @@ extension RealmDataBase
 }
 
 //MARK: - Realm configuration
-extension RealmDataBase {
+extension RealmDataBase
+{
     private func createConfiguration() -> Realm.Configuration
     {
         return Realm.Configuration(
@@ -147,7 +148,7 @@ extension RealmDataBase {
                 if oldSchemaVersion < 18 { self?.migrateToVersion18(migration: migration) }
                 if oldSchemaVersion < 19 { self?.migrateToVersion19(migration: migration) }
             },
-            objectTypes: [Chat.self, User.self, Message.self, MessageImageSize.self, ChatParticipant.self]
+            objectTypes: [Chat.self, User.self, Message.self, MessageImageSize.self, ChatParticipant.self, Reaction.self]
         )
     }
 }

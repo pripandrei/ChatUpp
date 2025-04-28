@@ -124,6 +124,8 @@ final class MessageTableViewCell: UITableViewCell
     
     func setupReactionView(for message: Message)
     {
+        guard !message.reactions.isEmpty else {return}
+        
         let vm = ReactionViewModel(message: message)
         let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: vm))
         
