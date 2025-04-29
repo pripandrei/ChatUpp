@@ -24,11 +24,6 @@ struct ReactionBadgeView: View
     {
         HStack(spacing: 3)
         {
-//            ForEach(viewModel.reactions.sorted(by: { $0.value.count > $1.value.count }).prefix(4), id: \.key) { emoji, _ in
-//                Text("\(emoji)")
-//                    .font(.system(size: 15))
-//            }
-//            
             ForEach(viewModel.message.reactions.prefix(4), id: \.emoji) { reaction in
                 Text("\(reaction.emoji)")
                     .font(.system(size: 15))
@@ -36,9 +31,6 @@ struct ReactionBadgeView: View
             
             Text(verbatim: "\(viewModel.message.reactions.reduce(0) { $0 + $1.userIDs.count})")
                 .font(.system(size: 14))
-            
-//            Text(verbatim: "\(viewModel.reactions.values.reduce(0) { $0 + $1.count})")
-//                .font(.system(size: 14))
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 2)
@@ -62,7 +54,7 @@ struct ReactionBadgeView: View
 }
 
 #Preview {
-    let message = Message(id: "sdsadasasdsad", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
+    let message = Message(id: "tester", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
 //    ReactionBadgeView(sourceMessage: message)
     let vm = ReactionViewModel(message: message)
     ReactionBadgeView(viewModel: vm)
@@ -77,17 +69,8 @@ struct ReactionPresentationSheetView: View
     {
         List
         {
-            ForEach(viewModel.reactions.sorted(by: { $0.value.count > $1.value.count }), id: \.key) { emoji, memberIDs in
-                userReactionView(memberIDs, reaction: emoji)
-                //            ForEach(viewModel.flattenedReactions, id: \.user.id) { item in
-                
-                //                for memberID in memberIDs {
-                //                    guard let user = viewModel.retreiveRealmUser(memberID) else {continue}
-                //                    UserView(userItem: user)
-                //                }
-                ////                return EmptyView()
-                ////                UserView(userItem: viewModel.retreiveRealmUser(memberIDs.first!)!)
-                //            }
+            ForEach(viewModel.message.reactions, id: \.emoji) { reaction in
+                userReactionView(Set(reaction.userIDs), reaction: reaction.emoji)
             }
         }
         .listStyle(.plain)
@@ -108,6 +91,7 @@ extension ReactionPresentationSheetView
                         .font(.system(size: 24))
                 }
             }
+            // else download user
         }
     }
 }

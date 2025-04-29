@@ -395,6 +395,13 @@ extension ChatsViewController
         /// - observe subcollections with user id
         ///
         Task {
+            // - add empty reactions field to every message
+//            do {
+//                try await FirebaseChatService.shared.addEmptyReactionsToAllMessagesBatched()
+//            } catch {
+//                print("could not add reactions empty field to messages: ", error)
+//            }
+//    
 //            await FirebaseChatService.shared.observeUserChats(userId: "DESg2qjjJPP20KQDWfKpJJnozv53")
 //                .receive(on: DispatchQueue.main)
 //                .sink { chats in

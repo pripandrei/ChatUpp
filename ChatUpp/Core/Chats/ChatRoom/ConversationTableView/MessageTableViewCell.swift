@@ -699,9 +699,8 @@ extension MessageTableViewCell
     
     private func setMessageBubbleContainerBottomConstraint()
     {
-        //TODO: - check if message contains reactions instead of messageHasReaction variable
-        let messageHasReaction = true
-        self.messageBubbleContainerBottomConstraint.constant = messageHasReaction ? -25 : -3
+        let isReactionsEmpty = cellViewModel.message?.reactions.isEmpty
+        self.messageBubbleContainerBottomConstraint.constant = isReactionsEmpty ?? true ? -3 : -25
     }
 }
 

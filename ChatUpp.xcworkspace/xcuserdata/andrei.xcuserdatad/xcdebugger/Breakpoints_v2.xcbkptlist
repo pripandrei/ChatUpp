@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "E0ED7969-1C5B-4D3F-AE2A-6A33DCF3E0B1"
+            uuid = "3A259E6E-32A9-4D0B-B946-430C05120E35"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatsViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/MessageTableViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "203"
-            endingLineNumber = "203"
-            landmarkName = "handleAddedChat(_:)"
+            startingLineNumber = "127"
+            endingLineNumber = "127"
+            landmarkName = "setupReactionView(for:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

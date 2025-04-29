@@ -36,16 +36,9 @@ final class ChatsViewModel {
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     @Published var initialChatsDoneFetching: Bool = false
-    😇
+    
     init() {
         print(RealmDataBase.realmFilePath ?? "unknown realm file path")
-        Task {
-            do {
-                try await FirebaseChatService.shared.addEmptyReactionsToAllMessagesBatched()
-            } catch {
-                print("could not add reactions empty field to messages: ", error)
-            }
-        }
         setupCellViewModels()
         observeChats()
         setChatJoinNotification()
