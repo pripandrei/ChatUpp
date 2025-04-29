@@ -17,7 +17,7 @@ final class RealmDataBase {
     
     static var shared = RealmDataBase()
     
-    static private let schemaVersion: UInt64 = 20
+    static private let schemaVersion: UInt64 = 21
     
     var realm: Realm?
     
