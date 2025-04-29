@@ -70,7 +70,7 @@ struct ReactionPresentationSheetView: View
         List
         {
             ForEach(viewModel.message.reactions, id: \.emoji) { reaction in
-                userReactionView(Set(reaction.userIDs), reaction: reaction.emoji)
+                userReactionView(reaction)
             }
         }
         .listStyle(.plain)
@@ -80,18 +80,16 @@ struct ReactionPresentationSheetView: View
 extension ReactionPresentationSheetView
 {
     @ViewBuilder
-    private func userReactionView(_ userIDs: Set<String>,
-                                  reaction: String) -> some View
+    private func userReactionView(_ reaction: Reaction) -> some View
     {
-        ForEach(Array(userIDs), id: \.self) { userID in
+        ForEach(reaction.userIDs, id: \.self) { userID in
             if let user = viewModel.retreiveRealmUser(userID) {
                 UserView(userItem: user) {
                     Spacer()
-                    Text(verbatim: reaction)
+                    Text(verbatim: reaction.emoji)
                         .font(.system(size: 24))
                 }
             }
-            // else download user
         }
     }
 }
@@ -101,8 +99,6 @@ extension ReactionPresentationSheetView
 class ReactionViewModel: SwiftUI.ObservableObject
 {
     private(set) var message: Message
-    
-//    private(set) var reactions2: [String: Set<String>] = [:]
     
     init(message: Message) {
         self.message = message
@@ -132,3 +128,4 @@ class ReactionViewModel: SwiftUI.ObservableObject
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: userID)
     }
 }
+
