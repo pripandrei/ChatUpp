@@ -467,7 +467,78 @@ extension FirebaseChatService
 //MARK: Testing functions
 extension FirebaseChatService
 {
-    
+    func addEmptyReactionsToAllMessagesBatched() async throws
+    {
+        let chatsRef = chatsCollection
+        
+        var currentBatch = db.batch()
+        var writeCount = 0
+        var batches: [WriteBatch] = []
+        
+        let chatsSnapshot = try await chatsRef.getDocuments()
+        
+        for chatDoc in chatsSnapshot.documents
+        {
+            let chat = try chatDoc.data(as: Chat.self)
+            
+            // Messages
+            let messagesRef = chatDoc.reference.collection("messages")
+            let messagesSnapshot = try await messagesRef.getDocuments()
+            
+            for messageDoc in messagesSnapshot.documents
+            {
+                currentBatch.updateData(["reactions": [String: [String]]()], forDocument: messageDoc.reference)
+                writeCount += 1
+                
+                if writeCount >= 500
+                {
+                    batches.append(currentBatch)
+                    currentBatch = self.db.batch()
+                    writeCount = 0
+                }
+            }
+        }
+        
+        
+        
+//        chatsRef.getDocuments { chatSnapshot, error in
+//            guard let chatSnapshot = chatSnapshot, error == nil else {
+//                print("Failed to fetch chats: \(error?.localizedDescription ?? "unknown error")")
+//                return
+//            }
+//            
+//            for chatDoc in chatSnapshot.documents {
+//                let messagesRef = chatDoc.reference.collection("messages")
+//                
+//                messagesRef.getDocuments { messageSnapshot, error in
+//                    guard let messageSnapshot = messageSnapshot, error == nil else {
+//                        print("Failed to fetch messages for chat \(chatDoc.documentID): \(error?.localizedDescription ?? "unknown error")")
+//                        return
+//                    }
+//
+//                    for messageDoc in messageSnapshot.documents {
+//                        currentBatch.updateData(["reactions": [String: [String]]()], forDocument: messageDoc.reference)
+//                        writeCount += 1
+//                        
+//                        if writeCount >= 500
+//                        {
+//                            batches.append(currentBatch)
+//                            currentBatch = self.db.batch()
+//                            writeCount = 0
+//                        }
+//                    }
+//                }
+//            }
+//        }
+        if writeCount > 0 {
+            batches.append(currentBatch)
+        }
+        
+        // Commit all batches sequentially
+        for batch in batches {
+            try await batch.commit()
+        }
+    }
     // update messages seenBy field with authUserID
 
     func markAllGroupMessagesAsSeen(by userID: String) async throws
