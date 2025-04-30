@@ -226,13 +226,24 @@ extension FirebaseChatService
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
     }
 
-    func updateMessageImageSize(messageID: String, chatDocumentPath: String, imageSize: MessageImageSize) async throws {
+    func updateMessageImageSize(messageID: String, chatDocumentPath: String, imageSize: MessageImageSize) async throws
+    {
         let encodedImageSize = try firestoreEncoder.encode(imageSize)
         
         let data: [String: Any] = [
             Message.CodingKeys.imageSize.rawValue: encodedImageSize
         ]
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatDocumentPath).updateData(data)
+    }
+    
+    func updateMessageReactions(_ reactions: [String : [String]],
+                                messageID: String,
+                                chatID: String) async throws
+    {
+        let data: [String: Any] = [
+            Message.CodingKeys.reactions.rawValue: reactions
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
 }
 

@@ -987,9 +987,10 @@ extension ChatRoomViewController
         let reactionHeight: CGFloat = 45.0
         let spaceReactionHeight: CGFloat = 14.0
         let menuHeight: CGFloat = 200
-
+        
         guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {
+              let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell,
+              let message = cell.cellViewModel.message else {
             return nil
         }
         
@@ -1009,11 +1010,17 @@ extension ChatRoomViewController
             return nil
         }
 
+//        let reactionPanelVM = ReactionPanelViewModel(message: message)
         var reactionPanelView = ReactionPanelView()
-        reactionPanelView.dismissParentVC = { [weak self] dismiss in
-            if dismiss {
-                self?.dismiss(animated: true)
+        reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
+            Task {
+                do {
+                    try await self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
+                } catch {
+                    print("Could not update reaction in db: \(error)")
+                }
             }
+            self?.dismiss(animated: true)
         }
         let hostingReactionVC = UIHostingController(rootView: reactionPanelView)
         hostingReactionVC.view.backgroundColor = .clear

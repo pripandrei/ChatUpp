@@ -17,7 +17,7 @@ import SwiftUI
 
 struct ReactionBadgeView: View
 {
-    @StateObject var viewModel: ReactionViewModel
+    @ObservedObject var viewModel: ReactionViewModel
     @State private var showReactionPresentationSheet: Bool = false
     
     var body: some View

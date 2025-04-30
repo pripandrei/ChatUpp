@@ -415,6 +415,58 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
     
+    @MainActor
+    func updateReactionInDataBase(_ reactionEmoji: String, from message: Message) async throws
+    {
+        RealmDataBase.shared.update(object: message) { realmMessage in
+            // Step 1: Check if user already reacted with any emoji
+            var didRemove = false
+
+            for reaction in realmMessage.reactions
+            {
+                if let index = reaction.userIDs.firstIndex(of: authUser.uid)
+                {
+                    // User already reacted to this message
+                    if reaction.emoji == reactionEmoji {
+                        // Same emoji → toggle off (remove)
+                        reaction.userIDs.remove(at: index)
+                        didRemove = true
+                    } else {
+                        // Different emoji → switch reaction
+                        reaction.userIDs.remove(at: index)
+                    }
+
+                    // Clean up empty reaction
+                    if let index = realmMessage.reactions.firstIndex(where: {  $0.userIDs.isEmpty }) {
+                        realmMessage.reactions.remove(at: index)
+                    }
+                    break
+                }
+            }
+
+            // Step 2: Add new reaction only if we didn't just toggle off the same one
+            if !didRemove {
+                if let existing = realmMessage.reactions.first(where: { $0.emoji == reactionEmoji }) {
+                    existing.userIDs.append(authUser.uid)
+                } else {
+                    let newReaction = Reaction()
+                    newReaction.emoji = reactionEmoji
+                    newReaction.userIDs.append(authUser.uid)
+                    realmMessage.reactions.append(newReaction)
+                }
+            }
+        }
+
+        // Step 3: Sync to Firebase
+        let reactions = message.mapEncodedReactions(message.reactions)
+        guard let conversation = conversation else { return }
+        try await FirebaseChatService.shared.updateMessageReactions(
+            reactions,
+            messageID: message.id,
+            chatID: conversation.id
+        )
+    }
+    
     /// - save image from message
     
     func handleImageDrop(imageData: Data, size: MessageImageSize)

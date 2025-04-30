@@ -126,8 +126,8 @@ final class MessageTableViewCell: UITableViewCell
     {
         guard !message.reactions.isEmpty else {return}
         
-        let vm = ReactionViewModel(message: message)
-        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: vm))
+        let reactionVM = ReactionViewModel(message: message)
+        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
         
         self.reactionBadgeHostingView = hostView.view
         

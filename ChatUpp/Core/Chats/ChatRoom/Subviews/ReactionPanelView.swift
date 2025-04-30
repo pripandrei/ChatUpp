@@ -295,16 +295,25 @@
 
 
 
-
+//extension ReactionPanelView
+//{
+//    init(sourceMessage: Message)
+//    {
+//        self._viewModel = StateObject(wrappedValue: ReactionPanelViewModel(message: sourceMessage))
+//    }
+//}
 
 import SwiftUI
 
 struct ReactionPanelView: View
 {
+//    @StateObject var viewModel: ReactionPanelViewModel
+//    @ObservedObject var viewModel: ReactionPanelViewModel
+    
     @State private var showReactionsBackground = false
     @State private var visibleReactions: Set<ReactionType> = []
     
-    var dismissParentVC: ((Bool) -> Void)?
+    var onReactionSelection: ((String) -> Void)?
     
     var body: some View
     {
@@ -327,7 +336,7 @@ struct ReactionPanelView: View
                         .onTapGesture
                     {
                         print(reaction.rawValue)
-                        dismissParentVC?(true)
+                        onReactionSelection?(reaction.rawValue)
                     }
                 }
             }
@@ -361,6 +370,8 @@ struct ReactionPanelView: View
         }
     }
 }
+
+
 
 // MARK: - Models
 enum ReactionType: String, CaseIterable, Identifiable
@@ -408,8 +419,51 @@ enum ReactionType: String, CaseIterable, Identifiable
 //}
 
 
-struct MessageListView_Previews: PreviewProvider {
-    static var previews: some View {
+struct MessageListView_Previews: PreviewProvider
+{
+    static var previews: some View
+    {
+        let message = Message(id: "tester", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
+//        let vm = ReactionPanelViewModel(message: message)
+//        ReactionPanelView(viewModel: vm)
         ReactionPanelView()
     }
 }
+
+//// MARK: - View Model
+//final class ReactionPanelViewModel: SwiftUI.ObservableObject
+//{
+//    private var message: Message
+//    
+//    init(message: Message) {
+//        self.message = message
+//    }
+//    
+//    private var authUserID: String {
+//        return AuthenticationManager.shared.authenticatedUser!.uid
+//    }
+// 
+//    private func toggleReactionSelection(_ emoji: String) async throws
+//    {
+//        RealmDataBase.shared.update(object: message) { realmMessage in
+//            if let reaction = realmMessage.reactions.first(where: { $0.emoji == emoji })
+//            {
+//                if let index = reaction.userIDs.firstIndex(of: self.authUserID) {
+//                    reaction.userIDs.remove(at: index)
+//                } else {
+//                    reaction.userIDs.append(authUserID)
+//                }
+//            }
+//            else {
+//                let newReaction = Reaction()
+//                newReaction.emoji = emoji
+//                newReaction.userIDs.append(authUserID)
+//                realmMessage.reactions.append(newReaction)
+//            }
+//        }
+//        
+//        let reactions = message.mapEncodedReactions(message.reactions)
+//        
+//        FirebaseChatService.shared.updateMessageReactions(reactions, messageID: message.id)
+//    }
+//}

@@ -189,7 +189,7 @@ extension Message
         return reactionsList
     }
     
-    private func mapEncodedReactions(_ reactions: List<Reaction>) -> [String: [String]]
+    func mapEncodedReactions(_ reactions: List<Reaction>) -> [String: [String]]
     {
         var mapedReactions = [String: [String]]()
         for reaction in reactions
