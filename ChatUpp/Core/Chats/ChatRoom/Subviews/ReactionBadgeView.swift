@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 //extension ReactionBadgeView
 //{
@@ -14,6 +15,8 @@ import SwiftUI
 //        self._viewModel = StateObject(wrappedValue: ReactionViewModel(message: sourceMessage))
 //    }
 //}
+
+//MARK: - reaction badge
 
 struct ReactionBadgeView: View
 {
@@ -24,12 +27,12 @@ struct ReactionBadgeView: View
     {
         HStack(spacing: 3)
         {
-            ForEach(viewModel.message.reactions.prefix(4), id: \.emoji) { reaction in
+            ForEach(viewModel.reactions, id: \.emoji) { reaction in
                 Text("\(reaction.emoji)")
                     .font(.system(size: 15))
             }
             
-            Text(verbatim: "\(viewModel.message.reactions.reduce(0) { $0 + $1.userIDs.count})")
+            Text(verbatim: "\(viewModel.reactionsCount)")
                 .font(.system(size: 14))
         }
         .padding(.horizontal, 6)
@@ -53,14 +56,43 @@ struct ReactionBadgeView: View
     }
 }
 
-#Preview {
-    let message = Message(id: "tester", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
-//    ReactionBadgeView(sourceMessage: message)
-    let vm = ReactionViewModel(message: message)
-    ReactionBadgeView(viewModel: vm)
+class ReactionViewModel: SwiftUI.ObservableObject
+{
+    private(set) var message: Message
+    private var subscribers = Set<AnyCancellable>()
+    
+    init(message: Message) {
+        self.message = message
+        self.addReactionObserver()
+    }
+    
+    var reactions: [Reaction] {
+        return Array(message.reactions.prefix(4))
+    }
+    
+    var reactionsCount: Int {
+        return message.reactions.reduce(0) { $0 + $1.userIDs.count}
+    }
+
+    func retreiveRealmUser(_ userID: String) -> User?
+    {
+        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: userID)
+    }
+    
+    private func addReactionObserver()
+    {
+        RealmDataBase.shared.observeChanges(for: message)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] properyChange in
+                if properyChange.name == "reactions" {
+                    self?.objectWillChange.send()
+                }
+            }.store(in: &subscribers)
+    }
 }
 
 
+//MARK: - presentation sheet
 struct ReactionPresentationSheetView: View
 {
     @ObservedObject var viewModel: ReactionViewModel
@@ -96,36 +128,9 @@ extension ReactionPresentationSheetView
 
 
 
-class ReactionViewModel: SwiftUI.ObservableObject
-{
-    private(set) var message: Message
-    
-    init(message: Message) {
-        self.message = message
-    }
-    
-    @Published private(set) var reactions: [String: Set<String>] =
-    [
-        "🧐": ["jpBpnYPVxKgyBwYrRAuhNLknO2w2","GRPSZIyNqrhRqMSV6AHb1KOiUOr1"],
-        "☺️": ["LRDSeeVBZJRNrlMpvfgYLCtjlrg1","qH9NmwwOu9MRQLceoYiP96IYAFG2","kRs3yeQ3a2YQdxKFOXP9UdsKbWS2"],
-        "🙃": ["Nvb0A7VblEOeZAyXlSvZGcG6m6o1","f0aNVBFrYlTVWxnjDNhwEGjd4xq1", "tZ1v5qRsLSNL7w3Myd4jlsyeYUl2", "ozg8xmCD6lMMZ3Wp3NCtcXaKrqi1"],
-        "😎": ["Gjs2WNj8d6WLwZ5bKaXgsWoRlk72",],
-        "🥳": ["o4z5W31LsmYfIROV2vGzin7fy4I3"]
-    ]
-    
-//    var flattenedReactions: [(emoji: String, user: User)]
-//    {
-//        reactions.flatMap { emoji, userIDs in
-//            userIDs.compactMap { userID in
-//                guard let user = retreiveRealmUser(userID) else { return nil }
-//                return (emoji, user)
-//            }
-//        }
-//    }
-    
-    func retreiveRealmUser(_ userID: String) -> User?
-    {
-        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: userID)
-    }
+#Preview {
+    let message = Message(id: "tester", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
+//    ReactionBadgeView(sourceMessage: message)
+    let vm = ReactionViewModel(message: message)
+    ReactionBadgeView(viewModel: vm)
 }
-
