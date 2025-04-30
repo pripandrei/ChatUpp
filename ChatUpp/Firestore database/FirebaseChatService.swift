@@ -396,7 +396,8 @@ extension FirebaseChatService
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
                 
-                for document in documents {
+                for document in documents
+                {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
                     let object = DatabaseChangedObject(data: message, changeType: document.type)
                     subject.send(object)

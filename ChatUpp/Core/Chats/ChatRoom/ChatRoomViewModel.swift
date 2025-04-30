@@ -415,6 +415,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
     
+    //TODO: - the whole function should be refactored along with reaction model, for better querying
     @MainActor
     func updateReactionInDataBase(_ reactionEmoji: String, from message: Message) async throws
     {
@@ -427,13 +428,12 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 if let index = reaction.userIDs.firstIndex(of: authUser.uid)
                 {
                     // User already reacted to this message
-                    if reaction.emoji == reactionEmoji {
+                    reaction.userIDs.remove(at: index)
+                    
+                    if reaction.emoji == reactionEmoji
+                    {
                         // Same emoji → toggle off (remove)
-                        reaction.userIDs.remove(at: index)
                         didRemove = true
-                    } else {
-                        // Different emoji → switch reaction
-                        reaction.userIDs.remove(at: index)
                     }
 
                     // Clean up empty reaction
