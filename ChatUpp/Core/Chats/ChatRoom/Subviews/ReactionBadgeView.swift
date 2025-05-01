@@ -63,7 +63,7 @@ class ReactionViewModel: SwiftUI.ObservableObject
     
     init(message: Message) {
         self.message = message
-        self.addReactionObserver()
+//        self.addReactionObserver()
     }
     
     var reactions: [Reaction] {

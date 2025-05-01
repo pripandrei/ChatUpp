@@ -74,6 +74,8 @@ final class MessageCellViewModel
             return .text
         } else if message?.messageSeen != newMessage.messageSeen {
             return .seenStatus
+        } else if message?.reactions.count != newMessage.reactions.count {
+            return .reactions
         }
         return nil
     }

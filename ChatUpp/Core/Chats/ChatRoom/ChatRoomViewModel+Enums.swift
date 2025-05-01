@@ -11,11 +11,14 @@ enum MessageValueModification
 {
     case text
     case seenStatus
+    case reactions
     
     var animationType: UITableView.RowAnimation {
         switch self {
         case .text: return .left
         case .seenStatus: return .none
+//        case .reactions: return .fade
+        case .reactions: return .fade
         }
     }
 }

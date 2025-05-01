@@ -1013,13 +1013,16 @@ extension ChatRoomViewController
 //        let reactionPanelVM = ReactionPanelViewModel(message: message)
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
-            Task {
-                do {
-                    try await self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-                } catch {
-                    print("Could not update reaction in db: \(error)")
-                }
-            }
+//            Task {
+//                do {
+                    self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
+//                    self?.viewModel.handleModifiedMessage(message)
+                    // try to make target dismiss preview without snapshot
+                    self?.performBatchUpdateWithMessageChanges([.modified(indexPath, .reactions)])
+//                } catch {
+//                    print("Could not update reaction in db: \(error)")
+//                }
+//            }
             self?.dismiss(animated: true)
         }
         let hostingReactionVC = UIHostingController(rootView: reactionPanelView)

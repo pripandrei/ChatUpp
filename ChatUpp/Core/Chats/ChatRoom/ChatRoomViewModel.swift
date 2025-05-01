@@ -417,7 +417,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     //TODO: - the whole function should be refactored along with reaction model, for better querying
     @MainActor
-    func updateReactionInDataBase(_ reactionEmoji: String, from message: Message) async throws
+    func updateReactionInDataBase(_ reactionEmoji: String, from message: Message)
     {
         RealmDataBase.shared.update(object: message) { realmMessage in
             // Step 1: Check if user already reacted with any emoji
@@ -460,11 +460,17 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         // Step 3: Sync to Firebase
         let reactions = message.mapEncodedReactions(message.reactions)
         guard let conversation = conversation else { return }
-        try await FirebaseChatService.shared.updateMessageReactions(
-            reactions,
-            messageID: message.id,
-            chatID: conversation.id
-        )
+        Task {
+            do {
+                try await FirebaseChatService.shared.updateMessageReactions(
+                    reactions,
+                    messageID: message.id,
+                    chatID: conversation.id
+                )                
+            } catch {
+                print("Could not update reaction in firestore db: \(error)")
+            }
+        }
     }
     
     /// - save image from message
@@ -670,7 +676,7 @@ extension ChatRoomViewModel
         messageChangedTypes.append(.added)
     }
     
-    private func handleModifiedMessage(_ message: Message)
+    func handleModifiedMessage(_ message: Message)
     {
         guard let indexPath = indexPath(of: message),
               let cellVM = messageClusters.getCellViewModel(at: indexPath),
