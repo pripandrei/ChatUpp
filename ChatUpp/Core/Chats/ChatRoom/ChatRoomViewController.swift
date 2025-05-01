@@ -916,7 +916,14 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
     {
-        let _ = makeConversationMessagePreview(for: configuration, forHighlightingContext: false)
+        guard let indexPath = configuration.identifier as? IndexPath,
+                  let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
+
+            animator?.addCompletion {
+                cell.messageBubbleContainer.layer.opacity = 1
+                cell.reactionBadgeHostingView?.layer.opacity = 1
+            }
+//        let _ = makeConversationMessagePreview(for: configuration, forHighlightingContext: false)
     }
     
     private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration,                                             forHighlightingContext: Bool) -> UITargetedPreview?
@@ -1009,38 +1016,18 @@ extension ChatRoomViewController
             withCapInsets: .zero) else {
             return nil
         }
-
-//        let reactionPanelVM = ReactionPanelViewModel(message: message)
+        
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
-//            Task {
-//                do {
-                    self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-//                    self?.viewModel.handleModifiedMessage(message)
-                    // try to make target dismiss preview without snapshot
-                    self?.performBatchUpdateWithMessageChanges([.modified(indexPath, .reactions)])
-//                } catch {
-//                    print("Could not update reaction in db: \(error)")
-//                }
-//            }
+            self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
+            self?.performBatchUpdateWithMessageChanges([.modified(indexPath, .reactions)])
             self?.dismiss(animated: true)
         }
         let hostingReactionVC = UIHostingController(rootView: reactionPanelView)
         hostingReactionVC.view.backgroundColor = .clear
-//        hostingReactionVC.view.layer.cornerRadius = 10
-//        hostingReactionVC.view.layer.masksToBounds = true
-        
+
         addChild(hostingReactionVC)
         hostingReactionVC.view.translatesAutoresizingMaskIntoConstraints = false
-
-        // Create and configure reaction view
-//        let reactionView = ReactionView()
-//        reactionView.onReaction = { [weak self] reactionType in
-//            self?.dismiss(animated: true)
-//        }
-//        reactionView.layer.cornerRadius = 10
-//        reactionView.layer.masksToBounds = true
-//        reactionView.translatesAutoresizingMaskIntoConstraints = false
 
         snapshot.layer.cornerRadius = 10
         snapshot.layer.masksToBounds = true
@@ -1051,14 +1038,12 @@ extension ChatRoomViewController
         let container = UIView(frame: CGRect(origin: .zero,
                                              size: CGSize(width: cell.bounds.width, height: containerHeight)))
         container.backgroundColor = .clear
-//        container.addSubview(reactionView)
         container.addSubview(snapshot)
         container.addSubview(hostingReactionVC.view)
 
         NSLayoutConstraint.activate([
             hostingReactionVC.view.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
             hostingReactionVC.view.topAnchor.constraint(equalTo: container.topAnchor),
-//            hostingReactionVC.view.widthAnchor.constraint(equalToConstant: 50 * 4),
             hostingReactionVC.view.widthAnchor.constraint(equalToConstant: 306),
             hostingReactionVC.view.heightAnchor.constraint(equalToConstant: 45),
 
@@ -1080,12 +1065,16 @@ extension ChatRoomViewController
         let parameters = UIPreviewParameters()
         parameters.backgroundColor = .clear
         parameters.shadowPath = UIBezierPath()
-
+        
+        cell.messageBubbleContainer.layer.opacity = 0
+        cell.reactionBadgeHostingView?.layer.opacity = 0
+        cell.cellViewModel.shouldHideMessageBubble = true
+        
         return UITargetedPreview(view: container,
                                  parameters: parameters,
                                  target: previewTarget)
     }
-    
+
     func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
     {
         let reactionHeight: CGFloat = 45.0
@@ -1097,17 +1086,20 @@ extension ChatRoomViewController
             return nil
         }
         
+        cell.messageBubbleContainer.layer.opacity = 1
+        cell.reactionBadgeHostingView?.layer.opacity = 1
+        
+        cell.layoutIfNeeded()
         // Limit the snapshot to a visible height
         let maxSnapshotHeight = min(cell.bounds.height, UIScreen.main.bounds.height - reactionHeight - spaceReactionHeight - menuHeight)
         
-        guard let snapshot = cell.resizableSnapshotView(
-            from: CGRect(origin: .zero, size: CGSize(
-                width: cell.bounds.width,
-                height: maxSnapshotHeight)),
-            afterScreenUpdates: false,
-            withCapInsets: .zero) else {
+        guard let snapshot = snapshotView(for: cell) else {
             return nil
         }
+        
+        cell.messageBubbleContainer.layer.opacity = 0
+        cell.reactionBadgeHostingView?.layer.opacity = 0
+        
         let containerHeight = snapshot.bounds.height + reactionHeight + spaceReactionHeight
         
         let container = UIView(frame: CGRect(origin: .zero,
@@ -1118,7 +1110,7 @@ extension ChatRoomViewController
         snapshot.layer.cornerRadius = 10
         snapshot.layer.masksToBounds = true
         snapshot.translatesAutoresizingMaskIntoConstraints = false
- 
+
         snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
         snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
         snapshot.heightAnchor.constraint(equalToConstant: snapshot.bounds.height).isActive = true
@@ -1134,6 +1126,23 @@ extension ChatRoomViewController
         parameters.backgroundColor = .clear
         parameters.shadowPath = UIBezierPath()
         
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+            cell.messageBubbleContainer.isHidden = false
+            cell.messageBubbleContainer.layer.opacity = 1
+            cell.reactionBadgeHostingView?.layer.opacity = 1
+        })
+        
         return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
     }
+
+    func snapshotView(for view: UIView) -> UIView? {
+        let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
+        let image = renderer.image { _ in
+            view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = view.bounds
+        return imageView
+    }
+
 }

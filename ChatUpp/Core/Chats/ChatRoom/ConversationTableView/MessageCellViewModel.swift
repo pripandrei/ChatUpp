@@ -10,6 +10,8 @@ import Combine
 
 final class MessageCellViewModel
 {
+    var shouldHideMessageBubble: Bool = false
+    
     @Published private(set) var imagePathURL: URL?
     @Published private(set) var message: Message?
     

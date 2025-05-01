@@ -11,6 +11,24 @@ import Combine
 import SkeletonView
 import SwiftUI
 
+final class CustomTestMessageBubbleContainerView: UIView
+{
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setup()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+    
+    private func setup() {
+        // Set initial opacity
+        self.alpha = 0.0
+    }
+}
+
 final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
@@ -28,9 +46,9 @@ final class MessageTableViewCell: UITableViewCell
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
     private var subscribers = Set<AnyCancellable>()
-    private var reactionBadgeHostingView: UIView?
     
-    private(set) var messageBubbleContainer = UIView()
+    private(set) var reactionBadgeHostingView: UIView?
+    private(set) var messageBubbleContainer = CustomTestMessageBubbleContainerView()
     private(set) var messageLabel = YYLabel()
     private(set) var seenStatusMark = YYLabel()
     private(set) var editedLabel: UILabel?
@@ -174,10 +192,33 @@ final class MessageTableViewCell: UITableViewCell
         ])
     }
     
+//    override func prepareForReuse() {
+//        super.prepareForReuse()
+//        if cellViewModel.shouldHideMessageBubble {
+//            messageBubbleContainer.layer.opacity = 0
+//            cellViewModel.shouldHideMessageBubble = false
+//        }
+//    }
+    
+    
+    
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
+//        if viewModel.shouldHideMessageBubble {
+//            messageBubbleContainer.layer.opacity = 0
+//            viewModel.shouldHideMessageBubble = false
+//        }
+        
         self.cleanupCellContent()
+        
+        if viewModel.shouldHideMessageBubble {
+            messageBubbleContainer.layer.opacity = 0
+            viewModel.shouldHideMessageBubble = false
+        } else {
+            messageBubbleContainer.layer.opacity = 1
+        }
+//        messageBubbleContainer.layer.opacity = viewModel.shouldHideMessageBubble ? 0 : 1
         
         self.cellViewModel = viewModel
         self.timeStamp.text = viewModel.timestamp
@@ -301,6 +342,7 @@ extension MessageTableViewCell
         
         messageBubbleContainer.addSubview(messageLabel)
         messageBubbleContainer.layer.cornerRadius = 15
+//        messageBubbleContainer.layer.opacity = 0
         messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
         
         self.messageBubbleContainerBottomConstraint = messageBubbleContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
