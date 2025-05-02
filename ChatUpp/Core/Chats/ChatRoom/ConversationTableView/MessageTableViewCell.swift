@@ -192,16 +192,6 @@ final class MessageTableViewCell: UITableViewCell
         ])
     }
     
-//    override func prepareForReuse() {
-//        super.prepareForReuse()
-//        if cellViewModel.shouldHideMessageBubble {
-//            messageBubbleContainer.layer.opacity = 0
-//            cellViewModel.shouldHideMessageBubble = false
-//        }
-//    }
-    
-    
-    
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {

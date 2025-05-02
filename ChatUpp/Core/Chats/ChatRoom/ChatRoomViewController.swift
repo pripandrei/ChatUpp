@@ -989,8 +989,7 @@ extension ChatRoomViewController
 //MARK: - Targeted Preview creation
 extension ChatRoomViewController
 {
-    func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
+    func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         let reactionHeight: CGFloat = 45.0
         let spaceReactionHeight: CGFloat = 14.0
         let menuHeight: CGFloat = 200
@@ -1008,33 +1007,22 @@ extension ChatRoomViewController
                                     spaceReactionHeight -
                                     menuHeight)
         
-        guard let snapshot = cell.resizableSnapshotView(
-            from: CGRect(origin: .zero, size: CGSize(
-                width: cell.bounds.width,
-                height: maxSnapshotHeight)),
-            afterScreenUpdates: false,
-            withCapInsets: .zero) else {
-            return nil
+        // Create a snapshot image without affecting visibility
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
+        let snapshotImage = renderer.image { context in
+            cell.drawHierarchy(in: CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight)),
+                              afterScreenUpdates: false)
         }
+        
+        // Create an image view from the snapshot
+        let snapshot = UIImageView(image: snapshotImage)
+        snapshot.frame = CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
         
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
             self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-//            UIView.animate(withDuration: 3.0) {
-//                self?.performBatchUpdateWithMessageChanges([.modified(indexPath, .reactions)])
-//            }
+            self?.rootView.tableView.reloadRows(at: [indexPath], with: .none)
             self?.dismiss(animated: true)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: {
-                CATransaction.begin()
-                CATransaction.setDisableActions(true)
-                
-                self?.rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
-                cell.messageBubbleContainer.layer.opacity = 0
-                cell.reactionBadgeHostingView?.layer.opacity = 0
-                CATransaction.commit()
-//            cell.layoutIfNeeded()
-            })
-            
         }
         let hostingReactionVC = UIHostingController(rootView: reactionPanelView)
         hostingReactionVC.view.backgroundColor = .clear
@@ -1070,26 +1058,23 @@ extension ChatRoomViewController
         let adjustedCenterY = cell.center.y + (heightDifference / 2) // In flipped space, add to go up
         let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
 
-
         let previewTarget = UIPreviewTarget(container: rootView.tableView,
-                                            center: centerPoint,
-                                            transform: CGAffineTransform(scaleX: 1, y: -1))
+                                          center: centerPoint,
+                                          transform: CGAffineTransform(scaleX: 1, y: -1))
         
         let parameters = UIPreviewParameters()
         parameters.backgroundColor = .clear
         parameters.shadowPath = UIBezierPath()
         
-        cell.messageBubbleContainer.layer.opacity = 0
-        cell.reactionBadgeHostingView?.layer.opacity = 0
-//        cell.cellViewModel.shouldHideMessageBubble = true
+        // Hide the original cell completely - not just individual elements
+        cell.contentView.isHidden = true
         
         return UITargetedPreview(view: container,
-                                 parameters: parameters,
-                                 target: previewTarget)
+                               parameters: parameters,
+                               target: previewTarget)
     }
 
-    func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
+    func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
         let reactionHeight: CGFloat = 45.0
         let spaceReactionHeight: CGFloat = 14.0
         let menuHeight: CGFloat = 200
@@ -1099,20 +1084,33 @@ extension ChatRoomViewController
             return nil
         }
         
-        cell.messageBubbleContainer.layer.opacity = 1
-        cell.reactionBadgeHostingView?.layer.opacity = 1
-//        
-        cell.contentView.layoutIfNeeded()
-        // Limit the snapshot to a visible height
-        let maxSnapshotHeight = min(cell.bounds.height, UIScreen.main.bounds.height - reactionHeight - spaceReactionHeight - menuHeight)
+        // Keep elements hidden while capturing the snapshot
+        // Create the snapshot image without changing opacity
+        let maxSnapshotHeight = min(cell.bounds.height,
+                                    UIScreen.main.bounds.height -
+                                    reactionHeight -
+                                    spaceReactionHeight -
+                                    menuHeight)
         
-        guard let snapshot = snapshotView(for: cell) else {
-            return nil
+        // Create a renderer with the cell's current appearance
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
+        let snapshotImage = renderer.image { context in
+            // Temporarily show the cell content for rendering only
+            let wasHidden = cell.contentView.isHidden
+            cell.contentView.isHidden = false
+            
+            // Draw the view hierarchy with elements visible
+            cell.drawHierarchy(in: CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight)),
+                              afterScreenUpdates: true)
+            
+            // Restore hidden state
+            cell.contentView.isHidden = wasHidden
         }
-//        snapshot.layer.opacity = 0
-        cell.messageBubbleContainer.layer.opacity = 0
-        cell.reactionBadgeHostingView?.layer.opacity = 0
-//        cell.layoutIfNeeded()
+        
+        // Create image view from the snapshot
+        let snapshot = UIImageView(image: snapshotImage)
+        snapshot.frame = CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
+        
         let containerHeight = snapshot.bounds.height + reactionHeight + spaceReactionHeight
         
         let container = UIView(frame: CGRect(origin: .zero,
@@ -1133,29 +1131,22 @@ extension ChatRoomViewController
         let adjustedCenterY = cell.center.y + (heightDifference / 2)
         
         let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
-        let previewTarget = UIPreviewTarget(container: rootView.tableView, center: centerPoint, transform: CGAffineTransform(scaleX: 1, y: -1))
+        let previewTarget = UIPreviewTarget(container: rootView.tableView,
+                                           center: centerPoint,
+                                           transform: CGAffineTransform(scaleX: 1, y: -1))
         
         let parameters = UIPreviewParameters()
         parameters.backgroundColor = .clear
         parameters.shadowPath = UIBezierPath()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9, execute: {
-//            cell.messageBubbleContainer.isHidden = false
-            cell.messageBubbleContainer.layer.opacity = 1
-            cell.reactionBadgeHostingView?.layer.opacity = 1
+        // Schedule restoring cell visibility after context menu dismissal
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+            cell.contentView.isHidden = false
         })
         
-        let targetedPreview = UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
-//            container.isHidden = true
-//            container.layer.opacity = 0
-//            snapshot.layer.opacity = 0
-//            targetedPreview.view.layer.opacity = 0
-            
-//        })
-        return targetedPreview
+        return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
     }
-
+    
     func snapshotView(for view: UIView) -> UIView? {
         let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
         let image = renderer.image { _ in
