@@ -1020,8 +1020,21 @@ extension ChatRoomViewController
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
             self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-            self?.performBatchUpdateWithMessageChanges([.modified(indexPath, .reactions)])
+//            UIView.animate(withDuration: 3.0) {
+//                self?.performBatchUpdateWithMessageChanges([.modified(indexPath, .reactions)])
+//            }
             self?.dismiss(animated: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: {
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
+                
+                self?.rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
+                cell.messageBubbleContainer.layer.opacity = 0
+                cell.reactionBadgeHostingView?.layer.opacity = 0
+                CATransaction.commit()
+//            cell.layoutIfNeeded()
+            })
+            
         }
         let hostingReactionVC = UIHostingController(rootView: reactionPanelView)
         hostingReactionVC.view.backgroundColor = .clear
@@ -1068,7 +1081,7 @@ extension ChatRoomViewController
         
         cell.messageBubbleContainer.layer.opacity = 0
         cell.reactionBadgeHostingView?.layer.opacity = 0
-        cell.cellViewModel.shouldHideMessageBubble = true
+//        cell.cellViewModel.shouldHideMessageBubble = true
         
         return UITargetedPreview(view: container,
                                  parameters: parameters,
@@ -1088,18 +1101,18 @@ extension ChatRoomViewController
         
         cell.messageBubbleContainer.layer.opacity = 1
         cell.reactionBadgeHostingView?.layer.opacity = 1
-        
-        cell.layoutIfNeeded()
+//        
+        cell.contentView.layoutIfNeeded()
         // Limit the snapshot to a visible height
         let maxSnapshotHeight = min(cell.bounds.height, UIScreen.main.bounds.height - reactionHeight - spaceReactionHeight - menuHeight)
         
         guard let snapshot = snapshotView(for: cell) else {
             return nil
         }
-        
+//        snapshot.layer.opacity = 0
         cell.messageBubbleContainer.layer.opacity = 0
         cell.reactionBadgeHostingView?.layer.opacity = 0
-        
+//        cell.layoutIfNeeded()
         let containerHeight = snapshot.bounds.height + reactionHeight + spaceReactionHeight
         
         let container = UIView(frame: CGRect(origin: .zero,
@@ -1126,13 +1139,21 @@ extension ChatRoomViewController
         parameters.backgroundColor = .clear
         parameters.shadowPath = UIBezierPath()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-            cell.messageBubbleContainer.isHidden = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9, execute: {
+//            cell.messageBubbleContainer.isHidden = false
             cell.messageBubbleContainer.layer.opacity = 1
             cell.reactionBadgeHostingView?.layer.opacity = 1
         })
         
-        return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
+        let targetedPreview = UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+//            container.isHidden = true
+//            container.layer.opacity = 0
+//            snapshot.layer.opacity = 0
+//            targetedPreview.view.layer.opacity = 0
+            
+//        })
+        return targetedPreview
     }
 
     func snapshotView(for view: UIView) -> UIView? {

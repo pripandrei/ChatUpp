@@ -48,7 +48,7 @@ final class MessageTableViewCell: UITableViewCell
     private var subscribers = Set<AnyCancellable>()
     
     private(set) var reactionBadgeHostingView: UIView?
-    private(set) var messageBubbleContainer = CustomTestMessageBubbleContainerView()
+    private(set) var messageBubbleContainer = UIView()
     private(set) var messageLabel = YYLabel()
     private(set) var seenStatusMark = YYLabel()
     private(set) var editedLabel: UILabel?
@@ -212,12 +212,12 @@ final class MessageTableViewCell: UITableViewCell
         
         self.cleanupCellContent()
         
-        if viewModel.shouldHideMessageBubble {
-            messageBubbleContainer.layer.opacity = 0
-            viewModel.shouldHideMessageBubble = false
-        } else {
-            messageBubbleContainer.layer.opacity = 1
-        }
+//        if viewModel.shouldHideMessageBubble {
+//            messageBubbleContainer.layer.opacity = 0
+//            viewModel.shouldHideMessageBubble = false
+//        } else {
+//            messageBubbleContainer.layer.opacity = 1
+//        }
 //        messageBubbleContainer.layer.opacity = viewModel.shouldHideMessageBubble ? 0 : 1
         
         self.cellViewModel = viewModel
@@ -342,7 +342,7 @@ extension MessageTableViewCell
         
         messageBubbleContainer.addSubview(messageLabel)
         messageBubbleContainer.layer.cornerRadius = 15
-//        messageBubbleContainer.layer.opacity = 0
+        messageBubbleContainer.layer.opacity = 1
         messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
         
         self.messageBubbleContainerBottomConstraint = messageBubbleContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
