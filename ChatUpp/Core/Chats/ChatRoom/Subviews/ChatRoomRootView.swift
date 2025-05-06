@@ -45,7 +45,7 @@ final class ChatRoomRootView: UIView {
     }()
     
     /// Conversation table view
-    private(set) var tableView: UITableView = {
+    lazy private(set) var tableView: UITableView = {
         
         // Bottom of table view has padding due to navigation controller 
         let tableView                           = UITableView()
@@ -59,6 +59,10 @@ final class ChatRoomRootView: UIView {
         tableView.estimatedRowHeight            = 50
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
+        
+        tableView.backgroundView = createBackgroundImageView()
+        createBackgroundBlurEffect(for: tableView.backgroundView!)
+        
         tableView.register(MessageTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
         tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
         tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
@@ -67,7 +71,7 @@ final class ChatRoomRootView: UIView {
         
         return tableView
     }()
-    
+
     private(set) lazy var messageTextView: UITextView = {
         let messageTextView = UITextView()
         let height                                                = inputBarContainer.bounds.height * 0.4
@@ -395,3 +399,23 @@ extension ChatRoomRootView
     }
 }
 
+//MARK: - setup table view background
+extension ChatRoomRootView
+{
+    private func createBackgroundImageView() -> UIImageView {
+        let backgroundImageView = UIImageView(image: UIImage(named: "chatRoom_background_1"))
+        backgroundImageView.contentMode = .scaleAspectFill
+        return backgroundImageView
+    }
+    
+    private func createBackgroundBlurEffect(for imageView: UIView)
+    {
+        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.alpha = 0.7
+//        blurEffectView.layer.opacity = 0.8
+        blurEffectView.frame = imageView.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        imageView.addSubview(blurEffectView)
+    }
+}

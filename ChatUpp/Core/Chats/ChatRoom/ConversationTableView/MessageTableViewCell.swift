@@ -646,7 +646,7 @@ extension MessageTableViewCell
         }
         
         messageSenderNameLabel?.text = cellViewModel.messageSender?.name
-        messageSenderNameLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        messageSenderNameLabel?.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         messageSenderNameLabel?.textColor = messageSenderNameColor
         messageSenderNameLabel?.numberOfLines = 1
         messageSenderNameLabel?.translatesAutoresizingMaskIntoConstraints = false
