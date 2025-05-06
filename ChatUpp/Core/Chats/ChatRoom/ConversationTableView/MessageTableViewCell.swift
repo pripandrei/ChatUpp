@@ -195,21 +195,7 @@ final class MessageTableViewCell: UITableViewCell
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
-//        if viewModel.shouldHideMessageBubble {
-//            messageBubbleContainer.layer.opacity = 0
-//            viewModel.shouldHideMessageBubble = false
-//        }
-        
         self.cleanupCellContent()
-        
-//        if viewModel.shouldHideMessageBubble {
-//            messageBubbleContainer.layer.opacity = 0
-//            viewModel.shouldHideMessageBubble = false
-//        } else {
-//            messageBubbleContainer.layer.opacity = 1
-//        }
-//        messageBubbleContainer.layer.opacity = viewModel.shouldHideMessageBubble ? 0 : 1
-        
         self.cellViewModel = viewModel
         self.timeStamp.text = viewModel.timestamp
         self.messageLayoutConfiguration = layoutConfiguration
