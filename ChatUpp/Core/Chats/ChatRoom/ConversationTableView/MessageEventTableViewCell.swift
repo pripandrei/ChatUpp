@@ -9,6 +9,11 @@ import UIKit
 import Foundation
 import YYText
 
+protocol MessageCellPreviewable
+{
+    var cellViewModel: MessageCellViewModel! { get }
+}
+
 final class MessageEventCell: UITableViewCell
 {
     private(set) var cellViewModel: MessageCellViewModel!
@@ -40,9 +45,9 @@ final class MessageEventCell: UITableViewCell
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupSelf()
+        setupBackgroundSelectionView()
         setupMessageEventContainerConstraints()
         setupMessageEventLabelConstraints()
-        setupBackgroundSelectionView()
     }
     
     required init?(coder: NSCoder) {
@@ -59,7 +64,7 @@ final class MessageEventCell: UITableViewCell
     private func setupSelf() {
         transform = CGAffineTransform(scaleX: 1, y: -1)
         backgroundColor = .clear
-//        isUserInteractionEnabled = false
+        contentView.backgroundColor = .clear
     }
     
     func configureCell(with viewModel: MessageCellViewModel)
@@ -115,6 +120,7 @@ final class MessageEventCell: UITableViewCell
     }
 }
 
+extension MessageEventCell: MessageCellPreviewable {}
 
 
 

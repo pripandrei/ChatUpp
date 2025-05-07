@@ -995,8 +995,8 @@ extension ChatRoomViewController
         let menuHeight: CGFloat = 200
         
         guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell,
-              let message = cell.cellViewModel.message else {
+              let cell = rootView.tableView.cellForRow(at: indexPath),
+              let message: Message = getMessageFromCell(cell) else {
             return nil
         }
         
@@ -1080,7 +1080,7 @@ extension ChatRoomViewController
         let menuHeight: CGFloat = 200
 
         guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {
+              let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return nil
         }
         
@@ -1157,4 +1157,18 @@ extension ChatRoomViewController
         return imageView
     }
 
+    
+    func getMessageFromCell(_ cell: UITableViewCell) -> Message?
+    {
+        if let messageCell = cell as? MessageTableViewCell,
+            let cellMessage = messageCell.cellViewModel.message
+        {
+            return cellMessage
+        } else if let eventCell = cell as? MessageEventCell,
+                  let cellMessage = eventCell.cellViewModel.message {
+            return cellMessage
+        } else {
+            return nil
+        }
+    }
 }

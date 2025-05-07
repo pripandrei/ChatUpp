@@ -412,7 +412,7 @@ extension ChatRoomRootView
     {
         let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
         let blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.alpha = 0.7
+        blurEffectView.alpha = 0.8
 //        blurEffectView.layer.opacity = 0.8
         blurEffectView.frame = imageView.bounds
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
