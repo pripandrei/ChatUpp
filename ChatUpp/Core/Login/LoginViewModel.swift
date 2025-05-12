@@ -17,20 +17,8 @@ final class LoginViewModel {
 
 //MARK: - Sign in with email
 
-extension LoginViewModel: EmailValidator {
-    
-    func validateEmailCredentials() throws {
-        guard !email.isEmpty else {
-            throw CredentialsError.emptyMail
-        }
-        guard !password.isEmpty else {
-            throw CredentialsError.empyPassword
-        }
-        guard password.count > 6 else {
-            throw CredentialsError.shortPassword
-        }
-    }
-    
+extension LoginViewModel: EmailValidator
+{
     func signInWithEmail() {
         AuthenticationManager.shared.signIn(email: email, password: password) { [weak self] authRestult in
             guard let _ = authRestult else {

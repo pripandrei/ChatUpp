@@ -21,6 +21,21 @@ protocol EmailValidator
     func validateEmailCredentials() throws
 }
 
+extension EmailValidator
+{
+    func validateEmailCredentials() throws {
+        guard !email.isEmpty else {
+            throw CredentialsError.emptyMail
+        }
+        guard !password.isEmpty else {
+            throw CredentialsError.empyPassword
+        }
+        guard password.count > 6 else {
+            throw CredentialsError.shortPassword
+        }
+    }
+}
+
 final class EmailCredentialsValidator: NSObject {
     
     var mail: UITextField
@@ -32,6 +47,7 @@ final class EmailCredentialsValidator: NSObject {
         self.viewModel = viewModel
         self.mail = mailField
         self.pass = passwordField
+        self.pass.isSecureTextEntry = true
     }
 }
 

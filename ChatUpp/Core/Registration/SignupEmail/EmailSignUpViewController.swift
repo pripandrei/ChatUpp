@@ -19,9 +19,13 @@ class EmailSignUpViewController: UIViewController {
     private var passwordSignupField = CustomizedShadowTextField()
     private let doorLogo = UIImageView()
     private let provideEmailLabel = UILabel()
-    lazy private var textFieldValidator = EmailCredentialsValidator(mailField: emailSignupField,
-                                                                    passwordField: passwordSignupField,
-                                                                    viewModel: signUpViewModel)
+    
+    lazy private var textFieldValidator = EmailCredentialsValidator(
+        mailField: emailSignupField,
+        passwordField: passwordSignupField,
+        viewModel: signUpViewModel
+    )
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 //        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
@@ -89,6 +93,8 @@ class EmailSignUpViewController: UIViewController {
     {
         passwordSignupField.delegate = textFieldValidator
         passwordSignupField.placeholder = "Provide a password"
+//        passwordSignupField.isSecureTextEntry = true
+        
 //        passwordSignupField.borderStyle = .roundedRect
         passwordSignupField.translatesAutoresizingMaskIntoConstraints = false
     }

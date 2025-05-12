@@ -47,7 +47,7 @@ final class ChatRoomRootView: UIView {
     /// Conversation table view
     lazy private(set) var tableView: UITableView = {
         
-        // Bottom of table view has padding due to navigation controller 
+        // Bottom of table view has padding due to navigation controller
         let tableView                           = UITableView()
         tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1) // Revert table view upside down
         tableView.backgroundColor               = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
@@ -55,7 +55,7 @@ final class ChatRoomRootView: UIView {
         tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -20, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
-//        tableView.estimatedRowHeight            = UITableView.automaticDimension
+        //        tableView.estimatedRowHeight            = UITableView.automaticDimension
         tableView.estimatedRowHeight            = 50
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
@@ -63,11 +63,7 @@ final class ChatRoomRootView: UIView {
         tableView.backgroundView = createBackgroundImageView()
         createBackgroundBlurEffect(for: tableView.backgroundView!)
         
-        tableView.register(MessageTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
-        tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
-        tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
-        tableView.register(UnseenMessagesTitleTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
-        tableView.register(MessageEventCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.eventMessage.identifire)
+        registerCells(for: tableView)
         
         return tableView
     }()
@@ -216,6 +212,15 @@ final class ChatRoomRootView: UIView {
     
     private func isKeyboardShown() -> Bool {
         return messageTextView.isFirstResponder
+    }
+    
+    private func registerCells(for tableView: UITableView)
+    {
+        tableView.register(MessageTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
+        tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
+        tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
+        tableView.register(UnseenMessagesTitleTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
+        tableView.register(MessageEventCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.eventMessage.identifire)
     }
     
     // MARK: - Internal functions
