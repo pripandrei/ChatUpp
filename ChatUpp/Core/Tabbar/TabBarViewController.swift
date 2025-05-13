@@ -42,14 +42,15 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         setupTabarAppearance()
     }
     
-    func setupTabarAppearance() {
+    func setupTabarAppearance()
+    {
         Utilities.setupNavigationBarAppearance()
         
         let tabBarAppearance = UITabBarAppearance()
         let tabBarItemAppearance = UITabBarItemAppearance()
 
 //        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.9)
-        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1585427523, green: 0.285551846, blue: 0.3727124929, alpha: 1).withAlphaComponent(0.1)
+        tabBarAppearance.backgroundColor = ColorManager.tabBarColor.withAlphaComponent(0.1)
         tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
         
 //        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1585427523, green: 0.285551846, blue: 0.3727124929, alpha: 1).withAlphaComponent(0.5)

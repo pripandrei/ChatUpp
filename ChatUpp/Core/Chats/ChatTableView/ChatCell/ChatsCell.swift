@@ -32,9 +32,10 @@ class ChatsCell: UITableViewCell {
         contentView.isSkeletonable = true
         
         let cellBackground = UIView()
-        cellBackground.backgroundColor = #colorLiteral(red: 0.09686327726, green: 0.2637034953, blue: 0.3774781227, alpha: 1)
+//        cellBackground.backgroundColor = #colorLiteral(red: 0.09686327726, green: 0.2637034953, blue: 0.3774781227, alpha: 1)
+        cellBackground.backgroundColor = ColorManager.cellSelectionColor
         self.selectedBackgroundView = cellBackground
-        self.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        self.backgroundColor = .clear
         
         setupUI()
     }
@@ -207,7 +208,7 @@ extension ChatsCell {
         setupUnreadMessagesCountLabel()
         createOnlineStatusView()
         setupSeenStatusMark()
-        initiateSkeletonAnimation()
+//        initiateSkeletonAnimation() TODO: - activate back
     }
     
     private func createOnlineStatusView() {

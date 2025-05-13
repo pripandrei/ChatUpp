@@ -62,9 +62,11 @@ class ChatsViewController: UIViewController {
         tableView.isSkeletonable = true
         tableView.pin(to: view)
         tableView.rowHeight = 70
-        tableView.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+//        createBackgroundView(for: tableView)
+        tableView.backgroundColor = ColorManager.appBackgroundColor
         tableView.separatorColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
     }
+
     
     // MARK: - Binding
     
