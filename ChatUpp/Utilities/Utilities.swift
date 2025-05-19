@@ -51,7 +51,7 @@ struct Utilities {
     {
         let appearance = UINavigationBarAppearance()
         
-        appearance.backgroundColor = ColorManager.navigationBarColor.withAlphaComponent(0.9)
+        appearance.backgroundColor = ColorManager.navigationBarBackgroundColor.withAlphaComponent(0.85)
         appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
         appearance.shadowColor = .white.withAlphaComponent(0.5)
         
@@ -104,8 +104,8 @@ struct Utilities {
     }
     
     static func setGradientBackground(forView view: UIView) {
-        let colorTop = #colorLiteral(red: 0.6000000238, green: 0.5585549503, blue: 0.5448982104, alpha: 1).cgColor
-        let colorBottom = #colorLiteral(red: 0.5186259388, green: 0.4503372039, blue: 0.5165727111, alpha: 1).cgColor
+        let colorTop = #colorLiteral(red: 0.7123333812, green: 0.5818203092, blue: 0.5612760186, alpha: 1).cgColor
+        let colorBottom = #colorLiteral(red: 0.2067199647, green: 0.1390456259, blue: 0.131729126, alpha: 1).cgColor
         
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [colorTop, colorBottom]
@@ -116,6 +116,13 @@ struct Utilities {
     }
 }
 
+
+//let colorTop = #colorLiteral(red: 0.6000000238, green: 0.5585549503, blue: 0.5448982104, alpha: 1).cgColor
+//let colorBottom = #colorLiteral(red: 0.5186259388, green: 0.4503372039, blue: 0.5165727111, alpha: 1).cgColor
+
+
+//let colorTop = #colorLiteral(red: 0.6636233926, green: 0.6031231284, blue: 0.6042643189, alpha: 1).cgColor
+//let colorBottom = #colorLiteral(red: 0.3588703871, green: 0.2444120347, blue: 0.230712533, alpha: 1).cgColor
 //MARK: - Test functions
 extension Utilities
 {

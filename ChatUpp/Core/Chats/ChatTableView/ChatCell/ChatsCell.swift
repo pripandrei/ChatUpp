@@ -33,7 +33,7 @@ class ChatsCell: UITableViewCell {
         
         let cellBackground = UIView()
 //        cellBackground.backgroundColor = #colorLiteral(red: 0.09686327726, green: 0.2637034953, blue: 0.3774781227, alpha: 1)
-        cellBackground.backgroundColor = ColorManager.cellSelectionColor
+        cellBackground.backgroundColor = ColorManager.cellSelectionBackgroundColor
         self.selectedBackgroundView = cellBackground
         self.backgroundColor = .clear
         

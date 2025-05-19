@@ -19,7 +19,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
     {
         super.viewDidLoad()
         
-        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        view.backgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
         tabBar.isHidden = true
         self.delegate = self
     }
@@ -49,12 +49,11 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         let tabBarAppearance = UITabBarAppearance()
         let tabBarItemAppearance = UITabBarItemAppearance()
 
-//        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.9)
-        tabBarAppearance.backgroundColor = ColorManager.tabBarColor.withAlphaComponent(0.1)
-        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
+        tabBarAppearance.backgroundColor = ColorManager.navigationBarBackgroundColor.withAlphaComponent(0.85)
+        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
         
-//        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.1585427523, green: 0.285551846, blue: 0.3727124929, alpha: 1).withAlphaComponent(0.5)
-//        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+//        tabBarAppearance.backgroundColor = ColorManager.tabBarColor.withAlphaComponent(0.1)
+//        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
         
         tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)]
         tabBarItemAppearance.selected.iconColor = #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)

@@ -119,15 +119,26 @@ class ChatsViewController: UIViewController {
         tableView.hideSkeleton(transition: SkeletonTransitionStyle.none)
     }
     
-    func setupSearchController() {
+    func setupSearchController()
+    {
         searchController = UISearchController(searchResultsController: resultsTableController)
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search"
+        
         resultsTableController.searchBar = searchController.searchBar
         navigationItem.searchController = searchController
         definesPresentationContext = true
         navigationItem.hidesSearchBarWhenScrolling = true
+        
+//        searchController.searchBar.searchTextPositionAdjustment =  UIOffset(horizontal: (searchController.searchBar.bounds.width / 2), vertical: 0)
+        
+        if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField, let searchIcon = textField.leftView
+        {
+            textField.backgroundColor = ColorManager.navigationSearchFieldBackgroundColor
+            textField.attributedPlaceholder = NSAttributedString(string: "Search", attributes: [.foregroundColor: #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)])
+            searchIcon.tintColor = #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)
+        }
     }
     
     func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel]
