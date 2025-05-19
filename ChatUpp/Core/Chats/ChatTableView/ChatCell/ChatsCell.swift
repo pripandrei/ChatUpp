@@ -64,7 +64,7 @@ class ChatsCell: UITableViewCell {
     private func setUnreadMessageCount(_ count: Int) {
         //        guard let _ = cellViewModel.recentMessage else {return}
         
-        unreadMessagesBadgeLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
+        unreadMessagesBadgeLabel.backgroundColor = ColorManager.unseenMessagesBadgeBackgroundColor
         
         let shouldShowUnreadCount = count > 0
         unreadMessagesBadgeLabel.isHidden = !shouldShowUnreadCount
@@ -82,7 +82,9 @@ class ChatsCell: UITableViewCell {
 
         let iconSize = isSeen ? CGSize(width: 18, height: 20) : CGSize(width: 20, height: 16)
         let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
-        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
+        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?
+            .withTintColor(ColorManager.actionButtonsTintColor)
+            .resize(to: iconSize) else {return}
         
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
         
@@ -234,8 +236,8 @@ extension ChatsCell {
     private func setupUnreadMessagesCountLabel() {
         contentView.addSubview(unreadMessagesBadgeLabel)
         
-        unreadMessagesBadgeLabel.textColor = #colorLiteral(red: 0.112982966, green: 0.3117198348, blue: 0.4461967349, alpha: 1)
-        unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 16)
+        unreadMessagesBadgeLabel.textColor = ColorManager.textFieldTextColor
+        unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 17)
         //        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
         //        unreadMessagesCountLabel.layer.cornerRadius = 12
         unreadMessagesBadgeLabel.textAlignment = .center

@@ -38,7 +38,7 @@ final class ChatRoomRootView: UIView {
     private(set) var unseenMessagesBadge = {
         let badge = UnseenMessagesBadge()
         
-        badge.backgroundColor = #colorLiteral(red: 0.08765616736, green: 0.5956842649, blue: 0.6934683476, alpha: 1)
+        badge.backgroundColor = ColorManager.unseenMessagesBadgeBackgroundColor
         badge.font = UIFont.systemFont(ofSize: 15)
         badge.textColor = .white
         badge.textAlignment = .center
@@ -91,7 +91,7 @@ final class ChatRoomRootView: UIView {
         let sendMessageButton = UIButton()
         sendMessageButton.configuration                             = .filled()
         sendMessageButton.configuration?.image                      = UIImage(systemName: "arrow.up")
-        sendMessageButton.configuration?.baseBackgroundColor        = #colorLiteral(red: 0.8080032468, green: 0.4144457579, blue: 0.9248802066, alpha: 1)
+        sendMessageButton.configuration?.baseBackgroundColor        = ColorManager.sendMessageButtonBackgroundColor
         sendMessageButton.clipsToBounds                             =  true
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         
