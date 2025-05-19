@@ -58,7 +58,13 @@ extension UIImage
         return self.jpegData(compressionQuality: 1.0)
     }
     
-    
+    func resizeImage(toSize size: CGSize) -> UIImage
+    {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
     
     func resize(to newSize: CGSize) -> UIImage {
         UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)

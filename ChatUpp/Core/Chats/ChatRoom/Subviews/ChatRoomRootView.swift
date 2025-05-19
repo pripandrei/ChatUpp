@@ -89,12 +89,9 @@ final class ChatRoomRootView: UIView {
     
     private(set) var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
-//        sendMessageButton.frame.size                                = btnSize  // size is used only for radius calculation
         sendMessageButton.configuration                             = .filled()
-//        sendMessageButton.configuration?.image                      = UIImage(systemName: "paperplane.fill")
         sendMessageButton.configuration?.image                      = UIImage(systemName: "arrow.up")
         sendMessageButton.configuration?.baseBackgroundColor        = #colorLiteral(red: 0.8080032468, green: 0.4144457579, blue: 0.9248802066, alpha: 1)
-//        sendMessageButton.layer.cornerRadius                        = sendMessageButton.frame.size.width / 2.0
         sendMessageButton.clipsToBounds                             =  true
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -103,7 +100,7 @@ final class ChatRoomRootView: UIView {
     
     private(set) var addPictureButton: UIButton = {
         let addPictureButton = UIButton()
-//        addPictureButton.frame.size                                = btnSize  // size is used only for radius calculation
+
         addPictureButton.configuration                             = .plain()
         addPictureButton.configuration?.baseForegroundColor        = ColorManager.tabBarNormalItemsTintColor
         addPictureButton.layer.cornerRadius                        = addPictureButton.frame.size.width / 2.0
@@ -127,25 +124,16 @@ final class ChatRoomRootView: UIView {
         
         return sendEditMessageButton
     }()
-    func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage
-    {
-        let renderer = UIGraphicsImageRenderer(size: size)
-        return renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: size))
-        }
-    }
+    
     lazy private(set) var scrollBadgeButton: UIButton = {
         let scrollToBottomBtn                                       = UIButton()
 
         scrollToBottomBtn.configuration                             = .plain()
-//        scrollToBottomBtn.configuration?.baseBackgroundColor        = ColorManager.inputBarMessageContainerBackgroundColor
-        let image = UIImage(named: "angle-arrow-down")?.withTintColor(ColorManager.actionButtonsTintColor)
+        let image = UIImage(named: "angle-arrow-down")?
+            .withTintColor(ColorManager.actionButtonsTintColor)
+            .resizeImage(toSize: CGSize(width: 17, height: 15))
+        scrollToBottomBtn.configuration?.image = image
         
-        if let image = image {
-            scrollToBottomBtn.configuration?.image = resizeImage(image, to: CGSize(width: 17, height: 15))
-        }
-//        scrollToBottomBtn.configuration?.baseForegroundColor        = .white
-//        scrollToBottomBtn.configuration?.image                      = image
         scrollToBottomBtn.backgroundColor                           = ColorManager.inputBarMessageContainerBackgroundColor
         scrollToBottomBtn.translatesAutoresizingMaskIntoConstraints = false
         scrollToBottomBtn.layer.borderWidth = 0.25
@@ -403,8 +391,7 @@ extension ChatRoomRootView
     
     private func setupSendMessageBtnConstraints() {
         inputBarContainer.addSubview(sendMessageButton)
-        // size is used only for radius calculation
-         
+
         NSLayoutConstraint.activate([
             sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 5),
             sendMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
@@ -443,5 +430,16 @@ extension ChatRoomRootView
         blurEffectView.frame = imageView.bounds
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         imageView.addSubview(blurEffectView)
+    }
+}
+
+extension ChatRoomRootView
+{
+    func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage
+    {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
     }
 }
