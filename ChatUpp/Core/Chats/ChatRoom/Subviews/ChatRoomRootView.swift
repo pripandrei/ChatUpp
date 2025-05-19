@@ -177,8 +177,9 @@ final class ChatRoomRootView: UIView {
     var scrollToBottomBtnBottomConstraint: NSLayoutConstraint!
 
     // MARK: Internal variables
-    var tableViewInitialTopInset: CGFloat {
-        return isKeyboardShown() ? CGFloat(336) : CGFloat(0)
+    var tableViewInitialTopInset: CGFloat
+    {
+        return isKeyboardShown() ? CGFloat(336 - 30) : CGFloat(0)
     }
     
     // MARK: - LIFECYCLE
