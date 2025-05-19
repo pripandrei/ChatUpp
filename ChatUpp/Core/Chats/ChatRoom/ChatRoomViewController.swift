@@ -651,6 +651,10 @@ extension ChatRoomViewController
     {
         // if number of lines inside textView is bigger than 1, it will expand
         let maxContainerViewY = 584.0 - 4.0
+        let keyboardSize = CGRect(origin: keyboardSize.origin,
+                                  size: CGSize(width:
+                                                keyboardSize.size.width,
+                                               height: keyboardSize.size.height - 30))
         let keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardSize.height : keyboardSize.height
         let editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
         

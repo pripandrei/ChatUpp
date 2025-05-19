@@ -238,11 +238,7 @@ extension ChatsCell {
         
         unreadMessagesBadgeLabel.textColor = ColorManager.textFieldTextColor
         unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 17)
-        //        unreadMessagesCountLabel.backgroundColor = #colorLiteral(red: 0.3746420145, green: 0.7835513949, blue: 0.7957105041, alpha: 1)
-        //        unreadMessagesCountLabel.layer.cornerRadius = 12
         unreadMessagesBadgeLabel.textAlignment = .center
-        //        unreadMessagesCountLabel.clipsToBounds = true
-        //        unreadMessagesCountLabel.layer.masksToBounds = true
         unreadMessagesBadgeLabel.linesCornerRadius = 8
         unreadMessagesBadgeLabel.isSkeletonable = true
         unreadMessagesBadgeLabel.skeletonTextLineHeight = .fixed(25)
@@ -253,8 +249,6 @@ extension ChatsCell {
         NSLayoutConstraint.activate([
             unreadMessagesBadgeLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
             unreadMessagesBadgeLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
-            //            unreadMessagesCountLabel.heightAnchor.constraint(equalToConstant: 25),
-            //            unreadMessagesCountLabel.widthAnchor.constraint(equalToConstant: 25),
         ])
     }
     
