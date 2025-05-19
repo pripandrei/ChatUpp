@@ -17,6 +17,9 @@ final class ChatRoomRootView: UIView {
     
     // MARK: - UI Elements
     
+    private let inputBarViewsTopConstraintConstant: CGFloat = 7.0
+    private let inputBarButtonsSize: CGFloat = 31
+    
     private(set) var inputBarHeader          : InputBarHeaderView?
     private(set) var inputBarBottomConstraint: NSLayoutConstraint!
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
@@ -25,7 +28,7 @@ final class ChatRoomRootView: UIView {
 
     private(set) var inputBarContainer: InputBarContainer = {
         let inputBarContainer = InputBarContainer()
-        inputBarContainer.backgroundColor                           = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
+        inputBarContainer.backgroundColor                           = ColorManager.inputBarMessageContainerBackgroundColor
         inputBarContainer.bounds.size.height                        = 80
         inputBarContainer.translatesAutoresizingMaskIntoConstraints = false
         
@@ -72,11 +75,11 @@ final class ChatRoomRootView: UIView {
     private(set) lazy var messageTextView: UITextView = {
         let messageTextView = UITextView()
         let height                                                = inputBarContainer.bounds.height * 0.4
-        messageTextView.backgroundColor                           = .systemBlue
+        messageTextView.backgroundColor                           = ColorManager.messageTextFieldBackgroundColor
         messageTextView.layer.cornerRadius                        = 15
         messageTextView.font                                      = UIFont(name: "HelveticaNeue", size: 17)
         messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
-        messageTextView.textColor                                 = .white
+        messageTextView.textColor                                 = ColorManager.textFieldTextColor
         messageTextView.isScrollEnabled                           = true
         messageTextView.textContainer.maximumNumberOfLines        = 0
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
@@ -86,11 +89,12 @@ final class ChatRoomRootView: UIView {
     
     private(set) var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
-        sendMessageButton.frame.size                                = CGSize(width: 35, height: 35)  // size is used only for radius calculation
+//        sendMessageButton.frame.size                                = btnSize  // size is used only for radius calculation
         sendMessageButton.configuration                             = .filled()
-        sendMessageButton.configuration?.image                      = UIImage(systemName: "paperplane.fill")
-        sendMessageButton.configuration?.baseBackgroundColor        = UIColor.purple
-        sendMessageButton.layer.cornerRadius                        = sendMessageButton.frame.size.width / 2.0
+//        sendMessageButton.configuration?.image                      = UIImage(systemName: "paperplane.fill")
+        sendMessageButton.configuration?.image                      = UIImage(systemName: "arrow.up")
+        sendMessageButton.configuration?.baseBackgroundColor        = #colorLiteral(red: 0.8080032468, green: 0.4144457579, blue: 0.9248802066, alpha: 1)
+//        sendMessageButton.layer.cornerRadius                        = sendMessageButton.frame.size.width / 2.0
         sendMessageButton.clipsToBounds                             =  true
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -99,9 +103,9 @@ final class ChatRoomRootView: UIView {
     
     private(set) var addPictureButton: UIButton = {
         let addPictureButton = UIButton()
-        addPictureButton.frame.size                                = CGSize(width: 35, height: 35)  // size is used only for radius calculation
+//        addPictureButton.frame.size                                = btnSize  // size is used only for radius calculation
         addPictureButton.configuration                             = .plain()
-        addPictureButton.configuration?.baseForegroundColor        = UIColor.purple
+        addPictureButton.configuration?.baseForegroundColor        = ColorManager.tabBarNormalItemsTintColor
         addPictureButton.layer.cornerRadius                        = addPictureButton.frame.size.width / 2.0
         addPictureButton.configuration?.image                      = UIImage(systemName: "photo")
         addPictureButton.clipsToBounds                             = true
@@ -123,21 +127,29 @@ final class ChatRoomRootView: UIView {
         
         return sendEditMessageButton
     }()
-    
-    private(set) var scrollBadgeButton: UIButton = {
+    func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage
+    {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+    lazy private(set) var scrollBadgeButton: UIButton = {
         let scrollToBottomBtn                                       = UIButton()
-        scrollToBottomBtn.bounds.size                               = CGSize(width: 35, height: 35) // size is used only for radius calculation
+
         scrollToBottomBtn.configuration                             = .plain()
-        scrollToBottomBtn.configuration?.baseBackgroundColor        = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
-        scrollToBottomBtn.configuration?.baseForegroundColor        = .white
-        scrollToBottomBtn.configuration?.image                      = UIImage(systemName: "arrow.down")
-        scrollToBottomBtn.layer.cornerRadius                        = scrollToBottomBtn.bounds.size.width / 2
-//        scrollToBottomBtn.clipsToBounds                             = true
-        scrollToBottomBtn.backgroundColor                           = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
+//        scrollToBottomBtn.configuration?.baseBackgroundColor        = ColorManager.inputBarMessageContainerBackgroundColor
+        let image = UIImage(named: "angle-arrow-down")?.withTintColor(ColorManager.actionButtonsTintColor)
+        
+        if let image = image {
+            scrollToBottomBtn.configuration?.image = resizeImage(image, to: CGSize(width: 17, height: 15))
+        }
+//        scrollToBottomBtn.configuration?.baseForegroundColor        = .white
+//        scrollToBottomBtn.configuration?.image                      = image
+        scrollToBottomBtn.backgroundColor                           = ColorManager.inputBarMessageContainerBackgroundColor
         scrollToBottomBtn.translatesAutoresizingMaskIntoConstraints = false
         scrollToBottomBtn.layer.borderWidth = 0.25
-        scrollToBottomBtn.layer.borderColor = #colorLiteral(red: 0.2599526346, green: 0.5381836295, blue: 0.7432311773, alpha: 1)
-//        scrollToBottomBtn.isHidden = true
+        scrollToBottomBtn.layer.borderColor = #colorLiteral(red: 0.3582897782, green: 0.31710729, blue: 0.3442819118, alpha: 1)
         scrollToBottomBtn.layer.opacity = 0.0
 
         return scrollToBottomBtn
@@ -156,7 +168,7 @@ final class ChatRoomRootView: UIView {
         
         return joinButton
     }()
-    
+  
     private(set) lazy var joinActivityIndicator: NVActivityIndicatorView = {
         let activityIndicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height: 40), type: .circleStrokeSpin, color: .link, padding: 2)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
@@ -190,6 +202,13 @@ final class ChatRoomRootView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews()
+    {
+        super.layoutSubviews()
+        sendMessageButton.layer.cornerRadius = sendMessageButton.bounds.height / 2
+        scrollBadgeButton.layer.cornerRadius = scrollBadgeButton.bounds.size.width / 2
     }
     
     // MARK: - SETUP CONSTRAINTS
@@ -348,13 +367,13 @@ extension ChatRoomRootView
         self.addSubviews(addPictureButton)
         
         NSLayoutConstraint.activate([
-            addPictureButton.trailingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: -10),
-            addPictureButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: 8),
-            addPictureButton.heightAnchor.constraint(equalToConstant: 35),
-            addPictureButton.widthAnchor.constraint(equalToConstant: 35),
+            addPictureButton.trailingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: -6),
+            addPictureButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
+            addPictureButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
+            addPictureButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
         ])
     }
-    
+
     private func setupTableViewConstraints() {
         self.addSubview(tableView)
         
@@ -370,27 +389,27 @@ extension ChatRoomRootView
     private func setupMessageTextViewConstraints() {
         inputBarContainer.addSubview(messageTextView)
         
-        textViewHeightConstraint          = messageTextView.heightAnchor.constraint(equalToConstant: 31)
+        textViewHeightConstraint          = messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize)
         textViewHeightConstraint.isActive = true
         textViewHeightConstraint.priority = .required
         
         NSLayoutConstraint.activate([
-            messageTextView.bottomAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -inputBarContainer.bounds.height * 0.45),
-            messageTextView.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -55),
-            messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 55),
-            messageTextView.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: 10),
+            messageTextView.bottomAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -inputBarContainer.bounds.height * 0.52),
+            messageTextView.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -48),
+            messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 48),
+            messageTextView.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
         ])
     }
     
     private func setupSendMessageBtnConstraints() {
         inputBarContainer.addSubview(sendMessageButton)
         // size is used only for radius calculation
-        
+         
         NSLayoutConstraint.activate([
-            sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
-            sendMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: 8),
-            sendMessageButton.heightAnchor.constraint(equalToConstant: 35),
-            sendMessageButton.widthAnchor.constraint(equalToConstant: 35),
+            sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 5),
+            sendMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
+            sendMessageButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
+            sendMessageButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
         ])
     }
     
