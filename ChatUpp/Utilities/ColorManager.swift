@@ -32,6 +32,13 @@ struct ColorManager
     
     static let inputBarMessageContainerBackgroundColor: UIColor = #colorLiteral(red: 0.2306482196, green: 0.1865905523, blue: 0.2809014618, alpha: 1)
     
+    static let incomingMessageBackgroundColor: UIColor = #colorLiteral(red: 0.2260040045, green: 0.1867897213, blue: 0.2767668962, alpha: 1)
+    static let outgoingMessageBackgroundColor: UIColor = #colorLiteral(red: 0.5294494033, green: 0.1983171999, blue: 0.5416952372, alpha: 1)
+    static let incomingMessageTimestampTextColor: UIColor = #colorLiteral(red: 0.6161918044, green: 0.5466015935, blue: 0.627902925, alpha: 1)
+    static let outgoingMessageTimestampTextColor: UIColor = #colorLiteral(red: 0.7367274165, green: 0.5783247948, blue: 0.7441712618, alpha: 1)
+    static let messageEventBackgroundColor: UIColor = #colorLiteral(red: 0.2021965683, green: 0.2685731351, blue: 0.3312993646, alpha: 1)
+    static let messageSeenStatusIconColor: UIColor = outgoingMessageTimestampTextColor
+    
     
     
     private static let messageBackgroundColors: [UIColor] = [#colorLiteral(red: 0.5666766763, green: 0.2653866708, blue: 0.3898352087, alpha: 1), #colorLiteral(red: 0.3151230216, green: 0.3269421458, blue: 0.5721591115, alpha: 1), #colorLiteral(red: 0.1290415525, green: 0.4660907388, blue: 0.1841244996, alpha: 1), #colorLiteral(red: 0.5664714575, green: 0.3413798809, blue: 0.1262274683, alpha: 1), #colorLiteral(red: 0.4946692586, green: 0.2387150526, blue: 0.537415266, alpha: 1)]

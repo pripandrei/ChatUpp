@@ -56,7 +56,7 @@ extension FooterSectionView
         {
             super.init(frame: frame)
             
-            backgroundColor = #colorLiteral(red: 0.176230222, green: 0.3105865121, blue: 0.4180542529, alpha: 1)
+            backgroundColor = ColorManager.messageEventBackgroundColor
             textColor = .white
             textAlignment = .center
             translatesAutoresizingMaskIntoConstraints = false

@@ -216,6 +216,7 @@ final class MessageTableViewCell: UITableViewCell
         self.setupEditedLabel()
         self.setupBinding()
         self.adjustMessageSide()
+        self.setupTimestampTextColor()
         
         if let message = viewModel.message {
             self.setupCellData(with: message)
@@ -229,9 +230,11 @@ final class MessageTableViewCell: UITableViewCell
         
         let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
 
-        let iconSize = isSeen ? CGSize(width: 15, height: 14) : CGSize(width: 16, height: 12)
+        let iconSize = isSeen ? CGSize(width: 15, height: 17) : CGSize(width: 16, height: 16)
         let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
-        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?.resize(to: iconSize) else {return}
+        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?
+            .withTintColor(ColorManager.messageSeenStatusIconColor)
+            .resize(to: iconSize) else {return}
         
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
         
@@ -252,6 +255,13 @@ final class MessageTableViewCell: UITableViewCell
             }()
         ]
         return NSAttributedString(string: message.messageBody, attributes: attributes)
+    }
+    
+    private func setupTimestampTextColor()
+    {
+        if let viewModel = cellViewModel {
+            timeStamp.textColor = viewModel.messageAlignment == .left ? ColorManager.incomingMessageTimestampTextColor : ColorManager.outgoingMessageTimestampTextColor
+        }
     }
     
     /// - cleanup
@@ -362,10 +372,11 @@ extension MessageTableViewCell
     {
         messageLabel.addSubview(timeStamp)
         
-        timeStamp.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
+        timeStamp.font = UIFont(name: "HelveticaNeue", size: 13)
+//        timeStamp.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         timeStamp.layer.cornerRadius = 7
         timeStamp.clipsToBounds = true
-        timeStamp.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
+
         timeStamp.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -380,7 +391,8 @@ extension MessageTableViewCell
         timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
     }
     
-    private func adjustMessageSide() {
+    private func adjustMessageSide()
+    {
         if messageContainerLeadingConstraint != nil { messageContainerLeadingConstraint.isActive = false }
         if messageContainerTrailingConstraint != nil { messageContainerTrailingConstraint.isActive = false }
         
@@ -394,13 +406,13 @@ extension MessageTableViewCell
             messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
-            messageBubbleContainer.backgroundColor = #colorLiteral(red: 0.7171613574, green: 0.4463854432, blue: 0.351280123, alpha: 1)
+            messageBubbleContainer.backgroundColor = ColorManager.outgoingMessageBackgroundColor
         case .left:
             messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: leadingConstant)
             messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
-            messageBubbleContainer.backgroundColor = #colorLiteral(red: 0, green: 0.6150025129, blue: 0.6871898174, alpha: 1)
+            messageBubbleContainer.backgroundColor = ColorManager.incomingMessageBackgroundColor
         case .center:
             break
         }

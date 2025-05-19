@@ -34,7 +34,7 @@ final class MessageEventCell: UITableViewCell
     let messageEventContainer: UIView =
     {
         let container = UIView()
-        container.backgroundColor = #colorLiteral(red: 0.2971534729, green: 0.3519872129, blue: 0.7117250562, alpha: 1)
+        container.backgroundColor = ColorManager.messageEventBackgroundColor
         container.layer.cornerRadius = 10
         container.clipsToBounds = true
         container.translatesAutoresizingMaskIntoConstraints = false
