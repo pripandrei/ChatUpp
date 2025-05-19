@@ -125,12 +125,15 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
         navControllerForLoginVC.pushViewController(mailVC, animated: true)
     }
     
-    func pushProfileEditingVC(viewModel: ProfileEditingViewModel) {
+    func pushProfileEditingVC(viewModel: ProfileEditingViewModel)
+    {
         let profileEditingVC = ProfileEditingViewController(viewModel: viewModel)
         profileEditingVC.coordinatorDelegate = self
+        
         let navController = UINavigationController(rootViewController: profileEditingVC)
         navController.modalPresentationStyle = .fullScreen
         navController.modalTransitionStyle = .crossDissolve
+        
         tabBar.settingsNavigationController?.present(navController, animated: true)
     }
     

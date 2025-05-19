@@ -125,7 +125,7 @@ extension SettingsViewController {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         
         configuration.headerMode = .supplementary
-        configuration.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        configuration.backgroundColor = ColorManager.appBackgroundColor
 
         configuration.separatorConfiguration.color = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
@@ -150,7 +150,7 @@ extension SettingsViewController {
             configuration.imageProperties.reservedLayoutSize = CGSize(width: 22, height: 22)
             
             var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
-            backgroundConfiguration.backgroundColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.5)
+            backgroundConfiguration.backgroundColor = ColorManager.listCellBackgroundColor
             
             cell.backgroundConfiguration = backgroundConfiguration
             cell.contentConfiguration = configuration

@@ -11,7 +11,8 @@ import PhotosUI
 import Combine
 import CropViewController
 
-final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout
+{
     
     weak var coordinatorDelegate: Coordinator!
     
@@ -64,9 +65,12 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
         
     }
 
-    private func setupNavigationBarItems() {
+    private func setupNavigationBarItems()
+    {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEditedData))
+        navigationItem.leftBarButtonItem?.tintColor = ColorManager.actionButtonsTintColor
+        navigationItem.rightBarButtonItem?.tintColor = ColorManager.actionButtonsTintColor
     }
     
     @objc func closeProfileVC() {
@@ -79,7 +83,7 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     
     private func makeCollectionView() -> UICollectionView {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
-        configuration.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        configuration.backgroundColor = ColorManager.appBackgroundColor
         configuration.headerMode = .supplementary
         
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
@@ -124,10 +128,15 @@ extension ProfileEditingViewController {
     {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.list.identifire, for: indexPath) as? ProfileEditingListCell else {fatalError("Could not deqeue CustomListCell")}
         
-        cell.textField.placeholder = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
+        let placeholderText = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
         
-        if profileEditingViewModel.userDataItems[indexPath.item] != nil {
-            cell.textField.text = profileEditingViewModel.userDataItems[indexPath.item]
+        let textFieldText = profileEditingViewModel.userDataItems[indexPath.item]
+        
+        cell.textField.attributedPlaceholder = cell.createAttributedPlaceholder(with: placeholderText)
+        
+        if let text = textFieldText
+        {
+            cell.textField.attributedText = cell.createAttributedText(with: text)
         }
         
         cell.onTextChanged = { [weak self] text in
@@ -135,7 +144,7 @@ extension ProfileEditingViewController {
         }
         return cell
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView
     {
         guard let headerCell = collectionView.dequeueReusableSupplementaryView(

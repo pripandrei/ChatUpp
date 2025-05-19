@@ -137,6 +137,7 @@ class ChatsViewController: UIViewController {
         {
             textField.backgroundColor = ColorManager.navigationSearchFieldBackgroundColor
             textField.attributedPlaceholder = NSAttributedString(string: "Search", attributes: [.foregroundColor: #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)])
+            textField.textColor = ColorManager.textFieldTextColor
             searchIcon.tintColor = #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)
         }
     }
@@ -388,6 +389,7 @@ extension ChatsViewController
                                               target: self,
                                               action: #selector(presentGropupOptionScreen))
         self.navigationItem.rightBarButtonItem = trailingBarItem
+        self.navigationItem.rightBarButtonItem?.tintColor = ColorManager.actionButtonsTintColor
         
     }
     

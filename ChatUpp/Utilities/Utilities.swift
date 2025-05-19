@@ -51,8 +51,12 @@ struct Utilities {
     {
         let appearance = UINavigationBarAppearance()
         
-        appearance.backgroundColor = ColorManager.navigationBarBackgroundColor.withAlphaComponent(0.85)
-        appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
+//        appearance.backgroundColor = ColorManager.navigationBarBackgroundColor.withAlphaComponent(0.85)
+//        appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
+        
+        appearance.backgroundColor = ColorManager.tabBarBackgroundColor.withAlphaComponent(0.85)
+        appearance.backgroundEffect = UIBlurEffect(style: .light)
+        
         appearance.shadowColor = .white.withAlphaComponent(0.5)
         
         appearance.titleTextAttributes = [.foregroundColor: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), .font: UIFont(name: "HelveticaNeue-bold", size: 17)!]
@@ -105,7 +109,7 @@ struct Utilities {
     
     static func setGradientBackground(forView view: UIView) {
         let colorTop = #colorLiteral(red: 0.7123333812, green: 0.5818203092, blue: 0.5612760186, alpha: 1).cgColor
-        let colorBottom = #colorLiteral(red: 0.2067199647, green: 0.1390456259, blue: 0.131729126, alpha: 1).cgColor
+        let colorBottom = #colorLiteral(red: 0.1738350689, green: 0.125146687, blue: 0.1836120486, alpha: 1).cgColor
         
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [colorTop, colorBottom]

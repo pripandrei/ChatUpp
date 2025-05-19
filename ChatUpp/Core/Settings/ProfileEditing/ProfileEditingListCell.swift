@@ -17,7 +17,7 @@ class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate
     override func updateConfiguration(using state: UICellConfigurationState)
     {
         var newConfiguration = UIBackgroundConfiguration.listGroupedCell().updated(for: state)
-        let customColor = #colorLiteral(red: 0.1057919934, green: 0.2902272344, blue: 0.4154375792, alpha: 1).withAlphaComponent(0.5)
+        let customColor = ColorManager.listCellBackgroundColor
         newConfiguration.backgroundColor = customColor
         backgroundConfiguration = newConfiguration
     }
@@ -35,7 +35,8 @@ class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate
     {
         let textfield = UITextField(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: self.bounds.width, height: self.bounds.height)))
         textfield.delegate = self
-        textfield.textColor = .black
+//        textfield.textColor = .black
+//        textfield.attributedPlaceholder = NSAttributedString(string: "Placeholder", attributes: [.foregroundColor : ColorManager.textPlaceholderColor])
         textfield.layer.sublayerTransform = CATransform3DMakeTranslation(20, 0, 0)
         self.contentView.addSubview(textfield)
 
@@ -52,5 +53,18 @@ class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate
             onTextChanged?(updatedText as String)
         }
         return true
+    }
+    
+    func createAttributedPlaceholder(with text: String) -> NSAttributedString
+    {
+        return NSAttributedString(string: text,
+                                  attributes: [.foregroundColor : ColorManager.textFieldPlaceholderColor])
+    }
+    
+    
+    func createAttributedText(with text: String) -> NSAttributedString
+    {
+        return NSAttributedString(string: text,
+                                  attributes: [.foregroundColor : ColorManager.textFieldTextColor])
     }
 }

@@ -19,9 +19,24 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
     {
         super.viewDidLoad()
         
-        view.backgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
+        view.backgroundColor = ColorManager.tabBarBackgroundColor
         tabBar.isHidden = true
         self.delegate = self
+    }
+    
+    private func setupNavigationController()
+    {
+        guard let chatsVC = chatsVC,
+              let settingsVC = settingsVC else { return }
+        
+        chatsNavigationController = UINavigationController(rootViewController: chatsVC)
+        settingsNavigationController = UINavigationController(rootViewController: settingsVC)
+        
+        chatsNavigationController?.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
+        settingsNavigationController?.tabBarItem = UITabBarItem(title: "Settings", image: nil, tag: 2)
+        
+        chatsNavigationController?.navigationBar.tintColor = ColorManager.actionButtonsTintColor
+        settingsNavigationController?.navigationBar.tintColor = ColorManager.actionButtonsTintColor
     }
     
     func setupTabBarController()
@@ -29,11 +44,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         chatsVC = ChatsViewController()
         settingsVC = SettingsViewController()
 
-        chatsNavigationController = UINavigationController(rootViewController: chatsVC!)
-        settingsNavigationController = UINavigationController(rootViewController: settingsVC!)
-        
-        chatsNavigationController?.tabBarItem = UITabBarItem(title: "Chats", image: nil, tag: 1)
-        settingsNavigationController?.tabBarItem = UITabBarItem(title: "Settings", image: nil, tag: 2)
+        setupNavigationController()
         
         viewControllers = [chatsNavigationController!,settingsNavigationController!]
         
@@ -50,15 +61,12 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         let tabBarItemAppearance = UITabBarItemAppearance()
 
         tabBarAppearance.backgroundColor = ColorManager.navigationBarBackgroundColor.withAlphaComponent(0.85)
-        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
-        
-//        tabBarAppearance.backgroundColor = ColorManager.tabBarColor.withAlphaComponent(0.1)
-//        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
-        
-        tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)]
-        tabBarItemAppearance.selected.iconColor = #colorLiteral(red: 0, green: 0.6879786849, blue: 1, alpha: 1)
-        tabBarItemAppearance.normal.iconColor = #colorLiteral(red: 0.4879326224, green: 0.617406249, blue: 0.6558095217, alpha: 1)
-        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.4879326224, green: 0.617406249, blue: 0.6558095217, alpha:  1), NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
+        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .light)
+
+        tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarSelectedItemsTintColor]
+        tabBarItemAppearance.selected.iconColor = ColorManager.tabBarSelectedItemsTintColor
+        tabBarItemAppearance.normal.iconColor = ColorManager.tabBarNormalItemsTintColor
+        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarNormalItemsTintColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
 
         tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
         
@@ -66,7 +74,6 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         
         tabBar.standardAppearance = tabBarAppearance
         tabBar.scrollEdgeAppearance = tabBarAppearance
-        
     }
 
     func addTabbarIcons() {

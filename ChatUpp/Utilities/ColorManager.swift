@@ -13,15 +13,20 @@ struct ColorManager
 //    static let oldMainAppColor: UIColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     
 //    static let appBackgroundColor: UIColor = #colorLiteral(red: 0.3515735269, green: 0.3108177483, blue: 0.3511140943, alpha: 1)
-    static let appBackgroundColor: UIColor = #colorLiteral(red: 0.2894964814, green: 0.2559292912, blue: 0.289111197, alpha: 1)
-    static let navigationBarBackgroundColor: UIColor = #colorLiteral(red: 0.2511927187, green: 0.2273778915, blue: 0.2333565354, alpha: 1)
-    static let navigationSearchFieldBackgroundColor: UIColor = #colorLiteral(red: 0.3212527633, green: 0.2840082049, blue: 0.3208295405, alpha: 1)
-    static let tabBarBackgroundColor: UIColor = navigationBarBackgroundColor
-    static let tabBarItemsTintColor: UIColor = actionButtonsTintColor
-    static let cellSelectionBackgroundColor: UIColor = #colorLiteral(red: 0.3262649179, green: 0.3006753623, blue: 0.3011517525, alpha: 1)
-    static let actionButtonsTintColor: UIColor = #colorLiteral(red: 0.468229115, green: 0.2259758115, blue: 0.5086464882, alpha: 1)
+    static let appBackgroundColor: UIColor = #colorLiteral(red: 0.2099263668, green: 0.151156038, blue: 0.2217666507, alpha: 1)
+    static let navigationBarBackgroundColor: UIColor = #colorLiteral(red: 0.2135980725, green: 0.1503953636, blue: 0.2242289484, alpha: 1)
+    static let navigationSearchFieldBackgroundColor: UIColor = #colorLiteral(red: 0.1695529222, green: 0.1113216504, blue: 0.1723338962, alpha: 1)
+    static let tabBarBackgroundColor: UIColor = #colorLiteral(red: 0.2214901745, green: 0.1582537889, blue: 0.2320964336, alpha: 1)
+    static let tabBarSelectedItemsTintColor: UIColor = actionButtonsTintColor
+    static let tabBarNormalItemsTintColor: UIColor = #colorLiteral(red: 0.5385198593, green: 0.4843533039, blue: 0.5624566674, alpha: 1)
+    static let cellSelectionBackgroundColor: UIColor = #colorLiteral(red: 0.1026760712, green: 0.07338444144, blue: 0.1081472859, alpha: 1)
+    static let listCellBackgroundColor: UIColor = #colorLiteral(red: 0.2667922974, green: 0.1890299022, blue: 0.2787306905, alpha: 1)
+    static let actionButtonsTintColor: UIColor = #colorLiteral(red: 0.8031871915, green: 0.4191343188, blue: 0.9248215556, alpha: 1)
     static let mainAppBackgroundColorGradientTop: UIColor = #colorLiteral(red: 0.468229115, green: 0.2259758115, blue: 0.5086464882, alpha: 1)
     static let mainAppBackgroundColorGradientBottom: UIColor = #colorLiteral(red: 0.468229115, green: 0.2259758115, blue: 0.5086464882, alpha: 1)
+    
+    static let textFieldPlaceholderColor: UIColor = #colorLiteral(red: 0.5250927806, green: 0.5004045963, blue: 0.5016652346, alpha: 1)
+    static let textFieldTextColor: UIColor = .white
     
     
     private static let messageBackgroundColors: [UIColor] = [#colorLiteral(red: 0.5666766763, green: 0.2653866708, blue: 0.3898352087, alpha: 1), #colorLiteral(red: 0.3151230216, green: 0.3269421458, blue: 0.5721591115, alpha: 1), #colorLiteral(red: 0.1290415525, green: 0.4660907388, blue: 0.1841244996, alpha: 1), #colorLiteral(red: 0.5664714575, green: 0.3413798809, blue: 0.1262274683, alpha: 1), #colorLiteral(red: 0.4946692586, green: 0.2387150526, blue: 0.537415266, alpha: 1)]
