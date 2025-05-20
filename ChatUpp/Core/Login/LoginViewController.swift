@@ -166,7 +166,8 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         
         NSLayoutConstraint.activate([
             signUpLable.topAnchor.constraint(equalTo: mailSignInButton.bottomAnchor, constant: 22),
-            signUpLable.leadingAnchor.constraint(equalTo: mailSignInButton.leadingAnchor, constant: 40)
+//            signUpLable.leadingAnchor.constraint(equalTo: mailSignInButton.leadingAnchor, constant: 40)
+            signUpLable.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -20)
         ])
     }
 

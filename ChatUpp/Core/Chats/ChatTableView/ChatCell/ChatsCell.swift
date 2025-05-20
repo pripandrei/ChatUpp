@@ -47,6 +47,12 @@ class ChatsCell: UITableViewCell {
         print("chatCellVM was deinit =====")
     }
     
+    override func layoutSubviews()
+    {
+        super.layoutSubviews()
+        profileImage.layer.cornerRadius = profileImage.bounds.width / 2
+    }
+    
     //MARK: - CELL CONFIGURATION
     
     func configure(viewModel: ChatCellViewModel) {
@@ -202,10 +208,11 @@ extension ChatsCell {
 //MARK: - UI SETUP
 extension ChatsCell {
     
-    private func setupUI() {
+    private func setupUI()
+    {
+        setProfileImage()
         setMessageLable()
         setNameLabel()
-        setProfileImage()
         setDateLable()
         setupUnreadMessagesCountLabel()
         createOnlineStatusView()
@@ -218,7 +225,7 @@ extension ChatsCell {
         contentView.addSubview(onlineStatusCircleView)
         
         onlineStatusCircleView.backgroundColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
-        onlineStatusCircleView.layer.borderColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1).cgColor
+        onlineStatusCircleView.layer.borderColor = ColorManager.appBackgroundColor.cgColor
         onlineStatusCircleView.layer.borderWidth = 2
         onlineStatusCircleView.layer.cornerRadius = 18 / 2
         onlineStatusCircleView.clipsToBounds = true
@@ -226,8 +233,8 @@ extension ChatsCell {
         onlineStatusCircleView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 18),
-            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 18),
+            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 17),
+            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 17),
             onlineStatusCircleView.trailingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 2),
             onlineStatusCircleView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -1),
         ])
@@ -273,7 +280,7 @@ extension ChatsCell {
         
         NSLayoutConstraint.activate([
             messageLable.topAnchor.constraint(equalTo: self.topAnchor, constant: self.bounds.height * 0.60),
-            messageLable.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 77),
+            messageLable.leadingAnchor.constraint(equalTo: self.profileImage.trailingAnchor, constant: 10),
             messageLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -55),
             messageLable.heightAnchor.constraint(equalToConstant: 37)
         ])
@@ -298,29 +305,32 @@ extension ChatsCell {
         
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 7),
-            nameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -55),
+            nameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -65),
             nameLabel.bottomAnchor.constraint(equalTo: messageLable.topAnchor, constant: -1),
-            nameLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 77)
+            nameLabel.leadingAnchor.constraint(equalTo: self.profileImage.trailingAnchor, constant: 10)
         ])
     }
     
-    private func setProfileImage() {
+    private func setProfileImage()
+    {
         contentView.addSubview(profileImage)
-        profileImage.layer.cornerRadius = self.bounds.size.width * 0.09
+//        profileImage.layer.cornerRadius = self.bounds.size.width * 0.09
         profileImage.clipsToBounds = true
         profileImage.isSkeletonable = true
         
         setProfileImageConstraints()
     }
     
-    private func setProfileImageConstraints() {
+    private func setProfileImageConstraints()
+    {
         profileImage.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             profileImage.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            profileImage.widthAnchor.constraint(equalTo: profileImage.heightAnchor),
-            profileImage.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 0.15)
+            profileImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 7),
+            profileImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant:  -7),
+            profileImage.widthAnchor.constraint(equalTo: profileImage.heightAnchor)
         ])
     }
     
