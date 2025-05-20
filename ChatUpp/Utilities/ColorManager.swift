@@ -9,10 +9,7 @@ import UIKit
 
 struct ColorManager
 {
-    
 //    static let oldMainAppColor: UIColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-    
-//    static let appBackgroundColor: UIColor = #colorLiteral(red: 0.3515735269, green: 0.3108177483, blue: 0.3511140943, alpha: 1)
     static let appBackgroundColor: UIColor = #colorLiteral(red: 0.2099263668, green: 0.151156038, blue: 0.2217666507, alpha: 1)
     static let appBackgroundColor2: UIColor = #colorLiteral(red: 0.1236810908, green: 0.08473216742, blue: 0.1324510276, alpha: 1)
     static let navigationBarBackgroundColor: UIColor = #colorLiteral(red: 0.2135980725, green: 0.1503953636, blue: 0.2242289484, alpha: 1)
@@ -43,9 +40,7 @@ struct ColorManager
     static let messageEventBackgroundColor: UIColor = #colorLiteral(red: 0.2021965683, green: 0.2685731351, blue: 0.3312993646, alpha: 1)
     static let messageSeenStatusIconColor: UIColor = outgoingMessageTimestampTextColor
     
-    
-    
-    private static let messageBackgroundColors: [UIColor] = [#colorLiteral(red: 0.5666766763, green: 0.2653866708, blue: 0.3898352087, alpha: 1), #colorLiteral(red: 0.3151230216, green: 0.3269421458, blue: 0.5721591115, alpha: 1), #colorLiteral(red: 0.1290415525, green: 0.4660907388, blue: 0.1841244996, alpha: 1), #colorLiteral(red: 0.5664714575, green: 0.3413798809, blue: 0.1262274683, alpha: 1), #colorLiteral(red: 0.4946692586, green: 0.2387150526, blue: 0.537415266, alpha: 1)]
+    private static let messageBackgroundColors: [UIColor] = [#colorLiteral(red: 0.8381425738, green: 0.3751247525, blue: 0.5768371224, alpha: 1), #colorLiteral(red: 0.2789569199, green: 0.7063412666, blue: 0.7922309637, alpha: 1), #colorLiteral(red: 0.1472819448, green: 0.5721367598, blue: 0.2217415869, alpha: 1), #colorLiteral(red: 0.7625821829, green: 0.4211770296, blue: 0.1522820294, alpha: 1), #colorLiteral(red: 0.7118884921, green: 0.3784905672, blue: 0.7786803842, alpha: 1)]
     
     static func color(for objectID: String) -> UIColor
     {

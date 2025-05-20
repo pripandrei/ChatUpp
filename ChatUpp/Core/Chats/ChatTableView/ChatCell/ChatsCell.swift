@@ -32,7 +32,6 @@ class ChatsCell: UITableViewCell {
         contentView.isSkeletonable = true
         
         let cellBackground = UIView()
-//        cellBackground.backgroundColor = #colorLiteral(red: 0.09686327726, green: 0.2637034953, blue: 0.3774781227, alpha: 1)
         cellBackground.backgroundColor = ColorManager.cellSelectionBackgroundColor
         self.selectedBackgroundView = cellBackground
         self.backgroundColor = .clear
@@ -51,6 +50,7 @@ class ChatsCell: UITableViewCell {
     {
         super.layoutSubviews()
         profileImage.layer.cornerRadius = profileImage.bounds.width / 2
+        onlineStatusCircleView.layer.cornerRadius = onlineStatusCircleView.bounds.width / 2
     }
     
     //MARK: - CELL CONFIGURATION
@@ -227,7 +227,6 @@ extension ChatsCell {
         onlineStatusCircleView.backgroundColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
         onlineStatusCircleView.layer.borderColor = ColorManager.appBackgroundColor.cgColor
         onlineStatusCircleView.layer.borderWidth = 2
-        onlineStatusCircleView.layer.cornerRadius = 18 / 2
         onlineStatusCircleView.clipsToBounds = true
         onlineStatusCircleView.isHidden = true
         onlineStatusCircleView.translatesAutoresizingMaskIntoConstraints = false
