@@ -28,7 +28,7 @@ struct SelectedGroupMembersView: View
         VStack {
             Circle()
                 .frame(width: 60, height: 60)
-                .foregroundStyle(Color(ColorManager.tabBarNormalItemsTintColor))
+                .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
                 .overlay(alignment: .topTrailing) {
                     cancelButton(for: user)
                 }
@@ -47,8 +47,8 @@ struct SelectedGroupMembersView: View
             Image(systemName: "xmark")
                 .imageScale(.small)
                 .padding(.all, 5)
-                .foregroundStyle(Color(ColorManager.appBackgroundColor))
-                .background(Color(ColorManager.actionButtonsTintColor))
+                .background(Color(ColorManager.tabBarNormalItemsTintColor))
+                .foregroundStyle(Color(ColorManager.textFieldTextColor))
                 .clipShape(.circle)
         }
 

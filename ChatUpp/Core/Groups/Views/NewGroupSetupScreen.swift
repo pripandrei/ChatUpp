@@ -21,6 +21,8 @@ struct NewGroupSetupScreen: View
             headerSection()
             addedMembersSection()
         }
+        .scrollContentBackground(.hidden)
+        .background(Color(ColorManager.appBackgroundColor))
         .navigationTitle("New Group")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -37,6 +39,7 @@ struct NewGroupSetupScreen: View
                 }
             } label: {
                 Text("Create")
+                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
             }
         }
     }
@@ -60,6 +63,7 @@ extension NewGroupSetupScreen
                    }
                }
            }
+           .listRowBackground(Color(ColorManager.listCellBackgroundColor))
            .sheet(item: $imageDataContainer) { container in
                CropViewControllerRepresentable(imageData: container.item, imageRepositoryRepresentable: viewModel)
            }
@@ -70,6 +74,7 @@ extension NewGroupSetupScreen
         Section {
             ForEach(viewModel.selectedGroupMembers) { user in
                 UserView(userItem: user)
+                    .listRowBackground(Color(ColorManager.listCellBackgroundColor))
             }
         }
     }
@@ -104,8 +109,8 @@ extension NewGroupSetupScreen
                         .scaledToFit()
                         .frame(width: systemImageSize, height: systemImageSize)
                         .padding(padding)
-                        .foregroundStyle(Color(#colorLiteral(red: 0.5159683824, green: 0.7356743217, blue: 0.9494176507, alpha: 1)))
-                        .background(Color(#colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)))
+                        .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                        .background(Color(ColorManager.mainAppBackgroundColorGradientTop))
                         .clipShape(Circle())
                 }
             }
@@ -114,10 +119,13 @@ extension NewGroupSetupScreen
     }
     
     private func groupNameTextField() -> some View {
-        TextField("Group Name", text: $viewModel.groupName)
-            .padding(.leading, 10)
-            .font(Font.system(size: 19, weight: .semibold))
-            .foregroundStyle(Color(#colorLiteral(red: 0.4086711407, green: 0.4086711407, blue: 0.4086711407, alpha: 1)))
+        TextField("",
+                  text: $viewModel.groupName,
+                  prompt: Text(verbatim: "Group Name").foregroundColor(Color(ColorManager.textFieldPlaceholderColor))
+        )
+        .padding(.leading, 10)
+        .font(Font.system(size: 19, weight: .semibold))
+        .foregroundStyle(Color(ColorManager.textFieldTextColor))
     }
     
     private func removeTextButton() -> some View
