@@ -17,6 +17,7 @@ struct GroupMembersSelectionScreen: View
         List {
             if viewModel.showSelectedUsers {
                 SelectedGroupMembersView(selectedMembers: $viewModel.selectedGroupMembers)
+                    .listRowBackground(Color(ColorManager.listCellBackgroundColor))
             }
             
             Section {
@@ -26,9 +27,12 @@ struct GroupMembersSelectionScreen: View
                     } label: {
                         rowView(for: user)
                     }.buttonStyle(.plain)
+                        .listRowBackground(Color(ColorManager.listCellBackgroundColor))
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color(ColorManager.appBackgroundColor))
         .animation(.easeInOut, value: viewModel.showSelectedUsers)
         .searchable(text: $searchText,
                     placement: .navigationBarDrawer(displayMode: .always),
@@ -84,7 +88,7 @@ extension GroupMembersSelectionScreen
         
         ToolbarItem(placement: .topBarTrailing)
         {
-            let foregroundColor = viewModel.disableNextButton ? Color.gray : Color.white
+            let foregroundColor = viewModel.disableNextButton ? Color.gray : Color(ColorManager.actionButtonsTintColor)
             Button("Next") {
                 viewModel.navigationStack.append(.setupGroupDetails)
             }
