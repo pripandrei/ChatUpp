@@ -14,30 +14,41 @@ struct GroupCreationScreen: View
     @State private var searchText = ""
     @Environment(\.dismiss) private var dismiss
     
-    var body: some View {
+    var body: some View
+    {
         NavigationStack(path: $groupCreationViewModel.navigationStack) {
+            //            ZStack {
+            // Set the full-screen background color
+            //                Color(ColorManager.appBackgroundColor)
+            //                    .ignoresSafeArea() // Extend to edges
+            
             List {
                 ForEach(NewChatOption.allCases) { item in
                     NewChatOptionHeaderView(item: item)
                         .onTapGesture {
                             groupCreationViewModel.navigationStack.append(.addGroupMembers)
                         }
+                        .listRowBackground(Color(ColorManager.listCellBackgroundColor))
                 }
                 Section {
                     ForEach(groupCreationViewModel.allUsers) { member in
                         UserView(userItem: member)
+                            .listRowBackground(Color(ColorManager.listCellBackgroundColor))
                     }
                 } header: {
                     Text("Users")
                         .font(.subheadline)
                         .bold()
+                        .foregroundStyle(Color(ColorManager.tabBarNormalItemsTintColor))
                 }
             }
             .padding(.top, 1)
-            .background(Color(#colorLiteral(red: 0.949019134, green: 0.9490200877, blue: 0.9705253243, alpha: 1)))
+            .scrollContentBackground(.hidden)
+            .background(Color(ColorManager.appBackgroundColor))
             .searchable(text: $searchText,
                         placement: .navigationBarDrawer(displayMode: .always),
                         prompt: "search for name")
+            //            }
             .navigationTitle("New group")
             .navigationDestination(for: GroupCreationRoute.self, destination: { route in
                 destinationRouteView(route)
@@ -86,14 +97,14 @@ extension GroupCreationScreen
     {
         Button {
             dismiss()
-//            dismiss.callAsFunction()
+            //            dismiss.callAsFunction()
         } label: {
             Image(systemName: "xmark")
                 .font(.system(size: 10))
                 .bold()
-                .foregroundStyle(.gray)
+                .foregroundStyle(Color(ColorManager.appBackgroundColor))
                 .padding(7)
-                .background(Color(.systemGray5))
+                .background(Color(ColorManager.actionButtonsTintColor))
                 .clipShape(.circle)
         }
     }
@@ -121,13 +132,15 @@ extension GroupCreationScreen
         {
             HStack {
                 Image(systemName: item.imageName)
-                    .font(.system(size: 15))
+                    .font(.system(size: 20))
                     .frame(width: 37, height: 37)
-                    .background(Color(.systemGray6))
+                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                //                    .background(Color(.systemGray6))
                     .clipShape(.circle)
                     .padding(.trailing, 10)
                 
                 Text(item.title)
+                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
                     .font(.system(size: 16))
             }
         }
@@ -175,7 +188,7 @@ struct UserItem: Identifiable
         let userItems = (1..<17).map { number in
             UserItem(name: names.randomElement()!, bio: bios.randomElement()!)
         }
-
+        
         return userItems
     }()
     
@@ -191,7 +204,7 @@ struct UserItem: Identifiable
         self.bio = bio
         self.image = image
     }
-
+    
 }
 
 //struct ContentView_Previews: PreviewProvider {
@@ -202,5 +215,5 @@ struct UserItem: Identifiable
 
 #Preview {
     GroupCreationScreen()
-//    UserView()
+    //    UserView()
 }

@@ -25,15 +25,16 @@ struct UserView<Content: View>: View
             Circle()
                 .frame(width: 37, height: 37)
                 .padding(.trailing, 10)
+                .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
             
             VStack(alignment: .leading) {
                 Text(userItem.name ?? "")
                     .bold()
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(.white)
                 
                 Text(userItem.lastSeen?.formatToYearMonthDayCustomString() ?? "Last seen recently")
                     .font(.caption)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(Color(ColorManager.textFieldPlaceholderColor))
             }
             trailingItems
         }
