@@ -39,7 +39,7 @@ final class InputBarHeaderView: UIView {
     // MARK: - Setup subviews
     
     func setupSubviews() {
-        backgroundColor = #colorLiteral(red: 0.1677602232, green: 0.3210971653, blue: 0.4742530584, alpha: 1)
+        backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
         setupSelfHeightConstraint()
         
         setupEditLabel()
@@ -63,7 +63,7 @@ final class InputBarHeaderView: UIView {
         titleLabel = UILabel()
         
         titleLabel?.text                                      = mode == .edit ? "Edit Message" : "Reply to "
-        titleLabel?.textColor                                 = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        titleLabel?.textColor                                 = ColorManager.actionButtonsTintColor
         titleLabel?.font                                      = UIFont.boldSystemFont(ofSize: 15)
         titleLabel?.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(titleLabel!)
@@ -86,7 +86,7 @@ final class InputBarHeaderView: UIView {
     }
     private func setupSeparator() {
         separatorLabel                                            = UILabel()
-        separatorLabel?.backgroundColor                           = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        separatorLabel?.backgroundColor                           = ColorManager.actionButtonsTintColor
         separatorLabel?.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(separatorLabel!)
         
@@ -98,7 +98,7 @@ final class InputBarHeaderView: UIView {
     
     private func setupEditePenIcon() {
         symbolIcon                                            = UIImageView()
-        symbolIcon?.tintColor                                 = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        symbolIcon?.tintColor                                 = ColorManager.actionButtonsTintColor
         symbolIcon?.image                                     = mode == .edit ? UIImage(systemName: "pencil") : UIImage(systemName: "arrowshape.turn.up.left")
         symbolIcon?.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(symbolIcon!)
@@ -111,7 +111,7 @@ final class InputBarHeaderView: UIView {
     
     private func setupCloseButton() {
         closeInputBarHeaderView                                            = UIImageView()
-        closeInputBarHeaderView?.tintColor                                 = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        closeInputBarHeaderView?.tintColor                                 = ColorManager.actionButtonsTintColor
         closeInputBarHeaderView?.image                                     = UIImage(systemName: "xmark")
         closeInputBarHeaderView?.isUserInteractionEnabled                  = true
         closeInputBarHeaderView?.translatesAutoresizingMaskIntoConstraints = false
@@ -131,6 +131,6 @@ final class InputBarHeaderView: UIView {
         messageText = nil
         separatorLabel  = nil
         symbolIcon     = nil
-        closeInputBarHeaderView   = nil
+        closeInputBarHeaderView = nil
     }
 }

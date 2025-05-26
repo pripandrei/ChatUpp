@@ -113,11 +113,11 @@ final class ChatRoomRootView: UIView {
     
     private(set) var sendEditMessageButton: UIButton = {
         let sendEditMessageButton = UIButton()
-        sendEditMessageButton.frame.size                                = CGSize(width: 35, height: 35)
+//        sendEditMessageButton.frame.size                                = CGSize(width: 35, height: 35)
         sendEditMessageButton.configuration                             = .filled()
         sendEditMessageButton.configuration?.image                      = UIImage(systemName: "checkmark")
-        sendEditMessageButton.configuration?.baseBackgroundColor        = UIColor.blue
-        sendEditMessageButton.layer.cornerRadius                        = sendEditMessageButton.frame.size.width / 2.0
+        sendEditMessageButton.configuration?.baseBackgroundColor        = ColorManager.sendMessageButtonBackgroundColor
+//        sendEditMessageButton.layer.cornerRadius                        = sendEditMessageButton.frame.size.width / 2.0
         sendEditMessageButton.clipsToBounds                             = true
         sendEditMessageButton.isHidden                                  = true
         sendEditMessageButton.translatesAutoresizingMaskIntoConstraints = false
@@ -197,6 +197,7 @@ final class ChatRoomRootView: UIView {
     {
         super.layoutSubviews()
         sendMessageButton.layer.cornerRadius = sendMessageButton.bounds.height / 2
+        sendEditMessageButton.layer.cornerRadius = sendEditMessageButton.bounds.height / 2
         scrollBadgeButton.layer.cornerRadius = scrollBadgeButton.bounds.size.width / 2
     }
     
@@ -405,10 +406,10 @@ extension ChatRoomRootView
         self.addSubviews(sendEditMessageButton)
         
         NSLayoutConstraint.activate([
-            sendEditMessageButton.heightAnchor.constraint(equalToConstant: 35),
-            sendEditMessageButton.widthAnchor.constraint(equalToConstant: 35),
-            sendEditMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: 8),
-            sendEditMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 10),
+            sendEditMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 5),
+            sendEditMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
+            sendEditMessageButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
+            sendEditMessageButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
         ])
     }
 }
