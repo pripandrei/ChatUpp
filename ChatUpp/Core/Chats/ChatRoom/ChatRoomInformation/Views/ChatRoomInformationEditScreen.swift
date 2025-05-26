@@ -8,7 +8,7 @@
 import SwiftUI
 import PhotosUI
 
-struct ChatRoomIformationEditScreen: View
+struct ChatRoomInformationEditScreen: View
 {
     @Environment(\.dismiss) private var dismiss
     
@@ -16,7 +16,7 @@ struct ChatRoomIformationEditScreen: View
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var imageDataContainer: IdentifiableItem<Data>?
     
-    @Binding var dataIsEdited: Bool 
+    @Binding var dataIsEdited: Bool
     
     var body: some View
     {
@@ -25,14 +25,19 @@ struct ChatRoomIformationEditScreen: View
                 Section {
                     ForEach(EditOptionFields.allCases) { option in
                         switch option {
-                        case .title:  TextField(option.placeHolder, text: $viewModel.groupTitle)
-                        case .groupInfo: TextField(option.placeHolder, text: $viewModel.groupDescription)
+                        case .title:
+                            textField($viewModel.groupTitle, placeholder: option.placeHolder)
+                        case .groupInfo:
+                            textField($viewModel.groupDescription, placeholder: option.placeHolder)
                         }
                     }
                 } header: {
                     headerView()
                 }
+                .listRowBackground(Color(ColorManager.listCellBackgroundColor))
             }
+            .scrollContentBackground(.hidden)
+            .background(Color(ColorManager.appBackgroundColor))
             .toolbar {
                 toolbarContent()
             }
@@ -41,10 +46,21 @@ struct ChatRoomIformationEditScreen: View
     }
 }
 
-
+//MARK: - Custom textField
+extension ChatRoomInformationEditScreen
+{
+    private func textField(_ text: Binding<String>,
+                           placeholder: String) -> some View
+    {
+        return TextField("",
+                         text: text,
+                         prompt: Text(verbatim: placeholder).foregroundColor(Color(ColorManager.textFieldPlaceholderColor)))
+        .foregroundStyle(Color(ColorManager.textFieldTextColor))
+    }
+}
 
 //MARK: - Edit Option Fields
-extension ChatRoomIformationEditScreen
+extension ChatRoomInformationEditScreen
 {
     enum EditOptionFields: String, Identifiable, CaseIterable
     {
@@ -65,7 +81,7 @@ extension ChatRoomIformationEditScreen
 }
 
 //MARK: - Header view
-extension ChatRoomIformationEditScreen
+extension ChatRoomInformationEditScreen
 {
     private func headerView() -> some View {
         VStack {
@@ -95,7 +111,7 @@ extension ChatRoomIformationEditScreen
                     .font(.body)
                     .fontWeight(.medium)
                     .textCase(nil)
-                    .foregroundStyle(Color.blue)
+                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
             }
         }.buttonStyle(.plain)
     }
@@ -136,7 +152,7 @@ extension ChatRoomIformationEditScreen
 }
 
 //MARK: - Header image functions
-extension ChatRoomIformationEditScreen
+extension ChatRoomInformationEditScreen
 {
     private func extractImageData() async -> Data? {
         do {
@@ -149,7 +165,7 @@ extension ChatRoomIformationEditScreen
 }
 
 //MARK: - Toolbar content
-extension ChatRoomIformationEditScreen
+extension ChatRoomInformationEditScreen
 {
     @ToolbarContentBuilder
     private func toolbarContent() -> some ToolbarContent
@@ -171,7 +187,7 @@ extension ChatRoomIformationEditScreen
             Text("Cancel")
                 .font(.system(size: 16))
                 .bold()
-                .foregroundStyle(.blue)
+                .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
         }
     }
     
@@ -191,12 +207,12 @@ extension ChatRoomIformationEditScreen
             Text("Save")
                 .font(.system(size: 16))
                 .bold()
-                .foregroundStyle(.blue)
+                .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
         }
     }
 }
 
 #Preview {
-    ChatRoomIformationEditScreen(viewModel: ChatRoomInformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")), dataIsEdited: .constant(false)
+    ChatRoomInformationEditScreen(viewModel: ChatRoomInformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")), dataIsEdited: .constant(false)
     )
 }

@@ -127,7 +127,7 @@
 		75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */; };
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
 		75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */; };
-		75E8AABE2D918C68007479E4 /* ChatRoomIformationEditScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABD2D918C68007479E4 /* ChatRoomIformationEditScreen.swift */; };
+		75E8AABE2D918C68007479E4 /* ChatRoomInformationEditScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABD2D918C68007479E4 /* ChatRoomInformationEditScreen.swift */; };
 		75E8AAC02D9192ED007479E4 /* ChatRoomInformationEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABF2D9192EC007479E4 /* ChatRoomInformationEditViewModel.swift */; };
 		75E8AAC22D9213F9007479E4 /* ImageRepositoryRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */; };
 		75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */; };
@@ -291,7 +291,7 @@
 		75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSignInViewController.swift; sourceTree = "<group>"; };
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
 		75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeUserService.swift; sourceTree = "<group>"; };
-		75E8AABD2D918C68007479E4 /* ChatRoomIformationEditScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomIformationEditScreen.swift; sourceTree = "<group>"; };
+		75E8AABD2D918C68007479E4 /* ChatRoomInformationEditScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomInformationEditScreen.swift; sourceTree = "<group>"; };
 		75E8AABF2D9192EC007479E4 /* ChatRoomInformationEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomInformationEditViewModel.swift; sourceTree = "<group>"; };
 		75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepositoryRepresentable.swift; sourceTree = "<group>"; };
 		75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableRealmObjectProcotol.swift; sourceTree = "<group>"; };
@@ -445,7 +445,7 @@
 			isa = PBXGroup;
 			children = (
 				756E6D232D88A64D0065CADB /* ChatRoomInformationScreen.swift */,
-				75E8AABD2D918C68007479E4 /* ChatRoomIformationEditScreen.swift */,
+				75E8AABD2D918C68007479E4 /* ChatRoomInformationEditScreen.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1048,7 +1048,7 @@
 				757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */,
 				75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
-				75E8AABE2D918C68007479E4 /* ChatRoomIformationEditScreen.swift in Sources */,
+				75E8AABE2D918C68007479E4 /* ChatRoomInformationEditScreen.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
 				7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */,
 				757E81B72D29957F00727277 /* NewGroupSetupScreen.swift in Sources */,

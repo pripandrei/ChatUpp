@@ -17,11 +17,6 @@ struct GroupCreationScreen: View
     var body: some View
     {
         NavigationStack(path: $groupCreationViewModel.navigationStack) {
-            //            ZStack {
-            // Set the full-screen background color
-            //                Color(ColorManager.appBackgroundColor)
-            //                    .ignoresSafeArea() // Extend to edges
-            
             List {
                 ForEach(NewChatOption.allCases) { item in
                     NewChatOptionHeaderView(item: item)

@@ -25,11 +25,8 @@ struct UserView<Content: View>: View
     }
     
     var body: some View {
-        HStack {
-//            Circle()
-//                .frame(width: 37, height: 37)
-//                .padding(.trailing, 10)
-//                .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+        HStack
+        {
             userImage()
             
             VStack(alignment: .leading) {
@@ -66,8 +63,6 @@ extension UserView
                 .resizable()
                 .scaledToFill()
                 .frame(width: imageSize, height: imageSize)
-//                .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
-//                .background(Color(ColorManager.mainAppBackgroundColorGradientTop))
                 .clipShape(Circle())
         }
     }
@@ -76,19 +71,17 @@ extension UserView
 
 final class UserViewViewModel: SwiftUI.ObservableObject
 {
-//    @Published var userImageData: Data?
     private let user: User
     
     init(user: User)
     {
         self.user = user
-//        retrieveUserImageData()
     }
     
     var imageURL: String?
     {
         if let imageURL = user.photoUrl {
-            return imageURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+            return imageURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
         }
         return nil
     }
@@ -96,7 +89,6 @@ final class UserViewViewModel: SwiftUI.ObservableObject
     func retrieveUserImageData() -> Data?
     {
         guard let url = imageURL else {return nil}
-//        self.userImageData = CacheManager.shared.retrieveImageData(from: url)
         return CacheManager.shared.retrieveImageData(from: url)
     }
 }

@@ -46,7 +46,7 @@ struct ChatRoomInformationScreen: View
                     .fullScreenCover(isPresented: $presentEditScreen) {
                         NavigationStack {
                             let chatRoomIformationEditVM = ChatRoomInformationEditViewModel(conversation: viewModel.chat)
-                            ChatRoomIformationEditScreen(viewModel: chatRoomIformationEditVM,
+                            ChatRoomInformationEditScreen(viewModel: chatRoomIformationEditVM,
                                                          dataIsEdited: $dataIsEdited)
                         }
                     }
@@ -64,15 +64,15 @@ struct ChatRoomInformationScreen: View
                     Text("Members")
                         .font(.subheadline)
                         .bold()
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(Color(ColorManager.tabBarNormalItemsTintColor))
                 }
-                .listRowBackground(Color(cgColor: #colorLiteral(red: 0.7054647803, green: 0.7069373131, blue: 0.8391894698, alpha: 1)))
+                .listRowBackground(Color(ColorManager.listCellBackgroundColor))
                 .listRowInsets(.init(top: 10, leading: 20, bottom: 10, trailing: 0))
             }
             .scrollContentBackground(.hidden)
         }
         .toolbarBackground(.clear, for: .navigationBar)
-        .background(Color(cgColor: #colorLiteral(red: 0.5539219975, green: 0.5661839247, blue: 0.656108439, alpha: 1)))
+        .background(Color(ColorManager.appBackgroundColor))
         .padding(.top, -45)
         
         LeaveChatAlert(viewModel: viewModel, isPresented: $showLeaveGroupAlert)
@@ -138,16 +138,16 @@ extension ChatRoomInformationScreen
                 Image(systemName: option.icon)
                     .resizable()
                     .frame(width: 30, height: 30, alignment: .center)
-                    .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.92651546, green: 0.7966771722, blue: 1, alpha: 1)))
+                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
                 
                 Text(option.rawValue)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color(cgColor: #colorLiteral(red: 0.92651546, green: 0.7966771722, blue: 1, alpha: 1)))
+                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
             }
             .frame(width: 80, height: 50)
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
-            .background(Color(cgColor: #colorLiteral(red: 0.4245440364, green: 0.4465940595, blue: 1, alpha: 1)).opacity(0.4))
+            .background(Color(ColorManager.listCellBackgroundColor).opacity(0.9))
             .clipShape(.rect(cornerRadius: 12))
         }
     }
