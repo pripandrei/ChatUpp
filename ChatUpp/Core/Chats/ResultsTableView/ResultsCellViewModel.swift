@@ -17,13 +17,6 @@ final class ResultsCellViewModel
     
     @Published var imageData: Data?
     
-//    init(memberUser: User?, chat: Chat? = nil, imageData: Data? = nil, unreadMessageCount: Int? = nil) {
-//        self.participant = memberUser
-//        self.chat = chat
-//        self.imageData = imageData
-//        self.unreadMessageCount = unreadMessageCount
-//    }
-    
     init(memberUser: User) {
         self.participant = memberUser
         self.chat = nil

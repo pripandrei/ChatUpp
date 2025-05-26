@@ -12,7 +12,8 @@ struct ColorManager
 //    static let oldMainAppColor: UIColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
     static let appBackgroundColor: UIColor = #colorLiteral(red: 0.2099263668, green: 0.151156038, blue: 0.2217666507, alpha: 1)
     static let appBackgroundColor2: UIColor = #colorLiteral(red: 0.1236810908, green: 0.08473216742, blue: 0.1324510276, alpha: 1)
-    static let navigationBarBackgroundColor: UIColor = #colorLiteral(red: 0.2135980725, green: 0.1503953636, blue: 0.2242289484, alpha: 1)
+    static let navigationBarBackgroundColor: UIColor = #colorLiteral(red: 0.2569749951, green: 0.1936042905, blue: 0.2717022896, alpha: 1)
+//    #colorLiteral(red: 0.2135980725, green: 0.1503953636, blue: 0.2242289484, alpha: 1)
     static let navigationSearchFieldBackgroundColor: UIColor = #colorLiteral(red: 0.1695529222, green: 0.1113216504, blue: 0.1723338962, alpha: 1)
     static let tabBarBackgroundColor: UIColor = #colorLiteral(red: 0.2214901745, green: 0.1582537889, blue: 0.2320964336, alpha: 1)
     static let tabBarSelectedItemsTintColor: UIColor = actionButtonsTintColor
