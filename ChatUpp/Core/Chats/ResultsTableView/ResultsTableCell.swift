@@ -68,14 +68,20 @@ final class ResultsTableCell: UITableViewCell {
         contentView.addSubview(profileImageView)
         
         profileImageView.isSkeletonable = true
+        profileImageView.clipsToBounds = true
         profileImageView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             profileImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             profileImageView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             profileImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5),
-            profileImageView.widthAnchor.constraint(equalToConstant: 45)
+            profileImageView.widthAnchor.constraint(equalTo: profileImageView.heightAnchor)
         ])
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        profileImageView.layer.cornerRadius = profileImageView.frame.height / 2
     }
     
     private func setupUserName()
