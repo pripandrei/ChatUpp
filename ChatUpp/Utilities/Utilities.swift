@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import SkeletonView
 
 enum UnwrappingError: Error {
     case nilValueFound(String)
@@ -68,14 +68,6 @@ struct Utilities {
     
     // Adjust Navigation Bar color to be clear
     static public func clearNavigationBarAppearance() {
-//        let appearance = UINavigationBarAppearance()
-////        appearance.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-////        appearance.backgroundColor = .clear
-////        appearance.shadowColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-////        appearance.shadowColor = .clear
-//        UINavigationBar.appearance().standardAppearance = appearance
-//        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        
         UINavigationBar.appearance().standardAppearance.backgroundColor = .clear
         UINavigationBar.appearance().compactAppearance = nil
         UINavigationBar.appearance().scrollEdgeAppearance = nil
@@ -117,6 +109,28 @@ struct Utilities {
         gradientLayer.frame = view.bounds
         
         view.layer.insertSublayer(gradientLayer, at: 0)
+    }
+    
+    ///
+    /// Skeleton animation
+    static func initiateSkeletonAnimation(for view: UIView)
+    {
+        let skeletonAnimationColor = ColorManager.skeletonAnimationColor
+        let skeletonItemColor = ColorManager.skeletonItemColor
+        view.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.3))
+    }
+
+    static func terminateSkeletonAnimation(for view: UIView) {
+        view.stopSkeletonAnimation()
+        view.hideSkeleton(transition: .crossDissolve(0.25))
+    }
+    
+    static func stopSkeletonAnimation(for views: UIView...)
+    {
+        for view in views {
+            view.stopSkeletonAnimation()
+            view.hideSkeleton(transition: .none)
+        }
     }
 }
 

@@ -100,12 +100,12 @@ class ChatsCell: UITableViewCell {
     private func configureRecentMessage(_ message: Message?)
     {
         if !cellViewModel.isRecentMessagePresent {
-            self.stopSkeletonAnimationFor(self.messageLable, self.dateLable)
+            Utilities.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
             return
         }
         if let message = message
         {
-            self.stopSkeletonAnimationFor(self.messageLable,self.dateLable)
+            Utilities.stopSkeletonAnimation(for: self.messageLable,self.dateLable)
             self.messageLable.text = message.messageBody
             self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
             
@@ -131,7 +131,7 @@ class ChatsCell: UITableViewCell {
             .receive(on: DispatchQueue.main)
             .sink { member in
                 if let member = member {
-                    self.stopSkeletonAnimationFor(self.nameLabel)
+                    Utilities.stopSkeletonAnimation(for: self.nameLabel)
                     
                     if self.nameLabel.text != member.name {
                         self.nameLabel.text = member.name
@@ -144,7 +144,7 @@ class ChatsCell: UITableViewCell {
             .receive(on: DispatchQueue.main)
             .sink { chat in
                 if chat.isGroup {
-                    self.stopSkeletonAnimationFor(self.nameLabel)
+                    Utilities.stopSkeletonAnimation(for: self.nameLabel)
                     self.nameLabel.text = chat.name
                 }
                 let imageData = self.cellViewModel.retrieveImageFromCache()
@@ -165,7 +165,7 @@ class ChatsCell: UITableViewCell {
                 guard let self = self else {return}
                 guard let count = count else {return}
                 
-                self.stopSkeletonAnimationFor(unreadMessagesBadgeLabel)
+                Utilities.stopSkeletonAnimation(for: unreadMessagesBadgeLabel)
                 setUnreadMessageCount(count)
             }.store(in: &subscriptions)
     }
@@ -175,7 +175,7 @@ class ChatsCell: UITableViewCell {
     private func setImage(_ imageData: Data? = nil)
     {
         Task { @MainActor in
-            stopSkeletonAnimationFor(profileImage)
+            Utilities.stopSkeletonAnimation(for: profileImage)
             
             guard let imageData = imageData else {
                 let defaultImageName = cellViewModel.chat.isGroup ? "default_group_photo" : "default_profile_photo"
@@ -188,22 +188,6 @@ class ChatsCell: UITableViewCell {
     }
 }
 
-//MARK: - Skeleton animation handler
-extension ChatsCell {
-    private func stopSkeletonAnimationFor(_ views: UIView...) {
-        for view in views {
-            view.stopSkeletonAnimation()
-            view.hideSkeleton(transition: .none)
-        }
-    }
-    private func initiateSkeletonAnimation() {
-        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-        showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.7))
-        
-        //        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), transition: .crossDissolve(.signalingNaN))
-    }
-}
 
 //MARK: - UI SETUP
 extension ChatsCell {
@@ -217,6 +201,7 @@ extension ChatsCell {
         setupUnreadMessagesCountLabel()
         createOnlineStatusView()
         setupSeenStatusMark()
+        Utilities.initiateSkeletonAnimation(for: self)
 //        initiateSkeletonAnimation() TODO: - activate back
     }
     

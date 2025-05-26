@@ -54,25 +54,14 @@ final class ResultsTableController: UITableViewController {
     
     func toggleSkeletonAnimation(_ value: SkeletonAnimationState) {
         if value == .initiated {
-            initiateSkeletonAnimation()
+            Utilities.initiateSkeletonAnimation(for: tableView)
+            noUserWasFoundLabel.isHidden = true
         } else {
-            terminateSkeletonAnimation()
+            Utilities.terminateSkeletonAnimation(for: tableView)
+            noUserWasFoundLabel.isHidden = false
         }
     }
 
-    private func initiateSkeletonAnimation() {
-        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
-        noUserWasFoundLabel.isHidden = true
-    }
-    
-    private func terminateSkeletonAnimation() {
-        tableView.stopSkeletonAnimation()
-        tableView.hideSkeleton(transition: .crossDissolve(0.25))
-        noUserWasFoundLabel.isHidden = false
-    }
-    
     private func setupTableView() {
         tableView.dataSource = self
         tableView.delegate = self

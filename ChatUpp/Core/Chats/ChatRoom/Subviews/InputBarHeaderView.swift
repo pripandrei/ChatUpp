@@ -127,10 +127,10 @@ final class InputBarHeaderView: UIView {
         self.subviews.forEach({ view in
             view.removeFromSuperview()
         })
-        titleLabel       = nil
-        messageText = nil
-        separatorLabel  = nil
-        symbolIcon     = nil
+        titleLabel              = nil
+        messageText             = nil
+        separatorLabel          = nil
+        symbolIcon              = nil
         closeInputBarHeaderView = nil
     }
 }

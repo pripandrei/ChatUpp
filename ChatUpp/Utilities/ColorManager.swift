@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 struct ColorManager
 {
@@ -41,6 +42,9 @@ struct ColorManager
     static let messageEventBackgroundColor: UIColor = #colorLiteral(red: 0.2021965683, green: 0.2685731351, blue: 0.3312993646, alpha: 1)
     static let messageSeenStatusIconColor: UIColor = outgoingMessageTimestampTextColor
     
+    static let skeletonItemColor: UIColor = #colorLiteral(red: 0.3543712497, green: 0.2847208381, blue: 0.3677620888, alpha: 1)
+    static let skeletonAnimationColor: UIColor = #colorLiteral(red: 0.6587312222, green: 0.6021129489, blue: 0.779224813, alpha: 1)
+    
     private static let messageBackgroundColors: [UIColor] = [#colorLiteral(red: 0.8381425738, green: 0.3751247525, blue: 0.5768371224, alpha: 1), #colorLiteral(red: 0.2789569199, green: 0.7063412666, blue: 0.7922309637, alpha: 1), #colorLiteral(red: 0.1472819448, green: 0.5721367598, blue: 0.2217415869, alpha: 1), #colorLiteral(red: 0.7625821829, green: 0.4211770296, blue: 0.1522820294, alpha: 1), #colorLiteral(red: 0.7118884921, green: 0.3784905672, blue: 0.7786803842, alpha: 1)]
     
     static func color(for objectID: String) -> UIColor
@@ -50,3 +54,6 @@ struct ColorManager
         return messageBackgroundColors[index]
     }
 }
+
+
+
