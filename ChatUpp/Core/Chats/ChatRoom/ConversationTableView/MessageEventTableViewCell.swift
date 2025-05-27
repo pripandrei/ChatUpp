@@ -81,12 +81,14 @@ final class MessageEventCell: UITableViewCell
     private func makeAttributedMessage(username: String?, text: String?) -> NSAttributedString
     {
         let attributedText = NSMutableAttributedString()
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
 
         attributedText.append(NSAttributedString(
             string: "\(username ?? "") ",
             attributes: [
                 .font: UIFont.systemFont(ofSize: 14, weight: .bold),
-                .foregroundColor: UIColor.white
+                .foregroundColor: UIColor.white,
             ]
         ))
 
@@ -94,10 +96,12 @@ final class MessageEventCell: UITableViewCell
             string: "\(text ?? "")",
             attributes: [
                 .font: UIFont.systemFont(ofSize: 14, weight: .medium),
-                .foregroundColor: UIColor.white
+                .foregroundColor: UIColor.white,
+                .paragraphStyle: paragraphStyle
+                
             ]
         ))
-
+        
         return attributedText
     }
 
