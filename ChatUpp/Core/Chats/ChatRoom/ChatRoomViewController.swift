@@ -967,26 +967,10 @@ extension ChatRoomViewController
 {
     private func toggleSkeletonAnimation(_ state: SkeletonAnimationState) {
         switch state {
-        case .initiated: initiateSkeletonAnimation()
-        case .terminated: terminateSkeletonAnimation()
+        case .initiated: Utilities.initiateSkeletonAnimation(for: rootView.tableView)
+        case .terminated: Utilities.stopSkeletonAnimation(for: rootView.tableView)
         default: break
         }
-    }
-    
-    private func initiateSkeletonAnimation() {
-        let skeletonAnimationColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
-        let skeletonItemColor = #colorLiteral(red: 0.4780891538, green: 0.7549679875, blue: 0.8415568471, alpha: 1)
-        rootView.tableView.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.7))
-//        rootView.tableView.contentInset = UIEdgeInsets(top: 60, left: 0, bottom: 0, right: 0)
-//        rootView.tableView.showSkeleton()
-        
-//        rootView.tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor))
-        //        tableView.showAnimatedGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), transition: .crossDissolve(.signalingNaN))
-    }
-    
-    private func terminateSkeletonAnimation() {
-        rootView.tableView.stopSkeletonAnimation()
-        rootView.tableView.hideSkeleton(transition: SkeletonTransitionStyle.none)
     }
 }
 
