@@ -322,7 +322,10 @@ extension ChatsViewController
     {
         let participantName = chatsViewModel.cellViewModels[indexPath.row].chatUser?.name
         let alertTitle = "Permanently delete chat with \(participantName ?? "User")?"
-        let alertTitleAttributes: [NSAttributedString.Key:Any] = [.font: UIFont.systemFont(ofSize: 15), .foregroundColor: #colorLiteral(red: 0.7950155139, green: 0.7501099706, blue: 0.7651557922, alpha: 1)]
+        let alertTitleAttributes: [NSAttributedString.Key:Any] = [
+            .foregroundColor: #colorLiteral(red: 0.7950155139, green: 0.7501099706, blue: 0.7651557922, alpha: 1),
+            .font: UIFont.systemFont(ofSize: 19),
+        ]
         
         let alert = UIAlertController(
             title: nil,
@@ -344,10 +347,15 @@ extension ChatsViewController
         })
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-
+       
+//        DispatchQueue.main.async {
+//            alert.setBackgroundColor(color: ColorManager.navigationBarBackgroundColor)
+//        }
+        
         self.present(alert, animated: true)
     }
 }
+
 
 //MARK: - row swipe image configuration
 extension ChatsViewController
@@ -400,6 +408,20 @@ extension ChatsViewController
     
 }
 
+extension UIAlertController
+{
+    func setBackgroundColor(color: UIColor)
+    {
+        if let bgView = self.view.subviews.first,
+           let groupView = bgView.subviews.first,
+           let contentView = groupView.subviews.last,
+           let second = self.view.subviews.first?.subviews.last?.subviews.last?.subviews.first?.subviews.first?.subviews.first?.subviews.first?.subviews.last // yeah i know ...
+        {
+            contentView.backgroundColor = color
+            second.backgroundColor = color
+        }
+    }
+}
 
 //MARK: - Test functions
 extension ChatsViewController

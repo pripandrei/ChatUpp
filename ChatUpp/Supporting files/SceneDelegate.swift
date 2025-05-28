@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUICore
 //import FirebaseDatabase
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -28,6 +29,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
         
         coordinator?.start()
+        
+//        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor =  UIColor(Color.myCustomColor)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

@@ -54,6 +54,3 @@ struct ColorManager
         return messageBackgroundColors[index]
     }
 }
-
-
-

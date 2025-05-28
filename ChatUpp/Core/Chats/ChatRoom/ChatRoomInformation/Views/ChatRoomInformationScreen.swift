@@ -194,3 +194,4 @@ extension ChatRoomInformationScreen
     ChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel(chat: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")))
     //    ChatRoomInformationScreen()
 }
+
