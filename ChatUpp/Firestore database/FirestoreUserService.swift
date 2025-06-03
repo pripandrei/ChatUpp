@@ -201,3 +201,11 @@ extension FirestoreUserService {
         }
     }
 }
+
+
+struct ObjectsFetchingLimit
+{
+    static let messages: Int = 70
+    static let users: Int = 100
+    static let chats: Int = 100
+}

@@ -50,7 +50,7 @@ final class ConversationMessageListenerService
         }
     }
     
-    func addListenerToExistingMessages(startAtMesssageWithID messageID: String, ascending: Bool, limit: Int = 5)
+    func addListenerToExistingMessages(startAtMesssageWithID messageID: String, ascending: Bool, limit: Int = ObjectsFetchingLimit.messages)
     {
         guard let conversationID = conversation?.id, limit > 0 else { return }
         
@@ -70,7 +70,7 @@ final class ConversationMessageListenerService
     // TODO:
     // Refactore code to fit version of function above
     // and remove this function
-    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = 5)
+    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = ObjectsFetchingLimit.messages)
     {
         guard let conversationID = conversation?.id else { return }
         
