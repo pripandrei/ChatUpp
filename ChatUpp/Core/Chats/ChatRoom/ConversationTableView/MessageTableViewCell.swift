@@ -11,29 +11,11 @@ import Combine
 import SkeletonView
 import SwiftUI
 
-final class CustomTestMessageBubbleContainerView: UIView
-{
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
-    }
-    
-    private func setup() {
-        // Set initial opacity
-        self.alpha = 0.0
-    }
-}
-
 final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
-    private var messageBubbleContainerBottomConstraint: NSLayoutConstraint!
+    private var messageContainerBottomConstraint: NSLayoutConstraint!
     private var messageContainerLeadingConstraint: NSLayoutConstraint!
     private var messageContainerTrailingConstraint: NSLayoutConstraint!
     private var messageLabelTopConstraints: NSLayoutConstraint!
@@ -48,7 +30,7 @@ final class MessageTableViewCell: UITableViewCell
     private var subscribers = Set<AnyCancellable>()
     
     private(set) var reactionBadgeHostingView: UIView?
-    private(set) var messageBubbleContainer = UIView()
+    private(set) var messageContainer = UIView()
     private(set) var messageLabel = YYLabel()
     private(set) var seenStatusMark = YYLabel()
     private(set) var editedLabel: UILabel?
@@ -75,7 +57,7 @@ final class MessageTableViewCell: UITableViewCell
 //        backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         backgroundColor = .clear
         setupBackgroundSelectionView()
-        setupMessageBubbleContainer()
+        setupMessageContainer()
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
@@ -123,8 +105,8 @@ final class MessageTableViewCell: UITableViewCell
     private func setupCellData(with message: Message)
     {
         if message.messageBody != "" {
-            messageLabel.attributedText = makeAttributedString(for: message)
-            handleMessageBubbleLayout()
+            messageLabel.attributedText = messageTextLabelLinkSetup(from: message.messageBody)
+            handleMessageLayout()
             return
         }
         
@@ -154,43 +136,16 @@ final class MessageTableViewCell: UITableViewCell
         contentView.addSubview(hostView.view)
         
         let horizontalConstraint = cellViewModel.messageAlignment == .right ?
-        hostView.view.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor, constant: -10) :
-        hostView.view.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10)
+        hostView.view.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -10) :
+        hostView.view.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor, constant: 10)
         
-        hostView.view.topAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor, constant: -2).isActive = true
+        hostView.view.topAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -2).isActive = true
         
         horizontalConstraint.isActive = true
     }
         
     /// - cell configuration
     ///
-    
-    private func setupTitleLabel()
-    {
-        guard let message = cellViewModel.message else {return}
-        
-        messageTitleLabel = YYLabel()
-        
-        messageTitleLabel?.numberOfLines = 0
-        messageTitleLabel?.preferredMaxLayoutWidth = 260
-        messageTitleLabel?.layer.cornerRadius = 12
-        messageTitleLabel?.translatesAutoresizingMaskIntoConstraints = false
-        messageTitleLabel?.attributedText = makeAttributedString(for: message)
-        
-        setupTitleLabelConstraints()
-    }
-    
-    private func setupTitleLabelConstraints()
-    {
-        guard let messageTitleLabel = messageTitleLabel else {return}
-        
-        NSLayoutConstraint.activate([
-            messageTitleLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor),
-            messageTitleLabel.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor),
-            messageTitleLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor),
-            messageTitleLabel.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor),
-        ])
-    }
     
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
@@ -212,7 +167,7 @@ final class MessageTableViewCell: UITableViewCell
         
         self.setupReplyMessage()
         self.setMessageLabelTopConstraints()
-        self.setMessageBubbleContainerBottomConstraint()
+        self.setMessageContainerBottomConstraint()
         self.setupEditedLabel()
         self.setupBinding()
         self.adjustMessageSide()
@@ -241,7 +196,44 @@ final class MessageTableViewCell: UITableViewCell
         seenStatusMark.attributedText = imageAttributedString
     }
     
-    private func makeAttributedString(for message: Message) -> NSAttributedString?
+    private func setupTimestampTextColor()
+    {
+        if let viewModel = cellViewModel {
+            timeStamp.textColor = viewModel.messageAlignment == .left ? ColorManager.incomingMessageTimestampTextColor : ColorManager.outgoingMessageTimestampTextColor
+        }
+    }
+    
+    private func messageTextLabelLinkSetup(from text: String) -> NSAttributedString?
+    {
+        guard let attributedText = makeAttributedString(for: text) else { return nil }
+
+        if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
+            let matches = detector.matches(in: text, options: [], range: NSRange(location: 0, length: text.utf16.count))
+
+            guard !matches.isEmpty else { return attributedText }
+
+            for match in matches {
+                guard let _ = Range(match.range, in: text),
+                      let url = match.url else { continue }
+
+                let decorator = YYTextDecoration(style: .single,
+                                                 width: 1,
+                                                 color: ColorManager.messageLinkColor)
+                
+                attributedText.yy_setTextUnderline(decorator,
+                                                   range: match.range)
+                attributedText.yy_setTextHighlight(match.range,
+                                                   color: ColorManager.messageLinkColor,
+                                                   backgroundColor: #colorLiteral(red: 0.6552016139, green: 0.657288909, blue: 0.7513562441, alpha: 1))
+                { _, _, _, _ in
+                    UIApplication.shared.open(url)
+                }
+            }
+        }
+        return attributedText
+    }
+    
+    private func makeAttributedString(for text: String) -> NSMutableAttributedString?
     {
         let attributes: [NSAttributedString.Key : Any] =
         [
@@ -254,14 +246,7 @@ final class MessageTableViewCell: UITableViewCell
                 return paragraphStyle
             }()
         ]
-        return NSAttributedString(string: message.messageBody, attributes: attributes)
-    }
-    
-    private func setupTimestampTextColor()
-    {
-        if let viewModel = cellViewModel {
-            timeStamp.textColor = viewModel.messageAlignment == .left ? ColorManager.incomingMessageTimestampTextColor : ColorManager.outgoingMessageTimestampTextColor
-        }
+        return NSMutableAttributedString(string: text, attributes: attributes)
     }
     
     /// - cleanup
@@ -316,25 +301,25 @@ extension MessageTableViewCell
         
         NSLayoutConstraint.activate([
 //            messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor),
-            messageLabel.bottomAnchor.constraint(equalTo: messageBubbleContainer.bottomAnchor),
-            messageLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor),
-            messageLabel.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor),
+            messageLabel.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor),
+            messageLabel.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor),
+            messageLabel.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor),
         ])
     }
     
-    private func setupMessageBubbleContainer()
+    private func setupMessageContainer()
     {
-        contentView.addSubview(messageBubbleContainer)
+        contentView.addSubview(messageContainer)
         
-        messageBubbleContainer.addSubview(messageLabel)
-        messageBubbleContainer.layer.cornerRadius = 15
-        messageBubbleContainer.layer.opacity = 1
-        messageBubbleContainer.translatesAutoresizingMaskIntoConstraints = false
+        messageContainer.addSubview(messageLabel)
+        messageContainer.layer.cornerRadius = 15
+        messageContainer.layer.opacity = 1
+        messageContainer.translatesAutoresizingMaskIntoConstraints = false
         
-        self.messageBubbleContainerBottomConstraint = messageBubbleContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-        self.messageBubbleContainerBottomConstraint.isActive = true
-        messageBubbleContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        messageBubbleContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
+        self.messageContainerBottomConstraint = messageContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        self.messageContainerBottomConstraint.isActive = true
+        messageContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
     }
     
     private func setupEditedLabel()
@@ -402,35 +387,36 @@ extension MessageTableViewCell
         case .right:
             configureMessageSeenStatus()
             
-            messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor)
-            messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+            messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor)
+            messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
-            messageBubbleContainer.backgroundColor = ColorManager.outgoingMessageBackgroundColor
+            messageContainer.backgroundColor = ColorManager.outgoingMessageBackgroundColor
         case .left:
-            messageContainerLeadingConstraint = messageBubbleContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: leadingConstant)
-            messageContainerTrailingConstraint = messageBubbleContainer.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor)
+            messageContainerLeadingConstraint = messageContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: leadingConstant)
+            messageContainerTrailingConstraint = messageContainer.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor)
             messageContainerLeadingConstraint.isActive = true
             messageContainerTrailingConstraint.isActive = true
-            messageBubbleContainer.backgroundColor = ColorManager.incomingMessageBackgroundColor
+            messageContainer.backgroundColor = ColorManager.incomingMessageBackgroundColor
         case .center:
             break
         }
     }
 }
 
-// MARK: - message bubble layout
+// MARK: - message layout
 
 extension MessageTableViewCell
 {
-    private func handleMessageBubbleLayout()
+    private func handleMessageLayout()
     {
         createMessageTextLayout()
         let padding = getMessagePaddingStrategy()
         applyMessagePadding(strategy: padding)
     }
     
-    private func createMessageTextLayout() {
+    private func createMessageTextLayout()
+    {
         let textLayout = YYTextLayout(containerSize: CGSize(width: messageLabel.intrinsicContentSize.width, height: messageLabel.intrinsicContentSize.height), text: messageLabel.attributedText!)
         messageLabel.textLayout = textLayout
         applyMessagePadding(strategy: .initial)
@@ -550,13 +536,13 @@ extension MessageTableViewCell
         replyMessageLabel.clipsToBounds = true
         replyMessageLabel.backgroundColor = .peterRiver
         replyMessageLabel.translatesAutoresizingMaskIntoConstraints = false
-        messageBubbleContainer.addSubview(replyMessageLabel)
+        messageContainer.addSubview(replyMessageLabel)
         
-        let topAnchor = messageSenderNameLabel == nil ? messageBubbleContainer.topAnchor : messageSenderNameLabel!.bottomAnchor
+        let topAnchor = messageSenderNameLabel == nil ? messageContainer.topAnchor : messageSenderNameLabel!.bottomAnchor
         
         replyMessageLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10).isActive = true
-        replyMessageLabel.trailingAnchor.constraint(equalTo: messageBubbleContainer.trailingAnchor, constant: -10).isActive = true
-        replyMessageLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
+        replyMessageLabel.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -10).isActive = true
+        replyMessageLabel.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor, constant: 10).isActive = true
 //        messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor)
 //        messageLabelTopConstraints.isActive = true
     }
@@ -654,7 +640,7 @@ extension MessageTableViewCell
     {
         if messageSenderNameLabel == nil {
             messageSenderNameLabel = UILabel()
-            messageBubbleContainer.addSubview(messageSenderNameLabel!)
+            messageContainer.addSubview(messageSenderNameLabel!)
         }
         
         messageSenderNameLabel?.text = cellViewModel.messageSender?.name
@@ -669,16 +655,16 @@ extension MessageTableViewCell
     {
         guard let messageSenderNameLabel = messageSenderNameLabel else { return }
         
-        messageSenderNameLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor, constant: 5).isActive = true
-        messageSenderNameLabel.leadingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: 10).isActive = true
-        messageSenderNameLabel.widthAnchor.constraint(lessThanOrEqualTo: messageBubbleContainer.widthAnchor, multiplier: 0.80).isActive = true
+        messageSenderNameLabel.topAnchor.constraint(equalTo: messageContainer.topAnchor, constant: 5).isActive = true
+        messageSenderNameLabel.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor, constant: 10).isActive = true
+        messageSenderNameLabel.widthAnchor.constraint(lessThanOrEqualTo: messageContainer.widthAnchor, multiplier: 0.80).isActive = true
     }
     
     private func setupSenderAvatar()
     {
         if messageSenderAvatar == nil {
             messageSenderAvatar = UIImageView()
-            messageBubbleContainer.addSubview(messageSenderAvatar!)
+            messageContainer.addSubview(messageSenderAvatar!)
         }
         messageSenderAvatar?.layer.cornerRadius = (messageLayoutConfiguration.avatarSize?.width ?? 40) / 2
         messageSenderAvatar?.clipsToBounds = true
@@ -702,7 +688,7 @@ extension MessageTableViewCell
         guard let messageSenderAvatar = messageSenderAvatar,
               let avatarSize = messageLayoutConfiguration.avatarSize else {return}
 
-        messageSenderAvatar.trailingAnchor.constraint(equalTo: messageBubbleContainer.leadingAnchor, constant: -8).isActive = true
+        messageSenderAvatar.trailingAnchor.constraint(equalTo: messageContainer.leadingAnchor, constant: -8).isActive = true
         messageSenderAvatar.widthAnchor.constraint(equalToConstant: avatarSize.width).isActive = true
         messageSenderAvatar.heightAnchor.constraint(equalToConstant: avatarSize.height).isActive = true
         messageSenderAvatar.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3).isActive = true
@@ -719,18 +705,18 @@ extension MessageTableViewCell
         else if messageSenderNameLabel != nil
         {
             messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageSenderNameLabel!.bottomAnchor, constant: -5)
-            messageBubbleContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
+            messageContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
         }
         else if messageLabelTopConstraints == nil {
-            messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageBubbleContainer.topAnchor)
+            messageLabelTopConstraints = messageLabel.topAnchor.constraint(equalTo: messageContainer.topAnchor)
         }
         messageLabelTopConstraints.isActive = true
     }
     
-    private func setMessageBubbleContainerBottomConstraint()
+    private func setMessageContainerBottomConstraint()
     {
         let isReactionsEmpty = cellViewModel.message?.reactions.isEmpty
-        self.messageBubbleContainerBottomConstraint.constant = isReactionsEmpty ?? true ? -3 : -25
+        self.messageContainerBottomConstraint.constant = isReactionsEmpty ?? true ? -3 : -25
     }
 }
 
@@ -762,36 +748,6 @@ enum SeenStatusIcon: String {
 }
 
 
-
-
-
-
-
-
-//protocol MessageLayoutConfiguration
-//{
-//    var shouldShowSenderName: Bool { get }
-//    var shouldShowAvatar: Bool { get set }
-//    var avatarSize: CGSize? { get }
-//    var leadingConstraintConstant: CGFloat { get }
-//}
-//
-//struct PrivateChatMessageLayout: MessageLayoutConfiguration
-//{
-//    let leadingConstraintConstant: CGFloat = 10
-//    let shouldShowSenderName: Bool = false
-//    var shouldShowAvatar: Bool = false
-//    let avatarSize: CGSize? = nil
-//}
-//
-//struct GroupChatMessageLayout: MessageLayoutConfiguration
-//{
-//    let leadingConstraintConstant: CGFloat = 52
-//    let shouldShowSenderName: Bool = true
-//    var shouldShowAvatar: Bool = false
-//    let avatarSize: CGSize? = CGSize(width: 40, height: 40)
-//}
-
 struct MessageLayoutConfiguration {
     let shouldShowSenderName: Bool
     let shouldShowAvatar: Bool
@@ -809,19 +765,6 @@ extension MessageLayoutConfiguration
                                           leadingConstraintConstant: leadingConstraintConstant)
     }
 }
-
-//enum MessageLayoutConfigurationFactory
-//{
-//    static func makeConfiguration(for chatType: ChatType) -> MessageLayoutConfiguration
-//    {
-//        switch chatType {
-//        case ._private:
-//            return PrivateChatMessageLayout()
-//        case ._group:
-//            return GroupChatMessageLayout()
-//        }
-//    }
-//}
 
 enum ChatType
 {
@@ -849,7 +792,7 @@ extension MessageTableViewCell: TargetPreviewable
 {
     func getTargetViewForPreview() -> UIView
     {
-        return messageBubbleContainer
+        return messageContainer
     }
     
     func getTargetedPreviewColor() -> UIColor

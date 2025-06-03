@@ -731,6 +731,7 @@ extension ChatRoomViewController {
     
     private func addGestureToTableView() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
+        tap.cancelsTouchesInView = false
         rootView.tableView.addGestureRecognizer(tap)
     }
     private func addGestureToCloseBtn() {
@@ -877,7 +878,7 @@ extension ChatRoomViewController: UITableViewDelegate
            let message = messageCell.cellViewModel.message
         {
             let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
-            guard messageCell.messageBubbleContainer.frame.contains(tapLocationInCell) else { return nil }
+            guard messageCell.messageContainer.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
                 return menuBuilder.buildUIMenuForMessageCell(messageCell, message: message)
@@ -924,7 +925,7 @@ extension ChatRoomViewController: UITableViewDelegate
                   let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
 
             animator?.addCompletion {
-                cell.messageBubbleContainer.layer.opacity = 1
+                cell.messageContainer.layer.opacity = 1
                 cell.reactionBadgeHostingView?.layer.opacity = 1
             }
 //        let _ = makeConversationMessagePreview(for: configuration, forHighlightingContext: false)
