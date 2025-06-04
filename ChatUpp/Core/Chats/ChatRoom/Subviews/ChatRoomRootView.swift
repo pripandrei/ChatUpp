@@ -147,7 +147,7 @@ final class ChatRoomRootView: UIView {
         let joinButton = UIButton()
         joinButton.configuration                             = .plain()
         joinButton.configuration?.title                      = "Join"
-        joinButton.configuration?.baseForegroundColor        = .link
+        joinButton.configuration?.baseForegroundColor        = ColorManager.actionButtonsTintColor
         joinButton.translatesAutoresizingMaskIntoConstraints = false
         
         var attributedTitle = AttributedString("Join")
