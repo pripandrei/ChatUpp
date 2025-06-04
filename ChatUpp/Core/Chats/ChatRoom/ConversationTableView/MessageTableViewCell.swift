@@ -171,7 +171,7 @@ final class MessageTableViewCell: UITableViewCell
         self.setupEditedLabel()
         self.setupBinding()
         self.adjustMessageSide()
-        self.setupTimestampTextColor()
+        self.setupMessageComponentsColor()
         
         if let message = viewModel.message {
             self.setupCellData(with: message)
@@ -196,11 +196,20 @@ final class MessageTableViewCell: UITableViewCell
         seenStatusMark.attributedText = imageAttributedString
     }
     
-    private func setupTimestampTextColor()
+    private func setupMessageComponentsColor() {
+        timeStamp.textColor = getColorForMessageComponents()
+        editedLabel?.textColor = getColorForMessageComponents()
+    }
+    
+    private func getColorForMessageComponents() -> UIColor
     {
-        if let viewModel = cellViewModel {
-            timeStamp.textColor = viewModel.messageAlignment == .left ? ColorManager.incomingMessageTimestampTextColor : ColorManager.outgoingMessageTimestampTextColor
+        var color: UIColor = ColorManager.outgoingMessageComponentsTextColor
+        
+        if let viewModel = cellViewModel
+        {
+            color = viewModel.messageAlignment == .left ? ColorManager.incomingMessageComponentsTextColor : ColorManager.outgoingMessageComponentsTextColor
         }
+        return color
     }
     
     private func messageTextLabelLinkSetup(from text: String) -> NSAttributedString?
@@ -331,7 +340,7 @@ extension MessageTableViewCell
         
         editedLabel!.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
         editedLabel!.text = "edited"
-        editedLabel!.textColor = #colorLiteral(red: 0.74693048, green: 0.7898075581, blue: 1, alpha: 1)
+//        editedLabel!.textColor = getColorForMessageComponents()
         editedLabel!.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
