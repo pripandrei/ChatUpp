@@ -922,12 +922,11 @@ extension ChatRoomViewController: UITableViewDelegate
     func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
     {
         guard let indexPath = configuration.identifier as? IndexPath,
-                  let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
-
-            animator?.addCompletion {
-                cell.messageContainer.layer.opacity = 1
-                cell.reactionBadgeHostingView?.layer.opacity = 1
-            }
+              let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
+        
+        animator?.addCompletion {
+            cell.contentView.isHidden = false
+        }
 //        let _ = makeConversationMessagePreview(for: configuration, forHighlightingContext: false)
     }
     
