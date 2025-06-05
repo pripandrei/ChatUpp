@@ -160,4 +160,30 @@ extension Utilities
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return paths[0]
     }
+    
+    static func snapshotView(for view: UIView) -> UIView?
+    {
+        let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
+        let image = renderer.image { _ in
+            view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+        }
+        let imageView = UIImageView(image: image)
+        imageView.frame = view.bounds
+        return imageView
+    }
+
+    
+}
+
+// Async
+func executeAfter(seconds: Double, block: @escaping () -> Void)
+{
+    DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: block)
+}
+
+func mainQueue(block: @escaping () -> Void)
+{
+    DispatchQueue.main.async {
+        block()
+    }
 }

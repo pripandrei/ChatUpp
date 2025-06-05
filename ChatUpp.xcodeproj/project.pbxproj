@@ -142,6 +142,7 @@
 		75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */; };
 		75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB79002AC318D600C2743A /* UIView+Extensions.swift */; };
 		75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */; };
+		75FD971E2DF230A800EC001E /* ReactionPresentationSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -305,6 +306,7 @@
 		75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		75FB79002AC318D600C2743A /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 		75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
+		75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionPresentationSheetView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -346,6 +348,7 @@
 		75007AF02C5564CF006B1D6E /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
+				75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */,
 				7527068C2DB30764002128DF /* ReactionBadgeView.swift */,
 				752706892DAEB351002128DF /* ReactionPanelView.swift */,
 				752706532DAAF477002128DF /* ViewModels */,
@@ -1043,6 +1046,7 @@
 				7543BE2A2ACB0EDA003001BF /* FirebaseChatService.swift in Sources */,
 				75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */,
 				75A7AFC72D396D1D00E081DF /* ChatRoomViewModel+Extensions.swift in Sources */,
+				75FD971E2DF230A800EC001E /* ReactionPresentationSheetView.swift in Sources */,
 				75A0861A2D1977DB00DE5333 /* ImageCropper.swift in Sources */,
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
 				757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */,
