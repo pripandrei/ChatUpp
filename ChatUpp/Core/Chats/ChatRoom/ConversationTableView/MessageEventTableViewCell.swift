@@ -18,9 +18,9 @@ final class MessageEventCell: UITableViewCell
 {
     private(set) var cellViewModel: MessageCellViewModel!
     
-    let messageLabel: YYLabel =
+    let messageLabel: UILabel =
     {
-        let messageEventLabel = YYLabel()
+        let messageEventLabel = UILabel()
         messageEventLabel.preferredMaxLayoutWidth = 250
         messageEventLabel.numberOfLines = 0
         messageEventLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)

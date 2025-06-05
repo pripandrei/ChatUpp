@@ -60,7 +60,7 @@ final class ChatRoomRootView: UIView {
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
         //        tableView.estimatedRowHeight            = UITableView.automaticDimension
-        tableView.estimatedRowHeight            = 50
+//        tableView.estimatedRowHeight            = 50
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
         
