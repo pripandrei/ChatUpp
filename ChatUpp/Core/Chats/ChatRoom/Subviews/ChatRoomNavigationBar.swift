@@ -53,7 +53,7 @@ final class ChatRoomNavigationBar {
             let imageData = viewModel.getImageFromCache(imgUrl) {
             image = UIImage(data: imageData)
         } else {
-            image = UIImage(named: "default_profile_photo")
+            image = viewModel.isGroup ? UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
         }
         let imageView = NavigationProfileImageView(image: image)
         let barButtonItem = UIBarButtonItem(customView: imageView)

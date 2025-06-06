@@ -122,6 +122,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
     }
     
+    private func getPrivateChatMember(from chat: Chat) -> User?
+    {
+        guard let memberID = chat.participants.first(where: { $0.userID != authUser.uid })?.userID,
+              let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else { return nil }
+        return user
+    }
+    
     /// - Life cycle
     
     init(conversation: Chat)
@@ -129,6 +136,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         self.conversation = conversation
         self.unseenMessagesCount = conversation.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         self.setupServices(using: conversation)
+        
+        if !conversation.isGroup {
+            self.participant = getPrivateChatMember(from: conversation)
+        }
         
         bindToMessages()
         initiateConversation()
@@ -953,180 +964,4 @@ extension ChatRoomViewModel
 //        return user?.name
 //    }
 
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-//{
-//    let reactionHeight: CGFloat = 45.0
-//    let spaceReactionHeight: CGFloat = 14.0
-//    let menuHeight: CGFloat = 200
-//    
-//    guard let indexPath = configuration.identifier as? IndexPath,
-//          let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell,
-//          let message = cell.cellViewModel.message else {
-//        return nil
-//    }
-//    
-//    // Limit the snapshot to a visible height
-//    let maxSnapshotHeight = min(cell.bounds.height,
-//                                UIScreen.main.bounds.height -
-//                                reactionHeight -
-//                                spaceReactionHeight -
-//                                menuHeight)
-//    
-//    guard let snapshot = cell.resizableSnapshotView(
-//        from: CGRect(origin: .zero, size: CGSize(
-//            width: cell.bounds.width,
-//            height: maxSnapshotHeight)),
-//        afterScreenUpdates: false,
-//        withCapInsets: .zero) else {
-//        return nil
-//    }
-//    
-//    var reactionPanelView = ReactionPanelView()
-//    reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
-//        self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-//        self?.performBatchUpdateWithMessageChanges([.modified(indexPath, .reactions)])
-//        self?.dismiss(animated: true)
-//    }
-//    let hostingReactionVC = UIHostingController(rootView: reactionPanelView)
-//    hostingReactionVC.view.backgroundColor = .clear
-//
-//    addChild(hostingReactionVC)
-//    hostingReactionVC.view.translatesAutoresizingMaskIntoConstraints = false
-//
-//    snapshot.layer.cornerRadius = 10
-//    snapshot.layer.masksToBounds = true
-//    snapshot.translatesAutoresizingMaskIntoConstraints = false
-//
-//    // Wrap everything in a neutral (non-flipped) container
-//    let containerHeight = snapshot.bounds.height + reactionHeight + spaceReactionHeight
-//    let container = UIView(frame: CGRect(origin: .zero,
-//                                         size: CGSize(width: cell.bounds.width, height: containerHeight)))
-//    container.backgroundColor = .clear
-//    container.addSubview(snapshot)
-//    container.addSubview(hostingReactionVC.view)
-//
-//    NSLayoutConstraint.activate([
-//        hostingReactionVC.view.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
-//        hostingReactionVC.view.topAnchor.constraint(equalTo: container.topAnchor),
-//        hostingReactionVC.view.widthAnchor.constraint(equalToConstant: 306),
-//        hostingReactionVC.view.heightAnchor.constraint(equalToConstant: 45),
-//
-//        snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-//        snapshot.topAnchor.constraint(equalTo: hostingReactionVC.view.bottomAnchor, constant: spaceReactionHeight),
-//        snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-//        snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-//    ])
-//
-//    let heightDifference = container.bounds.height - cell.bounds.height
-//    let adjustedCenterY = cell.center.y + (heightDifference / 2) // In flipped space, add to go up
-//    let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
-//
-//
-//    let previewTarget = UIPreviewTarget(container: rootView.tableView,
-//                                        center: centerPoint,
-//                                        transform: CGAffineTransform(scaleX: 1, y: -1))
-//    
-//    let parameters = UIPreviewParameters()
-//    parameters.backgroundColor = .clear
-//    parameters.shadowPath = UIBezierPath()
-//    
-//    cell.messageBubbleContainer.layer.opacity = 0
-//    cell.reactionBadgeHostingView?.layer.opacity = 0
-//    
-//    return UITargetedPreview(view: container,
-//                             parameters: parameters,
-//                             target: previewTarget)
-//}
-//
-//func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-//{
-//    let reactionHeight: CGFloat = 45.0
-//    let spaceReactionHeight: CGFloat = 14.0
-//    let menuHeight: CGFloat = 200
-//
-//    guard let indexPath = configuration.identifier as? IndexPath,
-//          let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {
-//        return nil
-//    }
-//    
-//    cell.messageBubbleContainer.layer.opacity = 1
-//    cell.reactionBadgeHostingView?.layer.opacity = 1
-//    
-//    cell.layoutIfNeeded()
-//    // Limit the snapshot to a visible height
-//    let maxSnapshotHeight = min(cell.bounds.height, UIScreen.main.bounds.height - reactionHeight - spaceReactionHeight - menuHeight)
-//    
-//    guard let snapshot = snapshotView(for: cell) else {
-//        return nil
-//    }
-//    
-//    cell.messageBubbleContainer.layer.opacity = 0
-//    cell.reactionBadgeHostingView?.layer.opacity = 0
-//    
-//    let containerHeight = snapshot.bounds.height + reactionHeight + spaceReactionHeight
-//    
-//    let container = UIView(frame: CGRect(origin: .zero,
-//                                         size: CGSize(width: cell.bounds.width,
-//                                                      height: containerHeight)))
-//    
-//    container.addSubview(snapshot)
-//    snapshot.layer.cornerRadius = 10
-//    snapshot.layer.masksToBounds = true
-//    snapshot.translatesAutoresizingMaskIntoConstraints = false
-//
-//    snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
-//    snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
-//    snapshot.heightAnchor.constraint(equalToConstant: snapshot.bounds.height).isActive = true
-//    snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
-//    
-//    let heightDifference = container.bounds.height - cell.bounds.height
-//    let adjustedCenterY = cell.center.y + (heightDifference / 2)
-//    
-//    let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
-//    let previewTarget = UIPreviewTarget(container: rootView.tableView, center: centerPoint, transform: CGAffineTransform(scaleX: 1, y: -1))
-//    
-//    let parameters = UIPreviewParameters()
-//    parameters.backgroundColor = .clear
-//    parameters.shadowPath = UIBezierPath()
-//    
-//    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-//        cell.messageBubbleContainer.layer.opacity = 1
-//        cell.reactionBadgeHostingView?.layer.opacity = 1
-//    })
-//    
-//    return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
-//}
-//
-//func snapshotView(for view: UIView) -> UIView? {
-//    let renderer = UIGraphicsImageRenderer(size: view.bounds.size)
-//    let image = renderer.image { _ in
-//        view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
-//    }
-//    let imageView = UIImageView(image: image)
-//    imageView.frame = view.bounds
-//    return imageView
 //}

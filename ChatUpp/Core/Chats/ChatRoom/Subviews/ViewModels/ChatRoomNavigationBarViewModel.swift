@@ -17,17 +17,15 @@ final class ChatRoomNavigationBarViewModel
     @Published private(set) var _imageUrl: String?
     
     private(set) var dataProvider: NavigationBarDataProvider
+    private(set) var isGroup: Bool = false
     
-    deinit {
-        print("nav bar vm deinit")
-    }
     init(dataProvider: NavigationBarDataProvider)
     {
         self.dataProvider = dataProvider
         
         switch dataProvider {
-        case .chat(let chat): setNavigationItems(usingChat: chat)
-        case .user(let user): setNavigationItems(usingUser: user)
+        case .chat(let chat): setNavigationItems(usingChat: chat); isGroup = chat.isGroup
+        case .user(let user): setNavigationItems(usingUser: user); isGroup = false
         }
         
         addListener(to: dataProvider)
