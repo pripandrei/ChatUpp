@@ -248,7 +248,9 @@ extension ChatsViewController: UISearchResultsUpdating {
         })
     }
     
-    private func updateTableView(withResults filteredResults: [ResultsCellViewModel], toggleSkeletonAnimation value: SkeletonAnimationState) {
+    private func updateTableView(withResults filteredResults: [ResultsCellViewModel],
+                                 toggleSkeletonAnimation value: SkeletonAnimationState)
+    {
         resultsTableController.filteredResults = filteredResults
         resultsTableController.tableView.reloadData()
         resultsTableController.toggleSkeletonAnimation(value)

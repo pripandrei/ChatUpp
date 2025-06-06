@@ -971,9 +971,16 @@ extension ChatRoomViewController
 {
     private func toggleSkeletonAnimation(_ state: SkeletonAnimationState)
     {
+        // Reference: skeletonView requires for estimatedRowHeight to have a value
+        // so we set it to work, and disable after,
+        // to prevent other glitch related to rows when adding reaction
         switch state {
-        case .initiated: Utilities.initiateSkeletonAnimation(for: rootView.tableView)
-        case .terminated: Utilities.stopSkeletonAnimation(for: rootView.tableView)
+        case .initiated:
+            rootView.tableView.estimatedRowHeight = 50 // read reference
+            Utilities.initiateSkeletonAnimation(for: rootView.tableView)
+        case .terminated:
+            rootView.tableView.estimatedRowHeight = UITableView.automaticDimension // read reference
+            Utilities.stopSkeletonAnimation(for: rootView.tableView)
         default: break
         }
     }

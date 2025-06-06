@@ -59,7 +59,7 @@ final class ChatRoomRootView: UIView {
         tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -20, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
-//        tableView.estimatedRowHeight            = 50
+        tableView.estimatedRowHeight            = UITableView.automaticDimension // for skeleton animation
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
         
