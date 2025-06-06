@@ -969,7 +969,8 @@ extension ChatRoomViewController: UITableViewDelegate
 //MARK: - SkeletonView animation
 extension ChatRoomViewController
 {
-    private func toggleSkeletonAnimation(_ state: SkeletonAnimationState) {
+    private func toggleSkeletonAnimation(_ state: SkeletonAnimationState)
+    {
         switch state {
         case .initiated: Utilities.initiateSkeletonAnimation(for: rootView.tableView)
         case .terminated: Utilities.stopSkeletonAnimation(for: rootView.tableView)

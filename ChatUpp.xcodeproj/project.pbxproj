@@ -143,6 +143,7 @@
 		75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB79002AC318D600C2743A /* UIView+Extensions.swift */; };
 		75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */; };
 		75FD971E2DF230A800EC001E /* ReactionPresentationSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */; };
+		75FD97202DF3914400EC001E /* SkeletonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -307,6 +308,7 @@
 		75FB79002AC318D600C2743A /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 		75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
 		75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionPresentationSheetView.swift; sourceTree = "<group>"; };
+		75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -499,6 +501,7 @@
 		7563F87D2ADE2C1A006FA374 /* ConversationTableView */ = {
 			isa = PBXGroup;
 			children = (
+				75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */,
 				750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */,
 				75D7C5942AD72DBC00F6D4B9 /* MessageTableViewCell.swift */,
 				75D6DC322B0D735100D2CD26 /* MessageCellViewModel.swift */,
@@ -1051,6 +1054,7 @@
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
 				757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */,
 				75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */,
+				75FD97202DF3914400EC001E /* SkeletonViewCell.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
 				75E8AABE2D918C68007479E4 /* ChatRoomInformationEditScreen.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,

@@ -202,7 +202,6 @@ extension ChatsCell {
         createOnlineStatusView()
         setupSeenStatusMark()
         Utilities.initiateSkeletonAnimation(for: self)
-//        initiateSkeletonAnimation() TODO: - activate back
     }
     
     private func createOnlineStatusView() {
