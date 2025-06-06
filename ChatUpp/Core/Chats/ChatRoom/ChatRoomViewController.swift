@@ -761,7 +761,8 @@ extension ChatRoomViewController {
 //MARK: - TABLE  DELEGATE
 extension ChatRoomViewController: UITableViewDelegate
 {
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView?
+    {
         guard !tableView.sk.isSkeletonActive,
               let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? FooterSectionView else { return nil }
         
@@ -770,7 +771,12 @@ extension ChatRoomViewController: UITableViewDelegate
         return footerView
     }
     
-    func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int) {
+    func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int)
+    {
+        guard !tableView.sk.isSkeletonActive else {
+            view.isHidden = true
+            return
+        }
         if isNewSectionAdded && section == 0 {
             view.alpha = 0.0
             
