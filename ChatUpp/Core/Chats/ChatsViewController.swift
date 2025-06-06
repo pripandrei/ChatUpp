@@ -162,11 +162,8 @@ class ChatsViewController: UIViewController {
                           || title.contains(trimmedSearchText)
             
             guard isMatching else { return nil }
-            
-            if let user = chatCell.chatUser {
-                return ResultsCellViewModel(memberUser: user)
-            }
-            return ResultsCellViewModel(chat: chatCell.chat)
+           
+            return ResultsCellViewModel(chat: chatCell.chat, memberUser: chatCell.chatUser)
         }
     }
     

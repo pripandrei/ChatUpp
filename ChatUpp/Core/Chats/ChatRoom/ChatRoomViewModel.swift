@@ -65,13 +65,22 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 
     var shouldHideJoinGroupOption: Bool
     {
-        if conversation?.isGroup == false { return true }
+        if conversation?.isGroup == true
+        {
+            guard conversation?.realm != nil else { return false }
+            let isAuthUserChatParticipant = !conversation!.participants.filter("userID == %@", authUser.uid).isEmpty
+            return isAuthUserChatParticipant
+        } else {
+            return true
+        }
         
-        guard let conversation = conversation else { return false }
-        guard conversation.realm != nil else { return false }
- 
-        let isAuthUserChatParticipant = !conversation.participants.filter("userID == %@", authUser.uid).isEmpty
-        return isAuthUserChatParticipant
+//        if conversation?.isGroup == false { return true }
+//        
+//        guard let conversation = conversation else { return false }
+//        guard conversation.realm != nil else { return false }
+// 
+//        let isAuthUserChatParticipant = !conversation.participants.filter("userID == %@", authUser.uid).isEmpty
+//        return isAuthUserChatParticipant
     }
     
     private lazy var authenticatedUser: User? = {

@@ -22,16 +22,11 @@ final class ResultsCellViewModel
         self.chat = nil
     }
     
-    init(chat: Chat) {
+    init(chat: Chat, memberUser: User? = nil) {
         self.chat = chat
-        self.participant = nil
+        self.participant = memberUser
     }
-    
-//    init(chat: Chat?, user: User?) {
-//        self.chat = chat
-//        self.participant = user
-//    }
-    
+
     var titleName: String
     {
         if let chatName = chat?.name {
@@ -40,6 +35,7 @@ final class ResultsCellViewModel
         if let participantName = participant?.name {
             return participantName
         }
+        
         return "No Name"
 //        return chat?.name != nil ? chat?.name : participant?.name
     }
