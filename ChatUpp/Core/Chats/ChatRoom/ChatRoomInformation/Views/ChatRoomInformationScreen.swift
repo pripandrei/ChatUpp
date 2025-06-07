@@ -91,16 +91,25 @@ extension ChatRoomInformationScreen
 {
     private func groupImage() -> some View
     {
-        if let imageData = viewModel.retrieveGroupImage(),
-           let image = UIImage(data: imageData)
-        {
-            return Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            
+            if let imageData = viewModel.retrieveGroupImage(),
+               let image = UIImage(data: imageData)
+            {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: width)
+                    .clipped()
+            } else {
+                Image("default_group_photo")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: width)
+                    .clipped()
+            }
         }
-        return Image("default_group_photo")
-            .resizable()
-            .scaledToFill()
     }
 }
 
