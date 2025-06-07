@@ -26,7 +26,9 @@ final class MessageMenuBuilder
         self.contextMenuSelectedActionHandler = contextMenuSelectedActionHandler
     }
     
-    func buildUIMenuForMessageCell(_ cell: MessageTableViewCell, message: Message) -> UIMenu {
+    func buildUIMenuForMessageCell(_ cell: MessageTableViewCell,
+                                   message: Message) -> UIMenu
+    {
         let selectedText = cell.messageLabel.text ?? ""
         let isOwner = message.senderId == viewModel.authUser.uid
         
@@ -38,10 +40,7 @@ final class MessageMenuBuilder
         
         let firstSection = UIMenu(options: .displayInline, children: [seen])
         let secondSection = UIMenu(options: .displayInline, children: [reply, copy, edit, delete])
-//        let contextMenu = UIMenu(children: [firstSection, secondSection])
-//        if let contextView = contextMenu as? UIView {
-//            print("truee")
-//        }
+        
         return UIMenu(children: [firstSection, secondSection])
     }
     
@@ -53,7 +52,9 @@ final class MessageMenuBuilder
         return UIMenu(title: "", children: [deleteAction, copyAction])
     }
 
-    private func createReplyAction(for cell: MessageTableViewCell, message: Message, text: String) -> UIAction {
+    private func createReplyAction(for cell: MessageTableViewCell,
+                                   message: Message, text: String) -> UIAction
+    {
         UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { _ in
             DispatchQueue.main.async {
                 let senderName = cell.cellViewModel.messageSender?.name
@@ -64,13 +65,17 @@ final class MessageMenuBuilder
         }
     }
 
-    private func createCopyAction(text: String) -> UIAction {
+    private func createCopyAction(text: String) -> UIAction
+    {
         UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
             UIPasteboard.general.string = text
         }
     }
 
-    private func createEditAction(for message: Message, text: String, isOwner: Bool) -> UIAction {
+    private func createEditAction(for message: Message,
+                                  text: String,
+                                  isOwner: Bool) -> UIAction
+    {
         UIAction(
             title: "Edit",
             image: UIImage(systemName: "pencil.and.scribble"),
@@ -86,7 +91,8 @@ final class MessageMenuBuilder
         }
     }
 
-    private func createDeleteAction(for message: Message, isOwner: Bool = true) -> UIAction {
+    private func createDeleteAction(for message: Message,
+                                    isOwner: Bool = true) -> UIAction {
         UIAction(
             title: "Delete",
             image: UIImage(systemName: "trash"),

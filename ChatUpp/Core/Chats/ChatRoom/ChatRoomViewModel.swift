@@ -54,11 +54,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         conversation?.participants.first(where: { $0.userID == authUser.uid })?.unseenMessagesCount ?? 0
     }
     
-    private var isAuthUserGroupMember: Bool
+    var isAuthUserGroupMember: Bool
     {
         guard let conversation = conversation,
               conversation.realm != nil,
-              let _ = conversation.participants.filter("userID == %@", authUser.uid).first else {return false}
+              let _ = conversation.participants.filter("userID == %@", authUser.uid).first else { return false }
         if conversation.isGroup { return true }
         else { return false }
     }
@@ -73,14 +73,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         } else {
             return true
         }
-        
-//        if conversation?.isGroup == false { return true }
-//        
-//        guard let conversation = conversation else { return false }
-//        guard conversation.realm != nil else { return false }
-// 
-//        let isAuthUserChatParticipant = !conversation.participants.filter("userID == %@", authUser.uid).isEmpty
-//        return isAuthUserChatParticipant
     }
     
     private lazy var authenticatedUser: User? = {

@@ -871,7 +871,8 @@ extension ChatRoomViewController: UITableViewDelegate
     ///
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration?
     {
-        guard let baseCell = tableView.cellForRow(at: indexPath) else { return nil }
+        guard viewModel.shouldHideJoinGroupOption,
+              let baseCell = tableView.cellForRow(at: indexPath) else { return nil }
         let identifier = indexPath as NSCopying
         
         let menuBuilder = MessageMenuBuilder(
