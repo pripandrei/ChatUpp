@@ -61,11 +61,17 @@ extension ChatRoomInformationViewModel
     }
     
     @MainActor
-    private func fetchUsers() async
+    func fetchUsers() async
     {
         do {
-            let membersID = Array(chat.participants.map { $0.userID })
-            self.members = try await FirestoreUserService.shared.fetchUsers(with: membersID)
+            let newMemberIDs = Array(chat.participants
+                .filter { !self.members.map { $0.id }.contains($0.userID) }
+                .map { $0.userID }
+                .prefix(1)) // 1 - for testing purposes
+            guard !newMemberIDs.isEmpty else {return}
+            let members = try await FirestoreUserService.shared.fetchUsers(with: newMemberIDs)
+            RealmDataBase.shared.add(objects: members)
+            self.members.append(contentsOf: members)
         } catch {
             print("Could not fetch users: \(error)")
         }

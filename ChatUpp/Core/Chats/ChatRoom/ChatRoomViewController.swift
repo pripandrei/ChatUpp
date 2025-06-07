@@ -92,10 +92,6 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
-        
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 7.0, execute: {
-//            self.rootView.tableView.reloadRows(at: [IndexPath(row: 34, section: 11)], with: .fade)
-//        })
     }
 
     private func scrollToCell(at indexPath: IndexPath)

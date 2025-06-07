@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 // MARK: - Users section
 struct UserView<Content: View>: View
@@ -49,22 +50,19 @@ extension UserView
     {
         let imageSize = 37.0
         
-        if let imageData = viewModel.retrieveUserImageData(),
-           let image = UIImage(data: imageData)
-        {
-            return Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: imageSize, height: imageSize)
-                .clipShape(Circle())
-            
-        } else {
-            return Image("default_profile_photo")
-                .resizable()
-                .scaledToFill()
-                .frame(width: imageSize, height: imageSize)
-                .clipShape(Circle())
+        return Group {
+            if let data = viewModel.imageData,
+               let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable()
+            } else {
+                Image("default_profile_photo")
+                    .resizable()
+            }
         }
+        .scaledToFill()
+        .frame(width: imageSize, height: imageSize)
+        .clipShape(Circle())
     }
 }
 
@@ -72,10 +70,12 @@ extension UserView
 final class UserViewViewModel: SwiftUI.ObservableObject
 {
     private let user: User
+    @Published private(set) var imageData: Data?
     
     init(user: User)
     {
         self.user = user
+        Task { await loadImage() }
     }
     
     var imageURL: String?
@@ -86,9 +86,32 @@ final class UserViewViewModel: SwiftUI.ObservableObject
         return nil
     }
     
-    func retrieveUserImageData() -> Data?
+    @MainActor
+    private func downloadImage(imagePath path: String) async -> Data?
     {
-        guard let url = imageURL else {return nil}
-        return CacheManager.shared.retrieveImageData(from: url)
+        do {
+            return try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: path)
+        } catch {
+            print("Could not download image for userView: ", error)
+            return nil
+        }
+    }
+    
+    @MainActor
+    private func loadImage() async
+    {
+        guard let url = imageURL else { return }
+        
+        if let data = CacheManager.shared.retrieveImageData(from: url)
+        {
+            imageData = data
+        }
+        else if let data = await downloadImage(imagePath: url)
+        {
+            imageData = data
+            if let url = imageURL {
+                CacheManager.shared.saveImageData(data, toPath: url)
+            }
+        }
     }
 }

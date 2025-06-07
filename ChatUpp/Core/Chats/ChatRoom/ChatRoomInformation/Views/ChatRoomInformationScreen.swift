@@ -59,6 +59,13 @@ struct ChatRoomInformationScreen: View
                 Section {
                     ForEach(viewModel.members) { member in
                         UserView(userItem: member)
+                            .onAppear {
+                                if member == viewModel.members.last {
+                                    Task {
+                                        await viewModel.fetchUsers()
+                                    }
+                                }
+                            }
                     }
                 } header: {
                     Text("Members")
