@@ -51,7 +51,7 @@
 		756525CA2A8127F5005DC594 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525C92A8127F5005DC594 /* Observable.swift */; };
 		756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */; };
 		756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525CD2A9F96AB005DC594 /* TabBarViewController.swift */; };
-		756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D12AAA147A005DC594 /* ChatsCell.swift */; };
+		756525D22AAA147A005DC594 /* ChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D12AAA147A005DC594 /* ChatCell.swift */; };
 		756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D42AB50079005DC594 /* FirestoreUserService.swift */; };
 		756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */; };
 		756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */; };
@@ -239,7 +239,7 @@
 		756525C92A8127F5005DC594 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		756525CD2A9F96AB005DC594 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
-		756525D12AAA147A005DC594 /* ChatsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsCell.swift; sourceTree = "<group>"; };
+		756525D12AAA147A005DC594 /* ChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCell.swift; sourceTree = "<group>"; };
 		756525D42AB50079005DC594 /* FirestoreUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreUserService.swift; sourceTree = "<group>"; };
 		756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameRegistrationViewController.swift; sourceTree = "<group>"; };
 		756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsCellViewModel.swift; sourceTree = "<group>"; };
@@ -751,7 +751,7 @@
 		75D7C5722AD5C15000F6D4B9 /* ChatCell */ = {
 			isa = PBXGroup;
 			children = (
-				756525D12AAA147A005DC594 /* ChatsCell.swift */,
+				756525D12AAA147A005DC594 /* ChatCell.swift */,
 				755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */,
 			);
 			path = ChatCell;
@@ -1121,7 +1121,7 @@
 				7541615C2ABDDABC007CF0FA /* EmailCredentialsValidator.swift in Sources */,
 				75BA23852D2F02F700A4C508 /* ImageSaveble.swift in Sources */,
 				75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */,
-				756525D22AAA147A005DC594 /* ChatsCell.swift in Sources */,
+				756525D22AAA147A005DC594 /* ChatCell.swift in Sources */,
 				75A7AFDA2D3C394800E081DF /* InputBarContainer.swift in Sources */,
 				752706552DAAF494002128DF /* ChatRoomNavigationBarViewModel.swift in Sources */,
 				75D7C5952AD72DBC00F6D4B9 /* MessageTableViewCell.swift in Sources */,

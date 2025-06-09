@@ -11,7 +11,7 @@ import Combine
 import Kingfisher
 import YYText
 
-class ChatsCell: UITableViewCell {
+class ChatCell: UITableViewCell {
     
     private var cellViewModel: ChatCellViewModel!
     private var messageLable = CustomMessageLabel()
@@ -57,7 +57,7 @@ class ChatsCell: UITableViewCell {
     
     func configure(viewModel: ChatCellViewModel) {
         self.cellViewModel = viewModel
-        
+        setImage()
         setupBinding()
     }
     
@@ -124,7 +124,9 @@ class ChatsCell: UITableViewCell {
             .compactMap( { $0 } )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in
-                self?.setImage(imageData)
+                guard let self = self else {return}
+                self.profileImage.image = UIImage(data: imageData)
+                Utilities.stopSkeletonAnimation(for: self.profileImage)
             }.store(in: &subscriptions)
         
         cellViewModel.$chatUser
@@ -147,8 +149,8 @@ class ChatsCell: UITableViewCell {
                     Utilities.stopSkeletonAnimation(for: self.nameLabel)
                     self.nameLabel.text = chat.name
                 }
-                let imageData = self.cellViewModel.retrieveImageFromCache()
-                self.setImage(imageData)
+//                let imageData = self.cellViewModel.retrieveImageFromCache()
+//                self.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$recentMessage
@@ -171,10 +173,27 @@ class ChatsCell: UITableViewCell {
     }
     
     //MARK: - Image setup
+    
+    private func setImage()
+    {
+        guard cellViewModel.imageThumbnailPath == nil else
+        {
+            if let imageData = cellViewModel.retrieveImageFromCache() {
+                profileImage.image = UIImage(data: imageData)
+            } else {
+                Utilities.initiateSkeletonAnimation(for: self)
+            }
+            return
+        }
+        
+        self.profileImage.image = cellViewModel.chat.isGroup == true ?
+        UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
+    }
 
     private func setImage(_ imageData: Data? = nil)
     {
         Task(priority: .high) { @MainActor in
+            
             Utilities.stopSkeletonAnimation(for: profileImage)
             
             guard let imageData = imageData else {
@@ -186,11 +205,13 @@ class ChatsCell: UITableViewCell {
             self.profileImage.image = image
         }
     }
+    
+    
 }
 
 
 //MARK: - UI SETUP
-extension ChatsCell {
+extension ChatCell {
     
     private func setupUI()
     {
@@ -201,7 +222,7 @@ extension ChatsCell {
         setupUnreadMessagesCountLabel()
         createOnlineStatusView()
         setupSeenStatusMark()
-        Utilities.initiateSkeletonAnimation(for: self)
+//        Utilities.initiateSkeletonAnimation(for: self)
     }
     
     private func createOnlineStatusView() {
@@ -357,7 +378,7 @@ extension ChatsCell {
     }
 }
 
-extension ChatsCell {
+extension ChatCell {
     class CustomMessageLabel: UILabel {
         override func drawText(in rect: CGRect) {
             var targetRect = textRect(forBounds: rect, limitedToNumberOfLines: numberOfLines)

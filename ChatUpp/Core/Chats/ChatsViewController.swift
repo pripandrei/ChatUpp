@@ -54,7 +54,7 @@ class ChatsViewController: UIViewController {
     
     private func configureTableView() {
         tableView = UITableView()
-        tableView.register(ChatsCell.self, forCellReuseIdentifier: ReuseIdentifire.ChatTableCell.chat.identifire)
+        tableView.register(ChatCell.self, forCellReuseIdentifier: ReuseIdentifire.ChatTableCell.chat.identifire)
         view.addSubview(tableView)
         tableView.delegate = self
         tableViewDataSource = ChatsTableViewDataSource(viewModel: chatsViewModel)

@@ -34,9 +34,13 @@ class ChatCellViewModel
         print("deinit")
     }
     
-    init(chat: Chat) {
+    init(chat: Chat)
+    {
         self.chat = chat
         
+        if chat.id == "9E267B5E-A8F9-460A-A38B-42C6A7A72B43" {
+            print("stop")
+        }
         initiateChatDataLoad()
         addObserverToChat()
         observeAuthParticipantChanges()
