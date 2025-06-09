@@ -37,10 +37,7 @@ class ChatCellViewModel
     init(chat: Chat)
     {
         self.chat = chat
-        
-        if chat.id == "9E267B5E-A8F9-460A-A38B-42C6A7A72B43" {
-            print("stop")
-        }
+
         initiateChatDataLoad()
         addObserverToChat()
         observeAuthParticipantChanges()
@@ -344,9 +341,19 @@ extension ChatCellViewModel
                     self.setNewRecentMessage(messageID: recentMessageID)
                 case "participants":
                     if !self.chat.isGroup,
-                        self.findMemberID() == nil
+                       self.findMemberID() == nil
                     {
                         Task { await self.updateUserAfterDeletion() }
+                    }
+                case "thumbnailURL":
+                    Task {
+                        guard let imageURL = await self.imageThumbnailPath else {return}
+                        
+                        let imageIsCached = CacheManager.shared.doesImageExist(at: imageURL)
+                        
+                        if imageIsCached == false {
+                            await self.performImageDataUpdate()
+                        }
                     }
                 default: break
                 }

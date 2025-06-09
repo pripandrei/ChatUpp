@@ -337,11 +337,7 @@ extension FirebaseChatService
             .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!); return }
                 
-                guard let snapshot = snapshot, !snapshot.metadata.isFromCache else { return }
-                
-                snapshot.documentChanges.forEach { change in
-                    
-                    // skip cache retrieve on initial publishes attach
+                snapshot?.documentChanges.forEach { change in
 
                     if let chat = try? change.document.data(as: Chat.self) {
                         let update = DatabaseChangedObject(data: chat, changeType: change.type)

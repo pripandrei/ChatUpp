@@ -92,7 +92,6 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
-        print(viewModel.conversation?.id)
     }
 
     private func scrollToCell(at indexPath: IndexPath)

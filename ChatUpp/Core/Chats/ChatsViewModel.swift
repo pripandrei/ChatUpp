@@ -181,9 +181,6 @@ extension ChatsViewModel {
     
     private func handleChatUpdate(_ update: DatabaseChangedObject<Chat>)
     {
-        if update.data.id == "9E267B5E-A8F9-460A-A38B-42C6A7A72B43" {
-            print(update.data.thumbnailURL)
-        }
         switch update.changeType
         {
             case .added: handleAddedChat(update.data)
@@ -205,7 +202,7 @@ extension ChatsViewModel {
     
     private func handleModifiedChat(_ chat: Chat)
     {
-        guard let _ = retrieveChatFromRealm(chat) else {return}
+//        guard let _ = retrieveChatFromRealm(chat) else {return}
         updateRealmChat(chat)
         
         guard let cellVM = findCellViewModel(containing: chat),
