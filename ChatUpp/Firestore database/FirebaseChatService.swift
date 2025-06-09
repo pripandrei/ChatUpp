@@ -133,7 +133,9 @@ extension FirebaseChatService
         return count.intValue
     }
     
-    func getMessageDocument(messagePath: String, fromChatDocumentPath documentPath: String) -> DocumentReference {
+    func getMessageDocument(messagePath: String,
+                            fromChatDocumentPath documentPath: String) -> DocumentReference
+    {
         return chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).document(messagePath)
     }
     
@@ -167,7 +169,6 @@ extension FirebaseChatService
             let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             return message
         } catch {
-            
             print("Error fetching recent message: ", error.localizedDescription)
             return nil
         }

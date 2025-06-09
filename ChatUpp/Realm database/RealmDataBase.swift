@@ -296,70 +296,8 @@ enum RealmRetrieveError: Error, LocalizedError {
         case .objectNotPresent: return "object not present"
         case .chatNotPresent: return "chat not present"
         case .memberNotPresent: return "member not present"
-        case .messageNotPresent: return "message not present"
+        case .messageNotPresent: return "message not present (is nil)"
         case .imageNotPresent: return "image not present"
         }
     }
 }
-
-
-
-//MARK: Unused functions
-//extension RealmDBManager {
-//    public func create<T: Object>(object: T) -> T? {
-//        return try? realm?.write {
-//            realm?.create(T.self, value: object, update: .modified)
-//        }
-//    }
-
-
-//    public func getObjectsCount<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Int {
-//        guard var result = realm?.objects(type) else {return 0}
-//
-//        if let predicate = filter {
-//            result = result.filter(predicate)
-//        }
-//        
-//        return result.count
-//    }
-
-//    public func addObserverToObjects<T: Object>(objects: Results<T>) {
-//        let token = objects.observe { change in
-//            switch change {
-//            case .initial(let initialResults): print(initialResults)
-//            case .update(let updateResults, let deletions, let insertions, let modifications): print("ads")
-//            case .error(let error): print(error.localizedDescription)
-//            }
-//        }
-//        notificationToken.append(token)
-//    }
-    
-    
-//    @Published var objectPropertyChange: RealmPropertyChange?
-//    @Published var objectPropertyChange: PropertyChange?
-    
-//    public func addObserverToObject<T: Object>(object: T) {
-//        let token = object.observe { change in
-//            switch change {
-//            case .change(_, let properties):
-//                properties.forEach { property in
-//                    guard let newValue = property.newValue as? String else { return }
-////                    self.objectPropertyChange = property
-//                }
-//            case .deleted:
-//                print("Object was deleted")
-//            case .error(let error):
-//                print(error.localizedDescription)
-//            }
-//        }
-//        notificationToken?.append(token)
-//    }
-
-//}
-
-//enum RealmPropertyChange {
-//    case member(String)
-//    case recentMessageID(String)
-//}
-
-

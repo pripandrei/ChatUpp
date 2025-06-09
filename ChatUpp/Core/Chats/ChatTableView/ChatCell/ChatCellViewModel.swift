@@ -102,7 +102,7 @@ class ChatCellViewModel
 extension ChatCellViewModel
 {
     @MainActor
-    private var imageThumbnailPath: String?
+    var imageThumbnailPath: String?
     {
         guard let originalURL = chat.isGroup ? chat.thumbnailURL : chatUser?.photoUrl else {
             return nil
@@ -254,7 +254,7 @@ extension ChatCellViewModel
     }
     
     @MainActor
-    func loadRecentMessage() async -> Message?
+    private func loadRecentMessage() async -> Message?
     {
         do {
             return try await FirebaseChatService.shared.getRecentMessage(from: chat)

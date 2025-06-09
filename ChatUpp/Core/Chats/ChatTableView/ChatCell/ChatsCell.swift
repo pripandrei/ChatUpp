@@ -174,7 +174,7 @@ class ChatsCell: UITableViewCell {
 
     private func setImage(_ imageData: Data? = nil)
     {
-        Task { @MainActor in
+        Task(priority: .high) { @MainActor in
             Utilities.stopSkeletonAnimation(for: profileImage)
             
             guard let imageData = imageData else {
@@ -194,7 +194,7 @@ extension ChatsCell {
     
     private func setupUI()
     {
-        setProfileImage()
+        setupProfileImage()
         setMessageLable()
         setNameLabel()
         setDateLable()
@@ -294,7 +294,7 @@ extension ChatsCell {
         ])
     }
     
-    private func setProfileImage()
+    private func setupProfileImage()
     {
         contentView.addSubview(profileImage)
 //        profileImage.layer.cornerRadius = self.bounds.size.width * 0.09

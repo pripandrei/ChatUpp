@@ -31,26 +31,26 @@ final class ResultsTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(viewModel: ResultsCellViewModel) {
+    func configure(viewModel: ResultsCellViewModel)
+    {
         self.cellViewModel = viewModel
         setupBinding()
-
         titleLabel.text = cellViewModel.titleName
-
-        guard let imageURL = cellViewModel.imageURL else {
-            self.profileImageView.image = cellViewModel.chat?.isGroup == true ? UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
-            return
-        }
-        
-//        if self.imageURL != imageURL
-//        {
-            self.profileImageView.image = nil
-            self.cellViewModel.setImageData()
-            self.imageURL = cellViewModel.imageURL
-//        }
+        self.profileImageView.image = nil
+        setImage()
     }
     
-    private func setupBinding() {
+    private func setImage()
+    {
+        if cellViewModel.imageURL != nil
+        {
+            cellViewModel.setImageData()
+        } else {
+            self.profileImageView.image = cellViewModel.chat?.isGroup == true ? UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
+        }
+    }
+    
+   private func setupBinding() {
         cellViewModel.$imageData
             .receive(on: DispatchQueue.main)
             .compactMap { $0 }
