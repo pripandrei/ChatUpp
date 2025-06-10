@@ -155,6 +155,9 @@ final class ChatRoomViewController: UIViewController
         refreshTableView()
         viewModel.addListeners()
         viewModel.realmService?.updateChatOpenStatusIfNeeded()
+        if viewModel.authParticipantUnreadMessagesCount > 0 {
+            updateMessageSeenStatusIfNeeded()
+        }
     }
     
     //MARK: - Bindings
@@ -515,11 +518,20 @@ extension ChatRoomViewController
     
     private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool
     {
-        let message = viewModel.messageClusters[indexPath.section].items[indexPath.row].message
+        guard let message = viewModel.messageClusters[indexPath.section].items[indexPath.row].message else { return false }
         let authUserID = viewModel.authUser.uid
         
-        guard message?.messageSeen == false,
-              message?.senderId != authUserID,
+        let messageIsSeenByAuthUser: Bool
+        
+        if viewModel.conversation?.isGroup == true
+        {
+            messageIsSeenByAuthUser = message.seenBy.contains(authUserID)
+        } else {
+            messageIsSeenByAuthUser = message.messageSeen == false
+        }
+        
+        guard message.senderId != authUserID,
+              messageIsSeenByAuthUser == false,
               let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return false
         }
