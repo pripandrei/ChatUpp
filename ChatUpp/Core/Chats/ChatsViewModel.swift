@@ -31,8 +31,6 @@ final class ChatsViewModel {
     private var cancellables = Set<AnyCancellable>()
     
     private(set) var cellViewModels = [ChatCellViewModel]()
-    private(set) var usersListener: Listener?
-    private(set) var chatsListener: Listener?
     private let authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     @Published var initialChatsDoneFetching: Bool = false

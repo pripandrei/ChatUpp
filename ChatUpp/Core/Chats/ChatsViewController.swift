@@ -186,9 +186,6 @@ class ChatsViewController: UIViewController {
         searchController = nil
         lastSearchedText = nil
         searchTimer = nil
-////        chatsViewModel.cancelUsersListener()
-        chatsViewModel.chatsListener?.remove()
-        chatsViewModel.usersListener?.remove()
         chatsViewModel = nil
         tableView = nil
     }
