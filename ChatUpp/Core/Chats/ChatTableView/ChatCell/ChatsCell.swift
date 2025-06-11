@@ -20,6 +20,7 @@ class ChatsCell: UITableViewCell {
     private var dateLable = UILabel()
     private var unreadMessagesBadgeLabel = UnseenMessagesBadge()
     private var onlineStatusCircleView = UIView()
+    private var onlineStatusBorderView = UIView()
     private var seenStatusMark: YYLabel = YYLabel()
     
     private var subscriptions = Set<AnyCancellable>()
@@ -51,6 +52,8 @@ class ChatsCell: UITableViewCell {
         super.layoutSubviews()
         profileImage.layer.cornerRadius = profileImage.bounds.width / 2
         onlineStatusCircleView.layer.cornerRadius = onlineStatusCircleView.bounds.width / 2
+        onlineStatusBorderView.layer.cornerRadius = onlineStatusBorderView.bounds.width / 2
+        
     }
     
     //MARK: - CELL CONFIGURATION
@@ -64,6 +67,7 @@ class ChatsCell: UITableViewCell {
     private func setOnlineStatusActivity() {
         if let activeStatus = cellViewModel.chatUser?.isActive {
             onlineStatusCircleView.isHidden = !activeStatus
+            onlineStatusBorderView.isHidden = !activeStatus
         }
     }
     
@@ -205,22 +209,31 @@ extension ChatsCell {
 //        initiateSkeletonAnimation() TODO: - activate back
     }
     
-    private func createOnlineStatusView() {
+    private func createOnlineStatusView()
+    {
+        contentView.addSubview(onlineStatusBorderView)
+        onlineStatusBorderView.addSubview(onlineStatusCircleView)
         
-        contentView.addSubview(onlineStatusCircleView)
+        onlineStatusBorderView.backgroundColor = ColorManager.appBackgroundColor
+        onlineStatusBorderView.clipsToBounds = true
+        onlineStatusBorderView.isHidden = true
+        onlineStatusBorderView.translatesAutoresizingMaskIntoConstraints = false
         
         onlineStatusCircleView.backgroundColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
-        onlineStatusCircleView.layer.borderColor = ColorManager.appBackgroundColor.cgColor
-        onlineStatusCircleView.layer.borderWidth = 2
         onlineStatusCircleView.clipsToBounds = true
         onlineStatusCircleView.isHidden = true
         onlineStatusCircleView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 16),
-            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 16),
-            onlineStatusCircleView.trailingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 2),
-            onlineStatusCircleView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -1),
+            onlineStatusBorderView.widthAnchor.constraint(equalToConstant: 16),
+            onlineStatusBorderView.heightAnchor.constraint(equalToConstant: 16),
+            onlineStatusBorderView.trailingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 2),
+            onlineStatusBorderView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -1),
+            
+            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 12),
+            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 12),
+            onlineStatusCircleView.centerXAnchor.constraint(equalTo: onlineStatusBorderView.centerXAnchor),
+            onlineStatusCircleView.centerYAnchor.constraint(equalTo: onlineStatusBorderView.centerYAnchor),
         ])
     }
     
