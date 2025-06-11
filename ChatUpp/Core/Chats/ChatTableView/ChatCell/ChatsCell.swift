@@ -217,8 +217,8 @@ extension ChatsCell {
         onlineStatusCircleView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 17),
-            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 17),
+            onlineStatusCircleView.widthAnchor.constraint(equalToConstant: 16),
+            onlineStatusCircleView.heightAnchor.constraint(equalToConstant: 16),
             onlineStatusCircleView.trailingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 2),
             onlineStatusCircleView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -1),
         ])

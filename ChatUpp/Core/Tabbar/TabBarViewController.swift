@@ -51,6 +51,8 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         tabBar.isHidden = false
         
         setupTabarAppearance()
+        
+        setupNotificationForBadgeUpdate()
     }
     
     func setupTabarAppearance()
@@ -97,7 +99,104 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         viewControllers?.removeAll()
     }
     
-    deinit { 
+    deinit {
         print("TABBAR Deninit")
     }
 }
+
+//MARK: - Notification for badge update
+
+extension TabBarViewController
+{
+    private func setupNotificationForBadgeUpdate()
+    {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateBadgeCount(_ :)),
+                                               name: .didUpdateUnseenMessageCount,
+                                               object: nil)
+    }
+    
+    @objc private func updateBadgeCount(_ notification: Notification)
+    {
+        guard let count = notification.userInfo?["unseen_messages_count"] as? Int else {return}
+        print(count)
+        let value = Int(tabBar.items?[0].badgeValue?.codingKey.intValue ?? 0) + count
+        if value > 0 {
+            tabBar.items?[0].badgeValue = "\(value)"
+        } else {
+            tabBar.items?[0].badgeValue = nil
+        }
+    }
+}
+
+//MARK: - Unseen badge
+
+//
+//final class CustomTabBarItem: UITabBarItem
+//{
+//    private lazy var badgeLabel: UnseenMessagesBadge = {
+//        let badge = UnseenMessagesBadge()
+//        badgeLabel.backgroundColor = ColorManager.unseenMessagesBadgeBackgroundColor
+//        return badge
+//    }()
+//    
+//    init(title: String?,
+//         image: UIImage?,
+//         tag: Int,
+//         hasUnseenBadge: Bool = false)
+//    {
+//        super.init()
+//        self.configureSelf(title: title, image: image, tag: tag)
+//        
+//        if hasUnseenBadge {
+//            setupBadgeLabel()
+//        }
+//    }
+//    
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//    
+//    private func configureSelf(title: String?, image: UIImage?, tag: Int)
+//    {
+//        self.title = title
+//        self.image = image
+//        self.tag = tag
+//    }
+//    
+//    private func setupBadgeLabel() {
+//        //        guard let _ = cellViewModel.recentMessage else {return}
+//        
+//        badgeLabel.backgroundColor = ColorManager.unseenMessagesBadgeBackgroundColor
+//        
+//        let shouldShowUnreadCount = count > 0
+//        badgeLabel.isHidden = !shouldShowUnreadCount
+//        
+//        if shouldShowUnreadCount {
+//            badgeLabel.text = "\(count)"
+//        }
+//    }
+//    
+//    private func setupBadgeLabelConstraints() {
+//        
+//    }
+//
+//    
+//}
+//
+//
+//extension TabBarViewController
+//{
+//    private func setUnreadMessageCount(_ count: Int) {
+//        //        guard let _ = cellViewModel.recentMessage else {return}
+//
+//        unreadMessagesBadgeLabel.backgroundColor = ColorManager.unseenMessagesBadgeBackgroundColor
+//
+//        let shouldShowUnreadCount = count > 0
+//        unreadMessagesBadgeLabel.isHidden = !shouldShowUnreadCount
+//
+//        if shouldShowUnreadCount {
+//            unreadMessagesBadgeLabel.text = "\(count)"
+//        }
+//    }
+//}

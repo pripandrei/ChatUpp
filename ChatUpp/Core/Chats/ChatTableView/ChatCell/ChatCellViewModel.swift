@@ -20,6 +20,31 @@ class ChatCellViewModel
     @Published private(set) var chat: Chat
     @Published private(set) var chatUser: User?
     @Published private(set) var unreadMessageCount: Int?
+     {
+         didSet {
+             if let unreadMessageCount
+             {
+                 if oldValue == nil {
+                     notifyUnseenCountChanged(unreadMessageCount)
+                 }
+                 if (oldValue ?? 0) > unreadMessageCount {
+                     notifyUnseenCountChanged(-1)
+                 }
+                 if (oldValue ?? 0) < unreadMessageCount {
+                     notifyUnseenCountChanged(1)
+                 }
+             }
+         }
+     }
+     
+    private func notifyUnseenCountChanged(_ updatedCount: Int)
+    {
+        NotificationCenter.default.post(name: .didUpdateUnseenMessageCount,
+                                        object: nil,
+                                        userInfo: ["unseen_messages_count": updatedCount])
+    }
+
+
     @Published private(set) var titleName: String?
     
     @Published private(set) var recentMessage: Message? {

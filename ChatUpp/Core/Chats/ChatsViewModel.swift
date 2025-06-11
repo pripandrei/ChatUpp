@@ -271,4 +271,5 @@ extension ChatsViewModel
 
 extension Notification.Name {
     static let didJoinNewChat = Notification.Name("didJoinNewChat")
+    static let didUpdateUnseenMessageCount = Notification.Name("didUpdateUnseenMessageCount")
 }
