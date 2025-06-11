@@ -118,14 +118,13 @@ extension TabBarViewController
     
     @objc private func updateBadgeCount(_ notification: Notification)
     {
-        guard let count = notification.userInfo?["unseen_messages_count"] as? Int else {return}
-        print(count)
-        let value = Int(tabBar.items?[0].badgeValue?.codingKey.intValue ?? 0) + count
-        if value > 0 {
-            tabBar.items?[0].badgeValue = "\(value)"
-        } else {
-            tabBar.items?[0].badgeValue = nil
-        }
+        guard let count = notification.userInfo?["unseen_messages_count"] as? Int,
+              let tabItem = tabBar.items?.first else { return }
+
+        let current = Int(tabItem.badgeValue ?? "0") ?? 0
+        let newValue = current + count
+
+        tabItem.badgeValue = newValue > 0 ? "\(newValue)" : nil
     }
 }
 

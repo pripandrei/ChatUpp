@@ -19,34 +19,15 @@ class ChatCellViewModel
     
     @Published private(set) var chat: Chat
     @Published private(set) var chatUser: User?
+    @Published private(set) var titleName: String?
     @Published private(set) var unreadMessageCount: Int?
-     {
-         didSet {
-             if let unreadMessageCount
-             {
-                 if oldValue == nil {
-                     notifyUnseenCountChanged(unreadMessageCount)
-                 }
-                 if (oldValue ?? 0) > unreadMessageCount {
-                     notifyUnseenCountChanged(-1)
-                 }
-                 if (oldValue ?? 0) < unreadMessageCount {
-                     notifyUnseenCountChanged(1)
-                 }
-             }
-         }
-     }
-     
-    private func notifyUnseenCountChanged(_ updatedCount: Int)
     {
-        NotificationCenter.default.post(name: .didUpdateUnseenMessageCount,
-                                        object: nil,
-                                        userInfo: ["unseen_messages_count": updatedCount])
+        didSet {
+            handleUnreadMessageCountChange(oldValue: oldValue,
+                                           newValue: unreadMessageCount)
+        }
     }
 
-
-    @Published private(set) var titleName: String?
-    
     @Published private(set) var recentMessage: Message? {
         didSet {
             if oldValue != recentMessage {
@@ -120,6 +101,19 @@ class ChatCellViewModel
     private func findMemberID() -> String?
     {
         return chat.participants.first(where: { $0.userID != authUser.uid } )?.userID
+    }
+    
+    private func handleUnreadMessageCountChange(oldValue: Int?, newValue: Int?)
+    {
+        guard let new = newValue, oldValue != new else { return }
+        let delta: Int
+        
+        if let old = oldValue, old > 0 {
+            delta = new - old
+        } else {
+            delta = new
+        }
+        notifyUnseenCountChanged(delta)
     }
 }
 
@@ -402,3 +396,13 @@ extension ChatCellViewModel: Equatable {
     }
 }
 
+//MARK: - Notification
+extension ChatCellViewModel
+{
+    private func notifyUnseenCountChanged(_ updatedCount: Int)
+    {
+        NotificationCenter.default.post(name: .didUpdateUnseenMessageCount,
+                                        object: nil,
+                                        userInfo: ["unseen_messages_count": updatedCount])
+    }
+}
