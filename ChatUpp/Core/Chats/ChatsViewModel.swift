@@ -39,8 +39,10 @@ final class ChatsViewModel {
         print(RealmDataBase.realmFilePath ?? "unknown realm file path")
         setupCellViewModels()
         observeChats()
-        setChatJoinNotification()
+        setJoinedGroupChatNotification()
+        setCreatedGroupChatNotification()
     }
+    
     deinit {
         print("deinit chats view model")
     }
@@ -146,30 +148,49 @@ extension ChatsViewModel
     }
 }
 
-//MARK: - Notofication on auth user chat join
+//MARK: - Notofications
 extension ChatsViewModel
 {
-    private func setChatJoinNotification()
+    private func setJoinedGroupChatNotification()
     {
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(notifyOnJoinNewChat(_:)),
+                                               selector: #selector(notifyOnJoinedGroupChat(_:)),
                                                name: .didJoinNewChat,
                                                object: nil)
     }
-//
-    @objc private func notifyOnJoinNewChat(_ notification: Notification)
+    
+    private func setCreatedGroupChatNotification()
+    {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(notifyOnCreatedNewGroupChat(_:)),
+                                               name: .didCreateNewChat,
+                                               object: nil)
+    }
+    
+    @objc private func notifyOnCreatedNewGroupChat(_ notification: Notification)
+    {
+        guard let chat = notification.object as? Chat else { return }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+            self.addCellViewModel(using: chat)
+            self.chatModificationType = .added
+        })
+    }
+
+    @objc private func notifyOnJoinedGroupChat(_ notification: Notification)
     {
         guard let chatID = notification.userInfo?["chatID"] as? String else { return }
         
         if let chat = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
         {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.7, execute: {
-                self.addChatToRealm(chat)
+//                self.addChatToRealm(chat)
                 self.addCellViewModel(using: chat)
                 self.chatModificationType = .added
             })
         }
     }
+    
     
 }
 
@@ -265,10 +286,4 @@ extension ChatsViewModel
             }
         }
     }
-}
-
-
-extension Notification.Name {
-    static let didJoinNewChat = Notification.Name("didJoinNewChat")
-    static let didUpdateUnseenMessageCount = Notification.Name("didUpdateUnseenMessageCount")
 }

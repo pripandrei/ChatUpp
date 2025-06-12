@@ -113,6 +113,7 @@
 		75BC06702DFB5A14002ED4AA /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC066F2DFB5A06002ED4AA /* View+Extensions.swift */; };
 		75BC06722DFB6053002ED4AA /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06712DFB604D002ED4AA /* NetworkError.swift */; };
 		75BC06742DFB60E6002ED4AA /* GroupEventMessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */; };
+		75BC06792DFB82D3002ED4AA /* NotificationCenter+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */; };
 		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
@@ -285,6 +286,7 @@
 		75BC066F2DFB5A06002ED4AA /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
 		75BC06712DFB604D002ED4AA /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 		75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEventMessageList.swift; sourceTree = "<group>"; };
+		75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationCenter+Extensions.swift"; sourceTree = "<group>"; };
 		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
@@ -853,6 +855,7 @@
 		75FB78FF2AC3188C00C2743A /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */,
 				75BC066F2DFB5A06002ED4AA /* View+Extensions.swift */,
 				75A7AFC22D396D1400E081DF /* ChatRoomViewModel+Extensions.swift */,
 				75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */,
@@ -1138,6 +1141,7 @@
 				75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */,
 				757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
+				75BC06792DFB82D3002ED4AA /* NotificationCenter+Extensions.swift in Sources */,
 				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
 				75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */,

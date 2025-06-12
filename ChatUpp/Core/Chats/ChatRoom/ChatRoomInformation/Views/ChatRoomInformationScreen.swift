@@ -82,7 +82,8 @@ struct ChatRoomInformationScreen: View
         .background(Color(ColorManager.appBackgroundColor))
         .padding(.top, -45)
         
-        LeaveChatAlert(viewModel: viewModel, isPresented: $showLeaveGroupAlert)
+        LeaveChatAlert(viewModel: viewModel,
+                       isPresented: $showLeaveGroupAlert)
     }
 }
 
