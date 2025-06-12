@@ -51,6 +51,8 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         tabBar.isHidden = false
         
         setupTabarAppearance()
+        
+        setupNotificationForBadgeUpdate()
     }
     
     func setupTabarAppearance()
@@ -97,7 +99,31 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         viewControllers?.removeAll()
     }
     
-    deinit { 
+    deinit {
         print("TABBAR Deninit")
+    }
+}
+
+//MARK: - Notification for badge update
+
+extension TabBarViewController
+{
+    private func setupNotificationForBadgeUpdate()
+    {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateBadgeCount(_ :)),
+                                               name: .didUpdateUnseenMessageCount,
+                                               object: nil)
+    }
+    
+    @objc private func updateBadgeCount(_ notification: Notification)
+    {
+        guard let count = notification.userInfo?["unseen_messages_count"] as? Int,
+              let tabItem = tabBar.items?.first else { return }
+
+        let current = Int(tabItem.badgeValue ?? "0") ?? 0
+        let newValue = current + count
+
+        tabItem.badgeValue = newValue > 0 ? "\(newValue)" : nil
     }
 }
