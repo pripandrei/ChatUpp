@@ -103,7 +103,7 @@ extension GroupCreationViewModel
     @MainActor
     func finishGroupCreation(_ attempt: Int = 1) async throws
     {
-        guard attempt < 15 else { throw NetworkError.timeout }
+        guard attempt < 6 else { throw NetworkError.timeout }
         
         if NetworkMonitor.shared.isReachable
         {
@@ -127,29 +127,8 @@ extension GroupCreationViewModel
         } else {
             try await Task.sleep(for: .seconds(3))
             try await finishGroupCreation(attempt + 1)
-            //            try await self.retryGroupCreationOnReconnect()
         }
     }
-    
-//    private func retryGroupCreationOnReconnect() async throws
-//    {
-//        try await withCheckedThrowingContinuation { continuation in
-//            NetworkMonitor.shared.statusChanged
-//                .receive(on: DispatchQueue.main)
-//                .prefix(1) // Only listen to the *first* reachable event
-//                .filter { $0 }
-//                .sink { [weak self] _ in
-//                    Task {
-//                        do {
-//                            try await self?.finishGroupCreation()
-//                            continuation.resume()
-//                        } catch {
-//                            continuation.resume(throwing: error)
-//                        }
-//                    }
-//                }.store(in: &subscribtions)
-//        }
-//    }
 }
 
 
@@ -209,29 +188,5 @@ extension GroupCreationViewModel
 extension GroupCreationViewModel : ImageRepositoryRepresentable {}
 
 
-enum GroupEventMessage: String
-{
-    case created
-    case userLeft
-    case userJoined
-    case photoUpdated
-    case nameUpdated
-    
-    var eventMessage: String
-    {
-        switch self
-        {
-        case .created: return "Group created"
-        case .userLeft: return "has left the group"
-        case .userJoined: return "has joined the group"
-        case .photoUpdated: return "Group photo updated"
-        case .nameUpdated: return "nameUpdated"
-        }
-    }
-}
 
-enum NetworkError: Error
-{
-    case timeout
-    case noNetwork
-}
+

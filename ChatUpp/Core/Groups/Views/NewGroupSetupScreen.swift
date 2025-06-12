@@ -16,6 +16,10 @@ struct NewGroupSetupScreen: View
     @State private var imageDataContainer: IdentifiableItem<Data>?
     @State private var profilePhotoItem: PhotosPickerItem?
     
+    @State private var isGroupCreationInProgress: Bool = false
+    @State private var showGroupCreationAlertError: Bool = false
+    @State private var groupCreationErrorMessage: String = ""
+    
     var body: some View {
         List {
             headerSection()
@@ -34,24 +38,37 @@ struct NewGroupSetupScreen: View
                 try await openChatGroup(with: newGroup)
             }
         }
+        .errorAlert(title: "Network connection error",
+                    message: groupCreationErrorMessage,
+                    isPresented: $showGroupCreationAlertError)
+//        .modifier(AlertModifier(isPresented: $showGroupCreationAlertError,
+//                                message: errorMessage))
     }
-    
+
     private func toolbarTrailingItem() -> some ToolbarContent
     {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                Task {
-                    do {
-                        try await viewModel.finishGroupCreation()
-                    } catch {
-                        print("Could not create group: \(error)")
+        ToolbarItem(placement: .topBarTrailing)
+        {
+            if isGroupCreationInProgress
+            {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .padding(.trailing, 8)
+                    .scaleEffect(1.3)
+                    .tint(Color(ColorManager.actionButtonsTintColor))
+            } else {
+                Button {
+                    dismissKeyboard()
+                    self.isGroupCreationInProgress = true
+                    Task {
+                        await initiateGroupCreationProcess()
                     }
+                } label: {
+                    Text("Create")
+                        .foregroundStyle(viewModel.groupName.isEmpty ? .gray : Color(ColorManager.actionButtonsTintColor))
                 }
-            } label: {
-                Text("Create")
-                    .foregroundStyle(viewModel.groupName.isEmpty ? .gray : Color(ColorManager.actionButtonsTintColor))
+                .disabled(viewModel.groupName.isEmpty)
             }
-            .disabled(viewModel.groupName.isEmpty)
         }
     }
 }
@@ -184,6 +201,32 @@ extension NewGroupSetupScreen
         Utilities.windowRoot?.dismiss(animated: true)
         try await Task.sleep(for: .seconds(0.5))
         coordinator.openConversationVC(conversationViewModel: chatRoomVM)
+    }
+    
+    private func dismissKeyboard()
+    {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                        to: nil,
+                                        from: nil,
+                                        for: nil)
+    }
+    
+    private func initiateGroupCreationProcess() async
+    {
+        do {
+            try await viewModel.finishGroupCreation()
+        }
+        catch let error as NetworkError
+        {
+            self.showGroupCreationAlertError = true
+            self.groupCreationErrorMessage = error.errorDescription ?? error.localizedDescription
+            print("Could not create group: \(error)")
+        } catch {
+            self.showGroupCreationAlertError = true
+            self.groupCreationErrorMessage = error.localizedDescription
+            print("Could not create group: \(error)")
+        }
+        self.isGroupCreationInProgress = false
     }
 }
 

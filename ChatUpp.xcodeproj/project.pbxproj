@@ -110,6 +110,9 @@
 		75BA23852D2F02F700A4C508 /* ImageSaveble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23842D2F02E600A4C508 /* ImageSaveble.swift */; };
 		75BA7E4F2D34AE0C00A4C508 /* IndexPath+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */; };
 		75BC066E2DFADC6E002ED4AA /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC066D2DFADC68002ED4AA /* NetworkMonitor.swift */; };
+		75BC06702DFB5A14002ED4AA /* View+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC066F2DFB5A06002ED4AA /* View+Extensions.swift */; };
+		75BC06722DFB6053002ED4AA /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06712DFB604D002ED4AA /* NetworkError.swift */; };
+		75BC06742DFB60E6002ED4AA /* GroupEventMessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */; };
 		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
@@ -279,6 +282,9 @@
 		75BA23842D2F02E600A4C508 /* ImageSaveble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSaveble.swift; sourceTree = "<group>"; };
 		75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IndexPath+Extensions.swift"; sourceTree = "<group>"; };
 		75BC066D2DFADC68002ED4AA /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		75BC066F2DFB5A06002ED4AA /* View+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Extensions.swift"; sourceTree = "<group>"; };
+		75BC06712DFB604D002ED4AA /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
+		75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEventMessageList.swift; sourceTree = "<group>"; };
 		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
@@ -705,9 +711,18 @@
 		75BC06682DFADC60002ED4AA /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				75BC06712DFB604D002ED4AA /* NetworkError.swift */,
 				75BC066D2DFADC68002ED4AA /* NetworkMonitor.swift */,
 			);
 			path = Network;
+			sourceTree = "<group>";
+		};
+		75BC06772DFB623A002ED4AA /* MessageEvent */ = {
+			isa = PBXGroup;
+			children = (
+				75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */,
+			);
+			path = MessageEvent;
 			sourceTree = "<group>";
 		};
 		75CB52192B0BF07D007F3AB6 /* Firebase storage */ = {
@@ -753,6 +768,7 @@
 		75D08C8A2D1ABF4200F077B9 /* Groups */ = {
 			isa = PBXGroup;
 			children = (
+				75BC06772DFB623A002ED4AA /* MessageEvent */,
 				752DE4072D216FDA003AC40C /* ViewModel */,
 				752DE4022D216FB2003AC40C /* Views */,
 			);
@@ -837,6 +853,7 @@
 		75FB78FF2AC3188C00C2743A /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				75BC066F2DFB5A06002ED4AA /* View+Extensions.swift */,
 				75A7AFC22D396D1400E081DF /* ChatRoomViewModel+Extensions.swift */,
 				75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */,
 				75FB79002AC318D600C2743A /* UIView+Extensions.swift */,
@@ -1124,8 +1141,10 @@
 				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
 				75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */,
+				75BC06722DFB6053002ED4AA /* NetworkError.swift in Sources */,
 				75855AF52CF0393A00FF8E9E /* UnseenMessagesTitleTableViewCell.swift in Sources */,
 				75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */,
+				75BC06702DFB5A14002ED4AA /* View+Extensions.swift in Sources */,
 				7544392E2B3D2B620044A84B /* SettingsItemModel.swift in Sources */,
 				7533D9B82B1659210057EBC7 /* PhoneSignInViewController.swift in Sources */,
 				7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */,
@@ -1148,6 +1167,7 @@
 				75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */,
 				756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */,
 				7563F87C2ADE25E6006FA374 /* ConversationTableViewDataSource.swift in Sources */,
+				75BC06742DFB60E6002ED4AA /* GroupEventMessageList.swift in Sources */,
 				75E8AAC22D9213F9007479E4 /* ImageRepositoryRepresentable.swift in Sources */,
 				754439302B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift in Sources */,
 				752DE40D2D218B95003AC40C /* GroupMembersSelectionScreen.swift in Sources */,

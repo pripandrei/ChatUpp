@@ -38,3 +38,25 @@ final class NetworkMonitor
         monitor.start(queue: networkQueue)
     }
 }
+
+
+
+//private func retryGroupCreationOnReconnect() async throws
+//{
+//    try await withCheckedThrowingContinuation { continuation in
+//        NetworkMonitor.shared.statusChanged
+//            .receive(on: DispatchQueue.main)
+//            .prefix(1) // Only listen to the *first* reachable event
+//            .filter { $0 }
+//            .sink { [weak self] _ in
+//                Task {
+//                    do {
+//                        try await self?.finishGroupCreation()
+//                        continuation.resume()
+//                    } catch {
+//                        continuation.resume(throwing: error)
+//                    }
+//                }
+//            }.store(in: &subscribtions)
+//    }
+//}
