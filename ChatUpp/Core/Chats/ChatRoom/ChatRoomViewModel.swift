@@ -215,7 +215,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         try await FirebaseChatService.shared.addParticipant(participant: participant, toChat: conversation.id)
         RealmDataBase.shared.add(object: conversation)
         
-        let text = "has joined the group"
+        let text = GroupEventMessage.userLeft.eventMessage
         let message = createNewMessage(text, ofType: .title)
         
         try await FirebaseChatService.shared.createMessage(message: message,

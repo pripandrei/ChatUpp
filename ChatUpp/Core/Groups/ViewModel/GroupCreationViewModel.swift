@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 enum GroupCreationRoute
 {
@@ -17,12 +18,13 @@ enum GroupCreationRoute
 final class GroupCreationViewModel: SwiftUI.ObservableObject
 {
     private var groupID: String?
-    @Published private(set) var allUsers: [User] = []
+    private var subscribtions = Set<AnyCancellable>()
     
+    @Published private(set) var chatGroup: Chat?
+    @Published private(set) var allUsers: [User] = []
     @Published private(set) var imageSampleRepository: ImageSampleRepository?
     @Published var navigationStack = [GroupCreationRoute]()
     @Published var selectedGroupMembers = [User]()
-    
     @Published var groupName: String = ""
 
     init() {
@@ -59,21 +61,36 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
 //MARK: - Group creation functions
 extension GroupCreationViewModel
 {
-//    func createRecentMessage() {
-//        
-//    }
-    
-    func createGroup() -> Chat?
+    private func createMessage(text: String) -> Message
     {
-        guard let authenticatedUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {return nil}
+        let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        return Message(
+            id: UUID().uuidString,
+            messageBody: text,
+            senderId: authUserID,
+            timestamp: Date(),
+            messageSeen: nil,
+            seenBy: nil,
+            isEdited: false,
+            imagePath: nil,
+            imageSize: nil,
+            repliedTo: nil,
+            type: .title
+        )
+    }
+    
+    @MainActor
+    private func createGroup() -> Chat
+    {
+        let authenticatedUserID = try! AuthenticationManager.shared.getAuthenticatedUser().uid
         
         let selfParticipant = ChatParticipant(userID: authenticatedUserID, unseenMessageCount: 0)
-        var participants = selectedGroupMembers.map { ChatParticipant(userID: $0.id , unseenMessageCount: 0) }
+        var participants = self.selectedGroupMembers.map { ChatParticipant(userID: $0.id , unseenMessageCount: 0) }
         participants.append(selfParticipant)
         
         let group = Chat(id: UUID().uuidString,
                          participants: participants,
-                         recentMessageID: "Group created",
+                         recentMessageID: nil,
                          messagesCount: 0,
                          isFirstTimeOpened: true,
                          dateCreated: Date(),
@@ -84,15 +101,55 @@ extension GroupCreationViewModel
     }
     
     @MainActor
-    func finishGroupCreation(_ group: Chat) async throws
+    func finishGroupCreation(_ attempt: Int = 1) async throws
     {
-        self.groupID = group.id
+        guard attempt < 15 else { throw NetworkError.timeout }
         
-        try await FirebaseChatService.shared.createNewChat(chat: group)
-        try await processImageSamples()
-        RealmDataBase.shared.add(objects: selectedGroupMembers)
-        RealmDataBase.shared.add(object: group)
+        if NetworkMonitor.shared.isReachable
+        {
+            let group = createGroup()
+            self.groupID = group.id
+            
+            let message = createMessage(text: GroupEventMessage.created.eventMessage)
+            
+            RealmDataBase.shared.add(objects: self.selectedGroupMembers)
+            RealmDataBase.shared.add(object: group)
+            RealmDataBase.shared.update(object: group) { dbChat in
+                dbChat.recentMessageID = message.id
+                dbChat.conversationMessages.append(message)
+            }
+            
+            try await FirebaseChatService.shared.createNewChat(chat: group)
+            try await FirebaseChatService.shared.createMessage(message: message, atChatPath: group.id)
+            try await processImageSamples()
+            
+            self.chatGroup = group
+        } else {
+            try await Task.sleep(for: .seconds(3))
+            try await finishGroupCreation(attempt + 1)
+            //            try await self.retryGroupCreationOnReconnect()
+        }
     }
+    
+//    private func retryGroupCreationOnReconnect() async throws
+//    {
+//        try await withCheckedThrowingContinuation { continuation in
+//            NetworkMonitor.shared.statusChanged
+//                .receive(on: DispatchQueue.main)
+//                .prefix(1) // Only listen to the *first* reachable event
+//                .filter { $0 }
+//                .sink { [weak self] _ in
+//                    Task {
+//                        do {
+//                            try await self?.finishGroupCreation()
+//                            continuation.resume()
+//                        } catch {
+//                            continuation.resume(throwing: error)
+//                        }
+//                    }
+//                }.store(in: &subscribtions)
+//        }
+//    }
 }
 
 
@@ -150,3 +207,31 @@ extension GroupCreationViewModel
 }
 
 extension GroupCreationViewModel : ImageRepositoryRepresentable {}
+
+
+enum GroupEventMessage: String
+{
+    case created
+    case userLeft
+    case userJoined
+    case photoUpdated
+    case nameUpdated
+    
+    var eventMessage: String
+    {
+        switch self
+        {
+        case .created: return "Group created"
+        case .userLeft: return "has left the group"
+        case .userJoined: return "has joined the group"
+        case .photoUpdated: return "Group photo updated"
+        case .nameUpdated: return "nameUpdated"
+        }
+    }
+}
+
+enum NetworkError: Error
+{
+    case timeout
+    case noNetwork
+}

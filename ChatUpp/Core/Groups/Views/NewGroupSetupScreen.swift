@@ -28,19 +28,30 @@ struct NewGroupSetupScreen: View
         .toolbar {
             toolbarTrailingItem()
         }
+        .onChange(of: viewModel.chatGroup) { newGroup in
+            guard let newGroup else { return }
+            Task {
+                try await openChatGroup(with: newGroup)
+            }
+        }
     }
     
     private func toolbarTrailingItem() -> some ToolbarContent
     {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                Task { @MainActor in
-                    await finishGroupCreation()
+                Task {
+                    do {
+                        try await viewModel.finishGroupCreation()
+                    } catch {
+                        print("Could not create group: \(error)")
+                    }
                 }
             } label: {
                 Text("Create")
-                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                    .foregroundStyle(viewModel.groupName.isEmpty ? .gray : Color(ColorManager.actionButtonsTintColor))
             }
+            .disabled(viewModel.groupName.isEmpty)
         }
     }
 }
@@ -159,18 +170,20 @@ extension NewGroupSetupScreen
     
     private func finishGroupCreation() async
     {
-        guard let group = viewModel.createGroup() else {return}
-        
         do {
-            try await viewModel.finishGroupCreation(group)
+            try await viewModel.finishGroupCreation()
             
-            let chatRoomVM = ChatRoomViewModel(conversation: group)
-            Utilities.windowRoot?.dismiss(animated: true)
-            try await Task.sleep(for: .seconds(0.5))
-            coordinator.openConversationVC(conversationViewModel: chatRoomVM)
         } catch {
             print("Could not create group: \(error)")
         }
+    }
+    
+    private func openChatGroup(with group: Chat) async throws
+    {
+        let chatRoomVM = ChatRoomViewModel(conversation: group)
+        Utilities.windowRoot?.dismiss(animated: true)
+        try await Task.sleep(for: .seconds(0.5))
+        coordinator.openConversationVC(conversationViewModel: chatRoomVM)
     }
 }
 
