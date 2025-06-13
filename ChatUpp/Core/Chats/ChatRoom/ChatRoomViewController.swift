@@ -421,7 +421,6 @@ extension ChatRoomViewController {
     
     private func createMessageBubble(from messageText: String = "")
     {
-
         viewModel.manageMessageCreation(messageText)
         Task { @MainActor in
             handleTableViewCellInsertion(scrollToBottom: true)
@@ -502,7 +501,8 @@ extension ChatRoomViewController
 
         for indexPath in visibleIndices {
             guard let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell,
-                  checkIfCellMessageIsCurrentlyVisible(at: indexPath) else {
+                  checkIfCellIsCurrentlyVisible(cell),
+                  !checkIfMessageWasSeen(at: indexPath) else {
                 continue
             }
             
@@ -516,10 +516,20 @@ extension ChatRoomViewController
         }
     }
     
-    private func checkIfCellMessageIsCurrentlyVisible(at indexPath: IndexPath) -> Bool
+    private func checkIfCellIsCurrentlyVisible(_ cell: UITableViewCell) -> Bool
     {
-        guard let message = viewModel.messageClusters[indexPath.section].items[indexPath.row].message else { return false }
+        let cellFrame = cell.frame
+        let tableRect = rootView.tableView.bounds.offsetBy(dx: 0, dy: 65)
+        return tableRect.contains(cellFrame)
+    }
+    
+    private func checkIfMessageWasSeen(at indexPath: IndexPath) -> Bool
+    {
         let authUserID = viewModel.authUser.uid
+        
+        // proceed further only if message does not belong to authenticated user
+        guard let message = viewModel.messageClusters[indexPath.section].items[indexPath.row].message,
+              message.senderId != authUserID else { return true }
         
         let messageIsSeenByAuthUser: Bool
         
@@ -527,18 +537,11 @@ extension ChatRoomViewController
         {
             messageIsSeenByAuthUser = message.seenBy.contains(authUserID)
         } else {
-            messageIsSeenByAuthUser = message.messageSeen == false
-        }
-        
-        guard message.senderId != authUserID,
-              messageIsSeenByAuthUser == false,
-              let cell = rootView.tableView.cellForRow(at: indexPath) else {
-            return false
+            messageIsSeenByAuthUser = message.messageSeen == true
         }
 
-        let cellFrame = cell.frame
-        let tableRect = rootView.tableView.bounds.offsetBy(dx: 0, dy: 65)
-        return tableRect.contains(cellFrame)
+        guard !messageIsSeenByAuthUser else { return true }
+        return false
     }
 }
 
@@ -725,14 +728,15 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                     print("Could not read image!")
                     return
                 }
-                guard let newSize = ImageSample.user.sizeMapping[.original] else {return}
+                guard let newSize = ImageSample.message.sizeMapping[.original] else {return}
                 guard let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6).getJpegData() else {return}
                 
                 let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
                 
                 Task { @MainActor in
                     self?.createMessageBubble()
-                    self?.viewModel.handleImageDrop(imageData: downsampledImage, size: imageSize)                    
+                    self?.viewModel.handleImageDrop(imageData: downsampledImage,
+                                                    size: imageSize)                    
                 }
             }
         }

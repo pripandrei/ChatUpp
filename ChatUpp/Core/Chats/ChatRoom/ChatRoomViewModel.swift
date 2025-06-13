@@ -499,34 +499,36 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     func saveImage(data: Data, size: MessageImageSize)
     {
-        guard let conversation = conversation else {return}
-        guard let message = lastMessageItem?.message else {return}
-        Task { @MainActor in
+        guard let conversation = conversation?.freeze(),
+              let message = lastMessageItem?.message?.freeze(),
+              let imageSize = message.imageSize else {return}
+//        guard let message = lastMessageItem?.message?.freeze() else {return}
+        
+        Task {
             //TODO: - Image resolve
-            // create image path an pass to saveImage
-            // or consider creating firstly image and from returned path create than message 
+            // create image path and pass to saveImage
+            // or consider creating firstly image and from returned path create than message
             let imageMetaData = try await FirebaseStorageManager
                 .shared
                 .saveImage(data: data, to: .message(message.id))
-            
             try await FirebaseChatService
                 .shared
                 .updateMessageImagePath(messageID: message.id,
                                         chatDocumentPath: conversation.id,
                                         path: imageMetaData.name)
-            
             try await FirebaseChatService
                 .shared
                 .updateMessageImageSize(messageID: message.id,
                                         chatDocumentPath: conversation.id,
-                                        imageSize: size)
+                                        imageSize: imageSize)
             print("Success saving image: \(imageMetaData.path) \(imageMetaData.name)")
             
             CacheManager.shared.saveImageData(data, toPath: imageMetaData.name)
-            
-            await MainActor.run {
-                realmService?.addMessageToRealmChat(message)
-            }
+//            
+//            await MainActor.run {
+//                guard let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id) else {return}
+//                realmService?.addMessageToRealmChat(message)
+//            }
         }
     }
 }
