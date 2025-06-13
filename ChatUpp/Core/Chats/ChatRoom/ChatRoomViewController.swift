@@ -419,9 +419,8 @@ final class ChatRoomViewController: UIViewController
 //MARK: - Handle cell message insertion
 extension ChatRoomViewController {
     
-    private func createMessageBubble(from messageText: String = "")
+    private func createMessageBubble()
     {
-        viewModel.manageMessageCreation(messageText)
         Task { @MainActor in
             handleTableViewCellInsertion(scrollToBottom: true)
         }
@@ -607,7 +606,10 @@ extension ChatRoomViewController {
 
             if !viewModel.conversationExists { viewModel.setupConversation() }
             
-            createMessageBubble(from: trimmedString)
+            let message = viewModel.createNewMessage(ofType: .text,
+                                       typeContent: trimmedString)
+            viewModel.addMessageToDatabase(message)
+            createMessageBubble()
             closeInputBarHeaderView()
         }
     }
@@ -724,19 +726,25 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
         
         results.forEach { result in
             result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] reading, error in
-                guard let image = reading as? UIImage, error == nil else {
+                
+                guard let self = self,
+                      let image = reading as? UIImage, error == nil else {
                     print("Could not read image!")
                     return
                 }
-                guard let newSize = ImageSample.message.sizeMapping[.original] else {return}
-                guard let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6).getJpegData() else {return}
                 
-                let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
+                let imageRepository = ImageSampleRepository(image: image, type: .message)
                 
+//                guard let newSize = ImageSample.message.sizeMapping[.original] else {return}
+//                guard let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6).getJpegData() else {return}
+//                
+//                let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
+//                
                 Task { @MainActor in
-                    self?.createMessageBubble()
-                    self?.viewModel.handleImageDrop(imageData: downsampledImage,
-                                                    size: imageSize)                    
+                    let message = self.viewModel.createNewMessage(ofType: .image,typeContent: imageRepository.imagePath(for: .original))
+                    self.viewModel.addMessageToDatabase(message)
+                    self.createMessageBubble()
+                    self.viewModel.saveImages(fromImageRepository: imageRepository)
                 }
             }
         }

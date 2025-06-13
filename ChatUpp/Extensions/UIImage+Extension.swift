@@ -24,8 +24,8 @@ enum ImageSample
             ]
         case .message:
             return [
-                .original: CGSize(width: 840, height: 840),
-                .medium: CGSize(width: 480, height: 480),
+                .original: CGSize(width: 680, height: 680),
+//                .medium: CGSize(width: 200, height: 200),
                 .small: CGSize(width: 80, height: 80)
             ]
         }

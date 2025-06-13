@@ -7,32 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "B8F841E0-B715-4646-A3BE-F5CDCA3F0256"
-            shouldBeEnabled = "No"
+            uuid = "8BBFFCBB-E489-42BE-AB2D-60EDE413F3B5"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/MessageTableViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "326"
-            endingLineNumber = "326"
-            landmarkName = "addListenerToUser()"
+            startingLineNumber = "521"
+            endingLineNumber = "521"
+            landmarkName = "setMessageLabelAttributedTextImage()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "35347364-D66B-40B1-8361-5FEEF686C8A2"
+            uuid = "6C925089-726B-40F5-9D79-C6D5C9520627"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/MessageTableViewCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "494"
-            endingLineNumber = "494"
-            landmarkName = "handleImageDrop(imageData:size:)"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
+            landmarkName = "configureCell(using:layoutConfiguration:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

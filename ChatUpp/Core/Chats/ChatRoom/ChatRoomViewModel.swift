@@ -216,7 +216,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         RealmDataBase.shared.add(object: conversation)
         
         let text = GroupEventMessage.userLeft.eventMessage
-        let message = createNewMessage(text, ofType: .title)
+        let message = createNewMessage(ofType: .text, typeContent: text)
         
         try await FirebaseChatService.shared.createMessage(message: message,
                                                            atChatPath: conversation.id)
@@ -286,8 +286,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
     }
     
-    private func createNewMessage(_ messageBody: String,
-                                  ofType type: MessageType = .text) -> Message
+    func createNewMessage(ofType type: MessageType = .text,
+                          typeContent: String? = nil) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
@@ -295,23 +295,21 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         return Message(
             id: UUID().uuidString,
-            messageBody: messageBody,
+            messageBody: type == .text ? typeContent! : "",
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: isGroupChat ? nil : false,
             seenBy: seenByValue,
             isEdited: false,
-            imagePath: nil,
+            imagePath: type == .image ? typeContent : nil,
             imageSize: nil,
             repliedTo: currentlyReplyToMessageID,
             type: type
         )
     }
     
-    func manageMessageCreation(_ messageText: String = "")
-    {
-        let message = createNewMessage(messageText)
-        
+    func addMessageToDatabase(_ message: Message)
+    {        
         // Local updates
         realmService?.addMessageToRealmChat(message)
         createMessageClustersWith([message], ascending: true)
@@ -495,6 +493,61 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             }
         }
         self.saveImage(data: imageData, size: size)
+    }
+    
+    func saveImages(fromImageRepository imageRepository: ImageSampleRepository)
+    {
+        
+        guard /*let conversation = conversation?.freeze(),*/
+            let message = lastMessageItem?.message?.freeze()
+              /*let imageSize = message.imageSize */ else {return}
+        //        guard let message = lastMessageItem?.message?.freeze() else {return}
+        
+        Task {
+            for (key, imageData) in imageRepository.samples
+            {
+                let path = imageRepository.imagePath(for: key)
+                
+                CacheManager.shared.saveImageData(imageData, toPath: path)
+                print("Success caching image: \(imageData) \(path)")
+                
+                Task.detached {
+                    do {
+                        try await FirebaseStorageManager
+                            .shared
+                            .saveImage(data: imageData,
+                                       to: .message(message.id),
+                                       imagePath: path)
+                        print("Success saving image: \(imageData) \(path)")
+                    } catch {
+                        print("Failed to upload image: \(path), error: \(error)")
+                    }
+                }
+            }
+//            let imageMetaData = try await FirebaseStorageManager
+//                .shared
+//                .saveImage(data: imageRepository.samples[.original],
+//                           to: .message(message.id),
+//                           imagePath: imageRepository.imagePath(for: .original))
+//            try await FirebaseChatService
+//                .shared
+//                .updateMessageImagePath(messageID: message.id,
+//                                        chatDocumentPath: conversation.id,
+//                                        path: imageMetaData.name)
+//            try await FirebaseChatService
+//                .shared
+//                .updateMessageImageSize(messageID: message.id,
+//                                        chatDocumentPath: conversation.id,
+//                                        imageSize: imageSize)
+//            print("Success saving image: \(imageMetaData.path) \(imageMetaData.name)")
+            
+//            CacheManager.shared.saveImageData(data, toPath: imageMetaData.name)
+            //
+            //            await MainActor.run {
+            //                guard let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id) else {return}
+            //                realmService?.addMessageToRealmChat(message)
+            //            }
+        }
     }
     
     func saveImage(data: Data, size: MessageImageSize)
