@@ -182,21 +182,7 @@ final class ChatRoomViewController: UIViewController
                 default: break
                 }
             }.store(in: &subscriptions)
-        
-//        viewModel.userListenerService?.$chatUser
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] user in
-//                guard let self = self else {return}
-//                
-//                if self.customNavigationBar.navigationItemsContainer?.titleLabel.text != user.name {
-//                    self.customNavigationBar.navigationItemsContainer?.titleLabel.text = user.name
-//                    return
-//                }
-//                
-//                self.customNavigationBar.navigationItemsContainer?.statusLabel.text = user.isActive ?? false ?
-//                "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
-//            }.store(in: &subscriptions)
-//        
+
         viewModel.$messageChangedTypes
             .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] changeTypes in
@@ -735,11 +721,6 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                 
                 let imageRepository = ImageSampleRepository(image: image, type: .message)
                 
-//                guard let newSize = ImageSample.message.sizeMapping[.original] else {return}
-//                guard let downsampledImage = image.downsample(toSize: newSize, withCompressionQuality: 0.6).getJpegData() else {return}
-//                
-//                let imageSize = MessageImageSize(width: Int(image.size.width), height: Int(image.size.height))
-//                
                 Task { @MainActor in
                     let message = self.viewModel.createNewMessage(ofType: .image,typeContent: imageRepository.imagePath(for: .original))
                     self.viewModel.addMessageToDatabase(message)

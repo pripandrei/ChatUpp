@@ -484,24 +484,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     /// - save image from message
-    
-    func handleImageDrop(imageData: Data, size: MessageImageSize)
-    {
-        if let message = lastMessageItem?.message {
-            RealmDataBase.shared.update(object: message) { message in
-                message.imageSize = size
-            }
-        }
-        self.saveImage(data: imageData, size: size)
-    }
-    
+
     func saveImages(fromImageRepository imageRepository: ImageSampleRepository)
     {
-        
-        guard /*let conversation = conversation?.freeze(),*/
-            let message = lastMessageItem?.message?.freeze()
-              /*let imageSize = message.imageSize */ else {return}
-        //        guard let message = lastMessageItem?.message?.freeze() else {return}
+        guard let message = lastMessageItem?.message?.freeze() else { return }
         
         Task {
             for (key, imageData) in imageRepository.samples
@@ -524,64 +510,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                     }
                 }
             }
-//            let imageMetaData = try await FirebaseStorageManager
-//                .shared
-//                .saveImage(data: imageRepository.samples[.original],
-//                           to: .message(message.id),
-//                           imagePath: imageRepository.imagePath(for: .original))
-//            try await FirebaseChatService
-//                .shared
-//                .updateMessageImagePath(messageID: message.id,
-//                                        chatDocumentPath: conversation.id,
-//                                        path: imageMetaData.name)
-//            try await FirebaseChatService
-//                .shared
-//                .updateMessageImageSize(messageID: message.id,
-//                                        chatDocumentPath: conversation.id,
-//                                        imageSize: imageSize)
-//            print("Success saving image: \(imageMetaData.path) \(imageMetaData.name)")
-            
-//            CacheManager.shared.saveImageData(data, toPath: imageMetaData.name)
-            //
-            //            await MainActor.run {
-            //                guard let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id) else {return}
-            //                realmService?.addMessageToRealmChat(message)
-            //            }
-        }
-    }
-    
-    func saveImage(data: Data, size: MessageImageSize)
-    {
-        guard let conversation = conversation?.freeze(),
-              let message = lastMessageItem?.message?.freeze(),
-              let imageSize = message.imageSize else {return}
-//        guard let message = lastMessageItem?.message?.freeze() else {return}
-        
-        Task {
-            //TODO: - Image resolve
-            // create image path and pass to saveImage
-            // or consider creating firstly image and from returned path create than message
-            let imageMetaData = try await FirebaseStorageManager
-                .shared
-                .saveImage(data: data, to: .message(message.id))
-            try await FirebaseChatService
-                .shared
-                .updateMessageImagePath(messageID: message.id,
-                                        chatDocumentPath: conversation.id,
-                                        path: imageMetaData.name)
-            try await FirebaseChatService
-                .shared
-                .updateMessageImageSize(messageID: message.id,
-                                        chatDocumentPath: conversation.id,
-                                        imageSize: imageSize)
-            print("Success saving image: \(imageMetaData.path) \(imageMetaData.name)")
-            
-            CacheManager.shared.saveImageData(data, toPath: imageMetaData.name)
-//            
-//            await MainActor.run {
-//                guard let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id) else {return}
-//                realmService?.addMessageToRealmChat(message)
-//            }
         }
     }
 }

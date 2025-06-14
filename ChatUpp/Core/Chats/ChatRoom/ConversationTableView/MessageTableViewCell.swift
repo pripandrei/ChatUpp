@@ -150,9 +150,6 @@ final class MessageTableViewCell: UITableViewCell
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
-        if viewModel.message?.id == "65E71875-9EA0-4D26-BA46-5E5E6F6EF606" {
-            print("stop")
-        }
         self.cleanupCellContent()
         self.cellViewModel = viewModel
         self.timeStamp.text = viewModel.timestamp
@@ -482,39 +479,21 @@ extension MessageTableViewCell
 // MARK: - HANDLE IMAGE OF MESSAGE SETUP
 extension MessageTableViewCell
 {
-    private func configureImageAttachment(data: Data? = nil) {
-//        setMessageImage(imageData: data)
+    private func configureImageAttachment(data: Data? = nil)
+    {
         setMessageImageSize()
         setMessageLabelAttributedTextImage()
         setupTimestampBackgroundForImage()
         applyMessagePadding(strategy: .image)
     }
 
-//    private func setMessageImage(imageData: Data?)
-//    {
-////        guard let imageData = cellViewModel.retrieveImageData() else {
-////            cellViewModel.fetchImageData()
-////            return
-////        }
-////        
-////        messageImage?.image = UIImage(data: imageData)
-//        
-//        if let imageData = imageData, let image = convertDataToImage(imageData) {
-//            messageImage?.image = image
-//        } else {
-//            messageImage?.image = UIImage()
-//            cellViewModel.fetchImageData()
-//        }
-//    }
-
-    private func setMessageImageSize() {
-//        if let cellImageSize = cellViewModel.message?.imageSize {
+    private func setMessageImageSize()
+    {
         if let imageSize = messageImage?.size {
             let cgSize = CGSize(width: imageSize.width , height: imageSize.height)
             let testSize = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
             messageImage = messageImage?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
         }
-//        }
     }
 
     private func setMessageLabelAttributedTextImage() {
