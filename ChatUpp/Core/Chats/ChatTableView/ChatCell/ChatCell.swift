@@ -58,7 +58,19 @@ class ChatCell: UITableViewCell {
     
     //MARK: - CELL CONFIGURATION
     
-    func configure(viewModel: ChatCellViewModel) {
+    override func prepareForReuse()
+    {
+        super.prepareForReuse()
+        
+        self.nameLabel.text = nil
+        self.profileImage.image = nil
+        self.messageLable.text = nil
+        self.dateLable.text = nil
+        self.unreadMessagesBadgeLabel.unseenCount = 0
+    }
+    
+    func configure(viewModel: ChatCellViewModel)
+    {
         self.cellViewModel = viewModel
         setImage()
         setupBinding()
@@ -184,6 +196,7 @@ class ChatCell: UITableViewCell {
         {
             if let imageData = cellViewModel.retrieveImageFromCache() {
                 profileImage.image = UIImage(data: imageData)
+                Utilities.stopSkeletonAnimation(for: self.profileImage)
             } else {
                 Utilities.initiateSkeletonAnimation(for: self)
             }
@@ -194,21 +207,21 @@ class ChatCell: UITableViewCell {
         UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
     }
 
-    private func setImage(_ imageData: Data? = nil)
-    {
-        Task(priority: .high) { @MainActor in
-            
-            Utilities.stopSkeletonAnimation(for: profileImage)
-            
-            guard let imageData = imageData else {
-                let defaultImageName = cellViewModel.chat.isGroup ? "default_group_photo" : "default_profile_photo"
-                self.profileImage.image = UIImage(named: defaultImageName)
-                return
-            }
-            let image = UIImage(data: imageData)
-            self.profileImage.image = image
-        }
-    }
+//    private func setImage(_ imageData: Data? = nil)
+//    {
+//        Task(priority: .high) { @MainActor in
+//            
+//            Utilities.stopSkeletonAnimation(for: profileImage)
+//            
+//            guard let imageData = imageData else {
+//                let defaultImageName = cellViewModel.chat.isGroup ? "default_group_photo" : "default_profile_photo"
+//                self.profileImage.image = UIImage(named: defaultImageName)
+//                return
+//            }
+//            let image = UIImage(data: imageData)
+//            self.profileImage.image = image
+//        }
+//    }
     
     
 }

@@ -22,8 +22,20 @@ extension ChatRoomViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        if viewModel.shouldHideJoinGroupOption {
-            updateMessageSeenStatusIfNeeded()
+        let now = Date()
+        
+        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
+        {
+            self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
+        }
+        
+        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 4.5
+        {
+            self.lastSeenStatusCheckUpdate = now
+            
+            if viewModel.shouldHideJoinGroupOption {
+                updateMessageSeenStatusIfNeeded()
+            }
         }
         isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
     }
@@ -32,9 +44,13 @@ extension ChatRoomViewController: UIScrollViewDelegate
         toggleSectionHeaderVisibility(isScrollActive: true)
     }
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        print("------end deaxilirate")
         toggleSectionHeaderVisibility(isScrollActive: false)
     }
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+                print("+++++++end dragging")
+            }
         toggleSectionHeaderVisibility(isScrollActive: decelerate)
     }
     
@@ -55,9 +71,8 @@ extension ChatRoomViewController: UIScrollViewDelegate
 
 final class ChatRoomViewController: UIViewController
 {
-    var snapshot: UIView?
-    var shouldAdjustScroll: Bool = false
-    var tableViewUpdatedContentOffset: CGFloat = 0.0
+    private var pendingCellPathsForSeenStatusCheck = Set<IndexPath>()
+    private var lastSeenStatusCheckUpdate: Date = Date()
     
     weak var coordinatorDelegate :Coordinator?
     private var tableViewDataSource :ConversationTableViewDataSource!
