@@ -22,21 +22,21 @@ extension ChatRoomViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        let now = Date()
+//        let now = Date()
+//        
+//        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
+//        {
+//            self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
+//        }
         
-        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
-        {
-            self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
-        }
-        
-        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 4.5
-        {
-            self.lastSeenStatusCheckUpdate = now
-            
+//        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 4.5
+//        {
+//            self.lastSeenStatusCheckUpdate = now
+//            
             if viewModel.shouldHideJoinGroupOption {
                 updateMessageSeenStatusIfNeeded()
             }
-        }
+//        }
         isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
     }
     

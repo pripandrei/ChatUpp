@@ -496,8 +496,14 @@ extension MessageTableViewCell
         }
     }
 
-    private func setMessageLabelAttributedTextImage() {
-        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: messageImage, contentMode: .center, attachmentSize: messageImage!.size, alignTo: UIFont(name: "Helvetica", size: 17)!, alignment: .center)
+    private func setMessageLabelAttributedTextImage()
+    {
+        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(
+            withContent: messageImage,
+            contentMode: .center,
+            attachmentSize: messageImage!.size,
+            alignTo: UIFont(name: "Helvetica", size: 17)!,
+            alignment: .center)
 
         messageLabel.attributedText = imageAttributedString
     }

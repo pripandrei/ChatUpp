@@ -86,14 +86,14 @@ class ChatCellViewModel
     @MainActor
     private func cacheImageData(_ data: Data)
     {
-        if let path = imageThumbnailPath {
+        if let path = profileImageThumbnailPath {
             CacheManager.shared.saveImageData(data, toPath: path)
         }
     }
     @MainActor
     func retrieveImageFromCache() -> Data?
     {
-        guard let photoURL = imageThumbnailPath else { return nil }
+        guard let photoURL = profileImageThumbnailPath else { return nil }
         return CacheManager.shared.retrieveImageData(from: photoURL)
     }
     
@@ -122,7 +122,7 @@ class ChatCellViewModel
 extension ChatCellViewModel
 {
     @MainActor
-    var imageThumbnailPath: String?
+    var profileImageThumbnailPath: String?
     {
         guard let originalURL = chat.isGroup ? chat.thumbnailURL : chatUser?.photoUrl else {
             return nil
@@ -133,7 +133,7 @@ extension ChatCellViewModel
     @MainActor
     private var shouldFetchImage: Bool
     {
-        guard let path = imageThumbnailPath else {return false}
+        guard let path = profileImageThumbnailPath else {return false}
         return CacheManager.shared.doesImageExist(at: path) == false
     }
     
@@ -286,7 +286,7 @@ extension ChatCellViewModel
     @MainActor
     func fetchImageData(_ path: String? = nil) async throws -> Data?
     {
-        guard let thumbnailURL = (path == nil) ? imageThumbnailPath : path else { return nil }
+        guard let thumbnailURL = (path == nil) ? profileImageThumbnailPath : path else { return nil }
         
         let storagePathType: StoragePathType = chat.isGroup ? .group(chat.id) : .user(chatUser?.id ?? "Unknown")
         
@@ -366,7 +366,7 @@ extension ChatCellViewModel
                     }
                 case "thumbnailURL":
                     Task {
-                        guard let imageURL = await self.imageThumbnailPath else {return}
+                        guard let imageURL = await self.profileImageThumbnailPath else {return}
                         
                         let imageIsCached = CacheManager.shared.doesImageExist(at: imageURL)
                         

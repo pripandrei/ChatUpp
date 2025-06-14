@@ -64,7 +64,7 @@ class ChatCell: UITableViewCell {
         
         self.nameLabel.text = nil
         self.profileImage.image = nil
-        self.messageLable.text = nil
+        self.messageLable.attributedText = nil
         self.dateLable.text = nil
         self.unreadMessagesBadgeLabel.unseenCount = 0
     }
@@ -122,7 +122,7 @@ class ChatCell: UITableViewCell {
         if let message = message
         {
             Utilities.stopSkeletonAnimation(for: self.messageLable,self.dateLable)
-            self.messageLable.text = message.messageBody
+            self.messageLable.attributedText = setAttributedText(for: message)
             self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
             
             if cellViewModel.isAuthUserSenderOfRecentMessage
@@ -130,6 +130,32 @@ class ChatCell: UITableViewCell {
                 configureMessageSeenStatus()
             }
         }
+    }
+    
+    private func setAttributedText(for message: Message) -> NSAttributedString?
+    {
+        if let imagePath = message.imagePath
+        {
+            let path = imagePath.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+            guard let imageData = CacheManager.shared.retrieveImageData(from: path) else {
+                return nil
+            }
+            return setAttributedImageAttachment(imageData)
+        }
+        return NSAttributedString(string: message.messageBody)
+    }
+    
+    private func setAttributedImageAttachment(_ imageData: Data) -> NSMutableAttributedString
+    {
+        let image = UIImage(data: imageData)
+        
+        let attachment = NSTextAttachment()
+        attachment.image = image
+        
+        let imageSize = CGSize(width: 20, height: 20)
+        attachment.bounds = CGRect(origin: .zero, size: imageSize)
+        
+        return NSMutableAttributedString(attachment: attachment)
     }
     
     //MARK: - Binding
@@ -192,7 +218,7 @@ class ChatCell: UITableViewCell {
     
     private func setImage()
     {
-        guard cellViewModel.imageThumbnailPath == nil else
+        guard cellViewModel.profileImageThumbnailPath == nil else
         {
             if let imageData = cellViewModel.retrieveImageFromCache() {
                 profileImage.image = UIImage(data: imageData)

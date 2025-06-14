@@ -8,9 +8,13 @@ enum ImageSample
     
     enum SizeKey: String, CaseIterable
     {
+        /// IMPORTANT: Keep this case order for iteration on image creation
+        /// For more info see how 'createImageSamples' function
+        /// from ImageSampleRepository works
+        ///
         case original
-        case medium
         case small
+        case medium
     }
 
     var sizeMapping: [SizeKey: CGSize]
