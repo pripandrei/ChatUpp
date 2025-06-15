@@ -167,6 +167,7 @@ extension MessageCellViewModel
         CacheManager.shared.saveImageData(data, toPath: path)
     }
     
+    @MainActor
     func retrieveImageData() -> Data?
     {
         guard let path = message?.imagePath else {return nil}

@@ -15,7 +15,8 @@ class ChatCellViewModel
 {
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     private var cancellables = Set<AnyCancellable>()
-    private(set) var imageDataSubject = PassthroughSubject<Data?,Never>()
+    private(set) var profileImageDataSubject = PassthroughSubject<Data?,Never>()
+    private(set) var messageImageDataSubject = PassthroughSubject<Data?,Never>()
     
     @Published private(set) var chat: Chat
     @Published private(set) var chatUser: User?
@@ -32,6 +33,9 @@ class ChatCellViewModel
         didSet {
             if oldValue != recentMessage {
                 Task { try await addListernerToRecentMessage() }
+//                if recentMessage?.imagePath != nil {
+//                    Task { await self.performMessageImageUpdate() }
+//                }
             }
         }
     }
@@ -131,9 +135,25 @@ extension ChatCellViewModel
     }
     
     @MainActor
-    private var shouldFetchImage: Bool
+    var recentMessageImageThumbnailPath: String?
+    {
+        guard let path = recentMessage?.imagePath else {
+            return nil
+        }
+        return path.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+    }
+    
+    @MainActor
+    private var shouldFetchProfileImage: Bool
     {
         guard let path = profileImageThumbnailPath else {return false}
+        return CacheManager.shared.doesImageExist(at: path) == false
+    }
+    
+    @MainActor
+    private var shouldFetchMessageImage: Bool
+    {
+        guard let path = recentMessageImageThumbnailPath else {return false}
         return CacheManager.shared.doesImageExist(at: path) == false
     }
     
@@ -156,6 +176,7 @@ extension ChatCellViewModel {
         {
             Task {
                 recentMessage = await loadRecentMessage()
+                await performMessageImageUpdate()
                 await MainActor.run { addMessageToRealm() }
             }
             return
@@ -170,7 +191,7 @@ extension ChatCellViewModel {
         do {
             self.chatUser = try await FirestoreUserService.shared.getUserFromDB(userID: deletedUserID)
             let imageData = try await self.fetchImageData()
-            self.imageDataSubject.send(imageData)
+            self.profileImageDataSubject.send(imageData)
         } catch {
             print("Error updating user while listening: ", error.localizedDescription)
         }
@@ -243,18 +264,23 @@ extension ChatCellViewModel
             self.chatUser = await loadOtherMemberOfChat()
         }
         
-        if shouldFetchImage
+        if shouldFetchProfileImage
         {
-            await performImageDataUpdate()
+            await performProfileImageDataUpdate()
+        }
+        
+        if shouldFetchMessageImage
+        {
+            await performMessageImageUpdate()
         }
     }
     
-    private func performImageDataUpdate() async
+    private func performProfileImageDataUpdate() async
     {
         do {
             guard let imageData = try await fetchImageData() else {return}
             await cacheImageData(imageData)
-            self.imageDataSubject.send(imageData)
+            self.profileImageDataSubject.send(imageData)
         } catch {
             print("Could not perform image data update: ", error)
         }
@@ -283,6 +309,7 @@ extension ChatCellViewModel
             return nil
         }
     }
+    
     @MainActor
     func fetchImageData(_ path: String? = nil) async throws -> Data?
     {
@@ -292,6 +319,29 @@ extension ChatCellViewModel
         
         let photoData = try await FirebaseStorageManager.shared.getImage(from: storagePathType, imagePath: thumbnailURL)
         return photoData
+    }
+    
+//    @MainActor
+    private func performMessageImageUpdate() async
+    {
+//        try? await Task.sleep(for: .seconds(5))
+        guard let path = await recentMessageImageThumbnailPath,
+              let messageID = self.recentMessage?.id else { return }
+        let paths = [path, path.replacingOccurrences(of: "_small.jpg", with: ".jpg")]
+//        Task.detached {
+            do {
+                for path in paths {
+                    let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(messageID), imagePath: path)
+                    CacheManager.shared.saveImageData(imageData, toPath: path)
+                    
+                }
+                self.recentMessage = self.recentMessage // trigger message image update
+//                self.messageImageDataSubject.send(imageData)
+                
+            } catch {
+                print("Could not fetch message image data: ", error)
+            }
+//        }
     }
 }
 
@@ -371,7 +421,7 @@ extension ChatCellViewModel
                         let imageIsCached = CacheManager.shared.doesImageExist(at: imageURL)
                         
                         if imageIsCached == false {
-                            await self.performImageDataUpdate()
+                            await self.performProfileImageDataUpdate()
                         }
                     }
                 default: break
@@ -394,6 +444,12 @@ extension ChatCellViewModel
             if changeObject.changeType == .modified {
                 RealmDataBase.shared.add(object: changeObject.data)
                 self.recentMessage = changeObject.data
+                
+                if changeObject.data.imagePath != nil {
+                    Task {
+                        await self.performMessageImageUpdate()
+                    }
+                }
             }
         }.store(in: &cancellables)
     }

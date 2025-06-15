@@ -121,7 +121,7 @@ class ChatCell: UITableViewCell {
         }
         if let message = message
         {
-            Utilities.stopSkeletonAnimation(for: self.messageLable,self.dateLable)
+            Utilities.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
             self.messageLable.attributedText = setAttributedText(for: message)
             self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
             
@@ -137,7 +137,8 @@ class ChatCell: UITableViewCell {
         if let imagePath = message.imagePath
         {
             let path = imagePath.replacingOccurrences(of: ".jpg", with: "_small.jpg")
-            guard let imageData = CacheManager.shared.retrieveImageData(from: path) else {
+            guard let imageData = CacheManager.shared.retrieveImageData(from: path) else
+            {
                 return nil
             }
             return setAttributedImageAttachment(imageData)
@@ -162,7 +163,14 @@ class ChatCell: UITableViewCell {
     
     private func setupBinding()
     {
-        cellViewModel.imageDataSubject
+//        cellViewModel.messageImageDataSubject
+//            .compactMap( { $0 } )
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] imageData in
+//                self?.messageLable.attributedText = self?.setAttributedImageAttachment(imageData)
+//            }.store(in: &subscriptions)
+//        
+        cellViewModel.profileImageDataSubject
             .compactMap( { $0 } )
             .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in

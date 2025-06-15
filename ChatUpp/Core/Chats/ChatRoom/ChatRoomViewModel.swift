@@ -216,7 +216,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         RealmDataBase.shared.add(object: conversation)
         
         let text = GroupEventMessage.userLeft.eventMessage
-        let message = createNewMessage(ofType: .text, typeContent: text)
+        let message = createNewMessage(ofType: .text, content: text)
         
         try await FirebaseChatService.shared.createMessage(message: message,
                                                            atChatPath: conversation.id)
@@ -287,7 +287,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     func createNewMessage(ofType type: MessageType = .text,
-                          typeContent: String? = nil) -> Message
+                          content: String? = nil) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
@@ -295,13 +295,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         return Message(
             id: UUID().uuidString,
-            messageBody: type == .text ? typeContent! : "",
+            messageBody: type == .text ? content! : "",
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: isGroupChat ? nil : false,
             seenBy: seenByValue,
             isEdited: false,
-            imagePath: type == .image ? typeContent : nil,
+            imagePath: type == .image ? content : nil,
             imageSize: nil,
             repliedTo: currentlyReplyToMessageID,
             type: type
@@ -317,12 +317,36 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         // Remote updates
         Task { @MainActor in
             await setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
+            print("after image vas added")
             updateUnseenMessageCounter(shouldIncrement: true)
             await firestoreService?.addMessageToFirestoreDataBase(message)
             await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
         
         resetCurrentReplyMessageIfNeeded()
+    }
+    
+    @MainActor
+    func handleLocalUpdatesOnMessageCreation(_ message: Message,
+                                             imageRepository: ImageSampleRepository? = nil)
+    {
+        createMessageClustersWith([message], ascending: true)
+        realmService?.addMessageToRealmChat(message)
+        updateUnseenMessageCounterLocal(shouldIncrement: true)
+    }
+    
+    @MainActor
+    func initiateRemoteUpdatesOnMessageCreation(_ message: Message,
+                                                imageRepository: ImageSampleRepository? = nil) async
+    {
+        await self.setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
+        if let imageRepository { // if message contains image add it first
+            await saveImagesRemotelly(fromImageRepository: imageRepository,
+                                      for: message.id)
+        }
+        await firestoreService?.addMessageToFirestoreDataBase(message)
+        updateUnseenMessageCounterRemote(shouldIncrement: true)
+        await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
     }
     
     private func setupMessageListenerOnChatCreation()
@@ -485,33 +509,92 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     /// - save image from message
 
-    func saveImages(fromImageRepository imageRepository: ImageSampleRepository)
+    func saveImagesLocally(fromImageRepository imageRepository: ImageSampleRepository,
+                           for messageID: String) async
     {
-        guard let message = lastMessageItem?.message?.freeze() else { return }
-        
-        Task {
+        await withTaskGroup(of: Void.self) { group in
+            for (key, imageData) in imageRepository.samples {
+                let path = imageRepository.imagePath(for: key)
+                group.addTask(priority: .utility) {
+                    CacheManager.shared.saveImageData(imageData, toPath: path)
+                    print("Cached image: \(imageData) \(path)")
+                    print("Is main thread?: " , Thread.isMainThread)
+                }
+            }
+        }
+        print("All images are cached")
+    }
+
+    func saveImagesRemotelly(fromImageRepository imageRepository: ImageSampleRepository,
+                             for messageID: String) async
+    {
+        await withTaskGroup(of: Void.self) { group in
             for (key, imageData) in imageRepository.samples
             {
                 let path = imageRepository.imagePath(for: key)
-                
-                CacheManager.shared.saveImageData(imageData, toPath: path)
-                print("Success caching image: \(imageData) \(path)")
-                
-                Task.detached {
+                group.addTask {
                     do {
                         try await FirebaseStorageManager
                             .shared
                             .saveImage(data: imageData,
-                                       to: .message(message.id),
+                                       to: .message(messageID),
                                        imagePath: path)
-                        print("Success saving image: \(imageData) \(path)")
+                        print("Saved Image with path: \(path)")
                     } catch {
-                        print("Failed to upload image: \(path), error: \(error)")
+                        print("Error in uploading images: \(error)")
                     }
                 }
             }
+            await group.waitForAll()
         }
+        print("All images are saved remotlly")
     }
+    
+//    func saveImages(fromImageRepository imageRepository: ImageSampleRepository,
+//                    for messageID: String) async
+//    {
+//        for (key, imageData) in imageRepository.samples
+//        {
+//            let path = imageRepository.imagePath(for: key)
+//            
+//            CacheManager.shared.saveImageData(imageData, toPath: path)
+//            print("Success Caching image: \(imageData) \(path)")
+//            
+//            Task.detached {
+//                do {
+//                    try await FirebaseStorageManager
+//                        .shared
+//                        .saveImage(data: imageData,
+//                                   to: .message(messageID),
+//                                   imagePath: path)
+//                    print("Success Saving image: \(imageData) \(path)")
+//                } catch {
+//                    print("Failed to upload image: \(path), error: \(error)")
+//                }
+//            }
+//        }
+//    }
+    
+//    func saveImagesLocally(fromImageRepository imageRepository: ImageSampleRepository,
+//                     for messageID: String) async
+//    {
+//        await withTaskGroup(of: Void.self) { group in
+//
+//            for (key, imageData) in imageRepository.samples
+//            {
+//                let path = imageRepository.imagePath(for: key)
+//                group.addTask
+//                {
+//                    await Task(priority: .utility) {
+//                        CacheManager.shared.saveImageData(imageData, toPath: path)
+//                        print("Cached image: \(imageData) \(path)")
+//                    }.value
+//                }
+//            }
+//            await group.waitForAll()
+//        }
+//        print("All images cached")
+//    }
 }
 
 //MARK: - Conversation initialization
@@ -799,7 +882,8 @@ extension ChatRoomViewModel
 // MARK: - messageCluster functions
 extension ChatRoomViewModel
 {
-    private func createMessageClustersWith(_ messages: [Message], ascending: Bool? = nil)
+    func createMessageClustersWith(_ messages: [Message],
+                                   ascending: Bool? = nil)
     {
         var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
         var tempMessageClusters = self.messageClusters

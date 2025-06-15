@@ -608,9 +608,10 @@ extension ChatRoomViewController {
             if !viewModel.conversationExists { viewModel.setupConversation() }
             
             let message = viewModel.createNewMessage(ofType: .text,
-                                       typeContent: trimmedString)
-            viewModel.addMessageToDatabase(message)
+                                       content: trimmedString)
+            viewModel.handleLocalUpdatesOnMessageCreation(message)
             createMessageBubble()
+            Task { await viewModel.initiateRemoteUpdatesOnMessageCreation(message) }
             closeInputBarHeaderView()
         }
     }
@@ -737,10 +738,19 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                 let imageRepository = ImageSampleRepository(image: image, type: .message)
                 
                 Task { @MainActor in
-                    let message = self.viewModel.createNewMessage(ofType: .image,typeContent: imageRepository.imagePath(for: .original))
-                    self.viewModel.addMessageToDatabase(message)
+                    let message = self.viewModel.createNewMessage(
+                        ofType: .image,
+                        content: imageRepository.imagePath(for: .original)
+                    )
+                    self.viewModel.handleLocalUpdatesOnMessageCreation(message)
+                    await self.viewModel.saveImagesLocally(
+                        fromImageRepository: imageRepository,
+                        for: message.id
+                    )
                     self.createMessageBubble()
-                    self.viewModel.saveImages(fromImageRepository: imageRepository)
+                    await self.viewModel.initiateRemoteUpdatesOnMessageCreation(
+                        message,
+                        imageRepository: imageRepository)
                 }
             }
         }
