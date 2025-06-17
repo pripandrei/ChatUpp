@@ -308,23 +308,23 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         )
     }
     
-    func addMessageToDatabase(_ message: Message)
-    {        
-        // Local updates
-        realmService?.addMessageToRealmChat(message)
-        createMessageClustersWith([message], ascending: true)
-        
-        // Remote updates
-        Task { @MainActor in
-            await setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
-            print("after image vas added")
-            updateUnseenMessageCounter(shouldIncrement: true)
-            await firestoreService?.addMessageToFirestoreDataBase(message)
-            await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
-        }
-        
-        resetCurrentReplyMessageIfNeeded()
-    }
+//    func addMessageToDatabase(_ message: Message) async
+//    {        
+//        // Local updates
+//        await realmService?.addMessageToRealmChat(message)
+//        createMessageClustersWith([message], ascending: true)
+//        
+//        // Remote updates
+//        Task { @MainActor in
+//            await setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
+//            print("after image vas added")
+//            updateUnseenMessageCounter(shouldIncrement: true)
+//            await firestoreService?.addMessageToFirestoreDataBase(message)
+//            await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
+//        }
+//        
+//        resetCurrentReplyMessageIfNeeded()
+//    }
     
     @MainActor
     func handleLocalUpdatesOnMessageCreation(_ message: Message,
@@ -550,51 +550,24 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         print("All images are saved remotlly")
     }
     
-//    func saveImages(fromImageRepository imageRepository: ImageSampleRepository,
-//                    for messageID: String) async
-//    {
-//        for (key, imageData) in imageRepository.samples
-//        {
-//            let path = imageRepository.imagePath(for: key)
-//            
-//            CacheManager.shared.saveImageData(imageData, toPath: path)
-//            print("Success Caching image: \(imageData) \(path)")
-//            
-//            Task.detached {
-//                do {
-//                    try await FirebaseStorageManager
-//                        .shared
-//                        .saveImage(data: imageData,
-//                                   to: .message(messageID),
-//                                   imagePath: path)
-//                    print("Success Saving image: \(imageData) \(path)")
-//                } catch {
-//                    print("Failed to upload image: \(path), error: \(error)")
-//                }
-//            }
-//        }
-//    }
+    // fetch image from message
     
-//    func saveImagesLocally(fromImageRepository imageRepository: ImageSampleRepository,
-//                     for messageID: String) async
-//    {
-//        await withTaskGroup(of: Void.self) { group in
-//
-//            for (key, imageData) in imageRepository.samples
-//            {
-//                let path = imageRepository.imagePath(for: key)
-//                group.addTask
-//                {
-//                    await Task(priority: .utility) {
-//                        CacheManager.shared.saveImageData(imageData, toPath: path)
-//                        print("Cached image: \(imageData) \(path)")
-//                    }.value
-//                }
-//            }
-//            await group.waitForAll()
-//        }
-//        print("All images cached")
-//    }
+    @MainActor
+    private func downloadImageData(from message: Message) async
+    {
+        guard let path = message.imagePath else { return }
+        let smallPath = path.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+        let paths = [path, smallPath]
+        
+        do {
+            for path in paths {
+                let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: path)
+                CacheManager.shared.saveImageData(imageData, toPath: path)
+            }
+        } catch {
+            print("Could not fetch message image data: ", error)
+        }
+    }
 }
 
 //MARK: - Conversation initialization
@@ -737,7 +710,11 @@ extension ChatRoomViewModel
     private func handleAddedMessage(_ message: Message) async
     {
         guard realmService?.retrieveMessageFromRealm(message) == nil else { return }
+        
         realmService?.addMessageToRealmChat(message)
+        if message.imagePath != nil {
+            await downloadImageData(from: message)
+        }
         
         if message.type == .title
         {

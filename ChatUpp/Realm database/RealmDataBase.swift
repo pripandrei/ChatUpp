@@ -47,6 +47,7 @@ final class RealmDataBase {
     }
 
     public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
+//        let realm = try! Realm()
         return realm?.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
