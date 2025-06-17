@@ -173,6 +173,15 @@ extension MessageCellViewModel
         guard let path = message?.imagePath else {return nil}
         return CacheManager.shared.retrieveImageData(from: path)
     }
+    
+    
+    func retrieveImageData2(completion: @escaping (Data?) -> Void)
+    {
+        let path = message?.imagePath
+        CacheManager.shared.retrieveImageData2(from: path ?? "") { data in
+            completion(data)
+        }
+    }
 
     func retrieveSenderAvatarData(ofSize size: String) -> Data?
     {
@@ -218,24 +227,40 @@ extension MessageCellViewModel
 
 extension MessageCellViewModel
 {
-    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize 
+//    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize 
+//    {
+//        let (equalWidth, equalHeight) = (250,250)
+//        
+//        let preferredWidth: Double = 270
+//        let preferredHeight: Double = 320
+//        
+//        let aspectRatioForWidth = Double(size.width) / Double(size.height)
+//        let aspectRatioForHeight = Double(size.height) / Double(size.width)
+//        
+//        if size.width > size.height {
+//            let newHeight = preferredWidth / aspectRatioForWidth
+//            return CGSize(width: preferredWidth , height: newHeight)
+//        } else if size.height > size.width {
+//            let newWidth = preferredHeight / aspectRatioForHeight
+//            return CGSize(width: newWidth , height: preferredHeight)
+//        } else {
+//            return CGSize(width: equalWidth, height: equalHeight)
+//        }
+//    }
+    
+    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize
     {
-        let (equalWidth, equalHeight) = (250,250)
+        let aspectRatio = size.width / size.height
         
-        let preferredWidth: Double = 270
-        let preferredHeight: Double = 320
-        
-        let aspectRatioForWidth = Double(size.width) / Double(size.height)
-        let aspectRatioForHeight = Double(size.height) / Double(size.width)
-        
-        if size.width > size.height {
-            let newHeight = preferredWidth / aspectRatioForWidth
-            return CGSize(width: preferredWidth , height: newHeight)
-        } else if size.height > size.width {
-            let newWidth = preferredHeight / aspectRatioForHeight
-            return CGSize(width: newWidth , height: preferredHeight)
+        if aspectRatio > 1 {
+            // Landscape: fit to width
+            return CGSize(width: 270, height: 270 / aspectRatio)
+        } else if aspectRatio < 1 {
+            // Portrait: fit to height
+            return CGSize(width: 320 * aspectRatio, height: 320)
         } else {
-            return CGSize(width: equalWidth, height: equalHeight)
+            // Square
+            return CGSize(width: 250, height: 250)
         }
     }
 }

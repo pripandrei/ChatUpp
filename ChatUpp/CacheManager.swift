@@ -43,6 +43,24 @@ final class CacheManager {
         return nil
     }
     
+    func retrieveImageData2(from path: String, completion: @escaping (Data?) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            guard let pathURL = self.cacheDirectory?.appending(path: path),
+                  FileManager.default.fileExists(atPath: pathURL.path()) else {
+                DispatchQueue.main.async { completion(nil) }
+                return
+            }
+            
+            do {
+                let data = try Data(contentsOf: pathURL)
+                DispatchQueue.main.async { completion(data) }
+            } catch {
+                print("Error while retrieving image data from cache: ", error.localizedDescription)
+                DispatchQueue.main.async { completion(nil) }
+            }
+        }
+    }
+    
     func doesImageExist(at path: String) -> Bool
     {
         guard let pathURL = cacheDirectory?.appending(path: path) else {return false}

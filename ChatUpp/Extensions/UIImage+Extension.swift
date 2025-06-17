@@ -69,13 +69,37 @@ extension UIImage
             self.draw(in: CGRect(origin: .zero, size: size))
         }
     }
-    
-    func resize(to newSize: CGSize) -> UIImage {
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-        defer { UIGraphicsEndImageContext() }
-        self.draw(in: CGRect(origin: .zero, size: newSize))
-        guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else { return UIImage() }
-        return newImage
+//    
+//    func resize(to newSize: CGSize) -> UIImage {
+//        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+//        defer { UIGraphicsEndImageContext() }
+//        self.draw(in: CGRect(origin: .zero, size: newSize))
+//        guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else { return UIImage() }
+//        return newImage
+//    }
+//    
+//    func resized5(to newSize: CGSize) -> UIImage? {
+//        let format = UIGraphicsImageRendererFormat()
+//        format.scale = UIScreen.main.scale
+//        format.opaque = false
+//
+//        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+//        return renderer.image { _ in
+//            self.draw(in: CGRect(origin: .zero, size: newSize))
+//        }
+//    }
+//    
+    func resize(to newSize: CGSize,
+                           scale: CGFloat = UIScreen.main.scale) -> UIImage?
+    {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        format.opaque = false
+        
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: newSize))
+        }
     }
     
     func roundedCornerImage(with radius: CGFloat) -> UIImage {

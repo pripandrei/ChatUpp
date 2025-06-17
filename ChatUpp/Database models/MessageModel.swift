@@ -15,6 +15,7 @@ enum MessageType: String, PersistableEnum, Codable
     case image
     case audio
     case video
+    case imageText
 }
 
 class Reaction: EmbeddedObject, Codable

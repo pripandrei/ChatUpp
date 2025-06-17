@@ -176,7 +176,7 @@ extension ChatCellViewModel {
         {
             Task {
                 recentMessage = await loadRecentMessage()
-                await performMessageImageUpdate()
+                await performMessageImageUpdate(messageID)
                 await MainActor.run { addMessageToRealm() }
             }
             return
@@ -271,7 +271,7 @@ extension ChatCellViewModel
         
         if shouldFetchMessageImage
         {
-            await performMessageImageUpdate()
+            await performMessageImageUpdate(recentMessage!.id)
         }
     }
     
@@ -321,12 +321,10 @@ extension ChatCellViewModel
         return photoData
     }
     
-//    @MainActor
-    private func performMessageImageUpdate() async
+    
+    private func performMessageImageUpdate(_ messageID: String) async
     {
-//        try? await Task.sleep(for: .seconds(5))
-        guard let path = await recentMessageImageThumbnailPath,
-              let messageID = self.recentMessage?.id else { return }
+        guard let path = await recentMessageImageThumbnailPath else { return }
         let paths = [path, path.replacingOccurrences(of: "_small.jpg", with: ".jpg")]
 //        Task.detached {
             do {
@@ -443,12 +441,13 @@ extension ChatCellViewModel
         .sink { changeObject in
             if changeObject.changeType == .modified {
                 RealmDataBase.shared.add(object: changeObject.data)
-                self.recentMessage = changeObject.data
                 
                 if changeObject.data.imagePath != nil {
                     Task {
-                        await self.performMessageImageUpdate()
+                        await self.performMessageImageUpdate(changeObject.data.id)
                     }
+                } else {
+                    self.recentMessage = changeObject.data
                 }
             }
         }.store(in: &cancellables)

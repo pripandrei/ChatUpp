@@ -27,6 +27,7 @@ final class MessageTableViewCell: UITableViewCell
     private var messageTitleLabel: YYLabel?
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
+    private var profileImageView = UIImageView()
     private var subscribers = Set<AnyCancellable>()
     
     private(set) var reactionBadgeHostingView: UIView?
@@ -61,6 +62,25 @@ final class MessageTableViewCell: UITableViewCell
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
+        configureProfileImageView()
+    }
+    
+    func configureProfileImageView()
+    {
+        messageLabel.addSubview(profileImageView)
+        messageLabel.sendSubviewToBack(profileImageView)
+        
+        profileImageView.layer.cornerRadius = 15
+        profileImageView.clipsToBounds = true
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+//        profileImageView.contentMode = .redraw
+        
+        NSLayoutConstraint.activate([
+            profileImageView.leadingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: 2),
+            profileImageView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: -2),
+            profileImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: 2),
+//            profileImageView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -2)
+        ])
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
@@ -89,8 +109,9 @@ final class MessageTableViewCell: UITableViewCell
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] imageData in
                 //                if data == self?.cellViewModel.imageData {
-                self?.messageImage = UIImage(data: imageData)
-                self?.configureImageAttachment(data: imageData)
+//                self?.messageImage = UIImage(data: imageData)
+                guard let image = UIImage(data: imageData) else {return}
+                self?.configureMessageImage(image)
                 //                }
             }).store(in: &subscribers)
         //
@@ -98,24 +119,22 @@ final class MessageTableViewCell: UITableViewCell
             .receive(on: DispatchQueue.main)
             .compactMap({ $0 })
             .sink { [weak self] message in
-                self?.setupCellData(with: message)
+                self?.setupMessageData(with: message)
             }.store(in: &subscribers)
     }
     
-    private func setupCellData(with message: Message)
+    private func setupMessageData(with message: Message)
     {
-        if message.messageBody != "" {
+        guard let _ = message.imagePath else {
             messageLabel.attributedText = messageTextLabelLinkSetup(from: message.messageBody)
             handleMessageLayout()
             return
         }
         
-        guard let _ = message.imagePath else {return}
-        
         if let imageData = cellViewModel.retrieveImageData()
         {
-            messageImage = UIImage(data: imageData)
-            self.configureImageAttachment()
+            guard let image = UIImage(data: imageData) else {return}
+            self.configureMessageImage(image)
         } else
         {
             cellViewModel.fetchMessageImageData()
@@ -150,12 +169,14 @@ final class MessageTableViewCell: UITableViewCell
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
+        guard let message = viewModel.message else { return }
+        
         self.cleanupCellContent()
         self.cellViewModel = viewModel
         self.timeStamp.text = viewModel.timestamp
         self.messageLayoutConfiguration = layoutConfiguration
         
-        if cellViewModel.messageAlignment == .left
+        if viewModel.messageAlignment == .left
         {
             if layoutConfiguration.shouldShowSenderName {
                 self.setupSenderNameLabel()
@@ -173,11 +194,20 @@ final class MessageTableViewCell: UITableViewCell
         self.adjustMessageSide()
         self.setupMessageComponentsColor()
         
-        if let message = viewModel.message {
-            self.setupCellData(with: message)
-            self.setupReactionView(for: message)
-        }
+        self.setupMessageData(with: message)
+        self.setupReactionView(for: message)
     }
+    
+//    private func setupMessageTypeRelatedData(_ messageType: MessageType)
+//    {
+//        switch messageType
+//        {
+//        case .imageText:
+//        case .text:
+//        case .image:
+//        default: break
+//        }
+//    }
     
     private func configureMessageSeenStatus()
     {
@@ -268,6 +298,7 @@ final class MessageTableViewCell: UITableViewCell
         messageSenderNameLabel?.removeFromSuperview()
         messageSenderNameLabel = nil
         messageImage = nil
+        profileImageView.image = nil
         messageSenderAvatar?.image = nil
         messageSenderAvatar = nil
         seenStatusMark.attributedText = nil
@@ -381,7 +412,8 @@ extension MessageTableViewCell
     
     private func setupTimestampBackgroundForImage()
     {
-        timeStamp.backgroundColor = .darkGray.withAlphaComponent(0.6)
+        timeStamp.backgroundColor = cellViewModel.message?.messageBody == nil ? .darkGray.withAlphaComponent(0.6) : .clear
+        timeStamp.textColor = cellViewModel.message?.messageBody == nil ? .white : getColorForMessageComponents()
         timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
     }
     
@@ -422,6 +454,7 @@ extension MessageTableViewCell
         createMessageTextLayout()
         let padding = getMessagePaddingStrategy()
         applyMessagePadding(strategy: padding)
+        print("Lines before: ", self.messageLabel.textLayout?.lines.count)
     }
     
     private func createMessageTextLayout()
@@ -479,33 +512,70 @@ extension MessageTableViewCell
 // MARK: - HANDLE IMAGE OF MESSAGE SETUP
 extension MessageTableViewCell
 {
-    private func configureImageAttachment(data: Data? = nil)
+    private func configureMessageImage(_ image: UIImage)
     {
-        setMessageImageSize()
-        setMessageLabelAttributedTextImage()
+        let newSize = cellViewModel.getCellAspectRatio(forImageSize: image.size)
+        
+        resizeImage(image, toSize: newSize)
         setupTimestampBackgroundForImage()
-        applyMessagePadding(strategy: .image)
-    }
-
-    private func setMessageImageSize()
-    {
-        if let imageSize = messageImage?.size {
-            let cgSize = CGSize(width: imageSize.width , height: imageSize.height)
-            let testSize = cellViewModel.getCellAspectRatio(forImageSize: cgSize)
-            messageImage = messageImage?.resize(to: CGSize(width: testSize.width, height: testSize.height)).roundedCornerImage(with: 12)
+        let imageAttachementAttributed = getAttributedImageAttachment(image, size: newSize)
+        
+        if let messageText = cellViewModel.message?.messageBody, !messageText.isEmpty
+        {
+            let newLine = "\n"
+            let text = "\(newLine)Image Attachment is Databa"
+            let combinedAttributedString = NSMutableAttributedString()
+            combinedAttributedString.append(imageAttachementAttributed)
+            guard let messageTextAttribute = messageTextLabelLinkSetup(from: text) else {return}
+            combinedAttributedString.append(messageTextAttribute)
+            self.messageLabel.attributedText = combinedAttributedString
+            handleMessageLayout()
+        } else {
+            self.messageLabel.attributedText = imageAttachementAttributed
+            applyMessagePadding(strategy: .image)
         }
     }
 
-    private func setMessageLabelAttributedTextImage()
+    private func resizeImage(_ image: UIImage, toSize size: CGSize)
+    {
+        DispatchQueue.global().async
+        {
+            let image = image.resize(to: CGSize(width: size.width,
+                                                height: size.height))
+            DispatchQueue.main.async {
+                self.profileImageView.image = image
+            }
+        }
+    }
+    
+    private func getAttributedImageAttachment(_ image: UIImage,
+                                              size: CGSize) -> NSMutableAttributedString
     {
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(
-            withContent: messageImage,
+            withContent: nil,
             contentMode: .center,
-            attachmentSize: messageImage!.size,
+            attachmentSize: size,
             alignTo: UIFont(name: "Helvetica", size: 17)!,
             alignment: .center)
-
-        messageLabel.attributedText = imageAttributedString
+        
+        return imageAttributedString
+//        messageLabel.attributedText = combined
+    }
+    
+    private func makeAttributedString2(for text: String) -> NSMutableAttributedString?
+    {
+        let attributes: [NSAttributedString.Key : Any] =
+        [
+            .font: UIFont(name: "Helvetica", size: 17)!,
+            .foregroundColor: UIColor.white,
+            .paragraphStyle: {
+                let paragraphStyle = NSMutableParagraphStyle()
+                paragraphStyle.alignment = .left
+                paragraphStyle.lineBreakMode = .byWordWrapping
+                return paragraphStyle
+            }()
+        ]
+        return NSMutableAttributedString(string: text, attributes: attributes)
     }
 
     private func convertDataToImage(_ data: Data) -> UIImage? {
@@ -768,3 +838,47 @@ extension MessageTableViewCell: TargetPreviewable
     }
 }
 
+//
+//
+//private func setMessageImageAttachment(_ image: UIImage,
+//                                size: CGSize)
+//{
+//    let text = "Test text right here! Test text right here! Test text right here! Test text right here! Test text right here! Test text right here!"
+//   
+//    let imageAttributedString = NSMutableAttributedString.yy_attachmentString(
+//        withContent: nil,
+//        contentMode: .center,
+//        attachmentSize: size,
+//        alignTo: UIFont(name: "Helvetica", size: 17)!,
+//        alignment: .center)
+//    
+//    
+//    let paragraphStyle = NSMutableParagraphStyle()
+////            paragraphStyle.alignment = .left
+////        paragraphStyle.headIndent = 5
+////        paragraphStyle.firstLineHeadIndent = 5
+////        paragraphStyle.tailIndent = -5
+////        paragraphStyle.paragraphSpacingBefore = 10
+////        paragraphStyle.paragraphSpacingBefore = 50
+////        paragraphStyle.headIndent = 10
+////        paragraphStyle.tailIndent = -10
+////        paragraphStyle.paragraphSpacing = 50
+//////        paragraphStyle.tailIndent = -15
+////
+//        let textAttr = NSAttributedString(string: "\n" + text, attributes: [
+//            .font: UIFont(name: "Helvetica", size: 17)!,
+//            .foregroundColor: UIColor.label,
+//            .paragraphStyle: paragraphStyle
+////                .paragraphStyle: paragraphStyle
+//        ])
+////
+////            // 3. Combine
+//        let combined = NSMutableAttributedString()
+//        combined.append(imageAttributedString)
+//        combined.append(textAttr)
+////
+//    
+//    messageLabel.attributedText = combined
+//
+////        messageLabel.textLayout?.addAttachment(to: <#T##UIView?#>, layer: <#T##CALayer?#>)
+//}
