@@ -311,3 +311,27 @@ extension MessageCellViewModel
 //            }
 //        }
 //    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

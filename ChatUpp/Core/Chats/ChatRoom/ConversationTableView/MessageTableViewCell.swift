@@ -454,7 +454,7 @@ extension MessageTableViewCell
         createMessageTextLayout()
         let padding = getMessagePaddingStrategy()
         applyMessagePadding(strategy: padding)
-        print("Lines before: ", self.messageLabel.textLayout?.lines.count)
+//        print("Lines before: ", self.messageLabel.textLayout?.lines.count)
     }
     
     private func createMessageTextLayout()
