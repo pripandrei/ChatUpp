@@ -23,11 +23,11 @@ final class MessageTableViewCell: UITableViewCell
     private var messageSenderNameLabel: UILabel?
     private var messageSenderAvatar: UIImageView?
     
-    private var messageImage: UIImage?
+//    private var messageImage: UIImage?
     private var messageTitleLabel: YYLabel?
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
-    private var profileImageView = UIImageView()
+    private var messageImageView = UIImageView()
     private var subscribers = Set<AnyCancellable>()
     
     private(set) var reactionBadgeHostingView: UIView?
@@ -62,23 +62,23 @@ final class MessageTableViewCell: UITableViewCell
         setupMessageTextLabel()
         setupSeenStatusMark()
         setupTimestamp()
-        configureProfileImageView()
+        configureMessageImageView()
     }
     
-    func configureProfileImageView()
+    func configureMessageImageView()
     {
-        messageLabel.addSubview(profileImageView)
-        messageLabel.sendSubviewToBack(profileImageView)
+        messageLabel.addSubview(messageImageView)
+        messageLabel.sendSubviewToBack(messageImageView)
         
-        profileImageView.layer.cornerRadius = 15
-        profileImageView.clipsToBounds = true
-        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        messageImageView.layer.cornerRadius = 15
+        messageImageView.clipsToBounds = true
+        messageImageView.translatesAutoresizingMaskIntoConstraints = false
 //        profileImageView.contentMode = .redraw
         
         NSLayoutConstraint.activate([
-            profileImageView.leadingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: 2),
-            profileImageView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: -2),
-            profileImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: 2),
+            messageImageView.leadingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: 2),
+            messageImageView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: -2),
+            messageImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: 2),
 //            profileImageView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -2)
         ])
     }
@@ -297,8 +297,8 @@ final class MessageTableViewCell: UITableViewCell
         timeStamp.textContainerInset = .zero
         messageSenderNameLabel?.removeFromSuperview()
         messageSenderNameLabel = nil
-        messageImage = nil
-        profileImageView.image = nil
+//        messageImage = nil
+        messageImageView.image = nil
         messageSenderAvatar?.image = nil
         messageSenderAvatar = nil
         seenStatusMark.attributedText = nil
@@ -454,7 +454,6 @@ extension MessageTableViewCell
         createMessageTextLayout()
         let padding = getMessagePaddingStrategy()
         applyMessagePadding(strategy: padding)
-        print("Lines before: ", self.messageLabel.textLayout?.lines.count)
     }
     
     private func createMessageTextLayout()
@@ -518,7 +517,7 @@ extension MessageTableViewCell
         
         resizeImage(image, toSize: newSize)
         setupTimestampBackgroundForImage()
-        let imageAttachementAttributed = getAttributedImageAttachment(image, size: newSize)
+        let imageAttachementAttributed = getAttributedImageAttachment(size: newSize)
         
         if let messageText = cellViewModel.message?.messageBody, !messageText.isEmpty
         {
@@ -538,18 +537,27 @@ extension MessageTableViewCell
 
     private func resizeImage(_ image: UIImage, toSize size: CGSize)
     {
+        guard let imagePath = cellViewModel.resizedMessageImagePath else {return}
+        
+        if let image = CacheManager.shared.getCachedImage(forKey: imagePath)
+        {
+            self.messageImageView.image = image
+            return
+        }
+        
         DispatchQueue.global().async
         {
-            let image = image.resize(to: CGSize(width: size.width,
-                                                height: size.height))
+            guard let image = image.resize(to: size) else {return}
+            
+            CacheManager.shared.cacheImage(image: image, key: imagePath)
+            
             DispatchQueue.main.async {
-                self.profileImageView.image = image
+                self.messageImageView.image = image
             }
         }
     }
     
-    private func getAttributedImageAttachment(_ image: UIImage,
-                                              size: CGSize) -> NSMutableAttributedString
+    private func getAttributedImageAttachment(size: CGSize) -> NSMutableAttributedString
     {
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(
             withContent: nil,

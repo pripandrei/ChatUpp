@@ -1,31 +1,35 @@
-//
-//  CacheManager.swift
-//  ChatUpp
-//
-//  Created by Andrei Pripa on 9/13/24.
-//
 
 import Foundation
-import Kingfisher
+import UIKit
 
-final class CacheManager {
-    
+final class CacheManager
+{
     static let shared = CacheManager()
     
-    private init() {}
+    private let imageCache = NSCache<NSString, UIImage>()
     
+    private init()
+    {
+        imageCache.countLimit = 100
+        imageCache.totalCostLimit = 50 * 1024 * 1024
+    }
+}
+
+//MARK: - Storage data cache
+extension CacheManager
+{
     private var cacheDirectory: URL? {
         return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
     }
     
-    func saveImageData(_ imageData: Data, toPath path: String) {
+    func saveImageData(_ imageData: Data, toPath path: String)
+    {
         guard let pathURL = cacheDirectory?.appending(path: path) else {return}
         do {
             try imageData.write(to: pathURL)
         } catch {
             print("Error while saving image data to cache: ", error.localizedDescription)
         }
-        
     }
     
     func retrieveImageData(from path: String) -> Data?
@@ -43,24 +47,6 @@ final class CacheManager {
         return nil
     }
     
-    func retrieveImageData2(from path: String, completion: @escaping (Data?) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            guard let pathURL = self.cacheDirectory?.appending(path: path),
-                  FileManager.default.fileExists(atPath: pathURL.path()) else {
-                DispatchQueue.main.async { completion(nil) }
-                return
-            }
-            
-            do {
-                let data = try Data(contentsOf: pathURL)
-                DispatchQueue.main.async { completion(data) }
-            } catch {
-                print("Error while retrieving image data from cache: ", error.localizedDescription)
-                DispatchQueue.main.async { completion(nil) }
-            }
-        }
-    }
-    
     func doesImageExist(at path: String) -> Bool
     {
         guard let pathURL = cacheDirectory?.appending(path: path) else {return false}
@@ -68,16 +54,21 @@ final class CacheManager {
     }
 }
 
-
-class ImageCacheService
+//MARK: - In memory image cache
+extension CacheManager
 {
-    static let shered = ImageCacheService()
-    
-    private init() {}
-    
-    func cacheImageData(_ data: Data, for key: String)
+    func cacheImage(image: UIImage, key: String)
     {
-        ImageCache.default.storeToDisk(data, forKey: key)
-//        ImageCache.default.retrieve
+        imageCache.setObject(image, forKey: key as NSString)
+    }
+    
+    func getCachedImage(forKey key: String) -> UIImage?
+    {
+        return imageCache.object(forKey: key as NSString)
+    }
+    
+    func clear() {
+        imageCache.removeAllObjects()
     }
 }
+

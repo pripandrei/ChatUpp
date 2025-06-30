@@ -23,10 +23,16 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print("rows: \(conversationViewModel.messageClusters[section].items.count) in section: \(section)")
         return conversationViewModel.messageClusters[section].items.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+    {
+        guard (conversationViewModel.messageClusters.count - 1) >= indexPath.section && (conversationViewModel.messageClusters[indexPath.section].items.count - 1) >= indexPath.row else
+        {
+            return UITableViewCell()
+        }
         let viewModel = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row]
         
         if viewModel.displayUnseenMessagesTitle == true

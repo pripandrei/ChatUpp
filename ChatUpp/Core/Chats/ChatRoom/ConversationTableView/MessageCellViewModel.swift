@@ -1,4 +1,4 @@
-//
+
 //  ConversationCellViewModel.swift
 //  ChatUpp
 //
@@ -56,6 +56,11 @@ final class MessageCellViewModel
         return true
     }
     
+    var resizedMessageImagePath: String? {
+        guard let path = message?.imagePath else {return nil}
+        return path.replacingOccurrences(of: ".jpg", with: "_resized_test_2.jpg")
+    }
+    
     var messageAlignment: MessageAlignment
     {
         if message?.type == .title {
@@ -80,7 +85,7 @@ final class MessageCellViewModel
         return nil
     }
     
-    //Test --- 
+    //Test ---
     
     private func setupComponents(from message: Message)
     {
@@ -148,14 +153,14 @@ extension MessageCellViewModel
         }
     }
     
-    @MainActor
-    func getImagePathURL() async throws -> URL?
-    {
-        guard let message = self.message,
-              let imagePath = message.imagePath else { return nil }
-        let url = try await FirebaseStorageManager.shared.getImageURL(from: .message(message.id), imagePath: imagePath)
-        return url
-    }
+//    @MainActor
+//    func getImagePathURL() async throws -> URL?
+//    {
+//        guard let message = self.message,
+//              let imagePath = message.imagePath else { return nil }
+//        let url = try await FirebaseStorageManager.shared.getImageURL(from: .message(message.id), imagePath: imagePath)
+//        return url
+//    }
 }
 
 //MARK: - Image cache
@@ -172,15 +177,6 @@ extension MessageCellViewModel
     {
         guard let path = message?.imagePath else {return nil}
         return CacheManager.shared.retrieveImageData(from: path)
-    }
-    
-    
-    func retrieveImageData2(completion: @escaping (Data?) -> Void)
-    {
-        let path = message?.imagePath
-        CacheManager.shared.retrieveImageData2(from: path ?? "") { data in
-            completion(data)
-        }
     }
 
     func retrieveSenderAvatarData(ofSize size: String) -> Data?
@@ -227,16 +223,16 @@ extension MessageCellViewModel
 
 extension MessageCellViewModel
 {
-//    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize 
+//    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize
 //    {
 //        let (equalWidth, equalHeight) = (250,250)
-//        
+//
 //        let preferredWidth: Double = 270
 //        let preferredHeight: Double = 320
-//        
+//
 //        let aspectRatioForWidth = Double(size.width) / Double(size.height)
 //        let aspectRatioForHeight = Double(size.height) / Double(size.width)
-//        
+//
 //        if size.width > size.height {
 //            let newHeight = preferredWidth / aspectRatioForWidth
 //            return CGSize(width: preferredWidth , height: newHeight)
