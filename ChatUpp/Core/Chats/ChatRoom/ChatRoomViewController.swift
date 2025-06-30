@@ -83,10 +83,8 @@ final class ChatRoomViewController: UIViewController
     private var subscriptions = Set<AnyCancellable>()
 
     private var isContextMenuPresented: Bool = false
-//    private var isNewSectionAdded: Bool = false
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScroll: Bool = false
-    private var shouldScrollToFirstCell: Bool = false
     
     private var isLastCellFullyVisible: Bool {
         checkIfLastCellIsFullyVisible()
@@ -428,27 +426,19 @@ extension ChatRoomViewController {
         }
     }
     
-    private func handleTableViewCellInsertion(with indexPath: IndexPath = IndexPath(row: 0, section: 0),
-                                              scrollToBottom: Bool)
+    private func handleTableViewCellInsertion(
+        with indexPath: IndexPath = IndexPath(row: 0, section: 0),
+        scrollToBottom: Bool)
     {
         let isNewSectionAdded = checkIfNewSectionWasAdded()
+        
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-//        if !isNewSectionAdded {
-            animateCellOffsetOnInsertion(usingCellIndexPath: indexPath, withNewSectionAdded: isNewSectionAdded)
-//        }
-        
-//        self.rootView.tableView.layoutIfNeeded()
-//        self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-        
-//        isNewSectionAdded = false
+        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath, withNewSectionAdded: isNewSectionAdded)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             self.rootView.tableView.layoutIfNeeded()
             self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
         }
-
-//            self.shouldScrollToFirstCell = false
-//        shouldScrollToFirstCell = true
     }
     
     private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
@@ -471,19 +461,7 @@ extension ChatRoomViewController {
         } else {
             if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
             {
-//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .top)
-//                UIView.performWithoutAnimation {
-                    self.rootView.tableView.reloadData()
-////                self.rootView.tableView.beginUpdates()
-////                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-////                self.rootView.tableView.endUpdates()
-//                }
-//                }
-//                UIView.animate(withDuration: 0.0) {
-//                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-//                    self.rootView.tableView.reloadData()
-//                }
+                self.rootView.tableView.reloadData()
             } else {
                 UIView.animate(withDuration: 0.0) {
                     self.rootView.tableView.insertRows(at: [indexPath], with: .none)
@@ -501,7 +479,7 @@ extension ChatRoomViewController {
         
         // Offset collection view content by cells (message) height contentSize
         // without animation, so that cell appears under the textView
-        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height + (isNewSectionAdded ? 45 : 0))
+        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height + (isNewSectionAdded ? 50 : 0))
         self.rootView.tableView.setContentOffset(offSet, animated: false)
         cell.frame.origin.y = -40
         
@@ -515,8 +493,6 @@ extension ChatRoomViewController {
         {
             if let sectionFooterView = self.rootView.tableView.footerView(forSection: 0)
             {
-//                let offset = CGPoint(x: offSet.x, y: offSet.y + 5)
-//                self.rootView.tableView.setContentOffset(offSet, animated: false)
                 sectionFooterView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
                 
                 UIView.animate(withDuration: 0.3, delay: 0.1) {
@@ -586,7 +562,6 @@ extension ChatRoomViewController
         return false
     }
 }
-
 
 //MARK: - VIEW BUTTON'S TARGET'S
 extension ChatRoomViewController {
@@ -736,31 +711,24 @@ extension ChatRoomViewController
     }
     
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
-                                            currentNumberOfLines: Int)
+                                        currentNumberOfLines: Int)
+    {
+        let textView = rootView.messageTextView
+        let tableView = rootView.tableView
+        let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
+        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
+        let updatedContentOffset = tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
+        let updatedContentTopInset = rootView.tableViewInitialTopInset +
+        (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
+        
+        UIView.animate(withDuration: 0.15)
         {
-            let textView = rootView.messageTextView
-            let tableView = rootView.tableView
-            let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
-            let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
-            let updatedContentOffset = tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
-            let updatedContentTopInset = rootView.tableViewInitialTopInset +
-            (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
-            
-            UIView.animate(withDuration: 0.15)
-            {
-                tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
-                tableView.contentInset.top = updatedContentTopInset
-                tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
-            }
-//            if self.shouldScrollToFirstCell == true
-//            {
-//                self.rootView.tableView.layoutIfNeeded()
-//                self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-//
-//                self.shouldScrollToFirstCell = false
-//            }
-            inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
+            tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
+            tableView.contentInset.top = updatedContentTopInset
+            tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
         }
+        inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
+    }
 }
 
 //MARK: - PHOTO PICKER CONFIGURATION & DELEGATE
@@ -1000,15 +968,11 @@ extension ChatRoomViewController: UITableViewDelegate
         }
     }
     
-    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
-    {
-        guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
-        
-        animator?.addCompletion {
-//            cell.contentView.isHidden = false
-        }
-    }
+//    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
+//    {
+//        guard let indexPath = configuration.identifier as? IndexPath,
+//              let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
+//    }
     
     private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration,                                             forHighlightingContext: Bool) -> UITargetedPreview?
     {
