@@ -26,12 +26,6 @@ final class InputBarMessageTextViewDelegate: NSObject, UITextViewDelegate
     private func setupDelegate() {
         conversationView.setTextViewDelegate(to: self)
     }
-    
-    func getTextViewNumberOfLines(_ textView: UITextView) -> Int
-    {
-        let textViewFrameSize = calculateTextViewFrameSize(textView)
-        return Int(textViewFrameSize.height / textView.font!.lineHeight)
-    }
 
     func textViewDidChange(_ textView: UITextView)
     {

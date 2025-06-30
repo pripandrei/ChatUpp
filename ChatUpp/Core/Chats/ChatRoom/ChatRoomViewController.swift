@@ -33,9 +33,9 @@ extension ChatRoomViewController: UIScrollViewDelegate
 //        {
 //            self.lastSeenStatusCheckUpdate = now
 //            
-//            if viewModel.shouldHideJoinGroupOption {
-//                updateMessageSeenStatusIfNeeded()
-//            }
+            if viewModel.shouldHideJoinGroupOption {
+                updateMessageSeenStatusIfNeeded()
+            }
 //        }
         isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
     }
@@ -71,8 +71,6 @@ extension ChatRoomViewController: UIScrollViewDelegate
 
 final class ChatRoomViewController: UIViewController
 {
-    private var messageDeadlineDispatch: Double = 0.0
-    
     private var pendingCellPathsForSeenStatusCheck = Set<IndexPath>()
     private var lastSeenStatusCheckUpdate: Date = Date()
     
@@ -209,8 +207,7 @@ final class ChatRoomViewController: UIViewController
             }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.lineNumberModificationSubject
-            .debounce(for: .seconds(0.10), scheduler: DispatchQueue.main)
-//            .receive(on: DispatchQueue.main)
+            .debounce(for: .seconds(0.1), scheduler: DispatchQueue.main)
             .sink { [weak self] updatedLinesNumber, currentLinesNumber in
                 self?.adjustTableViewContent(withUpdatedNumberOfLines: updatedLinesNumber,
                                              currentNumberOfLines: currentLinesNumber)
@@ -227,7 +224,7 @@ final class ChatRoomViewController: UIViewController
         {
             switch changeType
             {
-            case .added: print("ASd")
+            case .added:
                 self.handleTableViewCellInsertion(scrollToBottom: false)
             case .removed(let removedIndex):
                 removedIndexPaths.append(removedIndex)
@@ -435,15 +432,13 @@ extension ChatRoomViewController {
     {
         isNewSectionAdded = checkIfNewSectionWasAdded()
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-//        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath)
-//
+        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath)
+        
+        isNewSectionAdded = false
         shouldScrollToFirstCell = true
-//        isNewSectionAdded = false
     }
     
-    private func handleRowAndSectionInsertion(with indexPath: IndexPath,
-                                              scrollToBottom: Bool)
-    {
+    private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
         let currentOffSet = self.rootView.tableView.contentOffset
         let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
         
@@ -457,31 +452,15 @@ extension ChatRoomViewController {
         if !scrollToBottom && contentIsScrolled {
             UIView.animate(withDuration: 0.0) {
                 self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+                self.rootView.tableView.reloadData()
             }
             return
         } else {
-            
-            if contentIsScrolled {
-                UIView.performWithoutAnimation
-                {
-                    self.rootView.tableView.insertRows(at: [indexPath], with: .top)
-                }
-            }
-            
-            if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
-            {
-                DispatchQueue.main.asyncAfter(deadline: .now() + (messageDeadlineDispatch * 2.0))
-                {
-                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .top)
-                }
-            } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + self.messageDeadlineDispatch)
-                {
-                    UIView.performWithoutAnimation
-                    {
-                        self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-                    }
-                    self.animateCellOffsetOnInsertion(usingCellIndexPath: indexPath)
+            UIView.performWithoutAnimation {
+                if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections {
+                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+                } else {
+                    self.rootView.tableView.reloadData()
                 }
             }
         }
@@ -622,7 +601,6 @@ extension ChatRoomViewController {
         let trimmedString = getTrimmedString()
         if !trimmedString.isEmpty
         {
-            setMessageDeadlineDispatch()
             removeTextViewText()
             inputMessageTextViewDelegate.invalidateTextViewSize()
             callTextViewDidChange()
@@ -656,21 +634,6 @@ extension ChatRoomViewController
     private func callTextViewDidChange() {
         let textView = rootView.messageTextView
         inputMessageTextViewDelegate.textViewDidChange(textView)
-    }
-    private func setMessageDeadlineDispatch()
-    {
-        let numberOfLines = inputMessageTextViewDelegate.getNumberOfLines(from: rootView.messageTextView)
-        self.messageDeadlineDispatch = getMessageDeadlineDispatchTime(from: numberOfLines)
-    }
-    private func getMessageDeadlineDispatchTime(from value: Int) -> Double
-    {
-        switch value {
-        case 1: return 0.0
-        case 2: return 0.1
-        case 3: return 0.15
-        case 4: return 0.20
-        default: return 0.25
-        }
     }
 }
 
@@ -728,38 +691,33 @@ extension ChatRoomViewController
         rootView.tableView.setContentOffset(offSet, animated: false)
         rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
     }
-     
+    
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
-                                        currentNumberOfLines: Int)
-    {
-        let textView = rootView.messageTextView
-        guard let fontLineHeight = textView.font?.lineHeight else {return}
+                                            currentNumberOfLines: Int)
+        {
+            let textView = rootView.messageTextView
+            let tableView = rootView.tableView
+            let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
+            let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
+            let updatedContentOffset = tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
+            let updatedContentTopInset = rootView.tableViewInitialTopInset +
+            (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
+            
+            UIView.animate(withDuration: 0.15)
+            {
+                tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
+                tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
+                tableView.contentInset.top = updatedContentTopInset
+            }
+            if self.shouldScrollToFirstCell == true
+            {
+                self.rootView.tableView.layoutIfNeeded()
+                self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
 
-        let tableView = rootView.tableView
-        let addedLineCount = CGFloat(numberOfLines - currentNumberOfLines)
-        let inputBarHeight = rootView.inputBarHeader?.bounds.height ?? 0
-
-        let offsetAdjustment = fontLineHeight * addedLineCount
-        let updatedContentOffsetY = tableView.contentOffset.y - offsetAdjustment
-
-        let updatedTopInset = rootView.tableViewInitialTopInset +
-                              (fontLineHeight * CGFloat(numberOfLines - 1)) +
-                              inputBarHeight
-
-        UIView.animate(withDuration: 0.15) {
-            tableView.contentInset.top = updatedTopInset
-            tableView.verticalScrollIndicatorInsets.top = updatedTopInset
-            tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffsetY), animated: false)
+                self.shouldScrollToFirstCell = false
+            }
+            inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
         }
-
-        if shouldScrollToFirstCell {
-            tableView.layoutIfNeeded()
-            tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-            shouldScrollToFirstCell = false
-        }
-
-        inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
-    }
 }
 
 //MARK: - PHOTO PICKER CONFIGURATION & DELEGATE
