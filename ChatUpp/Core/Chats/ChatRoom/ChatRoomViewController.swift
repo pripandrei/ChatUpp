@@ -22,22 +22,24 @@ extension ChatRoomViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-//        let now = Date()
-//        
-//        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
-//        {
-//            self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
-//        }
+        let now = Date()
+    
+        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
+        {
+            self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
+        }
         
-//        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 4.5
-//        {
-//            self.lastSeenStatusCheckUpdate = now
-//            
-            if viewModel.shouldHideJoinGroupOption {
-                updateMessageSeenStatusIfNeeded()
-            }
-//        }
-        isLastCellFullyVisible ? toggleScrollBadgeButtonVisibility(shouldBeHidden: true) : toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 3.0
+        {
+            self.lastSeenStatusCheckUpdate = now
+            
+            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
+        }
+        
+        isLastCellFullyVisible ?
+        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
+        :
+        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
@@ -515,21 +517,39 @@ extension ChatRoomViewController
 {
     private func updateMessageSeenStatusIfNeeded()
     {
-        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows else { return }
-
-        for indexPath in visibleIndices {
-            guard let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell,
-                  checkIfCellIsCurrentlyVisible(cell),
-                  !checkIfMessageWasSeen(at: indexPath) else {
+        let cellInexdesToProcess = self.pendingCellPathsForSeenStatusCheck
+        self.pendingCellPathsForSeenStatusCheck.removeAll()
+        
+        for indexPath in cellInexdesToProcess
+        {
+            guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section),
+                    !checkIfMessageWasSeen(at: indexPath)
+            else
+            {
                 continue
             }
             
-            let isGroup = viewModel.conversation?.isGroup ?? false
-            cell.cellViewModel.updateRealmMessageSeenStatus(by: isGroup ? viewModel.authUser.uid : nil)
+            // Get cell if it's still visible, or create a temporary one to get the data
+            var cellViewModel: MessageCellViewModel?
+            
+            if let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell,
+               checkIfCellIsCurrentlyVisible(cell)
+            {
+                cellViewModel = cell.cellViewModel
+            } else
+            {
+                // Cell is no longer visible, but we still want to mark it as seen
+                cellViewModel = self.viewModel.messageClusters[indexPath.section].items[indexPath.row]
+            }
+            
+            guard let cellViewModel = cellViewModel else { continue }
+            
+            let isGroup = self.viewModel.conversation?.isGroup ?? false
+            cellViewModel.updateRealmMessageSeenStatus(by: isGroup ? self.viewModel.authUser.uid : nil)
             
             Task { @MainActor in
-                await viewModel.updateMessageSeenStatus(from: cell.cellViewModel)
-                viewModel.updateUnseenMessageCounter(shouldIncrement: false)
+                await self.viewModel.updateMessageSeenStatus(from: cellViewModel)
+                self.viewModel.updateUnseenMessageCounter(shouldIncrement: false)
             }
         }
     }

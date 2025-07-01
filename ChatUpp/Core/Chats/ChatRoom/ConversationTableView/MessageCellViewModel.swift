@@ -193,7 +193,8 @@ extension MessageCellViewModel
 extension MessageCellViewModel
 {
     @MainActor
-    func updateFirestoreMessageSeenStatus(by userID: String? = nil, from chatID: String) async {
+    func updateFirestoreMessageSeenStatus(by userID: String? = nil, from chatID: String) async
+    {
         guard let message = message else {return}
         do {
             guard let userID = userID else {
