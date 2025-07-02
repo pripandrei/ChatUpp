@@ -22,8 +22,8 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
         return conversationViewModel.messageClusters.count
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("rows: \(conversationViewModel.messageClusters[section].items.count) in section: \(section)")
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+    {
         return conversationViewModel.messageClusters[section].items.count
     }
     

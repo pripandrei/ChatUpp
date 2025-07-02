@@ -196,6 +196,13 @@ extension FirebaseChatService
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
+    func updateMessageSeenStatusTest(messageID: String , chatID: String) async throws {
+        let data: [String: Any] = [
+            Message.CodingKeys.messageSeen.rawValue : false
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
+    }
+    
     func updateMessageSeenStatus(messageID: String , chatID: String) async throws {
         let data: [String: Any] = [
             Message.CodingKeys.messageSeen.rawValue : true
@@ -264,11 +271,20 @@ extension FirebaseChatService
 //        try await chatDocument(documentPath: chatID).updateData(data)
 //    }
     
-    func updateUnreadMessageCount(for participantsID: [String], inChatWithID chatID: String, increment: Bool) async throws
+    func updateUnreadMessageCount(for participantsID: [String],
+                                  inChatWithID chatID: String,
+                                  increment: Bool,
+                                  counter: Int? = nil) async throws
     {
         var data: [String: FieldValue] = [:]
         
-        let counterValue = increment ? +1 : -1
+        var counterValue = 0
+        
+        if let counter = counter {
+            counterValue = increment ? counter : -counter
+        } else {
+            counterValue = increment ? +1 : -1
+        }
         
         for id in participantsID
         {

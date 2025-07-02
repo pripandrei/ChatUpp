@@ -4,8 +4,8 @@
 //
 //  Created by Andrei Pripa on 10/3/23.
 
-// IMPORTANT: TABLE VIEW IS INVERTED, UPSIDE DOWN (BOTTOM => TOP),
-// THEREFORE, SOME PROPERTIES AND ADJUSTMENTS WERE MADE AND SET AS BOTTOM => TOP.
+// IMPORTANT: TABLE VIEW IS INVERTED, UPSIDE DOWN (BOTTOM -> TOP),
+// THEREFORE, SOME PROPERTIES AND ADJUSTMENTS WERE MADE AND SET AS BOTTOM -> TOP.
 // KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST TABLE VIEW
 
 
@@ -22,6 +22,12 @@ extension ChatRoomViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
+//        if let cell = rootView.tableView.cellForRow(at: IndexPath(row: 0, section: 0))
+//        {
+            let isSeen = checkIfCellIsFullyVisible(at: IndexPath(row: 1, section: 0))
+            print("first cell is currently visible: \(isSeen)")
+//        }
+        
         let now = Date()
     
         if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
@@ -29,7 +35,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
             self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
         }
         
-        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 3.0
+        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 1.0
         {
             self.lastSeenStatusCheckUpdate = now
             
@@ -73,10 +79,10 @@ extension ChatRoomViewController: UIScrollViewDelegate
 
 final class ChatRoomViewController: UIViewController
 {
+    weak var coordinatorDelegate :Coordinator?
+    
     private var pendingCellPathsForSeenStatusCheck = Set<IndexPath>()
     private var lastSeenStatusCheckUpdate: Date = Date()
-    
-    weak var coordinatorDelegate :Coordinator?
     private var tableViewDataSource :ConversationTableViewDataSource!
     private var customNavigationBar :ChatRoomNavigationBar!
     private var rootView = ChatRoomRootView()
@@ -89,7 +95,7 @@ final class ChatRoomViewController: UIViewController
     private var didFinishInitialScroll: Bool = false
     
     private var isLastCellFullyVisible: Bool {
-        checkIfLastCellIsFullyVisible()
+        checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
     }
     
     //MARK: - Lifecycle
@@ -374,15 +380,32 @@ final class ChatRoomViewController: UIViewController
                                                     coordinator: coordinatorDelegate)
     }
 
-    private func checkIfLastCellIsFullyVisible() -> Bool 
+//    private func checkIfLastCellIsFullyVisible() -> Bool 
+//    {
+//        let table = rootView.tableView
+//        let lastCellIndexPath = IndexPath(row: 0, section: 0)
+//        
+//        /// - data source is not empty and table didn't layed out cells yet, return true
+//        guard !table.visibleCells.isEmpty else {return true}
+//        
+//        guard let lastCell = table.cellForRow(at: lastCellIndexPath) as? MessageTableViewCell else {
+//            return false
+//        }
+//
+//        let lastCellRect = table.convert(lastCell.frame, to: rootView)
+//        let inputBarRect = rootView.inputBarContainer.frame
+//
+//        return inputBarRect.origin.y >= lastCellRect.origin.y
+//    }
+    
+    private func checkIfCellIsFullyVisible(at indexPath: IndexPath) -> Bool
     {
         let table = rootView.tableView
-        let lastCellIndexPath = IndexPath(row: 0, section: 0)
         
         /// - data source is not empty and table didn't layed out cells yet, return true
         guard !table.visibleCells.isEmpty else {return true}
         
-        guard let lastCell = table.cellForRow(at: lastCellIndexPath) as? MessageTableViewCell else {
+        guard let lastCell = table.cellForRow(at: indexPath) as? MessageTableViewCell else {
             return false
         }
 
@@ -435,18 +458,22 @@ extension ChatRoomViewController {
         let isNewSectionAdded = checkIfNewSectionWasAdded()
         
         handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath, withNewSectionAdded: isNewSectionAdded)
+        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                     withNewSectionAdded: isNewSectionAdded)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            self.rootView.tableView.layoutIfNeeded()
-            self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        if scrollToBottom
+        {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                self.rootView.tableView.layoutIfNeeded()
+                self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+            }
         }
     }
     
     private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
-        let currentOffSet = self.rootView.tableView.contentOffset
-        let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
-        
+//        let currentOffSet = self.rootView.tableView.contentOffset
+//        let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
+//        
         // We disable insertion animation, in else block, because we need to both
         // animate insertion of message and scroll to bottom at the same time.
         // If we dont do this, conflict occurs and results in glitches
@@ -454,21 +481,35 @@ extension ChatRoomViewController {
         // This is not the case if table content is scrolled,
         // meaning, cell is not visible
         
-        if !scrollToBottom && contentIsScrolled {
-            UIView.animate(withDuration: 0.0) {
-                self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-                self.rootView.tableView.reloadData()
-            }
-            return
-        } else {
+//        if !scrollToBottom && contentIsScrolled {
+//            UIView.animate(withDuration: 0.0) {
+//                self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+////                self.rootView.tableView.reloadData()
+//            }
+//            return
+//        } else {
+//            if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
+//            {
+////                self.rootView.tableView.reloadData()
+//                UIView.animate(withDuration: 0.0) {
+//                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+//                }
+//            } else {
+//                UIView.animate(withDuration: 0.0) {
+//                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+////                    self.rootView.tableView.reloadData()
+//                }
+//            }
+//        }
+        
+        
+        UIView.animate(withDuration: 0.0)
+        {
             if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
             {
-                self.rootView.tableView.reloadData()
+                self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
             } else {
-                UIView.animate(withDuration: 0.0) {
-                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-                    self.rootView.tableView.reloadData()
-                }
+                self.rootView.tableView.insertRows(at: [indexPath], with: .none)
             }
         }
     }
@@ -483,6 +524,17 @@ extension ChatRoomViewController {
         // without animation, so that cell appears under the textView
         let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height + (isNewSectionAdded ? 50 : 0))
         self.rootView.tableView.setContentOffset(offSet, animated: false)
+        
+        // If last cell, before insertion of new one, was not visible
+        // wee don't need to see cell insertion and content offset animation
+        // so we just return to skip this process.
+        // This will result in table view content to appear unchanged,
+        // as if nothing happend
+        if !checkIfCellIsFullyVisible(at: IndexPath(row: 1, section: 0))
+        {
+            return
+        }
+        
         cell.frame.origin.y = -40
         
         // Animate collection content back so that the cell (message) will go up
@@ -520,10 +572,14 @@ extension ChatRoomViewController
         let cellInexdesToProcess = self.pendingCellPathsForSeenStatusCheck
         self.pendingCellPathsForSeenStatusCheck.removeAll()
         
+        var unseenMessageCount: Int = 0
+        
         for indexPath in cellInexdesToProcess
         {
+            guard checkIfCellIsFullyVisible(at: indexPath) else { return }
+            
             guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section),
-                    !checkIfMessageWasSeen(at: indexPath)
+                  !checkIfMessageWasSeen(at: indexPath)
             else
             {
                 continue
@@ -532,8 +588,11 @@ extension ChatRoomViewController
             // Get cell if it's still visible, or create a temporary one to get the data
             var cellViewModel: MessageCellViewModel?
             
-            if let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell,
-               checkIfCellIsCurrentlyVisible(cell)
+            if indexPath.section == 0 && indexPath.row == 0 {
+                print("stop")
+            }
+            
+            if let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell
             {
                 cellViewModel = cell.cellViewModel
             } else
@@ -546,12 +605,23 @@ extension ChatRoomViewController
             
             let isGroup = self.viewModel.conversation?.isGroup ?? false
             cellViewModel.updateRealmMessageSeenStatus(by: isGroup ? self.viewModel.authUser.uid : nil)
-            
-            Task { @MainActor in
-                await self.viewModel.updateMessageSeenStatus(from: cellViewModel)
-                self.viewModel.updateUnseenMessageCounter(shouldIncrement: false)
-            }
+//            cellViewModel.updateRealmMessageSeenStatusTest(by: isGroup ? self.viewModel.authUser.uid : nil)
+//            Task {
+                self.viewModel.updateMessageSeenStatus(from: cellViewModel)
+//                self.viewModel.updateMessageSeenStatusTest(from: cellViewModel)
+//                self.viewModel.updateUnseenMessageCounter(shouldIncrement: false)
+//            }
+            unseenMessageCount += 1
         }
+        
+        if unseenMessageCount > 0 {
+//            Task {
+//                print("unseen count: ",unseenMessageCount)
+                self.viewModel.updateUnseenMessageCounter(shouldIncrement: false,
+                                                          counter: unseenMessageCount)
+//            }
+        }
+        print("accessed updateMessageSeenStatusIfNeeded")
     }
     
     private func checkIfCellIsCurrentlyVisible(_ cell: UITableViewCell) -> Bool

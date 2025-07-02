@@ -35,7 +35,7 @@ final class RealmDataBase {
         }
     }
     
-    public func retrieveObjects<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Results<T>?
+    func retrieveObjects<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Results<T>?
     {
         var results = realm?.objects(type)
         
@@ -46,18 +46,34 @@ final class RealmDataBase {
         return results
     }
 
-    public func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
+    func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
 //        let realm = try! Realm()
         return realm?.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
-    public func update<T: Object>(object: T, update: (T) -> Void) {
+    func retrieveSingleObjectTest<T: Object>(ofType type: T.Type, primaryKey: String) -> T?
+    {
+        let realm = try! Realm()
+        return realm.object(ofType: type, forPrimaryKey: primaryKey)
+    }
+    
+    func updateTest<T: Object>(object: T, update: (T) -> Void)
+    {
+        let realm = try! Realm()
+        try? realm.write {
+            update(object)
+        }
+    }
+    
+    func update<T: Object>(object: T, update: (T) -> Void) {
         try? realm?.write {
             update(object)
         }
     }
     
-    public func update<T: Object>(objectWithKey key: String, type: T.Type, update: (T) -> Void) {
+    func update<T: Object>(objectWithKey key: String,
+                           type: T.Type, update: (T) -> Void)
+    {
         guard let object = retrieveSingleObject(ofType: type, primaryKey: key) else {return}
         
         try? realm?.write {
@@ -66,23 +82,33 @@ final class RealmDataBase {
     }
     
     /// - add single object
-    public func add<T: Object>(object: T) {
+    func add<T: Object>(object: T) {
         try? realm?.write {
             realm?.add(object, update: .modified)
         }
     }
     
     /// - add multiple objects
-    public func add<T: Object>(objects: [T]) {
+    func add<T: Object>(objects: [T]) {
         try? realm?.write {
             realm?.add(objects, update: .modified)
         }
     }
     
-    public func delete<T: Object>(object: T) {
+    func delete<T: Object>(object: T) {
         try? realm?.write({
             realm?.delete(object)
         })
+    }
+    
+    func makeThreadSafeObject<T: Object>(object: T) -> ThreadSafeReference<T> {
+        return ThreadSafeReference(to: object)
+    }
+    
+    func resolveThreadSafeObject<T: Object>(threadSafeObject: ThreadSafeReference<T>) -> T?
+    {
+        let realm = try! Realm()
+        return realm.resolve(threadSafeObject)
     }
 }
 
