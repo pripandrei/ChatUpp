@@ -75,6 +75,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
     }
     
+    var shouldAttachListenerToUpcomingMessages: Bool
+    {
+        return realmService?.getUnreadMessagesCountFromRealm() == authParticipantUnreadMessagesCount
+    }
+    
     private lazy var authenticatedUser: User? = {
         guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
@@ -182,11 +187,16 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let startMessage = messageClusters.last?.items.last?.message,
               let limit = conversation?.conversationMessages.count else {return}
         
-        messageListenerService?.addListenerToUpcomingMessages()
+        // Attach listener to upcoming messages only if all unseen messages
+        // (if any) have been fetched locally
+        if self.shouldAttachListenerToUpcomingMessages
+        {
+            messageListenerService?.addListenerToUpcomingMessages()
+        }
         messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startMessage.id, ascending: true, limit: limit)
     }
     
-    func removeAllListeners() 
+    func removeAllListeners()
     {
         messageListenerService?.removeAllListeners()
         cancellables.forEach { subscriber in
@@ -904,12 +914,12 @@ extension ChatRoomViewModel
     {
         guard let conversation = conversation else { return .none }
         
-        //TODO: - resolve this case !!!
-//        if !isAuthUserGroupMember {
-//            if let recentMessage = try await FirebaseChatService.shared.getRecentMessage(from: conversation) {
-//                return .descending(startAtMessage: recentMessage, included: true)
-//            }
-//        }
+        if conversation.isGroup && !isAuthUserGroupMember
+        {
+            if let recentMessage = try await FirebaseChatService.shared.getRecentMessage(from: conversation) {
+                return .descending(startAtMessage: recentMessage, included: true)
+            }
+        }
 
         if let firstUnseenMessage = try await firestoreService?.getFirstUnseenMessageFromFirestore(from: conversation.id)
         {

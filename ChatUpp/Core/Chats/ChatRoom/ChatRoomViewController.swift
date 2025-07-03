@@ -24,7 +24,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
     {
 //        if let cell = rootView.tableView.cellForRow(at: IndexPath(row: 0, section: 0))
 //        {
-            let isSeen = checkIfCellIsFullyVisible(at: IndexPath(row: 1, section: 0))
+            let isSeen = checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
             print("first cell is currently visible: \(isSeen)")
 //        }
         
@@ -231,6 +231,7 @@ final class ChatRoomViewController: UIViewController
             switch changeType
             {
             case .added:
+//                print("added !!!!!!")
                 self.handleTableViewCellInsertion(scrollToBottom: false)
             case .removed(let removedIndex):
                 removedIndexPaths.append(removedIndex)
@@ -405,7 +406,7 @@ final class ChatRoomViewController: UIViewController
         /// - data source is not empty and table didn't layed out cells yet, return true
         guard !table.visibleCells.isEmpty else {return true}
         
-        guard let lastCell = table.cellForRow(at: indexPath) as? MessageTableViewCell else {
+        guard let lastCell = table.cellForRow(at: indexPath) else {
             return false
         }
 
@@ -446,9 +447,11 @@ extension ChatRoomViewController {
     
     private func createMessageBubble()
     {
-        Task { @MainActor in
-            handleTableViewCellInsertion(scrollToBottom: true)
+//        Task { @MainActor in
+        DispatchQueue.main.async {
+            self.handleTableViewCellInsertion(scrollToBottom: true)
         }
+//        }
     }
     
     private func handleTableViewCellInsertion(
@@ -456,60 +459,47 @@ extension ChatRoomViewController {
         scrollToBottom: Bool)
     {
         let isNewSectionAdded = checkIfNewSectionWasAdded()
+        let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
         
-        handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                     withNewSectionAdded: isNewSectionAdded)
+        if visibleIndexPaths?.isEmpty == true || visibleIndexPaths?.contains(indexPath) == true
+        {
+            handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
+            animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                         withNewSectionAdded: isNewSectionAdded)
+        }
         
         if scrollToBottom
         {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                self.rootView.tableView.layoutIfNeeded()
-                self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15)
+            {
+                if self.rootView.tableView.visibleCells.count > 0
+                {
+                    self.rootView.tableView.layoutIfNeeded()
+                    self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                }
             }
         }
     }
     
-    private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool) {
-//        let currentOffSet = self.rootView.tableView.contentOffset
-//        let contentIsScrolled = (currentOffSet.y > -390.0 && !isKeyboardHidden) || (currentOffSet.y > -55 && isKeyboardHidden)
-//        
-        // We disable insertion animation, in else block, because we need to both
-        // animate insertion of message and scroll to bottom at the same time.
-        // If we dont do this, conflict occurs and results in glitches
-        // Instead we will animate contentOffset
-        // This is not the case if table content is scrolled,
-        // meaning, cell is not visible
+    private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool)
+    {
+        // - See Footnote.swift [1]
         
-//        if !scrollToBottom && contentIsScrolled {
-//            UIView.animate(withDuration: 0.0) {
-//                self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-////                self.rootView.tableView.reloadData()
-//            }
+//        if !self.checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0)) {
 //            return
-//        } else {
-//            if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
-//            {
-////                self.rootView.tableView.reloadData()
-//                UIView.animate(withDuration: 0.0) {
-//                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-//                }
-//            } else {
-//                UIView.animate(withDuration: 0.0) {
-//                    self.rootView.tableView.insertRows(at: [indexPath], with: .none)
-////                    self.rootView.tableView.reloadData()
-//                }
-//            }
 //        }
-        
-        
-        UIView.animate(withDuration: 0.0)
-        {
+//        if rootView.tableView.indexPathsForVisibleRows?.contains(where: {$0 == indexPath}) == false
+//        {
+//            return
+//        }
+        UIView.performWithoutAnimation {
+//        UIView.animate(withDuration: 0.0) {
             if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
             {
                 self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
             } else {
-                self.rootView.tableView.insertRows(at: [indexPath], with: .none)
+                self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
+//                self.rootView.tableView.reloadData()
             }
         }
     }
@@ -517,43 +507,42 @@ extension ChatRoomViewController {
     private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath,
                                               withNewSectionAdded isNewSectionAdded: Bool)
     {
-        let currentOffSet = self.rootView.tableView.contentOffset
-        guard let cell = self.rootView.tableView.cellForRow(at: indexPath) else { return }
+        let tableView = self.rootView.tableView
+        let currentOffSet = tableView.contentOffset
         
-        // Offset collection view content by cells (message) height contentSize
-        // without animation, so that cell appears under the textView
-        let offSet = CGPoint(x: currentOffSet.x, y: currentOffSet.y + cell.bounds.height + (isNewSectionAdded ? 50 : 0))
-        self.rootView.tableView.setContentOffset(offSet, animated: false)
-        
-        // If last cell, before insertion of new one, was not visible
-        // wee don't need to see cell insertion and content offset animation
-        // so we just return to skip this process.
-        // This will result in table view content to appear unchanged,
-        // as if nothing happend
-        if !checkIfCellIsFullyVisible(at: IndexPath(row: 1, section: 0))
-        {
-            return
-        }
-        
-        cell.frame.origin.y = -40
-        
-        // Animate collection content back so that the cell (message) will go up
-        UIView.animate(withDuration: 0.3, delay: 0.1) {
-            cell.frame.origin.y = 0
-            self.rootView.tableView.setContentOffset(currentOffSet, animated: false)
-        }
-        
-        if isNewSectionAdded
-        {
-            if let sectionFooterView = self.rootView.tableView.footerView(forSection: 0)
+        rootView.tableView.layoutIfNeeded()
+//        DispatchQueue.main.async { [weak self] in
+//            guard let self = self,
+                 guard let cell = tableView.cellForRow(at: indexPath) else { return }
+
+            // Shift content offset upward by new cell height + margin (if section inserted)
+            let offsetAdjustment = cell.bounds.height + (isNewSectionAdded ? 50 : 0)
+            let adjustedOffset = CGPoint(x: currentOffSet.x, y: currentOffSet.y + offsetAdjustment)
+            tableView.setContentOffset(adjustedOffset, animated: false)
+
+            // If the next cell was not fully visible before insert, skip animation
+            if !self.checkIfCellIsFullyVisible(at: IndexPath(row: 1, section: 0)) {
+                return
+            }
+
+            // Slide-in animation: cell starts off-screen
+            cell.frame.origin.y = -50
+
+            UIView.animate(withDuration: 0.3, delay: 0.1) {
+                cell.frame.origin.y = 0
+                tableView.setContentOffset(currentOffSet, animated: false)
+            }
+
+            // Animate section footer if new section added
+            if isNewSectionAdded,
+               let footer = tableView.footerView(forSection: 0)
             {
-                sectionFooterView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-                
+                footer.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
                 UIView.animate(withDuration: 0.3, delay: 0.1) {
-                    sectionFooterView.transform = CGAffineTransform(scaleX: 1, y: -1)
+                    footer.transform = CGAffineTransform(scaleX: 1, y: -1)
                 }
             }
-        }
+//        }
     }
     
     private func checkIfNewSectionWasAdded() -> Bool {
@@ -576,7 +565,7 @@ extension ChatRoomViewController
         
         for indexPath in cellInexdesToProcess
         {
-            guard checkIfCellIsFullyVisible(at: indexPath) else { return }
+            guard checkIfCellIsFullyVisible(at: indexPath) else { continue }
             
             guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section),
                   !checkIfMessageWasSeen(at: indexPath)
@@ -587,11 +576,7 @@ extension ChatRoomViewController
             
             // Get cell if it's still visible, or create a temporary one to get the data
             var cellViewModel: MessageCellViewModel?
-            
-            if indexPath.section == 0 && indexPath.row == 0 {
-                print("stop")
-            }
-            
+
             if let cell = rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell
             {
                 cellViewModel = cell.cellViewModel
@@ -601,7 +586,9 @@ extension ChatRoomViewController
                 cellViewModel = self.viewModel.messageClusters[indexPath.section].items[indexPath.row]
             }
             
-            guard let cellViewModel = cellViewModel else { continue }
+            guard let cellViewModel = cellViewModel,
+                  cellViewModel.message != nil
+            else { continue }
             
             let isGroup = self.viewModel.conversation?.isGroup ?? false
             cellViewModel.updateRealmMessageSeenStatus(by: isGroup ? self.viewModel.authUser.uid : nil)
@@ -948,17 +935,24 @@ extension ChatRoomViewController: UITableViewDelegate
         didFinishInitialScroll = false
         
         Task { @MainActor [weak self] in
+            guard let self = self else {return}
             do {
                 try await Task.sleep(nanoseconds: 500_000_000)
                 
-                if let (newRows, newSections) = try await self?.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
+                if let (newRows, newSections) = try await self.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
                 {
-                    self?.performeTableViewUpdate(with: newRows, sections: newSections)
+                    self.performeTableViewUpdate(with: newRows, sections: newSections)
+                    
+                    // if all unseen messages are fetched, attach listener to upcoming
+                    if order == true && self.viewModel.shouldAttachListenerToUpcomingMessages
+                    {
+                        self.viewModel.messageListenerService?.addListenerToUpcomingMessages()
+                    }
                 }
             } catch {
                 print("Could not update conversation with additional messages: \(error)")
             }
-            self?.didFinishInitialScroll = true
+            self.didFinishInitialScroll = true
         }
     }
     

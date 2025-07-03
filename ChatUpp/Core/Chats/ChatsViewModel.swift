@@ -63,6 +63,18 @@ extension ChatsViewModel {
     private func setupCellViewModels() {
         let chats = retrieveChatsFromRealm()
         
+        for chat in chats {
+            let senderID = chat.participants.first(where: {$0.userID != authUser.uid})?.userID ?? ""
+            let chatID = chat.id
+            Task {
+                do {
+                    let count = try await FirebaseChatService.shared.getUnreadMessagesCountTest(from: chatID, whereMessageSenderID: senderID)
+                    print("unread messages count: ", count)
+                } catch {
+                    print("error in geting count of unseen messages: ", error)
+                }
+            }
+        }
         guard !chats.isEmpty else { return }
         self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
     }

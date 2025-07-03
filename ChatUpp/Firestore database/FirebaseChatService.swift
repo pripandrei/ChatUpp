@@ -149,6 +149,17 @@ extension FirebaseChatService
         return try await messagesReference.whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false).whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID).getDocuments().count
     }
     
+    func getUnreadMessagesCountTest(from chatID: String, whereMessageSenderID senderID: String) async throws -> Int
+    {
+        let messagesRef = chatDocument(documentPath: chatID)
+            .collection(FirestoreCollection.messages.rawValue)
+            .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false)
+            .whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID)
+
+        let snapshot = try await messagesRef.count.getAggregation(source: .server) // or .default if local cache is OK
+        return Int(truncating: snapshot.count)
+    }
+    
     func getFirstUnseenMessage(fromChatDocumentPath documentID: String, whereSenderIDNotEqualTo senderID: String) async throws -> Message?
     {
         let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
