@@ -561,7 +561,9 @@ extension ChatRoomViewController
         let cellInexdesToProcess = self.pendingCellPathsForSeenStatusCheck
         self.pendingCellPathsForSeenStatusCheck.removeAll()
         
-        var unseenMessageCount: Int = 0
+//        var unseenMessageCount: Int = 0
+        
+        var unseenMessageIDs: [String] = []
         
         for indexPath in cellInexdesToProcess
         {
@@ -587,26 +589,31 @@ extension ChatRoomViewController
             }
             
             guard let cellViewModel = cellViewModel,
-                  cellViewModel.message != nil
+                  let message = cellViewModel.message
             else { continue }
             
             let isGroup = self.viewModel.conversation?.isGroup ?? false
-            cellViewModel.updateRealmMessageSeenStatus(by: isGroup ? self.viewModel.authUser.uid : nil)
+            
+            unseenMessageIDs.append(message.id)
+            
 //            cellViewModel.updateRealmMessageSeenStatusTest(by: isGroup ? self.viewModel.authUser.uid : nil)
+//            cellViewModel.updateRealmMessageSeenStatus(by: isGroup ? self.viewModel.authUser.uid : nil)
 //            Task {
-                self.viewModel.updateMessageSeenStatus(from: cellViewModel)
+//                self.viewModel.updateMessageSeenStatus(from: cellViewModel)
 //                self.viewModel.updateMessageSeenStatusTest(from: cellViewModel)
 //                self.viewModel.updateUnseenMessageCounter(shouldIncrement: false)
 //            }
-            unseenMessageCount += 1
+//            unseenMessageCount += 1
         }
         
-        if unseenMessageCount > 0 {
-//            Task {
-//                print("unseen count: ",unseenMessageCount)
-                self.viewModel.updateUnseenMessageCounter(shouldIncrement: false,
-                                                          counter: unseenMessageCount)
-//            }
+        if unseenMessageIDs.count > 0 {
+            //            Task {
+            //                print("unseen count: ",unseenMessageCount)
+            self.viewModel.updateRealmMessagesSeenStatus(unseenMessageIDs)
+            self.viewModel.updateFirebaseMessagesSeenStatus(unseenMessageIDs)
+            self.viewModel.updateUnseenMessageCounter(shouldIncrement: false,
+                                                      counter: unseenMessageIDs.count)
+            //            }
         }
         print("accessed updateMessageSeenStatusIfNeeded")
     }

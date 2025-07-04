@@ -214,6 +214,47 @@ extension FirebaseChatService
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
+    func updateMessagesSeenStatus(seenByUser userID: String? = nil,
+                                  _ messageIDs: [String],
+                                  chatID: String) async throws
+    {
+        var currentBatch = db.batch()
+        var batches = [WriteBatch]()
+        var writeCount = 0
+        
+        for id in messageIDs
+        {
+            let messageRef = getMessageDocument(
+                messagePath: id,
+                fromChatDocumentPath: chatID
+            )
+            
+            /// if chat is group, append user that saw the message
+            if let userID {
+                currentBatch.updateData(["seenBy": FieldValue.arrayUnion([userID])], forDocument: messageRef)
+            } else {
+                currentBatch.updateData(["message_seen": true], forDocument: messageRef)
+            }
+            
+            writeCount += 1
+            
+            if writeCount >= 500
+            {
+                batches.append(currentBatch)
+                currentBatch = db.batch()
+                writeCount = 0
+            }
+        }
+        
+        if writeCount > 0 {
+            batches.append(currentBatch)
+        }
+        
+        for batch in batches {
+            try await batch.commit()
+        }
+    }
+    
     func updateMessageSeenStatus(messageID: String , chatID: String) async throws {
         let data: [String: Any] = [
             Message.CodingKeys.messageSeen.rawValue : true

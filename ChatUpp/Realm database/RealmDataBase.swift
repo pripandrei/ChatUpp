@@ -45,18 +45,33 @@ final class RealmDataBase {
         
         return results
     }
+    
+    // for background
+    func retrieveObjectsTest<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Results<T>?
+    {
+        let realm = try! Realm()
+        var results = realm.objects(type)
+        
+        if let predicate = filter {
+            results = results.filter(predicate)
+        }
+        
+        return results
+    }
 
     func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
 //        let realm = try! Realm()
         return realm?.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
+    /// for background
     func retrieveSingleObjectTest<T: Object>(ofType type: T.Type, primaryKey: String) -> T?
     {
         let realm = try! Realm()
         return realm.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
+    /// for background
     func updateTest<T: Object>(object: T, update: (T) -> Void)
     {
         let realm = try! Realm()
@@ -68,6 +83,16 @@ final class RealmDataBase {
     func update<T: Object>(object: T, update: (T) -> Void) {
         try? realm?.write {
             update(object)
+        }
+    }
+    
+    // for background
+    func update<T: Object>(objects: [T], update: ([T]) -> Void)
+    {
+        let realm = try! Realm()
+        
+        try? realm.write {
+            update(objects)
         }
     }
     

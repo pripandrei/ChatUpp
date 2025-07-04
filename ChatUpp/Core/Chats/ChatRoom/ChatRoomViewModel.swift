@@ -446,6 +446,56 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             }
         }
     }
+    
+    func updateFirebaseMessagesSeenStatus(_ messageIDs: [String])
+    {
+        guard let chatID = conversation?.id else { return }
+        let authUserID = authUser.uid
+        let isGroup = conversation?.isGroup ?? false
+        
+//        let messageIDs = messages.map { $0.id }
+        
+        Task
+        {
+            try await FirebaseChatService
+                .shared
+                .updateMessagesSeenStatus(seenByUser: isGroup ? authUserID : nil,
+                                          messageIDs,
+                                          chatID: chatID)
+        }
+    }
+    
+    func updateRealmMessagesSeenStatus(_ messageIDs: [String])
+    {
+        guard let chatID = conversation?.id else { return }
+        let authUserID = authUser.uid
+        let isGroup = conversation?.isGroup ?? false
+        
+//        let filter = NSPredicate(format: "id IN %@", messageIDs)
+//        guard let messages = RealmDataBase.shared.retrieveObjects(
+//            ofType: Message.self,
+//            filter: filter
+//        ) else {return}
+
+        Task.detached(priority: .utility)
+        {
+            let filter = NSPredicate(format: "id IN %@", messageIDs)
+            guard let messages = RealmDataBase.shared.retrieveObjectsTest(
+                ofType: Message.self,
+                filter: filter
+            ) else {return}
+            
+            RealmDataBase.shared.update(objects: Array(messages)) { messages in
+                for message in messages {
+                    if isGroup {
+                        message.seenBy.append(authUserID)
+                        continue
+                    }
+                    message.messageSeen = true
+                }
+            }
+        }
+    }
 
 //    @MainActor
     func updateMessageSeenStatus(from cellViewModel: MessageCellViewModel)
