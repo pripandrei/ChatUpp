@@ -84,7 +84,7 @@ class ReactionViewModel: SwiftUI.ObservableObject
         RealmDataBase.shared.observeChanges(for: message)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] properyChange in
-                if properyChange.name == "reactions" {
+                if properyChange.0.name == "reactions" {
                     self?.objectWillChange.send()
                 }
             }.store(in: &subscribers)

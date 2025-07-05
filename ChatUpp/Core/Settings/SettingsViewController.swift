@@ -41,7 +41,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
     }
 
     deinit {
-        print("Settings ============ deinit")
+//        print("Settings ============ deinit")
     }
     
 // MARK: - Binder

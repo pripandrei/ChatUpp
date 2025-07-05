@@ -156,7 +156,7 @@ extension FirebaseChatService
             .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false)
             .whereField(Message.CodingKeys.senderId.rawValue, isEqualTo: senderID)
 
-        let snapshot = try await messagesRef.count.getAggregation(source: .server) // or .default if local cache is OK
+        let snapshot = try await messagesRef.count.getAggregation(source: .server)
         return Int(truncating: snapshot.count)
     }
     

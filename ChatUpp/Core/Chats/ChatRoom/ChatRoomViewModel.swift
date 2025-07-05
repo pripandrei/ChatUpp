@@ -149,6 +149,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         bindToMessages()
         initiateConversation()
+        ChatRoomSessionManager.activeChatID = conversation.id
     }
     
     init(participant: User?)
@@ -169,8 +170,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         RealmDataBase.shared.observeChanges(for: participant)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] change in
-                guard let self = self, change.name == "unseenMessagesCount" else { return }
-                self.unseenMessagesCount = change.newValue as? Int ?? self.unseenMessagesCount
+                guard let self = self, change.0.name == "unseenMessagesCount" else { return }
+                
+                self.unseenMessagesCount = change.0.newValue as? Int ?? self.unseenMessagesCount
             }.store(in: &cancellables)
     }
 
@@ -294,6 +296,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             await firestoreService?.addChatToFirestore(freezedChat)
             setupMessageListenerOnChatCreation()
         }
+        ChatRoomSessionManager.activeChatID = chat.id
     }
     
     func createNewMessage(ofType type: MessageType = .text,
@@ -409,7 +412,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                         if let participant = dbChat.getParticipant(byID: authUserID)
                         {
                             let updatedCount = (counter != nil) ? -counter! : -1
-                            print("isMainThread?: ",Thread.isMainThread)
                             participant.unseenMessagesCount = max(0, participant.unseenMessagesCount + updatedCount) // use + instead of - here, because two minuses (- -) result in +
                         }
                     }
@@ -455,7 +457,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
 //        let messageIDs = messages.map { $0.id }
         
-        Task
+        Task.detached
         {
             try await FirebaseChatService
                 .shared
@@ -467,17 +469,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     func updateRealmMessagesSeenStatus(_ messageIDs: [String])
     {
-        guard let chatID = conversation?.id else { return }
+//        guard let chatID = conversation?.id else { return }
         let authUserID = authUser.uid
         let isGroup = conversation?.isGroup ?? false
-        
-//        let filter = NSPredicate(format: "id IN %@", messageIDs)
-//        guard let messages = RealmDataBase.shared.retrieveObjects(
-//            ofType: Message.self,
-//            filter: filter
-//        ) else {return}
 
-        Task.detached(priority: .utility)
+        Task.detached
         {
             let filter = NSPredicate(format: "id IN %@", messageIDs)
             guard let messages = RealmDataBase.shared.retrieveObjectsTest(
@@ -498,36 +494,36 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
 
 //    @MainActor
-    func updateMessageSeenStatus(from cellViewModel: MessageCellViewModel)
-    {
-        guard let chatID = conversation?.id else { return }
-        let authUserID = authUser.uid
-        
-        let isGroup = conversation?.isGroup ?? false
-        Task.detached {
-            await cellViewModel.updateFirestoreMessageSeenStatus(
-                by: isGroup ? authUserID : nil,
-                from: chatID
-            )
-        }
-    }
+//    func updateMessageSeenStatus(from cellViewModel: MessageCellViewModel)
+//    {
+//        guard let chatID = conversation?.id else { return }
+//        let authUserID = authUser.uid
+//        
+//        let isGroup = conversation?.isGroup ?? false
+//        Task.detached {
+//            await cellViewModel.updateFirestoreMessageSeenStatus(
+//                by: isGroup ? authUserID : nil,
+//                from: chatID
+//            )
+//        }
+//    }
     
-    func updateMessageSeenStatusTest(from cellViewModel: MessageCellViewModel)
-    {
-        guard let chatID = conversation?.id else { return }
-        let authUserID = authUser.uid
-        
-        let isGroup = conversation?.isGroup ?? false
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.1) {
-            Task.detached {
-                await cellViewModel.updateFirestoreMessageSeenStatusTest(
-                    by: isGroup ? authUserID : nil,
-                    from: chatID
-                )
-            }
-        }
-    }
+//    func updateMessageSeenStatusTest(from cellViewModel: MessageCellViewModel)
+//    {
+//        guard let chatID = conversation?.id else { return }
+//        let authUserID = authUser.uid
+//        
+//        let isGroup = conversation?.isGroup ?? false
+//        
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5.1) {
+//            Task.detached {
+//                await cellViewModel.updateFirestoreMessageSeenStatusTest(
+//                    by: isGroup ? authUserID : nil,
+//                    from: chatID
+//                )
+//            }
+//        }
+//    }
     
     func clearMessageChanges() {
         messageChangedTypes.removeAll()

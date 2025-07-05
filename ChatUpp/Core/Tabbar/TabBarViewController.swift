@@ -100,7 +100,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
     }
     
     deinit {
-        print("TABBAR Deninit")
+//        print("TABBAR Deninit")
     }
 }
 

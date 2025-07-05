@@ -140,26 +140,26 @@ final class RealmDataBase {
 //MARK: - realm object observer
 extension RealmDataBase
 {
-    func observeChanges<T>(for object: T) -> AnyPublisher<PropertyChange, Never>
+    func observeChanges<T>(for object: T) -> AnyPublisher<(PropertyChange, RLMObjectBase), Never>
     {
-        let subject = PassthroughSubject<PropertyChange, Never>()
+        let subject = PassthroughSubject<(PropertyChange, RLMObjectBase), Never>()
         
         let token: NotificationToken? =
         {
             switch object {
             case let realmObject as Object:
                 return realmObject.observe { change in
-                    if case .change(_, let properties) = change {
+                    if case .change(let object, let properties) = change {
                         properties.forEach { property in
-                            subject.send(property)
+                            subject.send((property, object))
                         }
                     }
                 }
             case let embeddedObject as EmbeddedObject:
                 return embeddedObject.observe { change in
-                    if case .change(_, let properties) = change {
+                    if case .change(let object, let properties) = change {
                         properties.forEach { property in
-                            subject.send(property)
+                            subject.send((property, object))
                         }
                     }
                 }

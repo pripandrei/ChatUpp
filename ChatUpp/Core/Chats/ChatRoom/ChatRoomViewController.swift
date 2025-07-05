@@ -24,8 +24,8 @@ extension ChatRoomViewController: UIScrollViewDelegate
     {
 //        if let cell = rootView.tableView.cellForRow(at: IndexPath(row: 0, section: 0))
 //        {
-            let isSeen = checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
-            print("first cell is currently visible: \(isSeen)")
+//            let isSeen = checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
+//            print("first cell is currently visible: \(isSeen)")
 //        }
         
         let now = Date()
@@ -52,13 +52,9 @@ extension ChatRoomViewController: UIScrollViewDelegate
         toggleSectionHeaderVisibility(isScrollActive: true)
     }
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        print("------end deaxilirate")
         toggleSectionHeaderVisibility(isScrollActive: false)
     }
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if !decelerate {
-                print("+++++++end dragging")
-            }
         toggleSectionHeaderVisibility(isScrollActive: decelerate)
     }
     
@@ -126,7 +122,7 @@ final class ChatRoomViewController: UIViewController
     
     deinit {
         cleanUp()
-        print("====ConversationVC Deinit")
+//        print("====ConversationVC Deinit")
     }
 
     private func setupController()
@@ -301,6 +297,7 @@ final class ChatRoomViewController: UIViewController
         NotificationCenter.default.removeObserver(self)
         viewModel.removeAllListeners()
         CacheManager.shared.clear()
+        ChatRoomSessionManager.activeChatID = nil
 //        coordinatorDelegate = nil
 //        viewModel = nil
 //        tableViewDataSource = nil
@@ -561,8 +558,6 @@ extension ChatRoomViewController
         let cellInexdesToProcess = self.pendingCellPathsForSeenStatusCheck
         self.pendingCellPathsForSeenStatusCheck.removeAll()
         
-//        var unseenMessageCount: Int = 0
-        
         var unseenMessageIDs: [String] = []
         
         for indexPath in cellInexdesToProcess
@@ -592,30 +587,15 @@ extension ChatRoomViewController
                   let message = cellViewModel.message
             else { continue }
             
-            let isGroup = self.viewModel.conversation?.isGroup ?? false
-            
             unseenMessageIDs.append(message.id)
-            
-//            cellViewModel.updateRealmMessageSeenStatusTest(by: isGroup ? self.viewModel.authUser.uid : nil)
-//            cellViewModel.updateRealmMessageSeenStatus(by: isGroup ? self.viewModel.authUser.uid : nil)
-//            Task {
-//                self.viewModel.updateMessageSeenStatus(from: cellViewModel)
-//                self.viewModel.updateMessageSeenStatusTest(from: cellViewModel)
-//                self.viewModel.updateUnseenMessageCounter(shouldIncrement: false)
-//            }
-//            unseenMessageCount += 1
         }
         
         if unseenMessageIDs.count > 0 {
-            //            Task {
-            //                print("unseen count: ",unseenMessageCount)
             self.viewModel.updateRealmMessagesSeenStatus(unseenMessageIDs)
             self.viewModel.updateFirebaseMessagesSeenStatus(unseenMessageIDs)
             self.viewModel.updateUnseenMessageCounter(shouldIncrement: false,
                                                       counter: unseenMessageIDs.count)
-            //            }
         }
-        print("accessed updateMessageSeenStatusIfNeeded")
     }
     
     private func checkIfCellIsCurrentlyVisible(_ cell: UITableViewCell) -> Bool

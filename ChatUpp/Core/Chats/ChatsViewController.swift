@@ -49,7 +49,7 @@ class ChatsViewController: UIViewController {
     }
     
     deinit {
-        print("ChatsVC was DEINITED!==")
+//        print("ChatsVC was DEINITED!==")
     }
     
     private func configureTableView() {
