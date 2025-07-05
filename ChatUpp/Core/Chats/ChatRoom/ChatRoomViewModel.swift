@@ -321,24 +321,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         )
     }
     
-//    func addMessageToDatabase(_ message: Message) async
-//    {        
-//        // Local updates
-//        await realmService?.addMessageToRealmChat(message)
-//        createMessageClustersWith([message], ascending: true)
-//        
-//        // Remote updates
-//        Task { @MainActor in
-//            await setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
-//            print("after image vas added")
-//            updateUnseenMessageCounter(shouldIncrement: true)
-//            await firestoreService?.addMessageToFirestoreDataBase(message)
-//            await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
-//        }
-//        
-//        resetCurrentReplyMessageIfNeeded()
-//    }
-    
     @MainActor
     func handleLocalUpdatesOnMessageCreation(_ message: Message,
                                              imageRepository: ImageSampleRepository? = nil)
@@ -455,8 +437,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let authUserID = authUser.uid
         let isGroup = conversation?.isGroup ?? false
         
-//        let messageIDs = messages.map { $0.id }
-        
         Task.detached
         {
             try await FirebaseChatService
@@ -469,7 +449,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     func updateRealmMessagesSeenStatus(_ messageIDs: [String])
     {
-//        guard let chatID = conversation?.id else { return }
         let authUserID = authUser.uid
         let isGroup = conversation?.isGroup ?? false
 
@@ -626,11 +605,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 group.addTask(priority: .utility) {
                     CacheManager.shared.saveImageData(imageData, toPath: path)
                     print("Cached image: \(imageData) \(path)")
-                    print("Is main thread?: " , Thread.isMainThread)
                 }
             }
         }
-        print("All images are cached")
     }
 
     func saveImagesRemotelly(fromImageRepository imageRepository: ImageSampleRepository,
@@ -655,7 +632,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             }
             await group.waitForAll()
         }
-        print("All images are saved remotlly")
     }
     
     // fetch image from message
@@ -945,10 +921,6 @@ extension ChatRoomViewModel
             }
         }
         
-//        guard let startMessage = ascendingOrder
-//                ? lastMessageItem?.message
-//                : messageClusters.last?.items.last?.message else {return []}
-        
         switch ascendingOrder {
         case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage, included: false))
         case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage, included: false))
@@ -1078,60 +1050,3 @@ extension ChatRoomViewModel
         : nil
     }
 }
-
-
-
-
-
-//MARK: - not in use
-
-
-//extension ChatRoomViewModel {
-//    var members: [User]
-//    {
-//        guard let conversation = conversation else { return [] }
-//        
-//        let participantsID = Array( conversation.participants.map { $0.userID } )
-//        let filter = NSPredicate(format: "id IN %@ AND id != %@", participantsID, authUser.uid)
-//        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
-//        
-//        return users ?? []
-//    }
-
-///= ==== = =
-//    func getRepliedToMessage(messageID: String) -> Message?
-//    {
-//        var repliedMessage: Message?
-//
-//        messageClusters.forEach { conversationGroups in
-//            conversationGroups.items.forEach { conversationCellViewModel in
-//                if conversationCellViewModel.message?.id == messageID {
-//                    repliedMessage = conversationCellViewModel.message
-//                    return
-//                }
-//            }
-//        }
-//        return repliedMessage
-//    }
-    
-//    func setReplyMessageData(fromReplyMessageID id: String,
-//                             toViewModel viewModel: ConversationCellViewModel)
-//    {
-////        let messageToBeReplied = getRepliedToMessage(messageID: id)
-////        viewModel.updateReferenceMessage(messageToBeReplied)
-////        viewModel.setReferenceMessage(messageToBeReplied)
-////        if let messageToBeReplied = getRepliedToMessage(messageID: id)
-////        {
-////            let senderNameOfMessageToBeReplied = getMessageSenderName(usingSenderID: messageToBeReplied.senderId)
-////            (viewModel.senderNameOfMessageToBeReplied, viewModel.textOfMessageToBeReplied) =
-////            (senderNameOfMessageToBeReplied, messageToBeReplied.messageBody)
-////        }
-//    }
-    
-//    func getMessageSenderName(usingSenderID id: String) -> String?
-//    {
-//        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: id)
-//        return user?.name
-//    }
-
-//}

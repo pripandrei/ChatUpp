@@ -17,7 +17,6 @@ enum MessageValueModification
         switch self {
         case .text: return .left
         case .seenStatus: return .none
-//        case .reactions: return .fade
         case .reactions: return .none
         }
     }

@@ -227,7 +227,6 @@ final class ChatRoomViewController: UIViewController
             switch changeType
             {
             case .added:
-//                print("added !!!!!!")
                 self.handleTableViewCellInsertion(scrollToBottom: false)
             case .removed(let removedIndex):
                 removedIndexPaths.append(removedIndex)

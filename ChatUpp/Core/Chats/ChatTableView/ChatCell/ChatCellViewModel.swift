@@ -14,8 +14,10 @@ import Kingfisher
 class ChatCellViewModel
 {
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
+    
     private var cancellables = Set<AnyCancellable>()
     private var recentMessagesCancellables = Set<AnyCancellable>()
+    
     private(set) var profileImageDataSubject = PassthroughSubject<Data?,Never>()
     private(set) var messageImageDataSubject = PassthroughSubject<Data?,Never>()
     
@@ -46,16 +48,12 @@ class ChatCellViewModel
         }
     }
     
-    deinit {
-        print("deinit")
-    }
-    
     init(chat: Chat)
     {
         self.chat = chat
 
         initiateChatDataLoad()
-        addObserverToChat()
+        addRealmObserverToChat()
         observeAuthParticipantChanges()
     }
     
@@ -77,21 +75,8 @@ class ChatCellViewModel
             await fetchDataFromFirestore()
             await self.addObserverToUser()
             await self.addListenerToUser()
-//            self.addDataToRealm()
         }
     }
-    
-//    private func addDataToRealm()
-//    {
-//        Task { @MainActor in
-//            
-//            addMessageToRealm()
-//            
-//            guard let member = chatUser else {return}
-//            
-//            RealmDataBase.shared.add(object: member)
-//        }
-//    }
     
     // image data cache
     @MainActor
@@ -172,11 +157,8 @@ extension ChatCellViewModel
 
 //MARK: - Update cell data
 
-extension ChatCellViewModel {
-    
-    // TODO:  add aditional update chekers
-    // or better, add listener to chat realm and apply needed code to different update field scenario
-    
+extension ChatCellViewModel
+{
     private func setNewRecentMessage(messageID: String)
     {
         guard let newMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else
@@ -247,8 +229,6 @@ extension ChatCellViewModel {
     
     private func addMessageToRealm(_ message: Message)
     {
-//        guard let recentMessage = recentMessage else {return}
-        
         RealmDataBase.shared.add(object: message)
         
         if !chat.conversationMessages.contains(where: { $0.id == message.id} )
@@ -345,7 +325,6 @@ extension ChatCellViewModel
                 
             }
             self.recentMessage = self.recentMessage // trigger message image update
-            //                self.messageImageDataSubject.send(imageData)
             
         } catch {
             print("Could not fetch message image data: ", error)
@@ -359,7 +338,8 @@ extension ChatCellViewModel
 {
     /// Observe user from Realtime db (Temporary fix while firebase functions are deactivated)
     @MainActor
-    private func addObserverToUser() {
+    private func addObserverToUser()
+    {
         guard let member = chatUser else {return}
         
         RealtimeUserService.shared.addObserverToUsers(member.id)
@@ -406,35 +386,23 @@ extension ChatCellViewModel
     /// - chat observer
     ///
     
-    private func addObserverToChat()
+    private func addRealmObserverToChat()
     {
         RealmDataBase.shared.observeChanges(for: chat)
             .receive(on: DispatchQueue.main)
             .sink { propertyChange in
+                guard let property = ChatObservedProperty(from: propertyChange.0.name) else { return }
                 
-                switch propertyChange.0.name {
-                case "recentMessageID":
-                    guard let recentMessageID = propertyChange.0.newValue as? String else {return}
-                    self.setNewRecentMessage(messageID: recentMessageID)
-                case "participants":
-                    if !self.chat.isGroup,
-                       self.findMemberID() == nil
-                    {
-                        Task { await self.updateUserAfterDeletion() }
-                    }
-                case "thumbnailURL":
-                    Task {
-                        guard let imageURL = await self.profileImageThumbnailPath else {return}
-                        
-                        let imageIsCached = CacheManager.shared.doesImageExist(at: imageURL)
-                        
-                        if imageIsCached == false {
-                            await self.performProfileImageDataUpdate()
-                        }
-                    }
-                default: break
+                switch property {
+                case .recentMessageID:
+                    self.handleRecentMessageChange(propertyChange.0.newValue)
+                case .participants:
+                    self.handleParticipantsChange()
+                case .thumbnailURL:
+                    self.handleThumbnailChange()
                 }
-            }.store(in: &cancellables)
+            }
+            .store(in: &cancellables)
     }
     
     /// message observer
@@ -450,6 +418,8 @@ extension ChatCellViewModel
             limit: 1)
         .receive(on: DispatchQueue.main)
         .sink { changeObject in
+            
+            // leave update of recent message to Chat Room VC if it is opened
             //
             guard ChatRoomSessionManager.activeChatID != self.chat.id else {return}
             
@@ -474,21 +444,48 @@ extension ChatCellViewModel
         
         RealmDataBase.shared.observeChanges(for: recentMessage)
             .receive(on: DispatchQueue.main)
-            .sink { propertyChange in
+            .sink { [weak self] propertyChange in
+                guard let self = self else { return }
+                guard let property = MessageObservedProperty(from: propertyChange.0.name) else { return }
+                guard let messageID = self.recentMessage?.id else { return }
                 
-                guard let messageID = self.recentMessage?.id else {return}
-                
-                switch propertyChange.0.name {
-                case "imagePath":
+                switch property
+                {
+                case .imagePath:
                     guard let _ = propertyChange.0.newValue as? String else { return }
-                    Task {
-                        await self.performMessageImageUpdate(messageID)
-                    }
-                case "messageSeen": self.recentMessage = propertyChange.1 as? Message
-                default: break
+                    Task { await self.performMessageImageUpdate(messageID) }
+                case .messageSeen:
+                    self.recentMessage = propertyChange.1 as? Message
                 }
                 
             }.store(in: &recentMessagesCancellables)
+    }
+}
+
+//MARK: - Helper functions
+extension ChatCellViewModel
+{
+    private func handleRecentMessageChange(_ newValue: Any?) {
+        guard let recentMessageID = newValue as? String else { return }
+        self.setNewRecentMessage(messageID: recentMessageID)
+    }
+
+    private func handleParticipantsChange() {
+        if !self.chat.isGroup, self.findMemberID() == nil {
+            Task { await self.updateUserAfterDeletion() }
+        }
+    }
+
+    private func handleThumbnailChange() {
+        Task {
+            guard let imageURL = await self.profileImageThumbnailPath else { return }
+
+            let imageIsCached = CacheManager.shared.doesImageExist(at: imageURL)
+
+            if !imageIsCached {
+                await self.performProfileImageDataUpdate()
+            }
+        }
     }
 }
 
@@ -515,4 +512,25 @@ extension ChatCellViewModel
 class ChatRoomSessionManager
 {
     static var activeChatID: String? = nil
+}
+
+
+enum ChatObservedProperty: String
+{
+    case recentMessageID
+    case participants
+    case thumbnailURL
+
+    init?(from name: String) {
+        self.init(rawValue: name)
+    }
+}
+
+enum MessageObservedProperty: String {
+    case imagePath
+    case messageSeen
+
+    init?(from name: String) {
+        self.init(rawValue: name)
+    }
 }
