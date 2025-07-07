@@ -29,6 +29,23 @@ extension ChatRoomViewController: UIScrollViewDelegate
 //        }
         
         let now = Date()
+        
+//        if let shouldIgnoreUnseenMessagesUpdateForTimePeriod
+//        {
+//            if now.timeIntervalSince(shouldIgnoreUnseenMessagesUpdateForTimePeriod) > 1.5
+//            {
+//                self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = nil
+//                self.pendingCellPathsForSeenStatusCheck.removeAll()
+//            }
+//            return
+//        }
+//        
+        if shouldIgnoreUnseenMessagesUpdate
+        {
+            shouldIgnoreUnseenMessagesUpdate = false
+            self.pendingCellPathsForSeenStatusCheck.removeAll()
+            return
+        }
     
         if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
         {
@@ -77,6 +94,8 @@ final class ChatRoomViewController: UIViewController
 {
     weak var coordinatorDelegate :Coordinator?
     
+    private var shouldIgnoreUnseenMessagesUpdate: Bool = false
+    private var shouldIgnoreUnseenMessagesUpdateForTimePeriod: Date?
     private var pendingCellPathsForSeenStatusCheck = Set<IndexPath>()
     private var lastSeenStatusCheckUpdate: Date = Date()
     private var tableViewDataSource :ConversationTableViewDataSource!
@@ -220,35 +239,60 @@ final class ChatRoomViewController: UIViewController
     private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
     {
         var removedIndexPaths: [IndexPath] = []
-        var modifiedIndexPaths: (path: [IndexPath], animation: [UITableView.RowAnimation]) = ([],[])
-        
-        for changeType in changes
-        {
-            switch changeType
-            {
+        var modifiedIndexPaths: [(IndexPath, UITableView.RowAnimation)] = []
+
+        for change in changes {
+            switch change {
             case .added:
-                self.handleTableViewCellInsertion(scrollToBottom: false)
-            case .removed(let removedIndex):
-                removedIndexPaths.append(removedIndex)
+                handleTableViewCellInsertion(scrollToBottom: false)
+            case .removed(let indexPath):
+                removedIndexPaths.append(indexPath)
             case .modified(let indexPath, let valueModification):
-                modifiedIndexPaths.path.append(indexPath)
-                modifiedIndexPaths.animation.append(valueModification.animationType)
+                modifiedIndexPaths.append((indexPath, valueModification.animationType))
             }
         }
+
+        guard let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows else { return }
+        let visibleSet = Set(visibleIndexPaths)
+
+        let visibleModifications = modifiedIndexPaths.filter { visibleSet.contains($0.0) }
+        let visibleRemovals = removedIndexPaths.filter { visibleSet.contains($0) }
         
-        if !modifiedIndexPaths.path.isEmpty {
+        if !visibleModifications.isEmpty || !visibleRemovals.isEmpty
+        {
             rootView.tableView.performBatchUpdates
             {
-                self.rootView.tableView.reloadRows(at: modifiedIndexPaths.path, with: modifiedIndexPaths.animation.first ?? .none)
+                if !visibleRemovals.isEmpty
+                {
+                    self.removeTableViewCells(at: removedIndexPaths)
+                }
+                
+                for (indexPath, animation) in modifiedIndexPaths
+                {
+                    // Prevent reloading rows that were deleted
+                    if !removedIndexPaths.contains(indexPath)
+                    {
+                        self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
+                    }
+                }
             }
         }
-        
-        if !removedIndexPaths.isEmpty {
-            rootView.tableView.performBatchUpdates
-            {
-                self.removeTableViewCells(at: removedIndexPaths)
-            }
-        }
+//        
+//        
+//        if !modifiedIndexPaths.isEmpty, hasVisibleOverlap(with: modifiedIndexPaths) {
+//            rootView.tableView.performBatchUpdates {
+//                rootView.tableView.reloadRows(
+//                    at: modifiedIndexPaths,
+//                    with: modifiedAnimations.first ?? .none
+//                )
+//            }
+//        }
+//
+//        if !removedIndexPaths.isEmpty, hasVisibleOverlap(with: removedIndexPaths) {
+//            rootView.tableView.performBatchUpdates {
+//                self.removeTableViewCells(at: removedIndexPaths)
+//            }
+//        }
     }
     
     
@@ -376,24 +420,31 @@ final class ChatRoomViewController: UIViewController
                                                     viewModel: navBarViewModel,
                                                     coordinator: coordinatorDelegate)
     }
+    
+    enum CellVisibilityStatus {
+        case visible
+        case underInputBar
+        case offScreen
+    }
+    
+    private func getCellVisibilityStatus(at indexPath: IndexPath) -> CellVisibilityStatus?
+    {
+        let table = rootView.tableView
+        
+        /// - data source is not empty and table didn't layed out cells yet, return true
+        guard !table.visibleCells.isEmpty else {return nil}
+        
+        guard let cell = table.cellForRow(at: indexPath) else {
+            return .offScreen
+        }
 
-//    private func checkIfLastCellIsFullyVisible() -> Bool 
-//    {
-//        let table = rootView.tableView
-//        let lastCellIndexPath = IndexPath(row: 0, section: 0)
-//        
-//        /// - data source is not empty and table didn't layed out cells yet, return true
-//        guard !table.visibleCells.isEmpty else {return true}
-//        
-//        guard let lastCell = table.cellForRow(at: lastCellIndexPath) as? MessageTableViewCell else {
-//            return false
-//        }
-//
-//        let lastCellRect = table.convert(lastCell.frame, to: rootView)
-//        let inputBarRect = rootView.inputBarContainer.frame
-//
-//        return inputBarRect.origin.y >= lastCellRect.origin.y
-//    }
+        let cellRect = table.convert(cell.frame, to: rootView)
+        let inputBarRect = rootView.inputBarContainer.frame
+
+        let isCellVisible = inputBarRect.origin.y >= cellRect.origin.y
+        return isCellVisible ? .visible : .underInputBar
+//        return inputBarRect.origin.y >= cellRect.origin.y
+    }
     
     private func checkIfCellIsFullyVisible(at indexPath: IndexPath) -> Bool
     {
@@ -459,9 +510,14 @@ extension ChatRoomViewController {
         
         if visibleIndexPaths?.isEmpty == true || visibleIndexPaths?.contains(indexPath) == true
         {
-            handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-            animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                         withNewSectionAdded: isNewSectionAdded)
+            guard let firstSectionMessageCount = viewModel.messageClusters.first?.items.count else {return}
+            
+            if rootView.tableView.numberOfRows(inSection: 0) < firstSectionMessageCount
+            {
+                handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
+                animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                             withNewSectionAdded: isNewSectionAdded)
+            }
         }
         
         if scrollToBottom
@@ -480,14 +536,6 @@ extension ChatRoomViewController {
     private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool)
     {
         // - See Footnote.swift [1]
-        
-//        if !self.checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0)) {
-//            return
-//        }
-//        if rootView.tableView.indexPathsForVisibleRows?.contains(where: {$0 == indexPath}) == false
-//        {
-//            return
-//        }
         UIView.performWithoutAnimation {
 //        UIView.animate(withDuration: 0.0) {
             if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
@@ -561,7 +609,17 @@ extension ChatRoomViewController
         
         for indexPath in cellInexdesToProcess
         {
-            guard checkIfCellIsFullyVisible(at: indexPath) else { continue }
+//            guard checkIfCellIsFullyVisible(at: indexPath) else { continue }
+            
+//            guard let status = getCellVisibilityStatus(at: indexPath),
+//                  [.visible, .offScreen].contains(status) else { continue }
+            
+            guard let status = getCellVisibilityStatus(at: indexPath) else { continue }
+            
+            if status == .underInputBar {
+                self.pendingCellPathsForSeenStatusCheck.formUnion([indexPath])
+                continue
+            }
             
             guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section),
                   !checkIfMessageWasSeen(at: indexPath)
@@ -586,7 +644,21 @@ extension ChatRoomViewController
                   let message = cellViewModel.message
             else { continue }
             
+            if message.messageBody == "Wq" || message.messageBody == "iPhone 12 Pro Max"
+            {
+                print("stop")
+            }
+            
+            if message.realm == nil {
+                print("opaa not realm message")
+                print(message.messageBody," ", message.id)
+            }
             unseenMessageIDs.append(message.id)
+        }
+        
+        
+        if unseenMessageIDs.count < 0 {
+            print("EGEGEI")
         }
         
         if unseenMessageIDs.count > 0 {
@@ -923,7 +995,8 @@ extension ChatRoomViewController: UITableViewDelegate
         Task { @MainActor [weak self] in
             guard let self = self else {return}
             do {
-                try await Task.sleep(nanoseconds: 500_000_000)
+                /// See Footnote.swift [3]
+                try await Task.sleep(for: .seconds(1.5))
                 
                 if let (newRows, newSections) = try await self.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
                 {
@@ -959,8 +1032,11 @@ extension ChatRoomViewController: UITableViewDelegate
             if !newRows.isEmpty {
                 self.rootView.tableView.insertRows(at: newRows, with: .none)
             }
+//            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
+            self.shouldIgnoreUnseenMessagesUpdate = true
         }, completion: { _ in
-        
+            
+//            self.shouldIgnoreUnseenMessagesUpdate = true
             if self.rootView.tableView.contentOffset.y < -97.5
             {
                 if let visibleCell = visibleCell,

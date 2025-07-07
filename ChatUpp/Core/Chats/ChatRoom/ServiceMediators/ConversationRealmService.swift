@@ -27,7 +27,7 @@ final class ConversationRealmService
     func addMessagesToConversationInRealm(_ messages: [Message])
     {
         guard let conversation = conversation else { return }
-
+        
         RealmDataBase.shared.update(object: conversation) { chat in
             guard let realm = chat.realm else { return }
 
@@ -45,6 +45,13 @@ final class ConversationRealmService
             }
 
             chat.conversationMessages.append(objectsIn: messagesToAppend)
+        }
+        
+        /// See Footnote.swift [2]
+        messages.forEach { message in
+            if message.realm == nil {
+                RealmDataBase.shared.add(object: message)
+            }
         }
     }
     

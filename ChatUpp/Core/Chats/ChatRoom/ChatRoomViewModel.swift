@@ -188,6 +188,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         guard let startMessage = messageClusters.last?.items.last?.message,
               let limit = conversation?.conversationMessages.count else {return}
+        //TODO: - remove test start message and limit
+        guard let startTestMessage = messageClusters.first?.items.first?.message else {return}
+        let testLimit = 50
         
         // Attach listener to upcoming messages only if all unseen messages
         // (if any) have been fetched locally
@@ -195,7 +198,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         {
             messageListenerService?.addListenerToUpcomingMessages()
         }
-        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startMessage.id, ascending: true, limit: limit)
+        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
     }
     
     func removeAllListeners()
@@ -395,6 +398,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                         {
                             let updatedCount = (counter != nil) ? -counter! : -1
                             participant.unseenMessagesCount = max(0, participant.unseenMessagesCount + updatedCount) // use + instead of - here, because two minuses (- -) result in +
+                            if participant.unseenMessagesCount <= 0 {
+                                print("stop here")
+                            }
                         }
                     }
                 }
@@ -811,6 +817,7 @@ extension ChatRoomViewModel
         
         // TODO: - if chat unseen message counter is heigher than local unseen count,
         // dont create messageGroup with this new message
+
         createMessageClustersWith([message], ascending: true)
         messageChangedTypes.append(.added)
     }
@@ -867,6 +874,10 @@ extension ChatRoomViewModel
     {
         guard let conversation = conversation else { return [] }
 
+        var limit: Int = 35
+        if let strategy {
+            limit = 10
+        }
         let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
         
         switch fetchStrategy
@@ -876,7 +887,8 @@ extension ChatRoomViewModel
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
-                fetchDirection: .ascending
+                fetchDirection: .ascending,
+                limit: limit
             )
         case .descending(let startAtMessage, let included):
             return try await FirebaseChatService.shared.fetchMessagesFromChat(
@@ -903,7 +915,31 @@ extension ChatRoomViewModel
         }
     }
     
-    private func loadAdditionalMessages(inAscendingOrder ascendingOrder: Bool) async throws -> [Message]
+//    private func loadAdditionalMessages(inAscendingOrder ascendingOrder: Bool) async throws -> [Message]
+//    {
+//        let startMessage: Message?
+//        
+//        if ascendingOrder {
+//            startMessage = lastMessageItem?.message
+//        } else {
+//            // last message can be UnseenMessagesTitle, so we need to check and get one before last message instead
+//            guard let items = messageClusters.last?.items else { return [] }
+//                  
+//            if let lastItem = items.last, lastItem.displayUnseenMessagesTitle == true
+//            {
+//                startMessage = items.dropLast().last?.message
+//            } else {
+//                startMessage = items.last?.message
+//            }
+//        }
+//        
+//        switch ascendingOrder {
+//        case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage, included: false))
+//        case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage, included: false))
+//        }
+//    }
+    
+    private func getStrategyForAdditionalMessagesFetch(inAscendingOrder ascendingOrder: Bool) -> MessageFetchStrategy?
     {
         let startMessage: Message?
         
@@ -911,7 +947,7 @@ extension ChatRoomViewModel
             startMessage = lastMessageItem?.message
         } else {
             // last message can be UnseenMessagesTitle, so we need to check and get one before last message instead
-            guard let items = messageClusters.last?.items else { return [] }
+            guard let items = messageClusters.last?.items else { return nil }
                   
             if let lastItem = items.last, lastItem.displayUnseenMessagesTitle == true
             {
@@ -922,8 +958,8 @@ extension ChatRoomViewModel
         }
         
         switch ascendingOrder {
-        case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage, included: false))
-        case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage, included: false))
+        case true: return .ascending(startAtMessage: startMessage, included: false)
+        case false: return .descending(startAtMessage: startMessage, included: false)
         }
     }
     
@@ -1004,7 +1040,10 @@ extension ChatRoomViewModel
     @MainActor
     func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
     {
-        let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
+        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
+        
+        let newMessages = try await fetchConversationMessages(using: strategy)
+//        let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
         guard !newMessages.isEmpty else { return nil }
 
         if conversation?.isGroup == true {

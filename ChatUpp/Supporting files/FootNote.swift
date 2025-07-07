@@ -16,3 +16,15 @@
 
 
 //MARK: - [2].
+/// When additional messages are fetched,
+/// and they contain very last/recent message,
+/// it will not be added through code above,
+/// because it already exists in realm
+/// This dirty fix adds last (recent) message to realm
+/// so that it becomes managed
+
+//MARK: - [3].
+/// wait for initial table scroll to finish,
+/// before fetching and inserting messages
+/// (some times messages are fetched and inserted in table view
+/// faster than scroll is finished, resulting in a glitch)

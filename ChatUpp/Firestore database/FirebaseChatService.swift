@@ -344,6 +344,15 @@ extension FirebaseChatService
             data[fieldPath] = FieldValue.increment(Int64(counterValue))
         }
         
+        let chat = try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
+        
+        if let participant = chat.participants.first(where: { $0.userID == participantsID.first })
+        {
+            if participant.unseenMessagesCount <= 0 {
+                print("stop this shit")
+            }
+        }
+    
         try await chatDocument(documentPath: chatID).updateData(data)
     }
     
