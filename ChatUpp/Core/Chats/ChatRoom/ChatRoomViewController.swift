@@ -250,19 +250,13 @@ final class ChatRoomViewController: UIViewController
     private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
     {
         var addedMessages: [Message] = []
-        var removedIndexPaths: Set<IndexPath> = []
-        var textModifications: [IndexPath] = []
-        var seenStatusModifications: [IndexPath] = []
+        var removedPaths: [(IndexPath, Bool)] = []
+        var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
         
-        var allModifications: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
-
-        
-        
-        var removedChangeTypes: [MessageChangeType] = []
-        var modifiedChangeTypes: [MessageChangeType] = []
-        
-        for change in changes {
-            switch change {
+        for change in changes
+        {
+            switch change
+            {
             case .added(let message):
                 if changes.count == 1
                 {
@@ -271,42 +265,28 @@ final class ChatRoomViewController: UIViewController
                 }
                 addedMessages.append(message)
             case .removed(let indexPath, let isLastRowInSection):
-//                removedIndexPaths.append((indexPath, isLastRowInSection))
-                
-                removedChangeTypes.append(change)
+                removedPaths.append((indexPath, isLastRowInSection))
             case .modified(let indexPath, let modification):
-                allModifications.append((indexPath, modification.animationType))
-                
-//            case .modified(let indexPath, let modification):
-//                // Skip reloading rows that were removed
-////                guard !removedIndexPaths.contains(indexPath) else { continue }
-//                
-//                switch modification {
-//                case .text:
-//                    textModifications.append(indexPath)
-//                case .seenStatus:
-//                    seenStatusModifications.append(indexPath)
-//                case .reactions:
-//                    // You can handle reactions separately if needed
-//                    break
-//                }
+                modifiedPaths.append((indexPath, modification.animationType))
             }
         }
         
         /// Filter out modifications that were also removed
-        let safeModifications = allModifications
+        ///
+        let removedIndexPaths = Set(removedPaths.map { $0.0 })
+        let safeModifications = modifiedPaths
             .filter { !removedIndexPaths.contains($0.indexPath) }
         
         /// Group modifications by animation type (for clarity and batch efficiency)
-        
-        let groupModifications = Dictionary(grouping: safeModifications, by: { $0.animation })
-        
+        ///
+        let groupModifications = Dictionary(grouping: safeModifications,
+                                            by: { $0.animation })
         
         rootView.tableView.performBatchUpdates
         {
-            if !removedChangeTypes.isEmpty
+            if !removedPaths.isEmpty
             {
-                self.removeTableViewCells(withChangeType: removedChangeTypes)
+                self.removeTableViewCells(at: removedPaths)
             }
             
             if !addedMessages.isEmpty {
@@ -321,52 +301,6 @@ final class ChatRoomViewController: UIViewController
                 let indexPaths = entrie.map { $0.indexPath }
                 self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
             }
-            
-            
-//            if !seenStatusModifications.isEmpty,  {
-//                rootView.tableView.reloadRows(at: seenStatusModifications, with: .none)
-//            }
-//            
-//            if !textModifications.isEmpty, !removedIndexPaths.contain(indexPath) {
-//                rootView.tableView.reloadRows(at: textModifications, with: .left)
-//            }
-//            
-            
-//            var indexPathsForSeenStatusAnimation: [IndexPath] = []
-//            var indexPathsForTextModificationAnimation: [IndexPath] = []
-//            
-//            for changeType in modifiedChangeTypes
-//            {
-//                // Prevent reloading rows that were deleted
-//                if case let .modified(indexPath, animation) = changeType
-//                {
-//                    if removedChangeTypes.contains(where: {
-//                        if case let .removed(removedIndexPath, _) = $0 {
-//                            return removedIndexPath == indexPath
-//                        }
-//                        return false
-//                    })
-//                    {
-//                        switch animation {
-//                        case .seenStatus: indexPathsForSeenStatusAnimation.append(indexPath)
-//                        case .text: indexPathsForTextModificationAnimation.append(indexPath)
-//                        default: break
-//                        }
-//                    }
-//                }
-//            }
-//            
-//            if !indexPathsForSeenStatusAnimation.isEmpty
-//            {
-//                self.rootView.tableView.reloadRows(at: indexPathsForSeenStatusAnimation,
-//                                                   with: .none)
-//            }
-//            
-//            if !indexPathsForTextModificationAnimation.isEmpty
-//            {
-//                self.rootView.tableView.reloadRows(at: indexPathsForTextModificationAnimation,
-//                                                   with: .left)
-//            }
         }
     }
     
@@ -550,46 +484,19 @@ final class ChatRoomViewController: UIViewController
         guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
         self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
     }
-    
-    private func removeTableViewCells(at indexPaths: [IndexPath])
+
+    /// ATENTION: should be initiated only inside table batch updates
+    private func removeTableViewCells(at indexPathsWithFlags: [(IndexPath, Bool)])
     {
-        UIView.transition(with: self.rootView.tableView, duration: 0.5, options: .transitionCrossDissolve) {
-            //            self.rootView.tableView.reloadData()
-            guard self.rootView.tableView.numberOfRows(inSection: 0) > 1 else
-            {
-                self.rootView.tableView.deleteSections(IndexSet(integer: 0), with: .fade)
-                return
-            }
-            self.rootView.tableView.deleteRows(at: indexPaths, with: .fade)
+        let indexPathsToRemove = indexPathsWithFlags.map(\.0)
+        let emptySections = Set(indexPathsWithFlags.compactMap { $0.1 ? $0.0.section : nil })
+
+        if !indexPathsToRemove.isEmpty {
+            rootView.tableView.deleteRows(at: indexPathsToRemove, with: .fade)
         }
-    }
-    
-    /// ATENTION: this function should be initiated only inside table batch updates
-    private func removeTableViewCells(withChangeType changeType: [MessageChangeType])
-    {
-        var indexPathsToRemove: [IndexPath] = []
-        var emptySections: [Int] = []
-        
-        changeType.forEach { changeType in
-            if case let .removed(indexPath, isLastItemInSection) = changeType
-            {
-                if isLastItemInSection {
-                    emptySections.append(indexPath.section)
-                }
-                indexPathsToRemove.append(indexPath)
-            }
-        }
-        
-        if !indexPathsToRemove.isEmpty
-        {
-            self.rootView.tableView.deleteRows(at: indexPathsToRemove,
-                                               with: .fade)
-        }
-        
-        if !emptySections.isEmpty
-        {
-            self.rootView.tableView.deleteSections(IndexSet(emptySections),
-                                                   with: .fade)
+
+        if !emptySections.isEmpty {
+            rootView.tableView.deleteSections(IndexSet(emptySections), with: .fade)
         }
     }
 }
