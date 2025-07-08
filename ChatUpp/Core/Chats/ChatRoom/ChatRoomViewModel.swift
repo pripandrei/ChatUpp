@@ -190,7 +190,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
               let limit = conversation?.conversationMessages.count else {return}
         //TODO: - remove test start message and limit
         guard let startTestMessage = messageClusters.first?.items.first?.message else {return}
-        let testLimit = 50
+        let testLimit = 100
         
         // Attach listener to upcoming messages only if all unseen messages
         // (if any) have been fetched locally
@@ -800,7 +800,7 @@ extension ChatRoomViewModel
     private func handleAddedMessage(_ message: Message) async
     {
         guard realmService?.retrieveMessageFromRealm(message) == nil else { return }
-        
+        print("not in realm so we should add added message: ", message.id)
         realmService?.addMessageToRealmChat(message)
         if message.imagePath != nil {
             await downloadImageData(from: message)
@@ -819,7 +819,9 @@ extension ChatRoomViewModel
         // dont create messageGroup with this new message
 
         createMessageClustersWith([message], ascending: true)
-        messageChangedTypes.append(.added)
+//        if let indexPath = indexPath(of: message) {
+            messageChangedTypes.append(.added(message: message))
+//        }
     }
     
     func handleModifiedMessage(_ message: Message)
@@ -851,13 +853,14 @@ extension ChatRoomViewModel
         messageChangedTypes.append(.removed(indexPath))
     }
     
-    private func indexPath(of message: Message) -> IndexPath?
+    func indexPath(of message: Message) -> IndexPath?
     {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
-        for (groupIndex, group) in messageClusters.enumerated() {
-            if group.date == date,
-               let messageIndex = group.items.firstIndex(where: { $0.message?.id == message.id }) {
+        for (groupIndex, group) in messageClusters.enumerated() where group.date == date
+        {
+            if let messageIndex = group.items.firstIndex(where: { $0.message?.id == message.id })
+            {
                 return IndexPath(row: messageIndex, section: groupIndex)
             }
         }
@@ -875,7 +878,7 @@ extension ChatRoomViewModel
         guard let conversation = conversation else { return [] }
 
         var limit: Int = 35
-        if let strategy {
+        if strategy != nil {
             limit = 10
         }
         let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
@@ -895,20 +898,23 @@ extension ChatRoomViewModel
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
-                fetchDirection: .descending
+                fetchDirection: .descending,
+                limit: limit
             )
         case .hybrit(let startAtMessage):
             let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: true,
-                fetchDirection: .descending
+                fetchDirection: .descending,
+                limit: limit
             )
             let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: false,
-                fetchDirection: .ascending
+                fetchDirection: .ascending,
+                limit: limit
             )
             return descendingMessages + ascendingMessages
         default: return []
@@ -1020,9 +1026,9 @@ extension ChatRoomViewModel
         self.messageClusters = tempMessageClusters
     }
 
-    @MainActor
+    
     private func prepareMessageClustersUpdate(withMessages messages: [Message],
-                                              inAscendingOrder: Bool) async throws -> ([IndexPath], IndexSet?)
+                                              inAscendingOrder: Bool) -> ([IndexPath], IndexSet?)
     {
         let messageClustersBeforeUpdate = messageClusters
         let startSectionCount = inAscendingOrder ? 0 : messageClusters.count
@@ -1032,6 +1038,7 @@ extension ChatRoomViewModel
         let endSectionCount = inAscendingOrder ? (messageClusters.count - messageClustersBeforeUpdate.count) : messageClusters.count
         
         let newRows = findNewRowIndexPaths(inMessageClusters: messageClustersBeforeUpdate, ascending: inAscendingOrder)
+
         let newSections = findNewSectionIndexSet(startSectionCount: startSectionCount, endSectionCount: endSectionCount)
         
         return (newRows, newSections)
@@ -1050,8 +1057,6 @@ extension ChatRoomViewModel
             try await syncGroupUsers(for: newMessages)
         }
         
-        let (newRows, newSections) = try await prepareMessageClustersUpdate(withMessages: newMessages, inAscendingOrder: order)
-        
         if conversation?.realm != nil
         {
 //            let timestamp = newMessages.first!.timestamp
@@ -1061,24 +1066,25 @@ extension ChatRoomViewModel
                 startAtMesssageWithID: startMessage.id,
                 ascending: order)
         }
+        print("All additional fetched messages: ", "\n ", newMessages)
+        let (newRows, newSections) = prepareMessageClustersUpdate(withMessages: newMessages, inAscendingOrder: order)
         
         return (newRows, newSections)
     }
     
     private func findNewRowIndexPaths(inMessageClusters messageClusters: [MessageCluster],
-                                      ascending: Bool) -> [IndexPath]
-    {
-        guard let sectionBeforeUpdate = ascending ?
-                messageClusters.first?.items : messageClusters.last?.items else {return []}
-        
+                                      ascending: Bool) -> [IndexPath] {
         let sectionIndex = ascending ? 0 : messageClusters.count - 1
+        guard let sectionBeforeUpdate = ascending
+                ? messageClusters.first?.items
+                : messageClusters.last?.items else { return [] }
+
+        let existingMessages = Set(sectionBeforeUpdate.map { $0.message })
         
         return self.messageClusters[sectionIndex].items
             .enumerated()
             .compactMap { index, viewModel in
-                return sectionBeforeUpdate.contains { $0.message == viewModel.message }
-                ? nil
-                : IndexPath(row: index, section: sectionIndex)
+                existingMessages.contains(viewModel.message) ? nil : IndexPath(row: index, section: sectionIndex)
             }
     }
     

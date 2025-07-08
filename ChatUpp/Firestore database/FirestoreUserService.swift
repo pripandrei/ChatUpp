@@ -205,7 +205,7 @@ extension FirestoreUserService {
 
 struct ObjectsFetchingLimit
 {
-    static let messages: Int = 30
+    static let messages: Int = 10
     static let users: Int = 100
     static let chats: Int = 100
 }

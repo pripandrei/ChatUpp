@@ -20,50 +20,50 @@ import SkeletonView
 //MARK: - SCROLL VIEW DELEGATE
 extension ChatRoomViewController: UIScrollViewDelegate
 {
-    func scrollViewDidScroll(_ scrollView: UIScrollView)
-    {
-//        if let cell = rootView.tableView.cellForRow(at: IndexPath(row: 0, section: 0))
+//    func scrollViewDidScroll(_ scrollView: UIScrollView)
+//    {
+////        if let cell = rootView.tableView.cellForRow(at: IndexPath(row: 0, section: 0))
+////        {
+////            let isSeen = checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
+////            print("first cell is currently visible: \(isSeen)")
+////        }
+//        
+//        let now = Date()
+//        
+////        if let shouldIgnoreUnseenMessagesUpdateForTimePeriod
+////        {
+////            if now.timeIntervalSince(shouldIgnoreUnseenMessagesUpdateForTimePeriod) > 1.5
+////            {
+////                self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = nil
+////                self.pendingCellPathsForSeenStatusCheck.removeAll()
+////            }
+////            return
+////        }
+////        
+//        if shouldIgnoreUnseenMessagesUpdate
 //        {
-//            let isSeen = checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
-//            print("first cell is currently visible: \(isSeen)")
-//        }
-        
-        let now = Date()
-        
-//        if let shouldIgnoreUnseenMessagesUpdateForTimePeriod
-//        {
-//            if now.timeIntervalSince(shouldIgnoreUnseenMessagesUpdateForTimePeriod) > 1.5
-//            {
-//                self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = nil
-//                self.pendingCellPathsForSeenStatusCheck.removeAll()
-//            }
+//            shouldIgnoreUnseenMessagesUpdate = false
+//            self.pendingCellPathsForSeenStatusCheck.removeAll()
 //            return
 //        }
+//    
+//        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
+//        {
+//            self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
+//        }
 //        
-        if shouldIgnoreUnseenMessagesUpdate
-        {
-            shouldIgnoreUnseenMessagesUpdate = false
-            self.pendingCellPathsForSeenStatusCheck.removeAll()
-            return
-        }
-    
-        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
-        {
-            self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
-        }
-        
-        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 1.0
-        {
-            self.lastSeenStatusCheckUpdate = now
-            
-            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
-        }
-        
-        isLastCellFullyVisible ?
-        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
-        :
-        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-    }
+//        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 1.0
+//        {
+//            self.lastSeenStatusCheckUpdate = now
+//            
+//            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
+//        }
+//        
+//        isLastCellFullyVisible ?
+//        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
+//        :
+//        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+//    }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         toggleSectionHeaderVisibility(isScrollActive: true)
@@ -128,6 +128,17 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
+        
+        Task {
+            let authUserID = AuthenticationManager.shared.authenticatedUser?.uid ?? ""
+            guard let senderID = viewModel.conversation?.participants
+                .first(where: { $0.userID != authUserID })?.userID else {return}
+            let unreadCount = try await FirebaseChatService.shared.getUnreadMessagesCountTest(
+                from: viewModel.conversation!.id,
+                whereMessageSenderID: senderID
+            )
+            print("Unseen messages count: ",unreadCount)
+        }
     }
 
     private func scrollToCell(at indexPath: IndexPath)
@@ -238,61 +249,61 @@ final class ChatRoomViewController: UIViewController
     
     private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
     {
+        var addedMessages: [Message] = []
         var removedIndexPaths: [IndexPath] = []
         var modifiedIndexPaths: [(IndexPath, UITableView.RowAnimation)] = []
-
+        //        var addedIndexPaths: [IndexPath] = []
+        //        var addedIndexPathsCount = 0
+        
         for change in changes {
             switch change {
-            case .added:
-                handleTableViewCellInsertion(scrollToBottom: false)
+            case .added(let message):
+                addedMessages.append(message)
+                //                handleTableViewCellInsertion(scrollToBottom: false)
             case .removed(let indexPath):
                 removedIndexPaths.append(indexPath)
             case .modified(let indexPath, let valueModification):
                 modifiedIndexPaths.append((indexPath, valueModification.animationType))
             }
         }
-
-        guard let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows else { return }
-        let visibleSet = Set(visibleIndexPaths)
-
-        let visibleModifications = modifiedIndexPaths.filter { visibleSet.contains($0.0) }
-        let visibleRemovals = removedIndexPaths.filter { visibleSet.contains($0) }
         
-        if !visibleModifications.isEmpty || !visibleRemovals.isEmpty
+        //        guard let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows else { return }
+        //        let visibleSet = Set(visibleIndexPaths)
+        //
+        //        let visibleModifications = modifiedIndexPaths.filter { visibleSet.contains($0.0) }
+        //        let visibleRemovals = removedIndexPaths.filter { visibleSet.contains($0) }
+        
+        
+        
+        //        if !visibleModifications.isEmpty || !visibleRemovals.isEmpty || addedIndexPathsCount > 0
+        //        if !removedIndexPaths.isEmpty ||
+        //        {
+        rootView.tableView.performBatchUpdates
         {
-            rootView.tableView.performBatchUpdates
+            if !removedIndexPaths.isEmpty
             {
-                if !visibleRemovals.isEmpty
-                {
-                    self.removeTableViewCells(at: removedIndexPaths)
+                self.removeTableViewCells(at: removedIndexPaths)
+            }
+            
+            if !addedMessages.isEmpty
+            {
+                var messagesIndexPath: [IndexPath] = []
+                for message in addedMessages {
+                    guard let indexPath = self.viewModel.indexPath(of: message) else {continue}
+                    messagesIndexPath.append(indexPath)
                 }
-                
-                for (indexPath, animation) in modifiedIndexPaths
+                self.rootView.tableView.insertRows(at: messagesIndexPath, with: .fade)
+            }
+            
+            for (indexPath, animation) in modifiedIndexPaths
+            {
+                // Prevent reloading rows that were deleted
+                if !removedIndexPaths.contains(indexPath)
                 {
-                    // Prevent reloading rows that were deleted
-                    if !removedIndexPaths.contains(indexPath)
-                    {
-                        self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
-                    }
+                    self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
                 }
             }
         }
-//        
-//        
-//        if !modifiedIndexPaths.isEmpty, hasVisibleOverlap(with: modifiedIndexPaths) {
-//            rootView.tableView.performBatchUpdates {
-//                rootView.tableView.reloadRows(
-//                    at: modifiedIndexPaths,
-//                    with: modifiedAnimations.first ?? .none
-//                )
-//            }
-//        }
-//
-//        if !removedIndexPaths.isEmpty, hasVisibleOverlap(with: removedIndexPaths) {
-//            rootView.tableView.performBatchUpdates {
-//                self.removeTableViewCells(at: removedIndexPaths)
-//            }
-//        }
     }
     
     
@@ -494,11 +505,9 @@ extension ChatRoomViewController {
     
     private func createMessageBubble()
     {
-//        Task { @MainActor in
         DispatchQueue.main.async {
             self.handleTableViewCellInsertion(scrollToBottom: true)
         }
-//        }
     }
     
     private func handleTableViewCellInsertion(
@@ -508,17 +517,17 @@ extension ChatRoomViewController {
         let isNewSectionAdded = checkIfNewSectionWasAdded()
         let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
         
-        if visibleIndexPaths?.isEmpty == true || visibleIndexPaths?.contains(indexPath) == true
-        {
-            guard let firstSectionMessageCount = viewModel.messageClusters.first?.items.count else {return}
-            
-            if rootView.tableView.numberOfRows(inSection: 0) < firstSectionMessageCount
-            {
-                handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-                animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                             withNewSectionAdded: isNewSectionAdded)
-            }
-        }
+//        if visibleIndexPaths?.isEmpty == true || visibleIndexPaths?.contains(indexPath) == true
+//        {
+//            guard let firstSectionMessageCount = viewModel.messageClusters.first?.items.count else {return}
+//            
+//            if rootView.tableView.numberOfRows(inSection: 0) < firstSectionMessageCount
+        //            {
+        handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
+        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                     withNewSectionAdded: isNewSectionAdded)
+//            }
+//        }
         
         if scrollToBottom
         {
@@ -533,7 +542,8 @@ extension ChatRoomViewController {
         }
     }
     
-    private func handleRowAndSectionInsertion(with indexPath: IndexPath, scrollToBottom: Bool)
+    private func handleRowAndSectionInsertion(with indexPath: IndexPath,
+                                              scrollToBottom: Bool)
     {
         // - See Footnote.swift [1]
         UIView.performWithoutAnimation {
@@ -614,12 +624,12 @@ extension ChatRoomViewController
 //            guard let status = getCellVisibilityStatus(at: indexPath),
 //                  [.visible, .offScreen].contains(status) else { continue }
             
-            guard let status = getCellVisibilityStatus(at: indexPath) else { continue }
-            
-            if status == .underInputBar {
-                self.pendingCellPathsForSeenStatusCheck.formUnion([indexPath])
-                continue
-            }
+//            guard let status = getCellVisibilityStatus(at: indexPath) else { continue }
+//            
+//            if status == .underInputBar {
+//                self.pendingCellPathsForSeenStatusCheck.formUnion([indexPath])
+//                continue
+//            }
             
             guard indexPath.row < rootView.tableView.numberOfRows(inSection: indexPath.section),
                   !checkIfMessageWasSeen(at: indexPath)
@@ -644,21 +654,11 @@ extension ChatRoomViewController
                   let message = cellViewModel.message
             else { continue }
             
-            if message.messageBody == "Wq" || message.messageBody == "iPhone 12 Pro Max"
-            {
-                print("stop")
-            }
-            
             if message.realm == nil {
                 print("opaa not realm message")
                 print(message.messageBody," ", message.id)
             }
             unseenMessageIDs.append(message.id)
-        }
-        
-        
-        if unseenMessageIDs.count < 0 {
-            print("EGEGEI")
         }
         
         if unseenMessageIDs.count > 0 {
@@ -990,13 +990,14 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)
     {
+        print("entered additional update block")
         didFinishInitialScroll = false
         
         Task { @MainActor [weak self] in
             guard let self = self else {return}
             do {
                 /// See Footnote.swift [3]
-                try await Task.sleep(for: .seconds(1.5))
+                try await Task.sleep(for: .seconds(1.2))
                 
                 if let (newRows, newSections) = try await self.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
                 {
@@ -1005,6 +1006,7 @@ extension ChatRoomViewController: UITableViewDelegate
                     // if all unseen messages are fetched, attach listener to upcoming
                     if order == true && self.viewModel.shouldAttachListenerToUpcomingMessages
                     {
+                        print("added listener to upcomming messages")
                         self.viewModel.messageListenerService?.addListenerToUpcomingMessages()
                     }
                 }
@@ -1012,6 +1014,7 @@ extension ChatRoomViewController: UITableViewDelegate
                 print("Could not update conversation with additional messages: \(error)")
             }
             self.didFinishInitialScroll = true
+            print("didFinishInitialScroll")
         }
     }
     

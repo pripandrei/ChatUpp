@@ -24,7 +24,7 @@ enum MessageValueModification
 
 enum MessageChangeType {
     case modified(IndexPath, MessageValueModification)
-    case added
+    case added(message: Message)
     case removed(IndexPath)
 }
 
