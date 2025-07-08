@@ -819,9 +819,7 @@ extension ChatRoomViewModel
         // dont create messageGroup with this new message
 
         createMessageClustersWith([message], ascending: true)
-//        if let indexPath = indexPath(of: message) {
-            messageChangedTypes.append(.added(message: message))
-//        }
+        messageChangedTypes.append(.added(message: message))
     }
     
     func handleModifiedMessage(_ message: Message)
@@ -839,9 +837,12 @@ extension ChatRoomViewModel
     {
         guard let indexPath = indexPath(of: message) else { return }
         
+        var isLastMessageInSection: Bool = false
+        
         messageClusters.removeClusterItem(at: indexPath)
         if messageClusters[indexPath.section].items.isEmpty {
             messageClusters.remove(at: indexPath.section)
+            isLastMessageInSection = true
         }
         
         realmService?.removeMessageFromRealm(message: message)
@@ -850,7 +851,8 @@ extension ChatRoomViewModel
         {
             firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
         }
-        messageChangedTypes.append(.removed(indexPath))
+        messageChangedTypes.append(.removed(indexPath,
+                                            isLastItemInSection: isLastMessageInSection))
     }
     
     func indexPath(of message: Message) -> IndexPath?

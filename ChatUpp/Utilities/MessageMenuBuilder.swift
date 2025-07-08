@@ -99,6 +99,7 @@ final class MessageMenuBuilder
             attributes: isOwner ? .destructive : .hidden
         ) { _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                // TODO: should also delete locally in case network is off
                 self.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
             }
         }
