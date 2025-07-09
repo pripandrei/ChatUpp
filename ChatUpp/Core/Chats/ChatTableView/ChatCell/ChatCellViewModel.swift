@@ -36,14 +36,25 @@ class ChatCellViewModel
         didSet {
             if oldValue != recentMessage
             {
-                recentMessagesCancellables.forEach { cancellable in
-                    cancellable.cancel()
-                }
-                self.observeRealmRecentMessage()
-                Task { try await addListernerToRecentMessage() }
+                self.addListenersToRecentMessage()
 //                if recentMessage?.imagePath != nil {
 //                    Task { await self.performMessageImageUpdate() }
 //                }
+            }
+        }
+    }
+                 
+    private func addListenersToRecentMessage()
+    {
+        recentMessagesCancellables.forEach { cancellable in
+            cancellable.cancel()
+        }
+        self.observeRealmRecentMessage()
+        Task {
+            do {
+                try await observeFirestoreRecentMessage()
+            } catch {
+                print("Error attaching listeners to recent message: \(error)")
             }
         }
     }
@@ -407,7 +418,7 @@ extension ChatCellViewModel
     
     /// message observer
     @MainActor
-    private func addListernerToRecentMessage() async throws
+    private func observeFirestoreRecentMessage() async throws
     {
         guard let recentMessageID = recentMessage?.id else {return}
         

@@ -108,6 +108,7 @@ final class ChatRoomViewController: UIViewController
     private var isContextMenuPresented: Bool = false
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScroll: Bool = false
+    private var didFinishInitialScrollToUnseenIndexPathIfAny: Bool = true
     
     private var isLastCellFullyVisible: Bool {
         checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
@@ -176,16 +177,24 @@ final class ChatRoomViewController: UIViewController
     
     private func refreshTableView() 
     {
+        let indexPath = self.viewModel.findFirstUnseenMessageIndex()
+        
+        if indexPath != nil {
+            self.didFinishInitialScrollToUnseenIndexPathIfAny = false
+            // Delay table view willDisplay cell functionality
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
+            }
+        }
+        
         self.toggleSkeletonAnimation(.terminated)
         self.rootView.tableView.reloadData()
         self.view.layoutIfNeeded()
-//        let indexPathTest = IndexPath(row: 13, section: 3)
+
         if let indexPath = self.viewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPath)
         }
-//        self.didFinishInitialScroll = true
         viewModel.isMessageBatchingInProcess = false
-
     }
     
     override func viewDidLayoutSubviews() {
@@ -972,7 +981,8 @@ extension ChatRoomViewController: UITableViewDelegate
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) 
     {
         guard viewModel.messageClusters.count != 0,
-              viewModel.isMessageBatchingInProcess == false
+              viewModel.isMessageBatchingInProcess == false,
+              didFinishInitialScrollToUnseenIndexPathIfAny
         else {return}
         
         let lastSectionIndex = viewModel.messageClusters.count - 1
@@ -1018,6 +1028,7 @@ extension ChatRoomViewController: UITableViewDelegate
             }
 //            self.didFinishInitialScroll = true
             print("didFinishInitialScroll")
+            try await Task.sleep(for: .seconds(0.4))
             viewModel.isMessageBatchingInProcess = false
         }
     }

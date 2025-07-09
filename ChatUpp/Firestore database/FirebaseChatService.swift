@@ -468,6 +468,9 @@ extension FirebaseChatService
             .document(messageID)
             .getDocument()
         
+        guard document.exists else {
+            throw FirestoreErrorCode(.notFound)
+        }
         
         let listener = chatDocument(documentPath: chatID)
             .collection(FirestoreCollection.messages.rawValue)
