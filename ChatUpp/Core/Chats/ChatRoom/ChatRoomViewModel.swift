@@ -18,6 +18,37 @@ enum GroupMembershipStatus
     case pendingInvite
 }
 
+enum BufferedMessage {
+    case added(Message)
+    case modified(Message)
+    case removed(Message)
+}
+
+struct BufferedMessages
+{
+    var addedMessages: [Message]
+    var modifiedMessages: [Message]
+    var removedMessages: [Message]
+    
+    init(addedMessages: [Message], modifiedMessages: [Message], removedMessages: [Message]) {
+        self.addedMessages = addedMessages
+        self.modifiedMessages = modifiedMessages
+        self.removedMessages = removedMessages
+    }
+    
+    init() {
+        self.addedMessages = []
+        self.modifiedMessages = []
+        self.removedMessages = []
+    }
+    
+    mutating func removeAllBufferedMessages() {
+        addedMessages.removeAll()
+        modifiedMessages.removeAll()
+        removedMessages.removeAll()
+    }
+}
+
 class ChatRoomViewModel : SwiftUI.ObservableObject
 {
     private var setupConversationTask: Task<Void, Never>?
@@ -34,9 +65,20 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private(set) var authUser            : AuthenticatedUserData = (try! AuthenticationManager.shared.getAuthenticatedUser())
     private var cancellables             = Set<AnyCancellable>()
     
-    @Published private(set) var unseenMessagesCount              : Int
-    @Published private(set) var messageChangedTypes              : [MessageChangeType] = []
-    @Published private(set) var conversationInitializationStatus : ConversationInitializationStatus?
+    @Published private(set) var unseenMessagesCount: Int
+    @Published private(set) var messageChangedTypes: [MessageChangeType] = []
+    @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
+    
+//    private var bufferedMessages: BufferedMessages = BufferedMessages()
+    private var bufferedMessages: [BufferedMessage] = []
+    
+    var isMessageBatchingInProcess: Bool = false {
+        didSet {
+            if oldValue == true {
+                processBufferedMessages()
+            }
+        }
+    }
     
     var shouldEditMessage: ((String) -> Void)?
     var currentlyReplyToMessageID: String?
@@ -360,6 +402,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     private let unseenMessageUpdateQueue = DispatchQueue(label: "unseenMessageUpdateQueue")
+    
     
     /// - update messages components
     @MainActor
@@ -772,6 +815,34 @@ extension ChatRoomViewModel
     }
 }
 
+//MARK: - Buffer messages
+extension ChatRoomViewModel
+{
+    private func bufferMessage(messageType: DatabaseChangedObject<Message>)
+    {
+        switch messageType.changeType {
+        case .added: bufferedMessages.append(.added(messageType.data))
+        case .modified: bufferedMessages.append(.modified(messageType.data))
+        case .removed: bufferedMessages.append(.removed(messageType.data))
+        }
+        print("Buffered message: \(messageType.data.id)")
+    }
+    
+    private func processBufferedMessages()
+    {
+        guard !bufferedMessages.isEmpty else {return}
+        
+        for buffered in bufferedMessages {
+            switch buffered {
+            case .added(let msg): Task { await self.handleAddedMessage(msg) }
+            case .modified(let msg): self.handleModifiedMessage(msg)
+            case .removed(let msg): self.handleRemovedMessage(msg)
+            }
+        }
+        bufferedMessages.removeAll()
+        print("processed buffered messages !")
+    }
+}
 
 //MARK: - Message listener bindings
 extension ChatRoomViewModel
@@ -782,7 +853,14 @@ extension ChatRoomViewModel
             .receive(on: DispatchQueue.main)
             .sink { messageType in
                 let message = messageType.data
-
+                
+                if self.isMessageBatchingInProcess
+                {
+                    // Scheduale message updates after batching process finish
+                    self.bufferMessage(messageType: messageType)
+                    return
+                }
+                
                 switch messageType.changeType {
                 case .added: Task { await self.handleAddedMessage(message) }
                 case .modified: self.handleModifiedMessage(message)

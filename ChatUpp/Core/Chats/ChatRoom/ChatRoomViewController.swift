@@ -183,7 +183,8 @@ final class ChatRoomViewController: UIViewController
         if let indexPath = self.viewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPath)
         }
-        self.didFinishInitialScroll = true
+//        self.didFinishInitialScroll = true
+        viewModel.isMessageBatchingInProcess = false
 
     }
     
@@ -971,7 +972,7 @@ extension ChatRoomViewController: UITableViewDelegate
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) 
     {
         guard viewModel.messageClusters.count != 0,
-              didFinishInitialScroll == true
+              viewModel.isMessageBatchingInProcess == false
         else {return}
         
         let lastSectionIndex = viewModel.messageClusters.count - 1
@@ -992,7 +993,8 @@ extension ChatRoomViewController: UITableViewDelegate
     private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)
     {
         print("entered additional update block")
-        didFinishInitialScroll = false
+//        didFinishInitialScroll = false
+        viewModel.isMessageBatchingInProcess = true
         
         Task { @MainActor [weak self] in
             guard let self = self else {return}
@@ -1014,7 +1016,8 @@ extension ChatRoomViewController: UITableViewDelegate
             } catch {
                 print("Could not update conversation with additional messages: \(error)")
             }
-            self.didFinishInitialScroll = true
+//            self.didFinishInitialScroll = true
+            viewModel.isMessageBatchingInProcess
             print("didFinishInitialScroll")
         }
     }
