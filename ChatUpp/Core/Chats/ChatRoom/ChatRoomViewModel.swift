@@ -924,7 +924,7 @@ extension ChatRoomViewModel
         }
         
         realmService?.removeMessageFromRealm(message: message)
-        
+         
         if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
         {
             firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)

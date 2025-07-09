@@ -440,6 +440,10 @@ extension FirebaseChatService
             .document(messageID)
             .getDocument()
         
+        guard document.exists else {
+            throw FirestoreErrorCode(.notFound)
+        }
+        
         return chatDocument(documentPath: chatID)
             .collection(FirestoreCollection.messages.rawValue)
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)

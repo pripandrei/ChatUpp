@@ -103,4 +103,12 @@ final class ConversationRealmService
         guard let realmMessage = retrieveMessageFromRealm(message) else {return}
         RealmDataBase.shared.delete(object: realmMessage)
     }
+    
+    func updateRecentMessageFromRealmChat(withID messageID: String)
+    {
+        guard let chat = conversation else {return}
+        RealmDataBase.shared.update(object: chat) { dbChat in
+            dbChat.recentMessageID = messageID
+        }
+    }
 }
