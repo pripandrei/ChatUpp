@@ -1106,32 +1106,10 @@ extension ChatRoomViewModel
         }
         self.messageClusters = tempMessageClusters
     }
-
     
-//    private func prepareMessageClustersUpdate(withMessages messages: [Message],
-//                                              inAscendingOrder: Bool) -> ([IndexPath], IndexSet?)
-//    {
-//        let messageClustersBeforeUpdate = messageClusters
-//        let startSectionCount = inAscendingOrder ? 0 : messageClusters.count
-//        
-//        createMessageClustersWith(messages, ascending: inAscendingOrder)
-//        
-//        let endSectionCount = inAscendingOrder ? (messageClusters.count - messageClustersBeforeUpdate.count) : messageClusters.count
-//        
-//        let newRows = findNewRowIndexPaths(inMessageClusters: messageClustersBeforeUpdate, ascending: inAscendingOrder)
-//
-//        let newSections = findNewSectionIndexSet(startSectionCount: startSectionCount, endSectionCount: endSectionCount)
-//        
-//        return (newRows, newSections)
-//    }
-    
-    private func prepareMessageClustersUpdate(withMessages messages: [Message],
-                                              inAscendingOrder: Bool) -> ([IndexPath], IndexSet?)
+    private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)
     {
-        let oldClusters = messageClusters
-        let oldDates = Set(oldClusters.map { $0.date })
-        
-        createMessageClustersWith(messages, ascending: inAscendingOrder)
+        let oldDates = Set(clusterSnapshot.map { $0.date })
         
         var newIndexPaths: [IndexPath] = []
         var newSections = IndexSet()
@@ -1145,7 +1123,7 @@ extension ChatRoomViewModel
             }
             
             // Match existing section by date
-            guard let oldSection = oldClusters.first(where: { $0.date == updatedCluster.date }) else { continue }
+            guard let oldSection = clusterSnapshot.first(where: { $0.date == updatedCluster.date }) else { continue }
             let oldMessagesSet = Set(oldSection.items.compactMap { $0.message })
 
             for (rowIndex, item) in updatedCluster.items.enumerated() {
@@ -1164,7 +1142,6 @@ extension ChatRoomViewModel
         guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
         
         let newMessages = try await fetchConversationMessages(using: strategy)
-//        let newMessages = try await loadAdditionalMessages(inAscendingOrder: order)
         guard !newMessages.isEmpty else { return nil }
 
         if conversation?.isGroup == true {
@@ -1173,7 +1150,6 @@ extension ChatRoomViewModel
         
         if conversation?.realm != nil
         {
-//            let timestamp = newMessages.first!.timestamp
             let startMessage = newMessages.first!
             realmService?.addMessagesToConversationInRealm(newMessages)
             messageListenerService?.addListenerToExistingMessages(
@@ -1181,31 +1157,10 @@ extension ChatRoomViewModel
                 ascending: order)
         }
         print("All additional fetched messages: ", "\n ", newMessages)
-        let (newRows, newSections) = prepareMessageClustersUpdate(withMessages: newMessages, inAscendingOrder: order)
+        let clusterSnapshot = messageClusters
+        createMessageClustersWith(newMessages, ascending: order)
+        let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
         
         return (newRows, newSections)
     }
-    
-//    private func findNewRowIndexPaths(inMessageClusters messageClusters: [MessageCluster],
-//                                      ascending: Bool) -> [IndexPath] {
-//        let sectionIndex = ascending ? 0 : messageClusters.count - 1
-//        guard let sectionBeforeUpdate = ascending
-//                ? messageClusters.first?.items
-//                : messageClusters.last?.items else { return [] }
-//
-//        let existingMessages = Set(sectionBeforeUpdate.map { $0.message })
-//        
-//        return self.messageClusters[sectionIndex].items
-//            .enumerated()
-//            .compactMap { index, viewModel in
-//                existingMessages.contains(viewModel.message) ? nil : IndexPath(row: index, section: sectionIndex)
-//            }
-//    }
-//    
-//    private func findNewSectionIndexSet(startSectionCount: Int, endSectionCount: Int) -> IndexSet? 
-//    {
-//        return (startSectionCount < endSectionCount)
-//        ? IndexSet(integersIn: startSectionCount..<endSectionCount)
-//        : nil
-//    }
 }
