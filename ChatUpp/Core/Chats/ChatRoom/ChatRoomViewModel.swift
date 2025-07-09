@@ -74,7 +74,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     var isMessageBatchingInProcess: Bool = false {
         didSet {
-            if oldValue == true {
+            if oldValue == true && isMessageBatchingInProcess == false {
                 processBufferedMessages()
             }
         }

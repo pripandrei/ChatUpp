@@ -240,7 +240,7 @@ final class ChatRoomViewController: UIViewController
             }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.lineNumberModificationSubject
-            .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
+            .debounce(for: .seconds(0.1), scheduler: DispatchQueue.main)
             .sink { [weak self] updatedLinesNumber, currentLinesNumber in
                 self?.adjustTableViewContent(withUpdatedNumberOfLines: updatedLinesNumber,
                                              currentNumberOfLines: currentLinesNumber)
@@ -1017,8 +1017,8 @@ extension ChatRoomViewController: UITableViewDelegate
                 print("Could not update conversation with additional messages: \(error)")
             }
 //            self.didFinishInitialScroll = true
-            viewModel.isMessageBatchingInProcess
             print("didFinishInitialScroll")
+            viewModel.isMessageBatchingInProcess = false
         }
     }
     

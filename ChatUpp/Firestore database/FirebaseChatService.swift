@@ -118,7 +118,8 @@ extension FirebaseChatService
         try getMessageDocument(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
     }
     func removeMessage(messageID: String, conversationID: String) async throws {
-        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: conversationID).delete()
+        try await getMessageDocument(messagePath: messageID,
+                                     fromChatDocumentPath: conversationID).delete()
     }
 }
 

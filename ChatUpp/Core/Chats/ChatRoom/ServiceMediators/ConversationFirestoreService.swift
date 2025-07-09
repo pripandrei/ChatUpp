@@ -63,12 +63,57 @@ final class ConversationFirestoreService
         }
     }
     
-    func deleteMessageFromFirestore(messageID: String) {
-        Task { @MainActor in
+    @MainActor
+    func deleteMessageFromFirestore(messageID: String)
+    {
+        guard let conversationID = conversation?.id else {return}
+        Task {
             do {
-                try await FirebaseChatService.shared.removeMessage(messageID: messageID, conversationID: conversation!.id)
+                try await FirebaseChatService
+                    .shared
+                    .removeMessage(messageID: messageID,
+                                   conversationID: conversationID)
             } catch {
                 print("Error deleting message: ",error.localizedDescription)
+            }
+        }
+    }
+    
+    func handleCounterUpdateOnMessageDeletionIfNeeded(_ deletedMessage: Message)
+    {
+        guard let chat = conversation,
+              let authUserID = authenticatedUserID else { return }
+        
+        let seenBy = deletedMessage.seenBy
+        
+        if chat.isGroup, seenBy.count > 1
+        {
+            let notSeenUserIDs: [String] = chat.participants
+                .map(\.userID)
+                .filter { $0 != authUserID && !seenBy.contains($0) }
+
+            if !notSeenUserIDs.isEmpty {
+                updateUnseenMessageCounterOnMessageDeletion(for: notSeenUserIDs)
+            }
+        } else if deletedMessage.messageSeen == false
+        {
+            guard let memberID = chat.participants.first(where: { $0.userID != authUserID })?.userID else {return}
+            updateUnseenMessageCounterOnMessageDeletion(for: [memberID])
+        }
+    }
+    
+    func updateUnseenMessageCounterOnMessageDeletion(for participantsID: [String])
+    {
+        guard let conversationID = conversation?.id else {return}
+        Task {
+            do {
+                try await FirebaseChatService
+                    .shared
+                    .updateUnreadMessageCount(for: participantsID,
+                                              inChatWithID: conversationID,
+                                              increment: false)
+            } catch {
+                print("Error updating unseen message counter:  ",error.localizedDescription)
             }
         }
     }
