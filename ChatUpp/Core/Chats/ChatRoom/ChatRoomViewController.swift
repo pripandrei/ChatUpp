@@ -288,7 +288,7 @@ final class ChatRoomViewController: UIViewController
             .filter { !removedIndexPaths.contains($0.indexPath) }
         
         /// Group modifications by animation type (for clarity and batch efficiency)
-        ///
+        /// TODO:- Fix number of sections
         let groupModifications = Dictionary(grouping: safeModifications,
                                             by: { $0.animation })
         

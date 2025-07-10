@@ -72,18 +72,18 @@ final class ConversationMessageListenerService
     // TODO:
     // Refactore code to fit version of function above
     // and remove this function
-    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = ObjectsFetchingLimit.messages)
-    {
-        guard let conversationID = conversation?.id else { return }
-        
-        let listener = FirebaseChatService.shared.addListenerForExistingMessages(
-            inChat: conversationID,
-            startAtTimestamp: startAtTimestamp,
-            ascending: ascending,
-            limit: limit) { [weak self] messageUpdate in
-                guard let self = self else {return}
-                self.updatedMessage.send(messageUpdate)
-            }
-        listeners.append(listener)
-    }
+//    func addListenerToExistingMessages(startAtTimestamp: Date, ascending: Bool, limit: Int = ObjectsFetchingLimit.messages)
+//    {
+//        guard let conversationID = conversation?.id else { return }
+//        
+//        let listener = FirebaseChatService.shared.addListenerForExistingMessages(
+//            inChat: conversationID,
+//            startAtTimestamp: startAtTimestamp,
+//            ascending: ascending,
+//            limit: limit) { [weak self] messageUpdate in
+//                guard let self = self else {return}
+//                self.updatedMessage.send(messageUpdate)
+//            }
+//        listeners.append(listener)
+//    }
 }

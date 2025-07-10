@@ -391,14 +391,19 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private func setupMessageListenerOnChatCreation()
     {
-        guard let timestamp = conversation?.getLastMessage()?.timestamp,
+        guard let messageID = conversation?.getLastMessage()?.id,
               let limit = conversation?.conversationMessages.count else { return }
         
+//        messageListenerService?.addListenerToExistingMessages(
+//            startAtTimestamp: timestamp,
+//            ascending: true,
+//            limit: limit
+//        )
+        
         messageListenerService?.addListenerToExistingMessages(
-            startAtTimestamp: timestamp,
+            startAtMesssageWithID:messageID,
             ascending: true,
-            limit: limit
-        )
+            limit: limit)
     }
     
     private let unseenMessageUpdateQueue = DispatchQueue(label: "unseenMessageUpdateQueue")
@@ -935,7 +940,7 @@ extension ChatRoomViewModel
     
     func indexPath(of message: Message) -> IndexPath?
     {
-        guard message.realm != nil else { print("message was invalidated/removed !!!!"); return nil}
+//        guard message.realm != nil else { print("message was invalidated/removed !!!!"); return nil}
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
         for (groupIndex, group) in messageClusters.enumerated() where group.date == date

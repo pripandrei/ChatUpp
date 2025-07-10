@@ -503,28 +503,28 @@ extension FirebaseChatService
     // TODO:
     // Refactore code to fit async version of function above
     // and remove this function
-    func addListenerForExistingMessages(inChat chatID: String,
-                                        startAtTimestamp startTimestamp: Date,
-                                        ascending: Bool,
-                                        limit: Int,
-                                        onMessageUpdated: @escaping (DatabaseChangedObject<Message>) -> Void) -> Listener
-    {
-        
-        return chatDocument(documentPath: chatID)
-            .collection(FirestoreCollection.messages.rawValue)
-            .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
-            .start(at: [startTimestamp])
-            .limit(to: limit)
-            .addSnapshotListener { snapshot, error in
-                guard error == nil else { print(error!.localizedDescription); return }
-                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
-                
-                for document in documents {
-                    guard let message = try? document.document.data(as: Message.self) else { continue }
-                    onMessageUpdated(DatabaseChangedObject(data: message, changeType: document.type))
-                }
-            }
-    }
+//    func addListenerForExistingMessages(inChat chatID: String,
+//                                        startAtTimestamp startTimestamp: Date,
+//                                        ascending: Bool,
+//                                        limit: Int,
+//                                        onMessageUpdated: @escaping (DatabaseChangedObject<Message>) -> Void) -> Listener
+//    {
+//        
+//        return chatDocument(documentPath: chatID)
+//            .collection(FirestoreCollection.messages.rawValue)
+//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
+//            .start(at: [startTimestamp])
+//            .limit(to: limit)
+//            .addSnapshotListener { snapshot, error in
+//                guard error == nil else { print(error!.localizedDescription); return }
+//                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
+//                
+//                for document in documents {
+//                    guard let message = try? document.document.data(as: Message.self) else { continue }
+//                    onMessageUpdated(DatabaseChangedObject(data: message, changeType: document.type))
+//                }
+//            }
+//    }
 }
 
 //MARK: - Pagination fetch

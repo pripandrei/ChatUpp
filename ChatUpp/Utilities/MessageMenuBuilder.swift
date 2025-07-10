@@ -98,16 +98,10 @@ final class MessageMenuBuilder
             image: UIImage(systemName: "trash"),
             attributes: isOwner ? .destructive : .hidden
         ) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
-                guard let self = self else { return }
-
-                self.viewModel.realmService?.removeMessageFromRealm(message: message)
-                
-                let lastMessageID = self.viewModel.conversation?.getLastMessage()?.id ?? ""
-                
-                self.viewModel.realmService?.updateRecentMessageFromRealmChat(withID: lastMessageID)
-                self.viewModel.firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
-                
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                // TODO: should also delete locally in case network is off
+//                let freezedMessage = message.freeze()
+//                self.viewModel.realmService?.removeMessageFromRealm(message: message)
                 self.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
                 self.viewModel.firestoreService?.handleCounterUpdateOnMessageDeletionIfNeeded(message)
             }
@@ -124,3 +118,16 @@ final class MessageMenuBuilder
         }
     }
 }
+
+
+
+//let freezedMessage = message.freeze()
+//self.viewModel.realmService?.removeMessageFromRealm(message: message)
+//
+//let lastMessageID = self.viewModel.conversation?.getLastMessage()?.id ?? ""
+//
+//self.viewModel.realmService?.updateRecentMessageFromRealmChat(withID: lastMessageID)
+//self.viewModel.firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
+//
+//self.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: freezedMessage.id)
+//self.viewModel.firestoreService?.handleCounterUpdateOnMessageDeletionIfNeeded(freezedMessage)
