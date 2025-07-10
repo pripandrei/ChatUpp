@@ -347,6 +347,7 @@ extension FirebaseChatService
         
         let chat = try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
         
+        //TODO: remove after test
         if let participant = chat.participants.first(where: { $0.userID == participantsID.first })
         {
             if participant.unseenMessagesCount <= 0 {
