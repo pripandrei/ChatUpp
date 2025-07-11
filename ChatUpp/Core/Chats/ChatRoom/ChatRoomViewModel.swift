@@ -232,7 +232,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
               let limit = conversation?.conversationMessages.count else {return}
         //TODO: - remove test start message and limit
         guard let startTestMessage = messageClusters.first?.items.first?.message else {return}
-        let testLimit = 100
+        let testLimit = 70
 //        let testLimit = 35
         
         // Attach listener to upcoming messages only if all unseen messages
@@ -241,7 +241,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         {
             messageListenerService?.addListenerToUpcomingMessages()
         }
-        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
+//        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
+        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
     }
     
     func removeAllListeners()
@@ -833,14 +834,14 @@ extension ChatRoomViewModel
     {
         guard !bufferedMessages.isEmpty else {return}
         
-        for buffered in bufferedMessages {
-            switch buffered {
-            case .added(let msg): Task { await self.handleAddedMessage(msg) }
-            case .modified(let msg): self.handleModifiedMessage(msg)
-            case .removed(let msg): self.handleRemovedMessage(msg)
-            }
-        }
-        bufferedMessages.removeAll()
+//        for buffered in bufferedMessages {
+//            switch buffered {
+//            case .added(let msg): Task { await self.handleAddedMessage(msg) }
+//            case .modified(let msg): self.handleModifiedMessage(msg)
+//            case .removed(let msg): self.handleRemovedMessage(msg)
+//            }
+//        }
+//        bufferedMessages.removeAll()
         print("processed buffered messages !")
     }
 }
@@ -850,23 +851,52 @@ extension ChatRoomViewModel
 {
     private func bindToMessages()
     {
-        messageListenerService?.updatedMessage
-            .receive(on: DispatchQueue.main)
-            .sink { messageType in
-                let message = messageType.data
+        messageListenerService?.$updatedMessages
+            .debounce(for: .seconds(0.4), scheduler: DispatchQueue.main)
+            .filter { !$0.isEmpty }
+            .sink { messagesTypes in
+                print("entered binding Update messages block ")
+                // make coppy of messageCluster and extract indexes from it
+                var removedMessages: [Message] = []
+                var modifiedMessages: [Message] = []
+                //ignore added Messages for now
+                var addedMessages: [Message] = []
                 
-                if self.isMessageBatchingInProcess
+                for messageType in messagesTypes
                 {
-                    // Scheduale message updates after batching process finish
-                    self.bufferMessage(messageType: messageType)
-                    return
+                    switch messageType.changeType {
+                    case .removed: removedMessages.append(messageType.data)
+                    case .modified: modifiedMessages.append(messageType.data)
+                    case .added: addedMessages.append(messageType.data)
+                    }
                 }
                 
-                switch messageType.changeType {
-                case .added: Task { await self.handleAddedMessage(message) }
-                case .modified: self.handleModifiedMessage(message)
-                case .removed: self.handleRemovedMessage(message)
+                /// sort modified messages that are not present in removed messages
+                let removedIDs = Set(removedMessages.map { $0.id })
+                modifiedMessages = modifiedMessages.filter { !removedIDs.contains($0.id) }
+
+                /// get and sort indexPaths in descending order ,
+                /// to avoid index shift on removal
+                let removedIndexPaths = removedMessages
+                    .compactMap { self.indexPath(of: $0) }
+                    .sorted(by: >)
+                
+                let removedTypes = removedIndexPaths
+                    .compactMap { self.handleRemovedMessage(at: $0) }
+                
+                let modifiedTuples: [(message: Message, indexPath: IndexPath)] = modifiedMessages.compactMap { message in
+                    guard let indexPath = self.indexPath(of: message) else { return nil }
+                    return (message, indexPath)
                 }
+                
+                let modifiedTypes: [MessageChangeType] = modifiedTuples.compactMap { tuple in
+                    self.handleModifiedMessage(tuple.message, at: tuple.indexPath)
+                }
+                
+                let allChanges: [MessageChangeType] = removedTypes + modifiedTypes
+                self.messageChangedTypes = allChanges
+                
+                self.messageListenerService?.updatedMessages.removeAll()
             }.store(in: &cancellables)
     }
 }
@@ -898,20 +928,52 @@ extension ChatRoomViewModel
         messageChangedTypes.append(.added(message: message))
     }
     
-    func handleModifiedMessage(_ message: Message)
+    func handleModifiedMessage(_ message: Message, at indexPath: IndexPath) -> MessageChangeType?
     {
-        guard let indexPath = indexPath(of: message),
-              let cellVM = messageClusters.getCellViewModel(at: indexPath),
+        guard let cellVM = messageClusters.getCellViewModel(at: indexPath),
               let modificationValue = cellVM.getModifiedValueOfMessage(message)
-        else { return }
+        else { return nil }
         
         realmService?.updateMessage(message)
-        messageChangedTypes.append(.modified(indexPath, modificationValue))
+        return .modified(indexPath, modificationValue)
     }
     
-    private func handleRemovedMessage(_ message: Message)
+//    func handleModifiedMessage(_ message: Message) -> MessageChangeType?
+//    {
+//        guard let indexPath = indexPath(of: message),
+//              let cellVM = messageClusters.getCellViewModel(at: indexPath),
+//              let modificationValue = cellVM.getModifiedValueOfMessage(message)
+//        else { return nil }
+//        
+//        realmService?.updateMessage(message)
+////        messageChangedTypes.append(.modified(indexPath, modificationValue))
+//        return .modified(indexPath, modificationValue)
+//    }
+    
+    private func handleRemovedMessage(at indexPath: IndexPath) -> MessageChangeType?
     {
-        guard let indexPath = indexPath(of: message) else { return }
+        guard let message = messageClusters[indexPath.section].items[indexPath.row].message else {return nil}
+        
+        var isLastMessageInSection: Bool = false
+        
+        messageClusters.removeClusterItem(at: indexPath)
+        if messageClusters[indexPath.section].items.isEmpty {
+            messageClusters.remove(at: indexPath.section)
+            isLastMessageInSection = true
+        }
+        
+        realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
+         
+        if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
+        {
+            firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
+        }
+        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
+    }
+    
+    private func handleRemovedMessage(_ message: Message) -> MessageChangeType?
+    {
+        guard let indexPath = indexPath(of: message) else { return nil }
         
         var isLastMessageInSection: Bool = false
         
@@ -928,8 +990,9 @@ extension ChatRoomViewModel
         {
             firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
         }
-        messageChangedTypes.append(.removed(indexPath,
-                                            isLastItemInSection: isLastMessageInSection))
+//        messageChangedTypes.append(.removed(indexPath,
+//                                            isLastItemInSection: isLastMessageInSection))
+        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
     }
     
     func indexPath(of message: Message) -> IndexPath?
@@ -1278,9 +1341,11 @@ extension ChatRoomViewModel
         {
             let startMessage = newMessages.first!
             realmService?.addMessagesToConversationInRealm(newMessages)
-            messageListenerService?.addListenerToExistingMessages(
-                startAtMesssageWithID: startMessage.id,
-                ascending: order)
+            messageListenerService?.addListenerToExistingMessagesTest(startAtMesssageWithID: startMessage.id,
+                                                                      ascending: order)
+//            messageListenerService?.addListenerToExistingMessages(
+//                startAtMesssageWithID: startMessage.id,
+//                ascending: order)
         }
         print("All additional fetched messages: ", "\n ", newMessages)
         let clusterSnapshot = messageClusters

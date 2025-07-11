@@ -241,7 +241,8 @@ final class ChatRoomViewController: UIViewController
             }.store(in: &subscriptions)
 
         viewModel.$messageChangedTypes
-            .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
+//            .debounce(for: .milliseconds(1), scheduler: DispatchQueue.main)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else { return }
                 performBatchUpdateWithMessageChanges(changeTypes)
@@ -280,15 +281,9 @@ final class ChatRoomViewController: UIViewController
                 modifiedPaths.append((indexPath, modification.animationType))
             }
         }
-        
-        /// Filter out modifications that were also removed
-        ///
-        let removedIndexPaths = Set(removedPaths.map { $0.0 })
-        let safeModifications = modifiedPaths
-            .filter { !removedIndexPaths.contains($0.indexPath) }
-        
+
         /// Group modifications by animation type (for clarity and batch efficiency)
-        let groupModifications = Dictionary(grouping: safeModifications,
+        let groupModifications = Dictionary(grouping: modifiedPaths,
                                             by: { $0.animation })
         
         rootView.tableView.performBatchUpdates
@@ -305,13 +300,82 @@ final class ChatRoomViewController: UIViewController
                 rootView.tableView.insertRows(at: insertIndexPaths, with: .fade)
             }
             
-            for (animation, entrie) in groupModifications
+//            for (animation, entrie) in groupModifications
+//            {
+//                let indexPaths = entrie.map { $0.indexPath }
+//                self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
+//            }
+        } completion: { completed in
+            
+            guard completed else {return}
+            
+            self.rootView.tableView.performBatchUpdates
             {
-                let indexPaths = entrie.map { $0.indexPath }
-                self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
+                for (animation, entrie) in groupModifications
+                {
+                    let indexPaths = entrie.map { $0.indexPath }
+                    self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
+                }
             }
         }
+        print("finish reloading table view")
     }
+    
+//    private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
+//    {
+//        var addedMessages: [Message] = []
+//        var removedPaths: [(IndexPath, Bool)] = []
+//        var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
+//        
+//        for change in changes
+//        {
+//            switch change
+//            {
+//            case .added(let message):
+//                if changes.count == 1
+//                {
+//                    handleTableViewCellInsertion(scrollToBottom: false)
+//                    return
+//                }
+//                addedMessages.append(message)
+//            case .removed(let indexPath, let isLastRowInSection):
+//                removedPaths.append((indexPath, isLastRowInSection))
+//            case .modified(let indexPath, let modification):
+//                modifiedPaths.append((indexPath, modification.animationType))
+//            }
+//        }
+//        
+//        /// Filter out modifications that were also removed
+//        ///
+//        let removedIndexPaths = Set(removedPaths.map { $0.0 })
+//        let safeModifications = modifiedPaths
+//            .filter { !removedIndexPaths.contains($0.indexPath) }
+//        
+//        /// Group modifications by animation type (for clarity and batch efficiency)
+//        let groupModifications = Dictionary(grouping: safeModifications,
+//                                            by: { $0.animation })
+//        
+//        rootView.tableView.performBatchUpdates
+//        {
+//            if !removedPaths.isEmpty
+//            {
+//                self.removeTableViewCells(at: removedPaths)
+//            }
+//            
+//            if !addedMessages.isEmpty {
+//                let insertIndexPaths = addedMessages.compactMap {
+//                    viewModel.indexPath(of: $0)
+//                }
+//                rootView.tableView.insertRows(at: insertIndexPaths, with: .fade)
+//            }
+//            
+//            for (animation, entrie) in groupModifications
+//            {
+//                let indexPaths = entrie.map { $0.indexPath }
+//                self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
+//            }
+//        }
+//    }
     
     
     //MARK: - Keyboard notification observers
@@ -499,11 +563,13 @@ final class ChatRoomViewController: UIViewController
     {
         let indexPathsToRemove = indexPathsWithFlags.map(\.0)
         let emptySections = Set(indexPathsWithFlags.compactMap { $0.1 ? $0.0.section : nil })
-
+        
         if !indexPathsToRemove.isEmpty {
             rootView.tableView.deleteRows(at: indexPathsToRemove, with: .fade)
         }
-
+//        let emptySections = indexPathsWithFlags.compactMap { path in
+//            rootView.tableView.numberOfRows(inSection: path.section) == 0 ? path.section : nil
+//        }
         if !emptySections.isEmpty {
             rootView.tableView.deleteSections(IndexSet(emptySections), with: .fade)
         }
