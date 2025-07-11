@@ -110,7 +110,6 @@ final class RealmDataBase {
     func add<T: Object>(object: T) {
         try? realm?.write {
             realm?.add(object, update: .modified)
-            print("modified object!!")
         }
     }
     

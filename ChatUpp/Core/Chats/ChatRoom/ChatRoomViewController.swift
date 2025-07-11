@@ -297,7 +297,14 @@ final class ChatRoomViewController: UIViewController
 //                let insertIndexPaths = addedMessages.compactMap {
 //                    viewModel.indexPath(of: $0)
 //                }
+                let newSections = getNewAddedSectionsIndexes(at: addedIndexPaths)
+                print("new section count: ",newSections.count)
                 rootView.tableView.insertRows(at: addedIndexPaths, with: .fade)
+                
+                if !newSections.isEmpty
+                {
+                    rootView.tableView.insertSections(newSections, with: .fade)
+                }
             }
         } completion: { completed in
             
@@ -567,6 +574,23 @@ final class ChatRoomViewController: UIViewController
         if !emptySections.isEmpty {
             rootView.tableView.deleteSections(IndexSet(emptySections), with: .fade)
         }
+    }
+    
+    private func getNewAddedSectionsIndexes(at indexPaths: [IndexPath]) -> IndexSet
+    {
+        var newSectionIndexes = IndexSet()
+        
+        let grouped = Dictionary(grouping: indexPaths, by: { $0.section })
+
+        for (section, pathsInSection) in grouped {
+            let insertedRowCount = pathsInSection.count
+            let currentRowCount = viewModel.messageClusters[section].items.count
+
+            if insertedRowCount == currentRowCount {
+                newSectionIndexes.insert(section)
+            }
+        }
+        return newSectionIndexes
     }
 }
 

@@ -1364,7 +1364,7 @@ extension ChatRoomViewModel
         guard !newMessages.isEmpty else { return nil }
 
         if conversation?.isGroup == true {
-            try await syncGroupUsers(for: newMessages)
+            await syncGroupUsers(for: newMessages)
         }
         
         if conversation?.realm != nil
