@@ -768,15 +768,19 @@ extension ChatRoomViewModel
     
     // MARK: - Group Chat Handling
     @MainActor
-    private func syncGroupUsers(for messages: [Message]) async throws
+    private func syncGroupUsers(for messages: [Message]) async
     {
-        let missingUserIDs = findMissingUserIDs(from: messages)
-        
-        guard !missingUserIDs.isEmpty else { return }
-        
-        let users = try await FirestoreUserService.shared.fetchUsers(with: missingUserIDs)
-        RealmDataBase.shared.add(objects: users)
-        await fetchAvatars(for: users)
+        do {
+            let missingUserIDs = findMissingUserIDs(from: messages)
+            
+            guard !missingUserIDs.isEmpty else { return }
+            
+            let users = try await FirestoreUserService.shared.fetchUsers(with: missingUserIDs)
+            RealmDataBase.shared.add(objects: users)
+            await fetchAvatars(for: users)
+        } catch {
+            print("Error in synchronizing users from messages: ", error)
+        }
     }
 
     @MainActor
@@ -855,48 +859,77 @@ extension ChatRoomViewModel
             .debounce(for: .seconds(0.4), scheduler: DispatchQueue.main)
             .filter { !$0.isEmpty }
             .sink { messagesTypes in
-                print("entered binding Update messages block ")
-                // make coppy of messageCluster and extract indexes from it
-                var removedMessages: [Message] = []
-                var modifiedMessages: [Message] = []
-                //ignore added Messages for now
-                var addedMessages: [Message] = []
                 
-                for messageType in messagesTypes
-                {
-                    switch messageType.changeType {
-                    case .removed: removedMessages.append(messageType.data)
-                    case .modified: modifiedMessages.append(messageType.data)
-                    case .added: addedMessages.append(messageType.data)
+                Task { @MainActor in
+                    
+                    var removedMessages : Set<Message> = []
+                    var modifiedMessages: Set<Message> = []
+                    var addedMessages   : Set<Message> = []
+                    
+                    for messageType in messagesTypes
+                    {
+                        switch messageType.changeType
+                        {
+                        case .removed  : removedMessages.insert(messageType.data)
+                        case .modified : modifiedMessages.insert(messageType.data)
+                        case .added    : addedMessages.insert(messageType.data)
+                        }
                     }
+                    
+                    /// sort added & modified messages
+                    /// that are not present in removed messages
+                    ///
+                    let removedIDs   = Set(removedMessages.map { $0.id })
+                    modifiedMessages = modifiedMessages
+                        .filter { !removedIDs.contains($0.id) }
+                    addedMessages    = addedMessages
+                        .filter { !removedIDs.contains($0.id) }
+                    
+                    /// get and sort indexPaths in descending order ,
+                    /// to avoid index shift on removal
+                    ///
+                    let removedIndexPaths = removedMessages
+                        .compactMap { self.indexPath(of: $0) }
+                        .sorted(by: >)
+                    
+                    let removedTypes: [MessageChangeType] = removedIndexPaths
+                        .compactMap { self.handleRemovedMessage(at: $0) }
+                    
+                    let modifiedTuples: [(message: Message, indexPath: IndexPath)] = modifiedMessages.compactMap { message in
+                        guard let indexPath = self.indexPath(of: message) else { return nil }
+                        return (message, indexPath)
+                    }
+                    
+                    let modifiedTypes: [MessageChangeType] = modifiedTuples.compactMap { tuple in
+                        self.handleModifiedMessage(tuple.message, at: tuple.indexPath)
+                    }
+                    
+                    
+                    for message in addedMessages
+                    {
+                        guard self.realmService?.retrieveMessageFromRealm(message) == nil else {
+                            addedMessages.remove(message)
+                            continue
+                        }
+                        await self.handleAddedMessage(message)
+                    }
+                    
+                    let addedIndexPaths = addedMessages
+                        .compactMap { self.indexPath(of: $0) }
+                    let addedTypes      = addedIndexPaths.compactMap { MessageChangeType.added($0) }
+//                    await withTaskGroup(of: Void.self) { group in
+//                        for message in addedMessages {
+//                            group.addTask {
+//                                await self.handleAddedMessage(message)
+//                            }
+//                        }
+//                    }
+                    
+                    let allChanges: [MessageChangeType] = removedTypes + modifiedTypes + addedTypes
+                    self.messageChangedTypes = allChanges
+                    
+                    self.messageListenerService?.updatedMessages.removeAll()
                 }
-                
-                /// sort modified messages that are not present in removed messages
-                let removedIDs = Set(removedMessages.map { $0.id })
-                modifiedMessages = modifiedMessages.filter { !removedIDs.contains($0.id) }
-
-                /// get and sort indexPaths in descending order ,
-                /// to avoid index shift on removal
-                let removedIndexPaths = removedMessages
-                    .compactMap { self.indexPath(of: $0) }
-                    .sorted(by: >)
-                
-                let removedTypes = removedIndexPaths
-                    .compactMap { self.handleRemovedMessage(at: $0) }
-                
-                let modifiedTuples: [(message: Message, indexPath: IndexPath)] = modifiedMessages.compactMap { message in
-                    guard let indexPath = self.indexPath(of: message) else { return nil }
-                    return (message, indexPath)
-                }
-                
-                let modifiedTypes: [MessageChangeType] = modifiedTuples.compactMap { tuple in
-                    self.handleModifiedMessage(tuple.message, at: tuple.indexPath)
-                }
-                
-                let allChanges: [MessageChangeType] = removedTypes + modifiedTypes
-                self.messageChangedTypes = allChanges
-                
-                self.messageListenerService?.updatedMessages.removeAll()
             }.store(in: &cancellables)
     }
 }
@@ -909,23 +942,39 @@ extension ChatRoomViewModel
     private func handleAddedMessage(_ message: Message) async
     {
         guard realmService?.retrieveMessageFromRealm(message) == nil else { return }
-        print("not in realm so we should add added message: ", message.id)
         realmService?.addMessageToRealmChat(message)
+        
         if message.imagePath != nil {
             await downloadImageData(from: message)
         }
         
         if message.type == .title
         {
-            do {
-                try await syncGroupUsers(for: [message])
-            } catch {
-                print("Error in synchronizing user from message title: ", error)
-            }
+            await syncGroupUsers(for: [message])
         }
-//        createMessageClustersWith([message], ascending: true)
         createMessageClustersWith([message])
-        messageChangedTypes.append(.added(message: message))
+//        messageChangedTypes.append(.added(message: message))
+    }
+    
+    private func handleRemovedMessage(at indexPath: IndexPath) -> MessageChangeType?
+    {
+        guard let message = messageClusters[indexPath.section].items[indexPath.row].message else {return nil}
+        
+        var isLastMessageInSection: Bool = false
+        
+        messageClusters.removeClusterItem(at: indexPath)
+        if messageClusters[indexPath.section].items.isEmpty {
+            messageClusters.remove(at: indexPath.section)
+            isLastMessageInSection = true
+        }
+        
+        realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
+         
+        if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
+        {
+            firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
+        }
+        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
     }
     
     func handleModifiedMessage(_ message: Message, at indexPath: IndexPath) -> MessageChangeType?
@@ -950,50 +999,31 @@ extension ChatRoomViewModel
 //        return .modified(indexPath, modificationValue)
 //    }
     
-    private func handleRemovedMessage(at indexPath: IndexPath) -> MessageChangeType?
-    {
-        guard let message = messageClusters[indexPath.section].items[indexPath.row].message else {return nil}
-        
-        var isLastMessageInSection: Bool = false
-        
-        messageClusters.removeClusterItem(at: indexPath)
-        if messageClusters[indexPath.section].items.isEmpty {
-            messageClusters.remove(at: indexPath.section)
-            isLastMessageInSection = true
-        }
-        
-        realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
-         
-        if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
-        {
-            firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
-        }
-        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
-    }
+
     
-    private func handleRemovedMessage(_ message: Message) -> MessageChangeType?
-    {
-        guard let indexPath = indexPath(of: message) else { return nil }
-        
-        var isLastMessageInSection: Bool = false
-        
-        messageClusters.removeClusterItem(at: indexPath)
-        if messageClusters[indexPath.section].items.isEmpty {
-            messageClusters.remove(at: indexPath.section)
-            isLastMessageInSection = true
-        }
-        
-        realmService?.removeMessageFromRealm(message: message)
-        print("message was removed: " , message.id)
-         
-        if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
-        {
-            firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
-        }
-//        messageChangedTypes.append(.removed(indexPath,
-//                                            isLastItemInSection: isLastMessageInSection))
-        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
-    }
+//    private func handleRemovedMessage(_ message: Message) -> MessageChangeType?
+//    {
+//        guard let indexPath = indexPath(of: message) else { return nil }
+//        
+//        var isLastMessageInSection: Bool = false
+//        
+//        messageClusters.removeClusterItem(at: indexPath)
+//        if messageClusters[indexPath.section].items.isEmpty {
+//            messageClusters.remove(at: indexPath.section)
+//            isLastMessageInSection = true
+//        }
+//        
+//        realmService?.removeMessageFromRealm(message: message)
+//        print("message was removed: " , message.id)
+//         
+//        if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
+//        {
+//            firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
+//        }
+////        messageChangedTypes.append(.removed(indexPath,
+////                                            isLastItemInSection: isLastMessageInSection))
+//        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
+//    }
     
     func indexPath(of message: Message) -> IndexPath?
     {

@@ -24,7 +24,7 @@ enum MessageValueModification
 
 enum MessageChangeType {
     case modified(IndexPath, MessageValueModification)
-    case added(message: Message)
+    case added(IndexPath)
     case removed(IndexPath, isLastItemInSection: Bool)
 }
 

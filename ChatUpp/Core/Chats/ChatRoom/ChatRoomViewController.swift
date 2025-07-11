@@ -260,7 +260,7 @@ final class ChatRoomViewController: UIViewController
     
     private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
     {
-        var addedMessages: [Message] = []
+        var addedIndexPaths: [IndexPath] = []
         var removedPaths: [(IndexPath, Bool)] = []
         var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
         
@@ -268,13 +268,13 @@ final class ChatRoomViewController: UIViewController
         {
             switch change
             {
-            case .added(let message):
+            case .added(let indexPath):
                 if changes.count == 1
                 {
                     handleTableViewCellInsertion(scrollToBottom: false)
                     return
                 }
-                addedMessages.append(message)
+                addedIndexPaths.append(indexPath)
             case .removed(let indexPath, let isLastRowInSection):
                 removedPaths.append((indexPath, isLastRowInSection))
             case .modified(let indexPath, let modification):
@@ -293,18 +293,12 @@ final class ChatRoomViewController: UIViewController
                 self.removeTableViewCells(at: removedPaths)
             }
             
-            if !addedMessages.isEmpty {
-                let insertIndexPaths = addedMessages.compactMap {
-                    viewModel.indexPath(of: $0)
-                }
-                rootView.tableView.insertRows(at: insertIndexPaths, with: .fade)
+            if !addedIndexPaths.isEmpty {
+//                let insertIndexPaths = addedMessages.compactMap {
+//                    viewModel.indexPath(of: $0)
+//                }
+                rootView.tableView.insertRows(at: addedIndexPaths, with: .fade)
             }
-            
-//            for (animation, entrie) in groupModifications
-//            {
-//                let indexPaths = entrie.map { $0.indexPath }
-//                self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
-//            }
         } completion: { completed in
             
             guard completed else {return}
