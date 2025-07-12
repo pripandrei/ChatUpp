@@ -448,14 +448,15 @@ extension ChatCellViewModel
     {
         guard let recentMessageID = recentMessage?.id else {return}
         
-        try await FirebaseChatService.shared.addListenerForExistingMessages(
+        try await FirebaseChatService.shared.addListenerForExistingMessagesTest(
             inChat: chat.id,
             startAtMessageWithID: recentMessageID,
             ascending: true,
             limit: 1)
         .receive(on: DispatchQueue.main)
-        .sink { changeObject in
+        .sink { changeObjects in
             
+            guard let changeObject = changeObjects.first else {return}
             // leave update of recent message to Chat Room VC if it is opened
             //
             guard ChatRoomSessionManager.activeChatID != self.chat.id else {return}
@@ -470,6 +471,12 @@ extension ChatCellViewModel
                     }
                 } else {
                     self.recentMessage = changeObject.data
+                }
+            }
+            if changeObject.changeType == .removed {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    guard let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: changeObject.data.id) else {return}
+                    RealmDataBase.shared.delete(object: message)                    
                 }
             }
         }.store(in: &recentMessagesCancellables)

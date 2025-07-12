@@ -397,7 +397,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let messageID = conversation?.getLastMessage()?.id,
               let limit = conversation?.conversationMessages.count else { return }
         
-        messageListenerService?.addListenerToExistingMessages(
+        messageListenerService?.addListenerToExistingMessagesTest(
             startAtMesssageWithID:messageID,
             ascending: true,
             limit: limit)
