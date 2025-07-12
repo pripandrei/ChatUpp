@@ -35,3 +35,8 @@
 /// This cause timing bug with adding new received recent message.
 /// So we do not update recent message here if ChatRoomVC is currently opened.
 /// We will do it when chat room vc will be closed
+
+//MARK: - [5].
+/// If first index path at row 0 and section 0 is not visible
+/// we should insert rows/sections with animation 0.0
+/// this makes table view to not shift its contentOffset after insertion

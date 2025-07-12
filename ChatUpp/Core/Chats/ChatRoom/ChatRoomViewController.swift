@@ -608,18 +608,22 @@ extension ChatRoomViewController {
     {
         let isNewSectionAdded = checkIfNewSectionWasAdded()
         let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
+        let isIndexPathVisible = visibleIndexPaths?.contains(indexPath) ?? false
         
-        if visibleIndexPaths?.isEmpty == true || visibleIndexPaths?.contains(indexPath) == true
-        {
+//        if visibleIndexPaths?.isEmpty == true
+//        {
             guard let firstSectionMessageCount = viewModel.messageClusters.first?.items.count else {return}
             
             if rootView.tableView.numberOfRows(inSection: 0) < firstSectionMessageCount
             {
-                handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-                animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                             withNewSectionAdded: isNewSectionAdded)
+                handleRowAndSectionInsertion(with: indexPath, withAnimation: !isIndexPathVisible)
+                if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
+                {
+                    animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                                 withNewSectionAdded: isNewSectionAdded)
+                }
             }
-        }
+//        }
         
         if scrollToBottom
         {
@@ -635,17 +639,30 @@ extension ChatRoomViewController {
     }
     
     private func handleRowAndSectionInsertion(with indexPath: IndexPath,
-                                              scrollToBottom: Bool)
+                                              withAnimation: Bool)
     {
-        // - See Footnote.swift [1]
-        UIView.performWithoutAnimation {
-//        UIView.animate(withDuration: 0.0) {
-            if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
-            {
-                self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-            } else {
-                self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
-//                self.rootView.tableView.reloadData()
+        /// See FootNote.swift [5]
+        if withAnimation {
+            UIView.animate(withDuration: 0.0) {
+                if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
+                {
+                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+                } else {
+                    self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
+                    //                self.rootView.tableView.reloadData()
+                }
+            }
+        } else {
+            // - See Footnote.swift [1]
+            UIView.performWithoutAnimation {
+    //        UIView.animate(withDuration: 0.0) {
+                if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
+                {
+                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+                } else {
+                    self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
+    //                self.rootView.tableView.reloadData()
+                }
             }
         }
     }
