@@ -28,24 +28,37 @@ final class ConversationRealmService
     {
         guard let conversation = conversation else { return }
         
-        RealmDataBase.shared.update(object: conversation) { chat in
-            guard let realm = chat.realm else { return }
-
-            let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
-            let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
-
-            var messagesToAppend: [Message] = []
-
-            for message in newMessages {
-                if message.realm == nil {
-                    realm.add(message, update: .all)
+        RealmDataBase.shared.add(objects: messages)
+        
+        messages.forEach { message in
+            if !conversation.conversationMessages.contains(where: { $0.id == message.id} )
+            {
+                RealmDataBase.shared.update(object: conversation) { chat in
+                    chat.conversationMessages.append(message)
                 }
-
-                messagesToAppend.append(message)
             }
-
-            chat.conversationMessages.append(objectsIn: messagesToAppend)
         }
+    
+        // DO NOT REMOVE !
+        
+//        RealmDataBase.shared.update(object: conversation) { chat in
+//            guard let realm = chat.realm else { return }
+//
+//            let existingMessageIDs = Set(chat.conversationMessages.map { $0.id })
+//            let newMessages = messages.filter { !existingMessageIDs.contains($0.id) }
+//
+//            var messagesToAppend: [Message] = []
+//
+//            for message in newMessages {
+//                if message.realm == nil {
+//                    realm.add(message, update: .all)
+//                }
+//
+//                messagesToAppend.append(message)
+//            }
+//
+//            chat.conversationMessages.append(objectsIn: messagesToAppend)
+//        }
         
         /// See Footnote.swift [2]
         messages.forEach { message in

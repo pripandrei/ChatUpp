@@ -28,3 +28,10 @@
 /// before fetching and inserting messages
 /// (some times messages are fetched and inserted in table view
 /// faster than scroll is finished, resulting in a glitch)
+
+//MARK: - [4].
+/// There are two listeners that are set to recent message
+/// one in this view model, and second in ChatRoom view model.
+/// This cause timing bug with adding new received recent message.
+/// So we do not update recent message here if ChatRoomVC is currently opened.
+/// We will do it when chat room vc will be closed

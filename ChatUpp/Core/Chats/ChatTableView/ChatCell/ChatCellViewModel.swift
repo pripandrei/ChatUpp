@@ -13,6 +13,8 @@ import Kingfisher
 
 class ChatCellViewModel
 {
+    private var onChatRoomVCDidDissapear: (() -> Void)?
+    
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     private var cancellables = Set<AnyCancellable>()
@@ -66,7 +68,19 @@ class ChatCellViewModel
         initiateChatDataLoad()
         addRealmObserverToChat()
         observeAuthParticipantChanges()
+//        setupBinding()
     }
+    
+//    private func setupBinding()
+//    {
+//        ChatRoomSessionManager.activeChatID
+//            .dropFirst()
+//            .sink { activeChatID in
+//                if activeChatID != self.chat.id {
+//                    self.onChatRoomVCDidDissapear?()
+//                }
+//            }.store(in: &cancellables)
+//    }
     
     var isAuthUserSenderOfRecentMessage: Bool {
         return authUser.uid == recentMessage?.senderId
@@ -177,7 +191,19 @@ extension ChatCellViewModel
             Task {
                 guard let recentMessage = await loadRecentMessage() else {return}
                 await performMessageImageUpdate(messageID)
-                await MainActor.run {
+                
+                try await Task.sleep(for: .seconds(1))
+                await MainActor.run
+                {
+//                    /// See FootnNote.swift - [4]
+//                    guard ChatRoomSessionManager.activeChatID.value != self.chat.id else
+//                    {
+//                        self.onChatRoomVCDidDissapear = {
+//                            self.addMessageToRealm(recentMessage)
+//                            self.recentMessage = recentMessage
+//                        }
+//                        return
+//                    }
                     addMessageToRealm(recentMessage)
                     self.recentMessage = recentMessage
                 }
@@ -522,6 +548,7 @@ extension ChatCellViewModel
 
 class ChatRoomSessionManager
 {
+//    static var activeChatID = CurrentValueSubject<String?, Never>(nil)
     static var activeChatID: String? = nil
 }
 

@@ -293,12 +293,10 @@ final class ChatRoomViewController: UIViewController
                 self.removeTableViewCells(at: removedPaths)
             }
             
-            if !addedIndexPaths.isEmpty {
-//                let insertIndexPaths = addedMessages.compactMap {
-//                    viewModel.indexPath(of: $0)
-//                }
+            if !addedIndexPaths.isEmpty
+            {
                 let newSections = getNewAddedSectionsIndexes(at: addedIndexPaths)
-                print("new section count: ",newSections.count)
+                
                 rootView.tableView.insertRows(at: addedIndexPaths, with: .fade)
                 
                 if !newSections.isEmpty
@@ -611,17 +609,17 @@ extension ChatRoomViewController {
         let isNewSectionAdded = checkIfNewSectionWasAdded()
         let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
         
-//        if visibleIndexPaths?.isEmpty == true || visibleIndexPaths?.contains(indexPath) == true
-//        {
-//            guard let firstSectionMessageCount = viewModel.messageClusters.first?.items.count else {return}
-//            
-//            if rootView.tableView.numberOfRows(inSection: 0) < firstSectionMessageCount
-        //            {
-        handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
-        animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                     withNewSectionAdded: isNewSectionAdded)
-//            }
-//        }
+        if visibleIndexPaths?.isEmpty == true || visibleIndexPaths?.contains(indexPath) == true
+        {
+            guard let firstSectionMessageCount = viewModel.messageClusters.first?.items.count else {return}
+            
+            if rootView.tableView.numberOfRows(inSection: 0) < firstSectionMessageCount
+            {
+                handleRowAndSectionInsertion(with: indexPath, scrollToBottom: scrollToBottom)
+                animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                             withNewSectionAdded: isNewSectionAdded)
+            }
+        }
         
         if scrollToBottom
         {
@@ -699,6 +697,7 @@ extension ChatRoomViewController {
         }
         return false
     }
+    
 }
 
 //MARK: - Message seen status handler

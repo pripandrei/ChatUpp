@@ -727,7 +727,7 @@ extension ChatRoomViewModel
             
             if conversation?.isGroup == true
             {
-                try await syncGroupUsers(for: messages)
+                await syncGroupUsers(for: messages)
                 
                 if !isAuthUserGroupMember
                 {
@@ -941,7 +941,6 @@ extension ChatRoomViewModel
     @MainActor
     private func handleAddedMessage(_ message: Message) async
     {
-        guard realmService?.retrieveMessageFromRealm(message) == nil else { return }
         realmService?.addMessageToRealmChat(message)
         
         if message.imagePath != nil {
