@@ -578,6 +578,8 @@ extension FirebaseChatService
             
             if document.exists {
                 query = inclusive ? query.start(atDocument: document) : query.start(afterDocument: document)
+            } else {
+                return []
             }
         }
         

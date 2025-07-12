@@ -124,10 +124,4 @@ final class ConversationFirestoreService
             try await FirebaseChatService.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
         }
     }
-    
-    func updateLastMessageFromFirestoreChat(_ lastMessageID: String) {
-        Task { @MainActor in
-            await updateRecentMessageFromFirestoreChat(messageID: lastMessageID)
-        }
-    }
 }

@@ -971,7 +971,9 @@ extension ChatRoomViewModel
          
         if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
         {
-            firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
+            Task {
+                await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: lastMessageID)                
+            }
         }
         return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
     }
@@ -985,44 +987,6 @@ extension ChatRoomViewModel
         realmService?.updateMessage(message)
         return .modified(indexPath, modificationValue)
     }
-    
-//    func handleModifiedMessage(_ message: Message) -> MessageChangeType?
-//    {
-//        guard let indexPath = indexPath(of: message),
-//              let cellVM = messageClusters.getCellViewModel(at: indexPath),
-//              let modificationValue = cellVM.getModifiedValueOfMessage(message)
-//        else { return nil }
-//        
-//        realmService?.updateMessage(message)
-////        messageChangedTypes.append(.modified(indexPath, modificationValue))
-//        return .modified(indexPath, modificationValue)
-//    }
-    
-
-    
-//    private func handleRemovedMessage(_ message: Message) -> MessageChangeType?
-//    {
-//        guard let indexPath = indexPath(of: message) else { return nil }
-//        
-//        var isLastMessageInSection: Bool = false
-//        
-//        messageClusters.removeClusterItem(at: indexPath)
-//        if messageClusters[indexPath.section].items.isEmpty {
-//            messageClusters.remove(at: indexPath.section)
-//            isLastMessageInSection = true
-//        }
-//        
-//        realmService?.removeMessageFromRealm(message: message)
-//        print("message was removed: " , message.id)
-//         
-//        if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
-//        {
-//            firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
-//        }
-////        messageChangedTypes.append(.removed(indexPath,
-////                                            isLastItemInSection: isLastMessageInSection))
-//        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
-//    }
     
     func indexPath(of message: Message) -> IndexPath?
     {
@@ -1382,12 +1346,14 @@ extension ChatRoomViewModel
 //        createMessageClustersWith(newMessages, ascending: order)
         let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
         
+        assert(!newRows.isEmpty, "New rows array should not be empty at this point!")
+        
         return (newRows, newSections)
     }
     
     private func prepareMessageClustersUpdate(withMessages messages: [Message],
-                                                 inAscendingOrder: Bool) -> ([IndexPath], IndexSet?)
-       {
+                                              inAscendingOrder: Bool) -> ([IndexPath], IndexSet?)
+    {
            let messageClustersBeforeUpdate = messageClusters
            let startSectionCount = inAscendingOrder ? 0 : messageClusters.count
            
