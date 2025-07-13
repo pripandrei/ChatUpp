@@ -904,10 +904,11 @@ extension ChatRoomViewModel
                         self.handleModifiedMessage(tuple.message, at: tuple.indexPath)
                     }
                     
-                    
                     for message in addedMessages
                     {
-                        guard self.realmService?.retrieveMessageFromRealm(message) == nil else {
+                        guard self.realmService?.retrieveMessageFromRealm(message) == nil else
+                        {
+                            RealmDataBase.shared.add(object: message) // just update existing message in realm with fresh one
                             addedMessages.remove(message)
                             continue
                         }
