@@ -602,6 +602,24 @@ extension ChatRoomViewController {
         }
     }
     
+//    private func tableViewRowInsertionValidation()
+//    {
+//        guard let messagesCountInFirstCluster = viewModel.messageClusters.first?.items.count else {return}
+//        guard let messageCountInLastCluster = viewModel.messageClusters.last?.items.count else {return}
+//        
+//        let rowCountInFirstSection = rootView.tableView.numberOfRows(inSection: 0)
+//
+//        let numberOfSections = rootView.tableView.numberOfSections
+//        
+//        if numberOfSections == viewModel.messageClusters.count
+//        {
+//            let rowCountInLastSection = rootView.tableView.numberOfRows(inSection: viewModel.messageClusters.count - 1)
+//            
+//            assert(messagesCountInFirstCluster > rowCountInFirstSection, "Row count in first section must not be greater than messages count in first cluster before update")
+//            assert(messageCountInLastCluster > rowCountInLastSection, "Row count in last section must not be greater than messages count in last cluster before update")
+//        }
+//    }
+    
     private func handleTableViewCellInsertion(
         with indexPath: IndexPath = IndexPath(row: 0, section: 0),
         scrollToBottom: Bool)
@@ -610,20 +628,14 @@ extension ChatRoomViewController {
         let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
         let isIndexPathVisible = visibleIndexPaths?.contains(indexPath) ?? false
         
-//        if visibleIndexPaths?.isEmpty == true
-//        {
-            guard let firstSectionMessageCount = viewModel.messageClusters.first?.items.count else {return}
-            
-            if rootView.tableView.numberOfRows(inSection: 0) < firstSectionMessageCount
-            {
-                handleRowAndSectionInsertion(with: indexPath, withAnimation: !isIndexPathVisible)
-                if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
-                {
-                    animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                                 withNewSectionAdded: isNewSectionAdded)
-                }
-            }
-//        }
+//        tableViewRowInsertionValidation()
+        
+        handleRowAndSectionInsertion(with: indexPath, withAnimation: !isIndexPathVisible)
+        if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
+        {
+            animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                         withNewSectionAdded: isNewSectionAdded)
+        }
         
         if scrollToBottom
         {
@@ -674,38 +686,52 @@ extension ChatRoomViewController {
         let currentOffSet = tableView.contentOffset
         
         rootView.tableView.layoutIfNeeded()
-//        DispatchQueue.main.async { [weak self] in
-//            guard let self = self,
-                 guard let cell = tableView.cellForRow(at: indexPath) else { return }
-
-            // Shift content offset upward by new cell height + margin (if section inserted)
-            let offsetAdjustment = cell.bounds.height + (isNewSectionAdded ? 50 : 0)
-            let adjustedOffset = CGPoint(x: currentOffSet.x, y: currentOffSet.y + offsetAdjustment)
-            tableView.setContentOffset(adjustedOffset, animated: false)
-
-            // If the next cell was not fully visible before insert, skip animation
-            if !self.checkIfCellIsFullyVisible(at: IndexPath(row: 1, section: 0)) {
-                return
+        //        DispatchQueue.main.async { [weak self] in
+        //            guard let self = self,
+        guard let cell = tableView.cellForRow(at: indexPath) else { return }
+        
+        // Shift content offset upward by new cell height + margin (if section inserted)
+        let offsetAdjustment = cell.bounds.height + (isNewSectionAdded ? 50 : 0)
+        let adjustedOffset = CGPoint(x: currentOffSet.x, y: currentOffSet.y + offsetAdjustment)
+        tableView.setContentOffset(adjustedOffset, animated: false)
+        
+        let isFirstCell = tableView.numberOfSections == 1 && tableView.numberOfRows(inSection: 0) == 1
+        
+        let checkIndexPath: IndexPath = {
+            if tableView.numberOfRows(inSection: 0) > 1 {
+                return IndexPath(row: 1, section: 0)
+            } else {
+                return IndexPath(row: 0, section: 1)
             }
-
-            // Slide-in animation: cell starts off-screen
-            cell.frame.origin.y = -50
-
+        }()
+        
+        guard isFirstCell || checkIfCellIsFullyVisible(at: checkIndexPath) else {return}
+        
+        // Slide-in animation: cell starts off-screen
+        cell.frame.origin.y = -50
+        
+        UIView.animate(withDuration: 0.3, delay: 0.1) {
+            cell.frame.origin.y = 0
+            tableView.setContentOffset(currentOffSet, animated: false)
+        }
+        
+        /// If previous cell (the one that was before this inserted one)
+        /// was not fully visible, skip animation
+        ///
+        guard isNewSectionAdded else { return }
+        
+//        guard isNewSectionAdded else {return}
+        
+        // Animate section footer if new section added
+        if isNewSectionAdded,
+           let footer = tableView.footerView(forSection: 0)
+        {
+            footer.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             UIView.animate(withDuration: 0.3, delay: 0.1) {
-                cell.frame.origin.y = 0
-                tableView.setContentOffset(currentOffSet, animated: false)
+                footer.transform = CGAffineTransform(scaleX: 1, y: -1)
             }
-
-            // Animate section footer if new section added
-            if isNewSectionAdded,
-               let footer = tableView.footerView(forSection: 0)
-            {
-                footer.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-                UIView.animate(withDuration: 0.3, delay: 0.1) {
-                    footer.transform = CGAffineTransform(scaleX: 1, y: -1)
-                }
-            }
-//        }
+        }
+        //        }
     }
     
     private func checkIfNewSectionWasAdded() -> Bool {

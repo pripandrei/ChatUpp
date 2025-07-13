@@ -134,7 +134,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     private var shouldDisplayLastMessage: Bool {
-        return authParticipantUnreadMessagesCount == realmService?.getUnreadMessagesCountFromRealm()
+        return authParticipantUnreadMessagesCount <= (realmService?.getUnreadMessagesCountFromRealm() ?? 0)
     }
     
     private var firstMessage: Message? {

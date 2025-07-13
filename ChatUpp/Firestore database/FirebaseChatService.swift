@@ -461,46 +461,54 @@ extension FirebaseChatService
             }
     }
     
-    func addListenerForExistingMessages(inChat chatID: String,
-                                        startAtMessageWithID messageID: String,
-                                        ascending: Bool,
-                                        limit: Int) async throws -> AnyPublisher<DatabaseChangedObject<Message>, Never>
-    {
-        let subject = PassthroughSubject<DatabaseChangedObject<Message>, Never>()
-        
-        let document = try await chatsCollection.document(chatID)
-            .collection(FirestoreCollection.messages.rawValue)
-            .document(messageID)
-            .getDocument()
-        
-        guard document.exists else {
-            throw FirestoreErrorCode(.notFound)
-        }
-        
-        let listener = chatDocument(documentPath: chatID)
-            .collection(FirestoreCollection.messages.rawValue)
-            .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
-            .start(atDocument: document)
-            .limit(to: limit)
-            .addSnapshotListener { snapshot, error in
-                guard error == nil else { print(error!.localizedDescription); return }
-                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
-                print("------------ Modification of existing messages: ", documents.count)
-                
-                for document in documents
-                {
-                    guard let message = try? document.document.data(as: Message.self) else { continue }
-                    let object = DatabaseChangedObject(data: message, changeType: document.type)
-                    subject.send(object)
-                }
-            }
-        
-        return subject
-            .handleEvents(receiveCancel: {
-                listener.remove()
-            })
-            .eraseToAnyPublisher()
-    }
+//    func addListenerForExistingMessages(inChat chatID: String,
+//                                        startAtMessageWithID messageID: String,
+//                                        ascending: Bool,
+//                                        limit: Int) async throws -> AnyPublisher<DatabaseChangedObject<Message>, Never>
+//    {
+//        let subject = PassthroughSubject<DatabaseChangedObject<Message>, Never>()
+//        
+//        let document = try await chatsCollection.document(chatID)
+//            .collection(FirestoreCollection.messages.rawValue)
+//            .document(messageID)
+//            .getDocument()
+//        
+//        guard document.exists else {
+//            throw FirestoreErrorCode(.notFound)
+//        }
+//        
+//        let listener = chatDocument(documentPath: chatID)
+//            .collection(FirestoreCollection.messages.rawValue)
+//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
+//            .start(atDocument: document)
+//            .limit(to: limit)
+//            .addSnapshotListener(includeMetadataChanges: true) { snapshot, error in
+//                guard error == nil else { print(error!.localizedDescription); return }
+//                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
+//                print("------------ Modification of existing messages: ", documents.count)
+//                
+//                snapshot?.metadata.isFromCache ?? false ? print("Snapshot is from cache") : print("Snapshot is Live")
+//                
+//                for document in documents
+//                {
+//                    guard let message = try? document.document.data(as: Message.self) else { continue }
+//                    if document.type == .removed {
+//                        print("docuemnt was removed: ", message.id)
+//                    }
+//                    if document.type == .modified {
+//                        print("docuemnt was modified: ", message.id)
+//                    }
+//                    let object = DatabaseChangedObject(data: message, changeType: document.type)
+//                    subject.send(object)
+//                }
+//            }
+//        
+//        return subject
+//            .handleEvents(receiveCancel: {
+//                listener.remove()
+//            })
+//            .eraseToAnyPublisher()
+//    }
     
     func addListenerForExistingMessagesTest(inChat chatID: String,
                                             startAtMessageWithID messageID: String,
@@ -523,16 +531,26 @@ extension FirebaseChatService
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
             .start(atDocument: document)
             .limit(to: limit)
-            .addSnapshotListener { snapshot, error in
+            .addSnapshotListener(includeMetadataChanges: true) { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
 //                print("++++++++++++ Modification of existing messages: ", documents.count)
+                
+                snapshot?.metadata.isFromCache ?? false ? print("Snapshot is from cache") : print("Snapshot is Live")
                 
                 var DBChangeObjects: [DatabaseChangedObject<Message>] = []
                 
                 for document in documents
                 {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
+                    
+                    if document.type == .removed {
+                        print("docuemnt was removed: ", message.id)
+                    }
+                    if document.type == .modified {
+                        print("docuemnt was modified: ", message.id)
+                    }
+                    
                     let object = DatabaseChangedObject(data: message, changeType: document.type)
                     DBChangeObjects.append(object)
                     //                    subject.send(object)
