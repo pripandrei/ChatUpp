@@ -512,6 +512,7 @@ extension FirebaseChatService
     
     func addListenerForExistingMessagesTest(inChat chatID: String,
                                             startAtMessageWithID messageID: String,
+                                            messageTimestamp timestamp: Date,
                                             ascending: Bool,
                                             limit: Int) async throws -> AnyPublisher<[DatabaseChangedObject<Message>], Never>
     {
@@ -522,14 +523,13 @@ extension FirebaseChatService
             .document(messageID)
             .getDocument()
         
-        guard document.exists else {
-            throw FirestoreErrorCode(.notFound)
-        }
-        
-        let listener = chatDocument(documentPath: chatID)
+        var query: Query = chatDocument(documentPath: chatID)
             .collection(FirestoreCollection.messages.rawValue)
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
-            .start(atDocument: document)
+        
+        query = document.exists ? query.start(atDocument: document) : query.start(after: [timestamp])
+        
+        let listener = query
             .limit(to: limit)
             .addSnapshotListener(includeMetadataChanges: true) { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
@@ -553,7 +553,6 @@ extension FirebaseChatService
                     
                     let object = DatabaseChangedObject(data: message, changeType: document.type)
                     DBChangeObjects.append(object)
-                    //                    subject.send(object)
                 }
                 subject.send(DBChangeObjects)
             }

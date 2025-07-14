@@ -446,11 +446,12 @@ extension ChatCellViewModel
     @MainActor
     private func observeFirestoreRecentMessage() async throws
     {
-        guard let recentMessageID = recentMessage?.id else {return}
+        guard let recentMessage = recentMessage else {return}
         
         try await FirebaseChatService.shared.addListenerForExistingMessagesTest(
             inChat: chat.id,
-            startAtMessageWithID: recentMessageID,
+            startAtMessageWithID: recentMessage.id,
+            messageTimestamp: recentMessage.timestamp,
             ascending: true,
             limit: 1)
         .receive(on: DispatchQueue.main)

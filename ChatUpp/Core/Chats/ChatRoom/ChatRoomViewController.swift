@@ -241,7 +241,6 @@ final class ChatRoomViewController: UIViewController
             }.store(in: &subscriptions)
 
         viewModel.$messageChangedTypes
-//            .debounce(for: .milliseconds(1), scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else { return }

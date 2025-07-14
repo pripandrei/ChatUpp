@@ -192,6 +192,12 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         bindToMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3)
+        {
+            print("clusters count: \(self.messageClusters.count)")
+            print("messages in first cluster count: \(self.messageClusters.first?.items.count ?? 0) ")
+        }
     }
     
     init(participant: User?)
@@ -242,7 +248,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             messageListenerService?.addListenerToUpcomingMessages()
         }
 //        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
-        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
+//        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
+        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssage: startTestMessage, ascending: false, limit: testLimit)
     }
     
     func removeAllListeners()
@@ -394,11 +401,15 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private func setupMessageListenerOnChatCreation()
     {
-        guard let messageID = conversation?.getLastMessage()?.id,
+        guard let message = conversation?.getLastMessage(),
               let limit = conversation?.conversationMessages.count else { return }
         
+//        messageListenerService?.addListenerToExistingMessagesTest(
+//            startAtMesssageWithID:messageID,
+//            ascending: true,
+//            limit: limit)
         messageListenerService?.addListenerToExistingMessagesTest(
-            startAtMesssageWithID:messageID,
+            startAtMesssage: message,
             ascending: true,
             limit: limit)
     }
@@ -1300,8 +1311,15 @@ extension ChatRoomViewModel
         for (sectionIndex, updatedCluster) in messageClusters.enumerated() {
             let isNewSection = !oldDates.contains(updatedCluster.date)
             
-            if isNewSection {
+            if isNewSection
+            {
                 newSections.insert(sectionIndex)
+                
+                let updatedMessagesSet = Set(updatedCluster.items.compactMap { $0.message })
+                for (index, _) in updatedMessagesSet.enumerated()
+                {
+                    newIndexPaths.append(IndexPath(row: index, section: sectionIndex))
+                }
                 continue
             }
             
@@ -1335,8 +1353,9 @@ extension ChatRoomViewModel
         {
             let startMessage = newMessages.first!
             realmService?.addMessagesToConversationInRealm(newMessages)
-            messageListenerService?.addListenerToExistingMessagesTest(startAtMesssageWithID: startMessage.id,
-                                                                      ascending: order)
+            messageListenerService?.addListenerToExistingMessagesTest(
+                startAtMesssage: startMessage,
+                ascending: order)
 //            messageListenerService?.addListenerToExistingMessages(
 //                startAtMesssageWithID: startMessage.id,
 //                ascending: order)

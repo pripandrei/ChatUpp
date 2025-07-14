@@ -52,16 +52,18 @@ final class ConversationMessageListenerService
         }
     }
     
-    func addListenerToExistingMessagesTest(startAtMesssageWithID messageID: String,
+    func addListenerToExistingMessagesTest(startAtMesssage message: Message,
                                            ascending: Bool,
                                            limit: Int = ObjectsFetchingLimit.messages)
     {
         guard let conversationID = conversation?.id, limit > 0 else { return }
+        let message = message.freeze()
         
         Task {
             try await FirebaseChatService.shared.addListenerForExistingMessagesTest(
                 inChat: conversationID,
-                startAtMessageWithID: messageID,
+                startAtMessageWithID: message.id,
+                messageTimestamp: message.timestamp,
                 ascending: ascending,
                 limit: limit)
             .sink { [weak self] messagesUpdate in
