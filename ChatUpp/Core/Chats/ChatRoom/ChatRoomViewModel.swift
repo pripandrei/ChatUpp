@@ -192,12 +192,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         bindToMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3)
-        {
-            print("clusters count: \(self.messageClusters.count)")
-            print("messages in first cluster count: \(self.messageClusters.first?.items.count ?? 0) ")
-        }
     }
     
     init(participant: User?)

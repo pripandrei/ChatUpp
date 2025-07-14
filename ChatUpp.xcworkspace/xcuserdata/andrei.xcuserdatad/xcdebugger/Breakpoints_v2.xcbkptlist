@@ -14,8 +14,8 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1367"
-            endingLineNumber = "1367"
+            startingLineNumber = "1361"
+            endingLineNumber = "1361"
             landmarkName = "handleAdditionalMessageClusterUpdate(inAscendingOrder:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1314"
-            endingLineNumber = "1314"
+            startingLineNumber = "1308"
+            endingLineNumber = "1308"
             landmarkName = "getIndexPathsForAdditionalMessages(fromClusterSnapshot:)"
             landmarkType = "7">
          </BreakpointContent>

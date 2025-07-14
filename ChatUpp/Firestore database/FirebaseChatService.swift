@@ -434,6 +434,7 @@ extension FirebaseChatService
     // messages listners
     func addListenerForUpcomingMessages(inChat chatID: String,
                                         startingAfterMessage messageID: String,
+                                        messageTimestamp timestamp: Date,
                                         onNewMessageReceived:  @escaping (DatabaseChangedObject<Message>) -> Void) async throws -> Listener
     {
         let document = try await chatsCollection.document(chatID)
@@ -441,14 +442,15 @@ extension FirebaseChatService
             .document(messageID)
             .getDocument()
         
-        guard document.exists else {
-            throw FirestoreErrorCode(.notFound)
-        }
-        
-        return chatDocument(documentPath: chatID)
+        var query: Query = chatDocument(documentPath: chatID)
             .collection(FirestoreCollection.messages.rawValue)
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
-            .start(afterDocument: document)
+        
+        query = document.exists ? query.start(atDocument: document) : query.start(after: [timestamp])
+        
+        return query
+//            .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
+//            .start(afterDocument: document)
             .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
