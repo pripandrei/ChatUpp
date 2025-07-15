@@ -759,6 +759,20 @@ extension ChatRoomViewModel
             messages.removeFirst()
         }
         createMessageClustersWith(messages)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.1) {
+            var totalMessagesCount = 0
+            
+            for cluster in self.messageClusters
+            {
+                totalMessagesCount += cluster.items.count
+            }
+            print("TOtal count: ",totalMessagesCount)
+        }
+//        let messageClustersCount = messageClusters.count
+//        guard let startMessage = messageClusters[messageClustersCount - 1].items.last?.message else {return}
+//                print("START MESSAGE : ", startMessage)
+//                print("cluster count: ", messageClustersCount)
     }
     
     private func prepareMessagesForConversationInitialization() -> [Message]
@@ -766,14 +780,59 @@ extension ChatRoomViewModel
         guard let conversation = conversation else { return [] }
         if let message = getFirstUnseenMessage()
         {
-            let messages = conversation.getMessages(startingFrom: message.id,
-                                                     ascending: true,
-                                                     limit: 20)
-            return Array(messages)
+            let messagesAscending = conversation.getMessages(startingFrom: message.id,
+                                                    isMessageIncluded: true,
+                                                    ascending: true,
+                                                    limit: 20)
+            let messagesDescending = conversation.getMessages(startingFrom: message.id,
+                                                              isMessageIncluded: false,
+                                                              ascending: false,
+                                                              limit: 20).reversed()
+            return Array(messagesDescending + messagesAscending)
         } else {
-            let messages = conversation.getMessagesResults().prefix(30)
+            let messages = conversation.getMessagesResults().prefix(31)
             return Array(messages)
         }
+    }
+    
+    func paginateAdditionalLocalMessages(ascending: Bool) -> ([IndexPath], IndexSet?)?
+    {
+        let paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
+        if !paginatedMessages.isEmpty
+        {
+            let clusterSnapshot = messageClusters
+            createMessageClustersWith(paginatedMessages)
+            let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
+            return (newRows, newSections)
+        }
+        return nil
+    }
+    
+    private func prepareAdditionalMessagesForConversation(ascending: Bool) -> [Message]
+    {
+        guard let conversation = conversation else { return [] }
+        
+        if ascending
+        {
+            guard let startMessage = messageClusters[0].items.first?.message
+            else {return [] }
+            
+            let messages = conversation.getMessages(startingFrom: startMessage.id,
+                                                    isMessageIncluded: false,
+                                                    ascending: ascending,
+                                                    limit: 30)
+            return messages
+        }
+        
+        let messageClustersCount = messageClusters.count
+        guard let startMessage = messageClusters[messageClustersCount - 1].items.last?.message
+        else {return [] }
+        
+        let messages = conversation.getMessages(startingFrom: startMessage.id,
+                                                isMessageIncluded: false,
+                                                ascending: ascending,
+                                                limit: 30)
+        return messages
     }
     
     private func getFirstUnseenMessage() -> Message?
@@ -1201,56 +1260,129 @@ extension ChatRoomViewModel
 // MARK: - messageCluster functions
 extension ChatRoomViewModel
 {
-    func createMessageClustersWith(_ messages: [Message]) {
+    func createMessageClustersWith(_ messages: [Message])
+    {
+        guard !messages.isEmpty else { return }
+        
         var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
         var tempMessageClusters = self.messageClusters
-
-        // Helper binary search to find insert index for message in descending order by timestamp
-        func findInsertIndex(in items: [MessageItem], for newMessage: Message) -> Int {
-            var low = 0
-            var high = items.count - 1
-
-            while low <= high {
-                let mid = (low + high) / 2
-                guard let midTimestamp = items[mid].message?.timestamp else {continue}
-
-                if midTimestamp == newMessage.timestamp {
-                    return mid // or mid + 1 if you prefer inserting after equal timestamps
-                } else if midTimestamp < newMessage.timestamp {
-                    // New message is newer, insert before mid
-                    high = mid - 1
-                } else {
-                    // New message is older, search right side
-                    low = mid + 1
-                }
+        
+        // Determine insertion direction by comparing timestamps
+        let isNewerThanCurrent = {
+            guard let firstCurrent = self.messageClusters.first?.items.first?.message?.timestamp,
+                  let lastNew = messages.last?.timestamp else {
+                return true /// since table view is inverted, return true
             }
-            return low
-        }
-
+            return lastNew > firstCurrent
+        }()
+        
         for message in messages {
             guard let date = message.timestamp.formatToYearMonthDay() else { continue }
             let messageItem = MessageItem(message: message)
-
+            
             if let index = dateToIndex[date] {
-                // Insert message in descending timestamp order inside cluster
-                var clusterItems = tempMessageClusters[index].items
-                let insertIndex = findInsertIndex(in: clusterItems, for: message)
-                clusterItems.insert(messageItem, at: insertIndex)
-                tempMessageClusters[index].items = clusterItems
+                if isNewerThanCurrent {
+                    tempMessageClusters[index].items.insert(messageItem, at: 0)
+                } else {
+                    tempMessageClusters[index].items.append(messageItem)
+                }
             } else {
-                // Create new cluster with the single message
                 let newCluster = MessageCluster(date: date, items: [messageItem])
-
-                // Find insert position for new cluster so newest date is at index 0
-                let clusterInsertIndex = tempMessageClusters.firstIndex { $0.date < date } ?? tempMessageClusters.count
-                tempMessageClusters.insert(newCluster, at: clusterInsertIndex)
-
-                // Rebuild dateToIndex because of insertion
-                dateToIndex = Dictionary(uniqueKeysWithValues: tempMessageClusters.enumerated().map { ($0.element.date, $0.offset) })
+                if isNewerThanCurrent {
+                    tempMessageClusters.insert(newCluster, at: 0)
+                    dateToIndex[date] = 0
+                } else {
+                    tempMessageClusters.append(newCluster)
+                    dateToIndex[date] = tempMessageClusters.count - 1
+                }
             }
         }
+        
         self.messageClusters = tempMessageClusters
     }
+    //
+//    func createMessageClustersWith(_ messages: [Message]) {
+//        // Map existing clusters by date for quick lookup
+//        var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map {
+//            ($0.element.date, $0.offset)
+//        })
+//        var tempMessageClusters = self.messageClusters
+//
+//        // Helper: Binary search to find insert index in a list of real message items
+//        func findInsertIndex(in items: [MessageItem], for newMessage: Message) -> Int {
+//            var low = 0
+//            var high = items.count - 1
+//
+//            while low <= high {
+//                let mid = (low + high) / 2
+//                guard let midTimestamp = items[mid].message?.timestamp else {
+//                    // If this ever happens here, something is wrong, since we only pass real message items
+//                    break
+//                }
+//
+//                if midTimestamp == newMessage.timestamp {
+//                    return mid
+//                } else if midTimestamp < newMessage.timestamp {
+//                    // New message is newer → insert before mid
+//                    high = mid - 1
+//                } else {
+//                    // New message is older → search right half
+//                    low = mid + 1
+//                }
+//            }
+//
+//            return low
+//        }
+//
+//        for message in messages {
+//            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
+//            let messageItem = MessageItem(message: message)
+//
+//            if let index = dateToIndex[date] {
+//                // Cluster exists — insert into it
+//                var clusterItems = tempMessageClusters[index].items
+//
+//                // Filter only items that have real messages
+//                let realMessageItems = clusterItems.filter { $0.message != nil }
+//
+//                // Find index in filtered array
+//                let insertIndexInFiltered = findInsertIndex(in: realMessageItems, for: message)
+//
+//                // Map filtered index back to actual index in full array
+//                var messageCount = 0
+//                var actualInsertIndex = clusterItems.count // fallback: insert at end
+//
+//                for (i, item) in clusterItems.enumerated() {
+//                    if item.message != nil {
+//                        if messageCount == insertIndexInFiltered {
+//                            actualInsertIndex = i
+//                            break
+//                        }
+//                        messageCount += 1
+//                    }
+//                }
+//
+//                // If inserting at end (no match in loop), just insert after all items
+//                clusterItems.insert(messageItem, at: actualInsertIndex)
+//                tempMessageClusters[index].items = clusterItems
+//
+//            } else {
+//                // No cluster for this date → create a new one
+//                let newCluster = MessageCluster(date: date, items: [messageItem])
+//
+//                // Insert cluster in descending order by date (newest at top)
+//                let insertClusterIndex = tempMessageClusters.firstIndex(where: { $0.date < date }) ?? tempMessageClusters.count
+//                tempMessageClusters.insert(newCluster, at: insertClusterIndex)
+//
+//                // Update date lookup
+//                dateToIndex = Dictionary(uniqueKeysWithValues: tempMessageClusters.enumerated().map {
+//                    ($0.element.date, $0.offset)
+//                })
+//            }
+//        }
+//
+//        self.messageClusters = tempMessageClusters
+//    }
     
     private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)
     {

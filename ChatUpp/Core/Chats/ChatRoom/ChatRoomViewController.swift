@@ -1102,26 +1102,43 @@ extension ChatRoomViewController: UITableViewDelegate
        return  UITableView.automaticDimension
     }
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) 
-    {
-        guard viewModel.messageClusters.count != 0,
-              viewModel.isMessageBatchingInProcess == false,
-              didFinishInitialScrollToUnseenIndexPathIfAny
-        else {return}
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard !viewModel.messageClusters.isEmpty,
+              !viewModel.isMessageBatchingInProcess,
+              didFinishInitialScrollToUnseenIndexPathIfAny else { return }
+
+//        let sixtIndex = IndexPath(row: 5, section: 0)
+//        let isSixtCell = indexPath.section == 0 && indexPath.row == 5
         
-        let lastSectionIndex = viewModel.messageClusters.count - 1
-        let lastRowIndex = viewModel.messageClusters[lastSectionIndex].items.count - 1
-        let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
-        let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
-        
-//        if isLastCellDisplayed
-//        {
-//            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: false)
-//        }
-//        else if isFirstCellDisplayed && viewModel.shouldFetchNewMessages
-//        {
-//            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: true)
-//        }
+//        let six = rootView.tableView.indexPathsForVisibleRows?.contains(sixtIndex) ?? false
+   
+        let isFirstCell = indexPath.section == 0 && indexPath.row == 0
+        let lastSection = viewModel.messageClusters.count - 1
+        let lastRow = viewModel.messageClusters[lastSection].items.count - 1
+        let isLastCell = indexPath.section == lastSection && indexPath.row == lastRow
+
+        if isFirstCell || isLastCell
+        {
+            print("Yeas, it's one of the first or last cells")
+            let ascending = isFirstCell
+            
+            if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
+            {
+                viewModel.isMessageBatchingInProcess = true
+                Task { @MainActor in
+                    self.performeTableViewUpdate(with: newRows,
+                                                 sections: newSections)
+//                    self.rootView.layoutSubviews()
+                }
+            } else if isFirstCell
+            {
+//                if viewModel.shouldFetchNewMessages {
+//                    updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: true)
+//                }
+            } else {
+//                updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: false)
+            }
+        }
     }
     
     private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)
@@ -1177,7 +1194,7 @@ extension ChatRoomViewController: UITableViewDelegate
 //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
             self.shouldIgnoreUnseenMessagesUpdate = true
         }, completion: { _ in
-            
+            defer { self.viewModel.isMessageBatchingInProcess = false }
 //            self.shouldIgnoreUnseenMessagesUpdate = true
             if self.rootView.tableView.contentOffset.y < -97.5
             {

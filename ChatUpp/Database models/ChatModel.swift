@@ -162,26 +162,25 @@ class Chat: Object, Codable
 //    }
     
     func getMessages(startingFrom messageID: String,
+                     isMessageIncluded: Bool,
                      ascending: Bool,
-                     limit: Int) -> [Message]
-    {
-        // Step 1: Sort the list
+                     limit: Int) -> [Message] {
+        
         let sortedMessages = getMessagesResults(ascending: ascending)
         
-        // Step 2: Find the index of the message with the target ID
         guard let startIndex = sortedMessages.firstIndex(where: { $0.id == messageID }) else {
             return []
         }
-
-        // Step 3: Create a slice from that index to the end
-        let messages = Array(sortedMessages[startIndex...].prefix(limit))
-        return messages
-        // Step 4: Apply limit if provided
-//        if let limit = limit {
-//            return Array(sliced.prefix(limit))
-//        } else {
-//            return Array(sliced)
-//        }
+        
+        let actualStartIndex = isMessageIncluded
+            ? startIndex
+            : sortedMessages.index(after: startIndex)
+        
+        guard actualStartIndex < sortedMessages.count else {
+            return []
+        }
+        
+        return Array(sortedMessages[actualStartIndex...].prefix(limit))
     }
     
     func getMessages() -> [Message] {
