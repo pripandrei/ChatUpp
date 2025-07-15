@@ -69,7 +69,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     @Published private(set) var messageChangedTypes: [MessageChangeType] = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
     
-//    private var bufferedMessages: BufferedMessages = BufferedMessages()
     private var bufferedMessages: [BufferedMessage] = []
     
     var isMessageBatchingInProcess: Bool = false {
@@ -374,7 +373,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                                              imageRepository: ImageSampleRepository? = nil)
     {
         createMessageClustersWith([message])
-//        createMessageClustersWith([message], ascending: true)
         realmService?.addMessageToRealmChat(message)
         updateUnseenMessageCounterLocal(shouldIncrement: true)
     }
@@ -751,15 +749,80 @@ extension ChatRoomViewModel
     {
         defer { conversationInitializationStatus = .finished }
         
-        guard conversation?.realm != nil,
-              var messages = conversation?.getMessages(),
-              !messages.isEmpty else { return }
+//        guard conversation?.realm != nil,
+//              var messages = conversation?.getMessages(),
+//              !messages.isEmpty else { return }
+        var messages = prepareMessagesForConversationInitialization()
+        guard !messages.isEmpty else {return}
         
         if !shouldDisplayLastMessage {
             messages.removeFirst()
         }
         createMessageClustersWith(messages)
     }
+    
+    private func prepareMessagesForConversationInitialization() -> [Message]
+    {
+        guard let conversation = conversation else { return [] }
+        if let message = getFirstUnseenMessage()
+        {
+            let messages = conversation.getMessages(startingFrom: message.id,
+                                                     ascending: true,
+                                                     limit: 20)
+            return Array(messages)
+        } else {
+            let messages = conversation.getMessagesResults().prefix(30)
+            return Array(messages)
+        }
+    }
+    
+    private func getFirstUnseenMessage() -> Message?
+    {
+        let unseenMessage = conversation?.conversationMessages
+            .filter("messageSeen == false AND senderId != %@", authUser.uid)
+            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
+            .first
+        
+        return unseenMessage
+    }
+    
+    private func sortOutRemovedMessages(by messagesIDs: Set<String>) -> Set<Message>
+    {
+        let messagesToRemove: Set<Message> = Set(
+            (conversation?
+                .getMessagesResults()
+                .filter("id NOT IN %@", messagesIDs)
+                .map { $0 } ?? []
+            )
+        )
+
+        return messagesToRemove
+    }
+    
+//    private func sortOutRemovedMessages2(by messagesIDs: Set<String>,
+//                                         limit: Int = 70) -> Set<Message>
+//    {
+//        
+//        let messagesIDsSorted = Array(messagesIDs).sorted(by: <)
+//        let startMessage = messagesIDsSorted.first
+//        // Step 1: Get sorted messages in ascending order
+//        guard let allMessages = conversation?.getMessagesResults()
+//            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
+//        else {
+//            return []
+//        }
+//
+//        // Step 2: Skip until you find the startMessage, then take the next `limit`
+//        let limitedMessages = allMessages
+//            .drop(while: { $0.id != startMessage.id }) // find start point (inclusive)
+//            .prefix(limit)
+//
+//        // Step 3: Filter out messages that were not in the provided messagesIDs
+//        let messagesToRemove = Set(limitedMessages.filter { !messagesIDsSorted.contains($0.id) })
+//
+//        return messagesToRemove
+//    }
+    
     
     private func initializeWithMessages(_ messages: [Message])
     {
@@ -870,7 +933,7 @@ extension ChatRoomViewModel
                     var removedMessages : Set<Message> = []
                     var modifiedMessages: Set<Message> = []
                     var addedMessages   : Set<Message> = []
-                    
+                     
                     for messageType in messagesTypes
                     {
                         switch messageType.changeType
@@ -958,7 +1021,6 @@ extension ChatRoomViewModel
             await syncGroupUsers(for: [message])
         }
         createMessageClustersWith([message])
-//        messageChangedTypes.append(.added(message: message))
     }
     
     private func handleRemovedMessage(at indexPath: IndexPath) -> MessageChangeType?
@@ -1139,12 +1201,6 @@ extension ChatRoomViewModel
 // MARK: - messageCluster functions
 extension ChatRoomViewModel
 {
-    
-    enum MessageInsertionPosition {
-        case appendToEnd      // user scrolled to top, loading older messages
-        case insertAtBeginning // user scrolled to bottom, loading newer messages
-    }
-    
     func createMessageClustersWith(_ messages: [Message]) {
         var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
         var tempMessageClusters = self.messageClusters
@@ -1196,6 +1252,82 @@ extension ChatRoomViewModel
         self.messageClusters = tempMessageClusters
     }
     
+    private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)
+    {
+        let oldDates = Set(clusterSnapshot.map { $0.date })
+        
+        var newIndexPaths: [IndexPath] = []
+        var newSections = IndexSet()
+        
+        for (sectionIndex, updatedCluster) in messageClusters.enumerated() {
+            let isNewSection = !oldDates.contains(updatedCluster.date)
+            
+            if isNewSection
+            {
+                newSections.insert(sectionIndex)
+                
+                let updatedMessagesSet = Set(updatedCluster.items.compactMap { $0.message })
+                for (index, _) in updatedMessagesSet.enumerated()
+                {
+                    newIndexPaths.append(IndexPath(row: index, section: sectionIndex))
+                }
+                continue
+            }
+            
+            // Match existing section by date
+            guard let oldSection = clusterSnapshot.first(where: { $0.date == updatedCluster.date }) else { continue }
+            let oldMessagesSet = Set(oldSection.items.compactMap { $0.message })
+
+            for (rowIndex, item) in updatedCluster.items.enumerated() {
+                if let message = item.message, !oldMessagesSet.contains(message) {
+                    newIndexPaths.append(IndexPath(row: rowIndex, section: sectionIndex))
+                }
+            }
+        }
+        
+        return (newIndexPaths, newSections.isEmpty ? nil : newSections)
+    }
+    
+    @MainActor
+    func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
+    {
+        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
+        
+        let newMessages = try await fetchConversationMessages(using: strategy)
+        guard !newMessages.isEmpty else { return nil }
+
+        if conversation?.isGroup == true {
+            await syncGroupUsers(for: newMessages)
+        }
+        
+        if conversation?.realm != nil
+        {
+            let startMessage = newMessages.first!
+            realmService?.addMessagesToConversationInRealm(newMessages)
+            messageListenerService?.addListenerToExistingMessagesTest(
+                startAtMesssage: startMessage,
+                ascending: order)
+        }
+        print("All additional fetched messages: ", "\n ", newMessages)
+        let clusterSnapshot = messageClusters
+        createMessageClustersWith(newMessages)
+        let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
+        
+        assert(!newRows.isEmpty, "New rows array should not be empty at this point!")
+        
+        return (newRows, newSections)
+    }
+}
+
+
+
+
+
+
+
+//MARK: - Message cluster insertion different options
+
+
 //    func createMessageClustersWith(_ messages: [Message]) {
 //        guard !messages.isEmpty else { return }
 //
@@ -1294,115 +1426,9 @@ extension ChatRoomViewModel
 //        }
 //        self.messageClusters = tempMessageClusters
 //    }
-    
-    private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)
-    {
-        let oldDates = Set(clusterSnapshot.map { $0.date })
-        
-        var newIndexPaths: [IndexPath] = []
-        var newSections = IndexSet()
-        
-        for (sectionIndex, updatedCluster) in messageClusters.enumerated() {
-            let isNewSection = !oldDates.contains(updatedCluster.date)
-            
-            if isNewSection
-            {
-                newSections.insert(sectionIndex)
-                
-                let updatedMessagesSet = Set(updatedCluster.items.compactMap { $0.message })
-                for (index, _) in updatedMessagesSet.enumerated()
-                {
-                    newIndexPaths.append(IndexPath(row: index, section: sectionIndex))
-                }
-                continue
-            }
-            
-            // Match existing section by date
-            guard let oldSection = clusterSnapshot.first(where: { $0.date == updatedCluster.date }) else { continue }
-            let oldMessagesSet = Set(oldSection.items.compactMap { $0.message })
 
-            for (rowIndex, item) in updatedCluster.items.enumerated() {
-                if let message = item.message, !oldMessagesSet.contains(message) {
-                    newIndexPaths.append(IndexPath(row: rowIndex, section: sectionIndex))
-                }
-            }
-        }
-        
-        return (newIndexPaths, newSections.isEmpty ? nil : newSections)
-    }
-    
-    @MainActor
-    func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
-    {
-        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
-        
-        let newMessages = try await fetchConversationMessages(using: strategy)
-        guard !newMessages.isEmpty else { return nil }
+//enum MessageInsertionPosition {
+//    case appendToEnd      // user scrolled to top, loading older messages
+//    case insertAtBeginning // user scrolled to bottom, loading newer messages
+//}
 
-        if conversation?.isGroup == true {
-            await syncGroupUsers(for: newMessages)
-        }
-        
-        if conversation?.realm != nil
-        {
-            let startMessage = newMessages.first!
-            realmService?.addMessagesToConversationInRealm(newMessages)
-            messageListenerService?.addListenerToExistingMessagesTest(
-                startAtMesssage: startMessage,
-                ascending: order)
-//            messageListenerService?.addListenerToExistingMessages(
-//                startAtMesssageWithID: startMessage.id,
-//                ascending: order)
-        }
-        print("All additional fetched messages: ", "\n ", newMessages)
-        let clusterSnapshot = messageClusters
-        createMessageClustersWith(newMessages)
-//        createMessageClustersWith(newMessages, ascending: order)
-        let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
-        
-        assert(!newRows.isEmpty, "New rows array should not be empty at this point!")
-        
-        return (newRows, newSections)
-    }
-    
-    private func prepareMessageClustersUpdate(withMessages messages: [Message],
-                                              inAscendingOrder: Bool) -> ([IndexPath], IndexSet?)
-    {
-           let messageClustersBeforeUpdate = messageClusters
-           let startSectionCount = inAscendingOrder ? 0 : messageClusters.count
-           
-//           createMessageClustersWith(messages, ascending: inAscendingOrder)
-           createMessageClustersWith(messages)
-           
-           let endSectionCount = inAscendingOrder ? (messageClusters.count - messageClustersBeforeUpdate.count) : messageClusters.count
-           
-           let newRows = findNewRowIndexPaths(inMessageClusters: messageClustersBeforeUpdate, ascending: inAscendingOrder)
-
-           let newSections = findNewSectionIndexSet(startSectionCount: startSectionCount, endSectionCount: endSectionCount)
-           
-           return (newRows, newSections)
-       }
-
-       private func findNewRowIndexPaths(inMessageClusters messageClusters: [MessageCluster],
-                                         ascending: Bool) -> [IndexPath] {
-           let sectionIndex = ascending ? 0 : messageClusters.count - 1
-           guard let sectionBeforeUpdate = ascending
-                   ? messageClusters.first?.items
-                   : messageClusters.last?.items else { return [] }
-
-           let existingMessages = Set(sectionBeforeUpdate.map { $0.message })
-           
-           return self.messageClusters[sectionIndex].items
-               .enumerated()
-               .compactMap { index, viewModel in
-                   existingMessages.contains(viewModel.message) ? nil : IndexPath(row: index, section: sectionIndex)
-               }
-       }
-
-   private func findNewSectionIndexSet(startSectionCount: Int, endSectionCount: Int) -> IndexSet?
-       {
-           return (startSectionCount < endSectionCount)
-           ? IndexSet(integersIn: startSectionCount..<endSectionCount)
-           : nil
-       }
-}

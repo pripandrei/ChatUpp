@@ -152,8 +152,47 @@ class Chat: Object, Codable
         conversationMessages.append(message)
     }
     
+//    func getMessages(ascending: Bool, limit: Int) -> [Message]
+//    {
+//        return Array(conversationMessages.sorted(
+//            byKeyPath: Message.CodingKeys.timestamp.rawValue,
+//            ascending: ascending)
+//            .prefix(limit)
+//        )
+//    }
+    
+    func getMessages(startingFrom messageID: String,
+                     ascending: Bool,
+                     limit: Int) -> [Message]
+    {
+        // Step 1: Sort the list
+        let sortedMessages = getMessagesResults(ascending: ascending)
+        
+        // Step 2: Find the index of the message with the target ID
+        guard let startIndex = sortedMessages.firstIndex(where: { $0.id == messageID }) else {
+            return []
+        }
+
+        // Step 3: Create a slice from that index to the end
+        let messages = Array(sortedMessages[startIndex...].prefix(limit))
+        return messages
+        // Step 4: Apply limit if provided
+//        if let limit = limit {
+//            return Array(sliced.prefix(limit))
+//        } else {
+//            return Array(sliced)
+//        }
+    }
+    
     func getMessages() -> [Message] {
         return Array(conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false))
+    }
+    
+    func getMessagesResults(ascending: Bool = false) -> Results<Message>
+    {
+        return conversationMessages.sorted(
+            byKeyPath: Message.CodingKeys.timestamp.rawValue,
+            ascending: ascending)
     }
     
     func getLastMessage() -> Message? {

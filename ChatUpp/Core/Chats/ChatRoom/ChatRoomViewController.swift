@@ -210,8 +210,8 @@ final class ChatRoomViewController: UIViewController
         viewModel.resetInitializationStatus()
         viewModel.insertUnseenMessagesTitle()
         refreshTableView()
-        viewModel.addListeners()
-        viewModel.realmService?.updateChatOpenStatusIfNeeded()
+//        viewModel.addListeners()
+//        viewModel.realmService?.updateChatOpenStatusIfNeeded()
         if viewModel.authParticipantUnreadMessagesCount > 0 {
             updateMessageSeenStatusIfNeeded()
         }
@@ -1114,14 +1114,14 @@ extension ChatRoomViewController: UITableViewDelegate
         let isLastCellDisplayed = indexPath.section == lastSectionIndex && indexPath.row == lastRowIndex
         let isFirstCellDisplayed = indexPath.section == 0 && indexPath.row == 0
         
-        if isLastCellDisplayed
-        {
-            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: false)
-        }
-        else if isFirstCellDisplayed && viewModel.shouldFetchNewMessages
-        {
-            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: true)
-        }
+//        if isLastCellDisplayed
+//        {
+//            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: false)
+//        }
+//        else if isFirstCellDisplayed && viewModel.shouldFetchNewMessages
+//        {
+//            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: true)
+//        }
     }
     
     private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)

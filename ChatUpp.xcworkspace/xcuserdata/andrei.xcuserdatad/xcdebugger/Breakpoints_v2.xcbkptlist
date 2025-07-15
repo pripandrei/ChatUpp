@@ -7,32 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "1D70827F-3DAB-4DD8-B011-AE24F6CC4081"
+            uuid = "FDEEB7A1-7C78-4260-A86A-284DA361664F"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1361"
-            endingLineNumber = "1361"
-            landmarkName = "handleAdditionalMessageClusterUpdate(inAscendingOrder:)"
+            startingLineNumber = "755"
+            endingLineNumber = "755"
+            landmarkName = "initializeWithLocalData()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "6C66EC6B-0112-40CF-9AA5-0F19AF852D5F"
+            uuid = "E8E8E0DF-20A6-4433-B6F0-2B6A9F3BCEFD"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1308"
-            endingLineNumber = "1308"
-            landmarkName = "getIndexPathsForAdditionalMessages(fromClusterSnapshot:)"
+            startingLineNumber = "767"
+            endingLineNumber = "767"
+            landmarkName = "prepareMessagesForConversationInitialization()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
