@@ -395,11 +395,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard let message = conversation?.getLastMessage(),
               let limit = conversation?.conversationMessages.count else { return }
-        
-//        messageListenerService?.addListenerToExistingMessagesTest(
-//            startAtMesssageWithID:messageID,
-//            ascending: true,
-//            limit: limit)
+
         messageListenerService?.addListenerToExistingMessagesTest(
             startAtMesssage: message,
             ascending: true,
@@ -759,20 +755,6 @@ extension ChatRoomViewModel
             messages.removeFirst()
         }
         createMessageClustersWith(messages)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.1) {
-            var totalMessagesCount = 0
-            
-            for cluster in self.messageClusters
-            {
-                totalMessagesCount += cluster.items.count
-            }
-            print("TOtal count: ",totalMessagesCount)
-        }
-//        let messageClustersCount = messageClusters.count
-//        guard let startMessage = messageClusters[messageClustersCount - 1].items.last?.message else {return}
-//                print("START MESSAGE : ", startMessage)
-//                print("cluster count: ", messageClustersCount)
     }
     
     private func prepareMessagesForConversationInitialization() -> [Message]
@@ -780,17 +762,20 @@ extension ChatRoomViewModel
         guard let conversation = conversation else { return [] }
         if let message = getFirstUnseenMessage()
         {
-            let messagesAscending = conversation.getMessages(startingFrom: message.id,
-                                                    isMessageIncluded: true,
-                                                    ascending: true,
-                                                    limit: 20)
-            let messagesDescending = conversation.getMessages(startingFrom: message.id,
-                                                              isMessageIncluded: false,
-                                                              ascending: false,
-                                                              limit: 20).reversed()
+            let messagesAscending = conversation.getMessages(
+                startingFrom: message.id,
+                isMessageIncluded: true,
+                ascending: true,
+                limit: 20)
+            
+            let messagesDescending = conversation.getMessages(
+                startingFrom: message.id,
+                isMessageIncluded: false,
+                ascending: false,
+                limit: 20).reversed() /// since table view is inverted, reverse messages here
             return Array(messagesDescending + messagesAscending)
         } else {
-            let messages = conversation.getMessagesResults().prefix(31)
+            let messages = conversation.getMessagesResults().prefix(40)
             return Array(messages)
         }
     }
@@ -844,44 +829,6 @@ extension ChatRoomViewModel
         
         return unseenMessage
     }
-    
-    private func sortOutRemovedMessages(by messagesIDs: Set<String>) -> Set<Message>
-    {
-        let messagesToRemove: Set<Message> = Set(
-            (conversation?
-                .getMessagesResults()
-                .filter("id NOT IN %@", messagesIDs)
-                .map { $0 } ?? []
-            )
-        )
-
-        return messagesToRemove
-    }
-    
-//    private func sortOutRemovedMessages2(by messagesIDs: Set<String>,
-//                                         limit: Int = 70) -> Set<Message>
-//    {
-//        
-//        let messagesIDsSorted = Array(messagesIDs).sorted(by: <)
-//        let startMessage = messagesIDsSorted.first
-//        // Step 1: Get sorted messages in ascending order
-//        guard let allMessages = conversation?.getMessagesResults()
-//            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
-//        else {
-//            return []
-//        }
-//
-//        // Step 2: Skip until you find the startMessage, then take the next `limit`
-//        let limitedMessages = allMessages
-//            .drop(while: { $0.id != startMessage.id }) // find start point (inclusive)
-//            .prefix(limit)
-//
-//        // Step 3: Filter out messages that were not in the provided messagesIDs
-//        let messagesToRemove = Set(limitedMessages.filter { !messagesIDsSorted.contains($0.id) })
-//
-//        return messagesToRemove
-//    }
-    
     
     private func initializeWithMessages(_ messages: [Message])
     {
@@ -1045,13 +992,6 @@ extension ChatRoomViewModel
                     let addedIndexPaths = addedMessages
                         .compactMap { self.indexPath(of: $0) }
                     let addedTypes      = addedIndexPaths.compactMap { MessageChangeType.added($0) }
-//                    await withTaskGroup(of: Void.self) { group in
-//                        for message in addedMessages {
-//                            group.addTask {
-//                                await self.handleAddedMessage(message)
-//                            }
-//                        }
-//                    }
                     
                     let allChanges: [MessageChangeType] = removedTypes + modifiedTypes + addedTypes
                     self.messageChangedTypes = allChanges
@@ -1183,30 +1123,6 @@ extension ChatRoomViewModel
         }
     }
     
-//    private func loadAdditionalMessages(inAscendingOrder ascendingOrder: Bool) async throws -> [Message]
-//    {
-//        let startMessage: Message?
-//        
-//        if ascendingOrder {
-//            startMessage = lastMessageItem?.message
-//        } else {
-//            // last message can be UnseenMessagesTitle, so we need to check and get one before last message instead
-//            guard let items = messageClusters.last?.items else { return [] }
-//                  
-//            if let lastItem = items.last, lastItem.displayUnseenMessagesTitle == true
-//            {
-//                startMessage = items.dropLast().last?.message
-//            } else {
-//                startMessage = items.last?.message
-//            }
-//        }
-//        
-//        switch ascendingOrder {
-//        case true: return try await fetchConversationMessages(using: .ascending(startAtMessage: startMessage, included: false))
-//        case false: return try await fetchConversationMessages(using: .descending(startAtMessage: startMessage, included: false))
-//        }
-//    }
-    
     private func getStrategyForAdditionalMessagesFetch(inAscendingOrder ascendingOrder: Bool) -> MessageFetchStrategy?
     {
         let startMessage: Message?
@@ -1300,7 +1216,83 @@ extension ChatRoomViewModel
         
         self.messageClusters = tempMessageClusters
     }
-    //
+    
+    private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)
+    {
+        let oldDates = Set(clusterSnapshot.map { $0.date })
+        
+        var newIndexPaths: [IndexPath] = []
+        var newSections = IndexSet()
+        
+        for (sectionIndex, updatedCluster) in messageClusters.enumerated() {
+            let isNewSection = !oldDates.contains(updatedCluster.date)
+            
+            if isNewSection
+            {
+                newSections.insert(sectionIndex)
+                
+                let updatedMessagesSet = Set(updatedCluster.items.compactMap { $0.message })
+                for (index, _) in updatedMessagesSet.enumerated()
+                {
+                    newIndexPaths.append(IndexPath(row: index, section: sectionIndex))
+                }
+                continue
+            }
+            
+            // Match existing section by date
+            guard let oldSection = clusterSnapshot.first(where: { $0.date == updatedCluster.date }) else { continue }
+            let oldMessagesSet = Set(oldSection.items.compactMap { $0.message })
+
+            for (rowIndex, item) in updatedCluster.items.enumerated() {
+                if let message = item.message, !oldMessagesSet.contains(message) {
+                    newIndexPaths.append(IndexPath(row: rowIndex, section: sectionIndex))
+                }
+            }
+        }
+        
+        return (newIndexPaths, newSections.isEmpty ? nil : newSections)
+    }
+    
+    @MainActor
+    func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
+    {
+        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
+        
+        let newMessages = try await fetchConversationMessages(using: strategy)
+        guard !newMessages.isEmpty else { return nil }
+
+        if conversation?.isGroup == true {
+            await syncGroupUsers(for: newMessages)
+        }
+        
+        if conversation?.realm != nil
+        {
+            let startMessage = newMessages.first!
+            realmService?.addMessagesToConversationInRealm(newMessages)
+            messageListenerService?.addListenerToExistingMessagesTest(
+                startAtMesssage: startMessage,
+                ascending: order)
+        }
+        print("All additional fetched messages: ", "\n ", newMessages)
+        let clusterSnapshot = messageClusters
+        createMessageClustersWith(newMessages)
+        let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
+        
+        assert(!newRows.isEmpty, "New rows array should not be empty at this point!")
+        
+        return (newRows, newSections)
+    }
+}
+
+
+
+
+
+
+
+//MARK: - Message cluster insertion different options
+
+
 //    func createMessageClustersWith(_ messages: [Message]) {
 //        // Map existing clusters by date for quick lookup
 //        var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map {
@@ -1383,81 +1375,6 @@ extension ChatRoomViewModel
 //
 //        self.messageClusters = tempMessageClusters
 //    }
-    
-    private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)
-    {
-        let oldDates = Set(clusterSnapshot.map { $0.date })
-        
-        var newIndexPaths: [IndexPath] = []
-        var newSections = IndexSet()
-        
-        for (sectionIndex, updatedCluster) in messageClusters.enumerated() {
-            let isNewSection = !oldDates.contains(updatedCluster.date)
-            
-            if isNewSection
-            {
-                newSections.insert(sectionIndex)
-                
-                let updatedMessagesSet = Set(updatedCluster.items.compactMap { $0.message })
-                for (index, _) in updatedMessagesSet.enumerated()
-                {
-                    newIndexPaths.append(IndexPath(row: index, section: sectionIndex))
-                }
-                continue
-            }
-            
-            // Match existing section by date
-            guard let oldSection = clusterSnapshot.first(where: { $0.date == updatedCluster.date }) else { continue }
-            let oldMessagesSet = Set(oldSection.items.compactMap { $0.message })
-
-            for (rowIndex, item) in updatedCluster.items.enumerated() {
-                if let message = item.message, !oldMessagesSet.contains(message) {
-                    newIndexPaths.append(IndexPath(row: rowIndex, section: sectionIndex))
-                }
-            }
-        }
-        
-        return (newIndexPaths, newSections.isEmpty ? nil : newSections)
-    }
-    
-    @MainActor
-    func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
-    {
-        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
-        
-        let newMessages = try await fetchConversationMessages(using: strategy)
-        guard !newMessages.isEmpty else { return nil }
-
-        if conversation?.isGroup == true {
-            await syncGroupUsers(for: newMessages)
-        }
-        
-        if conversation?.realm != nil
-        {
-            let startMessage = newMessages.first!
-            realmService?.addMessagesToConversationInRealm(newMessages)
-            messageListenerService?.addListenerToExistingMessagesTest(
-                startAtMesssage: startMessage,
-                ascending: order)
-        }
-        print("All additional fetched messages: ", "\n ", newMessages)
-        let clusterSnapshot = messageClusters
-        createMessageClustersWith(newMessages)
-        let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
-        
-        assert(!newRows.isEmpty, "New rows array should not be empty at this point!")
-        
-        return (newRows, newSections)
-    }
-}
-
-
-
-
-
-
-
-//MARK: - Message cluster insertion different options
 
 
 //    func createMessageClustersWith(_ messages: [Message]) {
@@ -1564,3 +1481,42 @@ extension ChatRoomViewModel
 //    case insertAtBeginning // user scrolled to bottom, loading newer messages
 //}
 
+
+
+//MARK: - Removed message handle (not finished implementation)
+//    private func sortOutRemovedMessages(by messagesIDs: Set<String>) -> Set<Message>
+//    {
+//        let messagesToRemove: Set<Message> = Set(
+//            (conversation?
+//                .getMessagesResults()
+//                .filter("id NOT IN %@", messagesIDs)
+//                .map { $0 } ?? []
+//            )
+//        )
+//
+//        return messagesToRemove
+//    }
+
+//    private func sortOutRemovedMessages2(by messagesIDs: Set<String>,
+//                                         limit: Int = 70) -> Set<Message>
+//    {
+//
+//        let messagesIDsSorted = Array(messagesIDs).sorted(by: <)
+//        let startMessage = messagesIDsSorted.first
+//        // Step 1: Get sorted messages in ascending order
+//        guard let allMessages = conversation?.getMessagesResults()
+//            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
+//        else {
+//            return []
+//        }
+//
+//        // Step 2: Skip until you find the startMessage, then take the next `limit`
+//        let limitedMessages = allMessages
+//            .drop(while: { $0.id != startMessage.id }) // find start point (inclusive)
+//            .prefix(limit)
+//
+//        // Step 3: Filter out messages that were not in the provided messagesIDs
+//        let messagesToRemove = Set(limitedMessages.filter { !messagesIDsSorted.contains($0.id) })
+//
+//        return messagesToRemove
+//    }

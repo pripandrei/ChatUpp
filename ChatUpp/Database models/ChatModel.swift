@@ -152,15 +152,6 @@ class Chat: Object, Codable
         conversationMessages.append(message)
     }
     
-//    func getMessages(ascending: Bool, limit: Int) -> [Message]
-//    {
-//        return Array(conversationMessages.sorted(
-//            byKeyPath: Message.CodingKeys.timestamp.rawValue,
-//            ascending: ascending)
-//            .prefix(limit)
-//        )
-//    }
-    
     func getMessages(startingFrom messageID: String,
                      isMessageIncluded: Bool,
                      ascending: Bool,
