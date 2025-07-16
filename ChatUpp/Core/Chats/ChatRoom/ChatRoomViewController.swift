@@ -27,9 +27,9 @@ extension ChatRoomViewController: UIScrollViewDelegate
 ////            let isSeen = checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
 ////            print("first cell is currently visible: \(isSeen)")
 ////        }
-//        
+//
 //        let now = Date()
-//        
+//
 ////        if let shouldIgnoreUnseenMessagesUpdateForTimePeriod
 ////        {
 ////            if now.timeIntervalSince(shouldIgnoreUnseenMessagesUpdateForTimePeriod) > 1.5
@@ -39,26 +39,26 @@ extension ChatRoomViewController: UIScrollViewDelegate
 ////            }
 ////            return
 ////        }
-////        
+////
 //        if shouldIgnoreUnseenMessagesUpdate
 //        {
 //            shouldIgnoreUnseenMessagesUpdate = false
 //            self.pendingCellPathsForSeenStatusCheck.removeAll()
 //            return
 //        }
-//    
+//
 //        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows
 //        {
 //            self.pendingCellPathsForSeenStatusCheck.formUnion(visibleIndices)
 //        }
-//        
+//
 //        if now.timeIntervalSince(lastSeenStatusCheckUpdate) > 1.0
 //        {
 //            self.lastSeenStatusCheckUpdate = now
-//            
+//
 //            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
 //        }
-//        
+//
 //        isLastCellFullyVisible ?
 //        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
 //        :
@@ -332,7 +332,7 @@ final class ChatRoomViewController: UIViewController
 //        var addedMessages: [Message] = []
 //        var removedPaths: [(IndexPath, Bool)] = []
 //        var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
-//        
+//
 //        for change in changes
 //        {
 //            switch change
@@ -350,31 +350,31 @@ final class ChatRoomViewController: UIViewController
 //                modifiedPaths.append((indexPath, modification.animationType))
 //            }
 //        }
-//        
+//
 //        /// Filter out modifications that were also removed
 //        ///
 //        let removedIndexPaths = Set(removedPaths.map { $0.0 })
 //        let safeModifications = modifiedPaths
 //            .filter { !removedIndexPaths.contains($0.indexPath) }
-//        
+//
 //        /// Group modifications by animation type (for clarity and batch efficiency)
 //        let groupModifications = Dictionary(grouping: safeModifications,
 //                                            by: { $0.animation })
-//        
+//
 //        rootView.tableView.performBatchUpdates
 //        {
 //            if !removedPaths.isEmpty
 //            {
 //                self.removeTableViewCells(at: removedPaths)
 //            }
-//            
+//
 //            if !addedMessages.isEmpty {
 //                let insertIndexPaths = addedMessages.compactMap {
 //                    viewModel.indexPath(of: $0)
 //                }
 //                rootView.tableView.insertRows(at: insertIndexPaths, with: .fade)
 //            }
-//            
+//
 //            for (animation, entrie) in groupModifications
 //            {
 //                let indexPaths = entrie.map { $0.indexPath }
@@ -409,9 +409,9 @@ final class ChatRoomViewController: UIViewController
         }
     }
     
-    @objc func keyboardWillHide(notification: NSNotification) 
+    @objc func keyboardWillHide(notification: NSNotification)
     {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue 
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
             isKeyboardHidden = true
             guard !isContextMenuPresented else {
@@ -551,7 +551,7 @@ final class ChatRoomViewController: UIViewController
         return inputBarRect.origin.y >= lastCellRect.origin.y
     }
     
-    private func toggleScrollBadgeButtonVisibility(shouldBeHidden: Bool) 
+    private func toggleScrollBadgeButtonVisibility(shouldBeHidden: Bool)
     {
         UIView.animate(withDuration: 0.3) {
             self.rootView.scrollBadgeButton.layer.opacity = shouldBeHidden ? 0.0 : 1.0
@@ -613,15 +613,15 @@ extension ChatRoomViewController {
 //    {
 //        guard let messagesCountInFirstCluster = viewModel.messageClusters.first?.items.count else {return}
 //        guard let messageCountInLastCluster = viewModel.messageClusters.last?.items.count else {return}
-//        
+//
 //        let rowCountInFirstSection = rootView.tableView.numberOfRows(inSection: 0)
 //
 //        let numberOfSections = rootView.tableView.numberOfSections
-//        
+//
 //        if numberOfSections == viewModel.messageClusters.count
 //        {
 //            let rowCountInLastSection = rootView.tableView.numberOfRows(inSection: viewModel.messageClusters.count - 1)
-//            
+//
 //            assert(messagesCountInFirstCluster > rowCountInFirstSection, "Row count in first section must not be greater than messages count in first cluster before update")
 //            assert(messageCountInLastCluster > rowCountInLastSection, "Row count in last section must not be greater than messages count in last cluster before update")
 //        }
@@ -751,7 +751,7 @@ extension ChatRoomViewController {
 }
 
 //MARK: - Message seen status handler
-extension ChatRoomViewController 
+extension ChatRoomViewController
 {
     private func updateMessageSeenStatusIfNeeded()
     {
@@ -768,7 +768,7 @@ extension ChatRoomViewController
 //                  [.visible, .offScreen].contains(status) else { continue }
             
 //            guard let status = getCellVisibilityStatus(at: indexPath) else { continue }
-//            
+//
 //            if status == .underInputBar {
 //                self.pendingCellPathsForSeenStatusCheck.formUnion([indexPath])
 //                continue
@@ -891,7 +891,7 @@ extension ChatRoomViewController {
         animateInputBarHeaderViewDestruction()
     }
     
-    @objc func sendMessageTapped() 
+    @objc func sendMessageTapped()
     {
         let trimmedString = getTrimmedString()
         if !trimmedString.isEmpty
@@ -934,26 +934,26 @@ extension ChatRoomViewController
 }
 
 //MARK: - TABLE OFFSET HANDLER
-extension ChatRoomViewController 
+extension ChatRoomViewController
 {
 //    private func handleTableViewOffset(usingKeyboardSize keyboardSize: CGRect)
 //    {
 //        let maxContainerY = 584.0 - 4.0
 //        let isMaxLinesReached = rootView.inputBarContainer.frame.origin.y > maxContainerY
 //        let keyboardHeight = isMaxLinesReached ? -keyboardSize.height : keyboardSize.height
-//        
+//
 //        // Calculate text view height
 //        let lineHeight = rootView.messageTextView.font!.lineHeight
 //        let textViewHeight = (lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - lineHeight
-//        
+//
 //        // Calculate total inset including text view height and header
 //        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
 //        let totalInset = textViewHeight + editViewHeight + (keyboardHeight < 0 ? abs(keyboardHeight) : 0)
-//        
+//
 //        let currentOffset = rootView.tableView.contentOffset
 //        let newOffset = CGPoint(x: currentOffset.x,
 //                               y: keyboardHeight + currentOffset.y)
-//        
+//
 //        // Update layout
 //        rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
 //        rootView.layoutSubviews()
@@ -961,7 +961,7 @@ extension ChatRoomViewController
 //        rootView.tableView.setContentOffset(newOffset, animated: false)
 //        rootView.tableView.verticalScrollIndicatorInsets.top = totalInset
 //    }
-//    
+//
 
     private func handleTableViewOffset(usingKeyboardSize keyboardSize: CGRect)
     {
@@ -1094,7 +1094,7 @@ extension ChatRoomViewController: UITableViewDelegate
         }
 //        if isNewSectionAdded && section == 0 {
 //            view.alpha = 0.0
-//            
+//
 //            view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: -30)
 //            UIView.animate(withDuration: 0.3) {
 //                view.frame = view.frame.offsetBy(dx: view.frame.origin.x, dy: 30)
@@ -1112,8 +1112,8 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
-        guard !viewModel.messageClusters.isEmpty,
-              !viewModel.isMessageBatchingInProcess else { return }
+        guard !viewModel.messageClusters.isEmpty
+             /* !viewModel.isMessageBatchingInProcess */else { return }
         
         // Paginate only if we reached sixth cell either from beginning or end
         if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
@@ -1133,15 +1133,40 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func paginateIfNeeded(ascending: Bool)
     {
-        if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
-        {
-            viewModel.isMessageBatchingInProcess = true
+        viewModel.messagesBatchingQueue.sync { [weak self] in
+            guard let self else { return }
+            
             Task { @MainActor in
-                self.performeTableViewUpdate(with: newRows, sections: newSections)
+                
+//                if ascending && self.viewModel.shouldFetchNewMessages
+//                {
+//                    self.updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
+//                }
+                if let (newRows, newSections) = self.viewModel.paginateAdditionalLocalMessages(ascending: ascending)
+                {
+                    self.performeTableViewUpdate(with: newRows, sections: newSections)
+                } else {
+                    self.updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
+                }
+                
+//                if let (newRows, newSections) = self.viewModel.paginateAdditionalLocalMessages(ascending: ascending) {
+//                    self.performeTableViewUpdate(with: newRows, sections: newSections)
+//                } else {
+//                    self.updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
+//                }
             }
-        } else {
-            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
         }
+        
+//
+//        if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
+//        {
+//            viewModel.isMessageBatchingInProcess = true
+//            Task { @MainActor in
+//                self.performeTableViewUpdate(with: newRows, sections: newSections)
+//            }
+//        } else {
+//            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
+//        }
     }
     
     private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
@@ -1272,34 +1297,36 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)
     {
-//        print("entered additional update block")
-//        didFinishInitialScroll = false
-        viewModel.isMessageBatchingInProcess = true
-        
-        Task { @MainActor [weak self] in
-            guard let self = self else {return}
-            do {
-                /// See Footnote.swift [3]
-                try await Task.sleep(for: .seconds(1.2))
-                
-                if let (newRows, newSections) = try await self.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
-                {
-                    self.performeTableViewUpdate(with: newRows, sections: newSections)
+        viewModel.messagesBatchingQueue.sync { [weak self] in
+            //        print("entered additional update block")
+            //        didFinishInitialScroll = false
+            //        viewModel.isMessageBatchingInProcess = true
+            
+            Task { @MainActor [weak self] in
+                guard let self = self else {return}
+                do {
+                    /// See Footnote.swift [3]
+                    try await Task.sleep(for: .seconds(1.2))
                     
-                    // if all unseen messages are fetched, attach listener to upcoming
-                    if order == true && self.viewModel.shouldAttachListenerToUpcomingMessages
+                    if let (newRows, newSections) = try await self.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
                     {
-                        print("added listener to upcomming messages")
-                        self.viewModel.messageListenerService?.addListenerToUpcomingMessages()
+                        self.performeTableViewUpdate(with: newRows, sections: newSections)
+                        
+                        // if all unseen messages are fetched, attach listener to upcoming
+                        if order == true && self.viewModel.shouldAttachListenerToUpcomingMessages
+                        {
+                            print("added listener to upcomming messages")
+                            self.viewModel.messageListenerService?.addListenerToUpcomingMessages()
+                        }
                     }
+                } catch {
+                    print("Could not update conversation with additional messages: \(error)")
                 }
-            } catch {
-                print("Could not update conversation with additional messages: \(error)")
+                //            self.didFinishInitialScroll = true
+                //            print("didFinishInitialScroll")
+                try await Task.sleep(for: .seconds(0.4))
+                //                viewModel.isMessageBatchingInProcess = false
             }
-//            self.didFinishInitialScroll = true
-//            print("didFinishInitialScroll")
-            try await Task.sleep(for: .seconds(0.4))
-            viewModel.isMessageBatchingInProcess = false
         }
     }
     

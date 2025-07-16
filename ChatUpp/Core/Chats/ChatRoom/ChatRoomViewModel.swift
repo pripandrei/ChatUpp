@@ -403,6 +403,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     private let unseenMessageUpdateQueue = DispatchQueue(label: "unseenMessageUpdateQueue")
+    let messagesBatchingQueue = DispatchQueue(label: "messagesBatchingQueue")
     
     
     /// - update messages components
@@ -782,7 +783,23 @@ extension ChatRoomViewModel
     
     func paginateAdditionalLocalMessages(ascending: Bool) -> ([IndexPath], IndexSet?)?
     {
-        let paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
+        var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
+        
+        let recentMessageIsPresent = paginatedMessages.contains(where: { $0.id == conversation?.recentMessageID })
+        
+        if recentMessageIsPresent
+        {
+            if paginatedMessages.count > 1
+            {
+                paginatedMessages.removeAll(where: { $0.id == conversation?.recentMessageID })
+//                paginatedMessages.dropFirst() // or last
+            }
+            else if shouldFetchNewMessages
+            {
+                return nil
+            }
+        }
+
         if !paginatedMessages.isEmpty
         {
             let clusterSnapshot = messageClusters
