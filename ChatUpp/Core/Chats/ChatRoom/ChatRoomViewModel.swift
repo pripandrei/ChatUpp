@@ -51,7 +51,12 @@ struct BufferedMessages
 
 class ChatRoomViewModel : SwiftUI.ObservableObject
 {
-    private var setupConversationTask: Task<Void, Never>?
+     var setupConversationTask: Task<Void, Never>?
+//     var setupBatchMessageTask: Task<Void, Error>?
+     var setupBatchMessageTask2: [Task<Void, Never>] = []
+    
+//    let paginationQueue = RemotePaginationTaskQueue()
+    let paginationQueue = PaginationActor()
     
     private(set) var realmService: ConversationRealmService?
     //    private(set) var messageFetcher : ConversationMessageFetcher
@@ -404,7 +409,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private let unseenMessageUpdateQueue = DispatchQueue(label: "unseenMessageUpdateQueue")
     let messagesBatchingQueue = DispatchQueue(label: "messagesBatchingQueue")
-    
+    let groupDispatch = DispatchGroup()
     
     /// - update messages components
     @MainActor
@@ -1273,11 +1278,13 @@ extension ChatRoomViewModel
     @MainActor
     func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
     {
-        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
         
+        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
+        print("GRABBED STRATEGY")
         let newMessages = try await fetchConversationMessages(using: strategy)
         guard !newMessages.isEmpty else { return nil }
-
+        print("DONE FETCHING MESSAGES")
+        
         if conversation?.isGroup == true {
             await syncGroupUsers(for: newMessages)
         }
@@ -1290,9 +1297,10 @@ extension ChatRoomViewModel
                 startAtMesssage: startMessage,
                 ascending: order)
         }
-        print("All additional fetched messages: ", "\n ", newMessages)
+//        print("All additional fetched messages: ", "\n ", newMessages)
         let clusterSnapshot = messageClusters
         createMessageClustersWith(newMessages)
+
         let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
         
         assert(!newRows.isEmpty, "New rows array should not be empty at this point!")
@@ -1301,6 +1309,54 @@ extension ChatRoomViewModel
     }
 }
 
+actor PaginationActor {
+    private var isNetworkPaginationRunning = false
+    
+    func paginateIfNeeded(ascending: Bool,
+                          viewModel: ChatRoomViewModel,
+                          updateHandler: @escaping (([IndexPath], IndexSet?) -> Void)) async
+    {
+        
+        // Try local pagination first (always allowed) - must run on main thread
+        if let (newRows, newSections) = await MainActor.run(body: {
+            viewModel.paginateAdditionalLocalMessages(ascending: ascending)
+        }) {
+            await MainActor.run {
+                updateHandler(newRows, newSections)
+            }
+            return
+        }
+        
+        // Skip network pagination if already running
+        guard !isNetworkPaginationRunning else {
+            print("Network pagination already running, skipping")
+            return
+        }
+        
+        isNetworkPaginationRunning = true
+        
+        // Network pagination
+        do {
+            try await Task.sleep(for: .seconds(1))
+            
+            if let (newRows, newSections) = try await viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: ascending) {
+                await MainActor.run {
+                    updateHandler(newRows, newSections)
+                    
+                    if ascending && viewModel.shouldAttachListenerToUpcomingMessages {
+                        print("added listener to upcoming messages")
+                        viewModel.messageListenerService?.addListenerToUpcomingMessages()
+                    }
+                }
+            }
+        } catch {
+            print("Could not update conversation with additional messages: \(error)")
+        }
+        
+//        try? await Task.sleep(for: .seconds(0.4))
+        isNetworkPaginationRunning = false
+    }
+}
 
 
 

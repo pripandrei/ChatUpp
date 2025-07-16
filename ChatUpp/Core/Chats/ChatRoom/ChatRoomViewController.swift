@@ -179,19 +179,16 @@ final class ChatRoomViewController: UIViewController
     
     private func refreshTableView()
     {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            self.canPassThrough = true
-        }
-        viewModel.isMessageBatchingInProcess = true
+//        viewModel.isMessageBatchingInProcess = true
         let indexPath = self.viewModel.findFirstUnseenMessageIndex()
         
         if indexPath != nil {
 //            self.didFinishInitialScrollToUnseenIndexPathIfAny = false
             // Delay table view willDisplay cell functionality
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
-                self.viewModel.isMessageBatchingInProcess = false
-            }
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+////                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
+//                self.viewModel.isMessageBatchingInProcess = false
+//            }
         }
         
         self.toggleSkeletonAnimation(.terminated)
@@ -201,7 +198,7 @@ final class ChatRoomViewController: UIViewController
         if let indexPath = self.viewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPath)
         }
-        viewModel.isMessageBatchingInProcess = false
+//        viewModel.isMessageBatchingInProcess = false
 //        didFinishInitialScrollToUnseenIndexPathIfAny = true
     }
     
@@ -1133,40 +1130,15 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func paginateIfNeeded(ascending: Bool)
     {
-        viewModel.messagesBatchingQueue.sync { [weak self] in
-            guard let self else { return }
-            
-            Task { @MainActor in
-                
-//                if ascending && self.viewModel.shouldFetchNewMessages
-//                {
-//                    self.updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
-//                }
-                if let (newRows, newSections) = self.viewModel.paginateAdditionalLocalMessages(ascending: ascending)
-                {
-                    self.performeTableViewUpdate(with: newRows, sections: newSections)
-                } else {
-                    self.updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
-                }
-                
-//                if let (newRows, newSections) = self.viewModel.paginateAdditionalLocalMessages(ascending: ascending) {
-//                    self.performeTableViewUpdate(with: newRows, sections: newSections)
-//                } else {
-//                    self.updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
-//                }
+        Task {
+            await viewModel.paginationQueue.paginateIfNeeded(
+                ascending: ascending,
+                viewModel: viewModel
+            ) { [weak self] newRows, newSections in
+                guard let self = self else {return}
+                self.performeTableViewUpdate(with: newRows, sections: newSections)
             }
         }
-        
-//
-//        if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
-//        {
-//            viewModel.isMessageBatchingInProcess = true
-//            Task { @MainActor in
-//                self.performeTableViewUpdate(with: newRows, sections: newSections)
-//            }
-//        } else {
-//            updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder: ascending)
-//        }
     }
     
     private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
@@ -1297,7 +1269,7 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)
     {
-        viewModel.messagesBatchingQueue.sync { [weak self] in
+//        viewModel.messagesBatchingQueue.async { [weak self] in
             //        print("entered additional update block")
             //        didFinishInitialScroll = false
             //        viewModel.isMessageBatchingInProcess = true
@@ -1327,7 +1299,7 @@ extension ChatRoomViewController: UITableViewDelegate
                 try await Task.sleep(for: .seconds(0.4))
                 //                viewModel.isMessageBatchingInProcess = false
             }
-        }
+//        }
     }
     
     private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?)
@@ -1350,7 +1322,7 @@ extension ChatRoomViewController: UITableViewDelegate
 //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
             self.shouldIgnoreUnseenMessagesUpdate = true
         }, completion: { _ in
-            defer { self.viewModel.isMessageBatchingInProcess = false }
+//            defer { self.viewModel.isMessageBatchingInProcess = false }
 //            self.shouldIgnoreUnseenMessagesUpdate = true
             if self.rootView.tableView.contentOffset.y < -97.5
             {
