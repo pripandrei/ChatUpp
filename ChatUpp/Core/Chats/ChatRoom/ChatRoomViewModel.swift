@@ -775,7 +775,7 @@ extension ChatRoomViewModel
                 limit: 20).reversed() /// since table view is inverted, reverse messages here
             return Array(messagesDescending + messagesAscending)
         } else {
-            let messages = conversation.getMessagesResults().prefix(40)
+            let messages = conversation.getMessagesResults().prefix(40).reversed()
             return Array(messages)
         }
     }
