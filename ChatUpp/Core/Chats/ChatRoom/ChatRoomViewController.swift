@@ -215,7 +215,7 @@ final class ChatRoomViewController: UIViewController
         viewModel.resetInitializationStatus()
         viewModel.insertUnseenMessagesTitle()
         refreshTableView()
-//        viewModel.addListeners()
+        viewModel.addListeners()
 //        viewModel.realmService?.updateChatOpenStatusIfNeeded()
         if viewModel.authParticipantUnreadMessagesCount > 0 {
             updateMessageSeenStatusIfNeeded()

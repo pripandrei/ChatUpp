@@ -68,6 +68,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private(set) var participant         : User?
     private(set) var messageClusters     : [MessageCluster] = []
     private(set) var authUser            : AuthenticatedUserData = (try! AuthenticationManager.shared.getAuthenticatedUser())
+    private(set) var lastPaginatedMessage: Message?
     private var cancellables             = Set<AnyCancellable>()
     
     @Published private(set) var unseenMessagesCount: Int
@@ -232,11 +233,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         userListenerService?.addUserObserver()
         observeParticipantChanges()
         
-        guard let startMessage = messageClusters.last?.items.last?.message,
-              let limit = conversation?.conversationMessages.count else {return}
+//        guard let startMessage = messageClusters.last?.items.last?.message
+        guard let startMessage = messageClusters.first?.items.first?.message
+              /*let limit = conversation?.conversationMessages.count*/
+         else {return}
         //TODO: - remove test start message and limit
-        guard let startTestMessage = messageClusters.first?.items.first?.message else {return}
-        let testLimit = 70
+//        guard let startTestMessage = messageClusters.first?.items.first?.message else {return}
+//        let testLimit = 70
 //        let testLimit = 35
         
         // Attach listener to upcoming messages only if all unseen messages
@@ -247,7 +250,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
 //        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
 //        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
-        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssage: startTestMessage, ascending: false, limit: testLimit)
+        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssage: startMessage, ascending: false, limit: 60)
     }
     
     func removeAllListeners()
@@ -772,16 +775,16 @@ extension ChatRoomViewModel
                 startingFrom: message.id,
                 isMessageIncluded: true,
                 ascending: true,
-                limit: 20)
+                limit: 30)
             
             let messagesDescending = conversation.getMessages(
                 startingFrom: message.id,
                 isMessageIncluded: false,
                 ascending: false,
-                limit: 20).reversed() /// since table view is inverted, reverse messages here
+                limit: 30).reversed() /// since table view is inverted, reverse messages here
             return Array(messagesDescending + messagesAscending)
         } else {
-            let messages = conversation.getMessagesResults().prefix(40).reversed()
+            let messages = conversation.getMessagesResults().prefix(60).reversed()
             return Array(messages)
         }
     }
@@ -794,22 +797,24 @@ extension ChatRoomViewModel
         
         if recentMessageIsPresent
         {
-            if paginatedMessages.count > 1
+            if paginatedMessages.count > 1 && shouldFetchNewMessages
             {
-                paginatedMessages.removeAll(where: { $0.id == conversation?.recentMessageID })
-//                paginatedMessages.dropFirst() // or last
+//                paginatedMessages.removeAll(where: { $0.id == conversation?.recentMessageID })
+                paginatedMessages = paginatedMessages.dropLast() // or last
             }
             else if shouldFetchNewMessages
             {
                 return nil
             }
         }
+        
 
         if !paginatedMessages.isEmpty
         {
             let clusterSnapshot = messageClusters
             createMessageClustersWith(paginatedMessages)
             let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
+            self.lastPaginatedMessage = paginatedMessages.last
             return (newRows, newSections)
         }
         return nil
@@ -1278,7 +1283,7 @@ extension ChatRoomViewModel
     @MainActor
     func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
     {
-        
+
         guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
         print("GRABBED STRATEGY")
         let newMessages = try await fetchConversationMessages(using: strategy)
@@ -1309,21 +1314,30 @@ extension ChatRoomViewModel
     }
 }
 
-actor PaginationActor {
+actor PaginationActor
+{
     private var isNetworkPaginationRunning = false
     
     func paginateIfNeeded(ascending: Bool,
                           viewModel: ChatRoomViewModel,
                           updateHandler: @escaping (([IndexPath], IndexSet?) -> Void)) async
     {
-        
         // Try local pagination first (always allowed) - must run on main thread
-        if let (newRows, newSections) = await MainActor.run(body: {
+        if let (newRows, newSections): ([IndexPath], IndexSet?) = await MainActor.run(body: {
             viewModel.paginateAdditionalLocalMessages(ascending: ascending)
         }) {
             await MainActor.run {
                 updateHandler(newRows, newSections)
+                
+                if let startMessage = viewModel.lastPaginatedMessage
+                {
+                    viewModel.messageListenerService?.addListenerToExistingMessagesTest(
+                        startAtMesssage: startMessage,
+                        ascending: !ascending,
+                        limit: 30)
+                }
             }
+            
             return
         }
         
