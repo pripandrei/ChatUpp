@@ -62,7 +62,7 @@ final class ConversationMessageListenerService
         guard let conversationID = conversation?.id, limit > 0 else { return }
         let message = message.freeze()
         
-        Task {
+        Task.detached() {
             try await FirebaseChatService.shared.addListenerForExistingMessagesTest(
                 inChat: conversationID,
                 startAtMessageWithID: message.id,
@@ -73,7 +73,7 @@ final class ConversationMessageListenerService
                 guard let self = self else {return}
                 self.updatedMessages.append(contentsOf: messagesUpdate)
 //                self.updatedMessage.send(messageUpdate)
-            }.store(in: &cancellables)
+            }.store(in: &self.cancellables)
         }
     }
     

@@ -250,7 +250,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
 //        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
 //        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
-        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssage: startMessage, ascending: false, limit: 60)
+        
+        let totalMessagesCount = messageClusters.reduce(0) { total, cluster in
+            total + cluster.items.filter { $0.message != nil }.count
+        }
+        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssage: startMessage, ascending: false, limit: totalMessagesCount)
     }
     
     func removeAllListeners()
@@ -957,12 +961,13 @@ extension ChatRoomViewModel
     private func bindToMessages()
     {
         messageListenerService?.$updatedMessages
-            .debounce(for: .seconds(0.4), scheduler: DispatchQueue.main)
+            .debounce(for: .seconds(0.4),
+                      scheduler: DispatchQueue.global(qos: .background))
             .filter { !$0.isEmpty }
             .sink { messagesTypes in
                 
-                Task { @MainActor in
-                    
+                Task
+                {
                     var removedMessages : Set<Message> = []
                     var modifiedMessages: Set<Message> = []
                     var addedMessages   : Set<Message> = []
@@ -1005,17 +1010,29 @@ extension ChatRoomViewModel
                         self.handleModifiedMessage(tuple.message, at: tuple.indexPath)
                     }
                     
+                    var presentedMessages: [Message] = []
+                    var missingMessages: [Message] = []
+//
                     for message in addedMessages
                     {
-                        guard self.realmService?.retrieveMessageFromRealm(message) == nil else
+                        guard RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id) == nil else
                         {
-                            RealmDataBase.shared.add(object: message) // just update existing message in realm with fresh one
+                            presentedMessages.append(message)
                             addedMessages.remove(message)
                             continue
                         }
-                        await self.handleAddedMessage(message)
+                        missingMessages.append(message)
                     }
                     
+                    RealmDataBase.shared.addMultipleTest(objects: presentedMessages)
+                    await withTaskGroup(of: Void.self) { group in
+                        for message in missingMessages {
+                            group.addTask {
+                                await self.handleAddedMessage(message)
+                            }
+                        }
+                    }
+                
                     let addedIndexPaths = addedMessages
                         .compactMap { self.indexPath(of: $0) }
                     let addedTypes      = addedIndexPaths.compactMap { MessageChangeType.added($0) }
@@ -1106,10 +1123,10 @@ extension ChatRoomViewModel
     {
         guard let conversation = conversation else { return [] }
 
-        var limit: Int = 35
-        if strategy != nil {
-            limit = 10
-        }
+//        var limit: Int = 35
+//        if strategy != nil {
+//            limit = 10
+//        }
         let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
         
         switch fetchStrategy
@@ -1119,31 +1136,27 @@ extension ChatRoomViewModel
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
-                fetchDirection: .ascending,
-                limit: limit
+                fetchDirection: .ascending
             )
         case .descending(let startAtMessage, let included):
             return try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
-                fetchDirection: .descending,
-                limit: limit
+                fetchDirection: .descending
             )
         case .hybrit(let startAtMessage):
             let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: true,
-                fetchDirection: .descending,
-                limit: limit
+                fetchDirection: .descending
             )
             let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: false,
-                fetchDirection: .ascending,
-                limit: limit
+                fetchDirection: .ascending
             )
             return descendingMessages + ascendingMessages
         default: return []
@@ -1285,10 +1298,9 @@ extension ChatRoomViewModel
     {
 
         guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
-        print("GRABBED STRATEGY")
+        
         let newMessages = try await fetchConversationMessages(using: strategy)
         guard !newMessages.isEmpty else { return nil }
-        print("DONE FETCHING MESSAGES")
         
         if conversation?.isGroup == true {
             await syncGroupUsers(for: newMessages)
@@ -1300,7 +1312,8 @@ extension ChatRoomViewModel
             realmService?.addMessagesToConversationInRealm(newMessages)
             messageListenerService?.addListenerToExistingMessagesTest(
                 startAtMesssage: startMessage,
-                ascending: order)
+                ascending: order,
+                limit: newMessages.count)
         }
 //        print("All additional fetched messages: ", "\n ", newMessages)
         let clusterSnapshot = messageClusters

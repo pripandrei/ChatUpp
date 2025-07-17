@@ -80,6 +80,21 @@ final class RealmDataBase {
         }
     }
     
+    /// for background
+    func addTest<T: Object>(object: T) {
+        let realm = try! Realm()
+        try? realm.write {
+            realm.add(object, update: .modified)
+        }
+    }
+    
+    func addMultipleTest<T: Object>(objects: [T]) {
+        let realm = try! Realm()
+        try? realm.write {
+            realm.add(objects, update: .modified)
+        }
+    }
+    
     func update<T: Object>(object: T, update: (T) -> Void) {
         try? realm?.write {
             update(object)
