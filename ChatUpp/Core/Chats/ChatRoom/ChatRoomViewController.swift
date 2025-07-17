@@ -179,16 +179,15 @@ final class ChatRoomViewController: UIViewController
     
     private func refreshTableView()
     {
-//        viewModel.isMessageBatchingInProcess = true
         let indexPath = self.viewModel.findFirstUnseenMessageIndex()
         
         if indexPath != nil {
-//            self.didFinishInitialScrollToUnseenIndexPathIfAny = false
+            self.didFinishInitialScrollToUnseenIndexPathIfAny = false
             // Delay table view willDisplay cell functionality
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-////                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
-//                self.viewModel.isMessageBatchingInProcess = false
-//            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0)
+            {
+                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
+            }
         }
         
         self.toggleSkeletonAnimation(.terminated)
@@ -198,8 +197,7 @@ final class ChatRoomViewController: UIViewController
         if let indexPath = self.viewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPath)
         }
-//        viewModel.isMessageBatchingInProcess = false
-//        didFinishInitialScrollToUnseenIndexPathIfAny = true
+        self.didFinishInitialScrollToUnseenIndexPathIfAny = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -289,7 +287,7 @@ final class ChatRoomViewController: UIViewController
         /// Group modifications by animation type (for clarity and batch efficiency)
         let groupModifications = Dictionary(grouping: modifiedPaths,
                                             by: { $0.animation })
-        
+
         rootView.tableView.performBatchUpdates
         {
             if !removedPaths.isEmpty
@@ -1109,8 +1107,8 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
-        guard !viewModel.messageClusters.isEmpty
-             /* !viewModel.isMessageBatchingInProcess */else { return }
+        guard !viewModel.messageClusters.isEmpty,
+              didFinishInitialScrollToUnseenIndexPathIfAny else { return }
         
         // Paginate only if we reached sixth cell either from beginning or end
         if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
@@ -1131,7 +1129,7 @@ extension ChatRoomViewController: UITableViewDelegate
     private func paginateIfNeeded(ascending: Bool)
     {
         Task {
-            await viewModel.paginationQueue.paginateIfNeeded(
+            await viewModel.messagePaginator.paginateIfNeeded(
                 ascending: ascending,
                 viewModel: viewModel
             ) { [weak self] newRows, newSections in
@@ -1192,114 +1190,6 @@ extension ChatRoomViewController: UITableViewDelegate
         }
         
         return nil
-    }
-    //
-    //    private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
-    //                                                  fromEnd: Bool = false,
-    //                                                  in tableView: UITableView) -> IndexPath?
-    //    {
-    //        let sectionCount = tableView.numberOfSections
-    //        guard sectionCount > 0 else { return nil }
-    //
-    //        // Step 1: Calculate total number of rows in table
-    //        var totalRowCount = 0
-    //        var rowsInSections: [Int] = []
-    //
-    //        for section in 0..<sectionCount {
-    //            let rows = tableView.numberOfRows(inSection: section)
-    //            rowsInSections.append(rows)
-    //            totalRowCount += rows
-    //        }
-    //
-    //        // Step 2: Translate global index
-    //        let targetIndex = fromEnd ? totalRowCount - index - 1 : index
-    //        guard targetIndex >= 0, targetIndex < totalRowCount else { return nil }
-    //
-    //        // Step 3: Walk sections efficiently to find the IndexPath
-    //        var currentGlobalIndex = 0
-    //        for section in 0..<sectionCount {
-    //            let rowCount = rowsInSections[section]
-    //            if targetIndex < currentGlobalIndex + rowCount {
-    //                let row = targetIndex - currentGlobalIndex
-    //                let indexPath = IndexPath(row: row, section: section)
-    //
-    //                if let visible = tableView.indexPathsForVisibleRows,
-    //                   visible.contains(indexPath) {
-    //                    return indexPath
-    //                } else {
-    //                    return nil
-    //                }
-    //            }
-    //            currentGlobalIndex += rowCount
-    //        }
-    //
-    //        return nil
-    //    }
-        
-    //    private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
-    //                                                  fromEnd: Bool = false,
-    //                                                  in tableView: UITableView) -> IndexPath?
-    //    {
-    //        // Flatten tableView structure into [IndexPath] (not just visible ones)
-    //        var allIndexPaths: [IndexPath] = []
-    //
-    //        for section in 0..<tableView.numberOfSections {
-    //            for row in 0..<tableView.numberOfRows(inSection: section) {
-    //                allIndexPaths.append(IndexPath(row: row, section: section))
-    //            }
-    //        }
-    //
-    //        // Guard for empty or out-of-range
-    //        guard !allIndexPaths.isEmpty else { return nil }
-    //
-    //        // Determine the global index (from start or end)
-    //        let targetIndex = fromEnd ? allIndexPaths.count - index - 1 : index
-    //        guard targetIndex >= 0 && targetIndex < allIndexPaths.count else { return nil }
-    //
-    //        let targetIndexPath = allIndexPaths[targetIndex]
-    //
-    //        // Check visibility
-    //        if let visibleRows = tableView.indexPathsForVisibleRows,
-    //           visibleRows.contains(targetIndexPath) {
-    //            return targetIndexPath
-    //        }
-    //
-    //        return nil
-    //    }
-    
-    private func updateConversationWithAdditionalMessagesIfNeeded(inAscendingOrder order: Bool)
-    {
-//        viewModel.messagesBatchingQueue.async { [weak self] in
-            //        print("entered additional update block")
-            //        didFinishInitialScroll = false
-            //        viewModel.isMessageBatchingInProcess = true
-            
-            Task { @MainActor [weak self] in
-                guard let self = self else {return}
-                do {
-                    /// See Footnote.swift [3]
-                    try await Task.sleep(for: .seconds(1.2))
-                    
-                    if let (newRows, newSections) = try await self.viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: order)
-                    {
-                        self.performeTableViewUpdate(with: newRows, sections: newSections)
-                        
-                        // if all unseen messages are fetched, attach listener to upcoming
-                        if order == true && self.viewModel.shouldAttachListenerToUpcomingMessages
-                        {
-                            print("added listener to upcomming messages")
-                            self.viewModel.messageListenerService?.addListenerToUpcomingMessages()
-                        }
-                    }
-                } catch {
-                    print("Could not update conversation with additional messages: \(error)")
-                }
-                //            self.didFinishInitialScroll = true
-                //            print("didFinishInitialScroll")
-                try await Task.sleep(for: .seconds(0.4))
-                //                viewModel.isMessageBatchingInProcess = false
-            }
-//        }
     }
     
     private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?)

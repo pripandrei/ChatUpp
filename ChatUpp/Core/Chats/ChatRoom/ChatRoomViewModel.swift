@@ -51,12 +51,8 @@ struct BufferedMessages
 
 class ChatRoomViewModel : SwiftUI.ObservableObject
 {
-     var setupConversationTask: Task<Void, Never>?
-//     var setupBatchMessageTask: Task<Void, Error>?
-     var setupBatchMessageTask2: [Task<Void, Never>] = []
-    
-//    let paginationQueue = RemotePaginationTaskQueue()
-    let paginationQueue = PaginationActor()
+    private(set) var setupConversationTask: Task<Void, Never>?
+    private(set) var messagePaginator = ConversationMessagePaginator()
     
     private(set) var realmService: ConversationRealmService?
     //    private(set) var messageFetcher : ConversationMessageFetcher
@@ -165,6 +161,17 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return authParticipantUnreadMessagesCount != localUnreadMessageCount
     }
     
+    func testGetUnreadMessagesCountFromRealm() -> [String]
+    {
+        guard let conversation = conversation
+        else { return [] }
+        let userID = authUser.uid
+        let filter = conversation.isGroup ?
+        NSPredicate(format: "NONE seenBy == %@ AND senderId != %@", userID, userID) : NSPredicate(format: "messageSeen == false AND senderId != %@", userID)
+
+        return Array(conversation.conversationMessages.filter(filter)).compactMap { $0.id }
+    }
+    
     private func setupServices(using conversation: Chat)
     {
         self.realmService = ConversationRealmService(conversation: conversation)
@@ -233,23 +240,15 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         userListenerService?.addUserObserver()
         observeParticipantChanges()
         
-//        guard let startMessage = messageClusters.last?.items.last?.message
         guard let startMessage = messageClusters.first?.items.first?.message
-              /*let limit = conversation?.conversationMessages.count*/
-         else {return}
-        //TODO: - remove test start message and limit
-//        guard let startTestMessage = messageClusters.first?.items.first?.message else {return}
-//        let testLimit = 70
-//        let testLimit = 35
-        
+        else {return}
+
         // Attach listener to upcoming messages only if all unseen messages
         // (if any) have been fetched locally
         if self.shouldAttachListenerToUpcomingMessages
         {
             messageListenerService?.addListenerToUpcomingMessages()
         }
-//        messageListenerService?.addListenerToExistingMessages(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
-//        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssageWithID: startTestMessage.id, ascending: false, limit: testLimit)
         
         let totalMessagesCount = messageClusters.reduce(0) { total, cluster in
             total + cluster.items.filter { $0.message != nil }.count
@@ -415,9 +414,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     private let unseenMessageUpdateQueue = DispatchQueue(label: "unseenMessageUpdateQueue")
-    let messagesBatchingQueue = DispatchQueue(label: "messagesBatchingQueue")
-    let groupDispatch = DispatchGroup()
-    
+
     /// - update messages components
     @MainActor
     func updateUnseenMessageCounter(shouldIncrement: Bool,
@@ -573,7 +570,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     /// - unseen message check
     
-    /// @MainActor
     func findFirstUnseenMessageIndex() -> IndexPath?
     {
         guard conversation?.realm != nil else { return nil }
@@ -758,9 +754,6 @@ extension ChatRoomViewModel
     {
         defer { conversationInitializationStatus = .finished }
         
-//        guard conversation?.realm != nil,
-//              var messages = conversation?.getMessages(),
-//              !messages.isEmpty else { return }
         var messages = prepareMessagesForConversationInitialization()
         guard !messages.isEmpty else {return}
         
@@ -803,7 +796,6 @@ extension ChatRoomViewModel
         {
             if paginatedMessages.count > 1 && shouldFetchNewMessages
             {
-//                paginatedMessages.removeAll(where: { $0.id == conversation?.recentMessageID })
                 paginatedMessages = paginatedMessages.dropLast() // or last
             }
             else if shouldFetchNewMessages
@@ -926,123 +918,100 @@ extension ChatRoomViewModel
     }
 }
 
-//MARK: - Buffer messages
-extension ChatRoomViewModel
-{
-    private func bufferMessage(messageType: DatabaseChangedObject<Message>)
-    {
-        switch messageType.changeType {
-        case .added: bufferedMessages.append(.added(messageType.data))
-        case .modified: bufferedMessages.append(.modified(messageType.data))
-        case .removed: bufferedMessages.append(.removed(messageType.data))
-        }
-        print("Buffered message: \(messageType.data.id)")
-    }
-    
-    private func processBufferedMessages()
-    {
-        guard !bufferedMessages.isEmpty else {return}
-        
-//        for buffered in bufferedMessages {
-//            switch buffered {
-//            case .added(let msg): Task { await self.handleAddedMessage(msg) }
-//            case .modified(let msg): self.handleModifiedMessage(msg)
-//            case .removed(let msg): self.handleRemovedMessage(msg)
-//            }
-//        }
-//        bufferedMessages.removeAll()
-        print("processed buffered messages !")
-    }
-}
-
 //MARK: - Message listener bindings
 extension ChatRoomViewModel
 {
-    private func bindToMessages()
-    {
+    private func bindToMessages() {
         messageListenerService?.$updatedMessages
             .debounce(for: .seconds(0.4),
                       scheduler: DispatchQueue.global(qos: .background))
             .filter { !$0.isEmpty }
-            .sink { messagesTypes in
+            .sink { [weak self] messagesTypes in
+                guard let self = self else { return }
                 
-                Task
-                {
-                    var removedMessages : Set<Message> = []
-                    var modifiedMessages: Set<Message> = []
-                    var addedMessages   : Set<Message> = []
-                     
-                    for messageType in messagesTypes
-                    {
-                        switch messageType.changeType
-                        {
-                        case .removed  : removedMessages.insert(messageType.data)
-                        case .modified : modifiedMessages.insert(messageType.data)
-                        case .added    : addedMessages.insert(messageType.data)
-                        }
-                    }
-                    
-                    /// sort added & modified messages
-                    /// that are not present in removed messages
-                    ///
-                    let removedIDs   = Set(removedMessages.map { $0.id })
-                    modifiedMessages = modifiedMessages
-                        .filter { !removedIDs.contains($0.id) }
-                    addedMessages    = addedMessages
-                        .filter { !removedIDs.contains($0.id) }
-                    
-                    /// get and sort indexPaths in descending order ,
-                    /// to avoid index shift on removal
-                    ///
-                    let removedIndexPaths = removedMessages
-                        .compactMap { self.indexPath(of: $0) }
-                        .sorted(by: >)
-                    
-                    let removedTypes: [MessageChangeType] = removedIndexPaths
-                        .compactMap { self.handleRemovedMessage(at: $0) }
-                    
-                    let modifiedTuples: [(message: Message, indexPath: IndexPath)] = modifiedMessages.compactMap { message in
-                        guard let indexPath = self.indexPath(of: message) else { return nil }
-                        return (message, indexPath)
-                    }
-                    
-                    let modifiedTypes: [MessageChangeType] = modifiedTuples.compactMap { tuple in
-                        self.handleModifiedMessage(tuple.message, at: tuple.indexPath)
-                    }
-                    
-                    var presentedMessages: [Message] = []
-                    var missingMessages: [Message] = []
-//
-                    for message in addedMessages
-                    {
-                        guard RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id) == nil else
-                        {
-                            presentedMessages.append(message)
-                            addedMessages.remove(message)
-                            continue
-                        }
-                        missingMessages.append(message)
-                    }
-                    
-                    RealmDataBase.shared.addMultipleTest(objects: presentedMessages)
-                    await withTaskGroup(of: Void.self) { group in
-                        for message in missingMessages {
-                            group.addTask {
-                                await self.handleAddedMessage(message)
-                            }
-                        }
-                    }
-                
-                    let addedIndexPaths = addedMessages
-                        .compactMap { self.indexPath(of: $0) }
-                    let addedTypes      = addedIndexPaths.compactMap { MessageChangeType.added($0) }
-                    
-                    let allChanges: [MessageChangeType] = removedTypes + modifiedTypes + addedTypes
-                    self.messageChangedTypes = allChanges
-                    
-                    self.messageListenerService?.updatedMessages.removeAll()
+                Task {
+                    await self.processMessageChanges(messagesTypes)
                 }
-            }.store(in: &cancellables)
+            }
+            .store(in: &cancellables)
+    }
+}
+
+//MARK: - Messages update handlers
+extension ChatRoomViewModel
+{
+    private func processMessageChanges(_ messagesTypes: [DatabaseChangedObject<Message>]) async {
+        // Group messages by change type
+        let groupedMessages = Dictionary(grouping: messagesTypes) { $0.changeType }
+        
+        let removedMessages = Set(groupedMessages[.removed]?.map(\.data) ?? [])
+        let modifiedMessages = Set(groupedMessages[.modified]?.map(\.data) ?? [])
+        let addedMessages = Set(groupedMessages[.added]?.map(\.data) ?? [])
+        
+        // Filter out messages that are also being removed
+        let removedIDs = Set(removedMessages.map(\.id))
+        let filteredModified = modifiedMessages.filter { !removedIDs.contains($0.id) }
+        let filteredAdded = addedMessages.filter { !removedIDs.contains($0.id) }
+        
+        // Process changes in order: remove, modify, add
+        let removedTypes = await processRemovedMessages(removedMessages)
+        let modifiedTypes = await processModifiedMessages(filteredModified)
+        let addedTypes = await processAddedMessages(filteredAdded)
+        
+        // Combine all changes and update
+        let allChanges = removedTypes + modifiedTypes + addedTypes
+        self.messageChangedTypes = allChanges
+        
+        // Clear processed messages
+        self.messageListenerService?.updatedMessages.removeAll()
+    }
+
+    @MainActor
+    private func processRemovedMessages(_ messages: Set<Message>) async -> [MessageChangeType] {
+        let sortedIndexPaths = messages
+            .compactMap { self.indexPath(of: $0) }
+            .sorted(by: >)
+        
+        return sortedIndexPaths.compactMap { self.handleRemovedMessage(at: $0) }
+    }
+
+    @MainActor
+    private func processModifiedMessages(_ messages: Set<Message>) async -> [MessageChangeType] {
+        return messages.compactMap { message in
+            guard let indexPath = self.indexPath(of: message) else { return nil }
+            return self.handleModifiedMessage(message, at: indexPath)
+        }
+    }
+
+    @MainActor
+    private func processAddedMessages(_ messages: Set<Message>) async -> [MessageChangeType] {
+        // Separate messages that already exist vs new ones
+        let (existingMessages, newMessages) = messages.reduce(into: ([Message](), [Message]())) { result, message in
+            if RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id) != nil {
+                result.0.append(message)
+            } else {
+                result.1.append(message)
+            }
+        }
+        
+        // Add existing messages to database
+        if !existingMessages.isEmpty {
+            RealmDataBase.shared.addMultipleTest(objects: existingMessages)
+        }
+        
+        // Process new messages concurrently
+        await withTaskGroup(of: Void.self) { group in
+            for message in newMessages {
+                group.addTask {
+                    await self.handleAddedMessage(message)
+                }
+            }
+        }
+        
+        // Create change types for all added messages
+        return newMessages
+            .compactMap { self.indexPath(of: $0) }
+            .map { MessageChangeType.added($0) }
     }
 }
 
@@ -1098,7 +1067,7 @@ extension ChatRoomViewModel
         realmService?.updateMessage(message)
         return .modified(indexPath, modificationValue)
     }
-    
+    @MainActor
     func indexPath(of message: Message) -> IndexPath?
     {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
@@ -1123,10 +1092,6 @@ extension ChatRoomViewModel
     {
         guard let conversation = conversation else { return [] }
 
-//        var limit: Int = 35
-//        if strategy != nil {
-//            limit = 10
-//        }
         let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
         
         switch fetchStrategy
@@ -1296,7 +1261,6 @@ extension ChatRoomViewModel
     @MainActor
     func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
     {
-
         guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
         
         let newMessages = try await fetchConversationMessages(using: strategy)
@@ -1315,7 +1279,6 @@ extension ChatRoomViewModel
                 ascending: order,
                 limit: newMessages.count)
         }
-//        print("All additional fetched messages: ", "\n ", newMessages)
         let clusterSnapshot = messageClusters
         createMessageClustersWith(newMessages)
 
@@ -1327,296 +1290,32 @@ extension ChatRoomViewModel
     }
 }
 
-actor PaginationActor
+
+//MARK: - Buffer messages
+extension ChatRoomViewModel
 {
-    private var isNetworkPaginationRunning = false
-    
-    func paginateIfNeeded(ascending: Bool,
-                          viewModel: ChatRoomViewModel,
-                          updateHandler: @escaping (([IndexPath], IndexSet?) -> Void)) async
+    private func bufferMessage(messageType: DatabaseChangedObject<Message>)
     {
-        // Try local pagination first (always allowed) - must run on main thread
-        if let (newRows, newSections): ([IndexPath], IndexSet?) = await MainActor.run(body: {
-            viewModel.paginateAdditionalLocalMessages(ascending: ascending)
-        }) {
-            await MainActor.run {
-                updateHandler(newRows, newSections)
-                
-                if let startMessage = viewModel.lastPaginatedMessage
-                {
-                    viewModel.messageListenerService?.addListenerToExistingMessagesTest(
-                        startAtMesssage: startMessage,
-                        ascending: !ascending,
-                        limit: 30)
-                }
-            }
-            
-            return
+        switch messageType.changeType {
+        case .added: bufferedMessages.append(.added(messageType.data))
+        case .modified: bufferedMessages.append(.modified(messageType.data))
+        case .removed: bufferedMessages.append(.removed(messageType.data))
         }
+        print("Buffered message: \(messageType.data.id)")
+    }
+    
+    private func processBufferedMessages()
+    {
+        guard !bufferedMessages.isEmpty else {return}
         
-        // Skip network pagination if already running
-        guard !isNetworkPaginationRunning else {
-            print("Network pagination already running, skipping")
-            return
-        }
-        
-        isNetworkPaginationRunning = true
-        
-        // Network pagination
-        do {
-            try await Task.sleep(for: .seconds(1))
-            
-            if let (newRows, newSections) = try await viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: ascending) {
-                await MainActor.run {
-                    updateHandler(newRows, newSections)
-                    
-                    if ascending && viewModel.shouldAttachListenerToUpcomingMessages {
-                        print("added listener to upcoming messages")
-                        viewModel.messageListenerService?.addListenerToUpcomingMessages()
-                    }
-                }
-            }
-        } catch {
-            print("Could not update conversation with additional messages: \(error)")
-        }
-        
-//        try? await Task.sleep(for: .seconds(0.4))
-        isNetworkPaginationRunning = false
+//        for buffered in bufferedMessages {
+//            switch buffered {
+//            case .added(let msg): Task { await self.handleAddedMessage(msg) }
+//            case .modified(let msg): self.handleModifiedMessage(msg)
+//            case .removed(let msg): self.handleRemovedMessage(msg)
+//            }
+//        }
+//        bufferedMessages.removeAll()
+        print("processed buffered messages !")
     }
 }
-
-
-
-
-
-
-//MARK: - Message cluster insertion different options
-
-
-//    func createMessageClustersWith(_ messages: [Message]) {
-//        // Map existing clusters by date for quick lookup
-//        var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map {
-//            ($0.element.date, $0.offset)
-//        })
-//        var tempMessageClusters = self.messageClusters
-//
-//        // Helper: Binary search to find insert index in a list of real message items
-//        func findInsertIndex(in items: [MessageItem], for newMessage: Message) -> Int {
-//            var low = 0
-//            var high = items.count - 1
-//
-//            while low <= high {
-//                let mid = (low + high) / 2
-//                guard let midTimestamp = items[mid].message?.timestamp else {
-//                    // If this ever happens here, something is wrong, since we only pass real message items
-//                    break
-//                }
-//
-//                if midTimestamp == newMessage.timestamp {
-//                    return mid
-//                } else if midTimestamp < newMessage.timestamp {
-//                    // New message is newer → insert before mid
-//                    high = mid - 1
-//                } else {
-//                    // New message is older → search right half
-//                    low = mid + 1
-//                }
-//            }
-//
-//            return low
-//        }
-//
-//        for message in messages {
-//            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
-//            let messageItem = MessageItem(message: message)
-//
-//            if let index = dateToIndex[date] {
-//                // Cluster exists — insert into it
-//                var clusterItems = tempMessageClusters[index].items
-//
-//                // Filter only items that have real messages
-//                let realMessageItems = clusterItems.filter { $0.message != nil }
-//
-//                // Find index in filtered array
-//                let insertIndexInFiltered = findInsertIndex(in: realMessageItems, for: message)
-//
-//                // Map filtered index back to actual index in full array
-//                var messageCount = 0
-//                var actualInsertIndex = clusterItems.count // fallback: insert at end
-//
-//                for (i, item) in clusterItems.enumerated() {
-//                    if item.message != nil {
-//                        if messageCount == insertIndexInFiltered {
-//                            actualInsertIndex = i
-//                            break
-//                        }
-//                        messageCount += 1
-//                    }
-//                }
-//
-//                // If inserting at end (no match in loop), just insert after all items
-//                clusterItems.insert(messageItem, at: actualInsertIndex)
-//                tempMessageClusters[index].items = clusterItems
-//
-//            } else {
-//                // No cluster for this date → create a new one
-//                let newCluster = MessageCluster(date: date, items: [messageItem])
-//
-//                // Insert cluster in descending order by date (newest at top)
-//                let insertClusterIndex = tempMessageClusters.firstIndex(where: { $0.date < date }) ?? tempMessageClusters.count
-//                tempMessageClusters.insert(newCluster, at: insertClusterIndex)
-//
-//                // Update date lookup
-//                dateToIndex = Dictionary(uniqueKeysWithValues: tempMessageClusters.enumerated().map {
-//                    ($0.element.date, $0.offset)
-//                })
-//            }
-//        }
-//
-//        self.messageClusters = tempMessageClusters
-//    }
-
-
-//    func createMessageClustersWith(_ messages: [Message]) {
-//        guard !messages.isEmpty else { return }
-//
-//        var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
-//        var tempMessageClusters = self.messageClusters
-//
-//        // Determine insertion direction by comparing timestamps
-//        let isNewerThanCurrent = {
-//            guard let firstCurrent = self.messageClusters.first?.items.first?.message?.timestamp,
-//                  let lastNew = messages.last?.timestamp else {
-//                return false
-//            }
-//            return lastNew > firstCurrent
-//        }()
-//
-//        for message in messages {
-//            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
-//            let messageItem = MessageItem(message: message)
-//
-//            if let index = dateToIndex[date] {
-//                if isNewerThanCurrent {
-//                    tempMessageClusters[index].items.insert(messageItem, at: 0)
-//                } else {
-//                    tempMessageClusters[index].items.append(messageItem)
-//                }
-//            } else {
-//                let newCluster = MessageCluster(date: date, items: [messageItem])
-//                if isNewerThanCurrent {
-//                    tempMessageClusters.insert(newCluster, at: 0)
-//                    dateToIndex[date] = 0
-//                } else {
-//                    tempMessageClusters.append(newCluster)
-//                    dateToIndex[date] = tempMessageClusters.count - 1
-//                }
-//            }
-//        }
-//
-//        self.messageClusters = tempMessageClusters
-//    }
-
-//    func createMessageClustersWith(_ messages: [Message], insertPosition: MessageInsertionPosition) {
-//        var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
-//        var tempMessageClusters = self.messageClusters
-//
-//        messages.forEach { message in
-//            guard let date = message.timestamp.formatToYearMonthDay() else { return }
-//            let messageItem = MessageItem(message: message)
-//
-//            if let index = dateToIndex[date] {
-//                switch insertPosition {
-//                case .insertAtBeginning:
-//                    tempMessageClusters[index].items.insert(messageItem, at: 0)
-//                case .appendToEnd:
-//                    tempMessageClusters[index].items.append(messageItem)
-//                }
-//            } else {
-//                let newCluster = MessageCluster(date: date, items: [messageItem])
-//                switch insertPosition {
-//                case .insertAtBeginning:
-//                    tempMessageClusters.insert(newCluster, at: 0)
-//                    dateToIndex[date] = 0
-//                case .appendToEnd:
-//                    tempMessageClusters.append(newCluster)
-//                    dateToIndex[date] = tempMessageClusters.count - 1
-//                }
-//            }
-//        }
-//
-//        self.messageClusters = tempMessageClusters
-//    }
-    
-//    func createMessageClustersWith(_ messages: [Message],
-//                                   ascending: Bool? = nil)
-//    {
-//        var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
-//        var tempMessageClusters = self.messageClusters
-//
-//        messages.forEach { message in
-//            guard let date = message.timestamp.formatToYearMonthDay() else { return }
-//            let messageItem = MessageItem(message: message)
-//
-//            if let index = dateToIndex[date] {
-//                ascending == true
-//                    ? tempMessageClusters[index].items.insert(messageItem, at: 0)
-//                    : tempMessageClusters[index].items.append(messageItem)
-//            } else {
-//                let newCluster = MessageCluster(date: date, items: [messageItem])
-//                if ascending == true {
-//                    tempMessageClusters.insert(newCluster, at: 0)
-//                    dateToIndex[date] = 0
-//                } else {
-//                    tempMessageClusters.append(newCluster)
-//                    dateToIndex[date] = tempMessageClusters.count - 1
-//                }
-//            }
-//        }
-//        self.messageClusters = tempMessageClusters
-//    }
-
-//enum MessageInsertionPosition {
-//    case appendToEnd      // user scrolled to top, loading older messages
-//    case insertAtBeginning // user scrolled to bottom, loading newer messages
-//}
-
-
-
-//MARK: - Removed message handle (not finished implementation)
-//    private func sortOutRemovedMessages(by messagesIDs: Set<String>) -> Set<Message>
-//    {
-//        let messagesToRemove: Set<Message> = Set(
-//            (conversation?
-//                .getMessagesResults()
-//                .filter("id NOT IN %@", messagesIDs)
-//                .map { $0 } ?? []
-//            )
-//        )
-//
-//        return messagesToRemove
-//    }
-
-//    private func sortOutRemovedMessages2(by messagesIDs: Set<String>,
-//                                         limit: Int = 70) -> Set<Message>
-//    {
-//
-//        let messagesIDsSorted = Array(messagesIDs).sorted(by: <)
-//        let startMessage = messagesIDsSorted.first
-//        // Step 1: Get sorted messages in ascending order
-//        guard let allMessages = conversation?.getMessagesResults()
-//            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
-//        else {
-//            return []
-//        }
-//
-//        // Step 2: Skip until you find the startMessage, then take the next `limit`
-//        let limitedMessages = allMessages
-//            .drop(while: { $0.id != startMessage.id }) // find start point (inclusive)
-//            .prefix(limit)
-//
-//        // Step 3: Filter out messages that were not in the provided messagesIDs
-//        let messagesToRemove = Set(limitedMessages.filter { !messagesIDsSorted.contains($0.id) })
-//
-//        return messagesToRemove
-//    }

@@ -119,6 +119,7 @@ final class MessageTableViewCell: UITableViewCell
             .receive(on: DispatchQueue.main)
             .compactMap({ $0 })
             .sink { [weak self] message in
+                if message.isInvalidated { return }
                 self?.setupMessageData(with: message)
             }.store(in: &subscribers)
     }
