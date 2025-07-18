@@ -24,18 +24,47 @@ final class ConversationRealmService
         self.conversation = conversation
     }
     
+    
+//    func addMessagesToConversationInRealmBackground(_ messages: [Message])
+//    {
+//        guard let conversationFreezed = conversation?.freeze() else { return }
+//        RealmDataBase.shared.add(objects: messages)
+//        
+//        let messagesFreezed = messages.map { $0.freeze() }
+//        
+//        Task.detached(priority: .background)
+//        {
+//            RealmDataBase.shared.updateBackground(object: conversationFreezed) { chat in
+//                messagesFreezed.forEach { message in
+//                    if !chat.conversationMessages.contains(where: { $0.id == message.id} ) {
+//                        if let message = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id)
+//                        {
+//                            chat.conversationMessages.append(message)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+    
     func addMessagesToConversationInRealm(_ messages: [Message])
     {
         guard let conversation = conversation else { return }
         
+        let existingIDs = Set(conversation.conversationMessages.map(\.id))
+        
         RealmDataBase.shared.add(objects: messages)
         
-        messages.forEach { message in
-            if !conversation.conversationMessages.contains(where: { $0.id == message.id} )
+        RealmDataBase.shared.update(object: conversation) { chat in
+            for message in messages
             {
-                RealmDataBase.shared.update(object: conversation) { chat in
+                if !existingIDs.contains(message.id) {
                     chat.conversationMessages.append(message)
                 }
+                
+//                if !chat.conversationMessages.contains(where: { $0.id == message.id }) {
+//                    chat.conversationMessages.append(message)
+//                }
             }
         }
     
@@ -106,6 +135,21 @@ final class ConversationRealmService
         
         let filter = conversation.isGroup ?
         NSPredicate(format: "NONE seenBy == %@ AND senderId != %@", userID, userID) : NSPredicate(format: "messageSeen == false AND senderId != %@", authenticatedUserID ?? "")
+
+        let count = conversation.conversationMessages.filter(filter).count
+        return count
+    }
+    
+    ///// test
+    func getUnreadMessagesCountFromRealmTestish() -> Int
+    {
+        guard let conversation = conversation,
+              let userID = authenticatedUserID
+        else { return 0 }
+        guard let senderID = conversation.participants
+            .first(where: { $0.userID != userID })?.userID else {return 0}
+        let filter = conversation.isGroup ?
+        NSPredicate(format: "NONE seenBy == %@ AND senderId != %@", senderID, senderID) : NSPredicate(format: "messageSeen == false AND senderId != %@", senderID ?? "")
 
         let count = conversation.conversationMessages.filter(filter).count
         return count

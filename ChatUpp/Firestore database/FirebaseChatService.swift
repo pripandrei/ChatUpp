@@ -538,8 +538,8 @@ extension FirebaseChatService
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
 //                print("++++++++++++ Modification of existing messages: ", documents.count)
                 
-                snapshot?.metadata.isFromCache ?? false ? print("Snapshot is from cache") : print("Snapshot is Live")
-                
+//                snapshot?.metadata.isFromCache ?? false ? print("Snapshot is from cache") : print("Snapshot is Live")
+//                
                 var DBChangeObjects: [DatabaseChangedObject<Message>] = []
                 
                 for document in documents

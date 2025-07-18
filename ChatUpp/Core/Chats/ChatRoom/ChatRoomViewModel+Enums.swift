@@ -22,7 +22,7 @@ enum MessageValueModification
     }
 }
 
-enum MessageChangeType {
+enum MessageChangeType: Hashable {
     case modified(IndexPath, MessageValueModification)
     case added(IndexPath)
     case removed(IndexPath, isLastItemInSection: Bool)

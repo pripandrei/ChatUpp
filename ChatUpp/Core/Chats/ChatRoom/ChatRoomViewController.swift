@@ -179,15 +179,16 @@ final class ChatRoomViewController: UIViewController
     
     private func refreshTableView()
     {
+//        viewModel.isMessageBatchingInProcess = true
         let indexPath = self.viewModel.findFirstUnseenMessageIndex()
         
         if indexPath != nil {
-            self.didFinishInitialScrollToUnseenIndexPathIfAny = false
+//            self.didFinishInitialScrollToUnseenIndexPathIfAny = false
             // Delay table view willDisplay cell functionality
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0)
-            {
-                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
-            }
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+////                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
+//                self.viewModel.isMessageBatchingInProcess = false
+//            }
         }
         
         self.toggleSkeletonAnimation(.terminated)
@@ -197,7 +198,8 @@ final class ChatRoomViewController: UIViewController
         if let indexPath = self.viewModel.findFirstUnseenMessageIndex() {
             self.scrollToCell(at: indexPath)
         }
-        self.didFinishInitialScrollToUnseenIndexPathIfAny = true
+//        viewModel.isMessageBatchingInProcess = false
+//        didFinishInitialScrollToUnseenIndexPathIfAny = true
     }
     
     override func viewDidLayoutSubviews() {
@@ -260,7 +262,7 @@ final class ChatRoomViewController: UIViewController
             .store(in: &subscriptions)
     }
     
-    private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
+    private func performBatchUpdateWithMessageChanges(_ changes: Set<MessageChangeType>)
     {
         var addedIndexPaths: [IndexPath] = []
         var removedPaths: [(IndexPath, Bool)] = []
@@ -1107,17 +1109,17 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
-        guard !viewModel.messageClusters.isEmpty,
-              didFinishInitialScrollToUnseenIndexPathIfAny else { return }
+        guard !viewModel.messageClusters.isEmpty
+             /* !viewModel.isMessageBatchingInProcess */else { return }
         
         // Paginate only if we reached sixth cell either from beginning or end
-        if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
+        if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 6,
                                                                   in: tableView),
            sixthFromBottom == indexPath
         {
             paginateIfNeeded(ascending: true)
         }
-        else if let sixthFromTop = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
+        else if let sixthFromTop = getVisibleIndexPathForGlobalCell(atGlobalIndex: 6,
                                                                     fromEnd: true,
                                                                     in: tableView),
                 sixthFromTop == indexPath

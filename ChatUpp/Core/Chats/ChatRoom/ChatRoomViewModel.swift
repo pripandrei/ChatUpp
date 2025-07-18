@@ -68,7 +68,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private var cancellables             = Set<AnyCancellable>()
     
     @Published private(set) var unseenMessagesCount: Int
-    @Published private(set) var messageChangedTypes: [MessageChangeType] = []
+    @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
     
     private var bufferedMessages: [BufferedMessage] = []
@@ -204,6 +204,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         bindToMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
+        
+       testMessagesCountAndUnseenCount()
     }
     
     init(participant: User?)
@@ -940,7 +942,8 @@ extension ChatRoomViewModel
 //MARK: - Messages update handlers
 extension ChatRoomViewModel
 {
-    private func processMessageChanges(_ messagesTypes: [DatabaseChangedObject<Message>]) async {
+    private func processMessageChanges(_ messagesTypes: [DatabaseChangedObject<Message>]) async
+    {
         // Group messages by change type
         let groupedMessages = Dictionary(grouping: messagesTypes) { $0.changeType }
         
@@ -959,7 +962,9 @@ extension ChatRoomViewModel
         let addedTypes = await processAddedMessages(filteredAdded)
         
         // Combine all changes and update
-        let allChanges = removedTypes + modifiedTypes + addedTypes
+//        var allChanges = removedTypes + modifiedTypes + addedTypes
+        var allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
+        
         self.messageChangedTypes = allChanges
         
         // Clear processed messages
@@ -967,24 +972,28 @@ extension ChatRoomViewModel
     }
 
     @MainActor
-    private func processRemovedMessages(_ messages: Set<Message>) async -> [MessageChangeType] {
-        let sortedIndexPaths = messages
+    private func processRemovedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
+    {
+        let sortedIndexPaths = Set(messages
             .compactMap { self.indexPath(of: $0) }
             .sorted(by: >)
+        )
         
-        return sortedIndexPaths.compactMap { self.handleRemovedMessage(at: $0) }
+        return Set(sortedIndexPaths.compactMap { self.handleRemovedMessage(at: $0) })
     }
 
     @MainActor
-    private func processModifiedMessages(_ messages: Set<Message>) async -> [MessageChangeType] {
-        return messages.compactMap { message in
+    private func processModifiedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
+    {
+        return Set(messages.compactMap { message in
             guard let indexPath = self.indexPath(of: message) else { return nil }
             return self.handleModifiedMessage(message, at: indexPath)
-        }
+        })
     }
 
     @MainActor
-    private func processAddedMessages(_ messages: Set<Message>) async -> [MessageChangeType] {
+    private func processAddedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
+    {
         // Separate messages that already exist vs new ones
         let (existingMessages, newMessages) = messages.reduce(into: ([Message](), [Message]())) { result, message in
             if RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id) != nil {
@@ -1009,9 +1018,9 @@ extension ChatRoomViewModel
         }
         
         // Create change types for all added messages
-        return newMessages
+        return Set(newMessages
             .compactMap { self.indexPath(of: $0) }
-            .map { MessageChangeType.added($0) }
+            .map { MessageChangeType.added($0) })
     }
 }
 
@@ -1319,3 +1328,37 @@ extension ChatRoomViewModel
         print("processed buffered messages !")
     }
 }
+
+
+
+
+// MARK: - Test
+extension ChatRoomViewModel {
+    private func testMessagesCountAndUnseenCount() {
+        Task { @MainActor in
+            let localMessageCount = conversation?.getMessagesResults().count
+            
+            let remoteMessagesCount = try await FirebaseChatService.shared.getAllMessages(fromChatDocumentPath: conversation!.id).count
+            
+            print("local messages count", localMessageCount)
+            print("remote messages count", remoteMessagesCount)
+            
+        }
+        
+        Task { @MainActor in
+            let authUserID = AuthenticationManager.shared.authenticatedUser?.uid ?? ""
+            guard let senderID = conversation?.participants
+                .first(where: { $0.userID != authUserID })?.userID else {return}
+            let unreadCount = try await FirebaseChatService.shared.getUnreadMessagesCountTest(
+                from: conversation!.id,
+                whereMessageSenderID: senderID
+            )
+        
+            let localUnseenCpunt = realmService?.getUnreadMessagesCountFromRealm()
+            print("Remote Unseen messages count: ",unreadCount)
+            print("Local Unseen messages count: ",localUnseenCpunt)
+        }
+    }
+}
+
+
