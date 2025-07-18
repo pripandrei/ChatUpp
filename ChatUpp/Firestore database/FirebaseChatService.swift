@@ -536,10 +536,7 @@ extension FirebaseChatService
             .addSnapshotListener(includeMetadataChanges: true) { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
-//                print("++++++++++++ Modification of existing messages: ", documents.count)
-                
-//                snapshot?.metadata.isFromCache ?? false ? print("Snapshot is from cache") : print("Snapshot is Live")
-//                
+
                 var DBChangeObjects: [DatabaseChangedObject<Message>] = []
                 
                 for document in documents
@@ -604,6 +601,38 @@ extension FirebaseChatService
         
         return try await query.limit(to: limit)
             .getDocuments(as: Message.self)
+    }
+}
+
+// MARK: - Deleted messages check
+extension FirebaseChatService
+{
+    func validateMessagesForDeletion(messageIDs: [String],
+                                     in chatID: String) async throws -> [String]
+    {
+        // Check in batches (Firestore has 10 item limit for 'in' queries)
+        let batches = messageIDs.chunked(into: 10)
+        var messageIDsToDelete: [String] = []
+        
+        for batch in batches
+        {
+            let snapshot = try await chatDocument(documentPath: chatID)
+                .collection(FirestoreCollection.messages.rawValue)
+                .whereField(FieldPath.documentID(), in: batch)
+                .getDocuments()
+            
+            let documents = snapshot.documents
+            
+            let remoteMessageIDs = Set(documents.map { $0.documentID })
+            let localMessageIDs = Set(batch)
+            
+            // These messages were deleted
+            let deletedIDs = localMessageIDs.subtracting(remoteMessageIDs)
+            
+            deletedIDs.forEach { messageIDsToDelete.append($0) }
+        }
+        
+        return messageIDsToDelete
     }
 }
 

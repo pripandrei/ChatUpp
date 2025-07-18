@@ -40,3 +40,15 @@
 /// If first index path at row 0 and section 0 is not visible
 /// we should insert rows/sections with animation 0.0
 /// this makes table view to not shift its contentOffset after insertion
+
+//MARK: - [5].
+/// Firebase listeners, in regards to it's remove of documents feature,
+/// works inconsitent.
+/// If chat is already opened and listener is already attached to messages,
+/// it will detect changes/removals, as long as you stay in chat and don't remove listener.
+/// However, this is not the case if chat is closed and documents were removed.
+/// On opening chat, and attaching listener it will some times give removed docs
+/// and some times not.
+/// We can't rely on this behavior so we introduce our own removed messages checker,
+/// which will compare messages from local db with those from remote db,
+/// and remove those that are not present in remote but are in local.

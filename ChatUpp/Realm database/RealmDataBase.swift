@@ -151,6 +151,15 @@ final class RealmDataBase {
         })
     }
     
+    func delete<T: Object>(objects: [T])
+    {
+        let realm = try! Realm()
+        
+        try? realm.write({
+            realm.delete(objects)
+        })
+    }
+    
     func makeThreadSafeObject<T: Object>(object: T) -> ThreadSafeReference<T> {
         return ThreadSafeReference(to: object)
     }

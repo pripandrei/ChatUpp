@@ -1090,50 +1090,7 @@ extension ChatRoomViewController: UITableViewDelegate
             }
         }
     }
-    
-//    private func insertNewRowsAndSections(addedRows: [IndexPath],
-//                                          addedSections: IndexSet?,
-//                                          remoteSource: Bool)
-//    {
-//        let tableView = rootView.tableView
-//        
-////        if remoteSource && ascending {
-//        var revertBack = false
-//        if self.rootView.tableView.contentOffset.y < -97.5
-//        {
-//            revertBack = true
-//            rootView.tableView.contentOffset.y = rootView.tableView.contentOffset.y + 400
-//        }
-//        
-//        CATransaction.begin()
-//        CATransaction.setDisableActions(true)
-//        tableView.performBatchUpdates({
-//            // Insert new sections first
-//            if let addedSections, !addedSections.isEmpty {
-//                tableView.insertSections(addedSections, with: .none)
-//            }
-//            
-//            // Insert new rows
-//            if !addedRows.isEmpty {
-//                tableView.insertRows(at: addedRows, with: .none)
-//            }
-//        }, completion: { completed in
-//            
-//            if revertBack && completed
-//            {
-//                CATransaction.begin()
-//                CATransaction.setDisableActions(true)
-//                //            if remoteSource && ascending {
-//                //                self.rootView.layoutIfNeeded()
-//                self.rootView.tableView.contentOffset.y -= 400
-//                CATransaction.commit()
-//                //            }
-//            }
-//        })
-//        CATransaction.commit()
-//        
-//    }
-    
+ 
     private func performeTableViewUpdate(withRows rows: [IndexPath],
                                          sections: IndexSet?)
     {
@@ -1193,20 +1150,7 @@ extension ChatRoomViewController: UITableViewDelegate
         }
         isNetworkPaginationRunning = false
     }
-    
-//    private func paginateIfNeeded(ascending: Bool)
-//    {
-//        Task {
-//            await viewModel.messagePaginator.paginateIfNeeded(
-//                ascending: ascending,
-//                viewModel: viewModel
-//            ) { [weak self] newRows, newSections in
-//                guard let self = self else {return}
-//                self.performeTableViewUpdate(with: newRows, sections: newSections)
-//            }
-//        }
-//    }
-    
+
     private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
                                                   fromEnd: Bool = false,
                                                   in tableView: UITableView) -> IndexPath?
@@ -1259,23 +1203,7 @@ extension ChatRoomViewController: UITableViewDelegate
         
         return nil
     }
-    
-//    func scrollViewDidScroll(_ scrollView: UIScrollView)
-//    {
-//        if self.rootView.tableView.contentOffset.y < -97.5
-//        {
-//            print("lower than -97.5")
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0)
-//            {
-//                let currentOffsetY = self.rootView.tableView.contentOffset.y
-//                self.rootView.tableView.contentOffset.y = currentOffsetY + 100
-//                print("offset shift")
-//                self.rootView.tableView.contentOffset.y = currentOffsetY
-//            }
-//        }
-//    }
 
-    
     /// Context Menu configuration
     ///
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration?

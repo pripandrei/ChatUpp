@@ -52,7 +52,6 @@ struct BufferedMessages
 class ChatRoomViewModel : SwiftUI.ObservableObject
 {
     private(set) var setupConversationTask: Task<Void, Never>?
-    private(set) var messagePaginator = ConversationMessagePaginator()
     
     private(set) var realmService: ConversationRealmService?
     //    private(set) var messageFetcher : ConversationMessageFetcher
@@ -763,6 +762,7 @@ extension ChatRoomViewModel
             messages.removeFirst()
         }
         createMessageClustersWith(messages)
+        validateMessagesForDeletion(messages)
     }
     
     private func prepareMessagesForConversationInitialization() -> [Message]
@@ -811,6 +811,7 @@ extension ChatRoomViewModel
         {
             let clusterSnapshot = messageClusters
             createMessageClustersWith(paginatedMessages)
+            validateMessagesForDeletion(paginatedMessages)
             let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
             self.lastPaginatedMessage = paginatedMessages.last
             return (newRows, newSections)
@@ -863,6 +864,41 @@ extension ChatRoomViewModel
         }
         conversationInitializationStatus = .finished
     }
+    
+    // MARK: - Messages check for deletion
+    
+    /// See FootNote.swift [6]
+    ///
+    private func validateMessagesForDeletion(_ messages: [Message])
+    {
+        guard let chatID = conversation?.id else {return}
+        let messageIDs = messages.map { $0.id }
+        
+        Task { @MainActor in
+            do {
+                let messageIDsForDeletion = try await FirebaseChatService
+                    .shared
+                    .validateMessagesForDeletion(messageIDs: messageIDs,
+                                                 in: chatID)
+ 
+                guard let messagesToDelete = RealmDataBase
+                    .shared
+                    .retrieveObjects(ofType: Message.self,
+                                     filter: NSPredicate(format: "id IN %@", messageIDsForDeletion)) else {return}
+                
+                let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { self.indexPath(of: $0) }
+                
+                let modificationTypes = indexPatToRemove.compactMap {  handleRemovedMessage(at: $0) }
+                
+                self.messageChangedTypes.formUnion(modificationTypes)
+               
+            } catch {
+                print("Could not check messages for deletion: \(error)")
+            }
+        }
+    }
+    
+//    private func
     
     
     // MARK: - Group Chat Handling
@@ -963,7 +999,7 @@ extension ChatRoomViewModel
         
         // Combine all changes and update
 //        var allChanges = removedTypes + modifiedTypes + addedTypes
-        var allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
+        let allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
         
         self.messageChangedTypes = allChanges
         
@@ -1058,10 +1094,10 @@ extension ChatRoomViewModel
         
         realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
          
-        if indexPath.isFirst(), let lastMessageID = lastMessageItem?.message?.id
+        if indexPath.isFirst(), let recentMessageID = lastMessageItem?.message?.id
         {
             Task {
-                await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: lastMessageID)                
+                await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: recentMessageID)
             }
         }
         return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
