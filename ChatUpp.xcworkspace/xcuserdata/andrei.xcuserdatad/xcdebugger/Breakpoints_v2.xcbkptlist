@@ -30,8 +30,8 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1195"
-            endingLineNumber = "1195"
+            startingLineNumber = "1205"
+            endingLineNumber = "1205"
             landmarkName = "createMessageClustersWith(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -48,8 +48,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "42"
             endingLineNumber = "42"
-            landmarkName = "addMessagesToConversationInRealmBackground(_:)"
-            landmarkType = "7">
+            landmarkName = "ConversationRealmService"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -122,8 +122,8 @@
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1112"
-            endingLineNumber = "1112"
+            startingLineNumber = "1057"
+            endingLineNumber = "1057"
             landmarkName = "tableView(_:willDisplay:forRowAt:)"
             landmarkType = "7">
          </BreakpointContent>

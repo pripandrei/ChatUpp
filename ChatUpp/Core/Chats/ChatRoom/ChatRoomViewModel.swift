@@ -205,7 +205,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
         
-       testMessagesCountAndUnseenCount()
+//       testMessagesCountAndUnseenCount()
     }
     
     init(participant: User?)
@@ -1101,6 +1101,12 @@ extension ChatRoomViewModel
     {
         guard let conversation = conversation else { return [] }
 
+        var limit = 50
+        
+        if strategy != nil {
+            limit = 10
+        }
+        
         let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
         
         switch fetchStrategy
@@ -1110,27 +1116,31 @@ extension ChatRoomViewModel
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
-                fetchDirection: .ascending
+                fetchDirection: .ascending,
+                limit: limit
             )
         case .descending(let startAtMessage, let included):
             return try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
-                fetchDirection: .descending
+                fetchDirection: .descending,
+                limit: limit
             )
         case .hybrit(let startAtMessage):
             let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: true,
-                fetchDirection: .descending
+                fetchDirection: .descending,
+                limit: limit
             )
             let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: false,
-                fetchDirection: .ascending
+                fetchDirection: .ascending,
+                limit: limit
             )
             return descendingMessages + ascendingMessages
         default: return []
@@ -1283,10 +1293,10 @@ extension ChatRoomViewModel
         {
             let startMessage = newMessages.first!
             realmService?.addMessagesToConversationInRealm(newMessages)
-            messageListenerService?.addListenerToExistingMessagesTest(
-                startAtMesssage: startMessage,
-                ascending: order,
-                limit: newMessages.count)
+//            messageListenerService?.addListenerToExistingMessagesTest(
+//                startAtMesssage: startMessage,
+//                ascending: order,
+//                limit: newMessages.count)
         }
         let clusterSnapshot = messageClusters
         createMessageClustersWith(newMessages)

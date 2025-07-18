@@ -92,6 +92,8 @@ extension ChatRoomViewController: UIScrollViewDelegate
 
 final class ChatRoomViewController: UIViewController
 {
+    
+    private var isNetworkPaginationRunning: Bool = false
     weak var coordinatorDelegate :Coordinator?
     
     private var shouldIgnoreUnseenMessagesUpdate: Bool = false
@@ -323,63 +325,6 @@ final class ChatRoomViewController: UIViewController
         }
         print("finish reloading table view")
     }
-    
-//    private func performBatchUpdateWithMessageChanges(_ changes: [MessageChangeType])
-//    {
-//        var addedMessages: [Message] = []
-//        var removedPaths: [(IndexPath, Bool)] = []
-//        var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
-//
-//        for change in changes
-//        {
-//            switch change
-//            {
-//            case .added(let message):
-//                if changes.count == 1
-//                {
-//                    handleTableViewCellInsertion(scrollToBottom: false)
-//                    return
-//                }
-//                addedMessages.append(message)
-//            case .removed(let indexPath, let isLastRowInSection):
-//                removedPaths.append((indexPath, isLastRowInSection))
-//            case .modified(let indexPath, let modification):
-//                modifiedPaths.append((indexPath, modification.animationType))
-//            }
-//        }
-//
-//        /// Filter out modifications that were also removed
-//        ///
-//        let removedIndexPaths = Set(removedPaths.map { $0.0 })
-//        let safeModifications = modifiedPaths
-//            .filter { !removedIndexPaths.contains($0.indexPath) }
-//
-//        /// Group modifications by animation type (for clarity and batch efficiency)
-//        let groupModifications = Dictionary(grouping: safeModifications,
-//                                            by: { $0.animation })
-//
-//        rootView.tableView.performBatchUpdates
-//        {
-//            if !removedPaths.isEmpty
-//            {
-//                self.removeTableViewCells(at: removedPaths)
-//            }
-//
-//            if !addedMessages.isEmpty {
-//                let insertIndexPaths = addedMessages.compactMap {
-//                    viewModel.indexPath(of: $0)
-//                }
-//                rootView.tableView.insertRows(at: insertIndexPaths, with: .fade)
-//            }
-//
-//            for (animation, entrie) in groupModifications
-//            {
-//                let indexPaths = entrie.map { $0.indexPath }
-//                self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
-//            }
-//        }
-//    }
-    
     
     //MARK: - Keyboard notification observers
     
@@ -1133,57 +1078,120 @@ extension ChatRoomViewController: UITableViewDelegate
         Task { @MainActor in
             if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
-                print("begin pagination")
-                self.insertNewRowsAndSections(
-                    addedRows: newRows,
-                    addedSections: newSections
+                self.performeTableViewUpdate(
+                    withRows: newRows,
+                    sections: newSections
                 )
-//                performeTableViewUpdate(with: newRows, sections: newSections)
+            }
+            else if !isNetworkPaginationRunning
+            {
+                isNetworkPaginationRunning = true
+                await preformRemotePagination(ascending: ascending)
             }
         }
-        
-//        Task {
-//            await viewModel.messagePaginator.paginateIfNeeded(
-//                ascending: ascending,
-//                viewModel: viewModel
-//            ) { [weak self] addedRows, addedSections in
-//                guard let self = self else { return }
-//
-//                DispatchQueue.main.async {
-//                    self.insertNewRowsAndSections(
-//                        addedRows: addedRows,
-//                        addedSections: addedSections,
-//                        ascending: ascending
-//                    )
-//                }
-//            }
-//        }
     }
-
-    private func insertNewRowsAndSections(addedRows: [IndexPath],
-                                          addedSections: IndexSet?)
+    
+//    private func insertNewRowsAndSections(addedRows: [IndexPath],
+//                                          addedSections: IndexSet?,
+//                                          remoteSource: Bool)
+//    {
+//        let tableView = rootView.tableView
+//        
+////        if remoteSource && ascending {
+//        var revertBack = false
+//        if self.rootView.tableView.contentOffset.y < -97.5
+//        {
+//            revertBack = true
+//            rootView.tableView.contentOffset.y = rootView.tableView.contentOffset.y + 400
+//        }
+//        
+//        CATransaction.begin()
+//        CATransaction.setDisableActions(true)
+//        tableView.performBatchUpdates({
+//            // Insert new sections first
+//            if let addedSections, !addedSections.isEmpty {
+//                tableView.insertSections(addedSections, with: .none)
+//            }
+//            
+//            // Insert new rows
+//            if !addedRows.isEmpty {
+//                tableView.insertRows(at: addedRows, with: .none)
+//            }
+//        }, completion: { completed in
+//            
+//            if revertBack && completed
+//            {
+//                CATransaction.begin()
+//                CATransaction.setDisableActions(true)
+//                //            if remoteSource && ascending {
+//                //                self.rootView.layoutIfNeeded()
+//                self.rootView.tableView.contentOffset.y -= 400
+//                CATransaction.commit()
+//                //            }
+//            }
+//        })
+//        CATransaction.commit()
+//        
+//    }
+    
+    private func performeTableViewUpdate(withRows rows: [IndexPath],
+                                         sections: IndexSet?)
     {
-        let tableView = rootView.tableView
+        var visibleCell: MessageTableViewCell? = nil
+        let currentOffsetY = self.rootView.tableView.contentOffset.y
         
-        // Disable animations for smoother experience
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-//        UIView.animate(withDuration: 0.0, animations: {
-            tableView.performBatchUpdates({
-                // Insert new sections first
-                if let addedSections, !addedSections.isEmpty {
-                    tableView.insertSections(addedSections, with: .none)
+        
+        self.rootView.tableView.performBatchUpdates({
+            visibleCell = self.rootView.tableView.visibleCells.first as? MessageTableViewCell
+            
+            if let sections {
+                self.rootView.tableView.insertSections(sections, with: .none)
+            }
+            if !rows.isEmpty {
+                self.rootView.tableView.insertRows(at: rows, with: .none)
+            }
+//            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
+            self.shouldIgnoreUnseenMessagesUpdate = true
+        }, completion: { complete in
+//            self.shouldIgnoreUnseenMessagesUpdate = true
+            if self.rootView.tableView.contentOffset.y < -97.5 && complete
+            {
+                if let visibleCell = visibleCell,
+                   let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
+                {
+                    let lastCellRect = self.rootView.tableView.rectForRow(at: indexPathOfVisibleCell)
+                    self.rootView.tableView.contentOffset.y = currentOffsetY + lastCellRect.minY
                 }
-                
-                // Insert new rows
-                if !addedRows.isEmpty {
-                    tableView.insertRows(at: addedRows, with: .none)
-                }
-            }, completion: { _ in
-                print("")
-            })
+            }
+//            CATransaction.commit()
+        })
         CATransaction.commit()
 //        })
+    }
+    
+    private func preformRemotePagination(ascending: Bool) async
+    {
+        do {
+            try await Task.sleep(for: .seconds(1))
+            
+            if let (newRows, newSections) = try await viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: ascending)
+            {
+                await MainActor.run {
+                    performeTableViewUpdate(withRows: newRows,
+                                            sections: newSections)
+                    
+                    if ascending && viewModel.shouldAttachListenerToUpcomingMessages
+                    {
+                        viewModel.messageListenerService?.addListenerToUpcomingMessages()
+                    }
+                }
+            }
+        } catch {
+            print("Could not update conversation with additional messages: \(error)")
+        }
+        isNetworkPaginationRunning = false
     }
     
 //    private func paginateIfNeeded(ascending: Bool)
@@ -1252,40 +1260,21 @@ extension ChatRoomViewController: UITableViewDelegate
         return nil
     }
     
-    private func performeTableViewUpdate(with newRows: [IndexPath], sections: IndexSet?)
-    {
-        var visibleCell: MessageTableViewCell? = nil
-        let currentOffsetY = self.rootView.tableView.contentOffset.y
-        
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        
-        self.rootView.tableView.performBatchUpdates({
-            visibleCell = self.rootView.tableView.visibleCells.first as? MessageTableViewCell
-            
-            if let sections = sections {
-                self.rootView.tableView.insertSections(sections, with: .none)
-            }
-            if !newRows.isEmpty {
-                self.rootView.tableView.insertRows(at: newRows, with: .none)
-            }
-//            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
-            self.shouldIgnoreUnseenMessagesUpdate = true
-        }, completion: { _ in
-//            defer { self.viewModel.isMessageBatchingInProcess = false }
-//            self.shouldIgnoreUnseenMessagesUpdate = true
-            if self.rootView.tableView.contentOffset.y < -97.5
-            {
-                if let visibleCell = visibleCell,
-                   let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
-                {
-                    let lastCellRect = self.rootView.tableView.rectForRow(at: indexPathOfVisibleCell)
-                    self.rootView.tableView.contentOffset.y = currentOffsetY + lastCellRect.minY
-                }
-            }
-            CATransaction.commit()
-        })
-    }
+//    func scrollViewDidScroll(_ scrollView: UIScrollView)
+//    {
+//        if self.rootView.tableView.contentOffset.y < -97.5
+//        {
+//            print("lower than -97.5")
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0)
+//            {
+//                let currentOffsetY = self.rootView.tableView.contentOffset.y
+//                self.rootView.tableView.contentOffset.y = currentOffsetY + 100
+//                print("offset shift")
+//                self.rootView.tableView.contentOffset.y = currentOffsetY
+//            }
+//        }
+//    }
+
     
     /// Context Menu configuration
     ///
