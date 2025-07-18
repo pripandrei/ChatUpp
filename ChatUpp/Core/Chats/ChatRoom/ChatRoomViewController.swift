@@ -1113,13 +1113,13 @@ extension ChatRoomViewController: UITableViewDelegate
              /* !viewModel.isMessageBatchingInProcess */else { return }
         
         // Paginate only if we reached sixth cell either from beginning or end
-        if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 6,
+        if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
                                                                   in: tableView),
            sixthFromBottom == indexPath
         {
             paginateIfNeeded(ascending: true)
         }
-        else if let sixthFromTop = getVisibleIndexPathForGlobalCell(atGlobalIndex: 6,
+        else if let sixthFromTop = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
                                                                     fromEnd: true,
                                                                     in: tableView),
                 sixthFromTop == indexPath
@@ -1130,16 +1130,74 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func paginateIfNeeded(ascending: Bool)
     {
-        Task {
-            await viewModel.messagePaginator.paginateIfNeeded(
-                ascending: ascending,
-                viewModel: viewModel
-            ) { [weak self] newRows, newSections in
-                guard let self = self else {return}
-                self.performeTableViewUpdate(with: newRows, sections: newSections)
+        Task { @MainActor in
+            if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
+            {
+                print("begin pagination")
+                self.insertNewRowsAndSections(
+                    addedRows: newRows,
+                    addedSections: newSections
+                )
+//                performeTableViewUpdate(with: newRows, sections: newSections)
             }
         }
+        
+//        Task {
+//            await viewModel.messagePaginator.paginateIfNeeded(
+//                ascending: ascending,
+//                viewModel: viewModel
+//            ) { [weak self] addedRows, addedSections in
+//                guard let self = self else { return }
+//
+//                DispatchQueue.main.async {
+//                    self.insertNewRowsAndSections(
+//                        addedRows: addedRows,
+//                        addedSections: addedSections,
+//                        ascending: ascending
+//                    )
+//                }
+//            }
+//        }
     }
+
+    private func insertNewRowsAndSections(addedRows: [IndexPath],
+                                          addedSections: IndexSet?)
+    {
+        let tableView = rootView.tableView
+        
+        // Disable animations for smoother experience
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+//        UIView.animate(withDuration: 0.0, animations: {
+            tableView.performBatchUpdates({
+                // Insert new sections first
+                if let addedSections, !addedSections.isEmpty {
+                    tableView.insertSections(addedSections, with: .none)
+                }
+                
+                // Insert new rows
+                if !addedRows.isEmpty {
+                    tableView.insertRows(at: addedRows, with: .none)
+                }
+            }, completion: { _ in
+                print("")
+            })
+        CATransaction.commit()
+//        })
+    }
+    
+//    private func paginateIfNeeded(ascending: Bool)
+//    {
+//        Task {
+//            await viewModel.messagePaginator.paginateIfNeeded(
+//                ascending: ascending,
+//                viewModel: viewModel
+//            ) { [weak self] newRows, newSections in
+//                guard let self = self else {return}
+//                self.performeTableViewUpdate(with: newRows, sections: newSections)
+//            }
+//        }
+//    }
     
     private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
                                                   fromEnd: Bool = false,

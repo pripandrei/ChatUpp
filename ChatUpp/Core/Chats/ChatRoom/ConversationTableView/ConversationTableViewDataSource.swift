@@ -31,7 +31,10 @@ final class ConversationTableViewDataSource: NSObject, UITableViewDataSource
     {
         guard (conversationViewModel.messageClusters.count - 1) >= indexPath.section && (conversationViewModel.messageClusters[indexPath.section].items.count - 1) >= indexPath.row else
         {
-            return UITableViewCell()
+            let cell = UITableViewCell()
+//            cell.contentView.backgroundColor = .clear
+//            cell.backgroundColor = .clear
+            return cell
         }
         let viewModel = conversationViewModel.messageClusters[indexPath.section].items[indexPath.row]
         
