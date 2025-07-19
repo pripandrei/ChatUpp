@@ -83,7 +83,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     var shouldEditMessage: ((String) -> Void)?
     var currentlyReplyToMessageID: String?
     
-    private var lastMessageItem: MessageItem? {
+    private var recentMessageItem: MessageItem? {
         return messageClusters.first?.items.first
     }
     
@@ -204,7 +204,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
         
-//       testMessagesCountAndUnseenCount()
+       testMessagesCountAndUnseenCount()
     }
     
     init(participant: User?)
@@ -325,7 +325,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             ChatParticipant(userID: authUser.uid, unseenMessageCount: 0),
             ChatParticipant(userID: participant.id, unseenMessageCount: 0)
         ]
-        let recentMessageID = lastMessageItem?.message?.id
+        let recentMessageID = recentMessageItem?.message?.id
         let messagesCount = messageClusters.first?.items.count
         
         return Chat(
@@ -773,14 +773,12 @@ extension ChatRoomViewModel
             let messagesAscending = conversation.getMessages(
                 startingFrom: message.id,
                 isMessageIncluded: true,
-                ascending: true,
-                limit: 30)
+                ascending: true)
             
             let messagesDescending = conversation.getMessages(
                 startingFrom: message.id,
                 isMessageIncluded: false,
-                ascending: false,
-                limit: 30).reversed() /// since table view is inverted, reverse messages here
+                ascending: false).reversed() /// since table view is inverted, reverse messages here
             return Array(messagesDescending + messagesAscending)
         } else {
             let messages = conversation.getMessagesResults().prefix(60).reversed()
@@ -806,14 +804,15 @@ extension ChatRoomViewModel
             }
         }
         
-
         if !paginatedMessages.isEmpty
         {
             let clusterSnapshot = messageClusters
             createMessageClustersWith(paginatedMessages)
-            validateMessagesForDeletion(paginatedMessages)
             let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
             self.lastPaginatedMessage = paginatedMessages.last
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 9.1) {
+//                self.validateMessagesForDeletion(paginatedMessages)
+//            }
             return (newRows, newSections)
         }
         return nil
@@ -830,19 +829,17 @@ extension ChatRoomViewModel
             
             let messages = conversation.getMessages(startingFrom: startMessage.id,
                                                     isMessageIncluded: false,
-                                                    ascending: ascending,
-                                                    limit: 30)
+                                                    ascending: ascending)
             return messages
         }
         
         let messageClustersCount = messageClusters.count
         guard let startMessage = messageClusters[messageClustersCount - 1].items.last?.message
         else {return [] }
-        
+        print("Last message to start from: ", startMessage.id,"  ", startMessage.messageBody)
         let messages = conversation.getMessages(startingFrom: startMessage.id,
                                                 isMessageIncluded: false,
-                                                ascending: ascending,
-                                                limit: 30)
+                                                ascending: ascending)
         return messages
     }
     
@@ -880,25 +877,30 @@ extension ChatRoomViewModel
                     .shared
                     .validateMessagesForDeletion(messageIDs: messageIDs,
                                                  in: chatID)
- 
+                guard !messageIDsForDeletion.isEmpty else {return}
                 guard let messagesToDelete = RealmDataBase
                     .shared
                     .retrieveObjects(ofType: Message.self,
                                      filter: NSPredicate(format: "id IN %@", messageIDsForDeletion)) else {return}
                 
+                
                 let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { self.indexPath(of: $0) }
                 
-                let modificationTypes = indexPatToRemove.compactMap {  handleRemovedMessage(at: $0) }
+                print("In Validation (Paths to remove): ", indexPatToRemove)
                 
-                self.messageChangedTypes.formUnion(modificationTypes)
+                for message in messagesToDelete {
+                    print("In Validation (Message to remove): ", message)
+                }
+                
+                let modificationTypes = Set(indexPatToRemove.compactMap {  handleRemovedMessage(at: $0) })
+                
+                self.messageChangedTypes = modificationTypes
                
             } catch {
                 print("Could not check messages for deletion: \(error)")
             }
         }
     }
-    
-//    private func
     
     
     // MARK: - Group Chat Handling
@@ -966,7 +968,11 @@ extension ChatRoomViewModel
             .filter { !$0.isEmpty }
             .sink { [weak self] messagesTypes in
                 guard let self = self else { return }
-                
+                for messageType in messagesTypes {
+                    if messageType.data.id == "32A0A428-D0F4-43FE-B3E2-62D1DA69BA1F" {
+                        print("stop c")
+                    }
+                }
                 Task {
                     await self.processMessageChanges(messagesTypes)
                 }
@@ -1094,7 +1100,7 @@ extension ChatRoomViewModel
         
         realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
          
-        if indexPath.isFirst(), let recentMessageID = lastMessageItem?.message?.id
+        if indexPath.isFirst(), let recentMessageID = recentMessageItem?.message?.id
         {
             Task {
                 await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: recentMessageID)
@@ -1188,7 +1194,7 @@ extension ChatRoomViewModel
         let startMessage: Message?
         
         if ascendingOrder {
-            startMessage = lastMessageItem?.message
+            startMessage = recentMessageItem?.message
         } else {
             // last message can be UnseenMessagesTitle, so we need to check and get one before last message instead
             guard let items = messageClusters.last?.items else { return nil }
@@ -1329,10 +1335,10 @@ extension ChatRoomViewModel
         {
             let startMessage = newMessages.first!
             realmService?.addMessagesToConversationInRealm(newMessages)
-//            messageListenerService?.addListenerToExistingMessagesTest(
-//                startAtMesssage: startMessage,
-//                ascending: order,
-//                limit: newMessages.count)
+            messageListenerService?.addListenerToExistingMessagesTest(
+                startAtMesssage: startMessage,
+                ascending: order,
+                limit: newMessages.count)
         }
         let clusterSnapshot = messageClusters
         createMessageClustersWith(newMessages)
@@ -1380,7 +1386,8 @@ extension ChatRoomViewModel
 
 // MARK: - Test
 extension ChatRoomViewModel {
-    private func testMessagesCountAndUnseenCount() {
+    private func testMessagesCountAndUnseenCount()
+    {
         Task { @MainActor in
             let localMessageCount = conversation?.getMessagesResults().count
             

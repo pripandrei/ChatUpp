@@ -57,7 +57,7 @@ final class ConversationMessageListenerService
     
     func addListenerToExistingMessagesTest(startAtMesssage message: Message,
                                            ascending: Bool,
-                                           limit: Int = ObjectsFetchingLimit.messages)
+                                           limit: Int = ObjectsPaginationLimit.remoteMessages)
     {
         guard let conversationID = conversation?.id, limit > 0 else { return }
         let message = message.freeze()

@@ -355,6 +355,7 @@ extension FirebaseChatService
             }
         }
     
+        print("counter value: \(counterValue) ")
         try await chatDocument(documentPath: chatID).updateData(data)
     }
     
@@ -572,7 +573,7 @@ extension FirebaseChatService
                                startingFrom messageID: String?,
                                inclusive: Bool,
                                fetchDirection: MessagesFetchDirection,
-                               limit: Int = ObjectsFetchingLimit.messages) async throws -> [Message]
+                               limit: Int = ObjectsPaginationLimit.remoteMessages) async throws -> [Message]
     {
         var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
 

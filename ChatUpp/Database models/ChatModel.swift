@@ -155,7 +155,7 @@ class Chat: Object, Codable
     func getMessages(startingFrom messageID: String,
                      isMessageIncluded: Bool,
                      ascending: Bool,
-                     limit: Int) -> [Message] {
+                     limit: Int = ObjectsPaginationLimit.localMessages) -> [Message] {
         
         let sortedMessages = getMessagesResults(ascending: ascending)
         

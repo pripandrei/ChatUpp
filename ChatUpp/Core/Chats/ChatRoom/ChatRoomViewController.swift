@@ -131,17 +131,6 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
-        
-        Task {
-            let authUserID = AuthenticationManager.shared.authenticatedUser?.uid ?? ""
-            guard let senderID = viewModel.conversation?.participants
-                .first(where: { $0.userID != authUserID })?.userID else {return}
-            let unreadCount = try await FirebaseChatService.shared.getUnreadMessagesCountTest(
-                from: viewModel.conversation!.id,
-                whereMessageSenderID: senderID
-            )
-            print("Unseen messages count: ",unreadCount)
-        }
     }
 
     private func scrollToCell(at indexPath: IndexPath)
@@ -266,6 +255,8 @@ final class ChatRoomViewController: UIViewController
     
     private func performBatchUpdateWithMessageChanges(_ changes: Set<MessageChangeType>)
     {
+        guard !changes.isEmpty else {return}
+        
         var addedIndexPaths: [IndexPath] = []
         var removedPaths: [(IndexPath, Bool)] = []
         var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
@@ -287,6 +278,8 @@ final class ChatRoomViewController: UIViewController
                 modifiedPaths.append((indexPath, modification.animationType))
             }
         }
+
+//        print("Paths to remove in batch: ",removedPaths)
 
         /// Group modifications by animation type (for clarity and batch efficiency)
         let groupModifications = Dictionary(grouping: modifiedPaths,
@@ -1052,39 +1045,140 @@ extension ChatRoomViewController: UITableViewDelegate
        return  UITableView.automaticDimension
     }
     
+    
+    func globalIndex(for indexPath: IndexPath, in groupedData: [[ChatRoomViewModel.MessageItem]]) -> Int?
+    {
+        guard indexPath.section < groupedData.count else { return nil }
+        
+        var index = 0
+        for section in 0..<indexPath.section {
+            index += groupedData[section].count
+        }
+        index += indexPath.row
+        return index
+    }
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
         guard !viewModel.messageClusters.isEmpty
              /* !viewModel.isMessageBatchingInProcess */else { return }
+//        print("Entered WILLDisplay cell")
         
+        let groupedData = viewModel.messageClusters.map { $0.items } // [[ConversationCellViewModel]]
+        let totalItems = groupedData.flatMap { $0 }.count
+        
+        print("index path: ", indexPath)
+        var visibleCell: MessageTableViewCell? = nil
+        
+        if let globalIndex = globalIndex(for: indexPath, in: groupedData) {
+            if globalIndex == 5
+            {
+                print("This is the 5th item from the beginning")
+                paginateIfNeeded(ascending: true)
+            } else if globalIndex == totalItems - 6 {
+                print("This is the 5th item from the end")
+                paginateIfNeeded(ascending: false)
+            }
+        }
+        
+        
+//        let lastClusterCount = viewModel.messageClusters.count - 1
+//        let lastItemsCount = viewModel.messageClusters[lastClusterCount].items.count - 1
+//        let lastIndexPath = IndexPath(row: lastItemsCount, section: lastClusterCount)
+//        let firstIndexPath = IndexPath(row: 0, section: 0)
+        
+        
+//        if indexPath == firstIndexPath
+//        {
+//            print("Found sixthFromBottom")
+//            paginateIfNeeded(ascending: true)
+//        }
+//        
+//        if lastIndexPath == indexPath
+//        {
+//            print("Found sixthFromTop")
+//            paginateIfNeeded(ascending: false)
+//        }
+//        
         // Paginate only if we reached sixth cell either from beginning or end
-        if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
-                                                                  in: tableView),
-           sixthFromBottom == indexPath
-        {
-            paginateIfNeeded(ascending: true)
-        }
-        else if let sixthFromTop = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
-                                                                    fromEnd: true,
-                                                                    in: tableView),
-                sixthFromTop == indexPath
-        {
-            paginateIfNeeded(ascending: false)
-        }
+//        if let sixthFromBottom = getVisibleIndexPathForGlobalCell2(atGlobalIndex: 5,
+//                                                                  in: tableView),
+//           sixthFromBottom == indexPath
+//        {
+//            paginateIfNeeded(ascending: true)
+//        }
+//        else if let sixthFromTop = getVisibleIndexPathForGlobalCell2(atGlobalIndex: 5,
+//                                                                    fromEnd: true,
+//                                                                    in: tableView),
+//                sixthFromTop == indexPath
+//        {
+//            print("Found sixthFromTop")
+//            paginateIfNeeded(ascending: false)
+//        }
     }
+    
+//    func scrollViewDidScroll(_ scrollView: UIScrollView)
+//    {
+//        let visibleIndexes = rootView.tableView.indexPathsForVisibleRows ?? []
+//        
+////        let lastClusterCount = viewModel.messageClusters.count - 1
+////        let lastItemsCount = viewModel.messageClusters[lastClusterCount].items.count - 1
+////        let lastIndexPath = IndexPath(row: lastItemsCount, section: lastClusterCount)
+////        let firstIndexPath = IndexPath(row: 0, section: 0)
+////        
+//        
+//        
+//        if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
+//                                                                   in: rootView.tableView),
+//           visibleIndexes.contains(sixthFromBottom)
+//        {
+//            print("Found sixthFromBottom")
+//            paginateIfNeeded(ascending: true)
+//        }
+//        else if let sixthFromTop = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5,
+//                                                                     fromEnd: true,
+//                                                                     in: rootView.tableView),
+//                visibleIndexes.contains(sixthFromTop)
+//        {
+//            print("Found sixthFromTop")
+//            paginateIfNeeded(ascending: false)
+//        }
+//        
+////        if visibleIndexes.contains(firstIndexPath)
+////        {
+////            print("Found sixthFromBottom")
+////            paginateIfNeeded(ascending: true)
+////        }
+////        
+////        if visibleIndexes.contains(lastIndexPath)
+////        {
+////            print("Found sixthFromTop")
+////            paginateIfNeeded(ascending: false)
+////        }
+//    }
     
     private func paginateIfNeeded(ascending: Bool)
     {
         Task { @MainActor in
+            print("entered pagination Block at all")
             if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
+                print("entered local pagination")
                 self.performeTableViewUpdate(
                     withRows: newRows,
                     sections: newSections
                 )
+                if let startMessage = viewModel.lastPaginatedMessage
+                {
+                    viewModel.messageListenerService?.addListenerToExistingMessagesTest(
+                        startAtMesssage: startMessage,
+                        ascending: !ascending,
+                        limit: ObjectsPaginationLimit.localMessages)
+                }
             }
             else if !isNetworkPaginationRunning
             {
+                print("entered Network pagination")
                 isNetworkPaginationRunning = true
                 await preformRemotePagination(ascending: ascending)
             }
@@ -1150,6 +1244,83 @@ extension ChatRoomViewController: UITableViewDelegate
         }
         isNetworkPaginationRunning = false
     }
+    
+    
+    
+        private func getVisibleIndexPathForGlobalCell2(atGlobalIndex index: Int,
+                                                      fromEnd: Bool = false,
+                                                      in tableView: UITableView) -> IndexPath?
+        {
+            let sectionCount = tableView.numberOfSections
+            guard sectionCount > 0 else { return nil }
+    
+            // Step 1: Calculate total number of rows in table
+            var totalRowCount = 0
+            var rowsInSections: [Int] = []
+    
+            for section in 0..<sectionCount {
+                let rows = tableView.numberOfRows(inSection: section)
+                rowsInSections.append(rows)
+                totalRowCount += rows
+            }
+    
+            // Step 2: Translate global index
+            let targetIndex = fromEnd ? totalRowCount - index - 1 : index
+            guard targetIndex >= 0, targetIndex < totalRowCount else { return nil }
+    
+            // Step 3: Walk sections efficiently to find the IndexPath
+            var currentGlobalIndex = 0
+            for section in 0..<sectionCount {
+                let rowCount = rowsInSections[section]
+                if targetIndex < currentGlobalIndex + rowCount {
+                    let row = targetIndex - currentGlobalIndex
+                    let indexPath = IndexPath(row: row, section: section)
+    
+                    if let visible = tableView.indexPathsForVisibleRows,
+                       visible.contains(indexPath) {
+                        return indexPath
+                    } else {
+                        return nil
+                    }
+                }
+                currentGlobalIndex += rowCount
+            }
+    
+            return nil
+        }
+//        
+//        private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
+//                                                      fromEnd: Bool = false,
+//                                                      in tableView: UITableView) -> IndexPath?
+//        {
+//            // Flatten tableView structure into [IndexPath] (not just visible ones)
+//            var allIndexPaths: [IndexPath] = []
+//    
+//            for section in 0..<tableView.numberOfSections {
+//                for row in 0..<tableView.numberOfRows(inSection: section) {
+//                    allIndexPaths.append(IndexPath(row: row, section: section))
+//                }
+//            }
+//    
+//            // Guard for empty or out-of-range
+//            guard !allIndexPaths.isEmpty else { return nil }
+//    
+//            // Determine the global index (from start or end)
+//            let targetIndex = fromEnd ? allIndexPaths.count - index - 1 : index
+//            guard targetIndex >= 0 && targetIndex < allIndexPaths.count else { return nil }
+//    
+//            let targetIndexPath = allIndexPaths[targetIndex]
+//    
+//            // Check visibility
+//            if let visibleRows = tableView.indexPathsForVisibleRows,
+//               visibleRows.contains(targetIndexPath) {
+//                return targetIndexPath
+//            }
+//    
+//            return nil
+//        }
+//    
+    
 
     private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
                                                   fromEnd: Bool = false,

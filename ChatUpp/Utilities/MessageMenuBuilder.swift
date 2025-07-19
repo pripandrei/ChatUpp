@@ -134,58 +134,6 @@ final class MessageMenuBuilder
 
 
 
-
-actor MessagePaginationActor
-{
-    private var isNetworkPaginationInProgress = false
-    private var pendingNetworkDirection: Bool?
-    
-    func requestPagination(ascending: Bool, viewModel: ChatRoomViewModel) async -> ([IndexPath], IndexSet?)? {
-        
-        // Always try local first
-        if let (newRows, newSections) = await viewModel.paginateAdditionalLocalMessages(ascending: ascending) {
-            return (newRows, newSections)
-        }
-        
-        // Handle network pagination
-        guard !isNetworkPaginationInProgress else {
-            // Store the most recent request direction
-            pendingNetworkDirection = ascending
-            return nil
-        }
-        
-        isNetworkPaginationInProgress = true
-        
-        do {
-            try await Task.sleep(for: .seconds(1.2))
-            
-            let result = try await viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: ascending)
-//            
-//            if ascending && viewModel.shouldAttachListenerToUpcomingMessages,
-//               let _ = result {
-//                print("added listener to upcoming messages")
-//                viewModel.messageListenerService?.addListenerToUpcomingMessages()
-//            }
-            
-            try await Task.sleep(for: .seconds(0.4))
-            
-            isNetworkPaginationInProgress = false
-            
-            // Check if there's a pending request
-            if let pendingDirection = pendingNetworkDirection {
-                pendingNetworkDirection = nil
-                return await requestPagination(ascending: pendingDirection, viewModel: viewModel)
-            }
-            
-            return result
-        } catch {
-            print("Could not update conversation with additional messages: \(error)")
-            isNetworkPaginationInProgress = false
-            return nil
-        }
-    }
-}
-
 //
 //
 //func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
