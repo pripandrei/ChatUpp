@@ -26,26 +26,37 @@ final class FooterSectionView: UITableViewHeaderFooterView
     }
     
     private func setupFooterSection() {
-        self.transform = CGAffineTransform(scaleX: 1, y: -1)
+//        self.transform = CGAffineTransform(scaleX: 1, y: -1)
         self.backgroundConfiguration = .clear()
     }
     
     private func setupDateLabel() 
     {
         dateLabel = DateFooterLabel()
-        addSubview(dateLabel)
-        
+//        addSubview(dateLabel)
+        contentView.addSubview(dateLabel)
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        dateLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-        dateLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true
-        dateLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10).isActive = true
+//        dateLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+//        dateLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive = true
+//        dateLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10).isActive = true
+//        
+        dateLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
+        dateLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
+//        dateLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
+//        dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10).isActive = true
+//
+//        NSLayoutConstraint.activate([
+//            dateLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+//            dateLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+//        ])
     }
     
     func setDate(dateText: String) 
     {
         dateLabel.text = dateText
     }
+    
 }
 
 extension FooterSectionView 
@@ -55,7 +66,7 @@ extension FooterSectionView
         override init(frame: CGRect) 
         {
             super.init(frame: frame)
-            
+            transform = CGAffineTransform(scaleX: 1, y: -1)
             backgroundColor = ColorManager.messageEventBackgroundColor
             textColor = .white
             textAlignment = .center

@@ -1021,6 +1021,10 @@ extension ChatRoomViewController: UITableViewDelegate
         return footerView
     }
     
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 50
+    }
+    
     func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int)
     {
         guard !tableView.sk.isSkeletonActive else {
@@ -1068,7 +1072,6 @@ extension ChatRoomViewController: UITableViewDelegate
         let totalItems = groupedData.flatMap { $0 }.count
         
         print("index path: ", indexPath)
-        var visibleCell: MessageTableViewCell? = nil
         
         if let globalIndex = globalIndex(for: indexPath, in: groupedData) {
             if globalIndex == 5
@@ -1164,7 +1167,11 @@ extension ChatRoomViewController: UITableViewDelegate
             if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
                 print("entered local pagination")
-                self.performeTableViewUpdate(
+//                self.performeTableViewUpdate(
+//                    withRows: newRows,
+//                    sections: newSections
+//                )
+                performeTableViewUpdateOnLocalPagination(
                     withRows: newRows,
                     sections: newSections
                 )
@@ -1185,7 +1192,7 @@ extension ChatRoomViewController: UITableViewDelegate
         }
     }
  
-    private func performeTableViewUpdate(withRows rows: [IndexPath],
+    private func performeTableViewUpdateOnRemotePagination(withRows rows: [IndexPath],
                                          sections: IndexSet?)
     {
         var visibleCell: MessageTableViewCell? = nil
@@ -1218,8 +1225,33 @@ extension ChatRoomViewController: UITableViewDelegate
             }
 //            CATransaction.commit()
         })
+        
+//        rootView.tableView.setContentOffset(CGPoint(x: rootView.tableView.contentOffset.x, y: rootView.tableView.contentOffset.y), animated: false)
+        
         CATransaction.commit()
 //        })
+    }
+    
+    private func performeTableViewUpdateOnLocalPagination(withRows rows: [IndexPath],
+                                                          sections: IndexSet?)
+    {
+        UIView.animate(withDuration: 0.0)
+        {
+            self.rootView.tableView.performBatchUpdates
+            {
+                if let sections {
+                    self.rootView.tableView.insertSections(sections, with: .none)
+                }
+                if !rows.isEmpty {
+                    self.rootView.tableView.insertRows(at: rows, with: .none)
+                }
+                //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
+                self.shouldIgnoreUnseenMessagesUpdate = true
+            } completion: { completed in
+                //            self.shouldIgnoreUnseenMessagesUpdate = true
+            }
+        }
+//        self.rootView.layoutIfNeeded()
     }
     
     private func preformRemotePagination(ascending: Bool) async
@@ -1230,7 +1262,7 @@ extension ChatRoomViewController: UITableViewDelegate
             if let (newRows, newSections) = try await viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: ascending)
             {
                 await MainActor.run {
-                    performeTableViewUpdate(withRows: newRows,
+                    performeTableViewUpdateOnRemotePagination(withRows: newRows,
                                             sections: newSections)
                     
                     if ascending && viewModel.shouldAttachListenerToUpcomingMessages
