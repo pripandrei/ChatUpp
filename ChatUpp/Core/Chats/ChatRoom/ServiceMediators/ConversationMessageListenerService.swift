@@ -60,20 +60,26 @@ final class ConversationMessageListenerService
                                            limit: Int = ObjectsPaginationLimit.remoteMessages)
     {
         guard let conversationID = conversation?.id, limit > 0 else { return }
-        let message = message.freeze()
+        let messageID = message.id
+        let messageTimestamp = message.timestamp
         
-        Task.detached() {
-            try await FirebaseChatService.shared.addListenerForExistingMessagesTest(
-                inChat: conversationID,
-                startAtMessageWithID: message.id,
-                messageTimestamp: message.timestamp,
-                ascending: ascending,
-                limit: limit)
-            .sink { [weak self] messagesUpdate in
-                guard let self = self else {return}
-                self.updatedMessages.append(contentsOf: messagesUpdate)
-//                self.updatedMessage.send(messageUpdate)
-            }.store(in: &self.cancellables)
+        Task { [weak self] in
+            guard let self else { return }
+
+            try await FirebaseChatService.shared
+                .addListenerForExistingMessagesTest(
+                    inChat: conversationID,
+                    startAtMessageWithID: messageID,
+                    messageTimestamp: messageTimestamp,
+                    ascending: ascending,
+                    limit: limit
+                )
+                .sink { [weak self] messagesUpdate in
+                    guard let self else { return }
+                    self.updatedMessages.append(contentsOf: messagesUpdate)
+                }.store(in: &cancellables)
+
+//            self.cancellables.insert(cancellable)
         }
     }
     

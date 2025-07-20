@@ -187,3 +187,14 @@ func mainQueue(block: @escaping () -> Void)
         block()
     }
 }
+
+func measureDuration(lable: String ,
+                     block: () async -> Void) async
+{
+    let clock = ContinuousClock()
+    let start = clock.now
+    await block()
+    let duration = start.duration(to: clock.now)
+    let millisec = Double(duration.components.attoseconds) / 1_000_000_000_000_000.0
+    print("\(lable) Duration of fetchMessagesMetadata: \(millisec) milliseconds")
+}

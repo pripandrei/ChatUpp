@@ -106,12 +106,12 @@ final class ConversationRealmService
         }
     }
     
-    func addMessageToRealmChat(_ message: Message)
+    func addMessagesToRealmChat(_ messages: [Message])
     {
         guard let conversation = conversation else { return }
         
         RealmDataBase.shared.update(object: conversation) { chat in
-            chat.conversationMessages.append(message)
+            chat.conversationMessages.append(objectsIn: messages)
         }
     }
     

@@ -67,7 +67,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private var cancellables             = Set<AnyCancellable>()
     
     @Published private(set) var unseenMessagesCount: Int
+//    @MainActor
     @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
+    @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
     
     private var bufferedMessages: [BufferedMessage] = []
@@ -79,6 +81,53 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             }
         }
     }
+    
+//    private var schedualedMessagesIDsForRemoval: [String] = []
+    
+    @MainActor
+    @Published var isLocalPaginationActive: Bool = false {
+        didSet {
+            if isLocalPaginationActive == true {
+                print("PAGINATION IS ACTIVE")
+                return
+            } else {
+                print("PAGINATION ENDED, IS NOT ACTIVE")
+            }
+        }
+    }
+//    {
+//        didSet {
+//            if isLocalPaginationActive == true {
+//                print("PAGINATION IS ACTIVE")
+//                return
+//            }
+//            if oldValue == true && isLocalPaginationActive == false && !self.schedualedMessagesIDsForRemoval.isEmpty
+//            {
+//
+//                guard let messagesToDelete = RealmDataBase
+//                    .shared
+//                    .retrieveObjects(ofType: Message.self,
+//                                     filter: NSPredicate(format: "id IN %@", self.schedualedMessagesIDsForRemoval)) else {return}
+//                print("messages id to be removed in DISET: ", messagesToDelete.map { $0.id })
+//                print("ENTERED DELETION PROCESSSS!!")
+//                let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { message in
+////                    guard !message.isInvalidated else {return nil}
+//                    return self.indexPath(of: message)
+//                }
+//
+//                print("In Validation (Paths to remove): ", indexPatToRemove)
+//
+//                for message in self.schedualedMessagesIDsForRemoval {
+//                    print("In PROCESS BLOk (Message to remove): ", message)
+//                }
+//
+//                let modificationTypes = Set(indexPatToRemove.compactMap {  self.handleRemovedMessage(at: $0) })
+//
+//                self.messageChangedTypes = modificationTypes
+//                schedualedMessagesIDsForRemoval.removeAll()
+//            }
+//        }
+//    }
     
     var shouldEditMessage: ((String) -> Void)?
     var currentlyReplyToMessageID: String?
@@ -297,7 +346,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let messages = getCurrentMessagesFromCluster()
         realmService?.addMessagesToConversationInRealm(messages)
         
-        //Add new chat row 
+        //Add new chat row
         NotificationCenter.default.post(name: .didJoinNewChat,
                                         object: nil,
                                         userInfo: ["chatID": conversation.id])
@@ -385,7 +434,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                                              imageRepository: ImageSampleRepository? = nil)
     {
         createMessageClustersWith([message])
-        realmService?.addMessageToRealmChat(message)
+        realmService?.addMessagesToRealmChat([message])
         updateUnseenMessageCounterLocal(shouldIncrement: true)
     }
     
@@ -538,7 +587,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //    {
 //        guard let chatID = conversation?.id else { return }
 //        let authUserID = authUser.uid
-//        
+//
 //        let isGroup = conversation?.isGroup ?? false
 //        Task.detached {
 //            await cellViewModel.updateFirestoreMessageSeenStatus(
@@ -552,9 +601,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //    {
 //        guard let chatID = conversation?.id else { return }
 //        let authUserID = authUser.uid
-//        
+//
 //        let isGroup = conversation?.isGroup ?? false
-//        
+//
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5.1) {
 //            Task.detached {
 //                await cellViewModel.updateFirestoreMessageSeenStatusTest(
@@ -566,7 +615,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //    }
     
     func clearMessageChanges() {
-        messageChangedTypes.removeAll()
+        Task {
+            await MainActor.run {
+                messageChangedTypes.removeAll()
+            }
+        }
     }
     
     /// - unseen message check
@@ -588,7 +641,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return nil
     }
     
-    func insertUnseenMessagesTitle() 
+    func insertUnseenMessagesTitle()
     {
         guard let indexPath = findFirstUnseenMessageIndex() else {return}
 //        let indexPath = IndexPath(row: 13, section: 3)
@@ -647,7 +700,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                     reactions,
                     messageID: message.id,
                     chatID: conversation.id
-                )                
+                )
             } catch {
                 print("Could not update reaction in firestore db: \(error)")
             }
@@ -789,7 +842,7 @@ extension ChatRoomViewModel
     func paginateAdditionalLocalMessages(ascending: Bool) -> ([IndexPath], IndexSet?)?
     {
         var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
-        
+        print("Paginated messages number:", paginatedMessages.count)
         let recentMessageIsPresent = paginatedMessages.contains(where: { $0.id == conversation?.recentMessageID })
         
         if recentMessageIsPresent
@@ -810,8 +863,9 @@ extension ChatRoomViewModel
             createMessageClustersWith(paginatedMessages)
             let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
             self.lastPaginatedMessage = paginatedMessages.last
+            print("rows number: ", newRows.count )
 //            DispatchQueue.main.asyncAfter(deadline: .now() + 9.1) {
-//                self.validateMessagesForDeletion(paginatedMessages)
+            self.validateMessagesForDeletion(paginatedMessages)
 //            }
             return (newRows, newSections)
         }
@@ -836,7 +890,7 @@ extension ChatRoomViewModel
         let messageClustersCount = messageClusters.count
         guard let startMessage = messageClusters[messageClustersCount - 1].items.last?.message
         else {return [] }
-        print("Last message to start from: ", startMessage.id,"  ", startMessage.messageBody)
+//        print("Last message to start from: ", startMessage.id,"  ", startMessage.messageBody)
         let messages = conversation.getMessages(startingFrom: startMessage.id,
                                                 isMessageIncluded: false,
                                                 ascending: ascending)
@@ -866,6 +920,10 @@ extension ChatRoomViewModel
     
     /// See FootNote.swift [6]
     ///
+    ///
+    
+    
+    
     private func validateMessagesForDeletion(_ messages: [Message])
     {
         guard let chatID = conversation?.id else {return}
@@ -878,22 +936,27 @@ extension ChatRoomViewModel
                     .validateMessagesForDeletion(messageIDs: messageIDs,
                                                  in: chatID)
                 guard !messageIDsForDeletion.isEmpty else {return}
+                
+                
+                await isPaginationInactiveStream.first(where: { true })
+                
+                print("ENTERED DELETION PROCESSSS!!")
                 guard let messagesToDelete = RealmDataBase
                     .shared
                     .retrieveObjects(ofType: Message.self,
                                      filter: NSPredicate(format: "id IN %@", messageIDsForDeletion)) else {return}
+                let messageIDSFromRealm = Array(messagesToDelete.map { $0.id })
+                print("IDS for delition from FIREBASE: " , messageIDsForDeletion)
+                print("IDS for delition from REALM: " , messageIDSFromRealm)
                 
+                let modificationTypes = await self.processRemovedMessages(Set(messagesToDelete))
                 
-                let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { self.indexPath(of: $0) }
+//                let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { self.indexPath(of: $0) }
+
+//                print("In Validation (Paths to remove): ", indexPatToRemove)
                 
-                print("In Validation (Paths to remove): ", indexPatToRemove)
-                
-                for message in messagesToDelete {
-                    print("In Validation (Message to remove): ", message)
-                }
-                
-                let modificationTypes = Set(indexPatToRemove.compactMap {  handleRemovedMessage(at: $0) })
-                
+//                let modificationTypes = Set(indexPatToRemove.compactMap {  handleRemovedMessage(at: $0) })
+
                 self.messageChangedTypes = modificationTypes
                
             } catch {
@@ -902,6 +965,62 @@ extension ChatRoomViewModel
         }
     }
     
+    private var isPaginationInactiveStream: AsyncStream<Void>
+    {
+        AsyncStream { continuation in
+            let cancelable = $isLocalPaginationActive
+//                .dropFirst()
+                .filter { !$0 }
+                .sink { _ in
+                    continuation.yield()
+                    continuation.finish()
+                }
+            
+            continuation.onTermination = { _ in
+                cancelable.cancel()
+            }
+        }
+    }
+    
+//
+//    private func validateMessagesForDeletion(_ messages: [Message])
+//    {
+//        guard let chatID = conversation?.id else {return}
+//        let messageIDs = messages.map { $0.id }
+//
+//        Task { @MainActor in
+//            do {
+//                let messageIDsForDeletion = try await FirebaseChatService
+//                    .shared
+//                    .validateMessagesForDeletion(messageIDs: messageIDs,
+//                                                 in: chatID)
+//                guard !messageIDsForDeletion.isEmpty else {return}
+////                guard let messagesToDelete = RealmDataBase
+////                    .shared
+////                    .retrieveObjects(ofType: Message.self,
+////                                     filter: NSPredicate(format: "id IN %@", messageIDsForDeletion)) else {return}
+//
+//                print("messages id to be removed in VALIDATION BLOCK: ", messageIDsForDeletion)
+//                self.schedualedMessagesIDsForRemoval.append(contentsOf: messageIDsForDeletion)
+////                self.schedualedMessagesForRemoval = Set(messagesToDelete)
+////                let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { self.indexPath(of: $0) }
+////
+////                print("In Validation (Paths to remove): ", indexPatToRemove)
+////
+////                for message in messagesToDelete {
+////                    print("In Validation (Message to remove): ", message)
+////                }
+////
+////                let modificationTypes = Set(indexPatToRemove.compactMap {  handleRemovedMessage(at: $0) })
+////
+////                self.messageChangedTypes = modificationTypes
+//
+//            } catch {
+//                print("Could not check messages for deletion: \(error)")
+//            }
+//        }
+//    }
+
     
     // MARK: - Group Chat Handling
     @MainActor
@@ -968,11 +1087,6 @@ extension ChatRoomViewModel
             .filter { !$0.isEmpty }
             .sink { [weak self] messagesTypes in
                 guard let self = self else { return }
-                for messageType in messagesTypes {
-                    if messageType.data.id == "32A0A428-D0F4-43FE-B3E2-62D1DA69BA1F" {
-                        print("stop c")
-                    }
-                }
                 Task {
                     await self.processMessageChanges(messagesTypes)
                 }
@@ -998,6 +1112,11 @@ extension ChatRoomViewModel
         let filteredModified = modifiedMessages.filter { !removedIDs.contains($0.id) }
         let filteredAdded = addedMessages.filter { !removedIDs.contains($0.id) }
         
+        await fetchMessagesMetadata(filteredAdded)
+      
+        // wait for message pagination to finish if any
+        await isPaginationInactiveStream.first(where: { true })
+        
         // Process changes in order: remove, modify, add
         let removedTypes = await processRemovedMessages(removedMessages)
         let modifiedTypes = await processModifiedMessages(filteredModified)
@@ -1008,20 +1127,23 @@ extension ChatRoomViewModel
         let allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
         
         self.messageChangedTypes = allChanges
+//        Task {
+//            await MainActor.run {
+//            }
+//        }
         
-        // Clear processed messages
+//         Clear processed messages
         self.messageListenerService?.updatedMessages.removeAll()
     }
 
     @MainActor
     private func processRemovedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
     {
-        let sortedIndexPaths = Set(messages
+        let sortedIndexPaths = messages
             .compactMap { self.indexPath(of: $0) }
             .sorted(by: >)
-        )
-        
-        return Set(sortedIndexPaths.compactMap { self.handleRemovedMessage(at: $0) })
+        let changeTypes = sortedIndexPaths.compactMap { self.handleRemovedMessage(at: $0) }
+        return Set(changeTypes)
     }
 
     @MainActor
@@ -1041,28 +1163,32 @@ extension ChatRoomViewModel
             if RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id) != nil {
                 result.0.append(message)
             } else {
+                print("THIS MESSAGE IS ADDED",message.id)
                 result.1.append(message)
             }
         }
         
         // Add existing messages to database
         if !existingMessages.isEmpty {
-            RealmDataBase.shared.addMultipleTest(objects: existingMessages)
+//            RealmDataBase.shared.addMultipleTest(objects: existingMessages)
+            RealmDataBase.shared.add(objects: existingMessages)
         }
-        
-        // Process new messages concurrently
-        await withTaskGroup(of: Void.self) { group in
-            for message in newMessages {
-                group.addTask {
-                    await self.handleAddedMessage(message)
-                }
-            }
-        }
-        
+
+//        // Process new messages concurrently
+        await self.handleAddedMessage(newMessages)
+//        await withTaskGroup(of: Void.self) { group in
+//            for message in newMessages {
+//                group.addTask {
+//                    await self.handleAddedMessage(message)
+//                }
+//            }
+//        }
+//        
         // Create change types for all added messages
         return Set(newMessages
             .compactMap { self.indexPath(of: $0) }
             .map { MessageChangeType.added($0) })
+//        return Set()
     }
 }
 
@@ -1071,21 +1197,50 @@ extension ChatRoomViewModel
 extension ChatRoomViewModel
 {
     @MainActor
-    private func handleAddedMessage(_ message: Message) async
+    private func handleAddedMessage(_ messages: [Message]) async
     {
-        realmService?.addMessageToRealmChat(message)
+        realmService?.addMessagesToRealmChat(messages)
         
-        if message.imagePath != nil {
-            await downloadImageData(from: message)
-        }
-        
-        if message.type == .title
-        {
-            await syncGroupUsers(for: [message])
-        }
-        createMessageClustersWith([message])
+//        if message.imagePath != nil {
+//            await downloadImageData(from: message)
+//        }
+//        
+//        if message.type == .title
+//        {
+//            await syncGroupUsers(for: [message])
+//        }
+        createMessageClustersWith(messages)
     }
+
     
+    @MainActor
+    private func fetchMessagesMetadata(_ messages: Set<Message>) async
+    {
+        await withTaskGroup(of: Void.self) { group in
+            for message in messages {
+                metadataTasks(for: message).forEach { task in
+                    group.addTask { await task() }
+                }
+            }
+        }
+    }
+
+    private func metadataTasks(for message: Message) -> [() async -> Void] {
+        var tasks: [() async -> Void] = []
+
+        if message.imagePath != nil {
+            tasks.append { await self.downloadImageData(from: message) }
+        }
+
+        if message.type == .title {
+            tasks.append { await self.syncGroupUsers(for: [message]) }
+        }
+
+        return tasks
+    }
+
+    
+    @MainActor
     private func handleRemovedMessage(at indexPath: IndexPath) -> MessageChangeType?
     {
         guard let message = messageClusters[indexPath.section].items[indexPath.row].message else {return nil}
@@ -1093,13 +1248,16 @@ extension ChatRoomViewModel
         var isLastMessageInSection: Bool = false
         
         messageClusters.removeClusterItem(at: indexPath)
-        if messageClusters[indexPath.section].items.isEmpty {
+        if messageClusters[indexPath.section].items.isEmpty
+        {
             messageClusters.remove(at: indexPath.section)
             isLastMessageInSection = true
         }
-        
+        print("removed message from cluster")
+        let messageID = message.id
         realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
          
+        print("MESSAGE FROM REALM REMOVED > : ", messageID)
         if indexPath.isFirst(), let recentMessageID = recentMessageItem?.message?.id
         {
             Task {
@@ -1108,8 +1266,9 @@ extension ChatRoomViewModel
         }
         return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
     }
-    
-    func handleModifiedMessage(_ message: Message, at indexPath: IndexPath) -> MessageChangeType?
+    @MainActor
+    func handleModifiedMessage(_ message: Message,
+                               at indexPath: IndexPath) -> MessageChangeType?
     {
         guard let cellVM = messageClusters.getCellViewModel(at: indexPath),
               let modificationValue = cellVM.getModifiedValueOfMessage(message)
@@ -1139,7 +1298,7 @@ extension ChatRoomViewModel
 extension ChatRoomViewModel
 {
     @MainActor
-    func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message] 
+    func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message]
     {
         guard let conversation = conversation else { return [] }
 
@@ -1214,7 +1373,7 @@ extension ChatRoomViewModel
     }
     
     @MainActor
-    private func determineFetchStrategy() async throws -> MessageFetchStrategy 
+    private func determineFetchStrategy() async throws -> MessageFetchStrategy
     {
         guard let conversation = conversation else { return .none }
         

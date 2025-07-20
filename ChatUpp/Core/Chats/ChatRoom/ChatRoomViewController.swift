@@ -266,7 +266,8 @@ final class ChatRoomViewController: UIViewController
             switch change
             {
             case .added(let indexPath):
-                if changes.count == 1
+                if addedIndexPaths.count == 1 &&
+                    (addedIndexPaths.first?.row == 0 && addedIndexPaths.first?.section == 0)
                 {
                     handleTableViewCellInsertion(scrollToBottom: false)
                     return
@@ -279,7 +280,12 @@ final class ChatRoomViewController: UIViewController
             }
         }
 
-//        print("Paths to remove in batch: ",removedPaths)
+        
+        if !addedIndexPaths.isEmpty && addedIndexPaths.count < 30 
+        {
+            print("stop addiing this here")
+        }
+        print("Paths to remove in batch: ",removedPaths)
 
         /// Group modifications by animation type (for clarity and batch efficiency)
         let groupModifications = Dictionary(grouping: modifiedPaths,
@@ -311,6 +317,7 @@ final class ChatRoomViewController: UIViewController
             {
                 for (animation, entrie) in groupModifications
                 {
+                    print("enter row reload")
                     let indexPaths = entrie.map { $0.indexPath }
                     self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
                 }
@@ -402,7 +409,7 @@ final class ChatRoomViewController: UIViewController
         self.rootView.sendEditMessageButton.layer.opacity = 0.0
 //        self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
         
-        DispatchQueue.main.async {
+        mainQueue {
             self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
         }
         self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
@@ -539,7 +546,7 @@ extension ChatRoomViewController {
     
     private func createMessageBubble()
     {
-        DispatchQueue.main.async {
+        mainQueue {
             self.handleTableViewCellInsertion(scrollToBottom: true)
         }
     }
@@ -581,7 +588,7 @@ extension ChatRoomViewController {
         
         if scrollToBottom
         {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15)
+            executeAfter(seconds: 0.15)
             {
                 if self.rootView.tableView.visibleCells.count > 0
                 {
@@ -1071,7 +1078,6 @@ extension ChatRoomViewController: UITableViewDelegate
         let groupedData = viewModel.messageClusters.map { $0.items } // [[ConversationCellViewModel]]
         let totalItems = groupedData.flatMap { $0 }.count
         
-        print("index path: ", indexPath)
         
         if let globalIndex = globalIndex(for: indexPath, in: groupedData) {
             if globalIndex == 5
@@ -1164,6 +1170,7 @@ extension ChatRoomViewController: UITableViewDelegate
     {
         Task { @MainActor in
             print("entered pagination Block at all")
+            self.viewModel.isLocalPaginationActive = true
             if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
                 print("entered local pagination")
@@ -1189,11 +1196,12 @@ extension ChatRoomViewController: UITableViewDelegate
                 isNetworkPaginationRunning = true
                 await preformRemotePagination(ascending: ascending)
             }
+            viewModel.isLocalPaginationActive = false
         }
     }
  
     private func performeTableViewUpdateOnRemotePagination(withRows rows: [IndexPath],
-                                         sections: IndexSet?)
+                                                           sections: IndexSet?)
     {
         var visibleCell: MessageTableViewCell? = nil
         let currentOffsetY = self.rootView.tableView.contentOffset.y
@@ -1223,18 +1231,38 @@ extension ChatRoomViewController: UITableViewDelegate
                     self.rootView.tableView.contentOffset.y = currentOffsetY + lastCellRect.minY
                 }
             }
-//            CATransaction.commit()
+            CATransaction.commit()
         })
         
 //        rootView.tableView.setContentOffset(CGPoint(x: rootView.tableView.contentOffset.x, y: rootView.tableView.contentOffset.y), animated: false)
         
-        CATransaction.commit()
+//        CATransaction.commit()
 //        })
     }
     
     private func performeTableViewUpdateOnLocalPagination(withRows rows: [IndexPath],
                                                           sections: IndexSet?)
     {
+        print("Rows arrived from pagination: \(rows.count), sections \(sections)")
+        let sectionCount = viewModel.messageClusters.count - 1
+        
+        
+        let visibleSectionCount = rootView.tableView.numberOfSections
+        if sectionCount < visibleSectionCount {
+            let numberOfRowsInLastSection = rootView.tableView.numberOfRows(inSection: sectionCount)
+            let numberOfItemsInLastSection = viewModel.messageClusters[sectionCount].items.count
+            
+            print("Items in last section: ", numberOfItemsInLastSection)
+            print("Rows in last section: ", numberOfRowsInLastSection)
+            // safe to access
+        }
+        
+//        let numberOfRowsInLastSection = rootView.tableView.numberOfRows(inSection: sectionCount)
+//        let numberOfItemsInLastSection = viewModel.messageClusters[sectionCount].items.count
+//        
+//        print("Items in last section: ", numberOfItemsInLastSection)
+//        print("Rows in last section: ", numberOfRowsInLastSection)
+        
         UIView.animate(withDuration: 0.0)
         {
             self.rootView.tableView.performBatchUpdates
@@ -1263,7 +1291,7 @@ extension ChatRoomViewController: UITableViewDelegate
             {
                 await MainActor.run {
                     performeTableViewUpdateOnRemotePagination(withRows: newRows,
-                                            sections: newSections)
+                                                              sections: newSections)
                     
                     if ascending && viewModel.shouldAttachListenerToUpcomingMessages
                     {
