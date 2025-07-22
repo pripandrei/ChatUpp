@@ -68,3 +68,9 @@
 /// till the chat recent message, then there is a gap of messages in our local db that needs to be fetched from remote db.
 /// So we need to dropLast (chat recent message) to not display it in caht and
 /// fetch/paginate from remote db until we hit recent message to display
+
+//MARK: - [9].
+/// each title message comes from a user that created this title
+/// (i.e when entered group), so instead of checking each message of group,
+/// we can check messages if they are title type, and from them grab sender ID
+/// and see if we have this sender (user) locally, to display their avatar along the message

@@ -1147,13 +1147,15 @@ extension ChatRoomViewModel
         }
     }
 
-    private func metadataTasks(for message: Message) -> [() async -> Void] {
+    private func metadataTasks(for message: Message) -> [() async -> Void]
+    {
         var tasks: [() async -> Void] = []
 
         if message.imagePath != nil {
             tasks.append { await self.downloadImageData(from: message) }
         }
 
+        /// See FootNote.swift [9]
         if message.type == .title {
             tasks.append { await self.syncGroupUsers(for: [message]) }
         }
@@ -1407,9 +1409,10 @@ extension ChatRoomViewModel
         let newMessages = try await fetchConversationMessages(using: strategy)
         guard !newMessages.isEmpty else { return nil }
         
-        if conversation?.isGroup == true {
-            await syncGroupUsers(for: newMessages)
-        }
+//        if conversation?.isGroup == true {
+//            await syncGroupUsers(for: newMessages)
+//        }
+        await fetchMessagesMetadata(Set(newMessages))
         
         await isPaginationInactiveStream.first(where: { true })
         
