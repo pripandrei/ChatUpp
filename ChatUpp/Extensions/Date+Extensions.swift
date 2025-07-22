@@ -16,7 +16,7 @@ extension Date {
     
     func formatToHoursAndMinutes() -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat  = "hh:mm"
+        formatter.dateFormat  = "HH:mm"
         let time = formatter.string(from: self)
         return time
     }

@@ -222,7 +222,12 @@ final class MessageTableViewCell: UITableViewCell
             .withTintColor(ColorManager.messageSeenStatusIconColor)
             .resize(to: iconSize) else {return}
         
-        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
+        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(
+            withContent: seenStatusIconImage,
+            contentMode: .center,
+            attachmentSize: seenStatusIconImage.size,
+            alignTo: UIFont(name: "Helvetica", size: 4)!,
+            alignment: .center)
         
         seenStatusMark.attributedText = imageAttributedString
     }

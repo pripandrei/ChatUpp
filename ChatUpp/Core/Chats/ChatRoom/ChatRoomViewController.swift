@@ -907,6 +907,7 @@ extension ChatRoomViewController {
             }
 
             createMessageBubble()
+            closeInputBarHeaderView()
 
 //            if let repository = imageRepository {
             await viewModel.initiateRemoteUpdatesOnMessageCreation(
@@ -914,8 +915,6 @@ extension ChatRoomViewController {
                 imageRepository: imageRepository
             )
             //            }
-
-            closeInputBarHeaderView()
         }
     }
     
