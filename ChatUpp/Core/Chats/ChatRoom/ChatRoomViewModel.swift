@@ -53,6 +53,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 {
     private(set) var setupConversationTask: Task<Void, Never>?
     
+    private(set) var remoteMessagePaginator = RemoteMessagePaginator()
+    
     private(set) var realmService: ConversationRealmService?
     //    private(set) var messageFetcher : ConversationMessageFetcher
     private(set) var firestoreService: ConversationFirestoreService?
@@ -61,74 +63,22 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private(set) var conversation        : Chat?
     private(set) var participant         : User?
-    private(set) var messageClusters     : [MessageCluster] = []
+     var messageClusters     : [MessageCluster] = []
     private(set) var authUser            : AuthenticatedUserData = (try! AuthenticationManager.shared.getAuthenticatedUser())
     private(set) var lastPaginatedMessage: Message?
     private var cancellables             = Set<AnyCancellable>()
     
     @Published private(set) var unseenMessagesCount: Int
-//    @MainActor
     @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
+    @Published private(set) var changedTypesOfRemovedMessages: Set<MessageChangeType> = []
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
     
-    private var bufferedMessages: [BufferedMessage] = []
-    
-    var isMessageBatchingInProcess: Bool = false {
-        didSet {
-            if oldValue == true && isMessageBatchingInProcess == false {
-                processBufferedMessages()
-            }
-        }
-    }
-    
-//    private var schedualedMessagesIDsForRemoval: [String] = []
-    
     @MainActor
-    @Published var isLocalPaginationActive: Bool = false {
-        didSet {
-            if isLocalPaginationActive == true {
-                print("PAGINATION IS ACTIVE")
-                return
-            } else {
-                print("PAGINATION ENDED, IS NOT ACTIVE")
-            }
-        }
-    }
-//    {
-//        didSet {
-//            if isLocalPaginationActive == true {
-//                print("PAGINATION IS ACTIVE")
-//                return
-//            }
-//            if oldValue == true && isLocalPaginationActive == false && !self.schedualedMessagesIDsForRemoval.isEmpty
-//            {
-//
-//                guard let messagesToDelete = RealmDataBase
-//                    .shared
-//                    .retrieveObjects(ofType: Message.self,
-//                                     filter: NSPredicate(format: "id IN %@", self.schedualedMessagesIDsForRemoval)) else {return}
-//                print("messages id to be removed in DISET: ", messagesToDelete.map { $0.id })
-//                print("ENTERED DELETION PROCESSSS!!")
-//                let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { message in
-////                    guard !message.isInvalidated else {return nil}
-//                    return self.indexPath(of: message)
-//                }
-//
-//                print("In Validation (Paths to remove): ", indexPatToRemove)
-//
-//                for message in self.schedualedMessagesIDsForRemoval {
-//                    print("In PROCESS BLOk (Message to remove): ", message)
-//                }
-//
-//                let modificationTypes = Set(indexPatToRemove.compactMap {  self.handleRemovedMessage(at: $0) })
-//
-//                self.messageChangedTypes = modificationTypes
-//                schedualedMessagesIDsForRemoval.removeAll()
-//            }
-//        }
-//    }
-    
+    @Published var isLocalPaginationActive: Bool = false
+    @MainActor
+    @Published private var deletedMessageIDs: [String] = []
+
     var shouldEditMessage: ((String) -> Void)?
     var currentlyReplyToMessageID: String?
     
@@ -168,7 +118,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     var shouldAttachListenerToUpcomingMessages: Bool
     {
-        return realmService?.getUnreadMessagesCountFromRealm() == authParticipantUnreadMessagesCount
+        /// See FootNote.swift [7]
+        self.shouldDisplayLastMessage
     }
     
     private lazy var authenticatedUser: User? = {
@@ -179,7 +130,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private var isChatFetchedFirstTime: Bool
     {
         return conversation?.conversationMessages.count == 1
-//        conversation?.isFirstTimeOpened ?? true
     }
     
     private var shouldDisplayLastMessage: Bool {
@@ -250,10 +200,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
         
         bindToMessages()
+        bindToDeletedMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
         
-       testMessagesCountAndUnseenCount()
+//       testMessagesCountAndUnseenCount()
     }
     
     init(participant: User?)
@@ -622,6 +573,15 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
     }
     
+    func clearRemovedMessageChanges()
+    {
+        Task {
+            await MainActor.run {
+               changedTypesOfRemovedMessages.removeAll()
+            }
+        }
+    }
+    
     /// - unseen message check
     
     func findFirstUnseenMessageIndex() -> IndexPath?
@@ -834,7 +794,8 @@ extension ChatRoomViewModel
                 ascending: false).reversed() /// since table view is inverted, reverse messages here
             return Array(messagesDescending + messagesAscending)
         } else {
-            let messages = conversation.getMessagesResults().prefix(60).reversed()
+            let limit = ObjectsPaginationLimit.localMessages * 2
+            let messages = conversation.getMessagesResults().prefix(limit).reversed()
             return Array(messages)
         }
     }
@@ -842,14 +803,13 @@ extension ChatRoomViewModel
     func paginateAdditionalLocalMessages(ascending: Bool) -> ([IndexPath], IndexSet?)?
     {
         var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
-        print("Paginated messages number:", paginatedMessages.count)
         let recentMessageIsPresent = paginatedMessages.contains(where: { $0.id == conversation?.recentMessageID })
         
         if recentMessageIsPresent
         {
             if paginatedMessages.count > 1 && shouldFetchNewMessages
             {
-                paginatedMessages = paginatedMessages.dropLast() // or last
+                paginatedMessages = paginatedMessages.dropLast() // drop recent message. See FootNote.swift [8]
             }
             else if shouldFetchNewMessages
             {
@@ -863,10 +823,7 @@ extension ChatRoomViewModel
             createMessageClustersWith(paginatedMessages)
             let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
             self.lastPaginatedMessage = paginatedMessages.last
-            print("rows number: ", newRows.count )
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 9.1) {
             self.validateMessagesForDeletion(paginatedMessages)
-//            }
             return (newRows, newSections)
         }
         return nil
@@ -890,7 +847,7 @@ extension ChatRoomViewModel
         let messageClustersCount = messageClusters.count
         guard let startMessage = messageClusters[messageClustersCount - 1].items.last?.message
         else {return [] }
-//        print("Last message to start from: ", startMessage.id,"  ", startMessage.messageBody)
+
         let messages = conversation.getMessages(startingFrom: startMessage.id,
                                                 isMessageIncluded: false,
                                                 ascending: ascending)
@@ -920,9 +877,31 @@ extension ChatRoomViewModel
     
     /// See FootNote.swift [6]
     ///
-    ///
-    
-    
+    private func bindToDeletedMessages()
+    {
+        $deletedMessageIDs
+            .debounce(for: 2.0, scheduler: DispatchQueue.main)
+            .filter { !$0.isEmpty }
+            .sink { [weak self] messageIDs in
+                
+                guard let self else {return}
+                
+                Task { @MainActor in
+                    await self.isPaginationInactiveStream.first(where: { true })
+                    
+                    guard let messagesToDelete = RealmDataBase
+                        .shared
+                        .retrieveObjects(ofType: Message.self,
+                                         filter: NSPredicate(format: "id IN %@", messageIDs)) else {return}
+                    let messageIDSFromRealm = Array(messagesToDelete.map { $0.id })
+                    
+                    let modificationTypes = await self.processRemovedMessages(Set(messagesToDelete))
+                    
+                    self.deletedMessageIDs.removeAll()
+                    self.changedTypesOfRemovedMessages = modificationTypes
+                }
+            }.store(in: &cancellables)
+    }
     
     private func validateMessagesForDeletion(_ messages: [Message])
     {
@@ -937,28 +916,7 @@ extension ChatRoomViewModel
                                                  in: chatID)
                 guard !messageIDsForDeletion.isEmpty else {return}
                 
-                
-                await isPaginationInactiveStream.first(where: { true })
-                
-                print("ENTERED DELETION PROCESSSS!!")
-                guard let messagesToDelete = RealmDataBase
-                    .shared
-                    .retrieveObjects(ofType: Message.self,
-                                     filter: NSPredicate(format: "id IN %@", messageIDsForDeletion)) else {return}
-                let messageIDSFromRealm = Array(messagesToDelete.map { $0.id })
-                print("IDS for delition from FIREBASE: " , messageIDsForDeletion)
-                print("IDS for delition from REALM: " , messageIDSFromRealm)
-                
-                let modificationTypes = await self.processRemovedMessages(Set(messagesToDelete))
-                
-//                let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { self.indexPath(of: $0) }
-
-//                print("In Validation (Paths to remove): ", indexPatToRemove)
-                
-//                let modificationTypes = Set(indexPatToRemove.compactMap {  handleRemovedMessage(at: $0) })
-
-                self.messageChangedTypes = modificationTypes
-               
+                self.deletedMessageIDs.append(contentsOf: messageIDsForDeletion)
             } catch {
                 print("Could not check messages for deletion: \(error)")
             }
@@ -969,7 +927,6 @@ extension ChatRoomViewModel
     {
         AsyncStream { continuation in
             let cancelable = $isLocalPaginationActive
-//                .dropFirst()
                 .filter { !$0 }
                 .sink { _ in
                     continuation.yield()
@@ -981,46 +938,6 @@ extension ChatRoomViewModel
             }
         }
     }
-    
-//
-//    private func validateMessagesForDeletion(_ messages: [Message])
-//    {
-//        guard let chatID = conversation?.id else {return}
-//        let messageIDs = messages.map { $0.id }
-//
-//        Task { @MainActor in
-//            do {
-//                let messageIDsForDeletion = try await FirebaseChatService
-//                    .shared
-//                    .validateMessagesForDeletion(messageIDs: messageIDs,
-//                                                 in: chatID)
-//                guard !messageIDsForDeletion.isEmpty else {return}
-////                guard let messagesToDelete = RealmDataBase
-////                    .shared
-////                    .retrieveObjects(ofType: Message.self,
-////                                     filter: NSPredicate(format: "id IN %@", messageIDsForDeletion)) else {return}
-//
-//                print("messages id to be removed in VALIDATION BLOCK: ", messageIDsForDeletion)
-//                self.schedualedMessagesIDsForRemoval.append(contentsOf: messageIDsForDeletion)
-////                self.schedualedMessagesForRemoval = Set(messagesToDelete)
-////                let indexPatToRemove: [IndexPath] = messagesToDelete.compactMap { self.indexPath(of: $0) }
-////
-////                print("In Validation (Paths to remove): ", indexPatToRemove)
-////
-////                for message in messagesToDelete {
-////                    print("In Validation (Message to remove): ", message)
-////                }
-////
-////                let modificationTypes = Set(indexPatToRemove.compactMap {  handleRemovedMessage(at: $0) })
-////
-////                self.messageChangedTypes = modificationTypes
-//
-//            } catch {
-//                print("Could not check messages for deletion: \(error)")
-//            }
-//        }
-//    }
-
     
     // MARK: - Group Chat Handling
     @MainActor
@@ -1088,7 +1005,9 @@ extension ChatRoomViewModel
             .sink { [weak self] messagesTypes in
                 guard let self = self else { return }
                 Task {
-                    await self.processMessageChanges(messagesTypes)
+                    await self.remoteMessagePaginator.perform {
+                        await self.processMessageChanges(messagesTypes)
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -1123,15 +1042,10 @@ extension ChatRoomViewModel
         let addedTypes = await processAddedMessages(filteredAdded)
         
         // Combine all changes and update
-//        var allChanges = removedTypes + modifiedTypes + addedTypes
         let allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
         
         self.messageChangedTypes = allChanges
-//        Task {
-//            await MainActor.run {
-//            }
-//        }
-        
+
 //         Clear processed messages
         self.messageListenerService?.updatedMessages.removeAll()
     }
@@ -1163,33 +1077,45 @@ extension ChatRoomViewModel
             if RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id) != nil {
                 result.0.append(message)
             } else {
-                print("THIS MESSAGE IS ADDED",message.id)
                 result.1.append(message)
             }
         }
         
         // Add existing messages to database
         if !existingMessages.isEmpty {
-//            RealmDataBase.shared.addMultipleTest(objects: existingMessages)
             RealmDataBase.shared.add(objects: existingMessages)
         }
-
+        
+        let isMostRecentMessagePaginated = isMostRecentMessagePaginated
+        
 //        // Process new messages concurrently
         await self.handleAddedMessage(newMessages)
-//        await withTaskGroup(of: Void.self) { group in
-//            for message in newMessages {
-//                group.addTask {
-//                    await self.handleAddedMessage(message)
-//                }
-//            }
-//        }
-//        
+
         // Create change types for all added messages
         return Set(newMessages
-            .compactMap { self.indexPath(of: $0) }
+            .compactMap { newMessage in
+                //TODO: check if messages are paginated up to most recent one
+                self.indexPath(of: newMessage)
+            }
             .map { MessageChangeType.added($0) })
-//        return Set()
     }
+    
+    /// Use this variable before updating realm with new message
+    var isMostRecentMessagePaginated: Bool
+    {
+        conversation?.getLastMessage()?.id == messageClusters[0].items[0].message?.id ? true : false
+    }
+    
+    var isChatRecentMessagePaginated: Bool
+    {
+        guard let dataSourceFirstMessage = self.messageClusters[0].items[0].message else
+        {
+            return true
+        }
+        return dataSourceFirstMessage.id == conversation?.recentMessageID ?
+        true : false
+    }
+    
 }
 
 // MARK: - Message listener helper functions
@@ -1199,17 +1125,13 @@ extension ChatRoomViewModel
     @MainActor
     private func handleAddedMessage(_ messages: [Message]) async
     {
+//        let isMostRecentMessagePaginated = isMostRecentMessagePaginated // important to check before message was added
         realmService?.addMessagesToRealmChat(messages)
         
-//        if message.imagePath != nil {
-//            await downloadImageData(from: message)
+        //check if messages are paginated up to most recent one
+//        if isMostRecentMessagePaginated {
+            createMessageClustersWith(messages)
 //        }
-//        
-//        if message.type == .title
-//        {
-//            await syncGroupUsers(for: [message])
-//        }
-        createMessageClustersWith(messages)
     }
 
     
@@ -1253,11 +1175,9 @@ extension ChatRoomViewModel
             messageClusters.remove(at: indexPath.section)
             isLastMessageInSection = true
         }
-        print("removed message from cluster")
         let messageID = message.id
         realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
          
-        print("MESSAGE FROM REALM REMOVED > : ", messageID)
         if indexPath.isFirst(), let recentMessageID = recentMessageItem?.message?.id
         {
             Task {
@@ -1302,6 +1222,7 @@ extension ChatRoomViewModel
     {
         guard let conversation = conversation else { return [] }
 
+        // TODO: - Remove after testing done
         var limit = 50
         
         if strategy != nil {
@@ -1490,6 +1411,8 @@ extension ChatRoomViewModel
             await syncGroupUsers(for: newMessages)
         }
         
+        await isPaginationInactiveStream.first(where: { true })
+        
         if conversation?.realm != nil
         {
             let startMessage = newMessages.first!
@@ -1511,40 +1434,9 @@ extension ChatRoomViewModel
 }
 
 
-//MARK: - Buffer messages
+// MARK: - Test
 extension ChatRoomViewModel
 {
-    private func bufferMessage(messageType: DatabaseChangedObject<Message>)
-    {
-        switch messageType.changeType {
-        case .added: bufferedMessages.append(.added(messageType.data))
-        case .modified: bufferedMessages.append(.modified(messageType.data))
-        case .removed: bufferedMessages.append(.removed(messageType.data))
-        }
-        print("Buffered message: \(messageType.data.id)")
-    }
-    
-    private func processBufferedMessages()
-    {
-        guard !bufferedMessages.isEmpty else {return}
-        
-//        for buffered in bufferedMessages {
-//            switch buffered {
-//            case .added(let msg): Task { await self.handleAddedMessage(msg) }
-//            case .modified(let msg): self.handleModifiedMessage(msg)
-//            case .removed(let msg): self.handleRemovedMessage(msg)
-//            }
-//        }
-//        bufferedMessages.removeAll()
-        print("processed buffered messages !")
-    }
-}
-
-
-
-
-// MARK: - Test
-extension ChatRoomViewModel {
     private func testMessagesCountAndUnseenCount()
     {
         Task { @MainActor in
@@ -1572,5 +1464,4 @@ extension ChatRoomViewModel {
         }
     }
 }
-
 
