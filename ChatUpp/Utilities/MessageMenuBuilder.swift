@@ -29,7 +29,7 @@ final class MessageMenuBuilder
     func buildUIMenuForMessageCell(_ cell: MessageTableViewCell,
                                    message: Message) -> UIMenu
     {
-        let selectedText = cell.messageLabel.text ?? ""
+        let selectedText = cell.messageLabel.text ?? "" // TODO: message can be used instead
         let isOwner = message.senderId == viewModel.authUser.uid
         
         let seen = createSeenAction(for: message, isOwner: isOwner)
@@ -59,7 +59,7 @@ final class MessageMenuBuilder
             DispatchQueue.main.async {
                 let senderName = cell.cellViewModel.messageSender?.name
                 self.viewModel.currentlyReplyToMessageID = message.id
-                self.contextMenuSelectedActionHandler?(.reply, text)
+                self.contextMenuSelectedActionHandler?(.reply(nil), text)
                 self.rootView.inputBarHeader?.updateTitleLabel(usingText: senderName)
             }
         }

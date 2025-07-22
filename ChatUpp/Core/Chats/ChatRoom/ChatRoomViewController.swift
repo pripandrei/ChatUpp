@@ -402,7 +402,7 @@ final class ChatRoomViewController: UIViewController
     
     private func startInputBarHeaderViewDestruction(_ inputBarHeaderView: InputBarHeaderView) {
         self.rootView.messageTextView.text.removeAll()
-        inputBarHeaderView.editeViewHeightConstraint?.constant = 0
+        inputBarHeaderView.inputBarHightConstraint?.constant = 0
         inputBarHeaderView.subviews.forEach({ view in
             view.layer.opacity = 0.0
         })
@@ -417,7 +417,7 @@ final class ChatRoomViewController: UIViewController
     }
     
     private func endInputBarHeaderViewDestruction() {
-        self.rootView.destroyinputBarHeaderView()
+        self.rootView.destroyInputBarHeaderView()
         self.rootView.sendEditMessageButton.isHidden = true
         self.rootView.sendEditMessageButton.layer.opacity = 1.0
     }
@@ -986,23 +986,30 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                     return
                 }
                 
-                let imageRepository = ImageSampleRepository(image: image, type: .message)
-                
                 Task { @MainActor in
-                    let message = self.viewModel.createNewMessage(
-                        ofType: .image,
-                        content: imageRepository.imagePath(for: .original)
-                    )
-                    self.viewModel.handleLocalUpdatesOnMessageCreation(message)
-                    await self.viewModel.saveImagesLocally(
-                        fromImageRepository: imageRepository,
-                        for: message.id
-                    )
-                    self.createMessageBubble()
-                    await self.viewModel.initiateRemoteUpdatesOnMessageCreation(
-                        message,
-                        imageRepository: imageRepository)
+                    guard let imageThumbnail = await image.byPreparingThumbnail(ofSize: CGSize(width: 80, height: 80)) else {return}
+                    self.handleContextMenuSelectedAction(
+                        actionOption: .image(imageThumbnail),
+                        selectedMessageText: nil,
+                        selectedImage: nil)
                 }
+//                let imageRepository = ImageSampleRepository(image: image, type: .message)
+                 
+//                Task { @MainActor in
+//                    let message = self.viewModel.createNewMessage(
+//                        ofType: .image,
+//                        content: imageRepository.imagePath(for: .original)
+//                    )
+//                    self.viewModel.handleLocalUpdatesOnMessageCreation(message)
+//                    await self.viewModel.saveImagesLocally(
+//                        fromImageRepository: imageRepository,
+//                        for: message.id
+//                    )
+//                    self.createMessageBubble()
+//                    await self.viewModel.initiateRemoteUpdatesOnMessageCreation(
+//                        message,
+//                        imageRepository: imageRepository)
+//                }
             }
         }
     }
@@ -1376,7 +1383,11 @@ extension ChatRoomViewController: UITableViewDelegate
                                  parameters: parameter)
     }
     
-    private func handleContextMenuSelectedAction(actionOption: InputBarHeaderView.Mode, selectedMessageText text: String?)
+    private func handleContextMenuSelectedAction(
+        actionOption: InputBarHeaderView.Mode,
+        selectedMessageText text: String?,
+        selectedImage: UIImage? = nil
+    )
     {
         self.rootView.activateInputBarHeaderView(mode: actionOption)
         self.addGestureToCloseBtn()

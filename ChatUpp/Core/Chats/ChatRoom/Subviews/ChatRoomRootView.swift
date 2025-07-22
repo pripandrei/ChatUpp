@@ -268,25 +268,27 @@ final class ChatRoomRootView: UIView {
 // MARK: - SETUP EDIT VIEW
 extension ChatRoomRootView 
 {
-    private func setupInputBarHeaderView(mode: InputBarHeaderView.Mode) {
-        destroyinputBarHeaderView()
+    private func setupInputBarHeaderView(mode: InputBarHeaderView.Mode)
+    {
+        destroyInputBarHeaderView()
         inputBarHeader = InputBarHeaderView(mode: mode)
         
         setupInputBarHeaderConstraints()
         inputBarHeader!.setupSubviews()
     }
     
-    func activateInputBarHeaderView(mode: InputBarHeaderView.Mode) {
+    func activateInputBarHeaderView(mode: InputBarHeaderView.Mode)
+    {
         if inputBarHeader == nil {
             updateTableViewContentOffset(isInputBarHeaderRemoved: false)
         }
         scrollToBottomBtnBottomConstraint.constant -= inputBarHeader == nil ? 45 : 0
-        sendEditMessageButton.isHidden = !(mode == .edit)
+        sendEditMessageButton.isHidden = !(mode == InputBarHeaderView.Mode.edit)
         setupInputBarHeaderView(mode: mode)
         self.layoutIfNeeded()
     }
     
-    func destroyinputBarHeaderView() {
+    func destroyInputBarHeaderView() {
         inputBarHeader?.removeSubviews()
         inputBarHeader?.removeFromSuperview()
         inputBarHeader = nil

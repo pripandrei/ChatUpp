@@ -12,12 +12,49 @@ import UIKit
 
 final class InputBarHeaderView: UIView {
     
-    enum Mode {
+    enum Mode: Equatable {
         case edit
-        case reply
+        case reply(UIImage?)
+        case image(UIImage)
+        
+        var labelText: String? {
+            switch self {
+            case .edit:
+                return "Edit Message"
+            case .reply:
+                return "Reply to"
+            case .image:
+                return "Attached image"
+            }
+        }
+        
+        var symbolImage: UIImage? {
+            switch self {
+            case .edit:
+                return UIImage(systemName: "pencil")
+            case .reply:
+                return UIImage(systemName: "arrowshape.turn.up.left")
+            case .image:
+                return UIImage(systemName: "photo.on.rectangle.angled.fill")
+            }
+        }
+//        static func == (lhs: Mode, rhs: Mode) -> Bool {
+//            switch (lhs, rhs) {
+//            case (.edit, .edit):
+//                return true
+//            case (.reply, .reply):
+//                return true
+//            case (.image, .image):
+//                return true
+//            default:
+//                return false
+//            }
+//        }
     }
+   
     
-    var editeViewHeightConstraint: NSLayoutConstraint?
+    var inputBarHightConstraint: NSLayoutConstraint?
+    var textInfoStackViewLeadingConstraint: NSLayoutConstraint?
     private var mode: Mode?
     
     private(set) var closeInputBarHeaderView : UIImageView?
@@ -25,6 +62,8 @@ final class InputBarHeaderView: UIView {
     private var messageText                  : UILabel?
     private var separatorLabel               : UILabel?
     private var symbolIcon                   : UIImageView?
+    private var imageThumbnail               : UIImageView?
+    private var textInfoStackView            : UIStackView?
     
     convenience init(mode: Mode) {
         self.init()
@@ -32,26 +71,29 @@ final class InputBarHeaderView: UIView {
     }
     
     private func setupSelfHeightConstraint() {
-        editeViewHeightConstraint           = heightAnchor.constraint(equalToConstant: 45)
-        editeViewHeightConstraint?.isActive = true
+        inputBarHightConstraint           = heightAnchor.constraint(equalToConstant: 45)
+        inputBarHightConstraint?.isActive = true
     }
     
     // MARK: - Setup subviews
     
-    func setupSubviews() {
+    func setupSubviews()
+    {
         backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
         setupSelfHeightConstraint()
         
         setupEditLabel()
         setupEditMessage()
+        setupSymbolIcon()
         setupSeparator()
-        setupEditePenIcon()
         setupCloseButton()
+        setupTextInfoStackView()
+        setupImageThumbnailView()
     }
     
-    func setInputBarHeaderMessageText(_ text: String?) {
-        messageText?.text = text
-    }
+//    func setInputBarHeaderMessageText(_ text: String?) {
+//        messageText?.text = text
+//    }
     
     func updateTitleLabel(usingText text: String?) {
         if let currentText = titleLabel?.text, let text = text {
@@ -59,30 +101,107 @@ final class InputBarHeaderView: UIView {
         }
     }
     
+    func setTextInfoStackViewLeadingConstraintConstant()
+    {
+        if case .image(_) = mode
+        {
+            textInfoStackViewLeadingConstraint?.constant = 60
+        } else {
+            textInfoStackViewLeadingConstraint?.constant = 10
+        }
+    }
+    
+    func setImageThumbnail(_ image: UIImage?)
+    {
+        self.imageThumbnail?.image = image
+    }
+    
+    func setInputBarHeaderMessageText(_ text: String?)
+    {
+        switch mode!
+        {
+        case .image(_): messageText?.text = "Photo"
+        case .reply(let image):
+            if let _ = image { messageText?.text = "Photo" }
+            else { messageText?.text = text }
+        default: messageText?.text = text
+        }
+    }
+    
+    private func setupTextInfoStackView()
+    {
+        textInfoStackView = UIStackView(arrangedSubviews: [titleLabel! ,messageText!])
+        textInfoStackView?.axis = .vertical
+        textInfoStackView?.alignment = .leading
+        textInfoStackView?.distribution = .equalCentering
+        textInfoStackView?.spacing = 0
+        
+        textInfoStackView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.addSubview(textInfoStackView!)
+        
+        textInfoStackView?.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive = true
+        textInfoStackView?.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0).isActive = true
+//        textInfoStackView?.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        textInfoStackView?.trailingAnchor.constraint(equalTo: closeInputBarHeaderView!.leadingAnchor, constant: -40).isActive = true
+        
+        self.textInfoStackViewLeadingConstraint = textInfoStackView?.leadingAnchor.constraint(
+            equalTo: separatorLabel!.trailingAnchor,
+            constant: 10)
+        textInfoStackViewLeadingConstraint?.isActive = true
+        setTextInfoStackViewLeadingConstraintConstant()
+        
+    }
+    
+    private func setupImageThumbnailView()
+    {
+        imageThumbnail = UIImageView()
+        self.addSubview(imageThumbnail!)
+        
+        if case .image(let image) = mode
+        {
+            imageThumbnail?.image = image
+        }
+        
+        imageThumbnail?.translatesAutoresizingMaskIntoConstraints = false
+        
+        imageThumbnail?.leadingAnchor.constraint(equalTo: self.separatorLabel!.trailingAnchor, constant: 10).isActive = true
+        imageThumbnail?.topAnchor.constraint(equalTo: self.topAnchor,
+                                             constant: 10).isActive = true
+        imageThumbnail?.bottomAnchor.constraint(equalTo: self.bottomAnchor,
+                                                constant: 0).isActive = true
+        imageThumbnail?.widthAnchor.constraint(equalTo: imageThumbnail!.heightAnchor).isActive = true
+//        imageThumbnail?.heightAnchor.constraint(equalToConstant: 35).isActive = true
+    }
+    
     private func setupEditLabel() {
         titleLabel = UILabel()
         
-        titleLabel?.text                                      = mode == .edit ? "Edit Message" : "Reply to "
+        titleLabel?.text                                      = mode?.labelText
         titleLabel?.textColor                                 = ColorManager.actionButtonsTintColor
-        titleLabel?.font                                      = UIFont.boldSystemFont(ofSize: 15)
-        titleLabel?.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(titleLabel!)
+        titleLabel?.font                                      = UIFont.boldSystemFont(ofSize: 16)
+//        titleLabel?.translatesAutoresizingMaskIntoConstraints = false
+//        self.addSubview(titleLabel!)
         
-        titleLabel?.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive                                   = true
-        titleLabel?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: superview!.bounds.width / 5).isActive = true
+//        titleLabel?.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive                                   = true
+//        titleLabel?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: superview!.bounds.width / 5).isActive = true
     }
+    
     private func setupEditMessage() {
         messageText                                            = UILabel()
         messageText?.textColor                                 = .white
-        messageText?.font                                      = UIFont(name: "Helvetica", size: 13.5)
+        messageText?.font                                      = UIFont(name: "Helvetica", size: 16)
         messageText?.lineBreakMode                             = .byTruncatingTail
         messageText?.adjustsFontSizeToFitWidth                 = false
-        messageText?.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(messageText!)
         
-        messageText?.topAnchor.constraint(equalTo: titleLabel!.topAnchor, constant: 18).isActive                             = true
-        messageText?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant:  superview!.bounds.width / 5).isActive = true
-        messageText?.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -90).isActive                        = true
+        messageText?.text = "TEST message"
+//        self.setupDefaultMessageTextIfNeeded()
+//        messageText?.translatesAutoresizingMaskIntoConstraints = false
+//        self.addSubview(messageText!)
+        
+//        messageText?.topAnchor.constraint(equalTo: titleLabel!.topAnchor, constant: 18).isActive                             = true
+//        messageText?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant:  superview!.bounds.width / 5).isActive = true
+//        messageText?.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -90).isActive                        = true
     }
     private func setupSeparator() {
         separatorLabel                                            = UILabel()
@@ -91,21 +210,24 @@ final class InputBarHeaderView: UIView {
         self.addSubview(separatorLabel!)
         
         separatorLabel?.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive                                  = true
-        separatorLabel?.widthAnchor.constraint(equalToConstant: 3).isActive                                                   = true
-        separatorLabel?.heightAnchor.constraint(equalToConstant: 32).isActive                                                 = true
-        separatorLabel?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: superview!.bounds.width / 6).isActive = true
+        separatorLabel?.widthAnchor.constraint(equalToConstant: 2).isActive                                                   = true
+        separatorLabel?.heightAnchor.constraint(equalToConstant: 35).isActive                                                 = true
+//        separatorLabel?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: superview!.bounds.width / 6).isActive = true
+        separatorLabel?.leadingAnchor.constraint(equalTo: symbolIcon!.trailingAnchor, constant: 20).isActive = true
     }
     
-    private func setupEditePenIcon() {
+    private func setupSymbolIcon() {
         symbolIcon                                            = UIImageView()
         symbolIcon?.tintColor                                 = ColorManager.actionButtonsTintColor
-        symbolIcon?.image                                     = mode == .edit ? UIImage(systemName: "pencil") : UIImage(systemName: "arrowshape.turn.up.left")
         symbolIcon?.translatesAutoresizingMaskIntoConstraints = false
+        symbolIcon?.image                                     = mode?.symbolImage
         self.addSubview(symbolIcon!)
         
-        symbolIcon?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
-        symbolIcon?.heightAnchor.constraint(equalToConstant: 27).isActive                        = true
-        symbolIcon?.widthAnchor.constraint(equalToConstant: 25).isActive                         = true
+        symbolIcon?.leadingAnchor.constraint(equalTo: self.leadingAnchor,
+                                             constant: 13).isActive = true
+        symbolIcon?.heightAnchor.constraint(equalToConstant: 30).isActive                        = true
+//        symbolIcon?.widthAnchor.constraint(equalToConstant: 25).isActive                         = true
+        symbolIcon?.widthAnchor.constraint(equalTo: symbolIcon!.heightAnchor).isActive                      = true
         symbolIcon?.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive         = true
     }
     
@@ -117,7 +239,7 @@ final class InputBarHeaderView: UIView {
         closeInputBarHeaderView?.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(closeInputBarHeaderView!)
         
-        closeInputBarHeaderView?.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -23).isActive = true
+        closeInputBarHeaderView?.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -18).isActive = true
         closeInputBarHeaderView?.topAnchor.constraint(equalTo: self.topAnchor, constant: 14).isActive            = true
         closeInputBarHeaderView?.heightAnchor.constraint(equalToConstant: 23).isActive                           = true
         closeInputBarHeaderView?.widthAnchor.constraint(equalToConstant: 20).isActive                            = true
