@@ -141,7 +141,7 @@ final class InputBarHeaderView: UIView {
         self.addSubview(textInfoStackView!)
         
         textInfoStackView?.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive = true
-        textInfoStackView?.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0).isActive = true
+//        textInfoStackView?.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0).isActive = true
 //        textInfoStackView?.widthAnchor.constraint(equalToConstant: 150).isActive = true
         textInfoStackView?.trailingAnchor.constraint(equalTo: closeInputBarHeaderView!.leadingAnchor, constant: -40).isActive = true
         
@@ -168,8 +168,9 @@ final class InputBarHeaderView: UIView {
         imageThumbnail?.leadingAnchor.constraint(equalTo: self.separatorLabel!.trailingAnchor, constant: 10).isActive = true
         imageThumbnail?.topAnchor.constraint(equalTo: self.topAnchor,
                                              constant: 10).isActive = true
-        imageThumbnail?.bottomAnchor.constraint(equalTo: self.bottomAnchor,
-                                                constant: 0).isActive = true
+//        imageThumbnail?.bottomAnchor.constraint(equalTo: self.bottomAnchor,
+//                                                constant: 0).isActive = true
+        imageThumbnail?.heightAnchor.constraint(equalTo: separatorLabel!.heightAnchor).isActive = true
         imageThumbnail?.widthAnchor.constraint(equalTo: imageThumbnail!.heightAnchor).isActive = true
 //        imageThumbnail?.heightAnchor.constraint(equalToConstant: 35).isActive = true
     }

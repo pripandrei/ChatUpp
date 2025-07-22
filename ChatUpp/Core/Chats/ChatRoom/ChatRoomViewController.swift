@@ -400,14 +400,14 @@ final class ChatRoomViewController: UIViewController
         }
     }
     
-    private func startInputBarHeaderViewDestruction(_ inputBarHeaderView: InputBarHeaderView) {
+    private func startInputBarHeaderViewDestruction(_ inputBarHeaderView: InputBarHeaderView)
+    {
         self.rootView.messageTextView.text.removeAll()
         inputBarHeaderView.inputBarHightConstraint?.constant = 0
         inputBarHeaderView.subviews.forEach({ view in
             view.layer.opacity = 0.0
         })
         self.rootView.sendEditMessageButton.layer.opacity = 0.0
-//        self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
         
         mainQueue {
             self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
