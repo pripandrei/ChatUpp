@@ -523,7 +523,7 @@ extension MessageTableViewCell
         if let messageText = cellViewModel.message?.messageBody, !messageText.isEmpty
         {
             let newLine = "\n"
-            let text = "\(newLine)Image Attachment is Databa"
+            let text = "\(newLine)\(messageText))"
             let combinedAttributedString = NSMutableAttributedString()
             combinedAttributedString.append(imageAttachementAttributed)
             guard let messageTextAttribute = messageTextLabelLinkSetup(from: text) else {return}

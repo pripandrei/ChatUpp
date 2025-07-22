@@ -204,7 +204,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
         
-//       testMessagesCountAndUnseenCount()
+       testMessagesCountAndUnseenCount()
     }
     
     init(participant: User?)
@@ -287,7 +287,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         RealmDataBase.shared.add(object: conversation)
         
         let text = GroupEventMessage.userLeft.eventMessage
-        let message = createNewMessage(ofType: .text, content: text)
+        let message = createNewMessage(ofType: .text, messageText: text)
         
         try await FirebaseChatService.shared.createMessage(message: message,
                                                            atChatPath: conversation.id)
@@ -359,21 +359,23 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     func createNewMessage(ofType type: MessageType = .text,
-                          content: String? = nil) -> Message
+                          messageText: String? = nil,
+                          imagePath: String? = nil) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
         let seenByValue = (isGroupChat && type != .title) ? [authUserID] : nil
+        let messageText = (messageText != nil) ? messageText! : ""
         
         return Message(
             id: UUID().uuidString,
-            messageBody: type == .text ? content! : "",
+            messageBody: messageText,
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: isGroupChat ? nil : false,
             seenBy: seenByValue,
             isEdited: false,
-            imagePath: type == .image ? content : nil,
+            imagePath: imagePath,
             imageSize: nil,
             repliedTo: currentlyReplyToMessageID,
             type: type

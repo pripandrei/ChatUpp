@@ -96,6 +96,7 @@ final class ChatRoomViewController: UIViewController
     private var isNetworkPaginationRunning: Bool = false
     weak var coordinatorDelegate :Coordinator?
     
+    private var messageImage: UIImage? = nil
     private var shouldIgnoreUnseenMessagesUpdate: Bool = false
     private var shouldIgnoreUnseenMessagesUpdateForTimePeriod: Date?
     private var pendingCellPathsForSeenStatusCheck = Set<IndexPath>()
@@ -810,7 +811,7 @@ extension ChatRoomViewController {
         rootView.scrollBadgeButton.addTarget(self, action: #selector(scrollToBottomBtnWasTapped), for: .touchUpInside)
     }
     private func addTargetToSendMessageBtn() {
-        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageTapped), for: .touchUpInside)
+        rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageButtonWasTapped), for: .touchUpInside)
     }
     private func addTargetToAddPictureBtn() {
         rootView.addPictureButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
@@ -853,7 +854,74 @@ extension ChatRoomViewController {
         animateInputBarHeaderViewDestruction()
     }
     
-    @objc func sendMessageTapped()
+    private func determineMessageType(text: String, image: UIImage?) -> MessageType?
+    {
+        switch (text.isEmpty, image) {
+        case (false, .some): return .imageText
+        case (false, .none): return .text
+        case (true, .some): return .image
+        case (true, .none): return nil
+        }
+    }
+
+    private func clearInputUI() {
+        removeTextViewText()
+        inputMessageTextViewDelegate.invalidateTextViewSize()
+        callTextViewDidChange()
+    }
+    
+    @objc func sendMessageButtonWasTapped()
+    {
+        Task { @MainActor in
+            
+            let trimmedText = getTrimmedString()
+            let image = self.messageImage
+            self.messageImage = nil
+
+            guard let messageType = determineMessageType(text: trimmedText,
+                                                         image: image) else
+            {
+                return // Nothing to send
+            }
+
+            if !viewModel.conversationExists {
+                viewModel.setupConversation()
+            }
+
+            let imageRepository = image.map {
+                ImageSampleRepository(image: $0, type: .message)
+            }
+
+            let message = viewModel.createNewMessage(
+                ofType: messageType,
+                messageText: trimmedText,
+                imagePath: imageRepository?.imagePath(for: .original)
+            )
+
+            viewModel.handleLocalUpdatesOnMessageCreation(message)
+
+            clearInputUI()
+
+            if let repository = imageRepository {
+                await viewModel.saveImagesLocally(fromImageRepository: repository, for: message.id)
+            }
+
+            createMessageBubble()
+
+//            if let repository = imageRepository {
+            await viewModel.initiateRemoteUpdatesOnMessageCreation(
+                message,
+                imageRepository: imageRepository
+            )
+            //            }
+
+            closeInputBarHeaderView()
+        }
+    }
+    
+    
+    
+    @objc func sendMessageButtonWasTapped2()
     {
         let trimmedString = getTrimmedString()
         if !trimmedString.isEmpty
@@ -861,7 +929,7 @@ extension ChatRoomViewController {
             if !viewModel.conversationExists { viewModel.setupConversation() }
             
             let message = viewModel.createNewMessage(ofType: .text,
-                                       content: trimmedString)
+                                                     messageText: trimmedString)
             viewModel.handleLocalUpdatesOnMessageCreation(message)
             
             removeTextViewText()
@@ -873,6 +941,115 @@ extension ChatRoomViewController {
             closeInputBarHeaderView()
         }
     }
+    
+    
+//
+//    @objc func sendMessageButtonWasTapped()
+//    {
+//        let trimmedString = getTrimmedString()
+//        
+//        Task { @MainActor in
+//            let messageType: MessageType?
+//            
+//            if !trimmedString.isEmpty && self.messageImage != nil
+//            {
+//                messageType = .imageText
+//            }
+//            else if !trimmedString.isEmpty && self.messageImage == nil
+//            {
+//                messageType = .text
+//            }
+//            else if trimmedString.isEmpty && self.messageImage != nil {
+//                messageType = .image
+//            }
+//            else {
+//                messageType = nil
+//            }
+//            
+//            var imageRepository: ImageSampleRepository? = nil
+//            
+//            if let image = self.messageImage
+//            {
+//                imageRepository = ImageSampleRepository(image: image,
+//                                                        type: .message)
+//            }
+//            
+//            if let messageType
+//            {
+//                if !viewModel.conversationExists { viewModel.setupConversation() }
+//                
+//                let message = viewModel.createNewMessage(
+//                    ofType: messageType,
+//                    messageText: trimmedString,
+//                    imagePath: imageRepository?.imagePath(for: .original))
+//                
+//                viewModel.handleLocalUpdatesOnMessageCreation(message)
+//                
+//                removeTextViewText()
+//                inputMessageTextViewDelegate.invalidateTextViewSize()
+//                callTextViewDidChange()
+//                
+//                if let repository = imageRepository
+//                {
+//                    await self.viewModel.saveImagesLocally(
+//                        fromImageRepository: repository,
+//                        for: message.id
+//                    )
+//                }
+//                createMessageBubble()
+//                if let repository = imageRepository
+//                {
+//                    await self.viewModel.initiateRemoteUpdatesOnMessageCreation(
+//                        message,
+//                        imageRepository: imageRepository)
+//                }
+//                closeInputBarHeaderView()
+//            }
+//        }
+        
+//        if !trimmedString.isEmpty || self.messageImage != nil
+//        {
+//            if !viewModel.conversationExists { viewModel.setupConversation() }
+//            
+//            let message = viewModel.createNewMessage(ofType: .text,
+//                                                     content: trimmedString)
+//            viewModel.handleLocalUpdatesOnMessageCreation(message)
+//            
+//            removeTextViewText()
+//            inputMessageTextViewDelegate.invalidateTextViewSize()
+//            callTextViewDidChange()
+//            
+//            createMessageBubble()
+//            Task { await viewModel.initiateRemoteUpdatesOnMessageCreation(message) }
+//            closeInputBarHeaderView()
+//            
+//            
+//            
+//            
+//            
+//            let image = self.messageImage ?? UIImage()
+////            
+//            let imageRepository = ImageSampleRepository(image: image,
+//                                                        type: .message)
+////             
+//            Task { @MainActor in
+//                let message = self.viewModel.createNewMessage(
+//                    ofType: .image,
+//                    content: imageRepository.imagePath(for: .original)
+//                )
+//                self.viewModel.handleLocalUpdatesOnMessageCreation(message)
+//                await self.viewModel.saveImagesLocally(
+//                    fromImageRepository: imageRepository,
+//                    for: message.id
+//                )
+//                self.createMessageBubble()
+//                await self.viewModel.initiateRemoteUpdatesOnMessageCreation(
+//                    message,
+//                    imageRepository: imageRepository)
+//            }
+////        }
+//    }
+
 
     @objc func pictureAddBtnWasTapped() {
         configurePhotoPicker()
@@ -993,8 +1170,12 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                         selectedMessageText: nil,
                         selectedImage: nil)
                 }
-//                let imageRepository = ImageSampleRepository(image: image, type: .message)
-                 
+                self.messageImage = image
+                
+                
+//                let imageRepository = ImageSampleRepository(image: image,
+//                                                            type: .message)
+//                 
 //                Task { @MainActor in
 //                    let message = self.viewModel.createNewMessage(
 //                        ofType: .image,
