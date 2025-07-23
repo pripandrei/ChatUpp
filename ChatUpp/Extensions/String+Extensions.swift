@@ -8,7 +8,8 @@
 import Foundation
 import UIKit
 
-extension String {
+extension String
+{
     func getSize() -> CGSize {
         guard let font = UIFont(name: "HelveticaNeue", size: 17) else { return CGSize.zero }
         let attributes: [NSAttributedString.Key: Any] = [.font: font,
@@ -20,5 +21,16 @@ extension String {
                               return paragraphStyle
                           }()]
         return self.size(withAttributes: attributes)
+    }
+    
+    func addSuffix(_ sufix: String) -> Self
+    {
+        if self.hasSuffix(".jpeg") {
+            return self.replacingOccurrences(of: ".jpeg", with: "_\(sufix).jpeg")
+        }
+        if self.hasSuffix(".jpg") {
+            return self.replacingOccurrences(of: ".jpg", with: "_\(sufix).jpg")
+        }
+        return self
     }
 }

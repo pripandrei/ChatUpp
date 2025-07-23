@@ -28,7 +28,7 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
     func retrieveImageData() -> Data?
     {
         if let chatImageURL = conversation.thumbnailURL {
-            let url = chatImageURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+            let url = chatImageURL.addSuffix("medium")
             return CacheManager.shared.retrieveImageData(from: url)
         }
         return nil

@@ -40,17 +40,16 @@ final class ResultsCellViewModel
 //        return chat?.name != nil ? chat?.name : participant?.name
     }
     
-    var imageURL: String?
-    {
+    var imageURL: String? {
         if let chatImageURL = chat?.thumbnailURL {
-            return chatImageURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+            return chatImageURL.addSuffix("medium")
         }
         if let participantImageURL = participant?.photoUrl {
-            return participantImageURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+            return participantImageURL.addSuffix("medium")
         }
         return nil
     }
-
+    
     func setImageData()
     {
         guard let data = retrieveImageData() else {

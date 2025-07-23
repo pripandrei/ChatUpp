@@ -138,7 +138,7 @@ class ChatCell: UITableViewCell {
     {
         if let imagePath = message.imagePath
         {
-            let path = imagePath.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+            let path = imagePath.addSuffix("small")
             guard let imageData = CacheManager.shared.retrieveImageData(from: path) else
             {
                 return nil

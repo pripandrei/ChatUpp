@@ -105,7 +105,7 @@ final class ChatRoomNavigationBarViewModel
     private func getThumbnailImagePath(from url: String?) -> String?
     {
         guard let originalURL = url else {return nil}
-        return originalURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+        return originalURL.addSuffix("medium")
     }
 }
 

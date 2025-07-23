@@ -225,7 +225,10 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
 
 extension ProfileEditingViewController: CropViewControllerDelegate
 {
-    func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int)
+    func cropViewController(_ cropViewController: CropViewController,
+                            didCropToImage image: UIImage,
+                            withRect cropRect: CGRect,
+                            angle: Int)
     {
         let downsampledImage = downsampleImage(image)
         updateImage(downsampledImage)

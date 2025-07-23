@@ -146,7 +146,7 @@ extension MessageCellViewModel
     {
         guard let user = messageSender, var path = messageSender?.photoUrl else { return }
         Task { @MainActor in
-            path = path.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+            path = path.addSuffix("medium")
             let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: path)
             cacheImage(data: imageData)
             senderImageDataSubject.send(imageData)
@@ -274,27 +274,6 @@ extension MessageCellViewModel
 
 extension MessageCellViewModel
 {
-//    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize
-//    {
-//        let (equalWidth, equalHeight) = (250,250)
-//
-//        let preferredWidth: Double = 270
-//        let preferredHeight: Double = 320
-//
-//        let aspectRatioForWidth = Double(size.width) / Double(size.height)
-//        let aspectRatioForHeight = Double(size.height) / Double(size.width)
-//
-//        if size.width > size.height {
-//            let newHeight = preferredWidth / aspectRatioForWidth
-//            return CGSize(width: preferredWidth , height: newHeight)
-//        } else if size.height > size.width {
-//            let newWidth = preferredHeight / aspectRatioForHeight
-//            return CGSize(width: newWidth , height: preferredHeight)
-//        } else {
-//            return CGSize(width: equalWidth, height: equalHeight)
-//        }
-//    }
-    
     func getCellAspectRatio(forImageSize size: CGSize) -> CGSize
     {
         let aspectRatio = size.width / size.height

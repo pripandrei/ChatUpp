@@ -1,17 +1,13 @@
 import UIKit
 import Kingfisher
 
-
 enum ImageSample
 {
     case user, message
     
     enum SizeKey: String, CaseIterable
     {
-        /// IMPORTANT: Keep this case order for iteration on image creation
-        /// For more info see how 'createImageSamples' function
-        /// from ImageSampleRepository works
-        ///
+        /// See FootNote.swift [10]
         case original
         case small
         case medium

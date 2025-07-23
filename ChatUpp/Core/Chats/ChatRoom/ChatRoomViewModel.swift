@@ -715,7 +715,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private func downloadImageData(from message: Message) async
     {
         guard let path = message.imagePath else { return }
-        let smallPath = path.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+        let smallPath = path.addSuffix("small")
         let paths = [path, smallPath]
         
         do {
@@ -983,7 +983,7 @@ extension ChatRoomViewModel
                 
                 group.addTask {
                     do {
-                        let optimizedURL = avatarURL.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+                        let optimizedURL = avatarURL.addSuffix("small")
                         let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(userID), imagePath: optimizedURL)
                         CacheManager.shared.saveImageData(imageData, toPath: optimizedURL)
                     } catch {

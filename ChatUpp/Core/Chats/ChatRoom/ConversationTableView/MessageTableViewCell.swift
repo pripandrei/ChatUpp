@@ -24,10 +24,11 @@ final class MessageTableViewCell: UITableViewCell
     private var messageSenderAvatar: UIImageView?
     
 //    private var messageImage: UIImage?
+    private var messageComponentsStackView: UIStackView = UIStackView()
+    private var messageImageView = UIImageView()
     private var messageTitleLabel: YYLabel?
     private var replyMessageLabel: ReplyMessageLabel = ReplyMessageLabel()
     private var timeStamp = YYLabel()
-    private var messageImageView = UIImageView()
     private var subscribers = Set<AnyCancellable>()
     
     private(set) var reactionBadgeHostingView: UIView?
@@ -55,13 +56,11 @@ final class MessageTableViewCell: UITableViewCell
         // Invert cell upside down
         transform = CGAffineTransform(scaleX: 1, y: -1)
         
-//        backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         backgroundColor = .clear
         setupBackgroundSelectionView()
         setupMessageContainer()
         setupMessageTextLabel()
         setupMessageComponentsStackView()
-//        setupSeenStatusMark()
         setupTimestamp()
         configureMessageImageView()
         setupEditedLabel()
@@ -192,33 +191,13 @@ final class MessageTableViewCell: UITableViewCell
         self.setupReplyMessage()
         self.setMessageLabelTopConstraints()
         self.setMessageContainerBottomConstraint()
-//        self.setupEditedLabel()
         self.updateEditedLabel()
         self.updateStackViewAppearance()
         self.setupBinding()
         self.adjustMessageSide()
-//        self.setupMessageComponentsColor()
         
         self.setupMessageData(with: message)
         self.setupReactionView(for: message)
-    }
-    
-//    private func setupMessageTypeRelatedData(_ messageType: MessageType)
-//    {
-//        switch messageType
-//        {
-//        case .imageText:
-//        case .text:
-//        case .image:
-//        default: break
-//        }
-//    }
-    private var messageComponentsStackView: UIStackView = UIStackView()
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-//        if
-//        messageComponentsStackView.layer.cornerRadius = messageComponentsStackView.bounds.width / 2
     }
     
     private func setupMessageComponentsStackView()
@@ -233,9 +212,6 @@ final class MessageTableViewCell: UITableViewCell
         messageComponentsStackView.distribution = .equalSpacing
         messageComponentsStackView.spacing = 3
         messageComponentsStackView.clipsToBounds = true
-//        messageComponentsStackView.isLayoutMarginsRelativeArrangement = true
-//        messageComponentsStackView.layoutMargins = UIEdgeInsets(top: 3, left: 7, bottom: 3, right: 7)
-        
         messageComponentsStackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -342,8 +318,6 @@ final class MessageTableViewCell: UITableViewCell
     {
         messageLabel.attributedText = nil
         timeStamp.text = nil
-        timeStamp.backgroundColor = .clear
-        timeStamp.textContainerInset = .zero
         messageSenderNameLabel?.removeFromSuperview()
         messageSenderNameLabel = nil
 //        messageImage = nil
@@ -389,7 +363,6 @@ extension MessageTableViewCell
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-//            messageLabel.topAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor),
             messageLabel.bottomAnchor.constraint(equalTo: messageContainer.bottomAnchor),
             messageLabel.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor),
             messageLabel.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor),
@@ -423,51 +396,13 @@ extension MessageTableViewCell
     
     private func setupEditedLabel()
     {
-//        guard cellViewModel.message?.isEdited == true else {return}
-        
-//        editedLabel = UILabel()
         messageComponentsStackView.insertArrangedSubview(editedLabel, at: 0)
-        
         editedLabel.font = UIFont(name: "Helvetica", size: 13)
-//        editedLabel.text = "edited"
-//        editedLabel!.textColor = getColorForMessageComponents()
-//        editedLabel!.translatesAutoresizingMaskIntoConstraints = false
-        
-//        NSLayoutConstraint.activate([
-//            editedLabel!.trailingAnchor.constraint(equalTo: timeStamp.leadingAnchor, constant: -2),
-//            editedLabel!.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -5)
-//        ])
-    }
-    
-    private func setupSeenStatusMark()
-    {
-//        messageComponentsStackView.addSubview(seenStatusMark)
-        
-//        seenStatusMark.font = UIFont(name: "Helvetica", size: 4)
-//        seenStatusMark.translatesAutoresizingMaskIntoConstraints = false
-        
-//        NSLayoutConstraint.activate([
-//            seenStatusMark.trailingAnchor.constraint(equalTo: messageComponentsStackView.trailingAnchor, constant: -8),
-//            seenStatusMark.bottomAnchor.constraint(equalTo: messageComponentsStackView.bottomAnchor, constant: -5)
-//        ])
     }
     
     private func setupTimestamp()
     {
-//        messageLabel.addSubview(timeStamp)
-//        messageComponentsStackView.addSubview(timeStamp)
-        
         timeStamp.font = UIFont(name: "HelveticaNeue", size: 13)
-//        timeStamp.font = UIFont.systemFont(ofSize: 13, weight: .medium)
-//        timeStamp.layer.cornerRadius = 7
-//        timeStamp.clipsToBounds = true
-
-//        timeStamp.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        NSLayoutConstraint.activate([
-//            timeStamp.trailingAnchor.constraint(equalTo: seenStatusMark.leadingAnchor, constant: -2),
-//            timeStamp.bottomAnchor.constraint(equalTo: messageComponentsStackView.bottomAnchor, constant: -5)
-//        ])
     }
     
     private func updateStackViewAppearance()
@@ -487,13 +422,6 @@ extension MessageTableViewCell
         }
         
         setupStackViewComponentsColor()
-    }
-    
-    private func setupTimestampBackgroundForImage()
-    {
-//        timeStamp.backgroundColor = cellViewModel.message?.messageBody == nil ? .darkGray.withAlphaComponent(0.6) : .clear
-        timeStamp.textColor = cellViewModel.message?.messageBody == nil ? .white : getColorForMessageComponents()
-        timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
     }
     
     private func adjustMessageSide()
@@ -583,7 +511,7 @@ extension MessageTableViewCell
     }
     
     private var editedMessageWidth: CGFloat {
-        return editedLabel.intrinsicContentSize.width ?? 0.0
+        return editedLabel.intrinsicContentSize.width
     }
 }
 
@@ -595,7 +523,6 @@ extension MessageTableViewCell
         let newSize = cellViewModel.getCellAspectRatio(forImageSize: image.size)
         
         resizeImage(image, toSize: newSize)
-//        setupTimestampBackgroundForImage()
         let imageAttachementAttributed = getAttributedImageAttachment(size: newSize)
         
         if let messageText = cellViewModel.message?.messageBody, !messageText.isEmpty
@@ -926,48 +853,3 @@ extension MessageTableViewCell: TargetPreviewable
         }
     }
 }
-
-//
-//
-//private func setMessageImageAttachment(_ image: UIImage,
-//                                size: CGSize)
-//{
-//    let text = "Test text right here! Test text right here! Test text right here! Test text right here! Test text right here! Test text right here!"
-//   
-//    let imageAttributedString = NSMutableAttributedString.yy_attachmentString(
-//        withContent: nil,
-//        contentMode: .center,
-//        attachmentSize: size,
-//        alignTo: UIFont(name: "Helvetica", size: 17)!,
-//        alignment: .center)
-//    
-//    
-//    let paragraphStyle = NSMutableParagraphStyle()
-////            paragraphStyle.alignment = .left
-////        paragraphStyle.headIndent = 5
-////        paragraphStyle.firstLineHeadIndent = 5
-////        paragraphStyle.tailIndent = -5
-////        paragraphStyle.paragraphSpacingBefore = 10
-////        paragraphStyle.paragraphSpacingBefore = 50
-////        paragraphStyle.headIndent = 10
-////        paragraphStyle.tailIndent = -10
-////        paragraphStyle.paragraphSpacing = 50
-//////        paragraphStyle.tailIndent = -15
-////
-//        let textAttr = NSAttributedString(string: "\n" + text, attributes: [
-//            .font: UIFont(name: "Helvetica", size: 17)!,
-//            .foregroundColor: UIColor.label,
-//            .paragraphStyle: paragraphStyle
-////                .paragraphStyle: paragraphStyle
-//        ])
-////
-////            // 3. Combine
-//        let combined = NSMutableAttributedString()
-//        combined.append(imageAttributedString)
-//        combined.append(textAttr)
-////
-//    
-//    messageLabel.attributedText = combined
-//
-////        messageLabel.textLayout?.addAttachment(to: <#T##UIView?#>, layer: <#T##CALayer?#>)
-//}

@@ -148,8 +148,9 @@ extension ChatCellViewModel
         guard let originalURL = chat.isGroup ? chat.thumbnailURL : chatUser?.photoUrl else {
             return nil
         }
-        return originalURL.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+        return originalURL.addSuffix("medium")
     }
+
     
     @MainActor
     var recentMessageImageThumbnailPath: String?
@@ -157,7 +158,7 @@ extension ChatCellViewModel
         guard let path = recentMessage?.imagePath else {
             return nil
         }
-        return path.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+        return path.addSuffix("small")
     }
     
     @MainActor
@@ -293,6 +294,9 @@ extension ChatCellViewModel
             self.chatUser = await loadOtherMemberOfChat()
         }
         
+        if self.chatUser?.id == "mJCn9DH2sdg16fRNbOAQOEG363O2" {
+            print("stop")
+        }
         if shouldFetchProfileImage
         {
             await performProfileImageDataUpdate()
@@ -354,7 +358,7 @@ extension ChatCellViewModel
     private func performMessageImageUpdate(_ messageID: String) async
     {
         guard let path = await recentMessageImageThumbnailPath else { return }
-        let paths = [path, path.replacingOccurrences(of: "_small.jpg", with: ".jpg")]
+        let paths = [path, path.addSuffix("small")]
         do {
             for path in paths {
                 let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(messageID), imagePath: path)
@@ -400,6 +404,9 @@ extension ChatCellViewModel
         FirestoreUserService.shared.addListenerToUsers([memberID])
             .sink(receiveValue: {
                 [weak self] userUpdateObject in
+                if self?.chatUser?.id == "mJCn9DH2sdg16fRNbOAQOEG363O2" {
+                    print("stop")
+                }
                 if userUpdateObject.changeType == .modified {
                     self?.chatUser = userUpdateObject.data
                 }

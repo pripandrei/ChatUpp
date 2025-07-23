@@ -74,3 +74,8 @@
 /// (i.e when entered group), so instead of checking each message of group,
 /// we can check messages if they are title type, and from them grab sender ID
 /// and see if we have this sender (user) locally, to display their avatar along the message
+
+//MARK: - [10].
+/// IMPORTANT: Keep this case order for iteration on image creation
+/// For more info see how 'createImageSamples' function
+/// from ImageSampleRepository works

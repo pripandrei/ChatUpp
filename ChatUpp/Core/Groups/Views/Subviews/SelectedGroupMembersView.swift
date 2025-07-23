@@ -82,7 +82,7 @@ final class SelectedGroupMembersViewModel: SwiftUI.ObservableObject
     private func getMemberProfileImagePath(_ path: String?) -> String?
     {
         if let path {
-            return path.replacingOccurrences(of: ".jpg", with: "_small.jpg")
+            return path.addSuffix("small")
             
         }
         return nil

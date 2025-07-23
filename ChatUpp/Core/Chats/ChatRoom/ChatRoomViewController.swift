@@ -132,6 +132,7 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
+    
     }
 
     private func scrollToCell(at indexPath: IndexPath)
@@ -909,12 +910,10 @@ extension ChatRoomViewController {
             createMessageBubble()
             closeInputBarHeaderView()
 
-//            if let repository = imageRepository {
             await viewModel.initiateRemoteUpdatesOnMessageCreation(
                 message,
                 imageRepository: imageRepository
             )
-            //            }
         }
     }
     
@@ -940,115 +939,6 @@ extension ChatRoomViewController {
             closeInputBarHeaderView()
         }
     }
-    
-    
-//
-//    @objc func sendMessageButtonWasTapped()
-//    {
-//        let trimmedString = getTrimmedString()
-//        
-//        Task { @MainActor in
-//            let messageType: MessageType?
-//            
-//            if !trimmedString.isEmpty && self.messageImage != nil
-//            {
-//                messageType = .imageText
-//            }
-//            else if !trimmedString.isEmpty && self.messageImage == nil
-//            {
-//                messageType = .text
-//            }
-//            else if trimmedString.isEmpty && self.messageImage != nil {
-//                messageType = .image
-//            }
-//            else {
-//                messageType = nil
-//            }
-//            
-//            var imageRepository: ImageSampleRepository? = nil
-//            
-//            if let image = self.messageImage
-//            {
-//                imageRepository = ImageSampleRepository(image: image,
-//                                                        type: .message)
-//            }
-//            
-//            if let messageType
-//            {
-//                if !viewModel.conversationExists { viewModel.setupConversation() }
-//                
-//                let message = viewModel.createNewMessage(
-//                    ofType: messageType,
-//                    messageText: trimmedString,
-//                    imagePath: imageRepository?.imagePath(for: .original))
-//                
-//                viewModel.handleLocalUpdatesOnMessageCreation(message)
-//                
-//                removeTextViewText()
-//                inputMessageTextViewDelegate.invalidateTextViewSize()
-//                callTextViewDidChange()
-//                
-//                if let repository = imageRepository
-//                {
-//                    await self.viewModel.saveImagesLocally(
-//                        fromImageRepository: repository,
-//                        for: message.id
-//                    )
-//                }
-//                createMessageBubble()
-//                if let repository = imageRepository
-//                {
-//                    await self.viewModel.initiateRemoteUpdatesOnMessageCreation(
-//                        message,
-//                        imageRepository: imageRepository)
-//                }
-//                closeInputBarHeaderView()
-//            }
-//        }
-        
-//        if !trimmedString.isEmpty || self.messageImage != nil
-//        {
-//            if !viewModel.conversationExists { viewModel.setupConversation() }
-//            
-//            let message = viewModel.createNewMessage(ofType: .text,
-//                                                     content: trimmedString)
-//            viewModel.handleLocalUpdatesOnMessageCreation(message)
-//            
-//            removeTextViewText()
-//            inputMessageTextViewDelegate.invalidateTextViewSize()
-//            callTextViewDidChange()
-//            
-//            createMessageBubble()
-//            Task { await viewModel.initiateRemoteUpdatesOnMessageCreation(message) }
-//            closeInputBarHeaderView()
-//            
-//            
-//            
-//            
-//            
-//            let image = self.messageImage ?? UIImage()
-////            
-//            let imageRepository = ImageSampleRepository(image: image,
-//                                                        type: .message)
-////             
-//            Task { @MainActor in
-//                let message = self.viewModel.createNewMessage(
-//                    ofType: .image,
-//                    content: imageRepository.imagePath(for: .original)
-//                )
-//                self.viewModel.handleLocalUpdatesOnMessageCreation(message)
-//                await self.viewModel.saveImagesLocally(
-//                    fromImageRepository: imageRepository,
-//                    for: message.id
-//                )
-//                self.createMessageBubble()
-//                await self.viewModel.initiateRemoteUpdatesOnMessageCreation(
-//                    message,
-//                    imageRepository: imageRepository)
-//            }
-////        }
-//    }
-
 
     @objc func pictureAddBtnWasTapped() {
         configurePhotoPicker()

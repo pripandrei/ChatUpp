@@ -58,7 +58,7 @@ final class ProfileEditingViewModel
         Task {
             do {
                 try await saveImageToStorage()
-                try await removePreviousImage()
+                await removePreviousImage()
                 try await updateFirestoreUser()
 
                 Task { @MainActor in
@@ -118,16 +118,24 @@ extension ProfileEditingViewModel
     {
         if let editedPhoto = editedProfilePhoto
         {
-            let metaData = try await FirebaseStorageManager.shared.saveImage(data: editedPhoto, to: .user(authUser.uid), imagePath: "testPath")
+            let metaData = try await FirebaseStorageManager.shared.saveImage(
+                data: editedPhoto,
+                to: .user(authUser.uid)
+            )
             profilePictureURL = metaData.name
         }
     }
     
-    private func removePreviousImage() async throws {
+    private func removePreviousImage() async
+    {
         if let photoURL = authUser.photoURL
         {
-            try await removeProfileImage(ofUser: authUser.uid,
-                                         urlPath: photoURL)
+            do {
+                try await removeProfileImage(ofUser: authUser.uid,
+                                             urlPath: photoURL)
+            } catch {
+                print("Error occure while removing previous image!: ", error)
+            }
         }
     }
     

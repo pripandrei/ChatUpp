@@ -32,7 +32,7 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
     var imageThumbnailPath: String?
     {
         guard let path = chat.thumbnailURL else { return nil }
-        return path.replacingOccurrences(of: ".jpg", with: "_medium.jpg")
+        return path.addSuffix("medium")
     }
     
     lazy var authenticatedUser: User? = {
