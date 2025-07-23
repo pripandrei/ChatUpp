@@ -12,10 +12,12 @@ final class ProfileEditingViewModel
 {
     @Published private(set) var profileDataIsEdited: Bool?
     private(set) var initialProfilePhoto: Data
-    private var editedProfilePhoto: Data?
-    private var profilePictureURL: String?
+//    private var editedProfilePhoto: Data?
+//    private var profilePictureURL: String?
     private var user: User
     private var userData: (name: String?, phone: String?, nickname: String?)
+    
+    private var imageSampleRepository: ImageSampleRepository?
     
     deinit {
         print("ProfileEditingViewModel was deinited")
@@ -57,7 +59,7 @@ final class ProfileEditingViewModel
     func handleProfileDataUpdate() {
         Task {
             do {
-                try await saveImageToStorage()
+                try await processImageSamples()
                 await removePreviousImage()
                 try await updateFirestoreUser()
 
@@ -65,7 +67,7 @@ final class ProfileEditingViewModel
                     let updatedUser = createUpdatedUser()
                     updateAuthUser(with: updatedUser)
                     updateRealmUser(updatedUser)
-                    updateCacheProfileImageData()
+//                    updateCacheProfileImageData()
                     profileDataIsEdited = true
                 }
             } catch {
@@ -83,7 +85,7 @@ extension ProfileEditingViewModel
         return User(userId: user.id,
                     name: userData.name,
                     email: user.email,
-                    photoUrl: profilePictureURL ?? user.photoUrl,
+                    photoUrl: imageSampleRepository?.imagePath(for: .original) ?? user.photoUrl,
                     phoneNumber: userData.phone,
                     nickName: userData.nickname,
                     dateCreated: user.dateCreated,
@@ -98,14 +100,18 @@ extension ProfileEditingViewModel
     
     private func updateAuthUser(with dbUser: User)
     {
-        AuthenticationManager.shared.updateAuthUserData(name: dbUser.name, phoneNumber: dbUser.phoneNumber, photoURL: dbUser.photoUrl)
+        AuthenticationManager.shared.updateAuthUserData(
+            name: dbUser.name,
+            phoneNumber: dbUser.phoneNumber,
+            photoURL: dbUser.photoUrl
+        )
     }
     
     private func updateFirestoreUser() async throws
     {
         try await FirestoreUserService.shared.updateUser(with: authUser.uid,
                                                          usingName: userData.name,
-                                                         profilePhotoURL: profilePictureURL,
+                                                         profilePhotoURL: imageSampleRepository?.imagePath(for: .original),
                                                          phoneNumber: userData.phone,
                                                          nickname: userData.nickname)
     }
@@ -114,45 +120,77 @@ extension ProfileEditingViewModel
 //MARK: - Image update
 extension ProfileEditingViewModel
 {
-    private func saveImageToStorage() async throws
+    private func processImageSamples() async throws
     {
-        if let editedPhoto = editedProfilePhoto
-        {
-            let metaData = try await FirebaseStorageManager.shared.saveImage(
-                data: editedPhoto,
-                to: .user(authUser.uid)
-            )
-            profilePictureURL = metaData.name
+        guard let sampleRepository = imageSampleRepository else { return }
+        
+        for (key, imageData) in sampleRepository.samples {
+            let path = sampleRepository.imagePath(for: key)
+            try await saveImage(imageData, path: path)
         }
+    }
+    
+    private func saveImage(_ imageData: Data, path: String) async throws
+    {
+        try await FirebaseStorageManager.shared.saveImage(
+            data: imageData,
+            to: .user(authUser.uid),
+            imagePath: path
+        )
+        CacheManager.shared.saveImageData(imageData, toPath: path)
     }
     
     private func removePreviousImage() async
     {
         if let photoURL = authUser.photoURL
         {
-            do {
-                try await removeProfileImage(ofUser: authUser.uid,
-                                             urlPath: photoURL)
-            } catch {
-                print("Error occure while removing previous image!: ", error)
+            for sizeCase in ImageSample.SizeKey.allCases {
+                do {
+                    let imagePath = sizeCase == .original ? photoURL : photoURL.addSuffix(sizeCase.rawValue)
+                    
+                    try await FirebaseStorageManager.shared.deleteImage(
+                        from: .user(authUser.uid),
+                        imagePath: imagePath)
+                } catch {
+                    print("Error occure while removing previous image!: ", error)
+                }
             }
         }
+//        if let photoURL = authUser.photoURL
+//        {
+//            do {
+////                try await removeProfileImage(ofUser: authUser.uid,
+////                                             urlPath: photoURL)
+//                try await FirebaseStorageManager.shared.deleteImage(
+//                    from: .user(authUser.uid),
+//                    imagePath: photoURL)
+//            } catch {
+//                print("Error occure while removing previous image!: ", error)
+//            }
+//        }
     }
     
-    private func updateCacheProfileImageData()
-    {
-        guard let imageData = self.editedProfilePhoto,
-              let pictureURL = profilePictureURL else {return}
-        CacheManager.shared.saveImageData(imageData, toPath: pictureURL)
-    }
+//    private func updateCacheProfileImageData()
+//    {
+//        guard let imageData = self.editedProfilePhoto,
+//              let pictureURL = profilePictureURL else {return}
+//        CacheManager.shared.saveImageData(imageData, toPath: pictureURL)
+//    }
     
     private func removeProfileImage(ofUser userID: String, urlPath: String) async throws
     {
-        try await FirebaseStorageManager.shared.deleteImage(from: .user(userID), imagePath: urlPath)
+        try await FirebaseStorageManager.shared.deleteImage(
+            from: .user(userID),
+            imagePath: urlPath
+            )
     }
     
-    func updateProfilePhotoData(_ data: Data?) {
-        self.editedProfilePhoto = data
+//    func updateProfilePhotoData(_ data: Data?) {
+//        self.editedProfilePhoto = data
+//    }
+    
+    func updateImageRepository(repository: ImageSampleRepository) {
+        self.imageSampleRepository = repository
     }
 }
 

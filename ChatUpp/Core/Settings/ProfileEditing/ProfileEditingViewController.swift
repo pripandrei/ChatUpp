@@ -210,17 +210,17 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
         present(cropVC, animated: true)
     }
 //    
-    private func updateImage(_ image: UIImage)
-    {
-        self.profileEditingViewModel.updateProfilePhotoData(image.getJpegData())
-        self.headerCell.imageView.image = image
-    }
+//    private func updateImage(_ image: UIImage)
+//    {
+//        self.profileEditingViewModel.updateProfilePhotoData(image.getJpegData())
+//        self.headerCell.imageView.image = image
+//    }
     
-    private func downsampleImage(_ image: UIImage) -> UIImage
-    {
-        let newSize = ImageSample.user.sizeMapping[.original]!
-        return image.downsample(toSize: newSize, withCompressionQuality: 0.6)
-    }
+//    private func downsampleImage(_ image: UIImage) -> UIImage
+//    {
+//        let newSize = ImageSample.user.sizeMapping[.original]!
+//        return image.downsample(toSize: newSize, withCompressionQuality: 0.6)
+//    }
 }
 
 extension ProfileEditingViewController: CropViewControllerDelegate
@@ -230,8 +230,12 @@ extension ProfileEditingViewController: CropViewControllerDelegate
                             withRect cropRect: CGRect,
                             angle: Int)
     {
-        let downsampledImage = downsampleImage(image)
-        updateImage(downsampledImage)
+//        let downsampledImage = downsampleImage(image)
+        let imageSampleRepo = ImageSampleRepository(image: image, type: .user)
+        if let mediumSampleImageData = imageSampleRepo.samples[.medium] {
+            self.headerCell.imageView.image = UIImage(data: mediumSampleImageData)
+        }
+        self.profileEditingViewModel.updateImageRepository(repository: imageSampleRepo)
         cropViewController.dismiss(animated: true)
     }
 }
