@@ -698,7 +698,7 @@ extension ChatRoomViewController {
         {
             footer.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             UIView.animate(withDuration: 0.3, delay: 0.1) {
-                footer.transform = CGAffineTransform(scaleX: 1, y: -1)
+                footer.transform = CGAffineTransform(scaleX: 1, y: 1)
             }
         }
         //        }
