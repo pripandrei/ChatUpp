@@ -40,7 +40,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "0D8A80CE-6E79-4C66-BBBF-2E605C3822F6"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
@@ -56,7 +56,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "31CB7984-0D1F-429C-9AF2-0E417DE032BA"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
@@ -65,22 +65,6 @@
             startingLineNumber = "1036"
             endingLineNumber = "1036"
             landmarkName = "processMessageChanges(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "F6B6AB0D-1769-484E-A80D-40A14880C779"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1087"
-            endingLineNumber = "1087"
-            landmarkName = "processAddedMessages(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -104,7 +88,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "4E0654F1-7EBD-4405-8B9F-73C0E78827DD"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
@@ -113,6 +97,38 @@
             startingLineNumber = "1047"
             endingLineNumber = "1047"
             landmarkName = "processMessageChanges(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F709C467-1D4E-4565-9007-8B074AFA881B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/MessageTableViewCell.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "476"
+            endingLineNumber = "476"
+            landmarkName = "updateStackViewAppearance()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5BFDA222-75E8-46AE-8505-72706BDBB2CD"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/MessageTableViewCell.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "478"
+            endingLineNumber = "478"
+            landmarkName = "updateStackViewAppearance()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

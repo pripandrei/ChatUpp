@@ -34,7 +34,7 @@ final class MessageTableViewCell: UITableViewCell
     private(set) var messageContainer = UIView()
     private(set) var messageLabel = YYLabel()
     private(set) var seenStatusMark = YYLabel()
-    private(set) var editedLabel: UILabel?
+    private(set) var editedLabel: UILabel = UILabel()
     private(set) var cellViewModel: MessageCellViewModel!
     
 //    private var cellSpacing = 3.0
@@ -60,9 +60,11 @@ final class MessageTableViewCell: UITableViewCell
         setupBackgroundSelectionView()
         setupMessageContainer()
         setupMessageTextLabel()
-        setupSeenStatusMark()
+        setupMessageComponentsStackView()
+//        setupSeenStatusMark()
         setupTimestamp()
         configureMessageImageView()
+        setupEditedLabel()
     }
     
     func configureMessageImageView()
@@ -190,10 +192,12 @@ final class MessageTableViewCell: UITableViewCell
         self.setupReplyMessage()
         self.setMessageLabelTopConstraints()
         self.setMessageContainerBottomConstraint()
-        self.setupEditedLabel()
+//        self.setupEditedLabel()
+        self.updateEditedLabel()
+        self.updateStackViewAppearance()
         self.setupBinding()
         self.adjustMessageSide()
-        self.setupMessageComponentsColor()
+//        self.setupMessageComponentsColor()
         
         self.setupMessageData(with: message)
         self.setupReactionView(for: message)
@@ -209,6 +213,39 @@ final class MessageTableViewCell: UITableViewCell
 //        default: break
 //        }
 //    }
+    private var messageComponentsStackView: UIStackView = UIStackView()
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+//        if
+//        messageComponentsStackView.layer.cornerRadius = messageComponentsStackView.bounds.width / 2
+    }
+    
+    private func setupMessageComponentsStackView()
+    {
+        self.messageLabel.addSubview(messageComponentsStackView)
+        
+        messageComponentsStackView.addArrangedSubview(timeStamp)
+        messageComponentsStackView.addArrangedSubview(seenStatusMark)
+        
+        messageComponentsStackView.axis = .horizontal
+        messageComponentsStackView.alignment = .center
+        messageComponentsStackView.distribution = .equalSpacing
+        messageComponentsStackView.spacing = 3
+        messageComponentsStackView.clipsToBounds = true
+//        messageComponentsStackView.isLayoutMarginsRelativeArrangement = true
+//        messageComponentsStackView.layoutMargins = UIEdgeInsets(top: 3, left: 7, bottom: 3, right: 7)
+        
+        messageComponentsStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            messageComponentsStackView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: -8),
+            messageComponentsStackView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -5),
+//            messageComponentsStackView.heightAnchor.constraint(equalToConstant: 14),
+//            messageComponentsStackView.widthAnchor.
+            
+        ])
+    }
     
     private func configureMessageSeenStatus()
     {
@@ -216,25 +253,27 @@ final class MessageTableViewCell: UITableViewCell
         
         let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
 
-        let iconSize = isSeen ? CGSize(width: 15, height: 17) : CGSize(width: 16, height: 16)
+        let iconSize = isSeen ? CGSize(width: 16, height: 11) : CGSize(width: 12, height: 13)
+        
+        let seenIconColor: UIColor = cellViewModel.message?.type == .image ? .white : ColorManager.messageSeenStatusIconColor
         let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
         guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?
-            .withTintColor(ColorManager.messageSeenStatusIconColor)
+            .withTintColor(seenIconColor)
             .resize(to: iconSize) else {return}
         
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(
             withContent: seenStatusIconImage,
             contentMode: .center,
             attachmentSize: seenStatusIconImage.size,
-            alignTo: UIFont(name: "Helvetica", size: 4)!,
+            alignTo: UIFont(name: "Helvetica", size: 14)!,
             alignment: .center)
         
         seenStatusMark.attributedText = imageAttributedString
     }
     
-    private func setupMessageComponentsColor() {
+    private func setupStackViewComponentsColor() {
         timeStamp.textColor = getColorForMessageComponents()
-        editedLabel?.textColor = getColorForMessageComponents()
+        editedLabel.textColor = getColorForMessageComponents()
     }
     
     private func getColorForMessageComponents() -> UIColor
@@ -243,7 +282,11 @@ final class MessageTableViewCell: UITableViewCell
         
         if let viewModel = cellViewModel
         {
-            color = viewModel.messageAlignment == .left ? ColorManager.incomingMessageComponentsTextColor : ColorManager.outgoingMessageComponentsTextColor
+            if viewModel.message?.type == .image {
+                color = .white
+            } else {
+                color = viewModel.messageAlignment == .left ? ColorManager.incomingMessageComponentsTextColor : ColorManager.outgoingMessageComponentsTextColor
+            }
         }
         return color
     }
@@ -308,7 +351,7 @@ final class MessageTableViewCell: UITableViewCell
         messageSenderAvatar?.image = nil
         messageSenderAvatar = nil
         seenStatusMark.attributedText = nil
-        editedLabel?.text = nil
+//        editedLabel.text = nil
         messageTitleLabel?.removeFromSuperview()
         messageTitleLabel = nil
         replyMessageLabel.removeFromSuperview()
@@ -368,57 +411,87 @@ extension MessageTableViewCell
         messageContainer.widthAnchor.constraint(lessThanOrEqualToConstant: maxMessageWidth).isActive = true
     }
     
+    private func updateEditedLabel()
+    {
+        if cellViewModel.message?.isEdited == true
+        {
+            editedLabel.text = "edited"
+        } else {
+            editedLabel.text = nil
+        }
+    }
+    
     private func setupEditedLabel()
     {
-        guard cellViewModel.message?.isEdited == true else {return}
+//        guard cellViewModel.message?.isEdited == true else {return}
         
-        editedLabel = UILabel()
-        messageLabel.addSubviews(editedLabel!)
+//        editedLabel = UILabel()
+        messageComponentsStackView.insertArrangedSubview(editedLabel, at: 0)
         
-        editedLabel!.font = UIFont(name: "TimesNewRomanPSMT", size: 13)
-        editedLabel!.text = "edited"
+        editedLabel.font = UIFont(name: "Helvetica", size: 13)
+//        editedLabel.text = "edited"
 //        editedLabel!.textColor = getColorForMessageComponents()
-        editedLabel!.translatesAutoresizingMaskIntoConstraints = false
+//        editedLabel!.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([
-            editedLabel!.trailingAnchor.constraint(equalTo: timeStamp.leadingAnchor, constant: -2),
-            editedLabel!.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -5)
-        ])
+//        NSLayoutConstraint.activate([
+//            editedLabel!.trailingAnchor.constraint(equalTo: timeStamp.leadingAnchor, constant: -2),
+//            editedLabel!.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -5)
+//        ])
     }
     
     private func setupSeenStatusMark()
     {
-        messageLabel.addSubview(seenStatusMark)
+//        messageComponentsStackView.addSubview(seenStatusMark)
         
-        seenStatusMark.font = UIFont(name: "Helvetica", size: 4)
-        seenStatusMark.translatesAutoresizingMaskIntoConstraints = false
+//        seenStatusMark.font = UIFont(name: "Helvetica", size: 4)
+//        seenStatusMark.translatesAutoresizingMaskIntoConstraints = false
         
-        NSLayoutConstraint.activate([
-            seenStatusMark.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: -8),
-            seenStatusMark.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -5)
-        ])
+//        NSLayoutConstraint.activate([
+//            seenStatusMark.trailingAnchor.constraint(equalTo: messageComponentsStackView.trailingAnchor, constant: -8),
+//            seenStatusMark.bottomAnchor.constraint(equalTo: messageComponentsStackView.bottomAnchor, constant: -5)
+//        ])
     }
     
     private func setupTimestamp()
     {
-        messageLabel.addSubview(timeStamp)
+//        messageLabel.addSubview(timeStamp)
+//        messageComponentsStackView.addSubview(timeStamp)
         
         timeStamp.font = UIFont(name: "HelveticaNeue", size: 13)
 //        timeStamp.font = UIFont.systemFont(ofSize: 13, weight: .medium)
-        timeStamp.layer.cornerRadius = 7
-        timeStamp.clipsToBounds = true
+//        timeStamp.layer.cornerRadius = 7
+//        timeStamp.clipsToBounds = true
 
-        timeStamp.translatesAutoresizingMaskIntoConstraints = false
+//        timeStamp.translatesAutoresizingMaskIntoConstraints = false
+//        
+//        NSLayoutConstraint.activate([
+//            timeStamp.trailingAnchor.constraint(equalTo: seenStatusMark.leadingAnchor, constant: -2),
+//            timeStamp.bottomAnchor.constraint(equalTo: messageComponentsStackView.bottomAnchor, constant: -5)
+//        ])
+    }
+    
+    private func updateStackViewAppearance()
+    {
+        let messageType = cellViewModel.message?.type
+        if messageType == .image
+        {
+            messageComponentsStackView.backgroundColor = #colorLiteral(red: 0.121735774, green: 0.1175989285, blue: 0.1221210584, alpha: 1).withAlphaComponent(0.5)
+            messageComponentsStackView.isLayoutMarginsRelativeArrangement = true
+            messageComponentsStackView.layoutMargins = UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
+            messageComponentsStackView.layer.cornerRadius = 12
+        } else {
+            messageComponentsStackView.backgroundColor = .clear
+            messageComponentsStackView.isLayoutMarginsRelativeArrangement = false
+            messageComponentsStackView.layoutMargins = .zero
+            messageComponentsStackView.layer.cornerRadius = .zero
+        }
         
-        NSLayoutConstraint.activate([
-            timeStamp.trailingAnchor.constraint(equalTo: seenStatusMark.leadingAnchor, constant: -2),
-            timeStamp.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -5)
-        ])
+        setupStackViewComponentsColor()
     }
     
     private func setupTimestampBackgroundForImage()
     {
-        timeStamp.backgroundColor = cellViewModel.message?.messageBody == nil ? .darkGray.withAlphaComponent(0.6) : .clear
+//        timeStamp.backgroundColor = cellViewModel.message?.messageBody == nil ? .darkGray.withAlphaComponent(0.6) : .clear
         timeStamp.textColor = cellViewModel.message?.messageBody == nil ? .white : getColorForMessageComponents()
         timeStamp.textContainerInset = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
     }
@@ -510,7 +583,7 @@ extension MessageTableViewCell
     }
     
     private var editedMessageWidth: CGFloat {
-        return editedLabel?.intrinsicContentSize.width ?? 0.0
+        return editedLabel.intrinsicContentSize.width ?? 0.0
     }
 }
 
@@ -522,7 +595,7 @@ extension MessageTableViewCell
         let newSize = cellViewModel.getCellAspectRatio(forImageSize: image.size)
         
         resizeImage(image, toSize: newSize)
-        setupTimestampBackgroundForImage()
+//        setupTimestampBackgroundForImage()
         let imageAttachementAttributed = getAttributedImageAttachment(size: newSize)
         
         if let messageText = cellViewModel.message?.messageBody, !messageText.isEmpty
@@ -790,8 +863,10 @@ extension MessageTableViewCell
 }
 
 enum SeenStatusIcon: String {
-    case single = "icons8-done-64-6"
-    case double = "icons8-double-tick-48-3"
+//    case single = "icons8-done-64-6"
+    case single = "test-cropped-single-checkmark-2"
+//    case double = "icons8-double-tick-48-3"
+    case double = "test-cropped-double-checkmark"
 }
 
 
