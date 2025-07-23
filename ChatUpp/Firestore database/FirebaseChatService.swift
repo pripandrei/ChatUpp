@@ -1011,4 +1011,84 @@ extension FirebaseChatService
             }
         }
     }
+    
+
+    func testUpdateMessageTypesForAllChatsWithBatch() {
+//        let chatsRef = db.collection("chats")
+
+        chatsCollection.getDocuments { (chatSnapshot, error) in
+            guard let chatDocuments = chatSnapshot?.documents, error == nil else {
+                print("Error fetching chats: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+            
+
+            for chatDoc in chatDocuments {
+//                if chatDoc.documentID == "Bu0khNtELdP02lJoHQzs" {
+                    print("entered update of chat \(chatDoc.documentID)")
+                    let messagesRef = self.chatsCollection.document(chatDoc.documentID).collection("messages")
+                    
+                    messagesRef.getDocuments { (messageSnapshot, error) in
+                        guard let messageDocuments = messageSnapshot?.documents, error == nil else {
+                            print("Error fetching messages for chat \(chatDoc.documentID): \(error?.localizedDescription ?? "Unknown error")")
+                            return
+                        }
+                        
+                        var batch = self.db.batch()
+                        var operationsCount = 0
+                        
+                        for messageDoc in messageDocuments {
+                            let data = messageDoc.data()
+                            let messageBody = data["message_body"] as? String ?? ""
+                            let imagePath = data["image_path"] as? String ?? ""
+                            let currentType = data["type"] as? String
+                            
+                            var newType: String? = nil
+                            
+                            if messageBody.isEmpty && !imagePath.isEmpty {
+                                newType = "image"
+                            } else if !messageBody.isEmpty && imagePath.isEmpty {
+                                newType = "text"
+                            } else if !messageBody.isEmpty && !imagePath.isEmpty {
+                                newType = "image/text"
+                            }
+                            
+                            // Skip if both messageBody and imagePath are empty
+                            guard let typeToUpdate = newType else { continue }
+                            
+                            // Skip if the type is already correct
+                            if currentType == typeToUpdate { continue }
+                            
+                            batch.updateData(["type": typeToUpdate], forDocument: messageDoc.reference)
+                            operationsCount += 1
+                            
+                            // Commit batch every 500 operations (Firestore limit)
+                            if operationsCount == 500 {
+                                batch.commit { error in
+                                    if let error = error {
+                                        print("Batch commit error: \(error.localizedDescription)")
+                                    } else {
+                                        print("Committed batch of 500 updates.")
+                                    }
+                                }
+                                batch = self.db.batch()
+                                operationsCount = 0
+                            }
+                        }
+                        
+                        // Commit remaining operations
+                        if operationsCount > 0 {
+                            batch.commit { error in
+                                if let error = error {
+                                    print("Final batch commit error: \(error.localizedDescription)")
+                                } else {
+                                    print("Committed final batch of \(operationsCount) updates.")
+                                }
+                            }
+                        }
+                    }
+//                }
+            }
+        }
+    }
 }

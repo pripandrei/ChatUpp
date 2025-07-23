@@ -102,7 +102,9 @@ class ChatCell: UITableViewCell {
         
         let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
 
-        let iconSize = isSeen ? CGSize(width: 18, height: 20) : CGSize(width: 20, height: 16)
+//        let iconSize = isSeen ? CGSize(width: 17, height: 13) : CGSize(width: 13, height: 14)
+        let iconSize = isSeen ? CGSize(width: 17, height: 12) : CGSize(width: 13, height: 13)
+        
         let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
         guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?
             .withTintColor(ColorManager.actionButtonsTintColor)
