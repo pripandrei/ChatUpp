@@ -291,12 +291,12 @@ extension ChatCellViewModel
         
         if !chat.isGroup
         {
-            self.chatUser = await loadOtherMemberOfChat()
+            if let user = await loadOtherMemberOfChat() {
+                RealmDataBase.shared.add(object: user)
+                self.chatUser = user
+            }
         }
         
-        if self.chatUser?.id == "mJCn9DH2sdg16fRNbOAQOEG363O2" {
-            print("stop")
-        }
         if shouldFetchProfileImage
         {
             await performProfileImageDataUpdate()
@@ -377,7 +377,7 @@ extension ChatCellViewModel
 
 extension ChatCellViewModel
 {
-    /// Observe user from Realtime db (Temporary fix while firebase functions are deactivated)
+    /// Observe user from Realtime db for online status update (Temporary fix while firebase functions are deactivated)
     @MainActor
     private func addObserverToUser()
     {
@@ -389,7 +389,10 @@ extension ChatCellViewModel
                 {
                     if let date = user.lastSeen, let isActive = user.isActive
                     {
-                        self?.chatUser = self?.chatUser?.updateActiveStatus(lastSeenDate: date,isActive: isActive)
+                        self?.chatUser = self?.chatUser?.updateActiveStatus(
+                            lastSeenDate: date,
+                            isActive: isActive
+                        )
                     }
                 }
             }).store(in: &cancellables)
@@ -404,11 +407,15 @@ extension ChatCellViewModel
         FirestoreUserService.shared.addListenerToUsers([memberID])
             .sink(receiveValue: {
                 [weak self] userUpdateObject in
-                if self?.chatUser?.id == "mJCn9DH2sdg16fRNbOAQOEG363O2" {
-                    print("stop")
-                }
-                if userUpdateObject.changeType == .modified {
-                    self?.chatUser = userUpdateObject.data
+                if userUpdateObject.changeType == .modified
+                {
+                    let updatedUser = userUpdateObject.data
+                    let oldPhotoURL = self?.chatUser?.photoUrl
+                    self?.chatUser = updatedUser
+                    if updatedUser.photoUrl != oldPhotoURL
+                    {
+                        self?.handleThumbnailChange()
+                    }
                 }
             }).store(in: &cancellables)
     }
