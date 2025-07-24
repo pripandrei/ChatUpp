@@ -230,9 +230,6 @@ class ChatCell: UITableViewCell {
     {
         guard cellViewModel.profileImageThumbnailPath == nil else
         {
-            if cellViewModel.chatUser?.id == "mJCn9DH2sdg16fRNbOAQOEG363O2" {
-                print("stop")
-            }
             if let imageData = cellViewModel.retrieveImageFromCache() {
                 profileImage.image = UIImage(data: imageData)
                 Utilities.stopSkeletonAnimation(for: self.profileImage)

@@ -308,6 +308,17 @@ extension ChatCellViewModel
         }
     }
     
+    private func updateNewUser(_ user: User)
+    {
+        RealmDataBase.shared.add(object: user)
+        
+        if user.photoUrl != self.chatUser?.photoUrl
+        {
+            
+        }
+        self.chatUser = user
+    }
+    
     private func performProfileImageDataUpdate() async
     {
         do {
@@ -350,7 +361,9 @@ extension ChatCellViewModel
         
         let storagePathType: StoragePathType = chat.isGroup ? .group(chat.id) : .user(chatUser?.id ?? "Unknown")
         
-        let photoData = try await FirebaseStorageManager.shared.getImage(from: storagePathType, imagePath: thumbnailURL)
+        let photoData = try await FirebaseStorageManager.shared.getImage(
+            from: storagePathType,
+            imagePath: thumbnailURL)
         return photoData
     }
     
@@ -412,6 +425,7 @@ extension ChatCellViewModel
                     let updatedUser = userUpdateObject.data
                     let oldPhotoURL = self?.chatUser?.photoUrl
                     self?.chatUser = updatedUser
+                    RealmDataBase.shared.add(object: updatedUser)
                     if updatedUser.photoUrl != oldPhotoURL
                     {
                         self?.handleThumbnailChange()
