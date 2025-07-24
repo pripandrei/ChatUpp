@@ -63,6 +63,16 @@ final class ChatRoomNavigationBarViewModel
                 default: break
                 }
             }.store(in: &cancellables)
+        
+        RealmDataBase.shared.observeChanges(for: participant)
+            .receive(on: DispatchQueue.main)
+            .sink { (changeType, object) in
+                if changeType.name == "isActive"
+                {
+                    guard let isActive = changeType.newValue as? Bool else {return}
+                    self._status = isActive ? "Online" : "last seen \(participant.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
+                }
+            }.store(in: &cancellables)
     }
     
     // MARK: - Navigation items set
@@ -95,6 +105,7 @@ final class ChatRoomNavigationBarViewModel
 //            self._imageUrl = user.photoUrl
         }
 
+        /// Currently will not receive updates (blaze plan needs to be active in firebase).
         if user.isActive == true {
             self._status = "Online"
         } else {

@@ -402,10 +402,12 @@ extension ChatCellViewModel
                 {
                     if let date = user.lastSeen, let isActive = user.isActive
                     {
-                        self?.chatUser = self?.chatUser?.updateActiveStatus(
+                        guard let updatedUser = self?.chatUser?.updateActiveStatus(
                             lastSeenDate: date,
                             isActive: isActive
-                        )
+                        ) else {return}
+                        self?.chatUser = updatedUser
+                        RealmDataBase.shared.add(object: updatedUser)
                     }
                 }
             }).store(in: &cancellables)

@@ -111,8 +111,17 @@ class User: Object, Codable, Identifiable
 //MARK: - Temporary methods while firebase functions are deactivated
 
 extension User {
-    func updateActiveStatus(lastSeenDate: Date, isActive: Bool) -> User {
-        return User(userId: self.id, name: self.name, email: self.email, photoUrl: self.photoUrl, phoneNumber: self.phoneNumber, nickName: self.nickname, dateCreated: self.dateCreated, lastSeen: lastSeenDate.toLocalTime(), isActive: isActive)
+    func updateActiveStatus(lastSeenDate: Date, isActive: Bool) -> User
+    {
+        return User(userId: self.id,
+                    name: self.name,
+                    email: self.email,
+                    photoUrl: self.photoUrl,
+                    phoneNumber: self.phoneNumber,
+                    nickName: self.nickname,
+                    dateCreated: self.dateCreated,
+                    lastSeen: lastSeenDate.toLocalTime(),
+                    isActive: isActive)
     }
 }
 
