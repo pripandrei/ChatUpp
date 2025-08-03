@@ -1168,7 +1168,8 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
-        guard viewModel.conversation?.isGroup == true, viewModel.isAuthUserGroupMember else {return}
+//        if viewModel.conversation?.isGroup == true,
+//           !viewModel.isAuthUserGroupMember { return }
         
         guard !viewModel.messageClusters.isEmpty,
               didFinishInitialScrollToUnseenIndexPathIfAny else { return }
