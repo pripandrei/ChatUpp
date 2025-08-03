@@ -296,7 +296,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         var messages = getCurrentMessagesFromCluster()
         messages.insert(newMessage, at: 0)
-//        messages.append(newMessage)
+        
         realmService?.addMessagesToConversationInRealm(messages)
         
         createMessageClustersWith([newMessage])

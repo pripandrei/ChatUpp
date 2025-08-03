@@ -64,10 +64,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
 //        :
 //        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
 //    }
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
     
-    }
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         toggleSectionHeaderVisibility(isScrollActive: true)
     }

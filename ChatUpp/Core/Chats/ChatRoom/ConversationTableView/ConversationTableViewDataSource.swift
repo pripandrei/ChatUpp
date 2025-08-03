@@ -104,18 +104,47 @@ extension ConversationTableViewDataSource
         var configuration = chatType.messageLayoutConfiguration
         
         if chatType == ._group {
-            configuration = configuration.withUpdatedAvatar(shouldShowUserAvatarForCell(at: indexPath))
+            configuration = configuration
+                .withUpdatedAvatar(shouldShowUserAvatarForCell(at: indexPath))
+                .withUpdatedSenderName(shouldShowSenderName(at: indexPath))
         }
         
         return configuration
     }
     
-    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool
-    {
+    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool {
         let messageItems = conversationViewModel.messageClusters[indexPath.section].items
         guard indexPath.row > 0 else { return true }
-        
-        return messageItems[indexPath.row].message?.senderId != messageItems[indexPath.row - 1].message?.senderId
+
+        guard
+            let currentMessage = messageItems[indexPath.row].message,
+            let previousMessage = messageItems[indexPath.row - 1].message
+        else {
+            return false
+        }
+
+        guard currentMessage.type != .title else { return false }
+        guard previousMessage.type != .title else { return true }
+
+        return currentMessage.senderId != previousMessage.senderId
+    }
+    
+    private func shouldShowSenderName(at indexPath: IndexPath) -> Bool
+    {
+        let messageItems = conversationViewModel.messageClusters[indexPath.section].items
+        guard indexPath.row < messageItems.count - 1 else { return true }
+
+        guard
+            let currentMessage = messageItems[indexPath.row].message,
+            let nextMessage = messageItems[indexPath.row + 1].message
+        else {
+            return false
+        }
+
+        guard currentMessage.type != .title else { return false }
+        guard nextMessage.type != .title else { return true }
+
+        return currentMessage.senderId != nextMessage.senderId
     }
 }
 
@@ -127,5 +156,10 @@ extension ConversationTableViewDataSource: SkeletonTableViewDataSource
     }
 }
 
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}
 
 

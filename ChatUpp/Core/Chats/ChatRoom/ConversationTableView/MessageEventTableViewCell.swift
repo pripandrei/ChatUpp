@@ -21,7 +21,7 @@ final class MessageEventCell: UITableViewCell
     let messageLabel: UILabel =
     {
         let messageEventLabel = UILabel()
-        messageEventLabel.preferredMaxLayoutWidth = 250
+        messageEventLabel.preferredMaxLayoutWidth = 290
         messageEventLabel.numberOfLines = 0
         messageEventLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         messageEventLabel.textColor = .white

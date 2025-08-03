@@ -714,7 +714,7 @@ extension MessageTableViewCell
             messageSenderAvatar = UIImageView()
             messageContainer.addSubview(messageSenderAvatar!)
         }
-        messageSenderAvatar?.layer.cornerRadius = (messageLayoutConfiguration.avatarSize?.width ?? 40) / 2
+        messageSenderAvatar?.layer.cornerRadius = (messageLayoutConfiguration.avatarSize?.width ?? 35) / 2
         messageSenderAvatar?.clipsToBounds = true
         messageSenderAvatar?.translatesAutoresizingMaskIntoConstraints = false
         setupSenderAvatarConstraints()
@@ -814,6 +814,15 @@ extension MessageLayoutConfiguration
                                           avatarSize: avatarSize,
                                           leadingConstraintConstant: leadingConstraintConstant)
     }
+    
+    func withUpdatedSenderName(_ shouldShow: Bool) -> MessageLayoutConfiguration
+    {
+        return MessageLayoutConfiguration(shouldShowSenderName: shouldShow,
+                                          shouldShowAvatar: shouldShowAvatar,
+                                          avatarSize: avatarSize,
+                                          leadingConstraintConstant: leadingConstraintConstant)
+    }
+    
 }
 
 enum ChatType
@@ -832,7 +841,7 @@ enum ChatType
         case ._group:
             return MessageLayoutConfiguration(shouldShowSenderName: true,
                                               shouldShowAvatar: false, // Adjusted dynamically
-                                              avatarSize: CGSize(width: 40, height: 40),
+                                              avatarSize: CGSize(width: 35, height: 35),
                                               leadingConstraintConstant: 52)
         }
     }
