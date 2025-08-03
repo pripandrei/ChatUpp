@@ -187,13 +187,19 @@ extension ChatCellViewModel
 {
     private func setNewRecentMessage(messageID: String)
     {
-        guard let newMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else
+        let chatID = chat.id
+        guard let newMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self,
+                                                                         primaryKey: messageID) else
         {
             Task {
                 guard let recentMessage = await loadRecentMessage() else {return}
                 await performMessageImageUpdate(messageID)
                 
-                try await Task.sleep(for: .seconds(1))
+                if chatID == ChatRoomSessionManager.activeChatID
+                {
+                    try await Task.sleep(for: .seconds(1))
+                }
+                 
                 await MainActor.run
                 {
 //                    /// See FootnNote.swift - [4]
