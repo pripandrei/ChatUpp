@@ -64,15 +64,20 @@ final class ChatRoomNavigationBarViewModel
                 }
             }.store(in: &cancellables)
         
-        RealmDataBase.shared.observeChanges(for: participant)
-            .receive(on: DispatchQueue.main)
-            .sink { (changeType, object) in
-                if changeType.name == "isActive"
-                {
-                    guard let isActive = changeType.newValue as? Bool else {return}
-                    self._status = isActive ? "Online" : "last seen \(participant.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
-                }
+        RealtimeUserService.shared.addObserverToUsers(participant.id)
+            .sink { [weak self] user in
+                self?._status = (user.isActive ?? false) ? "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
             }.store(in: &cancellables)
+        
+//        RealmDataBase.shared.observeChanges(for: participant)
+//            .receive(on: DispatchQueue.main)
+//            .sink { (changeType, object) in
+//                if changeType.name == "isActive"
+//                {
+//                    guard let isActive = changeType.newValue as? Bool else {return}
+//                    self._status = isActive ? "Online" : "last seen \(participant.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
+//                }
+//            }.store(in: &cancellables)
     }
     
     // MARK: - Navigation items set
