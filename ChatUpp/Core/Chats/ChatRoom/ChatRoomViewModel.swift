@@ -358,9 +358,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         self.setupConversationTask = Task(priority: .high) { @MainActor in
             await firestoreService?.addChatToFirestore(freezedChat)
-            setupMessageListenerOnChatCreation()
+//            setupMessageListenerOnChatCreation()
+            bindToMessages()
+            bindToDeletedMessages()
+            addListeners()
         }
-        
         NotificationCenter.default.post(name: .didCreateNewChat,
                                         object: chat)
         
