@@ -564,6 +564,21 @@ extension ChatCellViewModel
     }
 }
 
+// MARK: - Cleanup
+extension ChatCellViewModel
+{
+    func removeObservers() {
+        self.recentMessagesCancellables.forEach { cancellable in
+            cancellable.cancel()
+        }
+        recentMessagesCancellables.removeAll()
+        self.cancellables.forEach { cancellable in
+            cancellable.cancel()
+        }
+        cancellables.removeAll()
+    }
+}
+
 //MARK: - Equatable protocol subs
 
 extension ChatCellViewModel: Equatable {
