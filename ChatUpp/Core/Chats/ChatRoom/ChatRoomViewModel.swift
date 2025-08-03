@@ -360,6 +360,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             await firestoreService?.addChatToFirestore(freezedChat)
             setupMessageListenerOnChatCreation()
         }
+        
+        NotificationCenter.default.post(name: .didCreateNewChat,
+                                        object: chat)
+        
         ChatRoomSessionManager.activeChatID = chat.id
     }
     

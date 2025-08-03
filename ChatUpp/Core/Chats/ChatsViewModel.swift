@@ -175,19 +175,19 @@ extension ChatsViewModel
     private func setCreatedGroupChatNotification()
     {
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(notifyOnCreatedNewGroupChat(_:)),
+                                               selector: #selector(notifyOnNewChatCreation(_:)),
                                                name: .didCreateNewChat,
                                                object: nil)
     }
     
-    @objc private func notifyOnCreatedNewGroupChat(_ notification: Notification)
+    @objc private func notifyOnNewChatCreation(_ notification: Notification)
     {
         guard let chat = notification.object as? Chat else { return }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+        executeAfter(seconds: 0.3) {
             self.addCellViewModel(using: chat)
             self.chatModificationType = .added
-        })
+        }
     }
 
     @objc private func notifyOnJoinedGroupChat(_ notification: Notification)
@@ -196,11 +196,11 @@ extension ChatsViewModel
         
         if let chat = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
         {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7, execute: {
+            executeAfter(seconds: 0.7) {
 //                self.addChatToRealm(chat)
                 self.addCellViewModel(using: chat)
                 self.chatModificationType = .added
-            })
+            }
         }
     }
     
