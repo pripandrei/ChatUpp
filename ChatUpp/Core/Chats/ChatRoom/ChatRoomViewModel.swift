@@ -287,15 +287,20 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         RealmDataBase.shared.add(object: conversation)
         
         let text = GroupEventMessage.userJoined.eventMessage
-        let message = createNewMessage(ofType: .title, messageText: text)
+        let newMessage = createNewMessage(ofType: .title, messageText: text)
         
-        try await FirebaseChatService.shared.createMessage(message: message,
+        try await FirebaseChatService.shared.createMessage(message: newMessage,
                                                            atChatPath: conversation.id)
-        await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
+        await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: newMessage.id)
         updateUnseenMessageCounter(shouldIncrement: true)
         
-        let messages = getCurrentMessagesFromCluster()
+        var messages = getCurrentMessagesFromCluster()
+        messages.insert(newMessage, at: 0)
+//        messages.append(newMessage)
         realmService?.addMessagesToConversationInRealm(messages)
+        
+        createMessageClustersWith([newMessage])
+        messageChangedTypes = [.added(IndexPath(row: 0, section: 0))]
         
         //Add new chat row
         NotificationCenter.default.post(name: .didJoinNewChat,
