@@ -350,20 +350,17 @@ extension ChatsViewController
         if vm.chat.isGroup
         {
             alert.addAction(UIAlertAction(title: "Leave the group", style: .destructive, handler: { [ weak self] action in
-                self?.chatsViewModel.initiateChatDeletion(for: .leaveGroup, at: indexPath)
-                self?.tableView.deleteRows(at: [indexPath], with: .fade)
+                self?.initiateChatDeletion(at: indexPath, deleteOption: .leaveGroup)
             }))
             
         } else {
             alert.addAction(UIAlertAction(title: "Delete just for me", style: .destructive) { [weak self] action in
-                self?.chatsViewModel.initiateChatDeletion(for: .forMe, at: indexPath)
-                self?.tableView.deleteRows(at: [indexPath], with: .fade)
+                self?.initiateChatDeletion(at: indexPath, deleteOption: .forMe)
                 print("deleted just for me!!!")
             })
             
             alert.addAction(UIAlertAction(title: "Delete for me and \(participantName ?? "User")", style: .destructive) { [weak self] action in
-                self?.chatsViewModel.initiateChatDeletion(for: .forBoth, at: indexPath)
-                self?.tableView.deleteRows(at: [indexPath], with: .fade)
+                self?.initiateChatDeletion(at: indexPath, deleteOption: .forBoth)
                 print("deleted for both!!!")
             })
         }
@@ -377,9 +374,11 @@ extension ChatsViewController
         self.present(alert, animated: true)
     }
     
-    private func addActionsToAlert(_ alert: UIAlertController)
+    private func initiateChatDeletion(at indexPath: IndexPath,
+                                      deleteOption option: ChatDeletionOption)
     {
-        
+        chatsViewModel.initiateChatDeletion(for: option, at: indexPath)
+        tableView.deleteRows(at: [indexPath], with: .fade)
     }
 }
 

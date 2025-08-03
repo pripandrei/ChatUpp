@@ -226,6 +226,7 @@ final class MessageTableViewCell: UITableViewCell
     private func configureMessageSeenStatus()
     {
         guard let message = cellViewModel.message else {return}
+//        if message.type == .text && message.messageBody == "" {return}
         
         let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
 

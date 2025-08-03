@@ -265,7 +265,14 @@ extension ChatsViewModel
     func initiateChatDeletion(for deletionOption: ChatDeletionOption,
                               at indexPath: IndexPath)
     {
-        let chat = cellViewModels[indexPath.row].chat
+        let cellVM = cellViewModels[indexPath.row]
+        let chat = cellVM.chat
+        
+        if let unreadMessagesCount = cellVM.unreadMessageCount,
+           unreadMessagesCount > 0
+        {
+           updateTotalUnseenMessagesCount(count: -unreadMessagesCount)
+        }
         
         switch deletionOption {
         case .forMe: deleteChatForCurrentUser(chat)
@@ -274,6 +281,42 @@ extension ChatsViewModel
         }
         deleteRealmChat(chat)
         removeCellViewModel(at: indexPath.row)
+    }
+    
+    private func updateTotalUnseenMessagesCount(count: Int)
+    {
+        NotificationCenter.default.post(name: .didUpdateUnseenMessageCount,
+                                        object: nil,
+                                        userInfo: ["unseen_messages_count": count])
+    }
+    
+    private func deleteChatForCurrentUser(_ chat: Chat) {
+        
+        let chatID = chat.id
+        
+        Task {
+            do {
+                try await FirebaseChatService.shared.removeParticipant(
+                    participantID: authUser.uid,
+                    inChatWithID: chatID
+                )
+            } catch {
+                print("Error removing participant: ", error.localizedDescription)
+            }
+        }
+    }
+    
+    private func deleteChatForBothUsers(_ chat: Chat) {
+        
+        let chatID = chat.id
+
+        Task {
+            do {
+                try await FirebaseChatService.shared.removeChat(chatID: chatID)
+            } catch {
+                print("Error removing chat: ", error.localizedDescription)
+            }
+        }
     }
     
     private func leaveTheGroup(_ chat: Chat)
@@ -345,34 +388,5 @@ extension ChatsViewModel
         )
         
         return message
-    }
-    
-    private func deleteChatForCurrentUser(_ chat: Chat) {
-        
-        let chatID = chat.id
-        
-        Task {
-            do {
-                try await FirebaseChatService.shared.removeParticipant(
-                    participantID: authUser.uid,
-                    inChatWithID: chatID
-                )
-            } catch {
-                print("Error removing participant: ", error.localizedDescription)
-            }
-        }
-    }
-    
-    private func deleteChatForBothUsers(_ chat: Chat) {
-        
-        let chatID = chat.id
-
-        Task {
-            do {
-                try await FirebaseChatService.shared.removeChat(chatID: chatID)
-            } catch {
-                print("Error removing chat: ", error.localizedDescription)
-            }
-        }
     }
 }
