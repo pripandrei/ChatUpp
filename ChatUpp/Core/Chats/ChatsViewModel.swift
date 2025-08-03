@@ -254,6 +254,7 @@ extension ChatsViewModel {
         cellViewModels.remove(at: viewModelIndex)
         deleteRealmChat(chat)
         chatModificationType = .removed(position: viewModelIndex)
+        updateTotalUnseenMessagesCount(count: -(cellVM.unreadMessageCount ?? 0))
     }
 }
 
