@@ -87,7 +87,7 @@ final class MessageEventCell: UITableViewCell
         attributedText.append(NSAttributedString(
             string: "\(username ?? "") ",
             attributes: [
-                .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+                .font: UIFont.systemFont(ofSize: 13.5, weight: .bold),
                 .foregroundColor: UIColor.white,
             ]
         ))
@@ -95,7 +95,7 @@ final class MessageEventCell: UITableViewCell
         attributedText.append(NSAttributedString(
             string: "\(text ?? "")",
             attributes: [
-                .font: UIFont.systemFont(ofSize: 14, weight: .medium),
+                .font: UIFont.systemFont(ofSize: 13.5, weight: .medium),
                 .foregroundColor: UIColor.white,
                 .paragraphStyle: paragraphStyle
                 
@@ -117,8 +117,8 @@ final class MessageEventCell: UITableViewCell
     {
         messageEventContainer.addSubview(messageLabel)
         
-        messageLabel.topAnchor.constraint(equalTo: messageEventContainer.topAnchor, constant: 2).isActive = true
-        messageLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -2).isActive = true
+        messageLabel.topAnchor.constraint(equalTo: messageEventContainer.topAnchor, constant: 3).isActive = true
+        messageLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -3).isActive = true
         messageLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 8).isActive = true
         messageLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -8).isActive = true
     }

@@ -300,6 +300,7 @@ extension ChatsViewController: UITableViewDelegate
     {
         let deleteChat = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
             self?.presentDeletionAlert(for: indexPath)
+//            self?.testPresentAlert()
             completion(true)
         }
         
@@ -314,10 +315,24 @@ extension ChatsViewController: UITableViewDelegate
 //MARK: - Chat deletion
 extension ChatsViewController
 {
+//    private func testPresentAlert() {
+//        self.definesPresentationContext = true
+//        let customSheet = CustomActionSheetViewController(
+//            title: "Choose Option",
+//            actions: [
+//                (title: "Edit", handler: { print("Edit tapped") }),
+//                (title: "Delete", handler: { print("Delete tapped") }),
+//                (title: "Cancel", handler: {})
+//            ]
+//        )
+//        present(customSheet, animated: true)
+//    }
+    
     private func presentDeletionAlert(for indexPath: IndexPath)
     {
-        let participantName = chatsViewModel.cellViewModels[indexPath.row].chatUser?.name
-        let alertTitle = "Permanently delete chat with \(participantName ?? "User")?"
+        let vm = chatsViewModel.cellViewModels[indexPath.row]
+        let participantName = vm.chatUser?.name
+        let alertTitle = vm.chat.isGroup ? "Are you sure you want to leave \(vm.chat.title)?" : "Permanently delete chat with \(participantName ?? "User")?"
         let alertTitleAttributes: [NSAttributedString.Key:Any] = [
             .foregroundColor: #colorLiteral(red: 0.7950155139, green: 0.7501099706, blue: 0.7651557922, alpha: 1),
             .font: UIFont.systemFont(ofSize: 19),
@@ -327,28 +342,44 @@ extension ChatsViewController
             title: nil,
             message: nil,
             preferredStyle: .actionSheet)
+    
+        alert.setValue(NSAttributedString(string: alertTitle,
+                                          attributes: alertTitleAttributes),
+                       forKey: "attributedTitle")
         
-        alert.setValue(NSAttributedString(string: alertTitle, attributes: alertTitleAttributes), forKey: "attributedTitle")
-        
-        alert.addAction(UIAlertAction(title: "Delete just for me", style: .destructive) { [weak self] action in
-            self?.chatsViewModel.initiateChatDeletion(for: .forMe, at: indexPath)
-            self?.tableView.deleteRows(at: [indexPath], with: .fade)
-            print("deleted just for me!!!")
-        })
-        
-        alert.addAction(UIAlertAction(title: "Delete for me and \(participantName ?? "User")", style: .destructive) { [weak self] action in
-            self?.chatsViewModel.initiateChatDeletion(for: .forBoth, at: indexPath)
-            self?.tableView.deleteRows(at: [indexPath], with: .fade)
-            print("deleted for both!!!")
-        })
-        
+        if vm.chat.isGroup
+        {
+            alert.addAction(UIAlertAction(title: "Leave the group", style: .destructive, handler: { [ weak self] action in
+                self?.chatsViewModel.initiateChatDeletion(for: .leaveGroup, at: indexPath)
+                self?.tableView.deleteRows(at: [indexPath], with: .fade)
+            }))
+            
+        } else {
+            alert.addAction(UIAlertAction(title: "Delete just for me", style: .destructive) { [weak self] action in
+                self?.chatsViewModel.initiateChatDeletion(for: .forMe, at: indexPath)
+                self?.tableView.deleteRows(at: [indexPath], with: .fade)
+                print("deleted just for me!!!")
+            })
+            
+            alert.addAction(UIAlertAction(title: "Delete for me and \(participantName ?? "User")", style: .destructive) { [weak self] action in
+                self?.chatsViewModel.initiateChatDeletion(for: .forBoth, at: indexPath)
+                self?.tableView.deleteRows(at: [indexPath], with: .fade)
+                print("deleted for both!!!")
+            })
+        }
+    
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
        
-//        DispatchQueue.main.async {
-//            alert.setBackgroundColor(color: ColorManager.navigationBarBackgroundColor)
-//        }
+        mainQueue {
+            alert.setBackgroundColor(color: ColorManager.navigationBarBackgroundColor)
+        }
         
         self.present(alert, animated: true)
+    }
+    
+    private func addActionsToAlert(_ alert: UIAlertController)
+    {
+        
     }
 }
 
@@ -459,3 +490,105 @@ extension ChatsViewController
 //        try? AuthenticationManager.shared.signOut()
     }
 }
+
+
+//
+//class CustomActionSheetViewController: UIViewController {
+//
+//    private let titleText: String
+//    private let actions: [(title: String, handler: () -> Void)]
+//
+//    init(title: String, actions: [(title: String, handler: () -> Void)]) {
+//        self.titleText = title
+//        self.actions = actions
+//        super.init(nibName: nil, bundle: nil)
+//        modalPresentationStyle = .overFullScreen
+//        modalTransitionStyle = .coverVertical
+//    }
+//
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//        setupView()
+//    }
+//
+//    private func setupView() {
+//        view.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+//
+//        let containerView = UIView()
+//        containerView.backgroundColor = .systemBackground
+//        containerView.layer.cornerRadius = 16
+//        containerView.translatesAutoresizingMaskIntoConstraints = false
+//        view.addSubview(containerView)
+//
+//        // Title Label
+//        let titleLabel = UILabel()
+//        titleLabel.text = titleText
+//        titleLabel.textColor = .systemRed // <--- Custom title color here
+//        titleLabel.textAlignment = .center
+//        titleLabel.font = .boldSystemFont(ofSize: 18)
+//        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+//        containerView.addSubview(titleLabel)
+//
+//        // Buttons Stack
+//        let stackView = UIStackView()
+//        stackView.axis = .vertical
+//        stackView.spacing = 8
+//        stackView.translatesAutoresizingMaskIntoConstraints = false
+//        containerView.addSubview(stackView)
+//
+//        for action in actions {
+//            let button = UIButton(type: .system)
+//            button.setTitle(action.title, for: .normal)
+//            button.titleLabel?.font = .systemFont(ofSize: 17)
+//            button.setTitleColor(.systemBlue, for: .normal)
+//            button.backgroundColor = .secondarySystemBackground
+//            button.layer.cornerRadius = 10
+//            button.heightAnchor.constraint(equalToConstant: 44).isActive = true
+//            button.addAction(UIAction(handler: { _ in
+//                self.dismiss(animated: true) {
+//                    action.handler()
+//                }
+//            }), for: .touchUpInside)
+//            stackView.addArrangedSubview(button)
+//        }
+//
+//        // Layout
+//        NSLayoutConstraint.activate([
+//            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+//            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+//            containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+//
+//            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
+//            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+//            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+//
+//            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+//            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+//            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+//            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16),
+//        ])
+//    }
+//}
+//
+//func setLabel()
+//{
+//    if let bgView = self.view.subviews.first,
+//       let groupView = bgView.subviews.first,
+//       let contentView = groupView.subviews.last
+//    {
+//        if let label = contentView.subviews.first?.subviews.first?.subviews[1].subviews.first?.subviews.first as? UILabel
+//        {
+//            let alertTitleAttributes: [NSAttributedString.Key:Any] = [
+//                .foregroundColor: #colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1),
+//                .font: UIFont.systemFont(ofSize: 19),
+//            ]
+//            let text = NSAttributedString(string: "This is test",
+//                                          attributes: alertTitleAttributes)
+//            label.attributedText = text
+//        }
+//    }
+//}

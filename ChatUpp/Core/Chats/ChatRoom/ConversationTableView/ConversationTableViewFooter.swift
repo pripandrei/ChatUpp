@@ -71,7 +71,7 @@ extension FooterSectionView
             textColor = .white
             textAlignment = .center
             translatesAutoresizingMaskIntoConstraints = false
-            font = UIFont.boldSystemFont(ofSize: 14)
+            font = UIFont.boldSystemFont(ofSize: 13)
         }
 
         required init?(coder aDecoder: NSCoder) {
@@ -81,10 +81,10 @@ extension FooterSectionView
         override var intrinsicContentSize: CGSize 
         {
             let originalContentSize = super.intrinsicContentSize
-            let height = originalContentSize.height + 12
+            let height = originalContentSize.height + 8
             layer.cornerRadius = height / 2
             layer.masksToBounds = true
-            return CGSize(width: originalContentSize.width + 20, height: height)
+            return CGSize(width: originalContentSize.width + 15, height: height)
         }
     }
 }

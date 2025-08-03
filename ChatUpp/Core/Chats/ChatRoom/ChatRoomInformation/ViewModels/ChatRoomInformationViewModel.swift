@@ -101,6 +101,10 @@ extension ChatRoomInformationViewModel
         let text = GroupEventMessage.userLeft.eventMessage
         let message = try await createMessage(messageText: text)
         
+        try await FirebaseChatService.shared.createMessage(
+            message: message,
+            atChatPath: chat.id
+        )
         try await updateUnseenMessageCounterRemote()
         try await FirebaseChatService.shared.updateChatRecentMessage(
             recentMessageID: message.id,
@@ -134,8 +138,10 @@ extension ChatRoomInformationViewModel
     @MainActor
     private func removeFirestoreParticipant(with authUserID: String) async throws
     {
-        try await FirebaseChatService.shared.removeParticipant(participantID: authUserID,
-                                                               fromChatWithID: chat.id)
+        try await FirebaseChatService.shared.removeParticipant(
+            participantID: authUserID,
+            fromChatWithID: chat.id
+        )
     }
     
     @MainActor

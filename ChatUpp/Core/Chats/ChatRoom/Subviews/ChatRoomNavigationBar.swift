@@ -50,7 +50,7 @@ final class ChatRoomNavigationBar {
         var image: UIImage?
         
         if let imgUrl = viewModel._imageUrl,
-            let imageData = viewModel.getImageFromCache(imgUrl) {
+           let imageData = viewModel.getImageFromCache(imgUrl) {
             image = UIImage(data: imageData)
         } else {
             image = viewModel.isGroup ? UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
@@ -200,7 +200,7 @@ extension ChatRoomNavigationBar
             temporaryImageView                    = setupTemporaryImageView()
             
             self.isHidden = true
-            UIView.animate(withDuration: 0.5, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 self.temporaryImageView.center    = window.center
                 self.temporaryImageView.transform = CGAffineTransform(scaleX: 8, y: 8)
                 self.temporaryDimmView.alpha      = 1
@@ -238,7 +238,7 @@ extension ChatRoomNavigationBar
         }
         
         @objc func dismissProfileImage(_ sender: UITapGestureRecognizer) {
-            UIView.animate(withDuration: 0.5) {
+            UIView.animate(withDuration: 0.3) {
                 self.temporaryDimmView.alpha        = 0
                 self.temporaryImageView.transform.a = 1
                 self.temporaryImageView.transform.d = 1

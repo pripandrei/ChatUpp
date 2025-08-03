@@ -14,6 +14,7 @@ enum ChatDeletionOption
 {
     case forMe
     case forBoth
+    case leaveGroup
 }
 
 enum ChatModificationType 
@@ -261,16 +262,89 @@ extension ChatsViewModel {
 
 extension ChatsViewModel
 {
-    func initiateChatDeletion(for deletionOption: ChatDeletionOption, at indexPath: IndexPath)
+    func initiateChatDeletion(for deletionOption: ChatDeletionOption,
+                              at indexPath: IndexPath)
     {
         let chat = cellViewModels[indexPath.row].chat
         
         switch deletionOption {
         case .forMe: deleteChatForCurrentUser(chat)
         case .forBoth: deleteChatForBothUsers(chat)
+        case .leaveGroup: leaveTheGroup(chat)
         }
         deleteRealmChat(chat)
         removeCellViewModel(at: indexPath.row)
+    }
+    
+    private func leaveTheGroup(_ chat: Chat)
+    {
+//        let chatID = chat.id
+        let chat = chat.freeze()
+ 
+        Task {
+            do {
+                try await FirebaseChatService.shared.removeParticipant(
+                    participantID: authUser.uid,
+                    fromChatWithID: chat.id
+                )
+                let text = GroupEventMessage.userLeft.eventMessage
+                let message = try await createMessage(messageText: text, for: chat.id)
+                
+                try await FirebaseChatService.shared.createMessage(
+                    message: message,
+                    atChatPath: chat.id
+                )
+                try await updateUnseenMessageCounterRemote(for: chat)
+                try await FirebaseChatService.shared.updateChatRecentMessage(
+                    recentMessageID: message.id,
+                    chatID: chat.id
+                )
+            } catch {
+                print("Error removing participant: ", error.localizedDescription)
+            }
+        }
+    }
+    
+    @MainActor
+    private func updateUnseenMessageCounterRemote(for chat: Chat) async throws
+    {
+        let currentUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        let otherUserIDs = Array(chat.participants
+            .map(\.userID)
+            .filter { $0 != currentUserID })
+
+        try await FirebaseChatService.shared.updateUnreadMessageCount(
+            for: otherUserIDs,
+            inChatWithID: chat.id,
+            increment: true
+        )
+    }
+    
+    @MainActor
+    private func createMessage(messageText text: String,
+                               for chatID: String) async throws -> Message
+    {
+        let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        let message = Message(
+            id: UUID().uuidString,
+            messageBody: text,
+            senderId: authUserID,
+            timestamp: Date(),
+            messageSeen: nil,
+            seenBy: nil,
+            isEdited: false,
+            imagePath: nil,
+            imageSize: nil,
+            repliedTo: nil,
+            type: .title
+        )
+        
+        try await FirebaseChatService.shared.createMessage(
+            message: message,
+            atChatPath: chatID
+        )
+        
+        return message
     }
     
     private func deleteChatForCurrentUser(_ chat: Chat) {
@@ -279,7 +353,10 @@ extension ChatsViewModel
         
         Task {
             do {
-                try await FirebaseChatService.shared.removeParticipant(participantID: authUser.uid, inChatWithID: chatID)
+                try await FirebaseChatService.shared.removeParticipant(
+                    participantID: authUser.uid,
+                    inChatWithID: chatID
+                )
             } catch {
                 print("Error removing participant: ", error.localizedDescription)
             }

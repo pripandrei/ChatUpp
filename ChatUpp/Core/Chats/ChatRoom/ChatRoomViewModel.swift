@@ -204,7 +204,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
         
-       testMessagesCountAndUnseenCount()
+//       testMessagesCountAndUnseenCount() // 
     }
     
     init(participant: User?)
