@@ -286,8 +286,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         try await FirebaseChatService.shared.addParticipant(participant: participant, toChat: conversation.id)
         RealmDataBase.shared.add(object: conversation)
         
-        let text = GroupEventMessage.userLeft.eventMessage
-        let message = createNewMessage(ofType: .text, messageText: text)
+        let text = GroupEventMessage.userJoined.eventMessage
+        let message = createNewMessage(ofType: .title, messageText: text)
         
         try await FirebaseChatService.shared.createMessage(message: message,
                                                            atChatPath: conversation.id)
@@ -870,7 +870,7 @@ extension ChatRoomViewModel
     {
         if !messages.isEmpty
         {
-            createMessageClustersWith(messages)
+            createMessageClustersWith(messages.reversed())
         }
         conversationInitializationStatus = .finished
     }

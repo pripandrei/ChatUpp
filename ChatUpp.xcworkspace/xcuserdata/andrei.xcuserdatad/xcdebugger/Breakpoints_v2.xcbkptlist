@@ -23,16 +23,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "CDBBAECC-0596-4B5D-818D-35473BF68B16"
-            shouldBeEnabled = "Yes"
+            uuid = "A522ABA7-F229-4FC6-B545-F316B0452367"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomNavigationBar.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "52"
-            endingLineNumber = "52"
-            landmarkName = "setupNavigationImage()"
+            startingLineNumber = "1337"
+            endingLineNumber = "1337"
+            landmarkName = "createMessageClustersWith(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
