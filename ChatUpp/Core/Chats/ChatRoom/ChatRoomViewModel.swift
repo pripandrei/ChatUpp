@@ -66,7 +66,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
      var messageClusters     : [MessageCluster] = []
     private(set) var authUser            : AuthenticatedUserData = (try! AuthenticationManager.shared.getAuthenticatedUser())
     private(set) var lastPaginatedMessage: Message?
-    private var newChatWasCreated = false
     private var cancellables             = Set<AnyCancellable>()
     
     @Published private(set) var unseenMessagesCount: Int
@@ -355,18 +354,17 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         let freezedChat = chat.freeze()
         
-//        self.setupConversationTask = Task(priority: .high) { @MainActor in
-//            await firestoreService?.addChatToFirestore(freezedChat)
-////            setupMessageListenerOnChatCreation()
-//            bindToMessages()
-//            bindToDeletedMessages()
-//            addListeners()
-//        }
+        self.setupConversationTask = Task(priority: .high) { @MainActor in
+            await firestoreService?.addChatToFirestore(freezedChat)
+//            setupMessageListenerOnChatCreation()
+            bindToMessages()
+            bindToDeletedMessages()
+            addListeners()
+        }
         NotificationCenter.default.post(name: .didCreateNewChat,
                                         object: chat)
         
         ChatRoomSessionManager.activeChatID = chat.id
-        self.newChatWasCreated = true
     }
     
     func createNewMessage(ofType type: MessageType = .text,
@@ -397,29 +395,14 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     func handleLocalUpdatesOnMessageCreation(_ message: Message,
                                              imageRepository: ImageSampleRepository? = nil)
     {
-        createMessageClustersWith([message])
         realmService?.addMessagesToRealmChat([message])
         updateUnseenMessageCounterLocal(shouldIncrement: true)
-        guard let chat = conversation else {return}
-        RealmDataBase.shared.update(object: chat) { dbChat in
-            dbChat.recentMessageID = message.id
-        }
     }
     
     @MainActor
     func initiateRemoteUpdatesOnMessageCreation(_ message: Message,
                                                 imageRepository: ImageSampleRepository? = nil) async
     {
-        if newChatWasCreated
-        {
-            guard let freezedChat = self.conversation?.freeze() else {return}
-            await firestoreService?.addChatToFirestore(freezedChat)
-            bindToMessages()
-            bindToDeletedMessages()
-            addListeners()
-            newChatWasCreated = false
-        }
-        
         await self.setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
         if let imageRepository { // if message contains image add it first
             await saveImagesRemotelly(fromImageRepository: imageRepository,

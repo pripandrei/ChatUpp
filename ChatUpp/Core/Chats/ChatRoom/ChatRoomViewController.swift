@@ -885,10 +885,6 @@ extension ChatRoomViewController {
                 return // Nothing to send
             }
 
-            if !viewModel.conversationExists {
-                viewModel.setupConversation()
-            }
-
             let imageRepository = image.map {
                 ImageSampleRepository(image: $0, type: .message)
             }
@@ -898,6 +894,12 @@ extension ChatRoomViewController {
                 messageText: trimmedText,
                 imagePath: imageRepository?.imagePath(for: .original)
             )
+            
+            viewModel.createMessageClustersWith([message])
+            
+            if !viewModel.conversationExists {
+                viewModel.setupConversation()
+            }
 
             viewModel.handleLocalUpdatesOnMessageCreation(message)
 
@@ -909,7 +911,7 @@ extension ChatRoomViewController {
 
             createMessageBubble()
             closeInputBarHeaderView()
-
+            
             await viewModel.initiateRemoteUpdatesOnMessageCreation(
                 message,
                 imageRepository: imageRepository

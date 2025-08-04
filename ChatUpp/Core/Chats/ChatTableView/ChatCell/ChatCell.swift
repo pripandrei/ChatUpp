@@ -84,18 +84,9 @@ class ChatCell: UITableViewCell {
     func configure(viewModel: ChatCellViewModel)
     {
         self.cellViewModel = viewModel
-//        Utilities.initiateSkeletonAnimation(for: self)
-//        self.nameLabel.text = cellViewModel.chat.isGroup ?
-//        cellViewModel.chat.name : cellViewModel.chatUser?.name
+        
         setupTitleForNameLabel()
-        
         configureRecentMessage(cellViewModel.recentMessage)
-        
-//        if let count = cellViewModel.unreadMessageCount {
-//            setUnreadMessageCount(count)
-//        } else {
-//            Utilities.initiateSkeletonAnimation(for: unreadMessagesBadgeLabel)
-//        }
         setUnreadMessageCount(cellViewModel.unreadMessageCount ?? 0)
         setOnlineStatusActivity()
         setImage()
@@ -132,10 +123,8 @@ class ChatCell: UITableViewCell {
         unreadMessagesBadgeLabel.isHidden = !shouldShowUnreadCount
         
         if shouldShowUnreadCount {
-//            unreadMessagesBadgeLabel.text = count > 0 ? "\(count)" : ""
             unreadMessagesBadgeLabel.text = "\(count)"
         }
-//        Utilities.stopSkeletonAnimation(for: unreadMessagesBadgeLabel)
     }
     
     private func configureMessageSeenStatus()
@@ -209,70 +198,6 @@ class ChatCell: UITableViewCell {
     }
     
     //MARK: - Binding
-    
-//    private func setupBinding()
-//    {
-//        Publishers.CombineLatest4(
-//            cellViewModel.profileImageDataSubject.compactMap { $0 },
-//            cellViewModel.$chatUser.compactMap { $0 },
-//            cellViewModel.$chat,
-//            cellViewModel.$recentMessage
-//        )
-//        .combineLatest(cellViewModel.$unreadMessageCount.compactMap { $0 })
-//        .receive(on: DispatchQueue.main)
-//        .sink { [weak self] (combined, unreadCount) in
-//            guard let self = self else { return }
-//            
-//            let (imageData, chatUser, chat, message) = combined
-//            Utilities.stopSkeletonAnimation(for: self.profileImage)
-//            Utilities.stopSkeletonAnimation(for: self.nameLabel)
-//            Utilities.stopSkeletonAnimation(for: self.unreadMessagesBadgeLabel)
-//            
-//            self.profileImage.image = UIImage(data: imageData)
-//            self.nameLabel.text = chat.isGroup ? chat.name : chatUser.name
-//            self.configureRecentMessage(message)
-//            self.setUnreadMessageCount(unreadCount)
-//            self.setOnlineStatusActivity()
-//        }
-//        .store(in: &subscriptions)
-//        
-//        cellViewModel.profileImageDataSubject
-//            .compactMap( { $0 } )
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] imageData in
-//                guard let self = self else {return}
-//                self.profileImage.image = UIImage(data: imageData)
-//                Utilities.stopSkeletonAnimation(for: self.profileImage)
-//            }.store(in: &subscriptions)
-//    }
-//    
-//    private func setupBinding() {
-//        let combined = cellViewModel.profileImageDataSubject.compactMap { $0 }
-//            .combineLatest(cellViewModel.$chatUser.compactMap { $0 }) // (Data, User)
-//            .combineLatest(cellViewModel.$chat)                        // ((Data, User), Chat)
-//            .combineLatest(cellViewModel.$recentMessage)              // (((Data, User), Chat), Message?)
-//            .combineLatest(cellViewModel.$unreadMessageCount.compactMap { $0 }) // ((((Data, User), Chat), Message?), Int)
-//
-//        combined
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] value in
-//                guard let self else { return }
-//
-//                let ((((imageData, chatUser), chat), recentMessage), unreadCount) = value
-//
-//                // Now you're free to use them
-//                Utilities.stopSkeletonAnimation(for: self.profileImage)
-//                Utilities.stopSkeletonAnimation(for: self.nameLabel)
-//                Utilities.stopSkeletonAnimation(for: self.unreadMessagesBadgeLabel)
-//
-//                self.profileImage.image = UIImage(data: imageData)
-//                self.nameLabel.text = chat.isGroup ? chat.name : chatUser.name
-//                self.configureRecentMessage(recentMessage)
-//                self.setUnreadMessageCount(unreadCount)
-//                self.setOnlineStatusActivity()
-//            }
-//            .store(in: &subscriptions)
-//    }
     
     private func setupBinding()
     {
@@ -352,24 +277,6 @@ class ChatCell: UITableViewCell {
         self.profileImage.image = cellViewModel.chat.isGroup == true ?
         UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
     }
-
-//    private func setImage(_ imageData: Data? = nil)
-//    {
-//        Task(priority: .high) { @MainActor in
-//            
-//            Utilities.stopSkeletonAnimation(for: profileImage)
-//            
-//            guard let imageData = imageData else {
-//                let defaultImageName = cellViewModel.chat.isGroup ? "default_group_photo" : "default_profile_photo"
-//                self.profileImage.image = UIImage(named: defaultImageName)
-//                return
-//            }
-//            let image = UIImage(data: imageData)
-//            self.profileImage.image = image
-//        }
-//    }
-    
-    
 }
 
 
