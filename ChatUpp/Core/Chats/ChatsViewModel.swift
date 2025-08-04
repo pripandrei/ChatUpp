@@ -259,10 +259,11 @@ extension ChatsViewModel {
         guard let cellVM = findCellViewModel(containing: chat),
               let viewModelIndex = findIndex(of: cellVM) else { return }
         
-        cellViewModels.remove(at: viewModelIndex)
-        deleteRealmChat(chat)
-        chatModificationType = .removed(position: viewModelIndex)
         updateTotalUnseenMessagesCount(count: -(cellVM.unreadMessageCount ?? 0))
+        cellVM.invalidateSelf()
+        cellViewModels.remove(at: viewModelIndex)
+        chatModificationType = .removed(position: viewModelIndex)
+        deleteRealmChat(chat)
     }
 }
 

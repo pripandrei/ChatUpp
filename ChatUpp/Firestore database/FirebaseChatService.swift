@@ -379,6 +379,17 @@ extension FirebaseChatService
         let newParticipant = [participant.userID : participant]
         try chatDocument(documentPath: chatID).setData(from: ["participants": newParticipant], merge: true)
     }
+    
+//    func isAuthUserMemberOfChat(_ chatID: String) async -> Bool
+//    {
+//        do {
+//            let doc = try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
+//            doc.participants.
+//        } catch {
+//            
+//        }
+//        
+//    }
 }
 
 

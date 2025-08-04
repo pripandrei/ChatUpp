@@ -44,7 +44,7 @@ class ChatCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
-        print("chatCellVM was deinit =====")
+        print("chatCell was deinit =====")
     }
     
     override func layoutSubviews()
@@ -62,12 +62,23 @@ class ChatCell: UITableViewCell {
     {
         super.prepareForReuse()
         
+        cleanup()
+    }
+    
+    func cleanup() {
+        
         self.nameLabel.text = nil
         self.profileImage.image = nil
         self.messageLable.attributedText = nil
         self.dateLable.text = nil
         self.unreadMessagesBadgeLabel.unseenCount = 0
+        subscriptions.forEach { cancel in
+            cancel.cancel()
+        }
+        subscriptions.removeAll()
+        cellViewModel = nil
     }
+
     
     func configure(viewModel: ChatCellViewModel)
     {
@@ -183,7 +194,8 @@ class ChatCell: UITableViewCell {
         
         cellViewModel.$chatUser
             .receive(on: DispatchQueue.main)
-            .sink { member in
+            .sink { [weak self] member in
+                guard let self else {return}
                 if let member = member {
                     Utilities.stopSkeletonAnimation(for: self.nameLabel)
                     
@@ -196,7 +208,8 @@ class ChatCell: UITableViewCell {
         
         cellViewModel.$chat
             .receive(on: DispatchQueue.main)
-            .sink { chat in
+            .sink { [weak self] chat in
+                guard let self else {return}
                 if chat.isGroup {
                     Utilities.stopSkeletonAnimation(for: self.nameLabel)
                     self.nameLabel.text = chat.name

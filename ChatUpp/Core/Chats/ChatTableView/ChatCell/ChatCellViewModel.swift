@@ -13,7 +13,9 @@ import Kingfisher
 
 class ChatCellViewModel
 {
-    private var onChatRoomVCDidDissapear: (() -> Void)?
+    private var dataFetchTask: Task<Void,Never>?
+    
+//    private var onChatRoomVCDidDissapear: (() -> Void)?
     
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
@@ -64,7 +66,7 @@ class ChatCellViewModel
     init(chat: Chat)
     {
         self.chat = chat
-
+        
         initiateChatDataLoad()
         addRealmObserverToChat()
         observeAuthParticipantChanges()
@@ -95,13 +97,22 @@ class ChatCellViewModel
             print("Error retrieving data from Realm: \(error)")
         }
         
-        Task
-        {
-            await fetchDataFromFirestore()
-            await self.addObserverToUser()
-            await self.addListenerToUser()
+        self.dataFetchTask = Task
+        { [weak self] in
+            do {
+                try await self?.fetchDataFromFirestore()
+                await self?.addObserverToUser()
+                await self?.addListenerToUser()
+            } catch {
+                print("task was cancelled: \(error)")
+            }
         }
     }
+    
+    deinit {
+        print("Cell vm was deinit")
+    }
+
     
     // image data cache
     @MainActor
@@ -177,6 +188,7 @@ extension ChatCellViewModel
     
     var isRecentMessagePresent: Bool
     {
+        if chat.isInvalidated {return false}
         return chat.recentMessageID != nil
     }
 }
@@ -289,11 +301,14 @@ extension ChatCellViewModel {
 extension ChatCellViewModel 
 {
     @MainActor
-    private func fetchDataFromFirestore() async
+    private func fetchDataFromFirestore() async throws
     {
+        try Task.checkCancellation()
+        
         if let message = await loadRecentMessage() {
             addMessageToRealm(message)
         }
+        try Task.checkCancellation()
         
         if !chat.isGroup
         {
@@ -302,17 +317,24 @@ extension ChatCellViewModel
                 self.chatUser = user
             }
         }
+        try Task.checkCancellation()
         
         if shouldFetchProfileImage
         {
             await performProfileImageDataUpdate()
         }
+        try Task.checkCancellation()
         
         if shouldFetchMessageImage
         {
             await performMessageImageUpdate(recentMessage!.id)
         }
     }
+    
+//    private func checkIfAuthUserIsStillMemberOfChat() -> Bool
+//    {
+//        FirebaseChatService.shared.
+//    }
     
     private func updateNewUser(_ user: User)
     {
@@ -460,16 +482,16 @@ extension ChatCellViewModel
     {
         RealmDataBase.shared.observeChanges(for: chat)
             .receive(on: DispatchQueue.main)
-            .sink { propertyChange in
+            .sink { [weak self] propertyChange in
                 guard let property = ChatObservedProperty(from: propertyChange.0.name) else { return }
                 
                 switch property {
                 case .recentMessageID:
-                    self.handleRecentMessageChange(propertyChange.0.newValue)
+                    self?.handleRecentMessageChange(propertyChange.0.newValue)
                 case .participants:
-                    self.handleParticipantsChange()
+                    self?.handleParticipantsChange()
                 case .thumbnailURL:
-                    self.handleThumbnailChange()
+                    self?.handleThumbnailChange()
                 }
             }
             .store(in: &cancellables)
@@ -488,12 +510,12 @@ extension ChatCellViewModel
             ascending: true,
             limit: 1)
         .receive(on: DispatchQueue.main)
-        .sink { changeObjects in
+        .sink { [weak self] changeObjects in
             
             guard let changeObject = changeObjects.first else {return}
             // leave update of recent message to Chat Room VC if it is opened
             //
-            guard ChatRoomSessionManager.activeChatID != self.chat.id else {return}
+            guard ChatRoomSessionManager.activeChatID != self?.chat.id else {return}
             
             if changeObject.changeType == .modified
             {
@@ -501,10 +523,10 @@ extension ChatCellViewModel
                 
                 if changeObject.data.imagePath != nil {
                     Task {
-                        await self.performMessageImageUpdate(changeObject.data.id)
+                        await self?.performMessageImageUpdate(changeObject.data.id)
                     }
                 } else {
-                    self.recentMessage = changeObject.data
+                    self?.recentMessage = changeObject.data
                 }
             }
             if changeObject.changeType == .removed {
@@ -555,13 +577,13 @@ extension ChatCellViewModel
     }
 
     private func handleThumbnailChange() {
-        Task {
-            guard let imageURL = await self.profileImageThumbnailPath else { return }
+        Task { [weak self] in
+            guard let imageURL = await self?.profileImageThumbnailPath else { return }
 
             let imageIsCached = CacheManager.shared.doesImageExist(at: imageURL)
 
             if !imageIsCached {
-                await self.performProfileImageDataUpdate()
+                await self?.performProfileImageDataUpdate()
             }
         }
     }
@@ -601,6 +623,23 @@ extension ChatCellViewModel
     }
 }
 
+//MARK: - Cleanup
+extension ChatCellViewModel
+{
+    private func cancelFetchTask() {
+        dataFetchTask?.cancel()
+        dataFetchTask = nil
+    }
+    
+    func invalidateSelf() {
+        removeObservers()
+        cancelFetchTask()
+        titleName = nil
+        unreadMessageCount = nil
+        chatUser = nil
+        recentMessage = nil
+    }
+}
 
 class ChatRoomSessionManager
 {

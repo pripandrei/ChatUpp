@@ -204,8 +204,11 @@ extension ChatsViewController
         self.tableView.moveRow(at: IndexPath(row: position, section: 0), to: destinationIndexPath)
     }
     
-    private func removeRow(from position: Int) {
+    private func removeRow(from position: Int)
+    {
         let removedIndex = IndexPath(row: position, section: 0)
+        guard let cell = self.tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ChatTableCell.chat.identifire, for: removedIndex) as? ChatCell else {return}
+        cell.cleanup()
         self.tableView.deleteRows(at: [removedIndex], with: .none)
     }
 }
@@ -378,6 +381,8 @@ extension ChatsViewController
                                       deleteOption option: ChatDeletionOption)
     {
         chatsViewModel.initiateChatDeletion(for: option, at: indexPath)
+        guard let cell = self.tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ChatTableCell.chat.identifire, for: indexPath) as? ChatCell else {return}
+        cell.cleanup()
         tableView.deleteRows(at: [indexPath], with: .fade)
     }
 }
