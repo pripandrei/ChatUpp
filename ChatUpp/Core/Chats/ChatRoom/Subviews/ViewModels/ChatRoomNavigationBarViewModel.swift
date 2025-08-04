@@ -66,7 +66,7 @@ final class ChatRoomNavigationBarViewModel
         
         RealtimeUserService.shared.addObserverToUsers(participant.id)
             .sink { [weak self] user in
-                self?._status = (user.isActive ?? false) ? "Online" : "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
+                self?._status = (user.isActive ?? false) ? "Online" : "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
             }.store(in: &cancellables)
         
 //        RealmDataBase.shared.observeChanges(for: participant)
@@ -114,7 +114,7 @@ final class ChatRoomNavigationBarViewModel
         if user.isActive == true {
             self._status = "Online"
         } else {
-            self._status = "last seen \(user.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
+            self._status = "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
         }
     }
     

@@ -403,20 +403,17 @@ extension ChatCellViewModel
         guard let member = chatUser else {return}
         
         RealtimeUserService.shared.addObserverToUsers(member.id)
-            .sink(receiveValue: { [weak self] user in
-                if user.isActive != self?.chatUser?.isActive
+            .sink { [weak self] user in
+                if let date = user.lastSeen, let isActive = user.isActive
                 {
-                    if let date = user.lastSeen, let isActive = user.isActive
-                    {
-                        guard let updatedUser = self?.chatUser?.updateActiveStatus(
-                            lastSeenDate: date,
-                            isActive: isActive
-                        ) else {return}
-                        self?.chatUser = updatedUser
-                        RealmDataBase.shared.add(object: updatedUser)
-                    }
+                    guard let updatedUser = self?.chatUser?.updateActiveStatus(
+                        lastSeenDate: date,
+                        isActive: isActive
+                    ) else {return}
+                    self?.chatUser = updatedUser
+                    RealmDataBase.shared.add(object: updatedUser)
                 }
-            }).store(in: &cancellables)
+            }.store(in: &cancellables)
     }
     
     /// Listen to user from Firestore db

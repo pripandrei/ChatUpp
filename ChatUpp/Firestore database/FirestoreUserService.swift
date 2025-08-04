@@ -65,11 +65,12 @@ final class FirestoreUserService {
     // MARK: - UPDATE USER
 
     func updateUser(with userID: String,
-                    usingName name: String?,
+                    usingName name: String? = nil,
                     profilePhotoURL: String? = nil,
                     phoneNumber: String? = nil,
                     nickname: String? = nil,
-                    onlineStatus: Bool? = nil) async throws
+                    onlineStatus: Bool? = nil,
+                    timestamp: Date? = nil) async throws
     {
         var userData: [String: Any] = [:]
 
@@ -85,6 +86,13 @@ final class FirestoreUserService {
         if let username = nickname {
             userData[User.CodingKeys.nickname.rawValue] = username
         }
+        if let onlineStatus = onlineStatus {
+            userData[User.CodingKeys.isActive.rawValue] = onlineStatus
+        }
+        if let timestamp = timestamp {
+            userData[User.CodingKeys.lastSeen.rawValue] = timestamp
+        }
+        
         try await userDocument(userID: userID).setData(userData, merge: true)
     }
     

@@ -42,6 +42,7 @@ final class ChatsViewModel {
         observeChats()
         setJoinedGroupChatNotification()
         setCreatedGroupChatNotification()
+        updateUserTimestamp() // while firestore functions is deactivated
     }
     
     deinit {
@@ -100,6 +101,13 @@ extension ChatsViewModel {
     
     private func findIndex(of element: ChatCellViewModel) -> Int? {
         return cellViewModels.firstIndex(of: element)
+    }
+    
+    private func updateUserTimestamp() {
+        Task {
+            try await FirestoreUserService.shared.updateUser(with: authUser.uid,
+                                                             timestamp: Date())
+        }
     }
 }
 

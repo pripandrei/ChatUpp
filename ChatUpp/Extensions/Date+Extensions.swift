@@ -7,7 +7,8 @@
 
 import Foundation
 
-extension Date {
+extension Date
+{
     func toLocalTime() -> Date {
            let timeZone = TimeZone.current
            let seconds = TimeInterval(timeZone.secondsFromGMT(for: self))
@@ -28,6 +29,37 @@ extension Date {
     
     func formatToYearMonthDayCustomString() -> String {
         return DateFormatter.customDateFormatterForYearMonthDay.string(from: self)
+    }
+    
+    func formatDateTimestamp() -> String
+    {
+        let now = Date()
+        let secondsAgo = now.timeIntervalSince(self)
+        
+        if secondsAgo < 60 {
+            return "just now"
+        } else if secondsAgo < 3600 {
+            let minutes = Int(secondsAgo / 60)
+            return "\(minutes) minutes ago"
+        } else if secondsAgo < 86400 {
+            let hours = Int(secondsAgo / 3600)
+            return "\(hours) hours ago"
+        } else {
+            let calendar = Calendar.current
+            let dateFormatter = DateFormatter()
+            
+            if calendar.component(.year, from: self) < calendar.component(.year, from: now)
+            {
+                // Show date with year if it's from a different year
+                dateFormatter.dateFormat = "MMM d, yyyy" // Example: "Aug 3, 2023"
+            } else {
+                // Same year: omit year
+                dateFormatter.dateFormat = "MMM d" // Example: "Aug 3"
+            }
+            
+            return dateFormatter.string(from: self)
+        }
+        
     }
 }
 
