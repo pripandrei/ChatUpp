@@ -241,6 +241,7 @@ class ChatCell: UITableViewCell {
     
     private func setImage()
     {
+        if cellViewModel.chatUser == nil {return}
         guard cellViewModel.profileImageThumbnailPath == nil else
         {
             if let imageData = cellViewModel.retrieveImageFromCache() {

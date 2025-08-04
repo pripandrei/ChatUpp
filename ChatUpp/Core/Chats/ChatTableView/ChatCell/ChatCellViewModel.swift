@@ -331,6 +331,7 @@ extension ChatCellViewModel
         {
             await performMessageImageUpdate(recentMessage!.id)
         }
+        self.profileImageDataSubject.send(retrieveImageFromCache())
     }
     
 //    private func checkIfAuthUserIsStillMemberOfChat() -> Bool

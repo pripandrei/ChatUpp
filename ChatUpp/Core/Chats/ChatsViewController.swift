@@ -207,11 +207,7 @@ extension ChatsViewController
     
     private func moveRow(at position: Int) {
         let destinationIndexPath = IndexPath(row: 0, section: 0)
-        
-        if self.tableView.contains(indexPath: IndexPath(row: position, section: 0))
-        {
-            self.tableView.moveRow(at: IndexPath(row: position, section: 0), to: destinationIndexPath)
-        }
+        self.tableView.moveRow(at: IndexPath(row: position, section: 0), to: destinationIndexPath)
     }
     
     private func removeRow(from position: Int)

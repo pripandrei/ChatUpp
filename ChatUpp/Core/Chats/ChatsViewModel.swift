@@ -81,12 +81,10 @@ extension ChatsViewModel {
         self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
     }
     
-    @discardableResult
-    private func addCellViewModel(using chat: Chat) -> ChatCellViewModel
+    private func addCellViewModel(using chat: Chat)
     {
         let cellVM = ChatCellViewModel(chat: chat)
         self.cellViewModels.insert(cellVM, at: 0)
-        return cellVM
     }
     
     private func removeCellViewModel(containing chatID: String) {
@@ -235,12 +233,8 @@ extension ChatsViewModel {
     {
         guard let _ = retrieveChatFromRealm(chat) else {
             addChatToRealm(chat)
-            let cellVM = addCellViewModel(using: chat)
-            cellVM.onInitializationComplete = {
-                Task { @MainActor in
-                    self.chatModificationType = .added
-                }
-            }
+            addCellViewModel(using: chat)
+            self.chatModificationType = .added
             return
         }
         updateRealmChat(chat)
