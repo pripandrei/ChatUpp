@@ -916,29 +916,6 @@ extension ChatRoomViewController {
             )
         }
     }
-    
-    
-    
-    @objc func sendMessageButtonWasTapped2()
-    {
-        let trimmedString = getTrimmedString()
-        if !trimmedString.isEmpty
-        {
-            if !viewModel.conversationExists { viewModel.setupConversation() }
-            
-            let message = viewModel.createNewMessage(ofType: .text,
-                                                     messageText: trimmedString)
-            viewModel.handleLocalUpdatesOnMessageCreation(message)
-            
-            removeTextViewText()
-            inputMessageTextViewDelegate.invalidateTextViewSize()
-            callTextViewDidChange()
-            
-            createMessageBubble()
-            Task { await viewModel.initiateRemoteUpdatesOnMessageCreation(message) }
-            closeInputBarHeaderView()
-        }
-    }
 
     @objc func pictureAddBtnWasTapped() {
         configurePhotoPicker()

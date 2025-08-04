@@ -637,10 +637,10 @@ extension ChatCellViewModel
     func invalidateSelf() {
         removeObservers()
         cancelFetchTask()
-        titleName = nil
-        unreadMessageCount = nil
-        chatUser = nil
-        recentMessage = nil
+//        titleName = nil
+//        unreadMessageCount = nil
+//        chatUser = nil
+//        recentMessage = nil
     }
 }
 

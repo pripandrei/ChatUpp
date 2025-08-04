@@ -61,7 +61,6 @@ class ChatCell: UITableViewCell {
     override func prepareForReuse()
     {
         super.prepareForReuse()
-        
         cleanup()
     }
     
@@ -71,7 +70,9 @@ class ChatCell: UITableViewCell {
         self.profileImage.image = nil
         self.messageLable.attributedText = nil
         self.dateLable.text = nil
-        self.unreadMessagesBadgeLabel.unseenCount = 0
+//        self.unreadMessagesBadgeLabel.unseenCount = 0
+        self.unreadMessagesBadgeLabel.text = ""
+        seenStatusMark.attributedText = nil
         subscriptions.forEach { cancel in
             cancel.cancel()
         }
@@ -83,8 +84,36 @@ class ChatCell: UITableViewCell {
     func configure(viewModel: ChatCellViewModel)
     {
         self.cellViewModel = viewModel
+//        Utilities.initiateSkeletonAnimation(for: self)
+//        self.nameLabel.text = cellViewModel.chat.isGroup ?
+//        cellViewModel.chat.name : cellViewModel.chatUser?.name
+        setupTitleForNameLabel()
+        
+        configureRecentMessage(cellViewModel.recentMessage)
+        
+//        if let count = cellViewModel.unreadMessageCount {
+//            setUnreadMessageCount(count)
+//        } else {
+//            Utilities.initiateSkeletonAnimation(for: unreadMessagesBadgeLabel)
+//        }
+        setUnreadMessageCount(cellViewModel.unreadMessageCount ?? 0)
+        setOnlineStatusActivity()
         setImage()
         setupBinding()
+    }
+    
+    private func setupTitleForNameLabel()
+    {
+        let title = cellViewModel.chat.isGroup ?
+        cellViewModel.chat.name : cellViewModel.chatUser?.name
+        
+        if let title = title {
+            self.nameLabel.text = title
+            Utilities.stopSkeletonAnimation(for: self.nameLabel)
+        }
+        else {
+            Utilities.initiateSkeletonAnimation(for: self.nameLabel)
+        }
     }
     
     private func setOnlineStatusActivity() {
@@ -103,13 +132,16 @@ class ChatCell: UITableViewCell {
         unreadMessagesBadgeLabel.isHidden = !shouldShowUnreadCount
         
         if shouldShowUnreadCount {
+//            unreadMessagesBadgeLabel.text = count > 0 ? "\(count)" : ""
             unreadMessagesBadgeLabel.text = "\(count)"
         }
+//        Utilities.stopSkeletonAnimation(for: unreadMessagesBadgeLabel)
     }
     
     private func configureMessageSeenStatus()
     {
         guard let message = cellViewModel.recentMessage else {return}
+        if (message.type == .text && message.messageBody.isEmpty) {return} // no message
         
         let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
 
@@ -142,6 +174,10 @@ class ChatCell: UITableViewCell {
             {
                 configureMessageSeenStatus()
             }
+        } else {
+            Utilities.initiateSkeletonAnimation(
+                for: self.messageLable, self.dateLable
+            )
         }
     }
     
@@ -174,15 +210,72 @@ class ChatCell: UITableViewCell {
     
     //MARK: - Binding
     
-    private func setupBinding()
-    {
-//        cellViewModel.messageImageDataSubject
+//    private func setupBinding()
+//    {
+//        Publishers.CombineLatest4(
+//            cellViewModel.profileImageDataSubject.compactMap { $0 },
+//            cellViewModel.$chatUser.compactMap { $0 },
+//            cellViewModel.$chat,
+//            cellViewModel.$recentMessage
+//        )
+//        .combineLatest(cellViewModel.$unreadMessageCount.compactMap { $0 })
+//        .receive(on: DispatchQueue.main)
+//        .sink { [weak self] (combined, unreadCount) in
+//            guard let self = self else { return }
+//            
+//            let (imageData, chatUser, chat, message) = combined
+//            Utilities.stopSkeletonAnimation(for: self.profileImage)
+//            Utilities.stopSkeletonAnimation(for: self.nameLabel)
+//            Utilities.stopSkeletonAnimation(for: self.unreadMessagesBadgeLabel)
+//            
+//            self.profileImage.image = UIImage(data: imageData)
+//            self.nameLabel.text = chat.isGroup ? chat.name : chatUser.name
+//            self.configureRecentMessage(message)
+//            self.setUnreadMessageCount(unreadCount)
+//            self.setOnlineStatusActivity()
+//        }
+//        .store(in: &subscriptions)
+//        
+//        cellViewModel.profileImageDataSubject
 //            .compactMap( { $0 } )
 //            .receive(on: DispatchQueue.main)
 //            .sink { [weak self] imageData in
-//                self?.messageLable.attributedText = self?.setAttributedImageAttachment(imageData)
+//                guard let self = self else {return}
+//                self.profileImage.image = UIImage(data: imageData)
+//                Utilities.stopSkeletonAnimation(for: self.profileImage)
 //            }.store(in: &subscriptions)
-//        
+//    }
+//    
+//    private func setupBinding() {
+//        let combined = cellViewModel.profileImageDataSubject.compactMap { $0 }
+//            .combineLatest(cellViewModel.$chatUser.compactMap { $0 }) // (Data, User)
+//            .combineLatest(cellViewModel.$chat)                        // ((Data, User), Chat)
+//            .combineLatest(cellViewModel.$recentMessage)              // (((Data, User), Chat), Message?)
+//            .combineLatest(cellViewModel.$unreadMessageCount.compactMap { $0 }) // ((((Data, User), Chat), Message?), Int)
+//
+//        combined
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] value in
+//                guard let self else { return }
+//
+//                let ((((imageData, chatUser), chat), recentMessage), unreadCount) = value
+//
+//                // Now you're free to use them
+//                Utilities.stopSkeletonAnimation(for: self.profileImage)
+//                Utilities.stopSkeletonAnimation(for: self.nameLabel)
+//                Utilities.stopSkeletonAnimation(for: self.unreadMessagesBadgeLabel)
+//
+//                self.profileImage.image = UIImage(data: imageData)
+//                self.nameLabel.text = chat.isGroup ? chat.name : chatUser.name
+//                self.configureRecentMessage(recentMessage)
+//                self.setUnreadMessageCount(unreadCount)
+//                self.setOnlineStatusActivity()
+//            }
+//            .store(in: &subscriptions)
+//    }
+    
+    private func setupBinding()
+    {
         cellViewModel.profileImageDataSubject
             .compactMap( { $0 } )
             .receive(on: DispatchQueue.main)
@@ -241,14 +334,17 @@ class ChatCell: UITableViewCell {
     
     private func setImage()
     {
-        if cellViewModel.chatUser == nil {return}
+        if cellViewModel.chatUser == nil {
+            Utilities.initiateSkeletonAnimation(for: self.profileImage)
+            return
+        }
         guard cellViewModel.profileImageThumbnailPath == nil else
         {
             if let imageData = cellViewModel.retrieveImageFromCache() {
                 profileImage.image = UIImage(data: imageData)
                 Utilities.stopSkeletonAnimation(for: self.profileImage)
             } else {
-                Utilities.initiateSkeletonAnimation(for: self)
+                Utilities.initiateSkeletonAnimation(for: self.profileImage)
             }
             return
         }
@@ -326,10 +422,10 @@ extension ChatCell {
         unreadMessagesBadgeLabel.textColor = ColorManager.textFieldTextColor
         unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 17)
         unreadMessagesBadgeLabel.textAlignment = .center
-        unreadMessagesBadgeLabel.linesCornerRadius = 8
+//        unreadMessagesBadgeLabel.linesCornerRadius = 8
         unreadMessagesBadgeLabel.isSkeletonable = true
-        unreadMessagesBadgeLabel.skeletonTextLineHeight = .fixed(25)
-        unreadMessagesBadgeLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
+//        unreadMessagesBadgeLabel.skeletonTextLineHeight = .fixed(25)
+//        unreadMessagesBadgeLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
         
         unreadMessagesBadgeLabel.translatesAutoresizingMaskIntoConstraints = false
         

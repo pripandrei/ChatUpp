@@ -119,6 +119,16 @@ struct Utilities {
         let skeletonItemColor = ColorManager.skeletonItemColor
         view.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.3))
     }
+    
+    static func initiateSkeletonAnimation(for views: UIView...)
+    {
+        let skeletonAnimationColor = ColorManager.skeletonAnimationColor
+        let skeletonItemColor = ColorManager.skeletonItemColor
+        
+        for view in views {
+            view.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.3))
+        }
+    }
 
     static func terminateSkeletonAnimation(for view: UIView) {
         view.stopSkeletonAnimation()
