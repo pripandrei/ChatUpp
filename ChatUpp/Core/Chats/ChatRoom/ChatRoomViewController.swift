@@ -1120,7 +1120,7 @@ extension ChatRoomViewController: UITableViewDelegate
         guard !tableView.sk.isSkeletonActive,
               let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? FooterSectionView else { return nil }
         
-        let dateForSection = viewModel.messageClusters[section].date.formatToYearMonthDayCustomString()
+        let dateForSection = viewModel.messageClusters[section].date.formattedAsDayLabel()
         footerView.setDate(dateText: dateForSection)
         return footerView
     }

@@ -31,6 +31,23 @@ extension Date
         return DateFormatter.customDateFormatterForYearMonthDay.string(from: self)
     }
     
+    func formattedAsDayLabel() -> String {
+        let calendar = Calendar.current
+        let formatter = DateFormatter()
+        
+        if calendar.isDateInToday(self) {
+            return "Today"
+        } else if calendar.isDateInYesterday(self) {
+            return "Yesterday"
+        } else if calendar.isDate(self, equalTo: Date(), toGranularity: .year) {
+            formatter.dateFormat = "MMM d"
+        } else {
+            formatter.dateFormat = "MMM d, yyyy"
+        }
+        
+        return formatter.string(from: self)
+    }
+    
     func formatDateTimestamp() -> String
     {
         let now = Date()
