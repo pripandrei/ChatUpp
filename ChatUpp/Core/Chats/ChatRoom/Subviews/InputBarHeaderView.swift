@@ -12,8 +12,9 @@ import UIKit
 
 final class InputBarHeaderView: UIView {
     
-    enum Mode: Equatable {
-        case edit
+    enum Mode: Equatable
+    {
+        case edit(UIImage?)
         case reply(UIImage?)
         case image(UIImage)
         
@@ -38,21 +39,8 @@ final class InputBarHeaderView: UIView {
                 return UIImage(systemName: "photo.on.rectangle.angled.fill")
             }
         }
-//        static func == (lhs: Mode, rhs: Mode) -> Bool {
-//            switch (lhs, rhs) {
-//            case (.edit, .edit):
-//                return true
-//            case (.reply, .reply):
-//                return true
-//            case (.image, .image):
-//                return true
-//            default:
-//                return false
-//            }
-//        }
     }
    
-    
     var inputBarHightConstraint: NSLayoutConstraint?
     var textInfoStackViewLeadingConstraint: NSLayoutConstraint?
     private var mode: Mode?
@@ -91,10 +79,6 @@ final class InputBarHeaderView: UIView {
         setupImageThumbnailView()
     }
     
-//    func setInputBarHeaderMessageText(_ text: String?) {
-//        messageText?.text = text
-//    }
-    
     func updateTitleLabel(usingText text: String?) {
         if let currentText = titleLabel?.text, let text = text {
             titleLabel?.text = currentText + text
@@ -103,15 +87,10 @@ final class InputBarHeaderView: UIView {
     
     func setTextInfoStackViewLeadingConstraintConstant()
     {
-//        if case .image(_) = mode , case .reply(_) = mode {
-//            textInfoStackViewLeadingConstraint?.constant = 60
-//        } else {
-//            textInfoStackViewLeadingConstraint?.constant = 10
-//        }
         switch mode {
-        case .image(_): textInfoStackViewLeadingConstraint?.constant = 60
-        case .reply(let image):
-            if let _ = image { textInfoStackViewLeadingConstraint?.constant = 60 }
+        case .image(_): textInfoStackViewLeadingConstraint?.constant = 55
+        case .reply(let image), .edit(let image):
+            if let _ = image { textInfoStackViewLeadingConstraint?.constant = 55 }
         default:
             textInfoStackViewLeadingConstraint?.constant = 10
         }
@@ -127,10 +106,9 @@ final class InputBarHeaderView: UIView {
         switch mode!
         {
         case .image(_): subtitleMessageLabel?.text = "Photo"
-        case .reply(let image):
+        case .reply(let image), .edit(let image):
             if let _ = image { subtitleMessageLabel?.text = "Photo" }
             else { subtitleMessageLabel?.text = text }
-        default: subtitleMessageLabel?.text = text
         }
     }
     
@@ -147,8 +125,7 @@ final class InputBarHeaderView: UIView {
         self.addSubview(textInfoStackView!)
         
         textInfoStackView?.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive = true
-//        textInfoStackView?.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0).isActive = true
-//        textInfoStackView?.widthAnchor.constraint(equalToConstant: 150).isActive = true
+
         textInfoStackView?.trailingAnchor.constraint(equalTo: closeInputBarHeaderView!.leadingAnchor, constant: -40).isActive = true
         
         self.textInfoStackViewLeadingConstraint = textInfoStackView?.leadingAnchor.constraint(
@@ -167,7 +144,7 @@ final class InputBarHeaderView: UIView {
         switch mode {
         case .image(let image):
             imageThumbnail?.image = image
-        case .reply(let image):
+        case .reply(let image), .edit(let image):
             imageThumbnail?.image = image
         default:
             break
@@ -178,11 +155,9 @@ final class InputBarHeaderView: UIView {
         imageThumbnail?.leadingAnchor.constraint(equalTo: self.separatorLabel!.trailingAnchor, constant: 10).isActive = true
         imageThumbnail?.topAnchor.constraint(equalTo: self.topAnchor,
                                              constant: 10).isActive = true
-//        imageThumbnail?.bottomAnchor.constraint(equalTo: self.bottomAnchor,
-//                                                constant: 0).isActive = true
+
         imageThumbnail?.heightAnchor.constraint(equalTo: separatorLabel!.heightAnchor).isActive = true
         imageThumbnail?.widthAnchor.constraint(equalTo: imageThumbnail!.heightAnchor).isActive = true
-//        imageThumbnail?.heightAnchor.constraint(equalToConstant: 35).isActive = true
     }
     
     private func setupTitleLabel()
@@ -192,11 +167,6 @@ final class InputBarHeaderView: UIView {
         titleLabel?.text                                      = mode?.labelText
         titleLabel?.textColor                                 = ColorManager.actionButtonsTintColor
         titleLabel?.font                                      = UIFont.boldSystemFont(ofSize: 16)
-//        titleLabel?.translatesAutoresizingMaskIntoConstraints = false
-//        self.addSubview(titleLabel!)
-        
-//        titleLabel?.topAnchor.constraint(equalTo: self.topAnchor, constant: 8).isActive                                   = true
-//        titleLabel?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: superview!.bounds.width / 5).isActive = true
     }
     
     private func setupSubtitleLabel() {
@@ -205,16 +175,8 @@ final class InputBarHeaderView: UIView {
         subtitleMessageLabel?.font                                      = UIFont(name: "Helvetica", size: 16)
         subtitleMessageLabel?.lineBreakMode                             = .byTruncatingTail
         subtitleMessageLabel?.adjustsFontSizeToFitWidth                 = false
-        
-//        messageText?.text = "TEST message"
-//        self.setupDefaultMessageTextIfNeeded()
-//        messageText?.translatesAutoresizingMaskIntoConstraints = false
-//        self.addSubview(messageText!)
-        
-//        messageText?.topAnchor.constraint(equalTo: titleLabel!.topAnchor, constant: 18).isActive                             = true
-//        messageText?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant:  superview!.bounds.width / 5).isActive = true
-//        messageText?.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -90).isActive                        = true
     }
+    
     private func setupSeparator()
     {
         separatorLabel                                            = UILabel()
@@ -225,7 +187,6 @@ final class InputBarHeaderView: UIView {
         separatorLabel?.topAnchor.constraint(equalTo: self.topAnchor, constant: 10).isActive                                  = true
         separatorLabel?.widthAnchor.constraint(equalToConstant: 2).isActive                                                   = true
         separatorLabel?.heightAnchor.constraint(equalToConstant: 35).isActive                                                 = true
-//        separatorLabel?.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: superview!.bounds.width / 6).isActive = true
         separatorLabel?.leadingAnchor.constraint(equalTo: symbolIcon!.trailingAnchor, constant: 20).isActive = true
     }
     

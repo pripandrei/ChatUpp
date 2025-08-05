@@ -92,7 +92,18 @@ final class MessageMenuBuilder
         ) { _ in
             DispatchQueue.main.async {
                 self.rootView.messageTextView.text = message.messageBody
-                self.contextMenuSelectedActionHandler?(.edit, message.messageBody)
+                
+                var image: UIImage?
+                
+                if message.type == .image || message.type == .imageText
+                {
+                    guard let path = message.imagePath?.addSuffix("small"),
+                          let imageData = self.viewModel.retrieveImageDataFromCache(for: path) else {return}
+                    
+                    image = UIImage(data: imageData)
+                }
+                
+                self.contextMenuSelectedActionHandler?(.edit(image), message.messageBody)
                 self.viewModel.shouldEditMessage = { [message] editedText in
                     self.viewModel.firestoreService?.editMessageTextFromFirestore(editedText, messageID: message.id)
                 }

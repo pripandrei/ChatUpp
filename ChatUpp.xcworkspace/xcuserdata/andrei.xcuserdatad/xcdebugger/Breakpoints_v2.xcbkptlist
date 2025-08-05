@@ -71,16 +71,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F95A02D3-8104-4363-B2C5-66DBF64CCF3F"
+            uuid = "A1767381-3AC8-4AEA-9AAB-52C1BB721D09"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/InputBarHeaderView.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomRootView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "165"
-            endingLineNumber = "165"
-            landmarkName = "setupImageThumbnailView()"
+            startingLineNumber = "291"
+            endingLineNumber = "291"
+            landmarkName = "activateInputBarHeaderView(mode:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

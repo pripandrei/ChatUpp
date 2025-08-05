@@ -283,7 +283,11 @@ extension ChatRoomRootView
             updateTableViewContentOffset(isInputBarHeaderRemoved: false)
         }
         scrollToBottomBtnBottomConstraint.constant -= inputBarHeader == nil ? 45 : 0
-        sendEditMessageButton.isHidden = !(mode == InputBarHeaderView.Mode.edit)
+//        sendEditMessageButton.isHidden = !(mode == InputBarHeaderView.Mode.edit)
+        sendEditMessageButton.isHidden = !{
+            if case .edit = mode { return true }
+            return false
+        }()
         setupInputBarHeaderView(mode: mode)
         self.layoutIfNeeded()
     }
