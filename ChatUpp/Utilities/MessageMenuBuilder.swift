@@ -26,7 +26,7 @@ final class MessageMenuBuilder
         self.contextMenuSelectedActionHandler = contextMenuSelectedActionHandler
     }
     
-    func buildUIMenuForMessageCell(message: Message) -> UIMenu
+    func buildUIMenuForMessage(message: Message) -> UIMenu
     {
 //        let selectedText = cell.messageLabel.text ?? "" // TODO: message can be used instead
         let isOwner = message.senderId == viewModel.authUser.uid
@@ -44,7 +44,7 @@ final class MessageMenuBuilder
     }
     
 
-    func buildUIMenuForEventCell(message: Message) -> UIMenu
+    func buildUIMenuForEvent(message: Message) -> UIMenu
     {
         let deleteAction = self.createDeleteAction(for: message)
         let copyAction = self.createCopyAction(text: message.messageBody)
@@ -58,7 +58,18 @@ final class MessageMenuBuilder
 //                guard let sender = self.viewModel.getSendeOfMessage(message) else {return}
                 guard let sender = self.viewModel.getMessageSender(message.senderId) else {return}
                 self.viewModel.currentlyReplyToMessageID = message.id
-                self.contextMenuSelectedActionHandler?(.reply(nil), message.messageBody)
+                
+                var image: UIImage?
+                
+                if message.type == .image || message.type == .imageText
+                {
+                    guard let path = message.imagePath?.addSuffix("small"),
+                          let imageData = self.viewModel.retrieveImageDataFromCache(for: path) else {return}
+                    
+                    image = UIImage(data: imageData)
+                }
+                
+                self.contextMenuSelectedActionHandler?(.reply(image), message.messageBody)
                 self.rootView.inputBarHeader?.updateTitleLabel(usingText: sender.name)
             }
         }

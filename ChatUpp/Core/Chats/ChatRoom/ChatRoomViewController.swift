@@ -1035,8 +1035,7 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                     guard let imageThumbnail = await image.byPreparingThumbnail(ofSize: CGSize(width: 80, height: 80)) else {return}
                     self.handleContextMenuSelectedAction(
                         actionOption: .image(imageThumbnail),
-                        selectedMessageText: nil,
-                        selectedImage: nil)
+                        selectedMessageText: nil)
                 }
                 self.messageImage = image
                 
@@ -1369,7 +1368,7 @@ extension ChatRoomViewController: UITableViewDelegate
             guard messageCell.messageContainer.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
-                return menuBuilder.buildUIMenuForMessageCell(message: message)
+                return menuBuilder.buildUIMenuForMessage(message: message)
             }
         }
         else if let eventCell = baseCell as? MessageEventCell,
@@ -1379,7 +1378,7 @@ extension ChatRoomViewController: UITableViewDelegate
             guard eventCell.messageEventContainer.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
-                return menuBuilder.buildUIMenuForEventCell(message: message)
+                return menuBuilder.buildUIMenuForEvent(message: message)
             }
         }
         return nil
@@ -1437,14 +1436,13 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func handleContextMenuSelectedAction(
         actionOption: InputBarHeaderView.Mode,
-        selectedMessageText text: String?,
-        selectedImage: UIImage? = nil
+        selectedMessageText text: String?
     )
     {
         self.rootView.activateInputBarHeaderView(mode: actionOption)
         self.addGestureToCloseBtn()
         self.rootView.messageTextView.becomeFirstResponder()
-        self.rootView.inputBarHeader?.setInputBarHeaderMessageText(text)
+        self.rootView.inputBarHeader?.setInputBarHeaderSubtitleMessage(text)
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
     }
 }

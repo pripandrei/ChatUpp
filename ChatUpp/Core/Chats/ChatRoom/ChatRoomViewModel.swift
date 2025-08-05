@@ -1459,6 +1459,14 @@ extension ChatRoomViewModel
 }
 
 
+extension ChatRoomViewModel
+{
+    func retrieveImageDataFromCache(for path: String) -> Data?
+    {
+        return CacheManager.shared.retrieveImageData(from: path)
+    }
+}
+
 // MARK: - Test
 extension ChatRoomViewModel
 {
