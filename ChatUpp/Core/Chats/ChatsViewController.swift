@@ -218,6 +218,11 @@ extension ChatsViewController
         let removedIndex = IndexPath(row: position, section: 0)
         guard let cell = self.tableView.dequeueReusableCell(withIdentifier: ReuseIdentifire.ChatTableCell.chat.identifire, for: removedIndex) as? ChatCell else {return}
         cell.cleanup()
+        
+        if navigationController?.topViewController != self {
+            Utilities.windowRoot?.chatsNavigationController?.popToRootViewController(animated: true)
+        }
+        
         self.tableView.deleteRows(at: [removedIndex], with: .none)
     }
 }

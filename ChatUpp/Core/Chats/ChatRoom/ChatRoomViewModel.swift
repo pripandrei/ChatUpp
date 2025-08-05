@@ -116,6 +116,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
     }
     
+    deinit {
+        print("chat room View model deinit")
+    }
+    
     var shouldAttachListenerToUpcomingMessages: Bool
     {
         /// See FootNote.swift [7]
@@ -1189,7 +1193,7 @@ extension ChatRoomViewModel
             messageClusters.remove(at: indexPath.section)
             isLastMessageInSection = true
         }
-        let messageID = message.id
+        
         realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
          
         if indexPath.isFirst(), let recentMessageID = recentMessageItem?.message?.id

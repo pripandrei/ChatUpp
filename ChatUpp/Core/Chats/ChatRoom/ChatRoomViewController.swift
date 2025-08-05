@@ -132,9 +132,8 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
-    
     }
-
+ 
     private func scrollToCell(at indexPath: IndexPath)
     {
         guard indexPath.row < self.rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
@@ -146,6 +145,7 @@ final class ChatRoomViewController: UIViewController
     
     deinit {
         cleanUp()
+        print("chat room viewcontroller deinit")
 //        print("====ConversationVC Deinit")
     }
 

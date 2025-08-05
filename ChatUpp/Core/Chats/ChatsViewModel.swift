@@ -27,6 +27,7 @@ enum ChatModificationType
 final class ChatsViewModel {
     
     @Published private(set) var chatModificationType: ChatModificationType?
+    @Published private(set) var chatDeletionIsInitiated: Bool = false
 
     //TODO: - remove listeners
     private var cancellables = Set<AnyCancellable>()
@@ -252,18 +253,22 @@ extension ChatsViewModel {
         chatModificationType = .updated(position: viewModelIndex)
     }
     
-    private func handleRemovedChat(_ chat: Chat) 
+    private func handleRemovedChat(_ chat: Chat)
     {
         guard let chat = retrieveChatFromRealm(chat) else {return}
         
         guard let cellVM = findCellViewModel(containing: chat),
               let viewModelIndex = findIndex(of: cellVM) else { return }
         
-        updateTotalUnseenMessagesCount(count: -(cellVM.unreadMessageCount ?? 0))
+        self.updateTotalUnseenMessagesCount(count: -(cellVM.unreadMessageCount ?? 0))
         cellVM.invalidateSelf()
-        cellViewModels.remove(at: viewModelIndex)
-        chatModificationType = .removed(position: viewModelIndex)
-        deleteRealmChat(chat)
+        self.cellViewModels.remove(at: viewModelIndex)
+        self.chatModificationType = .removed(position: viewModelIndex)
+        
+        /// Important, if ChatRoomVC is opened, should execute after chatRoomVC is popped from view hierarchy
+        executeAfter(seconds: 1.2) {
+            self.deleteRealmChat(chat)
+        }
     }
 }
 

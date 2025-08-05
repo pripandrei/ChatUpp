@@ -101,7 +101,7 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
     
     func openConversationVC(conversationViewModel: ChatRoomViewModel) {
         let conversationVC = ChatRoomViewController(conversationViewModel: conversationViewModel)
-//        conversationVC.hidesBottomBarWhenPushed = true
+        conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
         tabBar.chatsNavigationController?.pushViewController(conversationVC, animated: true)
     }
