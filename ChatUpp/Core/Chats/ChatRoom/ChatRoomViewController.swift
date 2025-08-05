@@ -1369,7 +1369,7 @@ extension ChatRoomViewController: UITableViewDelegate
             guard messageCell.messageContainer.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
-                return menuBuilder.buildUIMenuForMessageCell(messageCell, message: message)
+                return menuBuilder.buildUIMenuForMessageCell(message: message)
             }
         }
         else if let eventCell = baseCell as? MessageEventCell,
@@ -1379,7 +1379,7 @@ extension ChatRoomViewController: UITableViewDelegate
             guard eventCell.messageEventContainer.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
-                return menuBuilder.buildUIMenuForEventCell(eventCell, message: message)
+                return menuBuilder.buildUIMenuForEventCell(message: message)
             }
         }
         return nil

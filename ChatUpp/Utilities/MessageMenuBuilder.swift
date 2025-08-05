@@ -26,16 +26,15 @@ final class MessageMenuBuilder
         self.contextMenuSelectedActionHandler = contextMenuSelectedActionHandler
     }
     
-    func buildUIMenuForMessageCell(_ cell: MessageTableViewCell,
-                                   message: Message) -> UIMenu
+    func buildUIMenuForMessageCell(message: Message) -> UIMenu
     {
-        let selectedText = cell.messageLabel.text ?? "" // TODO: message can be used instead
+//        let selectedText = cell.messageLabel.text ?? "" // TODO: message can be used instead
         let isOwner = message.senderId == viewModel.authUser.uid
         
         let seen = createSeenAction(for: message, isOwner: isOwner)
-        let reply = createReplyAction(for: cell, message: message, text: selectedText)
-        let copy = createCopyAction(text: selectedText)
-        let edit = createEditAction(for: message, text: selectedText, isOwner: isOwner)
+        let reply = createReplyAction(message: message)
+        let copy = createCopyAction(text: message.messageBody)
+        let edit = createEditAction(for: message, isOwner: isOwner)
         let delete = createDeleteAction(for: message, isOwner: isOwner)
         
         let firstSection = UIMenu(options: .displayInline, children: [seen])
@@ -45,22 +44,22 @@ final class MessageMenuBuilder
     }
     
 
-    func buildUIMenuForEventCell(_ cell: MessageEventCell, message: Message) -> UIMenu
+    func buildUIMenuForEventCell(message: Message) -> UIMenu
     {
         let deleteAction = self.createDeleteAction(for: message)
         let copyAction = self.createCopyAction(text: message.messageBody)
         return UIMenu(title: "", children: [deleteAction, copyAction])
     }
 
-    private func createReplyAction(for cell: MessageTableViewCell,
-                                   message: Message, text: String) -> UIAction
+    private func createReplyAction(message: Message) -> UIAction
     {
         UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { _ in
             DispatchQueue.main.async {
-                let senderName = cell.cellViewModel.messageSender?.name
+//                guard let sender = self.viewModel.getSendeOfMessage(message) else {return}
+                guard let sender = self.viewModel.getMessageSender(message.senderId) else {return}
                 self.viewModel.currentlyReplyToMessageID = message.id
-                self.contextMenuSelectedActionHandler?(.reply(nil), text)
-                self.rootView.inputBarHeader?.updateTitleLabel(usingText: senderName)
+                self.contextMenuSelectedActionHandler?(.reply(nil), message.messageBody)
+                self.rootView.inputBarHeader?.updateTitleLabel(usingText: sender.name)
             }
         }
     }
@@ -73,7 +72,6 @@ final class MessageMenuBuilder
     }
 
     private func createEditAction(for message: Message,
-                                  text: String,
                                   isOwner: Bool) -> UIAction
     {
         UIAction(
@@ -82,8 +80,8 @@ final class MessageMenuBuilder
             attributes: isOwner ? [] : .hidden
         ) { _ in
             DispatchQueue.main.async {
-                self.rootView.messageTextView.text = text
-                self.contextMenuSelectedActionHandler?(.edit, text)
+                self.rootView.messageTextView.text = message.messageBody
+                self.contextMenuSelectedActionHandler?(.edit, message.messageBody)
                 self.viewModel.shouldEditMessage = { [message] editedText in
                     self.viewModel.firestoreService?.editMessageTextFromFirestore(editedText, messageID: message.id)
                 }
@@ -138,10 +136,10 @@ final class MessageMenuBuilder
 //
 //func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 //    guard !viewModel.messageClusters.isEmpty else { return }
-//    
+//
 //    if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5, in: tableView),
 //       sixthFromBottom == indexPath {
-//        
+//
 //        Task {
 //            if let (newRows, newSections) = await paginationManager.requestPagination(ascending: true, viewModel: viewModel) {
 //                self.performeTableViewUpdate(with: newRows, sections: newSections)
@@ -150,7 +148,7 @@ final class MessageMenuBuilder
 //    }
 //    else if let sixthFromTop = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5, fromEnd: true, in: tableView),
 //            sixthFromTop == indexPath {
-//        
+//
 //        Task {
 //            if let (newRows, newSections) = await paginationManager.requestPagination(ascending: false, viewModel: viewModel) {
 //                self.performeTableViewUpdate(with: newRows, sections: newSections)

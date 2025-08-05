@@ -125,6 +125,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         /// See FootNote.swift [7]
         self.shouldDisplayLastMessage
     }
+        
+    func getMessageSender(_ senderID: String) -> User?
+    {
+        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: senderID)
+    }
     
     private lazy var authenticatedUser: User? = {
         guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }

@@ -425,9 +425,7 @@ extension ChatCellViewModel
     private func addObserverToUser()
     {
         guard let member = chatUser else {return}
-        if member.id == "kLaeyiuvW9dOSW3BHrLZJp44ejf1" {
-            print("stop")
-        }
+
         RealtimeUserService.shared.addObserverToUsers(member.id)
             .sink { [weak self] user in
                 if let date = user.lastSeen, let isActive = user.isActive
