@@ -614,11 +614,14 @@ extension MessageTableViewCell
         
 //        if messageLabelTopConstraints != nil { messageLabelTopConstraints.isActive = false }
         
-        replyMessageLabel.attributedText = createReplyMessageAttributedText(with: messageSenderName, messageText: messageText)
+        replyMessageLabel.attributedText = createReplyMessageAttributedText(
+            with: messageSenderName,
+            messageText: messageText
+        )
         replyMessageLabel.numberOfLines = 2
         replyMessageLabel.layer.cornerRadius = 4
         replyMessageLabel.clipsToBounds = true
-        replyMessageLabel.backgroundColor = .peterRiver
+        replyMessageLabel.backgroundColor = ColorManager.replyToMessageBackgroundColor
         replyMessageLabel.translatesAutoresizingMaskIntoConstraints = false
         messageContainer.addSubview(replyMessageLabel)
         
@@ -631,10 +634,19 @@ extension MessageTableViewCell
 //        messageLabelTopConstraints.isActive = true
     }
     
-    private func createReplyMessageAttributedText(with senderName: String, messageText: String) -> NSMutableAttributedString
+    private func createReplyMessageAttributedText(
+        with senderName: String,
+        messageText: String
+    ) -> NSMutableAttributedString
     {
-        let boldAttributeForName = [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 13)]
-        let boldAttributeForText = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 13)]
+        let boldAttributeForName: [NSAttributedString.Key: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 13),
+            .foregroundColor: UIColor.white
+        ]
+        let boldAttributeForText: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 13),
+            .foregroundColor: UIColor.white
+        ]
         let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
         let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
         attributedText.append(replyMessageAttributedText)
@@ -667,12 +679,17 @@ extension MessageTableViewCell
 
         override func draw(_ rect: CGRect) {
             super.draw(rect)
-            self.fillColor(with: .cyan, width: 5)
+            self.fillColor(with: .white, width: 5)
         }
         
         private func fillColor(with color: UIColor, width: CGFloat)
         {
-            let topRect = CGRect(x:0, y:0, width : width, height: self.bounds.height);
+            let topRect = CGRect(
+                x: 0,
+                y: 0,
+                width : width,
+                height: self.bounds.height
+            )
             color.setFill()
             UIRectFill(topRect)
         }

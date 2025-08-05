@@ -24,7 +24,7 @@ final class MessageCellViewModel
         self.init()
         self.message = message
         
-//        self.setupComponents(from: message)
+        self.setupComponents(from: message)
     }
     
     convenience init(isUnseenCell: Bool) {
@@ -100,7 +100,10 @@ final class MessageCellViewModel
     
     private func setReferencedMessage(usingMessageID messageID: String)
     {
-        let referencedMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID)
+        let referencedMessage = RealmDataBase.shared.retrieveSingleObject(
+            ofType: Message.self,
+            primaryKey: messageID
+        )
         self.referencedMessage = referencedMessage
     }
     
