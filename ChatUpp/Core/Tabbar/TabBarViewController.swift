@@ -7,6 +7,12 @@
 
 import UIKit
 
+protocol TabBarVisibilityProtocol: AnyObject
+{
+    func hideTabBar()
+    func showTabBar()
+}
+
 class TabBarViewController: UITabBarController, UITabBarControllerDelegate
 {
     private(set) var chatsVC: ChatsViewController?
@@ -127,3 +133,35 @@ extension TabBarViewController
         tabItem.badgeValue = newValue > 0 ? "\(newValue)" : nil
     }
 }
+
+//MARK: - Hide/show tab bar
+extension TabBarViewController: TabBarVisibilityProtocol
+{
+    func hideTabBar()
+    {
+        guard tabBar.isHidden == false else { return }
+        
+//        let height = tabBar.bounds.size.height
+        UIView.animate(withDuration: 0.3) {
+            self.tabBar.frame.origin.y = UIScreen.main.bounds.maxY
+            self.view.layoutIfNeeded()
+        } completion: { _ in
+            self.tabBar.isHidden = true
+        }
+    }
+    
+    func showTabBar()
+    {
+        guard tabBar.isHidden == true else { return }
+        
+        tabBar.isHidden = false
+        let height = tabBar.bounds.size.height
+        self.tabBar.frame.origin.y = UIScreen.main.bounds.maxY
+        UIView.animate(withDuration: 0.3) {
+            self.tabBar.frame.origin.y -= height
+            self.view.layoutIfNeeded()
+        }
+    }
+ 
+}
+

@@ -112,7 +112,8 @@ extension ConversationTableViewDataSource
         return configuration
     }
     
-    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool {
+    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool
+    {
         let messageItems = conversationViewModel.messageClusters[indexPath.section].items
         guard indexPath.row > 0 else { return true }
 

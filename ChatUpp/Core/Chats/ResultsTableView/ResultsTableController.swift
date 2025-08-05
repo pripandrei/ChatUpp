@@ -22,6 +22,7 @@ final class ResultsTableController: UITableViewController {
     }
     
     weak var coordinatorDelegate: Coordinator?
+    weak var tabBarVisibilityProtocol: TabBarVisibilityProtocol?
     
     var searchBar: UISearchBar?
     
@@ -35,7 +36,7 @@ final class ResultsTableController: UITableViewController {
         setupTableView()
         configureTextLabel()
     }
-   
+
     private func configureTextLabel() {
         tableView.addSubview(noUserWasFoundLabel)
         
@@ -158,5 +159,24 @@ extension ResultsTableController
                 conversationViewModel = ChatRoomViewModel(participant: user)
             }
         }
+    }
+}
+
+//MARK: - Search bar delegate
+extension ResultsTableController: UISearchBarDelegate
+{
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar)
+    {
+        tabBarVisibilityProtocol?.hideTabBar()
+    }
+
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        if searchBar.text?.isEmpty == true {
+            tabBarVisibilityProtocol?.showTabBar()
+        }
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        tabBarVisibilityProtocol?.showTabBar()
     }
 }

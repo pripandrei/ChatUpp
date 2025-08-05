@@ -132,7 +132,10 @@ class ChatsViewController: UIViewController {
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search"
         
+        resultsTableController.tabBarVisibilityProtocol = tabBarController as? TabBarViewController
         resultsTableController.searchBar = searchController.searchBar
+        resultsTableController.searchBar?.delegate = resultsTableController
+        
         navigationItem.searchController = searchController
         definesPresentationContext = true
         navigationItem.hidesSearchBarWhenScrolling = true
@@ -444,6 +447,7 @@ extension ChatsViewController
     }
     
 }
+
 
 extension UIAlertController
 {
