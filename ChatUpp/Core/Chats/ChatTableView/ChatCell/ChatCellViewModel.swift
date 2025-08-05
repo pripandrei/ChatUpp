@@ -14,7 +14,6 @@ import Kingfisher
 class ChatCellViewModel
 {
     private var dataFetchTask: Task<Void,Never>?
-    var onInitializationComplete: (() -> Void)?
     
 //    private var onChatRoomVCDidDissapear: (() -> Void)?
     
@@ -104,7 +103,6 @@ class ChatCellViewModel
                 try await self?.fetchDataFromFirestore()
                 await self?.addObserverToUser()
                 await self?.addListenerToUser()
-                self?.onInitializationComplete?()
             } catch {
                 print("task was cancelled: \(error)")
             }
@@ -309,6 +307,7 @@ extension ChatCellViewModel
         
         if let message = await loadRecentMessage() {
             addMessageToRealm(message)
+            self.recentMessage = message
         }
         try Task.checkCancellation()
         
