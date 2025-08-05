@@ -26,6 +26,8 @@ final class ResultsTableController: UITableViewController {
     
     var searchBar: UISearchBar?
     
+    var shouldHideTabBar: Bool = false
+    
     var filteredResults: [ResultsCellViewModel] = [] 
     var searchType: SearchType!
     private var noUserWasFoundLabel = UILabel()
@@ -151,6 +153,7 @@ extension ResultsTableController
         
             defer {
                 self.coordinatorDelegate?.openConversationVC(conversationViewModel: conversationViewModel)
+                self.shouldHideTabBar = true
             }
 
             if let existingChat = self.filteredResults[indexPath.item].chat {

@@ -54,6 +54,14 @@ class ChatsViewController: UIViewController {
         RealtimeUserService.shared.updateUserActiveStatus(isActive: true)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if resultsTableController.shouldHideTabBar {
+            resultsTableController.tabBarVisibilityProtocol?.hideTabBar()
+            resultsTableController.shouldHideTabBar = false
+        }
+    }
+    
     deinit {
 //        print("ChatsVC was DEINITED!==")
     }
@@ -450,7 +458,6 @@ extension ChatsViewController
     {
         coordinatorDelegate?.showGroupCreationScreen()
     }
-    
 }
 
 
@@ -468,6 +475,7 @@ extension UIAlertController
         }
     }
 }
+
 
 //MARK: - Test functions
 extension ChatsViewController

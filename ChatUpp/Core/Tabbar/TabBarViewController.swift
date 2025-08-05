@@ -140,8 +140,7 @@ extension TabBarViewController: TabBarVisibilityProtocol
     func hideTabBar()
     {
         guard tabBar.isHidden == false else { return }
-        
-//        let height = tabBar.bounds.size.height
+
         UIView.animate(withDuration: 0.3) {
             self.tabBar.frame.origin.y = UIScreen.main.bounds.maxY
             self.view.layoutIfNeeded()
@@ -162,6 +161,5 @@ extension TabBarViewController: TabBarVisibilityProtocol
             self.view.layoutIfNeeded()
         }
     }
- 
 }
 
