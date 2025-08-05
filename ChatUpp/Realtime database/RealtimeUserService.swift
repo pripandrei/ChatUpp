@@ -97,7 +97,7 @@ final class RealtimeUserService: AuthUserProtocol {
         let subject = PassthroughSubject<User, Never>()
         let userRef = usersReference.child(userID)
 
-        userRef.observe(.value) { snapshot in
+        let handle = userRef.observe(.value) { snapshot in
             do {
                 let user = try snapshot.data(as: User.self)
                 subject.send(user)
@@ -106,7 +106,10 @@ final class RealtimeUserService: AuthUserProtocol {
             }
         }
         return subject
-            .handleEvents(receiveCancel: { userRef.removeAllObservers() })
+            .handleEvents(receiveCancel: {
+//                userRef.removeAllObservers()
+                userRef.removeObserver(withHandle: handle)
+            })
             .eraseToAnyPublisher()
     }
 }

@@ -241,8 +241,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard conversation?.realm != nil else {return}
         
-        userListenerService?.addUsersListener()
-        userListenerService?.addUserObserver()
+//        userListenerService?.addUsersListener()
+//        userListenerService?.addUserObserver()
         observeParticipantChanges()
         
         guard let startMessage = messageClusters.first?.items.first?.message
