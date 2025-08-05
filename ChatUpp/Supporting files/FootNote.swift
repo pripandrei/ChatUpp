@@ -79,3 +79,8 @@
 /// IMPORTANT: Keep this case order for iteration on image creation
 /// For more info see how 'createImageSamples' function
 /// from ImageSampleRepository works
+/// 
+//MARK: - [11].
+/// When user B (the one that is not self) removes chat, it will become invalid,
+/// however listener of messages will still receive removed messages.
+/// In this case, we dont need to perform any updates with received messages.

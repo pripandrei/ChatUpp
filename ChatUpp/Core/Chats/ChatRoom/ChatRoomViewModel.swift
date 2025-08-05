@@ -1021,6 +1021,7 @@ extension ChatRoomViewModel
             .sink { [weak self] messagesTypes in
                 guard let self = self else { return }
                 Task {
+                    guard self.conversation?.isInvalidated == false else {return} // See FootNote.swift [11]
                     await self.remoteMessagePaginator.perform {
                         await self.processMessageChanges(messagesTypes)
                     }
