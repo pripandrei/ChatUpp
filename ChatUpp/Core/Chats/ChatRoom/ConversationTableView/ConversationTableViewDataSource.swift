@@ -89,8 +89,18 @@ extension ConversationTableViewDataSource
         }
         
         let messageLayoutConfiguration = makeLayoutConfigurationForCell(at: indexPath)
-        cell.configureCell(using: viewModel, layoutConfiguration: messageLayoutConfiguration)
+        cell.configureCell(using: viewModel,
+                           layoutConfiguration: messageLayoutConfiguration)
         
+//        if viewModel.isReplayToMessage
+        //        {
+        cell.handleContentRelayout = {
+//            mainQueue {
+                    tableView.beginUpdates()
+                    tableView.endUpdates()
+//            }
+        }
+//        }
         return cell
     }
 }
