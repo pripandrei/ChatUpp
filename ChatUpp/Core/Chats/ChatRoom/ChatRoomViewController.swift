@@ -1365,7 +1365,7 @@ extension ChatRoomViewController: UITableViewDelegate
            let message = messageCell.cellViewModel.message
         {
             let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
-            guard messageCell.messageContainer.frame.contains(tapLocationInCell) else { return nil }
+            guard messageCell.containerStackView.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
                 return menuBuilder.buildUIMenuForMessage(message: message)

@@ -23,7 +23,6 @@ final class MessageTableViewCell: UITableViewCell
     
     private var messageSenderNameLabel: UILabel?
     private var messageSenderAvatar: UIImageView?
-    private var containerStackView: UIStackView = UIStackView()
     private var messageComponentsStackView: UIStackView = UIStackView()
     private var messageImageView = UIImageView()
     private var messageTitleLabel: YYLabel?
@@ -32,7 +31,8 @@ final class MessageTableViewCell: UITableViewCell
     private var maxMessageWidth: CGFloat = 292.0
     
     private(set) var reactionBadgeHostingView: UIView?
-    private(set) var messageContainer = UIView()
+    private(set) var containerStackView: UIStackView = UIStackView()
+    private(set) var messageContainer = UIView() // remove later
     private(set) var messageLabel = MessageLabel()
     private(set) var seenStatusMark = YYLabel()
     private(set) var editedLabel: UILabel = UILabel()
@@ -173,10 +173,10 @@ final class MessageTableViewCell: UITableViewCell
         contentView.addSubview(hostView.view)
         
         let horizontalConstraint = cellViewModel.messageAlignment == .right ?
-        hostView.view.trailingAnchor.constraint(equalTo: messageContainer.trailingAnchor, constant: -10) :
-        hostView.view.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor, constant: 10)
+        hostView.view.trailingAnchor.constraint(equalTo: containerStackView.trailingAnchor, constant: -10) :
+        hostView.view.leadingAnchor.constraint(equalTo: containerStackView.leadingAnchor, constant: 10)
         
-        hostView.view.topAnchor.constraint(equalTo: messageContainer.bottomAnchor, constant: -2).isActive = true
+        hostView.view.topAnchor.constraint(equalTo: containerStackView.bottomAnchor, constant: -2).isActive = true
         
         horizontalConstraint.isActive = true
     }
@@ -953,7 +953,7 @@ extension MessageTableViewCell: TargetPreviewable
 {
     func getTargetViewForPreview() -> UIView
     {
-        return messageContainer
+        return containerStackView
     }
     
     func getTargetedPreviewColor() -> UIColor
