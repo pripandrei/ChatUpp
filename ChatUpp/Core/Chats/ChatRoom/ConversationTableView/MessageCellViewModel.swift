@@ -15,7 +15,9 @@ final class MessageCellViewModel
     
     @Published private(set) var senderName: String?
     
-    private(set) var referencedMessage: Message?
+    private var cancellables: Set<AnyCancellable> = []
+    
+    @Published private(set) var referencedMessage: Message?
     private(set) var displayUnseenMessagesTitle: Bool?
     private(set) var messageImageDataSubject = PassthroughSubject<Data, Never>()
     private(set) var senderImageDataSubject = PassthroughSubject<Data, Never>()
@@ -92,6 +94,7 @@ final class MessageCellViewModel
     {
         if let repliedToMessageID = message.repliedTo {
             setReferencedMessage(usingMessageID: repliedToMessageID)
+            observeReplyToMessage()
         }
         
         if message.type == .title {
@@ -275,7 +278,37 @@ extension MessageCellViewModel
     }
 }
 
+//MARK: Reply to message listener
+extension MessageCellViewModel
+{
+    private func observeReplyToMessage()
+    {
+        guard let replyMessage = referencedMessage else {return}
+        RealmDataBase.shared.observerObject(replyMessage)
+            .sink { [weak self] objectUpdate in
+                guard let self
+                      /*let property = MessageObservedProperty(from: objectUpdate) */else
+                { return }
+                
+                switch objectUpdate {
+                case .changed(object: let object, property: let properties):
+                    properties.forEach { property in
+                        if property.name == "messageBody" {
+                            self.referencedMessage = object as? Message
+                        }
+                    }
+                case .deleted: self.referencedMessage = nil
+                }
+                
+//                switch property {
+//                case .messageBody: propertyChange.0.newValue as? String else { return }
+//                default: break
+//                }
+            }.store(in: &cancellables)
+    }
+}
 
+//MARK: Aspect ratio for image
 extension MessageCellViewModel
 {
     func getCellAspectRatio(forImageSize size: CGSize) -> CGSize

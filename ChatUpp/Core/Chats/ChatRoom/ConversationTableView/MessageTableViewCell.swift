@@ -128,6 +128,17 @@ final class MessageTableViewCell: UITableViewCell
                 if message.isInvalidated { return }
                 self?.setupMessageData(with: message)
             }.store(in: &subscribers)
+        
+        cellViewModel.$referencedMessage
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .sink { [weak self] replyMessage in
+                if let replyMessage {
+                    self?.testUpdateReplyMessage(replyMessage.messageBody)
+                } else {
+                    self?.testCollapse()
+                }
+            }.store(in: &subscribers)
     }
     
     private func setupMessageData(with message: Message)
@@ -203,11 +214,13 @@ final class MessageTableViewCell: UITableViewCell
         setupMessageData(with: message)
         setupReactionView(for: message)
         
-        executeAfter(seconds: 3.0, block: {
-            self.testCollapse()
-        })
+//        executeAfter(seconds: 3.0, block: {
+////            self.testCollapse()
+//            self.handleContentRelayout?()
+//        })
 ////        
 //        testMessageTextEdit()
+        
     }
     
     private func testMessageTextEdit() {
@@ -229,33 +242,35 @@ final class MessageTableViewCell: UITableViewCell
     
     private func testCollapse()
     {
-        self.messageLabel.messageUpdateType = .replyRemoved
-        UIView.animate(withDuration: 0.3) {
-            self.replyMessageLabel.alpha = 0
-            self.replyMessageLabel.isHidden = true
-//            self.containerStackView.layoutIfNeeded()
-        } completion: { _ in
-            self.containerStackView.removeArrangedSubview(self.replyMessageLabel)
-            self.replyMessageLabel.removeFromSuperview()
-//            self.messageLabel.layoutIfNeeded()
-            self.handleMessageLayout()
-            UIView.animate(withDuration: 0.2) {
-//            self.containerStackView.layoutIfNeeded()
-//
-                self.contentView.layoutIfNeeded()
-                
+        executeAfter(seconds: 1.0) {
+            self.messageLabel.messageUpdateType = .replyRemoved
+            UIView.animate(withDuration: 0.3) {
+                self.replyMessageLabel.alpha = 0
+                self.replyMessageLabel.isHidden = true
+                //            self.containerStackView.layoutIfNeeded()
+            } completion: { _ in
+                self.containerStackView.removeArrangedSubview(self.replyMessageLabel)
+                self.replyMessageLabel.removeFromSuperview()
+                //            self.messageLabel.layoutIfNeeded()
+                self.handleMessageLayout()
+                UIView.animate(withDuration: 0.2) {
+                    //            self.containerStackView.layoutIfNeeded()
+                    //
+                    self.contentView.layoutIfNeeded()
+                    
+                }
             }
+            self.handleContentRelayout?()
         }
-        self.handleContentRelayout?()
     }
     
-    private func testUpdateReplyMessage()
+    private func testUpdateReplyMessage(_ messageBody: String)
     {
-        guard let messageSenderName = cellViewModel.senderName else {return}
+        guard let messageSenderName = cellViewModel.referencedMessageSenderName else {return}
         executeAfter(seconds: 4.0, block: {
             self.replyMessageLabel.attributedText = self.createReplyMessageAttributedText(
                 with: messageSenderName,
-                messageText: "This is a test message right now right heere where we are"
+                messageText: messageBody
             )
             UIView.animate(withDuration: 0.5) {
                 self.contentView.layoutIfNeeded()

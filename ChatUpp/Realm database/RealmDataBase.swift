@@ -174,6 +174,42 @@ final class RealmDataBase {
 //MARK: - realm object observer
 extension RealmDataBase
 {
+    
+    func observerObject(_ object: Object) -> AnyPublisher<RealmObjectUpdate, Never>
+    {
+        let subject = PassthroughSubject<(RealmObjectUpdate), Never>()
+        
+        let token = object.observe { change in
+            switch change {
+            case .change(let object, let properties):
+                subject.send(.changed(object: object, property: properties))
+            case .deleted:
+                subject.send(.deleted)
+            default: break
+            }
+        }
+
+        return subject
+            .handleEvents(receiveCancel: { [weak self] in
+                self?.invalidateToken(token)
+            })
+            .eraseToAnyPublisher()
+    }
+    
+//    func observerObject(_ object: Object,
+//                        completion: (RealmObjectUpdate) -> Void)
+//    {
+//        let token = object.observe { change in
+//            switch change {
+//            case .change(let object, let properties):
+//                completion(.changed(object: object, property: properties))
+//            case .deleted:
+//                completion(.deleted)
+//            default: break
+//            }
+//        }
+//    }
+    
     func observeChanges<T>(for object: T) -> AnyPublisher<(PropertyChange, RLMObjectBase), Never>
     {
         let subject = PassthroughSubject<(PropertyChange, RLMObjectBase), Never>()
@@ -187,6 +223,9 @@ extension RealmDataBase
                         properties.forEach { property in
                             subject.send((property, object))
                         }
+                    }
+                    if case .deleted = change {
+                        
                     }
                 }
             case let embeddedObject as EmbeddedObject:
@@ -386,4 +425,10 @@ enum RealmRetrieveError: Error, LocalizedError {
         case .imageNotPresent: return "image not present"
         }
     }
+}
+
+enum RealmObjectUpdate
+{
+    case changed(object: RLMObjectBase , property: [PropertyChange])
+    case deleted
 }

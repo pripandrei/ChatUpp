@@ -558,6 +558,7 @@ extension ChatCellViewModel
                     Task { await self.performMessageImageUpdate(messageID) }
                 case .messageSeen:
                     self.recentMessage = propertyChange.1 as? Message
+                default: break
                 }
                 
             }.store(in: &recentMessagesCancellables)
@@ -661,9 +662,11 @@ enum ChatObservedProperty: String
     }
 }
 
-enum MessageObservedProperty: String {
+enum MessageObservedProperty: String
+{
     case imagePath
     case messageSeen
+    case messageBody
 
     init?(from name: String) {
         self.init(rawValue: name)
