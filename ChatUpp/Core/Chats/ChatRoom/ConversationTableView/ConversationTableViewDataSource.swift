@@ -92,15 +92,10 @@ extension ConversationTableViewDataSource
         cell.configureCell(using: viewModel,
                            layoutConfiguration: messageLayoutConfiguration)
         
-//        if viewModel.isReplayToMessage
-        //        {
         cell.handleContentRelayout = {
-//            mainQueue {
-                    tableView.beginUpdates()
-                    tableView.endUpdates()
-//            }
+            tableView.beginUpdates()
+            tableView.endUpdates()
         }
-//        }
         return cell
     }
 }

@@ -23,7 +23,7 @@
 		752DE40D2D218B95003AC40C /* GroupMembersSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40C2D218B95003AC40C /* GroupMembersSelectionScreen.swift */; };
 		752DE4102D219557003AC40C /* UserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 752DE40F2D219557003AC40C /* UserView.swift */; };
 		753185E92C22123300C4F9F4 /* UIButton + extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753185E82C22123300C4F9F4 /* UIButton + extensions.swift */; };
-		753186132C26F8B900C4F9F4 /* UITextView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */; };
+		753186132C26F8B900C4F9F4 /* UITextField+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753186122C26F8B900C4F9F4 /* UITextField+Extensions.swift */; };
 		7533D9B82B1659210057EBC7 /* PhoneSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */; };
 		7533D9BB2B167ED80057EBC7 /* PhoneSigninViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7533D9BA2B167ED80057EBC7 /* PhoneSigninViewModel.swift */; };
 		753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753D0B682AC1FA6100C22AC4 /* Utilities.swift */; };
@@ -216,7 +216,7 @@
 		752DE40C2D218B95003AC40C /* GroupMembersSelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMembersSelectionScreen.swift; sourceTree = "<group>"; };
 		752DE40F2D219557003AC40C /* UserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserView.swift; sourceTree = "<group>"; };
 		753185E82C22123300C4F9F4 /* UIButton + extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton + extensions.swift"; sourceTree = "<group>"; };
-		753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Extensions.swift"; sourceTree = "<group>"; };
+		753186122C26F8B900C4F9F4 /* UITextField+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Extensions.swift"; sourceTree = "<group>"; };
 		7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSignInViewController.swift; sourceTree = "<group>"; };
 		7533D9BA2B167ED80057EBC7 /* PhoneSigninViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSigninViewModel.swift; sourceTree = "<group>"; };
 		753D0B682AC1FA6100C22AC4 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
@@ -872,7 +872,7 @@
 				7563F8C32AE8D2D1006FA374 /* String+Extensions.swift */,
 				75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */,
 				753185E82C22123300C4F9F4 /* UIButton + extensions.swift */,
-				753186122C26F8B900C4F9F4 /* UITextView+Extensions.swift */,
+				753186122C26F8B900C4F9F4 /* UITextField+Extensions.swift */,
 				7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */,
 				75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */,
 			);
@@ -1079,7 +1079,7 @@
 				752706582DAB1D07002128DF /* ConversationRealmService.swift in Sources */,
 				756525C22A7E8240005DC594 /* AuthenticationManager.swift in Sources */,
 				7597CE5B2D1494F000CFD1B8 /* ImageSampleRepository.swift in Sources */,
-				753186132C26F8B900C4F9F4 /* UITextView+Extensions.swift in Sources */,
+				753186132C26F8B900C4F9F4 /* UITextField+Extensions.swift in Sources */,
 				7527065E2DAB1D9E002128DF /* ConversationMessageListenerService.swift in Sources */,
 				7563F8802ADF6E31006FA374 /* FirestoreCollectionName.swift in Sources */,
 				755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */,
