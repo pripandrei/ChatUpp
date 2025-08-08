@@ -41,7 +41,8 @@ final class MessageCellViewModel
     {
         guard let referencedMessageID = referencedMessage?.senderId else { return nil }
         
-        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: referencedMessageID)
+        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self,
+                                                             primaryKey: referencedMessageID)
         return user?.name
     }
     
