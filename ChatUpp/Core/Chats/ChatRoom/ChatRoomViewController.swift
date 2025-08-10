@@ -939,7 +939,14 @@ extension ChatRoomViewController {
             alert.addAction(.init(title: "Camera",
                                   style: .default,
                                   handler: { action in
-                self.openCamera()
+                do {
+                    try self.checkCameraPermission()
+                    self.openCamera()
+                } catch PermissionsError.cameraDenied {
+                    self.createPermissionDenialAlert()
+                } catch {
+                    print("Camera permission error: \(error)")
+                }
             }))
         }
         
@@ -963,6 +970,32 @@ extension ChatRoomViewController {
         picker.allowsEditing = true
         picker.cameraCaptureMode = .photo
         present(picker, animated: true)
+    }
+    
+    private func checkCameraPermission() throws
+    {
+        if AVCaptureDevice.authorizationStatus(for: .video) == .denied
+        {
+            throw PermissionsError.cameraDenied
+        }
+    }
+    
+    private func createPermissionDenialAlert()
+    {
+        let alert = UIAlertController(title: "Permission Denied", message: "Please allow camera permission in settings to use camera feature.", preferredStyle: .alert)
+        
+        alert.addAction(.init(title: "Cancel", style: .cancel))
+        alert.addAction(.init(title: "Settings",
+                              style: .default,
+                              handler: { action in
+            if let appSettings = URL(string: UIApplication.openSettingsURLString)
+            {
+                if UIApplication.shared.canOpenURL(appSettings) {
+                    UIApplication.shared.open(appSettings)
+                }
+            }
+        }))
+        present(alert, animated: true)
     }
 }
 

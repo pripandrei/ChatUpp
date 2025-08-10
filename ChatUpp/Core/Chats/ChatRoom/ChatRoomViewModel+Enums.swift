@@ -93,3 +93,10 @@ enum ChatType
     case _private
     case _group
 }
+
+enum PermissionsError: Error
+{
+    case cameraDenied
+    case microphoneDenied
+    case photoLibraryDenied
+}
