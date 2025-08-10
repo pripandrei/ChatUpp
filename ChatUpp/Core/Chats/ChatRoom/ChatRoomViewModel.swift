@@ -385,11 +385,25 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let seenByValue = (isGroupChat && type != .title) ? [authUserID] : nil
         let messageText = (messageText != nil) ? messageText! : ""
         
+        //Test remove later
+//        var components = DateComponents()
+//        components.year = 2024
+//        components.month = 8
+//        components.day = 19
+//        components.hour = 18
+//        components.minute = Int.random(in: Range(1...59))
+//        components.second = 42
+//
+//        let calendar = Calendar.current
+//        if let date = calendar.date(from: components) {
+//            print(date) // 2024-08-19 15:38:00 +0000 (UTC)
+//        }
+        
         return Message(
             id: UUID().uuidString,
             messageBody: messageText,
             senderId: authUserID,
-            timestamp: Date(),
+            timestamp:  Date(),
             messageSeen: isGroupChat ? nil : false,
             seenBy: seenByValue,
             isEdited: false,
@@ -766,6 +780,8 @@ extension ChatRoomViewModel
         do {
             let messages = try await fetchConversationMessages()
             
+            await self.fetchMessagesMetadata(Set(messages))
+            
             if conversation?.isGroup == true
             {
                 await syncGroupUsers(for: messages)
@@ -1003,7 +1019,9 @@ extension ChatRoomViewModel
                 group.addTask {
                     do {
                         let optimizedURL = avatarURL.addSuffix("small")
-                        let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(userID), imagePath: optimizedURL)
+                        let imageData = try await FirebaseStorageManager.shared.getImage(
+                            from: .user(userID),
+                            imagePath: optimizedURL)
                         CacheManager.shared.saveImageData(imageData, toPath: optimizedURL)
                     } catch {
                         print("Error fetching avatar image data for user: \(userID); Error: \(error)")
@@ -1176,13 +1194,37 @@ extension ChatRoomViewModel
         if message.imagePath != nil {
             tasks.append { await self.downloadImageData(from: message) }
         }
-
+        
         /// See FootNote.swift [9]
         if message.type == .title {
             tasks.append { await self.syncGroupUsers(for: [message]) }
         }
 
+        if let messageToReplyID = message.repliedTo
+        {
+            tasks.append {
+                await self.handleReferencedMessage(withID: messageToReplyID)
+            }
+        }
+        
         return tasks
+    }
+    
+    private func handleReferencedMessage(withID messageID: String) async {
+        do {
+            let referencedMessage = try await fetchMessage(withID: messageID)
+            
+            if referencedMessage.imagePath != nil {
+                await self.downloadImageData(from: referencedMessage)
+            }
+            
+            await MainActor.run {
+                self.realmService?.addMessagesToConversationInRealm([referencedMessage])
+            }
+            
+        } catch {
+            print("Error fetching referenced message: \(error)")
+        }
     }
 
     
@@ -1241,6 +1283,16 @@ extension ChatRoomViewModel
 
 extension ChatRoomViewModel
 {
+    @MainActor
+    private func fetchMessage(withID messageID: String) async throws -> Message
+    {
+        let message = try await FirebaseChatService.shared.fetchMessage(
+            messageID: messageID,
+            from: conversation!.id
+        )
+        return message
+    }
+    
     @MainActor
     func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message]
     {

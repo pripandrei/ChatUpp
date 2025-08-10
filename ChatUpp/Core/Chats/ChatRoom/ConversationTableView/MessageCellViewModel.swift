@@ -13,7 +13,7 @@ final class MessageCellViewModel
     @Published private(set) var imagePathURL: URL?
     @Published private(set) var message: Message?
     
-    @Published private(set) var senderName: String?
+//    @Published private(set) var senderName: String?
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -39,6 +39,7 @@ final class MessageCellViewModel
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
     
+    /// use computed property cause name can change
     var referencedMessageSenderName: String?
     {
         guard let referencedMessageID = referencedMessage?.senderId else { return nil }
@@ -97,9 +98,9 @@ final class MessageCellViewModel
             observeReplyToMessage()
         }
         
-        if message.type == .title {
-            setMessageSenderName()
-        }
+//        if message.type == .title {
+//            setMessageSenderName()
+//        }
     }
     
     private func setReferencedMessage(usingMessageID messageID: String)
@@ -111,28 +112,28 @@ final class MessageCellViewModel
         self.referencedMessage = referencedMessage
     }
     
-    private func setMessageSenderName()
-    {
-        guard let senderName = messageSender?.name
-        else
-        {
-            Task {
-                do {
-                    self.senderName = try await fetchMessageSender().name
-                } catch {
-                    print("Error fetching sender from message: \(error)")
-                }
-            }
-            return
-        }
-        self.senderName = senderName
-    }
+//    private func setMessageSenderName()
+//    {
+//        guard let senderName = messageSender?.name
+//        else
+//        {
+//            Task {
+//                do {
+//                    self.senderName = try await fetchMessageSender().name
+//                } catch {
+//                    print("Error fetching sender from message: \(error)")
+//                }
+//            }
+//            return
+//        }
+//        self.senderName = senderName
+//    }
     
-    @MainActor
-    private func fetchMessageSender() async throws -> User
-    {
-        return try await FirestoreUserService.shared.getUserFromDB(userID: message!.senderId) // this function is called from init with non nil message value, so yes, we can use !
-    }
+//    @MainActor
+//    private func fetchMessageSender() async throws -> User
+//    {
+//        return try await FirestoreUserService.shared.getUserFromDB(userID: message!.senderId) // this function is called from init with non nil message value, so yes, we can use !
+//    }
 }
 
 //MARK: - Image fetch
@@ -143,22 +144,54 @@ extension MessageCellViewModel
     {
         guard let message = message, let imgatePath = message.imagePath else { return }
         Task {
-            let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: imgatePath)
+            let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id),
+                                                                             imagePath: imgatePath)
             cacheImage(data: imageData)
             messageImageDataSubject.send(imageData)
         }
     }
     
-    func fetchSenderAvatartImageData()
-    {
-        guard let user = messageSender, var path = messageSender?.photoUrl else { return }
-        Task { @MainActor in
-            path = path.addSuffix("medium")
-            let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: path)
-            cacheImage(data: imageData)
-            senderImageDataSubject.send(imageData)
-        }
-    }
+//    func fetchSenderAvatartImageData()
+//    {
+//        guard let user = messageSender, var path = messageSender?.photoUrl else { return }
+//        Task { @MainActor in
+//            path = path.addSuffix("medium")
+//            let imageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: path)
+//            cacheImage(data: imageData)
+//            senderImageDataSubject.send(imageData)
+//        }
+//    }
+    
+//    func fetchReferencedMessageImageData()
+//    {
+//        guard let referencedMessage = referencedMessage,
+//              let path = referencedMessage.imagePath?.addSuffix("small") else { return }
+//        
+//        Task {
+//            let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(referencedMessage.id),
+//                                                             imagePath: path)
+//            await MainActor.run {
+//                cacheImage(data: imageData)
+//                self.referencedMessage = self.referencedMessage // to trigger update event
+//            }
+//        }
+//    }
+    
+//    private func downloadImageData(from message: Message) async
+//    {
+//        guard let path = message.imagePath else { return }
+//        let smallPath = path.addSuffix("small")
+//        let paths = [path, smallPath]
+//        
+//        do {
+//            for path in paths {
+//                let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: path)
+//                CacheManager.shared.saveImageData(imageData, toPath: path)
+//            }
+//        } catch {
+//            print("Could not fetch message image data: ", error)
+//        }
+//    }
     
 //    @MainActor
 //    func getImagePathURL() async throws -> URL?
@@ -185,11 +218,17 @@ extension MessageCellViewModel
         guard let path = message?.imagePath else {return nil}
         return CacheManager.shared.retrieveImageData(from: path)
     }
+    
+    func retrieveReferencedImageData() -> Data?
+    {
+        guard let imagePath = referencedMessage?.imagePath?.addSuffix("small") else {return nil}
+        return CacheManager.shared.retrieveImageData(from: imagePath)
+    }
 
     func retrieveSenderAvatarData(ofSize size: String) -> Data?
     {
         guard var path = messageSender?.photoUrl else {return nil}
-        path = path.replacingOccurrences(of: ".jpg", with: "_\(size).jpg")
+        path = path.addSuffix(size)
         return CacheManager.shared.retrieveImageData(from: path)
     }
 }
@@ -286,24 +325,18 @@ extension MessageCellViewModel
         guard let replyMessage = referencedMessage else {return}
         RealmDataBase.shared.observerObject(replyMessage)
             .sink { [weak self] objectUpdate in
-                guard let self
-                      /*let property = MessageObservedProperty(from: objectUpdate) */else
-                { return }
+                guard let self else { return }
                 
                 switch objectUpdate {
                 case .changed(object: let object, property: let properties):
                     properties.forEach { property in
-                        if property.name == "messageBody" {
+                        if property.name == "messageBody" || property.name == "imagePath"
+                        {
                             self.referencedMessage = object as? Message
                         }
                     }
                 case .deleted: self.referencedMessage = nil
                 }
-                
-//                switch property {
-//                case .messageBody: propertyChange.0.newValue as? String else { return }
-//                default: break
-//                }
             }.store(in: &cancellables)
     }
 }

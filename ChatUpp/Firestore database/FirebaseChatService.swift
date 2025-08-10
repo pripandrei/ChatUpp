@@ -128,6 +128,17 @@ extension FirebaseChatService
 
 extension FirebaseChatService
 {
+    func fetchMessage(messageID: String,
+                      from chatID: String) async throws -> Message
+    {
+        let message = try await getMessageDocument(
+            messagePath: messageID,
+            fromChatDocumentPath: chatID
+        ).getDocument(as: Message.self)
+        
+        return message
+    }
+    
     func getMessagesCount(fromChatDocumentPath documentPath: String) async throws -> Int  {
         let countQuery = chatDocument(documentPath: documentPath).collection(FirestoreCollection.messages.rawValue).count
         let count = try await countQuery.getAggregation(source: .server).count

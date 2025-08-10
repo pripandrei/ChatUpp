@@ -134,9 +134,9 @@ final class MessageTableViewCell: UITableViewCell
             .dropFirst()
             .sink { [weak self] replyMessage in
                 if let replyMessage {
-                    self?.testUpdateReplyMessage(replyMessage.messageBody)
+                    self?.updateMessageToReply(replyMessage)
                 } else {
-                    self?.testCollapse()
+                    self?.removeMessageToReplyLabel()
                 }
             }.store(in: &subscribers)
     }
@@ -204,7 +204,7 @@ final class MessageTableViewCell: UITableViewCell
             }
         }
         
-        setupMessageToReplyLabel()
+        setupMessageToReplyView()
         setContainerStackViewBottomConstraint()
         updateEditedLabel()
         updateStackViewAppearance()
@@ -213,44 +213,21 @@ final class MessageTableViewCell: UITableViewCell
 
         setupMessageData(with: message)
         setupReactionView(for: message)
-        
-//        executeAfter(seconds: 3.0, block: {
-////            self.testCollapse()
-//            self.handleContentRelayout?()
-//        })
-////        
+            
 //        testMessageTextEdit()
-        
     }
     
-    private func testMessageTextEdit() {
-        if messageLabel.attributedText?.string == "Pedro pascal Hi there Pedro pascal Hi there Pedro pascal Hi there Pedro pascal Hi there Pedro pascal with on this"
-        {
-            executeAfter(seconds: 3.0, block: {
-                self.messageLabel.messageUpdateType = .edited
-                self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: "Pedro pascal")
-
-                self.handleMessageLayout()
-
-                UIView.animate(withDuration: 0.3) {
-                    self.contentView.layoutIfNeeded()
-                }
-                self.handleContentRelayout?()
-            })
-        }
-    }
-    
-    private func testCollapse()
+    private func removeMessageToReplyLabel()
     {
         executeAfter(seconds: 1.0) {
             self.messageLabel.messageUpdateType = .replyRemoved
             UIView.animate(withDuration: 0.3) {
-                self.replyMessageLabel.alpha = 0
-                self.replyMessageLabel.isHidden = true
+                self.replyViewTest.alpha = 0
+                self.replyViewTest.isHidden = true
                 //            self.containerStackView.layoutIfNeeded()
             } completion: { _ in
-                self.containerStackView.removeArrangedSubview(self.replyMessageLabel)
-                self.replyMessageLabel.removeFromSuperview()
+                self.containerStackView.removeArrangedSubview(self.replyViewTest)
+                self.replyViewTest.removeFromSuperview()
                 //            self.messageLabel.layoutIfNeeded()
                 self.handleMessageLayout()
                 UIView.animate(withDuration: 0.2) {
@@ -264,41 +241,389 @@ final class MessageTableViewCell: UITableViewCell
         }
     }
     
-    private func testUpdateReplyMessage(_ messageBody: String)
+    private func updateMessageToReply(_ message: Message)
     {
         guard let messageSenderName = cellViewModel.referencedMessageSenderName else {return}
-        executeAfter(seconds: 4.0, block: {
-            self.replyMessageLabel.attributedText = self.createReplyMessageAttributedText(
+        executeAfter(seconds: 4.0, block: { [weak self] in
+            guard let self else {return}
+            let messageText = message.messageBody.isEmpty ? "Photo" : message.messageBody
+            let replyLabelText = self.createReplyMessageAttributedText(
                 with: messageSenderName,
-                messageText: messageBody
+                messageText: messageText
             )
+            let image = message.imagePath == nil ? nil : self.cellViewModel.retrieveReferencedImageData()
+            self.replyViewTest.configure(with: replyLabelText, imageData: image)
+            
             UIView.animate(withDuration: 0.5) {
                 self.contentView.layoutIfNeeded()
             }
         })
     }
 
-    private func setupMessageToReplyLabel()
-    {
-        guard let messageSenderName = cellViewModel.referencedMessageSenderName,
-              let messageText = cellViewModel.referencedMessage?.messageBody else
-        {
-            containerStackView.removeArrangedSubview(replyMessageLabel)
-            replyMessageLabel.removeFromSuperview()
-            return
+    // Custom image view that handles its own sizing
+    private class FixedSizeImageView: UIImageView {
+        private let fixedSize: CGSize
+        
+        init(size: CGSize) {
+            self.fixedSize = size
+            super.init(frame: CGRect(origin: .zero, size: size))
+            contentMode = .scaleAspectFill
+            clipsToBounds = true
+            layer.cornerRadius = 4
         }
         
-        replyMessageLabel.attributedText = createReplyMessageAttributedText(
-            with: messageSenderName,
-            messageText: messageText
-        )
-    
-        if !containerStackView.arrangedSubviews.contains(replyMessageLabel)
-        {
-            containerStackView.insertArrangedSubview(replyMessageLabel, at: 0)
-            replyMessageLabel.widthAnchor.constraint(equalTo: containerStackView.widthAnchor).isActive = true
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override var intrinsicContentSize: CGSize {
+            return fixedSize
         }
     }
+    
+    final class TestReplyView: UIView {
+        
+        class CustomContainerView: UIView
+        {
+            override init(frame: CGRect) {
+                super.init(frame: frame)
+                backgroundColor = ColorManager.replyToMessageBackgroundColor
+                clipsToBounds = true
+                layer.cornerRadius = 4
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+            
+            override func draw(_ rect: CGRect) {
+                super.draw(rect)
+                fillColor(with: .white, width: 5)
+            }
+            
+            private func fillColor(with color: UIColor, width: CGFloat) {
+                let stripeRect = CGRect(x: 0, y: 0, width: width, height: bounds.height)
+                color.setFill()
+                UIRectFill(stripeRect)
+            }
+        }
+        
+        let containerView: UIView = CustomContainerView()
+        let imageView = UIImageView()
+        let messageLabel = UILabel()
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            setupContainerView()
+            setupMessageLabel()
+        }
+        
+        required init?(coder: NSCoder) {
+            super.init(coder: coder)
+            setupContainerView()
+            setupMessageLabel()
+        }
+        
+        private func setupContainerView() {
+            self.addSubview(containerView)
+            
+            containerView.translatesAutoresizingMaskIntoConstraints = false
+            
+            NSLayoutConstraint.activate([
+                containerView.topAnchor.constraint(equalTo: self.topAnchor, constant: 7),
+                containerView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 7),
+                containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -7),
+                containerView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0)
+            ])
+        }
+        
+        private func setupMessageLabel()
+        {
+            containerView.addSubview(messageLabel)
+            messageLabel.numberOfLines = 2
+            messageLabel.layer.cornerRadius = 4
+            messageLabel.clipsToBounds = true
+            messageLabel.backgroundColor = ColorManager.replyToMessageBackgroundColor
+            messageLabel.translatesAutoresizingMaskIntoConstraints = false
+            
+            NSLayoutConstraint.activate([
+                messageLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 5),
+                messageLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 15),
+                messageLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -5),
+                messageLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -5)
+            ])
+        }
+    }
+    
+    final class ReplyMessageView2: UIStackView {
+            
+            // MARK: - Subviews
+            private let imageView = FixedSizeImageView(size: CGSize(width: 30, height: 30))
+            private let nameLabel = UILabel()
+            private let messageLabel = UILabel()
+            private let labelsStack = UIStackView()
+            
+            // MARK: - Stripe
+            private var stripeColor: UIColor = .clear
+            private var stripeWidth: CGFloat = 0
+            
+            // MARK: - Init
+            init(senderName: String, messageText: String, image: UIImage?) {
+                super.init(frame: .zero)
+                setupView()
+                configure(senderName: senderName, messageText: messageText, image: image)
+            }
+            
+            required init(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+            
+            // MARK: - Dynamic padding calculation
+            private let outerPadding: CGFloat = 14
+            private let innerPadding: CGFloat = 10
+            
+            override var alignmentRectInsets: UIEdgeInsets {
+                return UIEdgeInsets(top: -8, left: -8, bottom: 0, right: -8)
+            }
+            
+            private var calculatedLayoutMargins: UIEdgeInsets {
+                let alignmentInsets = alignmentRectInsets
+                return UIEdgeInsets(
+                    top: innerPadding + abs(alignmentInsets.top),
+                    left: outerPadding + innerPadding + abs(alignmentInsets.left),
+                    bottom: innerPadding + abs(alignmentInsets.bottom),
+                    right: outerPadding + innerPadding + abs(alignmentInsets.right)
+                )
+            }
+            
+            private func setupView() {
+                axis = .horizontal
+                alignment = .top
+                spacing = 8
+                
+                // Use dynamically calculated layout margins
+                isLayoutMarginsRelativeArrangement = true
+                layoutMargins = calculatedLayoutMargins
+                
+                // Labels
+                nameLabel.font = UIFont.boldSystemFont(ofSize: 13)
+                nameLabel.textColor = .white
+                
+                messageLabel.font = UIFont.systemFont(ofSize: 13)
+                messageLabel.textColor = .white
+                messageLabel.numberOfLines = 0
+                
+                // Labels stack
+                labelsStack.axis = .vertical
+                labelsStack.alignment = .leading
+                labelsStack.spacing = 2
+                labelsStack.addArrangedSubview(nameLabel)
+                labelsStack.addArrangedSubview(messageLabel)
+                
+                // Add views - no constraints needed
+                addArrangedSubview(imageView)
+                addArrangedSubview(labelsStack)
+            }
+            
+            func configure(senderName: String, messageText: String, image: UIImage?) {
+                nameLabel.text = senderName
+                messageLabel.text = messageText
+                imageView.image = image ?? UIImage(systemName: "star.fill")
+            }
+            
+            func fillColor(with color: UIColor, width: CGFloat) {
+                stripeColor = color
+                stripeWidth = width
+                setNeedsDisplay()
+            }
+            
+            override func draw(_ rect: CGRect) {
+                super.draw(rect)
+                // Dynamically calculate stripe position based on alignment rect and outer padding
+                let alignmentInsets = alignmentRectInsets
+                let stripeX = outerPadding + abs(alignmentInsets.left)
+                let stripeRect = CGRect(x: stripeX, y: 0, width: stripeWidth, height: bounds.height)
+                stripeColor.setFill()
+                UIRectFill(stripeRect)
+            }
+        }
+
+    var replyViewTest = TestReplyStack()
+    
+    private func setupMessageToReplyView()
+    {
+        guard let senderName = cellViewModel.referencedMessageSenderName,
+              let messageText = cellViewModel.referencedMessage?.messageBody else {
+            containerStackView.arrangedSubviews
+                .filter { $0 is TestReplyStack }
+                .forEach {
+                    containerStackView.removeArrangedSubview($0)
+                    $0.removeFromSuperview()
+                }
+            return
+        }
+        let replyLabelText = messageText.isEmpty ? "Photo" : messageText
+        let replyText = createReplyMessageAttributedText(
+            with: senderName,
+            messageText: replyLabelText
+        )
+        
+        let imageData: Data? = cellViewModel.retrieveReferencedImageData()
+        
+        //        if let _ = cellViewModel.referencedMessage?.imagePath
+        //        {
+        //            if let image = cellViewModel.retrieveReferencedImageData() {
+        //                imageData = image
+        //            } else {
+        //                cellViewModel.fetchReferencedMessageImageData()
+        //            }
+        //        }
+        
+        replyViewTest.configure(with: replyText, imageData: imageData)
+        
+        containerStackView.insertArrangedSubview(replyViewTest, at: 0)
+        replyViewTest.widthAnchor.constraint(equalTo: containerStackView.widthAnchor).isActive = true
+    }
+    
+    
+    final class TestReplyStack: UIStackView
+    {
+        
+        class FixedSizeImageView: UIImageView {
+            private let fixedSize: CGSize
+            
+            init(size: CGSize) {
+                self.fixedSize = size
+                super.init(frame: .zero)
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+            
+            override var intrinsicContentSize: CGSize {
+                return fixedSize
+            }
+        }
+        class ReplyInnerStackView: UIStackView
+        {
+            override func draw(_ rect: CGRect) {
+                UIColor.white.setFill()
+                let rect = CGRect(x: 0, y: 0, width: 5, height: bounds.height)
+                UIRectFill(rect)
+            }
+            
+            override init(frame: CGRect) {
+                super.init(frame: frame)
+                backgroundColor = ColorManager.replyToMessageBackgroundColor
+                axis = .horizontal
+                clipsToBounds = true
+                layer.cornerRadius = 4
+                spacing = 10
+                isLayoutMarginsRelativeArrangement = true
+                layoutMargins = UIEdgeInsets(top: 5, left: 12, bottom: 5, right: 5)
+            }
+            
+            required init(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+        }
+        
+        private var replyInnerStackView: ReplyInnerStackView = ReplyInnerStackView()
+        
+        lazy var imageView: FixedSizeImageView = {
+            let imageView = FixedSizeImageView(size: CGSize(width: 30, height: 30))
+            imageView.contentMode = .scaleAspectFill
+            imageView.clipsToBounds = true
+            return imageView
+        }()
+        
+        private let messageLabel: UILabel = {
+            let label = UILabel()
+            label.numberOfLines = 2
+            label.clipsToBounds = true
+            return label
+        }()
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            setupSelf()
+        }
+        private func setupSelf()
+        {
+            axis = .vertical
+            spacing = 5
+            isLayoutMarginsRelativeArrangement = true
+            layoutMargins = UIEdgeInsets(top: 7, left: 7, bottom: 0, right: 7)
+            
+//            imageView.image = UIImage(named: "default_group_photo")
+            
+            // Set intrinsic content size for the image view
+//            imageView.intrinsicContentSize = CGSize(width: 30, height: 30)
+            
+//            imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+//            imageView.setContentHuggingPriority(.defaultHigh, for: .vertical) // Changed to high
+//            messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+//            messageLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+//
+            replyInnerStackView.addArrangedSubview(messageLabel)
+//            let innerStack = replyInnerStackView(arrangedSubviews: [messageLabel])
+            addArrangedSubview(replyInnerStackView)
+        }
+        
+        func configure(with text: NSAttributedString,
+                       imageData: Data? = nil)
+        {
+            messageLabel.attributedText = text
+            
+            if let imageData
+            {
+                imageView.image = UIImage(data: imageData)
+                replyInnerStackView.insertArrangedSubview(imageView, at: 0)
+            } else {
+                imageView.image = nil
+                replyInnerStackView.removeArrangedSubview(imageView)
+                imageView.removeFromSuperview()
+            }
+        }
+        
+        required init(coder: NSCoder) { fatalError() }
+    }
+    
+    
+//    private func setupMessageToReplyLabel()
+//    {
+//        guard let messageSenderName = cellViewModel.referencedMessageSenderName,
+//              let messageText = cellViewModel.referencedMessage?.messageBody else
+//        {
+//            containerStackView.removeArrangedSubview(replyMessageLabel)
+//            replyMessageLabel.removeFromSuperview()
+//            return
+//        }
+//        
+//        replyMessageLabel.attributedText = createReplyMessageAttributedText(
+//            with: messageSenderName,
+//            messageText: messageText
+//        )
+//        
+//        if !containerStackView.arrangedSubviews.contains(replyMessageLabel)
+//        {
+//            containerStackView.insertArrangedSubview(replyMessageLabel, at: 0)
+//            replyMessageLabel.widthAnchor.constraint(equalTo: containerStackView.widthAnchor).isActive = true
+//        }
+//        
+//        let image = UIImage(systemName: "star.fill")?.withRenderingMode(.alwaysOriginal)
+//        let uiimage = UIImageView(image: image)
+//        replyMessageLabel.addSubview(uiimage)
+//        uiimage.translatesAutoresizingMaskIntoConstraints = false
+//        
+//        NSLayoutConstraint.activate([
+//            uiimage.leadingAnchor.constraint(equalTo: replyMessageLabel.leadingAnchor, constant: 15),
+//            uiimage.topAnchor.constraint(equalTo: replyMessageLabel.topAnchor, constant: replyMessageLabel.textInset.top),
+//            uiimage.bottomAnchor.constraint(equalTo: replyMessageLabel.bottomAnchor, constant: -replyMessageLabel.textInset.bottom),
+//            uiimage.widthAnchor.constraint(equalToConstant: 30)
+//        ])
+//    }
  
     private func setupStackViewComponentsColor() {
         timeStamp.textColor = getColorForMessageComponents()
@@ -750,6 +1075,210 @@ class MessageLabel: YYLabel
         
 }
 
+//MARK: reply stack view
+extension MessageTableViewCell
+{
+
+    class ReplyMessageView: UIView {
+        
+        private let containerStackView: UIStackView = {
+            let stackView = UIStackView()
+            stackView.axis = .horizontal
+            stackView.alignment = .top
+            stackView.spacing = 8
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            return stackView
+        }()
+        
+        private let imageView: UIImageView = {
+            let imageView = UIImageView()
+            imageView.contentMode = .scaleAspectFit
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            return imageView
+        }()
+        
+        private let textContainerView: UIView = {
+            let view = UIView()
+            view.translatesAutoresizingMaskIntoConstraints = false
+            return view
+        }()
+        
+        private let textLabel: UILabel = {
+            let label = UILabel()
+            label.numberOfLines = 0
+            label.translatesAutoresizingMaskIntoConstraints = false
+            return label
+        }()
+        
+        // Properties to match ReplyMessageLabel behavior
+        private let textInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 8)
+        var rectInset: UIEdgeInsets = .zero
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            setupView()
+        }
+        
+        required init?(coder: NSCoder) {
+            super.init(coder: coder)
+            setupView()
+        }
+        
+        private func setupView() {
+            addSubview(containerStackView)
+            
+            // Add image to stack view
+            containerStackView.addArrangedSubview(imageView)
+            
+            // Add text container to stack view
+            containerStackView.addArrangedSubview(textContainerView)
+            textContainerView.addSubview(textLabel)
+            
+            NSLayoutConstraint.activate([
+                // Container stack view constraints
+                containerStackView.topAnchor.constraint(equalTo: topAnchor),
+                containerStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+                containerStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+                containerStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+                
+                // Image size constraints
+                imageView.widthAnchor.constraint(equalToConstant: 30),
+                imageView.heightAnchor.constraint(equalToConstant: 30),
+                
+                // Text label constraints with insets (matching ReplyMessageLabel)
+                textLabel.topAnchor.constraint(equalTo: textContainerView.topAnchor, constant: textInset.top),
+                textLabel.leadingAnchor.constraint(equalTo: textContainerView.leadingAnchor, constant: textInset.left),
+                textLabel.trailingAnchor.constraint(equalTo: textContainerView.trailingAnchor, constant: -textInset.right),
+                textLabel.bottomAnchor.constraint(equalTo: textContainerView.bottomAnchor, constant: -textInset.bottom)
+            ])
+        }
+        
+        override func draw(_ rect: CGRect) {
+            super.draw(rect)
+            
+            // Draw the white line on the left side (matching ReplyMessageLabel behavior)
+            let lineWidth: CGFloat = 5
+            let topRect = CGRect(
+                x: 0,
+                y: 0,
+                width: lineWidth,
+                height: self.bounds.height
+            )
+            UIColor.white.setFill()
+            UIRectFill(topRect)
+        }
+        
+        override var intrinsicContentSize: CGSize {
+            let imageWidth: CGFloat = 30
+            let spacing: CGFloat = 8
+            let textIntrinsicSize = textLabel.intrinsicContentSize
+            
+            var contentSize = CGSize.zero
+            
+            // Width: image + spacing + text + insets
+            contentSize.width = imageWidth + spacing + textIntrinsicSize.width + textInset.left + textInset.right
+            
+            // Height: max of image height and text height + insets
+            let textHeight = textIntrinsicSize.height + textInset.top + textInset.bottom
+            let imageHeight: CGFloat = 30
+            contentSize.height = max(imageHeight, textHeight)
+            
+            // Compensate for alignment rect insets
+            contentSize.height -= rectInset.top + rectInset.bottom
+            contentSize.width -= rectInset.left + rectInset.right
+            
+            return contentSize
+        }
+        
+        override var alignmentRectInsets: UIEdgeInsets {
+            return rectInset
+        }
+        
+        func configure(with senderName: String, messageText: String, image: UIImage? = nil) {
+            // Set the image
+            imageView.image = image ?? UIImage(systemName: "star.fill")
+            
+            // Create attributed text for name and message
+            let attributedText = NSMutableAttributedString()
+            
+            // Add sender name
+            let nameAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.boldSystemFont(ofSize: 13),
+                .foregroundColor: UIColor.white
+            ]
+            attributedText.append(NSAttributedString(string: senderName, attributes: nameAttributes))
+            
+            // Add message text
+            let messageAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 13),
+                .foregroundColor: UIColor.white
+            ]
+            attributedText.append(NSAttributedString(string: "\n\(messageText)", attributes: messageAttributes))
+            
+            textLabel.attributedText = attributedText
+            
+            // Trigger layout update
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+        }
+    }
+
+    // Usage example:
+    /*
+    let replyView = ReplyMessageView()
+    replyView.configure(with: "John Doe", messageText: "This is a reply message", image: yourImage)
+
+    // Add to your view hierarchy
+    parentView.addSubview(replyView)
+    replyView.translatesAutoresizingMaskIntoConstraints = false
+    NSLayoutConstraint.activate([
+        replyView.leadingAnchor.constraint(equalTo: parentView.leadingAnchor),
+        replyView.trailingAnchor.constraint(equalTo: parentView.trailingAnchor),
+        replyView.topAnchor.constraint(equalTo: parentView.topAnchor)
+    ])
+    */
+    final class ReplyStackView: UIStackView
+    {
+        private let textInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 8)
+        var rectInset: UIEdgeInsets = .zero
+        
+        override var intrinsicContentSize: CGSize
+        {
+            var contentSize = super.intrinsicContentSize
+            // Add text insets
+            contentSize.height += textInset.top + textInset.bottom
+            contentSize.width += textInset.left + textInset.right
+            
+            // Compensate for alignment rect insets (subtract negative values = add positive)
+            contentSize.height -= rectInset.top + rectInset.bottom
+            contentSize.width -= rectInset.left + rectInset.right
+            
+            return contentSize
+        }
+        
+        override var alignmentRectInsets: UIEdgeInsets {
+            return rectInset
+        }
+        
+        
+        override func draw(_ rect: CGRect) {
+            super.draw(rect)
+            self.fillColor(with: .white, width: 5)
+        }
+        
+        private func fillColor(with color: UIColor, width: CGFloat) {
+            let topRect = CGRect(
+                x: 0,
+                y: 0,
+                width: width,
+                height: self.bounds.height
+            )
+            color.setFill()
+            UIRectFill(topRect)
+        }
+    }
+}
+
 //MARK: - Reply message label
 extension MessageTableViewCell
 {
@@ -757,7 +1286,7 @@ extension MessageTableViewCell
     ///
     class ReplyMessageLabel: UILabel
     {
-        private let textInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 8)
+        let textInset = UIEdgeInsets(top: 5, left: 40, bottom: 5, right: 8)
         var rectInset: UIEdgeInsets = .zero
         
         override var intrinsicContentSize: CGSize
@@ -840,12 +1369,14 @@ extension MessageTableViewCell
         messageSenderAvatar?.translatesAutoresizingMaskIntoConstraints = false
         setupSenderAvatarConstraints()
         
-        if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "medium") {
-            messageSenderAvatar?.image = UIImage(data: imageData)
-            return
-        }
+        //TODO: medium should be removed
         
-        cellViewModel.fetchSenderAvatartImageData() //fetch medium size image
+//        if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "medium") {
+//            messageSenderAvatar?.image = UIImage(data: imageData)
+//            return
+//        }
+//        
+//        cellViewModel.fetchSenderAvatartImageData() //fetch medium size image
         
         if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "small") {
             messageSenderAvatar?.image = UIImage(data: imageData)
@@ -966,4 +1497,24 @@ extension MessageTableViewCell: TargetPreviewable
     }
 }
 
+// MARK: Message edit animation
+extension MessageTableViewCell
+{
+    private func testMessageTextEdit()
+    {
+        if messageLabel.attributedText?.string == "Pedro pascal Hi there Pedro pascal Hi there Pedro pascal Hi there Pedro pascal Hi there Pedro pascal with on this"
+        {
+            executeAfter(seconds: 3.0, block: {
+                self.messageLabel.messageUpdateType = .edited
+                self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: "Pedro pascal")
 
+                self.handleMessageLayout()
+
+                UIView.animate(withDuration: 0.3) {
+                    self.contentView.layoutIfNeeded()
+                }
+                self.handleContentRelayout?()
+            })
+        }
+    }
+}
