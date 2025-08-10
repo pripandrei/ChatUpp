@@ -202,12 +202,21 @@ class ChatCell: UITableViewCell {
     private func setupBinding()
     {
         cellViewModel.profileImageDataSubject
-            .compactMap( { $0 } )
+//            .compactMap( { $0 } )
+//            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in
                 guard let self = self else {return}
-                self.profileImage.image = UIImage(data: imageData)
-                Utilities.stopSkeletonAnimation(for: self.profileImage)
+                if cellViewModel.chatUser?.name == "Jitsu" || cellViewModel.chatUser?.name == "Keiz"
+                {
+                    print("stop")
+                }
+                if let image = imageData {
+                    self.profileImage.image = UIImage(data: image)
+                    Utilities.stopSkeletonAnimation(for: self.profileImage)
+                } else {
+                    self.setImage()
+                }
             }.store(in: &subscriptions)
         
         cellViewModel.$chatUser
@@ -276,6 +285,7 @@ class ChatCell: UITableViewCell {
         
         self.profileImage.image = cellViewModel.chat.isGroup == true ?
         UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
+        Utilities.stopSkeletonAnimation(for: self.profileImage)
     }
 }
 

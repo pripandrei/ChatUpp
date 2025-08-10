@@ -90,12 +90,14 @@ class ChatCellViewModel
     
     private func initiateChatDataLoad()
     {
-        do {
-            try retrieveDataFromRealm()
-        }
-        catch {
-            print("Error retrieving data from Realm: \(error)")
-        }
+//        do {
+//            try retrieveDataFromRealm()
+//        }
+//        catch {
+//            print("Error retrieving data from Realm: \(error)")
+//        }
+//        
+        retrieveDataFromRealm()
         
         self.dataFetchTask = Task
         { [weak self] in
@@ -250,12 +252,14 @@ extension ChatCellViewModel
 
 extension ChatCellViewModel {
     
-    func retrieveDataFromRealm() throws 
+    func retrieveDataFromRealm()
     {
-        self.unreadMessageCount = try retrieveAuthParticipant().unseenMessagesCount
-        self.recentMessage = try retrieveRecentMessage()
+        self.unreadMessageCount = try? retrieveAuthParticipant().unseenMessagesCount
+        self.recentMessage = try? retrieveRecentMessage()
         
-        if !chat.isGroup { self.chatUser = try retrieveMember() }
+        if !chat.isGroup {
+            self.chatUser = try? retrieveMember()
+        }
     }
     
     private func retrieveMember() throws -> User 
@@ -330,6 +334,7 @@ extension ChatCellViewModel
         {
             await performMessageImageUpdate(recentMessage!.id)
         }
+        
         self.profileImageDataSubject.send(retrieveImageFromCache())
     }
     

@@ -1206,10 +1206,7 @@ extension ChatRoomViewModel
                 do {
                     try await self.fetchRreferencedMessageData(messageToReplyID)
                 } catch MessageFetchError.notFound {
-                    Task { @MainActor in
-                        print("should update reply to id for \(message.id)")
-                        await self.updateMessageReplyToID(message.id)
-                    }
+                    await self.updateMessageReplyToID(message.id)
                 } catch {
                     print("Error fetching referenced message: \(error)")
                 }
@@ -1218,6 +1215,7 @@ extension ChatRoomViewModel
         return tasks
     }
     
+    @MainActor
     private func updateMessageReplyToID(_ messageID: String) async
     {
         do {
