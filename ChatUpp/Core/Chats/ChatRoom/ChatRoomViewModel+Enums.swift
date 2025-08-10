@@ -87,3 +87,9 @@ enum ConversationInitializationStatus {
     case inProgress
     case finished
 }
+
+enum ChatType
+{
+    case _private
+    case _group
+}

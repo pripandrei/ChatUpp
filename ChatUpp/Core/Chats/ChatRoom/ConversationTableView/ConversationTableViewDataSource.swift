@@ -107,7 +107,8 @@ extension ConversationTableViewDataSource
     private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
     {
         let chatType: ChatType = conversationViewModel.conversation?.isGroup == true ? ._group : ._private
-        var configuration = chatType.messageLayoutConfiguration
+//        var configuration = chatType.messageLayoutConfiguration
+        var configuration = MessageLayoutConfiguration.getLayoutConfiguration(for: chatType)
         
         if chatType == ._group {
             configuration = configuration

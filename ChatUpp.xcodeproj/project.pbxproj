@@ -134,6 +134,9 @@
 		75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */; };
 		75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E054272B04290100828B9D /* AlgoliaSearchManager.swift */; };
 		75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */; };
+		75E4807B2E49001700E8C005 /* ReplyToMessageStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E4807A2E48FF7300E8C005 /* ReplyToMessageStackView.swift */; };
+		75E4807D2E49027600E8C005 /* MessageLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E4807C2E49027300E8C005 /* MessageLabel.swift */; };
+		75E480822E49039F00E8C005 /* MessageLayoutConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E480812E49038900E8C005 /* MessageLayoutConfiguration.swift */; };
 		75E8AABE2D918C68007479E4 /* ChatRoomInformationEditScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABD2D918C68007479E4 /* ChatRoomInformationEditScreen.swift */; };
 		75E8AAC02D9192ED007479E4 /* ChatRoomInformationEditViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AABF2D9192EC007479E4 /* ChatRoomInformationEditViewModel.swift */; };
 		75E8AAC22D9213F9007479E4 /* ImageRepositoryRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */; };
@@ -307,6 +310,9 @@
 		75DD0AEF2B22175D005DBADE /* MailSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailSignInViewController.swift; sourceTree = "<group>"; };
 		75E054272B04290100828B9D /* AlgoliaSearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaSearchManager.swift; sourceTree = "<group>"; };
 		75E2F2F02C3C17BE0058DC88 /* RealtimeUserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeUserService.swift; sourceTree = "<group>"; };
+		75E4807A2E48FF7300E8C005 /* ReplyToMessageStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplyToMessageStackView.swift; sourceTree = "<group>"; };
+		75E4807C2E49027300E8C005 /* MessageLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLabel.swift; sourceTree = "<group>"; };
+		75E480812E49038900E8C005 /* MessageLayoutConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLayoutConfiguration.swift; sourceTree = "<group>"; };
 		75E8AABD2D918C68007479E4 /* ChatRoomInformationEditScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomInformationEditScreen.swift; sourceTree = "<group>"; };
 		75E8AABF2D9192EC007479E4 /* ChatRoomInformationEditViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomInformationEditViewModel.swift; sourceTree = "<group>"; };
 		75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepositoryRepresentable.swift; sourceTree = "<group>"; };
@@ -516,6 +522,8 @@
 		7563F87D2ADE2C1A006FA374 /* ConversationTableView */ = {
 			isa = PBXGroup;
 			children = (
+				75E480802E49035400E8C005 /* MessageLayoutConfiguration */,
+				75E480792E48FF6C00E8C005 /* Subviews */,
 				75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */,
 				750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */,
 				75D7C5942AD72DBC00F6D4B9 /* MessageTableViewCell.swift */,
@@ -825,6 +833,23 @@
 			path = "Realtime database";
 			sourceTree = "<group>";
 		};
+		75E480792E48FF6C00E8C005 /* Subviews */ = {
+			isa = PBXGroup;
+			children = (
+				75E4807C2E49027300E8C005 /* MessageLabel.swift */,
+				75E4807A2E48FF7300E8C005 /* ReplyToMessageStackView.swift */,
+			);
+			path = Subviews;
+			sourceTree = "<group>";
+		};
+		75E480802E49035400E8C005 /* MessageLayoutConfiguration */ = {
+			isa = PBXGroup;
+			children = (
+				75E480812E49038900E8C005 /* MessageLayoutConfiguration.swift */,
+			);
+			path = MessageLayoutConfiguration;
+			sourceTree = "<group>";
+		};
 		75FB78F92AC315D200C2743A /* Tabbar */ = {
 			isa = PBXGroup;
 			children = (
@@ -1114,6 +1139,7 @@
 				7587CE1B2C77DA7D002D60CE /* Query+Extensions.swift in Sources */,
 				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
 				75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */,
+				75E480822E49039F00E8C005 /* MessageLayoutConfiguration.swift in Sources */,
 				75A7AFD82D3C38C900E081DF /* ChatRoomNavigationBar.swift in Sources */,
 				7543BE332ACC87CA003001BF /* ChatRoomViewController.swift in Sources */,
 				75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */,
@@ -1132,6 +1158,7 @@
 				7527065A2DAB1D3E002128DF /* ConversationFirestoreService.swift in Sources */,
 				751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */,
 				7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */,
+				75E4807D2E49027600E8C005 /* MessageLabel.swift in Sources */,
 				7527065C2DAB1D6F002128DF /* ConversationUsersListinerService.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
 				75A7AFCA2D39717B00E081DF /* ChatRoomViewModel+Enums.swift in Sources */,
@@ -1149,6 +1176,7 @@
 				75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */,
 				757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
+				75E4807B2E49001700E8C005 /* ReplyToMessageStackView.swift in Sources */,
 				75BC06792DFB82D3002ED4AA /* NotificationCenter+Extensions.swift in Sources */,
 				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
