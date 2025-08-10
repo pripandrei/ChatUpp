@@ -1203,30 +1203,47 @@ extension ChatRoomViewModel
         if let messageToReplyID = message.repliedTo
         {
             tasks.append {
-                await self.handleReferencedMessage(withID: messageToReplyID)
+                do {
+                    try await self.fetchRreferencedMessageData(messageToReplyID)
+                } catch MessageFetchError.notFound {
+                    Task { @MainActor in
+                        print("should update reply to id for \(message.id)")
+                        await self.updateMessageReplyToID(message.id)
+                    }
+                } catch {
+                    print("Error fetching referenced message: \(error)")
+                }
             }
         }
-        
         return tasks
     }
     
-    private func handleReferencedMessage(withID messageID: String) async {
+    private func updateMessageReplyToID(_ messageID: String) async
+    {
         do {
-            let referencedMessage = try await fetchMessage(withID: messageID)
-            
-            if referencedMessage.imagePath != nil {
-                await self.downloadImageData(from: referencedMessage)
-            }
-            
-            await MainActor.run {
-                self.realmService?.addMessagesToConversationInRealm([referencedMessage])
-            }
-            
+            try await FirebaseChatService.shared.updateMessageReplyToID(
+                messageID,
+                chatID: conversation!.id)
         } catch {
-            print("Error fetching referenced message: \(error)")
+            print("Error while updating MessageReplyToID \(error)")
         }
     }
-
+    
+    
+    private func fetchRreferencedMessageData(_ refMessageID: String) async throws
+    {
+        let referencedMessage = try await fetchMessage(withID: refMessageID)
+        if referencedMessage.imagePath != nil {
+            await self.downloadImageData(from: referencedMessage)
+        }
+        
+        await MainActor.run {
+            self.realmService?.addMessagesToConversationInRealm([referencedMessage])
+        }
+        
+        // fetch referenced message sender user
+    }
+    
     
     @MainActor
     private func handleRemovedMessage(at indexPath: IndexPath) -> MessageChangeType?

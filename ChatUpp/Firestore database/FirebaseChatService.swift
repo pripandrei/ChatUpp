@@ -123,20 +123,22 @@ extension FirebaseChatService
     }
 }
 
-
 //MARK: - Fetch messages
-
 extension FirebaseChatService
 {
     func fetchMessage(messageID: String,
                       from chatID: String) async throws -> Message
     {
-        let message = try await getMessageDocument(
+        let snapshot = try await getMessageDocument(
             messagePath: messageID,
             fromChatDocumentPath: chatID
-        ).getDocument(as: Message.self)
+        ).getDocument()
         
-        return message
+        if !snapshot.exists {
+            throw MessageFetchError.notFound
+        }
+        
+        return try snapshot.data(as: Message.self)
     }
     
     func getMessagesCount(fromChatDocumentPath documentPath: String) async throws -> Int  {
@@ -211,7 +213,10 @@ extension FirebaseChatService
 
 extension FirebaseChatService
 {
-    func updateMessageText(_ messageText: String, messageID: String, chatID: String) async throws {
+    func updateMessageText(_ messageText: String,
+                           messageID: String,
+                           chatID: String) async throws
+    {
         let data: [String: Any] = [
             Message.CodingKeys.messageBody.rawValue : messageText,
             Message.CodingKeys.isEdited.rawValue : true
@@ -267,7 +272,8 @@ extension FirebaseChatService
         }
     }
     
-    func updateMessageSeenStatus(messageID: String , chatID: String) async throws {
+    func updateMessageSeenStatus(messageID: String , chatID: String) async throws
+    {
         let data: [String: Any] = [
             Message.CodingKeys.messageSeen.rawValue : true
         ]
@@ -291,7 +297,8 @@ extension FirebaseChatService
         try await chatDocument(documentPath: chatID).updateData(data)
     }
 
-    func updateMessageImagePath(messageID: String, chatDocumentPath: String, path: String) async throws {
+    func updateMessageImagePath(messageID: String, chatDocumentPath: String, path: String) async throws
+    {
         let data: [String: Any] = [
             Message.CodingKeys.imagePath.rawValue: path
         ]
@@ -318,6 +325,17 @@ extension FirebaseChatService
             Message.CodingKeys.reactions.rawValue: reactions
         ]
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
+    }
+    
+    func updateMessageReplyToID(_ messageID: String,
+                                chatID: String,
+                                replyToID: String? = nil) async throws
+    {
+        let data: [String: Any] = [
+            Message.CodingKeys.repliedTo.rawValue: replyToID ?? FieldValue.delete()
+        ]
+        try await getMessageDocument(messagePath: messageID,
+                                     fromChatDocumentPath: chatID).updateData(data)
     }
 }
 
@@ -1113,4 +1131,9 @@ extension FirebaseChatService
             }
         }
     }
+}
+
+enum MessageFetchError: Error
+{
+    case notFound
 }
