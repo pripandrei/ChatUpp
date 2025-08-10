@@ -1229,19 +1229,27 @@ extension ChatRoomViewModel
         }
     }
     
-    
     private func fetchRreferencedMessageData(_ refMessageID: String) async throws
     {
-        let referencedMessage = try await fetchMessage(withID: refMessageID)
-        if referencedMessage.imagePath != nil {
-            await self.downloadImageData(from: referencedMessage)
+        let realmRefMessage = RealmDataBase.shared.retrieveSingleObjectTest(
+            ofType: Message.self,
+            primaryKey: refMessageID
+        )?.freeze()
+        
+        let referencedMessage = realmRefMessage == nil ? try await fetchMessage(withID: refMessageID) : realmRefMessage!
+        
+        if let path = referencedMessage.imagePath
+        {
+            let imageExists = CacheManager.shared.doesImageExist(at: path.addSuffix("small"))
+            imageExists ? () : await self.downloadImageData(from: referencedMessage)
         }
+        
+        await syncGroupUsers(for: [referencedMessage])
         
         await MainActor.run {
-            self.realmService?.addMessagesToConversationInRealm([referencedMessage])
+            realmRefMessage == nil ?  self.realmService?.addMessagesToConversationInRealm([referencedMessage]) : ()
         }
-        
-        // fetch referenced message sender user
+        print("PASS ALL DATA FETCH!! == ")
     }
     
     
