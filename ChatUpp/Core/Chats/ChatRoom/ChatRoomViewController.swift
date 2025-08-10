@@ -425,7 +425,8 @@ final class ChatRoomViewController: UIViewController
     }
 
     /// - Photo picker setup
-    private func configurePhotoPicker() {
+    private func configurePhotoPicker()
+    {
         var configuration = PHPickerConfiguration()
         configuration.selectionLimit = 1
         configuration.filter = .images
@@ -815,7 +816,7 @@ extension ChatRoomViewController {
         rootView.sendMessageButton.addTarget(self, action: #selector(sendMessageButtonWasTapped), for: .touchUpInside)
     }
     private func addTargetToAddPictureBtn() {
-        rootView.addPictureButton.addTarget(self, action: #selector(pictureAddBtnWasTapped), for: .touchUpInside)
+        rootView.addPictureButton.addTarget(self, action: #selector(addPicture), for: .touchUpInside)
     }
     private func addTargetToEditMessageBtn() {
         rootView.sendEditMessageButton.addTarget(self, action: #selector(editMessageBtnWasTapped), for: .touchUpInside)
@@ -919,10 +920,50 @@ extension ChatRoomViewController {
         }
     }
 
-    @objc func pictureAddBtnWasTapped() {
-        configurePhotoPicker()
+    @objc func addPicture()
+    {
+        let alert = UIAlertController(title: "Choose image source",
+                                      message: nil,
+                                      preferredStyle: .actionSheet)
+        
+        let titleAttributes: [NSAttributedString.Key: Any] = [.font : UIFont.systemFont(ofSize: 21, weight: .medium)]
+        
+        alert.setValue(NSAttributedString(string: "Choose image source", attributes: titleAttributes), forKey: "attributedTitle")
+        
+        mainQueue {
+            alert.setBackgroundColor(color: ColorManager.navigationBarBackgroundColor)
+        }
+        
+        if UIImagePickerController.isSourceTypeAvailable(.camera)
+        {
+            alert.addAction(.init(title: "Camera",
+                                  style: .default,
+                                  handler: { action in
+                self.openCamera()
+            }))
+        }
+        
+        alert.addAction(.init(title: "Gallery",
+                              style: .default,
+                              handler: { action in
+            self.configurePhotoPicker()
+        }))
+        
+        alert.addAction(.init(title: "Cancel",
+                              style: .cancel))
+        
+      present(alert, animated: true)
     }
     
+    private func openCamera()
+    {
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.sourceType = .camera
+        picker.allowsEditing = true
+        picker.cameraCaptureMode = .photo
+        present(picker, animated: true)
+    }
 }
 
 //MARK: - Helper functions
@@ -1016,7 +1057,28 @@ extension ChatRoomViewController
     }
 }
 
-//MARK: - PHOTO PICKER CONFIGURATION & DELEGATE
+//MARK: - Camera delegate
+extension ChatRoomViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate
+{
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any])
+    {
+        picker.dismiss(animated: true)
+        
+        if let image = info[.editedImage] as? UIImage
+        {
+            self.preparePhotoForSending(image)
+            return
+        }
+        
+        if let image = info[.originalImage] as? UIImage
+        {
+            self.preparePhotoForSending(image)
+        }
+    }
+}
+
+
+//MARK: - Photo picker delegate
 extension ChatRoomViewController: PHPickerViewControllerDelegate {
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
@@ -1031,34 +1093,23 @@ extension ChatRoomViewController: PHPickerViewControllerDelegate {
                     return
                 }
                 
-                Task { @MainActor in
-                    guard let imageThumbnail = await image.byPreparingThumbnail(ofSize: CGSize(width: 80, height: 80)) else {return}
-                    self.handleContextMenuSelectedAction(
-                        actionOption: .image(imageThumbnail),
-                        selectedMessageText: nil)
-                }
-                self.messageImage = image
-                
-                
-//                let imageRepository = ImageSampleRepository(image: image,
-//                                                            type: .message)
-//                 
-//                Task { @MainActor in
-//                    let message = self.viewModel.createNewMessage(
-//                        ofType: .image,
-//                        content: imageRepository.imagePath(for: .original)
-//                    )
-//                    self.viewModel.handleLocalUpdatesOnMessageCreation(message)
-//                    await self.viewModel.saveImagesLocally(
-//                        fromImageRepository: imageRepository,
-//                        for: message.id
-//                    )
-//                    self.createMessageBubble()
-//                    await self.viewModel.initiateRemoteUpdatesOnMessageCreation(
-//                        message,
-//                        imageRepository: imageRepository)
-//                }
+                self.preparePhotoForSending(image)
             }
+        }
+    }
+}
+
+//MARK: Selected photo preparation
+extension ChatRoomViewController
+{
+    private func preparePhotoForSending(_ photo: UIImage)
+    {
+        Task { @MainActor in
+            guard let imageThumbnail = await photo.byPreparingThumbnail(ofSize: CGSize(width: 80, height: 80)) else {return}
+            self.handleContextMenuSelectedAction(
+                actionOption: .image(imageThumbnail),
+                selectedMessageText: nil)
+            self.messageImage = photo
         }
     }
 }
