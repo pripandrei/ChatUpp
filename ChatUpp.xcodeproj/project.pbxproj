@@ -89,6 +89,8 @@
 		7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1D2C781425002D60CE /* RealmDataBase.swift */; };
 		7587CE222C7CC403002D60CE /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; };
 		758945962E16F85600305F29 /* FootNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758945952E16F85200305F29 /* FootNote.swift */; };
+		758A48D42E4A2CB900D0A10B /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */; };
+		758A48D62E4A2CF900D0A10B /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */; };
 		7597CE5B2D1494F000CFD1B8 /* ImageSampleRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */; };
 		759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */; };
 		75A086162D19619E00DE5333 /* CropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 75A086152D19619E00DE5333 /* CropViewController */; };
@@ -267,6 +269,8 @@
 		7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Query+Extensions.swift"; sourceTree = "<group>"; };
 		7587CE1D2C781425002D60CE /* RealmDataBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataBase.swift; sourceTree = "<group>"; };
 		758945952E16F85200305F29 /* FootNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootNote.swift; sourceTree = "<group>"; };
+		758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
+		758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSampleRepository.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
 		75A086192D1977D200DE5333 /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropper.swift; sourceTree = "<group>"; };
@@ -567,6 +571,7 @@
 		756525C82A8127CC005DC594 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */,
 				7574D21E2DA84A820007A1D6 /* MessageMenuBuilder.swift */,
 				75CC9FE12D59402F002051EB /* ColorManager.swift */,
 				75A086192D1977D200DE5333 /* ImageCropper.swift */,
@@ -666,6 +671,7 @@
 		75A918492C942DEB006ED4CA /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */,
 				75A9184A2C942E15006ED4CA /* CacheManager.swift */,
 			);
 			name = Helpers;
@@ -1124,6 +1130,7 @@
 				75E8AABE2D918C68007479E4 /* ChatRoomInformationEditScreen.swift in Sources */,
 				756525CE2A9F96AB005DC594 /* TabBarViewController.swift in Sources */,
 				7543BE2C2ACC864A003001BF /* UserModel.swift in Sources */,
+				758A48D42E4A2CB900D0A10B /* PermissionManager.swift in Sources */,
 				757E81B72D29957F00727277 /* NewGroupSetupScreen.swift in Sources */,
 				753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */,
 				75D6DC332B0D735100D2CD26 /* MessageCellViewModel.swift in Sources */,
@@ -1193,6 +1200,7 @@
 				75BA23852D2F02F700A4C508 /* ImageSaveble.swift in Sources */,
 				75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */,
 				756525D22AAA147A005DC594 /* ChatCell.swift in Sources */,
+				758A48D62E4A2CF900D0A10B /* AlertPresenter.swift in Sources */,
 				75A7AFDA2D3C394800E081DF /* InputBarContainer.swift in Sources */,
 				752706552DAAF494002128DF /* ChatRoomNavigationBarViewModel.swift in Sources */,
 				75D7C5952AD72DBC00F6D4B9 /* MessageTableViewCell.swift in Sources */,

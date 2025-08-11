@@ -96,6 +96,11 @@ final class ChatRoomViewController: UIViewController
     private var isNetworkPaginationRunning: Bool = false
     weak var coordinatorDelegate :Coordinator?
     
+    private var draggingIndexPath: IndexPath?
+    
+    private var dragableCell: MessageCellDragable?
+    private var draggingCellOriginalCenter: CGPoint = .zero
+    private var hapticWasInitiated: Bool = false
     private var messageImage: UIImage? = nil
     private var shouldIgnoreUnseenMessagesUpdate: Bool = false
     private var shouldIgnoreUnseenMessagesUpdateForTimePeriod: Date?
@@ -1104,6 +1109,10 @@ extension ChatRoomViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
         tap.cancelsTouchesInView = false
         rootView.tableView.addGestureRecognizer(tap)
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTablePan))
+        panGesture.delegate = self
+        rootView.tableView.addGestureRecognizer(panGesture)
     }
     private func addGestureToCloseBtn() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeInputBarHeaderView))
@@ -1424,6 +1433,93 @@ extension ChatRoomViewController
         self.rootView.messageTextView.becomeFirstResponder()
         self.rootView.inputBarHeader?.setInputBarHeaderSubtitleMessage(text)
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
+    }
+}
+
+
+//MARK: Draggable cell
+extension ChatRoomViewController: UIGestureRecognizerDelegate
+{
+    @objc private func handleTablePan(_ gesture: UIPanGestureRecognizer)
+    {
+        let table = self.rootView.tableView
+        let location = gesture.location(in: table)
+        let translation = gesture.translation(in: table)
+        
+        var translationX = translation.x
+//        guard let indexPath = table.indexPathForRow(at: location),
+//              let cell = table.cellForRow(at: indexPath) as? MessageTableViewCell else {return}
+        let dragTreshhold: CGFloat = 40.0
+        let resistanceFactor: CGFloat = 0.30
+        
+        switch gesture.state
+        {
+        case .began:
+            guard let indexPath = table.indexPathForRow(at: location),
+                  let dragableCell = table.cellForRow(at: indexPath) as? MessageCellDragable else {return}
+            self.dragableCell = dragableCell
+            self.draggingCellOriginalCenter = dragableCell.center
+//            table.isScrollEnabled = false
+        case .changed:
+            guard translation.x < 0 else {return}
+            
+            let absX = abs(translationX)
+
+            if absX >= dragTreshhold
+            {
+                let excess = absX - dragTreshhold
+                let resitance = excess * resistanceFactor
+                translationX = -dragTreshhold - resitance
+                if !hapticWasInitiated {
+                    let haptic = UIImpactFeedbackGenerator(style: .heavy)
+                    haptic.prepare()
+                    haptic.impactOccurred()
+                    self.hapticWasInitiated = true
+                }
+            }
+                
+//            } else {
+                self.dragableCell?.center = CGPoint(x: draggingCellOriginalCenter.x + translationX,
+                                                    y: draggingCellOriginalCenter.y)
+            
+        case .cancelled, .ended:
+            UIView.animate(withDuration: 0.25) {
+                self.dragableCell?.center = self.draggingCellOriginalCenter
+            }
+            self.dragableCell = nil
+            self.hapticWasInitiated = false
+//            table.isScrollEnabled = true
+        default: break
+        }
+    }
+    
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+//                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool
+//    {
+//        return true
+//    }
+    
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool
+    {
+        guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {
+            return true
+        }
+        
+        let translation = panGesture.translation(in: rootView.tableView)
+        
+        // Only allow if horizontal drag is dominant (to avoid interfering with vertical scroll)
+        if abs(translation.x) <= abs(translation.y) {
+            return false
+        }
+        
+        // Also, check if gesture started on a valid cell
+        let location = panGesture.location(in: rootView.tableView)
+        guard let indexPath = rootView.tableView.indexPathForRow(at: location),
+              let _ = rootView.tableView.cellForRow(at: indexPath) as? MessageCellDragable else {
+            return false
+        }
+        
+        return true
     }
 }
 

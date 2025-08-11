@@ -11,6 +11,11 @@ import Combine
 import SkeletonView
 import SwiftUI
 
+protocol MessageCellDragable: AnyObject
+{
+    var center: CGPoint { get set }
+}
+
 final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
@@ -840,3 +845,5 @@ extension MessageTableViewCell
         }
     }
 }
+
+extension MessageTableViewCell: MessageCellDragable {}
