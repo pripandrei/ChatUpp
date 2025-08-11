@@ -107,6 +107,7 @@ final class ChatRoomViewController: UIViewController
     private var viewModel: ChatRoomViewModel!
     private var inputMessageTextViewDelegate: InputBarMessageTextViewDelegate!
     private var subscriptions = Set<AnyCancellable>()
+    private lazy var alertPresenter: AlertPresenter = .init(viewController: self)
 
     private var isContextMenuPresented: Bool = false
     private var isKeyboardHidden: Bool = true
@@ -422,17 +423,6 @@ final class ChatRoomViewController: UIViewController
         self.rootView.destroyInputBarHeaderView()
         self.rootView.sendEditMessageButton.isHidden = true
         self.rootView.sendEditMessageButton.layer.opacity = 1.0
-    }
-
-    /// - Photo picker setup
-    private func configurePhotoPicker()
-    {
-        var configuration = PHPickerConfiguration()
-        configuration.selectionLimit = 1
-        configuration.filter = .images
-        let pickerVC = PHPickerViewController(configuration: configuration)
-        pickerVC.delegate = self
-        present(pickerVC, animated: true)
     }
     
     /// - Navigation bar items setup
@@ -922,44 +912,20 @@ extension ChatRoomViewController {
 
     @objc func addPicture()
     {
-        let alert = UIAlertController(title: "Choose image source",
-                                      message: nil,
-                                      preferredStyle: .actionSheet)
+        let cameraAvailable = PermissionManager.shared.isCameraAvailable()
         
-        let titleAttributes: [NSAttributedString.Key: Any] = [.font : UIFont.systemFont(ofSize: 21, weight: .medium)]
-        
-        alert.setValue(NSAttributedString(string: "Choose image source", attributes: titleAttributes), forKey: "attributedTitle")
-        
-        mainQueue {
-            alert.setBackgroundColor(color: ColorManager.navigationBarBackgroundColor)
-        }
-        
-        if UIImagePickerController.isSourceTypeAvailable(.camera)
+        alertPresenter.presentImageSourceOptions(cameraAvailable: cameraAvailable)
         {
-            alert.addAction(.init(title: "Camera",
-                                  style: .default,
-                                  handler: { action in
-                do {
-                    try self.checkCameraPermission()
+            PermissionManager.shared.requestCameraPermision() { granted in
+                if granted {
                     self.openCamera()
-                } catch PermissionsError.cameraDenied {
-                    self.createPermissionDenialAlert()
-                } catch {
-                    print("Camera permission error: \(error)")
+                } else {
+                    self.alertPresenter.presentPermissionDeniedAlert()
                 }
-            }))
-        }
-        
-        alert.addAction(.init(title: "Gallery",
-                              style: .default,
-                              handler: { action in
+            }
+        } onGallery: {
             self.configurePhotoPicker()
-        }))
-        
-        alert.addAction(.init(title: "Cancel",
-                              style: .cancel))
-        
-      present(alert, animated: true)
+        }
     }
     
     private func openCamera()
@@ -972,30 +938,14 @@ extension ChatRoomViewController {
         present(picker, animated: true)
     }
     
-    private func checkCameraPermission() throws
+    private func configurePhotoPicker()
     {
-        if AVCaptureDevice.authorizationStatus(for: .video) == .denied
-        {
-            throw PermissionsError.cameraDenied
-        }
-    }
-    
-    private func createPermissionDenialAlert()
-    {
-        let alert = UIAlertController(title: "Permission Denied", message: "Please allow camera permission in settings to use camera feature.", preferredStyle: .alert)
-        
-        alert.addAction(.init(title: "Cancel", style: .cancel))
-        alert.addAction(.init(title: "Settings",
-                              style: .default,
-                              handler: { action in
-            if let appSettings = URL(string: UIApplication.openSettingsURLString)
-            {
-                if UIApplication.shared.canOpenURL(appSettings) {
-                    UIApplication.shared.open(appSettings)
-                }
-            }
-        }))
-        present(alert, animated: true)
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 1
+        configuration.filter = .images
+        let pickerVC = PHPickerViewController(configuration: configuration)
+        pickerVC.delegate = self
+        present(pickerVC, animated: true)
     }
 }
 
@@ -1109,7 +1059,6 @@ extension ChatRoomViewController: UIImagePickerControllerDelegate, UINavigationC
         }
     }
 }
-
 
 //MARK: - Photo picker delegate
 extension ChatRoomViewController: PHPickerViewControllerDelegate {
@@ -1230,9 +1179,6 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
-//        if viewModel.conversation?.isGroup == true,
-//           !viewModel.isAuthUserGroupMember { return }
-        
         guard !viewModel.messageClusters.isEmpty,
               didFinishInitialScrollToUnseenIndexPathIfAny else { return }
         
@@ -1372,62 +1318,11 @@ extension ChatRoomViewController: UITableViewDelegate
         }
         isNetworkPaginationRunning = false
     }
+}
 
-    private func getVisibleIndexPathForGlobalCell(atGlobalIndex index: Int,
-                                                  fromEnd: Bool = false,
-                                                  in tableView: UITableView) -> IndexPath?
-    {
-        // Calculate total row count across all sections
-        let totalRows = (0..<tableView.numberOfSections).reduce(0) { total, section in
-            total + tableView.numberOfRows(inSection: section)
-        }
-        
-        // Guard for empty table or out-of-range
-        guard totalRows > 0 else { return nil }
-        
-        // Determine the target global index
-        let targetGlobalIndex = fromEnd ? totalRows - index - 1 : index
-        guard targetGlobalIndex >= 0 && targetGlobalIndex < totalRows else { return nil }
-        
-        // Convert global index to IndexPath
-        guard let targetIndexPath = indexPathForGlobalIndex(targetGlobalIndex,
-                                                            in: tableView) else
-        {
-            return nil
-        }
-        
-        // Check visibility
-        if let visibleRows = tableView.indexPathsForVisibleRows,
-           visibleRows.contains(targetIndexPath) {
-            return targetIndexPath
-        }
-        
-        return nil
-    }
-    
-    private func indexPathForGlobalIndex(_ globalIndex: Int,
-                                         in tableView: UITableView) -> IndexPath?
-    {
-        var currentIndex = 0
-        
-        for section in 0..<tableView.numberOfSections
-        {
-            let rowsInSection = tableView.numberOfRows(inSection: section)
-            
-            if currentIndex + rowsInSection > globalIndex {
-                // The target index is in this section
-                let row = globalIndex - currentIndex
-                return IndexPath(row: row, section: section)
-            }
-            
-            currentIndex += rowsInSection
-        }
-        
-        return nil
-    }
-
-    /// Context Menu configuration
-    ///
+//MARK: Context Menu configuration
+extension ChatRoomViewController
+{
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration?
     {
         guard viewModel.shouldHideJoinGroupOption,
@@ -1531,25 +1426,6 @@ extension ChatRoomViewController: UITableViewDelegate
     }
 }
 
-//MARK: - SkeletonView animation
-extension ChatRoomViewController
-{
-    private func toggleSkeletonAnimation(_ state: SkeletonAnimationState)
-    {
-        // Reference: skeletonView requires for estimatedRowHeight to have a value
-        // so we set it to work, and disable after,
-        // to prevent other glitch related to rows when adding reaction
-        switch state {
-        case .initiated:
-            rootView.tableView.estimatedRowHeight = 50 // read reference
-            Utilities.initiateSkeletonAnimation(for: rootView.tableView)
-        case .terminated:
-            rootView.tableView.estimatedRowHeight = UITableView.automaticDimension // read reference
-            Utilities.stopSkeletonAnimation(for: rootView.tableView)
-        default: break
-        }
-    }
-}
 
 //MARK: - Targeted Preview creation
 extension ChatRoomViewController
@@ -1682,6 +1558,27 @@ extension ChatRoomViewController
             return cellMessage
         } else {
             return nil
+        }
+    }
+}
+
+
+//MARK: - SkeletonView animation
+extension ChatRoomViewController
+{
+    private func toggleSkeletonAnimation(_ state: SkeletonAnimationState)
+    {
+        // Reference: skeletonView requires for estimatedRowHeight to have a value
+        // so we set it to work, and disable after,
+        // to prevent other glitch related to rows when adding reaction
+        switch state {
+        case .initiated:
+            rootView.tableView.estimatedRowHeight = 50 // read reference
+            Utilities.initiateSkeletonAnimation(for: rootView.tableView)
+        case .terminated:
+            rootView.tableView.estimatedRowHeight = UITableView.automaticDimension // read reference
+            Utilities.stopSkeletonAnimation(for: rootView.tableView)
+        default: break
         }
     }
 }

@@ -93,3 +93,104 @@
 //        : nil
 //    }
 //}
+
+import UIKit
+import AVFoundation
+import Combine
+
+final class AlertPresenter
+{
+    private weak var viewController: UIViewController?
+    
+    init(viewController: UIViewController?) {
+        self.viewController = viewController
+    }
+    
+    func presentImageSourceOptions(cameraAvailable: Bool,
+                                   onCamera: @escaping () -> Void,
+                                   onGallery: @escaping () -> Void)
+    {
+        let alert = UIAlertController(title: "Choose image source",
+                                      message: nil,
+                                      preferredStyle: .actionSheet)
+        
+        let titleAttributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 21, weight: .medium)
+        ]
+        alert.setValue(NSAttributedString(string: "Choose image source", attributes: titleAttributes),
+                       forKey: "attributedTitle")
+//        mainQueue {
+//            alert.setBackgroundColor(color: ColorManager.navigationBarBackgroundColor)
+//        }
+        
+        if cameraAvailable {
+            alert.addAction(UIAlertAction(title: "Camera", style: .default) { _ in onCamera() })
+        }
+        alert.addAction(UIAlertAction(title: "Gallery", style: .default) { _ in onGallery() })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        viewController?.present(alert, animated: true)
+    }
+    
+    func presentPermissionDeniedAlert()
+    {
+        let alert = UIAlertController(title: "Permission Denied",
+                                      message: "Please allow camera permission in settings to use camera feature.",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Settings", style: .default) { _ in
+            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString),
+                  UIApplication.shared.canOpenURL(settingsUrl) else { return }
+            UIApplication.shared.open(settingsUrl)
+        })
+        viewController?.present(alert, animated: true)
+    }
+}
+
+
+final class PermissionManager
+{
+    static let shared = PermissionManager()
+    
+    private init() {}
+    
+    func requestCameraPermision() -> AnyPublisher<Bool,Never>
+    {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized:
+            return Just(true).eraseToAnyPublisher()
+        case .notDetermined:
+            return Future<Bool, Never> { promise in
+                AVCaptureDevice.requestAccess(for: .video) { granted in
+                    promise(.success(granted))
+                }
+            }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
+        default:
+            return Just(true).eraseToAnyPublisher()
+        }
+    }
+    
+    func requestCameraPermision(completion: @escaping (Bool) -> Void)
+    {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        
+        switch status {
+        case .authorized:
+            completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+               completion(true)
+            }
+        default:
+            completion(true)
+        }
+    }
+    
+    func isCameraAvailable() -> Bool
+    {
+        return UIImagePickerController.isSourceTypeAvailable(.camera)
+    }
+}
