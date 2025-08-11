@@ -11,11 +11,6 @@ import Combine
 import SkeletonView
 import SwiftUI
 
-protocol MessageCellDragable: AnyObject
-{
-    var center: CGPoint { get set }
-}
-
 final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
@@ -846,4 +841,23 @@ extension MessageTableViewCell
     }
 }
 
-extension MessageTableViewCell: MessageCellDragable {}
+extension MessageTableViewCell: MessageCellDragable
+{
+    var messageText: String?
+    {
+        if let text = messageLabel.attributedText?.string {
+            let cleaned = text.replacingOccurrences(
+                of: #"^[ \n￼]+"#,
+                with: "",
+                options: .regularExpression
+            )
+            return cleaned.isEmpty ? nil : cleaned
+        }
+        return nil
+    }
+    
+    var messageImage: UIImage?
+    {
+        return messageImageView.image
+    }
+}

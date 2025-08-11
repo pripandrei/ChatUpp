@@ -107,7 +107,13 @@ final class InputBarHeaderView: UIView {
         {
         case .image(_): subtitleMessageLabel?.text = "Photo"
         case .reply(let image), .edit(let image):
-            if let _ = image { subtitleMessageLabel?.text = "Photo" }
+            if let _ = image {
+                if text == nil {
+                    subtitleMessageLabel?.text = "Photo"
+                } else {
+                    subtitleMessageLabel?.text = text
+                }
+            }
             else { subtitleMessageLabel?.text = text }
         }
     }

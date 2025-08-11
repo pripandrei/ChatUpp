@@ -68,8 +68,8 @@ final class MessageMenuBuilder
                     
                     image = UIImage(data: imageData)
                 }
-                
-                self.contextMenuSelectedActionHandler?(.reply(image), message.messageBody)
+                let text = message.messageBody.isEmpty ? nil : message.messageBody
+                self.contextMenuSelectedActionHandler?(.reply(image), text)
                 self.rootView.inputBarHeader?.updateTitleLabel(usingText: sender.name)
             }
         }
@@ -103,7 +103,8 @@ final class MessageMenuBuilder
                     image = UIImage(data: imageData)
                 }
                 
-                self.contextMenuSelectedActionHandler?(.edit(image), message.messageBody)
+                let text = message.messageBody.isEmpty ? nil : message.messageBody
+                self.contextMenuSelectedActionHandler?(.edit(image), text)
                 self.viewModel.shouldEditMessage = { [message] editedText in
                     self.viewModel.firestoreService?.editMessageTextFromFirestore(editedText, messageID: message.id)
                 }

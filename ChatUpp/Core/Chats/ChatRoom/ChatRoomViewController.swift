@@ -92,15 +92,13 @@ extension ChatRoomViewController: UIScrollViewDelegate
 
 final class ChatRoomViewController: UIViewController
 {
-    
     private var isNetworkPaginationRunning: Bool = false
     weak var coordinatorDelegate :Coordinator?
-    
-    private var draggingIndexPath: IndexPath?
     
     private var dragableCell: MessageCellDragable?
     private var draggingCellOriginalCenter: CGPoint = .zero
     private var hapticWasInitiated: Bool = false
+    
     private var messageImage: UIImage? = nil
     private var shouldIgnoreUnseenMessagesUpdate: Bool = false
     private var shouldIgnoreUnseenMessagesUpdateForTimePeriod: Date?
@@ -1447,9 +1445,7 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
         let translation = gesture.translation(in: table)
         
         var translationX = translation.x
-//        guard let indexPath = table.indexPathForRow(at: location),
-//              let cell = table.cellForRow(at: indexPath) as? MessageTableViewCell else {return}
-        let dragTreshhold: CGFloat = 40.0
+        let dragTreshhold: CGFloat = 50.0
         let resistanceFactor: CGFloat = 0.30
         
         switch gesture.state
@@ -1459,7 +1455,6 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
                   let dragableCell = table.cellForRow(at: indexPath) as? MessageCellDragable else {return}
             self.dragableCell = dragableCell
             self.draggingCellOriginalCenter = dragableCell.center
-//            table.isScrollEnabled = false
         case .changed:
             guard translation.x < 0 else {return}
             
@@ -1477,28 +1472,24 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
                     self.hapticWasInitiated = true
                 }
             }
-                
-//            } else {
-                self.dragableCell?.center = CGPoint(x: draggingCellOriginalCenter.x + translationX,
-                                                    y: draggingCellOriginalCenter.y)
-            
+            self.dragableCell?.center = CGPoint(
+                x: draggingCellOriginalCenter.x + translationX,
+                y: draggingCellOriginalCenter.y
+            )
         case .cancelled, .ended:
             UIView.animate(withDuration: 0.25) {
                 self.dragableCell?.center = self.draggingCellOriginalCenter
             }
-            self.dragableCell = nil
             self.hapticWasInitiated = false
-//            table.isScrollEnabled = true
+            self.handleContextMenuSelectedAction(
+                actionOption: .edit(dragableCell?.messageImage),
+                selectedMessageText: dragableCell?.messageText
+            )
+            self.dragableCell = nil
         default: break
         }
     }
-    
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-//                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool
-//    {
-//        return true
-//    }
-    
+
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool
     {
         guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {

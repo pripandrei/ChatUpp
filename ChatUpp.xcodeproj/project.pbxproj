@@ -91,6 +91,7 @@
 		758945962E16F85600305F29 /* FootNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758945952E16F85200305F29 /* FootNote.swift */; };
 		758A48D42E4A2CB900D0A10B /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */; };
 		758A48D62E4A2CF900D0A10B /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */; };
+		758A48D82E4AA36F00D0A10B /* MessageCellDragable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48D72E4AA36900D0A10B /* MessageCellDragable.swift */; };
 		7597CE5B2D1494F000CFD1B8 /* ImageSampleRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */; };
 		759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */; };
 		75A086162D19619E00DE5333 /* CropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 75A086152D19619E00DE5333 /* CropViewController */; };
@@ -271,6 +272,7 @@
 		758945952E16F85200305F29 /* FootNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootNote.swift; sourceTree = "<group>"; };
 		758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
+		758A48D72E4AA36900D0A10B /* MessageCellDragable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCellDragable.swift; sourceTree = "<group>"; };
 		7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSampleRepository.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
 		75A086192D1977D200DE5333 /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropper.swift; sourceTree = "<group>"; };
@@ -605,6 +607,7 @@
 		757033A32BC2D829002732B5 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				758A48D72E4AA36900D0A10B /* MessageCellDragable.swift */,
 				7527064D2DAA6DED002128DF /* TargetPreviewable.swift */,
 				75E8AAC12D9213EF007479E4 /* ImageRepositoryRepresentable.swift */,
 				75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */,
@@ -1125,6 +1128,7 @@
 				75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */,
 				75FD97202DF3914400EC001E /* SkeletonViewCell.swift in Sources */,
 				7552C0432E2975B400020BDB /* RemoteMessagePaginator.swift in Sources */,
+				758A48D82E4AA36F00D0A10B /* MessageCellDragable.swift in Sources */,
 				758945962E16F85600305F29 /* FootNote.swift in Sources */,
 				75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */,
 				75E8AABE2D918C68007479E4 /* ChatRoomInformationEditScreen.swift in Sources */,
