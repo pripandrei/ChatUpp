@@ -107,7 +107,7 @@ final class ChatRoomViewController: UIViewController
     private var viewModel: ChatRoomViewModel!
     private var inputMessageTextViewDelegate: InputBarMessageTextViewDelegate!
     private var subscriptions = Set<AnyCancellable>()
-    private lazy var alertPresenter: AlertPresenter = .init(viewController: self)
+    private lazy var alertPresenter: AlertPresenter = .init()
 
     private var isContextMenuPresented: Bool = false
     private var isKeyboardHidden: Bool = true
@@ -914,13 +914,14 @@ extension ChatRoomViewController {
     {
         let cameraAvailable = PermissionManager.shared.isCameraAvailable()
         
-        alertPresenter.presentImageSourceOptions(cameraAvailable: cameraAvailable)
+        alertPresenter.presentImageSourceOptions(from: self,
+                                                 cameraAvailable: cameraAvailable)
         {
             PermissionManager.shared.requestCameraPermision() { granted in
                 if granted {
                     self.openCamera()
                 } else {
-                    self.alertPresenter.presentPermissionDeniedAlert()
+                    self.alertPresenter.presentPermissionDeniedAlert(from: self)
                 }
             }
         } onGallery: {

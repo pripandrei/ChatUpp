@@ -24,6 +24,7 @@ class ChatsViewController: UIViewController {
     private var chatsViewModel: ChatsViewModel!
     private var tableViewDataSource: ChatsTableViewDataSource!
     private var subscriptions = Set<AnyCancellable>()
+    private var alertPresenter: AlertPresenter = .init()
 
     lazy private var resultsTableController = {
         let resultsTableController = ResultsTableController()
@@ -340,64 +341,17 @@ extension ChatsViewController: UITableViewDelegate
 //MARK: - Chat deletion
 extension ChatsViewController
 {
-//    private func testPresentAlert() {
-//        self.definesPresentationContext = true
-//        let customSheet = CustomActionSheetViewController(
-//            title: "Choose Option",
-//            actions: [
-//                (title: "Edit", handler: { print("Edit tapped") }),
-//                (title: "Delete", handler: { print("Delete tapped") }),
-//                (title: "Cancel", handler: {})
-//            ]
-//        )
-//        present(customSheet, animated: true)
-//    }
-    
+
     private func presentDeletionAlert(for indexPath: IndexPath)
     {
         let vm = chatsViewModel.cellViewModels[indexPath.row]
-        let participantName = vm.chatUser?.name
-        let alertTitle = vm.chat.isGroup ? "Are you sure you want to leave \(vm.chat.title)?" : "Permanently delete chat with \(participantName ?? "User")?"
-        let alertTitleAttributes: [NSAttributedString.Key:Any] = [
-            .foregroundColor: #colorLiteral(red: 0.7950155139, green: 0.7501099706, blue: 0.7651557922, alpha: 1),
-            .font: UIFont.systemFont(ofSize: 19),
-        ]
         
-        let alert = UIAlertController(
-            title: nil,
-            message: nil,
-            preferredStyle: .actionSheet)
-    
-        alert.setValue(NSAttributedString(string: alertTitle,
-                                          attributes: alertTitleAttributes),
-                       forKey: "attributedTitle")
-        
-        if vm.chat.isGroup
-        {
-            alert.addAction(UIAlertAction(title: "Leave the group", style: .destructive, handler: { [ weak self] action in
-                self?.initiateChatDeletion(at: indexPath, deleteOption: .leaveGroup)
-            }))
-            
-        } else {
-            alert.addAction(UIAlertAction(title: "Delete just for me", style: .destructive) { [weak self] action in
-                self?.initiateChatDeletion(at: indexPath, deleteOption: .forMe)
-                print("deleted just for me!!!")
-            })
-            
-            alert.addAction(UIAlertAction(title: "Delete for me and \(participantName ?? "User")", style: .destructive) { [weak self] action in
-                self?.initiateChatDeletion(at: indexPath, deleteOption: .forBoth)
-                print("deleted for both!!!")
-            })
+        alertPresenter.presentDeletionAlert(from: self, using: vm)
+        { [weak self] deletionOption in
+            self?.initiateChatDeletion(at: indexPath, deleteOption: deletionOption)
         }
-    
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-       
-        mainQueue {
-            alert.setBackgroundColor(color: ColorManager.navigationBarBackgroundColor)
-        }
-        
-        self.present(alert, animated: true)
     }
+
     
     private func initiateChatDeletion(at indexPath: IndexPath,
                                       deleteOption option: ChatDeletionOption)

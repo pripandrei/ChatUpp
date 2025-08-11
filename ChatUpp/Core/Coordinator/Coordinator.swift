@@ -10,8 +10,6 @@ import UIKit
 import SwiftUI
 
 protocol Coordinator: AnyObject {
-//    var tabBar: TabBarViewController { get set }
-    
     func start()
     func presentLogInForm()
     func handleSignOut()
