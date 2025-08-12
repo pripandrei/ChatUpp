@@ -11,6 +11,15 @@ import Combine
 import SkeletonView
 import SwiftUI
 
+final class SenderNameLabel: UILabel
+{
+    override var intrinsicContentSize: CGSize {
+        var size = super.intrinsicContentSize
+        size.width += 10
+        return size
+    }
+}
+
 final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
@@ -20,12 +29,10 @@ final class MessageTableViewCell: UITableViewCell
     private var containerStackViewBottomConstraint: NSLayoutConstraint!
     private var containerStackViewLeadingConstraint: NSLayoutConstraint!
     private var containerStackViewTrailingConstraint: NSLayoutConstraint!
-    
-    private var messageSenderNameLabel: UILabel?
-    private var messageSenderAvatar: UIImageView?
+
     private var messageComponentsStackView: UIStackView = UIStackView()
     private var messageImageView = UIImageView()
-    private var messageTitleLabel: YYLabel?
+//    private var messageTitleLabel: YYLabel?
     private var timeStamp = YYLabel()
     private var subscribers = Set<AnyCancellable>()
     private var maxMessageWidth: CGFloat = 292.0
@@ -33,7 +40,7 @@ final class MessageTableViewCell: UITableViewCell
     
     private(set) var reactionBadgeHostingView: UIView?
     private(set) var containerStackView: UIStackView = UIStackView()
-    private(set) var messageContainer = UIView() // remove later
+//    private(set) var messageContainer = UIView() // remove later
     private(set) var messageLabel = MessageLabel()
     private(set) var seenStatusMark = YYLabel()
     private(set) var editedLabel: UILabel = UILabel()
@@ -49,7 +56,22 @@ final class MessageTableViewCell: UITableViewCell
         
         return replyMessageLabel
     }()
+    
+    private lazy var messageSenderNameLabel: UILabel = {
+       let senderNameLabel = UILabel()
+        senderNameLabel.numberOfLines = 1
+        senderNameLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+        senderNameLabel.textColor = messageSenderNameColor
+        return senderNameLabel
+    }()
 
+    private var messageSenderAvatar: UIImageView = {
+        let senderAvatar = UIImageView()
+        senderAvatar.clipsToBounds = true
+        senderAvatar.translatesAutoresizingMaskIntoConstraints = false
+        return senderAvatar
+    }()
+    
     private var messageSenderNameColor: UIColor
     {
         let senderID = cellViewModel.message?.senderId
@@ -109,7 +131,7 @@ final class MessageTableViewCell: UITableViewCell
         cellViewModel.senderImageDataSubject
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] imageData in
-                self?.messageSenderAvatar?.image = UIImage(data: imageData)
+                self?.messageSenderAvatar.image = UIImage(data: imageData)
             }).store(in: &subscribers)
         
         cellViewModel.messageImageDataSubject
@@ -195,15 +217,17 @@ final class MessageTableViewCell: UITableViewCell
         timeStamp.text = viewModel.timestamp
         messageLayoutConfiguration = layoutConfiguration
         
-        if viewModel.messageAlignment == .left
-        {
-            if layoutConfiguration.shouldShowSenderName {
-                setupSenderNameLabel()
-            }
-            if layoutConfiguration.shouldShowAvatar {
-                setupSenderAvatar()
-            }
-        }
+//        if viewModel.messageAlignment == .left
+//        {
+//            if layoutConfiguration.shouldShowSenderName {
+//                setupSenderNameLabel()
+//            }
+//            if layoutConfiguration.shouldShowAvatar {
+//                setupSenderAvatar()
+//            }
+//        }
+        setupSenderNameLabel()
+        setupSenderAvatar()
         
         setupMessageToReplyView()
         setContainerStackViewBottomConstraint()
@@ -266,13 +290,14 @@ final class MessageTableViewCell: UITableViewCell
         guard let senderName = cellViewModel.referencedMessageSenderName,
               let messageText = cellViewModel.referencedMessage?.messageBody else {
             containerStackView.arrangedSubviews
-                .filter { $0 is ReplyToMessageStackView }
+                .compactMap { $0 as? ReplyToMessageStackView }
                 .forEach {
                     containerStackView.removeArrangedSubview($0)
                     $0.removeFromSuperview()
                 }
             return
         }
+        
         let replyLabelText = messageText.isEmpty ? "Photo" : messageText
         let replyText = createReplyMessageAttributedText(
             with: senderName,
@@ -283,7 +308,9 @@ final class MessageTableViewCell: UITableViewCell
         
         replyToMessageStack.configure(with: replyText, imageData: imageData)
         
-        containerStackView.insertArrangedSubview(replyToMessageStack, at: 0)
+        let index = messageLayoutConfiguration.shouldShowSenderName ? 1 : 0
+        
+        containerStackView.insertArrangedSubview(replyToMessageStack, at: index)
         replyToMessageStack.widthAnchor.constraint(equalTo: containerStackView.widthAnchor).isActive = true
     }
     
@@ -358,21 +385,11 @@ final class MessageTableViewCell: UITableViewCell
     {
         messageLabel.attributedText = nil
         timeStamp.text = nil
-        messageSenderNameLabel?.removeFromSuperview()
-        messageSenderNameLabel = nil
-//        messageImage = nil
         messageImageView.image = nil
-        messageSenderAvatar?.image = nil
-        messageSenderAvatar = nil
+        messageSenderAvatar.image = nil
         seenStatusMark.attributedText = nil
-//        editedLabel.text = nil
-        messageTitleLabel?.removeFromSuperview()
-        messageTitleLabel = nil
-//        replyMessageLabel.removeFromSuperview()
         reactionBadgeHostingView?.removeFromSuperview()
         reactionBadgeHostingView = nil
-        
-//        messageLabel.removeFromSuperview()
         
         applyMessagePadding(strategy: .initial)
         
@@ -515,8 +532,11 @@ extension MessageTableViewCell
     
     private func adjustMessageSide()
     {
-        if containerStackViewLeadingConstraint != nil { containerStackViewLeadingConstraint.isActive = false }
-        if containerStackViewTrailingConstraint != nil { containerStackViewTrailingConstraint.isActive = false }
+//        if containerStackViewLeadingConstraint != nil { containerStackViewLeadingConstraint.isActive = false }
+//        if containerStackViewTrailingConstraint != nil { containerStackViewTrailingConstraint.isActive = false }
+        
+        containerStackViewLeadingConstraint?.isActive = false
+        containerStackViewTrailingConstraint?.isActive = false
         
         let leadingConstant = messageLayoutConfiguration.leadingConstraintConstant
         
@@ -717,53 +737,50 @@ extension MessageTableViewCell
 {
     private func setupSenderNameLabel()
     {
-        if messageSenderNameLabel == nil {
-            messageSenderNameLabel = UILabel()
-            messageContainer.addSubview(messageSenderNameLabel!)
+        /// check if chat is group (seen by is not empty in group)
+        guard cellViewModel.message?.seenBy.isEmpty == false else {return}
+        
+        guard messageLayoutConfiguration.shouldShowSenderName else
+        {
+            containerStackView.removeArrangedSubview(messageSenderNameLabel)
+            messageSenderNameLabel.removeFromSuperview()
+            return
         }
+    
+        containerStackView.insertArrangedSubview(messageSenderNameLabel, at: 0)
         
-        messageSenderNameLabel?.text = cellViewModel.messageSender?.name
-        messageSenderNameLabel?.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-        messageSenderNameLabel?.textColor = messageSenderNameColor
-        messageSenderNameLabel?.numberOfLines = 1
-        messageSenderNameLabel?.translatesAutoresizingMaskIntoConstraints = false
-        setupSenderNameLabelConstraints()
-    }
-     
-    private func setupSenderNameLabelConstraints()
-    {
-        guard let messageSenderNameLabel = messageSenderNameLabel else { return }
-        
-        messageSenderNameLabel.topAnchor.constraint(equalTo: messageContainer.topAnchor, constant: 5).isActive = true
-        messageSenderNameLabel.leadingAnchor.constraint(equalTo: messageContainer.leadingAnchor, constant: 10).isActive = true
-        messageSenderNameLabel.widthAnchor.constraint(lessThanOrEqualTo: messageContainer.widthAnchor, multiplier: 0.80).isActive = true
+        messageSenderNameLabel.text = cellViewModel.messageSender?.name
     }
     
     private func setupSenderAvatar()
     {
-        if messageSenderAvatar == nil {
-            messageSenderAvatar = UIImageView()
-            messageContainer.addSubview(messageSenderAvatar!)
+        /// check if chat is group (seen by is not empty in group)
+        guard cellViewModel.message?.seenBy.isEmpty == false else {return}
+        
+        guard messageLayoutConfiguration.shouldShowAvatar else
+        {
+            messageSenderAvatar.removeFromSuperview()
+            return
         }
-        messageSenderAvatar?.layer.cornerRadius = (messageLayoutConfiguration.avatarSize?.width ?? 35) / 2
-        messageSenderAvatar?.clipsToBounds = true
-        messageSenderAvatar?.translatesAutoresizingMaskIntoConstraints = false
+        
+        contentView.addSubview(messageSenderAvatar)
+        
+        messageSenderAvatar.layer.cornerRadius = (messageLayoutConfiguration.avatarSize?.width ?? 35) / 2
         setupSenderAvatarConstraints()
         
         if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "small") {
-            messageSenderAvatar?.image = UIImage(data: imageData)
+            messageSenderAvatar.image = UIImage(data: imageData)
         }
     }
     
     private func setupSenderAvatarConstraints()
     {
-        guard let messageSenderAvatar = messageSenderAvatar,
-              let avatarSize = messageLayoutConfiguration.avatarSize else {return}
-
-        messageSenderAvatar.trailingAnchor.constraint(equalTo: messageContainer.leadingAnchor, constant: -8).isActive = true
+        guard let avatarSize = messageLayoutConfiguration.avatarSize else {return}
+        
+        messageSenderAvatar.trailingAnchor.constraint(equalTo: containerStackView.leadingAnchor, constant: -8).isActive = true
+        messageSenderAvatar.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3).isActive = true
         messageSenderAvatar.widthAnchor.constraint(equalToConstant: avatarSize.width).isActive = true
         messageSenderAvatar.heightAnchor.constraint(equalToConstant: avatarSize.height).isActive = true
-        messageSenderAvatar.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3).isActive = true
     }
     
     private func setContainerStackViewBottomConstraint()

@@ -107,14 +107,15 @@ extension ConversationTableViewDataSource
     private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
     {
         let chatType: ChatType = conversationViewModel.conversation?.isGroup == true ? ._group : ._private
-//        var configuration = chatType.messageLayoutConfiguration
-        var configuration = MessageLayoutConfiguration.getLayoutConfiguration(for: chatType)
+
+        let showUserAvatar = (chatType == ._group) ? shouldShowUserAvatarForCell(at: indexPath) : false
         
-        if chatType == ._group {
-            configuration = configuration
-                .withUpdatedAvatar(shouldShowUserAvatarForCell(at: indexPath))
-                .withUpdatedSenderName(shouldShowSenderName(at: indexPath))
-        }
+        let showSenderName = (chatType == ._group) ? shouldShowSenderName(at: indexPath) : false
+        
+        let configuration = MessageLayoutConfiguration
+            .getLayoutConfiguration(for: chatType,
+                                    showSenderName: showSenderName,
+                                    showAvatar: showUserAvatar)
         
         return configuration
     }
@@ -122,6 +123,9 @@ extension ConversationTableViewDataSource
     private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool
     {
         let messageItems = conversationViewModel.messageClusters[indexPath.section].items
+        
+        guard messageItems[indexPath.row].messageAlignment == .left else
+        { return false }
         guard indexPath.row > 0 else { return true }
 
         guard
@@ -140,8 +144,10 @@ extension ConversationTableViewDataSource
     private func shouldShowSenderName(at indexPath: IndexPath) -> Bool
     {
         let messageItems = conversationViewModel.messageClusters[indexPath.section].items
+        guard messageItems[indexPath.row].messageAlignment == .left else
+        { return false }
         guard indexPath.row < messageItems.count - 1 else { return true }
-
+        
         guard
             let currentMessage = messageItems[indexPath.row].message,
             let nextMessage = messageItems[indexPath.row + 1].message
