@@ -124,8 +124,8 @@ extension ConversationTableViewDataSource
     {
         let messageItems = conversationViewModel.messageClusters[indexPath.section].items
         
-        guard messageItems[indexPath.row].messageAlignment == .left else
-        { return false }
+        guard messageItems[indexPath.row].messageAlignment == .left else { return false }
+        
         guard indexPath.row > 0 else { return true }
 
         guard

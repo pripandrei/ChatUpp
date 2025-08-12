@@ -752,6 +752,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         do {
             for path in paths {
                 let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: path)
+                if message.senderId == "ArzzEyzTb7QRD5LhxIX3B5xqsql1"
+                {
+                    print("stop")
+                }
                 CacheManager.shared.saveImageData(imageData, toPath: path)
             }
         } catch {
@@ -930,7 +934,6 @@ extension ChatRoomViewModel
                         .shared
                         .retrieveObjects(ofType: Message.self,
                                          filter: NSPredicate(format: "id IN %@", messageIDs)) else {return}
-                    let messageIDSFromRealm = Array(messagesToDelete.map { $0.id })
                     
                     let modificationTypes = await self.processRemovedMessages(Set(messagesToDelete))
                     
@@ -976,30 +979,48 @@ extension ChatRoomViewModel
         }
     }
     
-    // MARK: - Group Chat Handling
+    // MARK: - Group users data fetch
     @MainActor
     private func syncGroupUsers(for messages: [Message]) async
     {
         do {
-            let missingUserIDs = findMissingUserIDs(from: messages)
+            let senderIDs = Set(messages.map(\.senderId))
+           
+            let missingUserIDs = findMissingUserIDs(senderIDs)
             
-            guard !missingUserIDs.isEmpty else { return }
+            if !missingUserIDs.isEmpty
+            {
+                let users = try await FirestoreUserService.shared.fetchUsers(with: missingUserIDs)
+                RealmDataBase.shared.add(objects: users)
+            }
             
-            let users = try await FirestoreUserService.shared.fetchUsers(with: missingUserIDs)
-            RealmDataBase.shared.add(objects: users)
-            await fetchAvatars(for: users)
+            let srotedUsersForImageFetch = self.getUsersWithMissingLocalAvatars(senderIDs)
+            
+            await fetchAvatars(for: srotedUsersForImageFetch)
         } catch {
             print("Error in synchronizing users from messages: ", error)
         }
     }
+    
+    @MainActor
+    private func getUsersWithMissingLocalAvatars(_ usersIDs: Set<String>) -> [User]
+    {
+        return getRealmUsers(with: usersIDs)
+            .compactMap { user -> User? in
+                guard let path = user.photoUrl else { return nil }
+                if !CacheManager.shared.doesImageExist(at: path) {
+                    return user
+                }
+                return nil
+            }
+    }
 
     @MainActor
-    private func findMissingUserIDs(from messages: [Message]) -> [String] {
-        let senderIDs = Set(messages.map(\.senderId))
-        let existingUsers = getRealmUsers(with: senderIDs)
-        let existingUserIds = Set(existingUsers.map(\.id))
+    private func findMissingUserIDs(_ ids: Set<String>) -> [String]
+    {
+        let existingUsersIDs = getRealmUsers(with: ids).map(\.id)
         
-        return Array(senderIDs.subtracting(existingUserIds))
+        return Array(ids.subtracting(existingUsersIDs))
     }
     
     private func getRealmUsers(with userIDs: Set<String>) -> [User] {
@@ -1018,11 +1039,14 @@ extension ChatRoomViewModel
                 
                 group.addTask {
                     do {
-                        let optimizedURL = avatarURL.addSuffix("small")
-                        let imageData = try await FirebaseStorageManager.shared.getImage(
-                            from: .user(userID),
-                            imagePath: optimizedURL)
-                        CacheManager.shared.saveImageData(imageData, toPath: optimizedURL)
+                        let smallPath = avatarURL.addSuffix("small")
+                        let paths = [avatarURL, smallPath]
+                        for path in paths {
+                            let imageData = try await FirebaseStorageManager.shared.getImage(
+                                from: .user(userID),
+                                imagePath: path)
+                            CacheManager.shared.saveImageData(imageData, toPath: path)
+                        }
                     } catch {
                         print("Error fetching avatar image data for user: \(userID); Error: \(error)")
                     }
@@ -1190,13 +1214,12 @@ extension ChatRoomViewModel
     private func metadataTasks(for message: Message) -> [() async -> Void]
     {
         var tasks: [() async -> Void] = []
-
+        
         if message.imagePath != nil {
             tasks.append { await self.downloadImageData(from: message) }
         }
         
-        /// See FootNote.swift [9]
-        if message.type == .title {
+        if conversation?.isGroup == true {
             tasks.append { await self.syncGroupUsers(for: [message]) }
         }
 
@@ -1247,7 +1270,6 @@ extension ChatRoomViewModel
         await MainActor.run {
             realmRefMessage == nil ?  self.realmService?.addMessagesToConversationInRealm([referencedMessage]) : ()
         }
-        print("PASS ALL DATA FETCH!! == ")
     }
     
     

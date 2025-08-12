@@ -748,7 +748,7 @@ extension MessageTableViewCell
     private func setupSenderNameLabel()
     {
         /// check if chat is group (seen by is not empty in group)
-        guard cellViewModel.message?.seenBy.isEmpty == false else {return}
+//        guard cellViewModel.message?.seenBy.isEmpty == false else {return}
         
         guard messageLayoutConfiguration.shouldShowSenderName else
         {
@@ -768,7 +768,7 @@ extension MessageTableViewCell
     private func setupSenderAvatar()
     {
         /// check if chat is group (seen by is not empty in group)
-        guard cellViewModel.message?.seenBy.isEmpty == false else {return}
+//        guard cellViewModel.message?.seenBy.isEmpty == false else {return}
         
         guard messageLayoutConfiguration.shouldShowAvatar else
         {
@@ -781,11 +781,14 @@ extension MessageTableViewCell
             contentView.addSubview(messageSenderAvatar)
             setupSenderAvatarConstraints()
         }
-        
+
         messageSenderAvatar.layer.cornerRadius = (messageLayoutConfiguration.avatarSize?.width ?? 35) / 2
         
+        // change to small after implementing storage images add for small
         if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "small") {
             messageSenderAvatar.image = UIImage(data: imageData)
+        } else {
+            messageSenderAvatar.image = UIImage(named: "default_profile_photo")
         }
     }
     

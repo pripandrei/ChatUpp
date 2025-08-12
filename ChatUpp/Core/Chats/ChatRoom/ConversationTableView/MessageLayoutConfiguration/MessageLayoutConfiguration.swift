@@ -30,8 +30,8 @@ extension MessageLayoutConfiguration
                                               avatarSize: nil,
                                               leadingConstraintConstant: 10)
         case ._group:
-            return MessageLayoutConfiguration(shouldShowSenderName: true,
-                                              shouldShowAvatar: false, // Adjusted dynamically
+            return MessageLayoutConfiguration(shouldShowSenderName: showSenderName,
+                                              shouldShowAvatar: showAvatar,
                                               avatarSize: CGSize(width: 35, height: 35),
                                               leadingConstraintConstant: 52)
         }
