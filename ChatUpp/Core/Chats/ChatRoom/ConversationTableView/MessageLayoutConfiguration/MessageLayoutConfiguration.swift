@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 struct MessageLayoutConfiguration
 {
     let shouldShowSenderName: Bool

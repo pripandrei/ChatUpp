@@ -13,10 +13,20 @@ import SwiftUI
 
 final class SenderNameLabel: UILabel
 {
-    override var intrinsicContentSize: CGSize {
+    private let instrinsicContentSizeWidth: Double = 18
+    
+    override var intrinsicContentSize: CGSize
+    {
         var size = super.intrinsicContentSize
-        size.width += 10
+//        size.height -= 20
+        size.width += instrinsicContentSizeWidth
         return size
+    }
+    
+    override func drawText(in rect: CGRect)
+    {
+        let inset: UIEdgeInsets = .init(top: 0, left: instrinsicContentSizeWidth / 2, bottom: 0, right: 0)
+        super.drawText(in: rect.inset(by: inset))
     }
 }
 
@@ -93,23 +103,6 @@ final class MessageTableViewCell: UITableViewCell
         setupTimestamp()
         configureMessageImageView()
         setupEditedLabel()
-    }
-    
-    func configureMessageImageView()
-    {
-        messageLabel.addSubview(messageImageView)
-        messageLabel.sendSubviewToBack(messageImageView)
-        
-        messageImageView.layer.cornerRadius = 15
-        messageImageView.clipsToBounds = true
-        messageImageView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            messageImageView.leadingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: 2),
-            messageImageView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: -2),
-            messageImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: 2),
-//            profileImageView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -2)
-        ])
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
@@ -464,6 +457,23 @@ extension MessageTableViewCell
         ])
     }
     
+    func configureMessageImageView()
+    {
+        messageLabel.addSubview(messageImageView)
+        messageLabel.sendSubviewToBack(messageImageView)
+        
+        messageImageView.layer.cornerRadius = 15
+        messageImageView.clipsToBounds = true
+        messageImageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            messageImageView.leadingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: 2),
+            messageImageView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: -2),
+            messageImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: 2),
+//            profileImageView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -2)
+        ])
+    }
+    
     private func configureMessageSeenStatus()
     {
         guard let message = cellViewModel.message else {return}
@@ -747,7 +757,10 @@ extension MessageTableViewCell
             return
         }
     
-        containerStackView.insertArrangedSubview(messageSenderNameLabel, at: 0)
+        if !containerStackView.arrangedSubviews.contains(messageSenderNameLabel)
+        {
+            containerStackView.insertArrangedSubview(messageSenderNameLabel, at: 0)
+        }
         
         messageSenderNameLabel.text = cellViewModel.messageSender?.name
     }
@@ -762,11 +775,14 @@ extension MessageTableViewCell
             messageSenderAvatar.removeFromSuperview()
             return
         }
-        
-        contentView.addSubview(messageSenderAvatar)
+    
+        if !contentView.contains(messageSenderAvatar)
+        {
+            contentView.addSubview(messageSenderAvatar)
+            setupSenderAvatarConstraints()
+        }
         
         messageSenderAvatar.layer.cornerRadius = (messageLayoutConfiguration.avatarSize?.width ?? 35) / 2
-        setupSenderAvatarConstraints()
         
         if let imageData = cellViewModel.retrieveSenderAvatarData(ofSize: "small") {
             messageSenderAvatar.image = UIImage(data: imageData)
