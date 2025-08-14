@@ -116,26 +116,42 @@ extension UIImage
             cgContext.restoreGState()
         }
     }
-
-    func getAspectRatio() -> CGSize {
-        let (equalWidth, equalHeight) = (250,250)
+    
+    func getAspectRatio() -> CGSize
+    {
+        let aspectRatio = size.width / size.height
         
-        let preferredWidth: Double = 300
-        let preferredHeight: Double = 350
-        
-        let aspectRatioForWidth = Double(self.size.width) / Double(self.size.height)
-        let aspectRatioForHeight = Double(self.size.height) / Double(self.size.width)
-        
-        if self.size.width > self.size.height {
-            let newHeight = preferredWidth / aspectRatioForWidth
-            return CGSize(width: preferredWidth, height: newHeight)
-        } else if self.size.height > self.size.width {
-            let newWidth = preferredHeight / aspectRatioForHeight
-            return CGSize(width: newWidth, height: preferredHeight)
+        if aspectRatio > 1 {
+            // Landscape: fit to width
+            return CGSize(width: 270, height: 270 / aspectRatio)
+        } else if aspectRatio < 1 {
+            // Portrait: fit to height
+            return CGSize(width: 320 * aspectRatio, height: 320)
         } else {
-            return CGSize(width: equalWidth, height: equalHeight)
+            // Square
+            return CGSize(width: 250, height: 250)
         }
     }
+
+//    func getAspectRatio() -> CGSize {
+//        let (equalWidth, equalHeight) = (250,250)
+//        
+//        let preferredWidth: Double = 300
+//        let preferredHeight: Double = 350
+//        
+//        let aspectRatioForWidth = Double(self.size.width) / Double(self.size.height)
+//        let aspectRatioForHeight = Double(self.size.height) / Double(self.size.width)
+//        
+//        if self.size.width > self.size.height {
+//            let newHeight = preferredWidth / aspectRatioForWidth
+//            return CGSize(width: preferredWidth, height: newHeight)
+//        } else if self.size.height > self.size.width {
+//            let newWidth = preferredHeight / aspectRatioForHeight
+//            return CGSize(width: newWidth, height: preferredHeight)
+//        } else {
+//            return CGSize(width: equalWidth, height: equalHeight)
+//        }
+//    }
     
 //    func calculateImageMemorySize(image: UIImage) -> Int?
 //    {

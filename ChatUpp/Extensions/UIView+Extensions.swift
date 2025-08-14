@@ -7,8 +7,10 @@
 
 //import Foundation
 import UIKit
+import YYText
 
-extension UIView {
+extension UIView
+{
     func pin(to superView: UIView) {
         translatesAutoresizingMaskIntoConstraints                             = false
         topAnchor.constraint(equalTo: superView.topAnchor).isActive           = true

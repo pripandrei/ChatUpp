@@ -10,7 +10,7 @@ import Combine
 
 final class MessageCellViewModel
 {
-    @Published private(set) var imagePathURL: URL?
+//    @Published private(set) var imagePathURL: URL?
     @Published private(set) var message: Message?
     
 //    @Published private(set) var senderName: String?
@@ -296,7 +296,6 @@ extension MessageCellViewModel
     
     func updateRealmMessageSeenStatusTest(by userID: String? = nil)
     {
-        
         guard let messageID = message?.id else {return}
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.1) {
@@ -338,26 +337,6 @@ extension MessageCellViewModel
                 case .deleted: self.referencedMessage = nil
                 }
             }.store(in: &cancellables)
-    }
-}
-
-//MARK: Aspect ratio for image
-extension MessageCellViewModel
-{
-    func getCellAspectRatio(forImageSize size: CGSize) -> CGSize
-    {
-        let aspectRatio = size.width / size.height
-        
-        if aspectRatio > 1 {
-            // Landscape: fit to width
-            return CGSize(width: 270, height: 270 / aspectRatio)
-        } else if aspectRatio < 1 {
-            // Portrait: fit to height
-            return CGSize(width: 320 * aspectRatio, height: 320)
-        } else {
-            // Square
-            return CGSize(width: 250, height: 250)
-        }
     }
 }
 
