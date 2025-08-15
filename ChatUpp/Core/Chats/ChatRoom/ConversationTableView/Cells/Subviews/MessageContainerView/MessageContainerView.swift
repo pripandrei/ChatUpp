@@ -328,27 +328,54 @@ extension MessageContainerView
 //        replyToMessageStack.widthAnchor.constraint(equalTo: containerStackView.widthAnchor).isActive = true
     }
     
+//    private func removeMessageToReplyLabel()
+//    {
+////        executeAfter(seconds: 1.0) {
+////            self.messageLabel.messageUpdateType = .replyRemoved
+////            UIView.animate(withDuration: 0.3) {
+////                self.replyToMessageStack.alpha = 0
+////                self.replyToMessageStack.isHidden = true
+////                //            self.containerStackView.layoutIfNeeded()
+////            } completion: { _ in
+////                self.removeArrangedSubview(self.replyToMessageStack)
+//////                self.replyToMessageStack.removeFromSuperview()
+//////                self.messageLabel.layoutIfNeeded()
+////                self.handleMessageLayout()
+////                UIView.animate(withDuration: 0.2) {
+////                    //            self.containerStackView.layoutIfNeeded()
+////                    //
+////                    self.superview?.layoutIfNeeded()
+////                    print("is there superview?:", self.superview)
+////                }
+////            }
+////            print(self.handleContentRelayout?() == nil)
+////            self.handleContentRelayout?()
+////        }
+//    }
+//    
     private func removeMessageToReplyLabel()
     {
         executeAfter(seconds: 1.0) {
             self.messageLabel.messageUpdateType = .replyRemoved
             UIView.animate(withDuration: 0.3) {
                 self.replyToMessageStack.alpha = 0
-                self.replyToMessageStack.isHidden = true
+//                self.replyToMessageStack.isHidden = true
                 //            self.containerStackView.layoutIfNeeded()
             } completion: { _ in
                 self.removeArrangedSubview(self.replyToMessageStack)
-                self.replyToMessageStack.removeFromSuperview()
-                //            self.messageLabel.layoutIfNeeded()
-                self.handleMessageLayout()
-                UIView.animate(withDuration: 0.2) {
+//                self.containerStackView.replyToMessageStack.removeFromSuperview()
+                self.messageLabel.layoutIfNeeded()
+//                self.containerStackView.handleMessageLayout()
+                UIView.animate(withDuration: 0.3) {
                     //            self.containerStackView.layoutIfNeeded()
                     //
                     self.superview?.layoutIfNeeded()
                     
                 }
+                self.handleContentRelayout?()
             }
-            self.handleContentRelayout?()
+            print("done")
+//            self.handleContentRelayout?()
         }
     }
     
@@ -357,11 +384,12 @@ extension MessageContainerView
         guard let messageSenderName = viewModel.referencedMessageSenderName else {return}
         executeAfter(seconds: 4.0, block: { [weak self] in
             guard let self else {return}
+            messageLabel.messageUpdateType = .edited
             let messageText = message.messageBody.isEmpty ? "Photo" : message.messageBody
             let replyLabelText = replyToMessageStack.createReplyMessageAttributedText(
                 with: messageSenderName,
                 messageText: messageText
-            )
+            ) 
             let image = message.imagePath == nil ? nil : self.viewModel.retrieveReferencedImageData()
             self.replyToMessageStack.configure(with: replyLabelText, imageData: image)
             

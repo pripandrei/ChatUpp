@@ -45,6 +45,7 @@ class ContainerView: UIView {
             arrangedViews.remove(at: index)
             view.removeFromSuperview()
             updateConstraintsForArrangedViews()
+            print("reply is removed")
         }
     }
     

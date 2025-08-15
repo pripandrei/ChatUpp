@@ -133,7 +133,7 @@ final class MessageTableViewCell: UITableViewCell
 //            .dropFirst()
 //            .sink { [weak self] replyMessage in
 //                if let replyMessage {
-//                    self?.updateMessageToReply(replyMessage)
+////                    self?.updateMessageToReply(replyMessage)
 //                } else {
 //                    self?.removeMessageToReplyLabel()
 //                }
@@ -222,6 +222,7 @@ final class MessageTableViewCell: UITableViewCell
         setupContainerMessageLabel(with: message)
         setupReactionView(for: message)
             
+//        containerStackView.handleContentRelayout = handleContentRelayout
 //        testMessageTextEdit()
     }
     
@@ -229,23 +230,25 @@ final class MessageTableViewCell: UITableViewCell
 //    {
 //        executeAfter(seconds: 1.0) {
 //            self.containerStackView.messageLabel.messageUpdateType = .replyRemoved
-//            UIView.animate(withDuration: 0.3) {
-//                self.replyToMessageStack.alpha = 0
-//                self.replyToMessageStack.isHidden = true
+//            UIView.animate(withDuration: 1.3) {
+//                self.containerStackView.replyToMessageStack.alpha = 0
+////                self.containerStackView.replyToMessageStack.isHidden = true
 //                //            self.containerStackView.layoutIfNeeded()
 //            } completion: { _ in
-//                self.containerStackView.removeArrangedSubview(self.replyToMessageStack)
-//                self.replyToMessageStack.removeFromSuperview()
-//                //            self.messageLabel.layoutIfNeeded()
-//                self.handleMessageLayout()
-//                UIView.animate(withDuration: 0.2) {
+//                self.containerStackView.removeArrangedSubview(self.containerStackView.replyToMessageStack)
+////                self.containerStackView.replyToMessageStack.removeFromSuperview()
+//                self.containerStackView.messageLabel.layoutIfNeeded()
+////                self.containerStackView.handleMessageLayout()
+//                UIView.animate(withDuration: 0.3) {
 //                    //            self.containerStackView.layoutIfNeeded()
 //                    //
 //                    self.contentView.layoutIfNeeded()
 //                    
 //                }
+//                self.handleContentRelayout?()
 //            }
-//            self.handleContentRelayout?()
+//            print("done")
+////            self.handleContentRelayout?()
 //        }
 //    }
     

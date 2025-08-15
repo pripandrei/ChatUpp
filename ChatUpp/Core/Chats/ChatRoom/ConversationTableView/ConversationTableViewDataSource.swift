@@ -92,7 +92,7 @@ extension ConversationTableViewDataSource
         cell.configureCell(using: viewModel,
                            layoutConfiguration: messageLayoutConfiguration)
         
-        cell.handleContentRelayout = { [weak tableView] in
+        cell.containerStackView.handleContentRelayout = { [weak tableView] in
             guard let tableView else {return}
             tableView.beginUpdates()
             tableView.endUpdates()
