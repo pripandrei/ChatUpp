@@ -68,27 +68,9 @@ final class MessageTableViewCell: UITableViewCell
             .sink(receiveValue: { [weak self] imageData in
                 self?.messageSenderAvatar.image = UIImage(data: imageData)
             }).store(in: &subscribers)
-        
-        cellViewModel.$message
-            .receive(on: DispatchQueue.main)
-            .compactMap({ $0 })
-            .sink { [weak self] message in
-                if message.isInvalidated { return }
-                self?.setupContainerMessageLabel(with: message)
-            }.store(in: &subscribers)
+
     }
-    
-    func setupContainerMessageLabel(with message: Message)
-    {
-        if let imageData = cellViewModel.retrieveImageData(),
-           let image = UIImage(data: imageData) {
-            containerStackView.showImageMessage(image, text: message.messageBody)
-        } else if message.imagePath != nil {
-            cellViewModel.fetchMessageImageData()
-        } else {
-            containerStackView.showTextMessage(message.messageBody)
-        }
-    }
+
     
     func setupReactionView(for message: Message)
     {
@@ -118,12 +100,15 @@ final class MessageTableViewCell: UITableViewCell
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
-        guard let message = viewModel.message else { return }
+        guard let message = viewModel.message else {
+            assert(false, "message should be valid at this point")
+        }
         
         cleanupCellContent()
         
         cellViewModel = viewModel
-        containerStackView.configure(with: viewModel,
+        
+        containerStackView.configure(with: viewModel.messageContainerViewModel!,
                                      layoutConfiguration: layoutConfiguration)
         
         messageLayoutConfiguration = layoutConfiguration
@@ -133,7 +118,6 @@ final class MessageTableViewCell: UITableViewCell
         setupBinding()
         adjustMessageSide()
 
-        setupContainerMessageLabel(with: message)
         setupReactionView(for: message)
     }
 
@@ -207,7 +191,6 @@ extension MessageTableViewCell
 
 extension MessageTableViewCell
 {
-
     private func setupSenderAvatar()
     {
         /// check if chat is group (seen by is not empty in group)

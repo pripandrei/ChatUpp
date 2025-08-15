@@ -19,7 +19,7 @@ final class MessageContainerView: ContainerView
 {
     private var messageImageViewBottomConstraint: NSLayoutConstraint?
     
-    private var viewModel: MessageCellViewModel!
+    private var viewModel: MessageContainerViewModel!
     private var messageComponentsStackView: UIStackView = UIStackView()
     private var seenStatusMark = YYLabel()
     private var editedLabel: UILabel = UILabel()
@@ -96,15 +96,27 @@ extension MessageContainerView
                 self?.configureMessageImage(image)
                 //                }
             }).store(in: &subscribers)
+        
+        viewModel.$message
+            .receive(on: DispatchQueue.main)
+            .compactMap({ $0 })
+            .sink { [weak self] message in
+                if message.isInvalidated { return }
+                self?.setupMessageLabel(with: message)
+            }.store(in: &subscribers)
     }
 }
 
 //MARK: - message container configuration
 extension MessageContainerView
 {
-    func configure(with viewModel: MessageCellViewModel,
+    func configure(with viewModel: MessageContainerViewModel,
                    layoutConfiguration: MessageLayoutConfiguration)
     {
+        guard let message = viewModel.message else {
+            assert(false, "message should be valid at this point")
+        }
+        
         cleanupContent()
         
         self.viewModel = viewModel
@@ -116,8 +128,20 @@ extension MessageContainerView
         setupMessageToReplyView()
         updateEditedLabel()
         updateStackViewComponentsAppearance()
-        
+        setupMessageLabel(with: message)
         setupBindings()
+    }
+    
+    func setupMessageLabel(with message: Message)
+    {
+        if let imageData = viewModel.retrieveImageData(),
+           let image = UIImage(data: imageData) {
+            showImageMessage(image, text: message.messageBody)
+        } else if message.imagePath != nil {
+            viewModel.fetchMessageImageData()
+        } else {
+            showTextMessage(message.messageBody)
+        }
     }
     
     func showTextMessage(_ text: String) {
