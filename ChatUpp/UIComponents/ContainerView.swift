@@ -24,7 +24,8 @@ class ContainerView: UIView {
     }
 
     // MARK: - Add View
-    func addArrangedSubview(_ view: UIView, padding: UIEdgeInsets = .zero, at index: Int? = nil) {
+    func addArrangedSubview(_ view: UIView, padding: UIEdgeInsets = .zero, at index: Int? = nil)
+    {
         view.translatesAutoresizingMaskIntoConstraints = false
         addSubview(view)
 
@@ -38,14 +39,15 @@ class ContainerView: UIView {
     }
 
     // MARK: - Remove View
-    func removeArrangedSubview(_ view: UIView) {
+    func removeArrangedSubview(_ view: UIView)
+    {
         if let index = arrangedViews.firstIndex(where: { $0.view == view }) {
             arrangedViews.remove(at: index)
             view.removeFromSuperview()
             updateConstraintsForArrangedViews()
         }
     }
-
+    
     // MARK: - Update Padding
     func updatePadding(for view: UIView, padding: UIEdgeInsets) {
         if let index = arrangedViews.firstIndex(where: { $0.view == view }) {

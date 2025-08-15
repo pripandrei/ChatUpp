@@ -29,17 +29,17 @@ final class MessageContainerView: ContainerView
     
     private var subscribers = Set<AnyCancellable>()
 
-    private lazy var replyMessageLabel: ReplyMessageLabel = {
-        let replyMessageLabel = ReplyMessageLabel()
-        replyMessageLabel.numberOfLines = 2
-        replyMessageLabel.layer.cornerRadius = 4
-        replyMessageLabel.clipsToBounds = true
-        replyMessageLabel.backgroundColor = ColorManager.replyToMessageBackgroundColor
-        replyMessageLabel.rectInset = .init(top: -8, left: -8, bottom: 0, right: -8)
-        
-        return replyMessageLabel
-    }()
-    
+//    private lazy var replyMessageLabel: ReplyMessageLabel = {
+//        let replyMessageLabel = ReplyMessageLabel()
+//        replyMessageLabel.numberOfLines = 2
+//        replyMessageLabel.layer.cornerRadius = 4
+//        replyMessageLabel.clipsToBounds = true
+//        replyMessageLabel.backgroundColor = ColorManager.replyToMessageBackgroundColor
+//        replyMessageLabel.rectInset = .init(top: -8, left: -8, bottom: 0, right: -8)
+//        
+//        return replyMessageLabel
+//    }()
+//    
     private lazy var messageSenderNameLabel: UILabel = {
        let senderNameLabel = UILabel()
         senderNameLabel.numberOfLines = 1
@@ -103,6 +103,7 @@ extension MessageContainerView
     func configure(with viewModel: MessageCellViewModel,
                    layoutConfiguration: MessageLayoutConfiguration)
     {
+        cleanupContent()
         
         self.viewModel = viewModel
         self.messageLayoutConfiguration = layoutConfiguration
@@ -201,6 +202,9 @@ extension MessageContainerView
         
         guard messageLayoutConfiguration.shouldShowSenderName else
         {
+//            if let senderName = subviews.compactMap({ $0 as? ReplyToMessageStackView }).first {
+//                removeArrangedSubview(replyView)
+//            }
             removeArrangedSubview(messageSenderNameLabel)
 //            messageSenderNameLabel.removeFromSuperview()
             return
@@ -264,9 +268,10 @@ extension MessageContainerView
         if viewModel.message?.isEdited == true
         {
             editedLabel.text = "edited"
-        } else {
-            editedLabel.text = nil
         }
+//        else {
+//            editedLabel.text = nil
+//        }
     }
     
     func configureMessageSeenStatus()
@@ -302,12 +307,12 @@ extension MessageContainerView
     {
         guard let senderName = viewModel.referencedMessageSenderName,
               let messageText = viewModel.referencedMessage?.messageBody else {
-            removeArrangedSubview(replyMessageLabel)
+            removeArrangedSubview(replyToMessageStack)
             return
         }
         
         let replyLabelText = messageText.isEmpty ? "Photo" : messageText
-        let replyText = replyMessageLabel.createReplyMessageAttributedText(
+        let replyText = replyToMessageStack.createReplyMessageAttributedText(
             with: senderName,
             messageText: replyLabelText
         )
@@ -353,7 +358,7 @@ extension MessageContainerView
         executeAfter(seconds: 4.0, block: { [weak self] in
             guard let self else {return}
             let messageText = message.messageBody.isEmpty ? "Photo" : message.messageBody
-            let replyLabelText = replyMessageLabel.createReplyMessageAttributedText(
+            let replyLabelText = replyToMessageStack.createReplyMessageAttributedText(
                 with: messageSenderName,
                 messageText: messageText
             )
@@ -556,6 +561,7 @@ extension MessageContainerView
         timeStamp.text = nil
         messageImageView.image = nil
         seenStatusMark.attributedText = nil
+        editedLabel.text = nil
         applyMessagePadding(strategy: .initial)
     }
 }

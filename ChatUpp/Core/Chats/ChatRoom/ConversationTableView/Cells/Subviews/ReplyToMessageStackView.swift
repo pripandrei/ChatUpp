@@ -185,3 +185,25 @@ extension ReplyMessageLabel
     }
 }
 
+extension ReplyToMessageStackView
+{
+    func createReplyMessageAttributedText(
+        with senderName: String,
+        messageText: String
+    ) -> NSMutableAttributedString
+    {
+        let boldAttributeForName: [NSAttributedString.Key: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 13),
+            .foregroundColor: UIColor.white
+        ]
+        let boldAttributeForText: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 13),
+            .foregroundColor: UIColor.white
+        ]
+        let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
+        let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
+        attributedText.append(replyMessageAttributedText)
+        
+        return attributedText
+    }
+}

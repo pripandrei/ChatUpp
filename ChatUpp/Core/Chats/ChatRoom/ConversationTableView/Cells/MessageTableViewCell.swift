@@ -272,7 +272,7 @@ final class MessageTableViewCell: UITableViewCell
     /// - cleanup
     private func cleanupCellContent()
     {
-        containerStackView.cleanupContent()
+//        containerStackView.cleanupContent()
 //        messageLabel.attributedText = nil
 //        containerStackView.timeStamp.text = nil
 //        messageImageView.image = nil
