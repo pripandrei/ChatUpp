@@ -10,7 +10,7 @@ import YYText
 import Combine
 import SkeletonView
 import SwiftUI
-//
+
 
 final class MessageTableViewCell: UITableViewCell
 {
@@ -21,56 +21,20 @@ final class MessageTableViewCell: UITableViewCell
     private var containerStackViewBottomConstraint: NSLayoutConstraint!
     private var containerStackViewLeadingConstraint: NSLayoutConstraint!
     private var containerStackViewTrailingConstraint: NSLayoutConstraint!
-
-//    private var messageComponentsStackView: UIStackView = UIStackView()
-//    private var messageImageView = UIImageView()
-//    private var messageTitleLabel: YYLabel?
-//    private var timeStamp = YYLabel()
-    private var subscribers = Set<AnyCancellable>()
-    private var maxContainerWidth: CGFloat = 292.0
-//    private var replyToMessageStack = ReplyToMessageStackView()
     
-    private(set) var reactionBadgeHostingView: UIView?
-//    private(set) var containerStackView: UIStackView = UIStackView()
     private(set) var containerStackView: MessageContainerView = MessageContainerView()
-//    private(set) var messageContainer = UIView() // remove later
-//    private(set) var messageLabel = MessageLabel()
-//    private(set) var seenStatusMark = YYLabel()
-//    private(set) var editedLabel: UILabel = UILabel()
+    private(set) var reactionBadgeHostingView: UIView?
     private(set) var cellViewModel: MessageCellViewModel!
     
-//    private lazy var replyMessageLabel: ReplyMessageLabel = {
-//        let replyMessageLabel = ReplyMessageLabel()
-//        replyMessageLabel.numberOfLines = 2
-//        replyMessageLabel.layer.cornerRadius = 4
-//        replyMessageLabel.clipsToBounds = true
-//        replyMessageLabel.backgroundColor = ColorManager.replyToMessageBackgroundColor
-//        replyMessageLabel.rectInset = .init(top: -8, left: -8, bottom: 0, right: -8)
-//        
-//        return replyMessageLabel
-//    }()
+    private var subscribers = Set<AnyCancellable>()
     
-//    private lazy var messageSenderNameLabel: UILabel = {
-//       let senderNameLabel = UILabel()
-//        senderNameLabel.numberOfLines = 1
-//        senderNameLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
-//        senderNameLabel.textColor = messageSenderNameColor
-//        return senderNameLabel
-//    }()
-
     private var messageSenderAvatar: UIImageView = {
         let senderAvatar = UIImageView()
         senderAvatar.clipsToBounds = true
         senderAvatar.translatesAutoresizingMaskIntoConstraints = false
         return senderAvatar
     }()
-    
-//    private var messageSenderNameColor: UIColor
-//    {
-//        let senderID = cellViewModel.message?.senderId
-//        return ColorManager.color(for: senderID ?? "12345")
-//    }
-    
+
     /// - lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -81,11 +45,6 @@ final class MessageTableViewCell: UITableViewCell
         backgroundColor = .clear
         setupBackgroundSelectionView()
         setupContainerStackView()
-//        setupMessageLabel()
-//        setupMessageComponentsStackView()
-//        setupTimestamp()
-//        configureMessageImageView()
-//        setupEditedLabel()
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
@@ -110,16 +69,6 @@ final class MessageTableViewCell: UITableViewCell
                 self?.messageSenderAvatar.image = UIImage(data: imageData)
             }).store(in: &subscribers)
         
-//        cellViewModel.messageImageDataSubject
-//            .receive(on: DispatchQueue.main)
-//            .sink(receiveValue: { [weak self] imageData in
-//                //                if data == self?.cellViewModel.imageData {
-////                self?.messageImage = UIImage(data: imageData)
-//                guard let image = UIImage(data: imageData) else {return}
-//                self?.configureMessageImage(image)
-//                //                }
-//            }).store(in: &subscribers)
-        //
         cellViewModel.$message
             .receive(on: DispatchQueue.main)
             .compactMap({ $0 })
@@ -127,17 +76,6 @@ final class MessageTableViewCell: UITableViewCell
                 if message.isInvalidated { return }
                 self?.setupContainerMessageLabel(with: message)
             }.store(in: &subscribers)
-        
-//        cellViewModel.$referencedMessage
-//            .receive(on: DispatchQueue.main)
-//            .dropFirst()
-//            .sink { [weak self] replyMessage in
-//                if let replyMessage {
-////                    self?.updateMessageToReply(replyMessage)
-//                } else {
-//                    self?.removeMessageToReplyLabel()
-//                }
-//            }.store(in: &subscribers)
     }
     
     func setupContainerMessageLabel(with message: Message)
@@ -151,24 +89,6 @@ final class MessageTableViewCell: UITableViewCell
             containerStackView.showTextMessage(message.messageBody)
         }
     }
-    
-//    private func setupMessageLabel(with message: Message)
-//    {
-//        guard let _ = message.imagePath else {
-//            containerStackView.messageLabel.attributedText = messageTextLabelLinkSetup(from: message.messageBody)
-//            handleMessageLayout()
-//            return
-//        }
-//        
-//        if let imageData = cellViewModel.retrieveImageData()
-//        {
-//            guard let image = UIImage(data: imageData) else {return}
-//            self.configureMessageImage(image)
-//        } else
-//        {
-//            cellViewModel.fetchMessageImageData()
-//        }
-//    }
     
     func setupReactionView(for message: Message)
     {
@@ -206,85 +126,23 @@ final class MessageTableViewCell: UITableViewCell
         containerStackView.configure(with: viewModel,
                                      layoutConfiguration: layoutConfiguration)
         
-//        containerStackView.timeStamp.text = viewModel.timestamp
         messageLayoutConfiguration = layoutConfiguration
-
-//        setupSenderNameLabel()
-        setupSenderAvatar()
         
-//        setupMessageToReplyView()
+        setupSenderAvatar()
         setContainerStackViewBottomConstraint()
-//        updateEditedLabel()
-//        updateStackViewComponentsAppearance()
         setupBinding()
         adjustMessageSide()
 
         setupContainerMessageLabel(with: message)
         setupReactionView(for: message)
-            
-//        containerStackView.handleContentRelayout = handleContentRelayout
-//        testMessageTextEdit()
     }
-    
-//    private func removeMessageToReplyLabel()
-//    {
-//        executeAfter(seconds: 1.0) {
-//            self.containerStackView.messageLabel.messageUpdateType = .replyRemoved
-//            UIView.animate(withDuration: 1.3) {
-//                self.containerStackView.replyToMessageStack.alpha = 0
-////                self.containerStackView.replyToMessageStack.isHidden = true
-//                //            self.containerStackView.layoutIfNeeded()
-//            } completion: { _ in
-//                self.containerStackView.removeArrangedSubview(self.containerStackView.replyToMessageStack)
-////                self.containerStackView.replyToMessageStack.removeFromSuperview()
-//                self.containerStackView.messageLabel.layoutIfNeeded()
-////                self.containerStackView.handleMessageLayout()
-//                UIView.animate(withDuration: 0.3) {
-//                    //            self.containerStackView.layoutIfNeeded()
-//                    //
-//                    self.contentView.layoutIfNeeded()
-//                    
-//                }
-//                self.handleContentRelayout?()
-//            }
-//            print("done")
-////            self.handleContentRelayout?()
-//        }
-//    }
-    
-//    private func updateMessageToReply(_ message: Message)
-//    {
-//        guard let messageSenderName = cellViewModel.referencedMessageSenderName else {return}
-//        executeAfter(seconds: 4.0, block: { [weak self] in
-//            guard let self else {return}
-//            let messageText = message.messageBody.isEmpty ? "Photo" : message.messageBody
-//            let replyLabelText = self.createReplyMessageAttributedText(
-//                with: messageSenderName,
-//                messageText: messageText
-//            )
-//            let image = message.imagePath == nil ? nil : self.cellViewModel.retrieveReferencedImageData()
-//            self.replyToMessageStack.configure(with: replyLabelText, imageData: image)
-//            
-//            UIView.animate(withDuration: 0.5) {
-//                self.contentView.layoutIfNeeded()
-//            }
-//        })
-//    }
-    
-    
+
     /// - cleanup
     private func cleanupCellContent()
     {
-//        containerStackView.cleanupContent()
-//        messageLabel.attributedText = nil
-//        containerStackView.timeStamp.text = nil
-//        messageImageView.image = nil
         messageSenderAvatar.image = nil
-//        containerStackView.seenStatusMark.attributedText = nil
         reactionBadgeHostingView?.removeFromSuperview()
         reactionBadgeHostingView = nil
-        
-//        applyMessagePadding(strategy: .initial)
         
         subscribers.forEach { subscriber in
             subscriber.cancel()
@@ -306,48 +164,40 @@ extension MessageTableViewCell
     private func setupContainerStackView()
     {
         contentView.addSubview(containerStackView)
-        
-//        containerStackView.axis = .vertical
+    
         containerStackView.spacing = 2
         containerStackView.margins = .init(top: 6, left: 10, bottom: 6, right: 10)
         containerStackView.layer.cornerRadius = 15
-//        containerStackView.alignment = .leading
         containerStackView.clipsToBounds = true
         containerStackView.translatesAutoresizingMaskIntoConstraints = false
         
         self.containerStackViewBottomConstraint = containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         self.containerStackViewBottomConstraint.isActive = true
+        
+        self.containerStackViewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
+        self.containerStackViewTrailingConstraint = containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+        
         containerStackView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        containerStackView.widthAnchor.constraint(lessThanOrEqualToConstant: maxContainerWidth).isActive = true
+        containerStackView.widthAnchor.constraint(lessThanOrEqualToConstant: MessageContainerView.maxWidth).isActive = true
         
         containerStackView.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
     }
     
-
     private func adjustMessageSide()
     {
-//        if containerStackViewLeadingConstraint != nil { containerStackViewLeadingConstraint.isActive = false }
-//        if containerStackViewTrailingConstraint != nil { containerStackViewTrailingConstraint.isActive = false }
-        
-        containerStackViewLeadingConstraint?.isActive = false
-        containerStackViewTrailingConstraint?.isActive = false
-        
         let leadingConstant = messageLayoutConfiguration.leadingConstraintConstant
         
         switch cellViewModel.messageAlignment {
         case .right:
             containerStackView.configureMessageSeenStatus()
-            
-            containerStackViewLeadingConstraint = containerStackView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor)
-            containerStackViewTrailingConstraint = containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-            containerStackViewLeadingConstraint.isActive = true
+
+            containerStackViewLeadingConstraint.isActive = false
             containerStackViewTrailingConstraint.isActive = true
             containerStackView.backgroundColor = ColorManager.outgoingMessageBackgroundColor
         case .left:
-            containerStackViewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: leadingConstant)
-            containerStackViewTrailingConstraint = containerStackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor)
+            containerStackViewTrailingConstraint.isActive = false
             containerStackViewLeadingConstraint.isActive = true
-            containerStackViewTrailingConstraint.isActive = true
+            containerStackViewLeadingConstraint.constant = leadingConstant
             containerStackView.backgroundColor = ColorManager.incomingMessageBackgroundColor
         case .center:
             break

@@ -10,16 +10,23 @@ import UIKit
 import YYText
 import Combine
 
+extension MessageContainerView
+{
+    static var maxWidth: CGFloat = 295.0
+}
+
 final class MessageContainerView: ContainerView
 {
     private var messageImageViewBottomConstraint: NSLayoutConstraint?
     
+    private var viewModel: MessageCellViewModel!
     private var messageComponentsStackView: UIStackView = UIStackView()
-    var seenStatusMark = YYLabel()
-    var editedLabel: UILabel = UILabel()
-    var timeStamp = YYLabel()
-    var messageLabel = MessageLabel()
-    var messageImageView = UIImageView()
+    private var seenStatusMark = YYLabel()
+    private var editedLabel: UILabel = UILabel()
+    private var timeStamp = YYLabel()
+    private var messageLabel = MessageLabel()
+    private(set) var messageImageView = UIImageView()
+    private var subscribers = Set<AnyCancellable>()
     
     lazy var replyToMessageStack: ReplyToMessageStackView = {
         let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
@@ -27,26 +34,14 @@ final class MessageContainerView: ContainerView
         return replyToMessageStack
     }()
     
-    var viewModel: MessageCellViewModel!
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
     var handleContentRelayout: (() -> Void)?
     
-    var maxMessageWidth: CGFloat = 292.0
-    
-    private var subscribers = Set<AnyCancellable>()
+    var maxMessageWidth: CGFloat {
+        return MessageContainerView.maxWidth - 20
+    }
 
-//    private lazy var replyMessageLabel: ReplyMessageLabel = {
-//        let replyMessageLabel = ReplyMessageLabel()
-//        replyMessageLabel.numberOfLines = 2
-//        replyMessageLabel.layer.cornerRadius = 4
-//        replyMessageLabel.clipsToBounds = true
-//        replyMessageLabel.backgroundColor = ColorManager.replyToMessageBackgroundColor
-//        replyMessageLabel.rectInset = .init(top: -8, left: -8, bottom: 0, right: -8)
-//        
-//        return replyMessageLabel
-//    }()
-//    
     private lazy var messageSenderNameLabel: UILabel = {
        let senderNameLabel = UILabel()
         senderNameLabel.numberOfLines = 1
@@ -141,9 +136,7 @@ extension MessageContainerView
 {
     private func setupMessageComponentsStackView()
     {
-//        self.messageLabel.addSubview(messageComponentsStackView)
         addSubview(messageComponentsStackView)
-//        self.containerStackView.addSubview(messageComponentsStackView)
         
         messageComponentsStackView.addArrangedSubview(timeStamp)
         messageComponentsStackView.addArrangedSubview(seenStatusMark)
@@ -158,9 +151,6 @@ extension MessageContainerView
         NSLayoutConstraint.activate([
             messageComponentsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             messageComponentsStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
-//            messageComponentsStackView.heightAnchor.constraint(equalToConstant: 14),
-//            messageComponentsStackView.widthAnchor.
-            
         ])
     }
     
@@ -188,14 +178,13 @@ extension MessageContainerView
         messageImageView.layer.cornerRadius = 13
         messageImageView.clipsToBounds = true
         messageImageView.translatesAutoresizingMaskIntoConstraints = false
-//        let margins: UIEdgeInsets = .init(top: -6, left: -10, bottom: -4, right: 10)
+        
         self.messageImageViewBottomConstraint = messageImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -2)
         
         NSLayoutConstraint.activate([
             messageImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 2),
             messageImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -2),
             messageImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: -4),
-//            profileImageView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -2)
         ])
     }
     
@@ -206,22 +195,14 @@ extension MessageContainerView
     
     private func setupSenderNameLabel()
     {
-        /// check if chat is group (seen by is not empty in group)
-//        guard cellViewModel.message?.seenBy.isEmpty == false else {return}
-        
         guard messageLayoutConfiguration.shouldShowSenderName else
         {
-//            if let senderName = subviews.compactMap({ $0 as? ReplyToMessageStackView }).first {
-//                removeArrangedSubview(replyView)
-//            }
             removeArrangedSubview(messageSenderNameLabel)
-//            messageSenderNameLabel.removeFromSuperview()
             return
         }
     
         if !contains(messageSenderNameLabel)
         {
-//            containerStackView.insertArrangedSubview(messageSenderNameLabel, at: 0)
             addArrangedSubview(messageSenderNameLabel, at: 0)
         }
         
@@ -341,38 +322,12 @@ extension MessageContainerView
         replyToMessageStack.configure(with: replyText, imageData: imageData)
         
         let index = messageLayoutConfiguration.shouldShowSenderName ? 1 : 0
-        
-//        containerStackView.insertArrangedSubview(replyToMessageStack, at: index)
+    
         addArrangedSubview(replyToMessageStack, at: index)
-//        replyToMessageStack.widthAnchor.constraint(equalTo: containerStackView.widthAnchor).isActive = true
         updateReplyToMessageColor()
+//        replyToMessageStack.widthAnchor.constraint(equalTo: containerStackView.widthAnchor).isActive = true
     }
     
-//    private func removeMessageToReplyLabel()
-//    {
-////        executeAfter(seconds: 1.0) {
-////            self.messageLabel.messageUpdateType = .replyRemoved
-////            UIView.animate(withDuration: 0.3) {
-////                self.replyToMessageStack.alpha = 0
-////                self.replyToMessageStack.isHidden = true
-////                //            self.containerStackView.layoutIfNeeded()
-////            } completion: { _ in
-////                self.removeArrangedSubview(self.replyToMessageStack)
-//////                self.replyToMessageStack.removeFromSuperview()
-//////                self.messageLabel.layoutIfNeeded()
-////                self.handleMessageLayout()
-////                UIView.animate(withDuration: 0.2) {
-////                    //            self.containerStackView.layoutIfNeeded()
-////                    //
-////                    self.superview?.layoutIfNeeded()
-////                    print("is there superview?:", self.superview)
-////                }
-////            }
-////            print(self.handleContentRelayout?() == nil)
-////            self.handleContentRelayout?()
-////        }
-//    }
-//    
     private func removeMessageToReplyLabel()
     {
         executeAfter(seconds: 1.0) {
@@ -380,22 +335,15 @@ extension MessageContainerView
             UIView.animate(withDuration: 0.3) {
                 self.replyToMessageStack.alpha = 0
 //                self.replyToMessageStack.isHidden = true
-                //            self.containerStackView.layoutIfNeeded()
             } completion: { _ in
                 self.removeArrangedSubview(self.replyToMessageStack)
-//                self.containerStackView.replyToMessageStack.removeFromSuperview()
                 self.messageLabel.layoutIfNeeded()
 //                self.containerStackView.handleMessageLayout()
                 UIView.animate(withDuration: 0.3) {
-                    //            self.containerStackView.layoutIfNeeded()
-                    //
                     self.superview?.layoutIfNeeded()
-                    
                 }
                 self.handleContentRelayout?()
             }
-            print("done")
-//            self.handleContentRelayout?()
         }
     }
     
@@ -465,7 +413,7 @@ extension MessageContainerView
     ///
     private func getMessagePaddingStrategy() -> TextPaddingStrategy
     {
-        let padding = (TextPaddingStrategy.initial.padding.left * 2) + 3.0
+        let padding = 4.0 // additional safe space
         let expectedLineWidth = self.messageLastLineTextWidth + self.messageComponentsWidth
         
         guard expectedLineWidth < (maxMessageWidth - padding) else {
@@ -511,7 +459,7 @@ extension MessageContainerView
         } else {
             self.messageLabel.attributedText = imageAttachementAttributed
             self.messageImageViewBottomConstraint?.isActive = true
-            applyMessagePadding(strategy: .image)
+//            applyMessagePadding(strategy: .image)
         }
     }
 
@@ -547,7 +495,6 @@ extension MessageContainerView
             alignment: .center)
         
         return imageAttributedString
-        //        messageLabel.attributedText = combined
     }
 }
 
