@@ -308,7 +308,8 @@ extension MessageTableViewCell
         contentView.addSubview(containerStackView)
         
 //        containerStackView.axis = .vertical
-//        containerStackView.spacing = 0
+        containerStackView.spacing = 2
+        containerStackView.margins = .init(top: 6, left: 10, bottom: 6, right: 10)
         containerStackView.layer.cornerRadius = 15
 //        containerStackView.alignment = .leading
         containerStackView.clipsToBounds = true

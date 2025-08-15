@@ -12,13 +12,20 @@ import Combine
 
 final class MessageContainerView: ContainerView
 {
+    private var messageImageViewBottomConstraint: NSLayoutConstraint?
+    
     private var messageComponentsStackView: UIStackView = UIStackView()
     var seenStatusMark = YYLabel()
     var editedLabel: UILabel = UILabel()
     var timeStamp = YYLabel()
     var messageLabel = MessageLabel()
     var messageImageView = UIImageView()
-    var replyToMessageStack = ReplyToMessageStackView()
+    
+    lazy var replyToMessageStack: ReplyToMessageStackView = {
+        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
+        let replyToMessageStack = ReplyToMessageStackView(margin: margins)
+        return replyToMessageStack
+    }()
     
     var viewModel: MessageCellViewModel!
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
@@ -54,9 +61,9 @@ final class MessageContainerView: ContainerView
         return ColorManager.color(for: senderID ?? "12345")
     }
     
-    override init(spacing: CGFloat = 0)
+    override init()
     {
-        super.init(spacing: spacing)
+        super.init()
         setupMessageLabel()
         setupMessageComponentsStackView()
         setupTimestamp()
@@ -163,7 +170,7 @@ extension MessageContainerView
         messageLabel.numberOfLines = 0
         messageLabel.preferredMaxLayoutWidth = maxMessageWidth
         messageLabel.contentMode = .redraw
-        messageLabel.layer.cornerRadius = 15
+//        messageLabel.layer.cornerRadius = 15
         messageLabel.clipsToBounds = true
     }
     
@@ -175,17 +182,19 @@ extension MessageContainerView
     
     func configureMessageImageView()
     {
-        messageLabel.addSubview(messageImageView)
-        messageLabel.sendSubviewToBack(messageImageView)
+        self.addSubview(messageImageView)
+        self.sendSubviewToBack(messageImageView)
         
-        messageImageView.layer.cornerRadius = 15
+        messageImageView.layer.cornerRadius = 13
         messageImageView.clipsToBounds = true
         messageImageView.translatesAutoresizingMaskIntoConstraints = false
+//        let margins: UIEdgeInsets = .init(top: -6, left: -10, bottom: -4, right: 10)
+        self.messageImageViewBottomConstraint = messageImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -2)
         
         NSLayoutConstraint.activate([
-            messageImageView.leadingAnchor.constraint(equalTo: messageLabel.leadingAnchor, constant: 2),
-            messageImageView.trailingAnchor.constraint(equalTo: messageLabel.trailingAnchor, constant: -2),
-            messageImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: 2),
+            messageImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 2),
+            messageImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -2),
+            messageImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: -4),
 //            profileImageView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: -2)
         ])
     }
@@ -487,8 +496,10 @@ extension MessageContainerView
             combinedAttributedString.append(messageTextAttribute)
             self.messageLabel.attributedText = combinedAttributedString
             handleMessageLayout()
+            self.messageImageViewBottomConstraint?.isActive = false
         } else {
             self.messageLabel.attributedText = imageAttachementAttributed
+            self.messageImageViewBottomConstraint?.isActive = true
             applyMessagePadding(strategy: .image)
         }
     }
@@ -609,11 +620,22 @@ extension MessageContainerView
         {
             switch self {
             case .image: return UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
-            case .bottom: return UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
-            case .initial: return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-            case .trailling (let space): return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: space + 10 + 3.0)
+            case .bottom: return UIEdgeInsets(top: 0, left: 0, bottom: 15, right: 0)
+//            case .initial: return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
+            case .initial: return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            case .trailling (let space): return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: space + 3.0)
             }
         }
+        
+//        var padding: UIEdgeInsets
+//        {
+//            switch self {
+//            case .image: return UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
+//            case .bottom: return UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
+//            case .initial: return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
+//            case .trailling (let space): return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: space + 10 + 3.0)
+//            }
+//        }
     }
 }
 

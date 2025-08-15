@@ -9,18 +9,30 @@ import UIKit
 
 class ContainerView: UIView {
 
-    private var spacing: CGFloat
+    var spacing: CGFloat = .zero
     private var arrangedViews: [(view: UIView, padding: UIEdgeInsets)] = []
     private var arrangedConstraints: [NSLayoutConstraint] = []
 
-    init(spacing: CGFloat = 3) {
-        self.spacing = spacing
+    init()
+    {
         super.init(frame: .zero)
+        
         translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    convenience init(spacing: CGFloat = 0, margin: UIEdgeInsets = .zero)
+    {
+        self.init()
+        self.spacing = spacing
+        self.margins = margin
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    var margins: UIEdgeInsets = .zero {
+        didSet { updateConstraintsForArrangedViews() }
     }
 
     // MARK: - Add View
@@ -58,36 +70,45 @@ class ContainerView: UIView {
     }
 
     // MARK: - Layout
-    private func updateConstraintsForArrangedViews() {
-        // Remove only constraints created for arranged views
+    private func updateConstraintsForArrangedViews()
+    {
+        /// Remove only constraints created for arranged views
+        /// (dont touch constraints of view that were added via addSubview)
         NSLayoutConstraint.deactivate(arrangedConstraints)
         arrangedConstraints.removeAll()
-
+        
         var previousView: UIView?
-
-        for (view, padding) in arrangedViews {
-            let leading = view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: padding.left)
-            let trailing = view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding.right)
-
+        
+        for (view, localPadding) in arrangedViews
+        {
+            let totalPadding = UIEdgeInsets(
+                top: margins.top + localPadding.top,
+                left: margins.left + localPadding.left,
+                bottom: margins.bottom + localPadding.bottom,
+                right: margins.right + localPadding.right
+            )
+            
+            let leading = view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: totalPadding.left)
+            let trailing = view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -totalPadding.right)
             arrangedConstraints.append(contentsOf: [leading, trailing])
-
+            
             if let prev = previousView {
-                let top = view.topAnchor.constraint(equalTo: prev.bottomAnchor, constant: spacing + padding.top)
+                let top = view.topAnchor.constraint(equalTo: prev.bottomAnchor, constant: spacing)
                 arrangedConstraints.append(top)
             } else {
-                let top = view.topAnchor.constraint(equalTo: topAnchor, constant: padding.top)
+                let top = view.topAnchor.constraint(equalTo: topAnchor, constant: totalPadding.top)
                 arrangedConstraints.append(top)
             }
-
+            
             previousView = view
         }
-
-        // Last view bottom constraint
+        
         if let last = previousView, let lastPadding = arrangedViews.last?.padding {
-            let bottom = last.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -lastPadding.bottom)
+            let totalBottomPadding = margins.bottom + lastPadding.bottom
+            let bottom = last.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -totalBottomPadding)
             arrangedConstraints.append(bottom)
         }
-
+        
         NSLayoutConstraint.activate(arrangedConstraints)
     }
 }

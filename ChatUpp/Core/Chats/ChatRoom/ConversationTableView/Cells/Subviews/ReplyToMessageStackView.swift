@@ -29,6 +29,7 @@ final class ReplyToMessageStackView: UIStackView
             return fixedSize
         }
     }
+    
     class ReplyInnerStackView: UIStackView
     {
         override func draw(_ rect: CGRect) {
@@ -73,12 +74,21 @@ final class ReplyToMessageStackView: UIStackView
         super.init(frame: frame)
         setupSelf()
     }
-    private func setupSelf()
+    
+    convenience init(margin: UIEdgeInsets)
+    {
+        self.init(frame: .zero)
+        setupSelf(margins: margin)
+    }
+    
+    private func setupSelf(margins: UIEdgeInsets = .zero)
     {
         axis = .vertical
         spacing = 5
         isLayoutMarginsRelativeArrangement = true
-        layoutMargins = UIEdgeInsets(top: 7, left: 7, bottom: 0, right: 7)
+        layoutMargins = margins
+//        layoutMargins = UIEdgeInsets(top: 7, left: 7, bottom: 0, right: 7)
+//        layoutMargins = UIEdgeInsets(top: 2, left: 0, bottom: 5, right: 0)
         
 //            imageView.image = UIImage(named: "default_group_photo")
         
