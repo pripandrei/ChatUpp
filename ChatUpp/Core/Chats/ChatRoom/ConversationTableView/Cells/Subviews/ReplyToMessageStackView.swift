@@ -32,15 +32,27 @@ final class ReplyToMessageStackView: UIStackView
     
     class ReplyInnerStackView: UIStackView
     {
-        override func draw(_ rect: CGRect) {
-            UIColor.white.setFill()
+        var _rectFillColor: UIColor = .white
+        var rectFillColor: UIColor = .white
+        {
+            didSet {
+                _rectFillColor = rectFillColor
+                setNeedsDisplay()
+            }
+        }
+        
+        override func draw(_ rect: CGRect)
+        {
+            _rectFillColor.setFill()
             let rect = CGRect(x: 0, y: 0, width: 5, height: bounds.height)
             UIRectFill(rect)
         }
-        
-        override init(frame: CGRect) {
+
+        override init(frame: CGRect)
+        {
             super.init(frame: frame)
-            backgroundColor = ColorManager.replyToMessageBackgroundColor
+            
+            backgroundColor = ColorManager.outgoingReplyToMessageBackgroundColor
             axis = .horizontal
             clipsToBounds = true
             layer.cornerRadius = 4
@@ -69,7 +81,7 @@ final class ReplyToMessageStackView: UIStackView
         label.clipsToBounds = true
         return label
     }()
-    
+      
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupSelf()
@@ -120,6 +132,13 @@ final class ReplyToMessageStackView: UIStackView
             imageView.removeFromSuperview()
         }
     }
+    
+    func setReplyInnerStackColors(background: UIColor, barColor: UIColor)
+    {
+        replyInnerStackView.backgroundColor = background
+        replyInnerStackView.rectFillColor = barColor
+    }
+    
     
     required init(coder: NSCoder) { fatalError() }
 }

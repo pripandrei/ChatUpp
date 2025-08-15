@@ -267,6 +267,19 @@ extension MessageContainerView
         updateStackViewComponentsColor()
     }
     
+    private func updateReplyToMessageColor()
+    {
+        var backgroundColor: UIColor = ColorManager.outgoingReplyToMessageBackgroundColor
+        var barColor: UIColor = .white
+        
+        if viewModel.messageAlignment == .left {
+            backgroundColor = messageSenderNameColor.withAlphaComponent(0.3)
+            barColor = messageSenderNameColor
+        }
+        replyToMessageStack.setReplyInnerStackColors(background: backgroundColor,
+                                                     barColor: barColor)
+    }
+    
     private func updateStackViewComponentsColor() {
         timeStamp.textColor = getColorForMessageComponents()
         editedLabel.textColor = getColorForMessageComponents()
@@ -278,9 +291,6 @@ extension MessageContainerView
         {
             editedLabel.text = "edited"
         }
-//        else {
-//            editedLabel.text = nil
-//        }
     }
     
     func configureMessageSeenStatus()
@@ -335,6 +345,7 @@ extension MessageContainerView
 //        containerStackView.insertArrangedSubview(replyToMessageStack, at: index)
         addArrangedSubview(replyToMessageStack, at: index)
 //        replyToMessageStack.widthAnchor.constraint(equalTo: containerStackView.widthAnchor).isActive = true
+        updateReplyToMessageColor()
     }
     
 //    private func removeMessageToReplyLabel()
