@@ -56,7 +56,8 @@
 import Foundation
 
 // MARK: - ImageSampleHandling Protocol
-protocol ImageSampleHandling: AnyObject {
+protocol ImageSampleHandling: AnyObject
+{
     var imageSampleRepository: ImageSampleRepository? { get set }
     var profilePhotoURL: String? { get set }
     

@@ -66,25 +66,6 @@ extension UIImage
         }
     }
 //    
-//    func resize(to newSize: CGSize) -> UIImage {
-//        UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-//        defer { UIGraphicsEndImageContext() }
-//        self.draw(in: CGRect(origin: .zero, size: newSize))
-//        guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else { return UIImage() }
-//        return newImage
-//    }
-//    
-//    func resized5(to newSize: CGSize) -> UIImage? {
-//        let format = UIGraphicsImageRendererFormat()
-//        format.scale = UIScreen.main.scale
-//        format.opaque = false
-//
-//        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
-//        return renderer.image { _ in
-//            self.draw(in: CGRect(origin: .zero, size: newSize))
-//        }
-//    }
-//    
     func resize(to newSize: CGSize,
                            scale: CGFloat = UIScreen.main.scale) -> UIImage?
     {
@@ -132,26 +113,6 @@ extension UIImage
             return CGSize(width: 250, height: 250)
         }
     }
-
-//    func getAspectRatio() -> CGSize {
-//        let (equalWidth, equalHeight) = (250,250)
-//        
-//        let preferredWidth: Double = 300
-//        let preferredHeight: Double = 350
-//        
-//        let aspectRatioForWidth = Double(self.size.width) / Double(self.size.height)
-//        let aspectRatioForHeight = Double(self.size.height) / Double(self.size.width)
-//        
-//        if self.size.width > self.size.height {
-//            let newHeight = preferredWidth / aspectRatioForWidth
-//            return CGSize(width: preferredWidth, height: newHeight)
-//        } else if self.size.height > self.size.width {
-//            let newWidth = preferredHeight / aspectRatioForHeight
-//            return CGSize(width: newWidth, height: preferredHeight)
-//        } else {
-//            return CGSize(width: equalWidth, height: equalHeight)
-//        }
-//    }
     
 //    func calculateImageMemorySize(image: UIImage) -> Int?
 //    {

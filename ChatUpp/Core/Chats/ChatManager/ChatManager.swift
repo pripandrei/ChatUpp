@@ -16,6 +16,7 @@ final class ChatManager
     
     @Published private(set) var totalUnseenMessageCount: Int = 0
     
+    
     func incrementUnseenMessageCount(by value: Int)
     {
         totalUnseenMessageCount += value

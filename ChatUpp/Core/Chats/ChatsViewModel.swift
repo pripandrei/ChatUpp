@@ -212,8 +212,6 @@ extension ChatsViewModel
             }
         }
     }
-    
-    
 }
 
 //MARK: - Chat updates
