@@ -96,6 +96,7 @@
 		759894AF2E4E6BA2003CF661 /* MessageContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759894AE2E4E6BA0003CF661 /* MessageContainerView.swift */; };
 		759894B22E4E7284003CF661 /* ContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759894B12E4E7281003CF661 /* ContainerView.swift */; };
 		759894BA2E4FD2B5003CF661 /* MessageContainerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759894B92E4FD2A9003CF661 /* MessageContainerViewModel.swift */; };
+		759894BF2E4FFFA8003CF661 /* ChatManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759894BE2E4FFFA2003CF661 /* ChatManager.swift */; };
 		759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */; };
 		75A086162D19619E00DE5333 /* CropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 75A086152D19619E00DE5333 /* CropViewController */; };
 		75A086182D19619E00DE5333 /* TOCropViewController in Frameworks */ = {isa = PBXBuildFile; productRef = 75A086172D19619E00DE5333 /* TOCropViewController */; };
@@ -280,6 +281,7 @@
 		759894AE2E4E6BA0003CF661 /* MessageContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageContainerView.swift; sourceTree = "<group>"; };
 		759894B12E4E7281003CF661 /* ContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerView.swift; sourceTree = "<group>"; };
 		759894B92E4FD2A9003CF661 /* MessageContainerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageContainerViewModel.swift; sourceTree = "<group>"; };
+		759894BE2E4FFFA2003CF661 /* ChatManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatManager.swift; sourceTree = "<group>"; };
 		759BBFC52AFD5C3A00D7E9A0 /* ResultsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableCell.swift; sourceTree = "<group>"; };
 		75A086192D1977D200DE5333 /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropper.swift; sourceTree = "<group>"; };
 		75A7AFC22D396D1400E081DF /* ChatRoomViewModel+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatRoomViewModel+Extensions.swift"; sourceTree = "<group>"; };
@@ -739,6 +741,14 @@
 			path = DataSource;
 			sourceTree = "<group>";
 		};
+		759894BD2E4FFE02003CF661 /* ChatManager */ = {
+			isa = PBXGroup;
+			children = (
+				759894BE2E4FFFA2003CF661 /* ChatManager.swift */,
+			);
+			path = ChatManager;
+			sourceTree = "<group>";
+		};
 		759BBFC42AFD5BE900D7E9A0 /* ResultsTableView */ = {
 			isa = PBXGroup;
 			children = (
@@ -964,6 +974,7 @@
 		75FB78FE2AC3169100C2743A /* Chats */ = {
 			isa = PBXGroup;
 			children = (
+				759894BD2E4FFE02003CF661 /* ChatManager */,
 				756525C62A7FE49E005DC594 /* ChatsViewController.swift */,
 				75FB78F72AC311D000C2743A /* ChatsViewModel.swift */,
 				759BBFC42AFD5BE900D7E9A0 /* ResultsTableView */,
@@ -1305,6 +1316,7 @@
 				7563F87C2ADE25E6006FA374 /* ConversationTableViewDataSource.swift in Sources */,
 				75BC06742DFB60E6002ED4AA /* GroupEventMessageList.swift in Sources */,
 				75E8AAC22D9213F9007479E4 /* ImageRepositoryRepresentable.swift in Sources */,
+				759894BF2E4FFFA8003CF661 /* ChatManager.swift in Sources */,
 				754439302B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift in Sources */,
 				752DE40D2D218B95003AC40C /* GroupMembersSelectionScreen.swift in Sources */,
 			);

@@ -41,9 +41,6 @@ class ChatCellViewModel
             if oldValue != recentMessage
             {
                 self.addListenersToRecentMessage()
-//                if recentMessage?.imagePath != nil {
-//                    Task { await self.performMessageImageUpdate() }
-//                }
             }
         }
     }
@@ -148,7 +145,7 @@ class ChatCellViewModel
         } else {
             delta = new
         }
-        notifyUnseenCountChanged(delta)
+        ChatManager.shared.incrementUnseenMessageCount(by: delta)
     }
 }
 
@@ -620,16 +617,6 @@ extension ChatCellViewModel: Equatable {
     }
 }
 
-//MARK: - Notification
-extension ChatCellViewModel
-{
-    private func notifyUnseenCountChanged(_ updatedCount: Int)
-    {
-        NotificationCenter.default.post(name: .didUpdateUnseenMessageCount,
-                                        object: nil,
-                                        userInfo: ["unseen_messages_count": updatedCount])
-    }
-}
 
 //MARK: - Cleanup
 extension ChatCellViewModel

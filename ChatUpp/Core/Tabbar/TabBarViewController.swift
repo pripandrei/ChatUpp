@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 protocol TabBarVisibilityProtocol: AnyObject
 {
@@ -20,6 +21,8 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
 
     private(set) var chatsNavigationController: UINavigationController?
     private(set) var settingsNavigationController: UINavigationController?
+    
+    private var subscribers = Set<AnyCancellable>()
 
     public override func viewDidLoad()
     {
@@ -57,8 +60,8 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         tabBar.isHidden = false
         
         setupTabarAppearance()
-        
-        setupNotificationForBadgeUpdate()
+    
+        setBindings()
     }
     
     func setupTabarAppearance()
@@ -96,6 +99,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
     @MainActor
     func destroyItems()
     {
+        NotificationCenter.default.removeObserver(self)
         chatsVC?.cleanup()
         settingsVC?.cleanup()
         chatsVC = nil
@@ -114,23 +118,14 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
 
 extension TabBarViewController
 {
-    private func setupNotificationForBadgeUpdate()
+    private func setBindings()
     {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(updateBadgeCount(_ :)),
-                                               name: .didUpdateUnseenMessageCount,
-                                               object: nil)
-    }
-    
-    @objc private func updateBadgeCount(_ notification: Notification)
-    {
-        guard let count = notification.userInfo?["unseen_messages_count"] as? Int,
-              let tabItem = tabBar.items?.first else { return }
-
-        let current = Int(tabItem.badgeValue ?? "0") ?? 0
-        let newValue = current + count
-
-        tabItem.badgeValue = newValue > 0 ? "\(newValue)" : nil
+        ChatManager.shared.$totalUnseenMessageCount
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] count in
+                guard let tabItem = self?.tabBar.items?.first else { return }
+                tabItem.badgeValue = count > 0 ? "\(count)" : nil
+            }.store(in: &subscribers)
     }
 }
 

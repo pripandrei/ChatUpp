@@ -109,6 +109,13 @@ class ChatsViewController: UIViewController {
             .sink { [weak self] _ in
                 self?.tableView.reloadData()
             }.store(in: &subscriptions)
+        
+        ChatManager.shared.$totalUnseenMessageCount
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] count in
+                self?.navigationItem.backBarButtonItem?.title = "\(count)"
+                self?.navigationController?.navigationBar.setNeedsLayout()
+            }.store(in: &subscriptions)
     }
     
     // MARK: - SkeletonView
@@ -399,13 +406,26 @@ extension ChatsViewController
 {
     private func setupNavigationBarItems()
     {
+        setupRightBarButtonItem()
+        setupBackBackBarButtonItem()
+    }
+    
+    private func setupRightBarButtonItem()
+    {
         let trailingBarItem = UIBarButtonItem(image: UIImage(systemName: "plus.circle.fill"),
                                               style: .plain,
                                               target: self,
                                               action: #selector(presentGropupOptionScreen))
         self.navigationItem.rightBarButtonItem = trailingBarItem
         self.navigationItem.rightBarButtonItem?.tintColor = ColorManager.actionButtonsTintColor
-        
+    }
+    
+    private func setupBackBackBarButtonItem()
+    {
+        let backButtonItem = UIBarButtonItem()
+        let font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        backButtonItem.setTitleTextAttributes([.font: font], for: .normal)
+        navigationItem.backBarButtonItem = backButtonItem
     }
     
     @objc private func presentGropupOptionScreen()
@@ -436,22 +456,21 @@ extension ChatsViewController
 {
     private func testFunction()
     {
-        
         /// - observe subcollections with user id
         ///
         Task {
             // - add empty reactions field to every message
-//            do {
-//                try await FirebaseChatService.shared.addEmptyReactionsToAllMessagesBatched()
-//            } catch {
-//                print("could not add reactions empty field to messages: ", error)
-//            }
-//    
-//            await FirebaseChatService.shared.observeUserChats(userId: "DESg2qjjJPP20KQDWfKpJJnozv53")
-//                .receive(on: DispatchQueue.main)
-//                .sink { chats in
-//                    print("Count: \(chats.count) \n Chats: \(chats)")
-//                }.store(in: &subscriptions)
+            do {
+                try await FirebaseChatService.shared.addEmptyReactionsToAllMessagesBatched()
+            } catch {
+                print("could not add reactions empty field to messages: ", error)
+            }
+    
+            await FirebaseChatService.shared.observeUserChats(userId: "DESg2qjjJPP20KQDWfKpJJnozv53")
+                .receive(on: DispatchQueue.main)
+                .sink { chats in
+                    print("Count: \(chats.count) \n Chats: \(chats)")
+                }.store(in: &subscriptions)
         
         /// - update messages seen_by field from group with auth user id
             ///
@@ -471,105 +490,3 @@ extension ChatsViewController
 //        try? AuthenticationManager.shared.signOut()
     }
 }
-
-
-//
-//class CustomActionSheetViewController: UIViewController {
-//
-//    private let titleText: String
-//    private let actions: [(title: String, handler: () -> Void)]
-//
-//    init(title: String, actions: [(title: String, handler: () -> Void)]) {
-//        self.titleText = title
-//        self.actions = actions
-//        super.init(nibName: nil, bundle: nil)
-//        modalPresentationStyle = .overFullScreen
-//        modalTransitionStyle = .coverVertical
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        setupView()
-//    }
-//
-//    private func setupView() {
-//        view.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-//
-//        let containerView = UIView()
-//        containerView.backgroundColor = .systemBackground
-//        containerView.layer.cornerRadius = 16
-//        containerView.translatesAutoresizingMaskIntoConstraints = false
-//        view.addSubview(containerView)
-//
-//        // Title Label
-//        let titleLabel = UILabel()
-//        titleLabel.text = titleText
-//        titleLabel.textColor = .systemRed // <--- Custom title color here
-//        titleLabel.textAlignment = .center
-//        titleLabel.font = .boldSystemFont(ofSize: 18)
-//        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-//        containerView.addSubview(titleLabel)
-//
-//        // Buttons Stack
-//        let stackView = UIStackView()
-//        stackView.axis = .vertical
-//        stackView.spacing = 8
-//        stackView.translatesAutoresizingMaskIntoConstraints = false
-//        containerView.addSubview(stackView)
-//
-//        for action in actions {
-//            let button = UIButton(type: .system)
-//            button.setTitle(action.title, for: .normal)
-//            button.titleLabel?.font = .systemFont(ofSize: 17)
-//            button.setTitleColor(.systemBlue, for: .normal)
-//            button.backgroundColor = .secondarySystemBackground
-//            button.layer.cornerRadius = 10
-//            button.heightAnchor.constraint(equalToConstant: 44).isActive = true
-//            button.addAction(UIAction(handler: { _ in
-//                self.dismiss(animated: true) {
-//                    action.handler()
-//                }
-//            }), for: .touchUpInside)
-//            stackView.addArrangedSubview(button)
-//        }
-//
-//        // Layout
-//        NSLayoutConstraint.activate([
-//            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-//            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-//            containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-//
-//            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-//            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-//            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-//
-//            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-//            stackView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-//            stackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-//            stackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16),
-//        ])
-//    }
-//}
-//
-//func setLabel()
-//{
-//    if let bgView = self.view.subviews.first,
-//       let groupView = bgView.subviews.first,
-//       let contentView = groupView.subviews.last
-//    {
-//        if let label = contentView.subviews.first?.subviews.first?.subviews[1].subviews.first?.subviews.first as? UILabel
-//        {
-//            let alertTitleAttributes: [NSAttributedString.Key:Any] = [
-//                .foregroundColor: #colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1),
-//                .font: UIFont.systemFont(ofSize: 19),
-//            ]
-//            let text = NSAttributedString(string: "This is test",
-//                                          attributes: alertTitleAttributes)
-//            label.attributedText = text
-//        }
-//    }
-//}

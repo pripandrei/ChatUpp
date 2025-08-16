@@ -260,7 +260,12 @@ extension ChatsViewModel {
            guard let cellVM = findCellViewModel(containing: chat),
                  let viewModelIndex = findIndex(of: cellVM) else { return }
            
-           self.updateTotalUnseenMessagesCount(count: -(cellVM.unreadMessageCount ?? 0))
+           if let unreadMessagesCount = cellVM.unreadMessageCount,
+              unreadMessagesCount > 0
+           {
+               ChatManager.shared.decrementUnseenMessageCount(by: -unreadMessagesCount)
+           }
+           
            cellVM.invalidateSelf()
            self.cellViewModels.remove(at: viewModelIndex)
            self.chatModificationType = .removed(position: viewModelIndex)
@@ -281,7 +286,7 @@ extension ChatsViewModel
         if let unreadMessagesCount = cellVM.unreadMessageCount,
            unreadMessagesCount > 0
         {
-           updateTotalUnseenMessagesCount(count: -unreadMessagesCount)
+            ChatManager.shared.decrementUnseenMessageCount(by: -unreadMessagesCount)
         }
         
         cellVM.removeObservers()
@@ -293,13 +298,6 @@ extension ChatsViewModel
         }
         deleteRealmChat(chat)
         removeCellViewModel(at: indexPath.row)
-    }
-    
-    private func updateTotalUnseenMessagesCount(count: Int)
-    {
-        NotificationCenter.default.post(name: .didUpdateUnseenMessageCount,
-                                        object: nil,
-                                        userInfo: ["unseen_messages_count": count])
     }
     
     private func deleteChatForCurrentUser(_ chat: Chat) {
