@@ -921,14 +921,18 @@ extension ChatRoomViewController {
                                                  cameraAvailable: cameraAvailable)
         {
             PermissionManager.shared.requestCameraPermision() { granted in
-                if granted {
-                    self.openCamera()
-                } else {
-                    self.alertPresenter.presentPermissionDeniedAlert(from: self)
+                Task { @MainActor in
+                    if granted {
+                        self.openCamera()
+                    } else {
+                        self.alertPresenter.presentPermissionDeniedAlert(from: self)
+                    }
                 }
             }
         } onGallery: {
-            self.configurePhotoPicker()
+            Task { @MainActor in
+                self.configurePhotoPicker()
+            }
         }
     }
     
