@@ -84,7 +84,9 @@ class ChatCell: UITableViewCell {
     func configure(viewModel: ChatCellViewModel)
     {
         self.cellViewModel = viewModel
-        
+        if cellViewModel.chat.id == "2A2AF4A2-44E5-49E2-910D-7AE3DEC8EDC4" {
+            print("stop")
+        }
         setupTitleForNameLabel()
         configureRecentMessage(cellViewModel.recentMessage)
         setUnreadMessageCount(cellViewModel.unreadMessageCount ?? 0)
@@ -268,24 +270,30 @@ class ChatCell: UITableViewCell {
     
     private func setImage()
     {
-        if cellViewModel.chatUser == nil {
-            Utilities.initiateSkeletonAnimation(for: self.profileImage)
-            return
-        }
-        guard cellViewModel.profileImageThumbnailPath == nil else
-        {
-            if let imageData = cellViewModel.retrieveImageFromCache() {
-                profileImage.image = UIImage(data: imageData)
-                Utilities.stopSkeletonAnimation(for: self.profileImage)
-            } else {
-                Utilities.initiateSkeletonAnimation(for: self.profileImage)
-            }
+        let chat = cellViewModel.chat
+        
+        // Case 1: Non-group chat with no user
+        guard chat.isGroup || cellViewModel.chatUser != nil else {
+            Utilities.initiateSkeletonAnimation(for: profileImage)
             return
         }
         
-        self.profileImage.image = cellViewModel.chat.isGroup == true ?
-        UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
-        Utilities.stopSkeletonAnimation(for: self.profileImage)
+        // Case 2: No thumbnail path → set default image
+        guard let _ = cellViewModel.profileImageThumbnailPath else {
+            profileImage.image = UIImage(
+                named: chat.isGroup ? "default_group_photo" : "default_profile_photo"
+            )
+            Utilities.stopSkeletonAnimation(for: profileImage)
+            return
+        }
+        
+        // Case 3: Try cache → set image if found, otherwise skeleton
+        if let imageData = cellViewModel.retrieveImageFromCache() {
+            profileImage.image = UIImage(data: imageData)
+            Utilities.stopSkeletonAnimation(for: profileImage)
+        } else {
+            Utilities.initiateSkeletonAnimation(for: profileImage)
+        }
     }
 }
 

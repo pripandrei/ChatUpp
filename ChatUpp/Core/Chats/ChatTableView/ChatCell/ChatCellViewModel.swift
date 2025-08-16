@@ -304,6 +304,9 @@ extension ChatCellViewModel
     @MainActor
     private func fetchDataFromFirestore() async throws
     {
+        if chat.id == "2A2AF4A2-44E5-49E2-910D-7AE3DEC8EDC4" {
+            print("stop")
+        }
         try Task.checkCancellation()
         
         if let message = await loadRecentMessage() {
