@@ -41,8 +41,6 @@ final class ChatsViewModel {
         print(RealmDataBase.realmFilePath ?? "unknown realm file path")
         setupCellViewModels()
         observeChats()
-        setJoinedGroupChatNotification()
-        setCreatedGroupChatNotification()
         updateUserTimestamp() // while firestore functions is deactivated
     }
     
@@ -167,50 +165,26 @@ extension ChatsViewModel
             .sink { [weak self] update in
                 self?.handleChatUpdate(update)
             }.store(in: &cancellables)
-    }
-}
-
-//MARK: - Notofications
-extension ChatsViewModel
-{
-    private func setJoinedGroupChatNotification()
-    {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(notifyOnJoinedGroupChat(_:)),
-                                               name: .didJoinNewChat,
-                                               object: nil)
-    }
-    
-    private func setCreatedGroupChatNotification()
-    {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(notifyOnNewChatCreation(_:)),
-                                               name: .didCreateNewChat,
-                                               object: nil)
-    }
-    
-    @objc private func notifyOnNewChatCreation(_ notification: Notification)
-    {
-        guard let chat = notification.object as? Chat else { return }
         
-        executeAfter(seconds: 0.3) {
-            self.addCellViewModel(using: chat)
-            self.chatModificationType = .added
-        }
-    }
-
-    @objc private func notifyOnJoinedGroupChat(_ notification: Notification)
-    {
-        guard let chatID = notification.userInfo?["chatID"] as? String else { return }
+        ChatManager.shared.$newCreatedChat
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] chat in
+                guard let chat = chat else { return }
+                executeAfter(seconds: 0.3) {
+                    self?.addCellViewModel(using: chat)
+                    self?.chatModificationType = .added
+                }
+            }.store(in: &cancellables)
         
-        if let chat = RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chatID)
-        {
-            executeAfter(seconds: 0.7) {
-//                self.addChatToRealm(chat)
-                self.addCellViewModel(using: chat)
-                self.chatModificationType = .added
-            }
-        }
+        ChatManager.shared.$joinedGroupChat
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] chat in
+                guard let chat = chat else { return }
+                executeAfter(seconds: 0.7) {
+                    self?.addCellViewModel(using: chat)
+                    self?.chatModificationType = .added
+                }
+            }.store(in: &cancellables)
     }
 }
 

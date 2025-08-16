@@ -15,7 +15,9 @@ final class ChatManager
     private init() {}
     
     @Published private(set) var totalUnseenMessageCount: Int = 0
-    
+    @Published private(set) var newCreatedChat: Chat?
+    @Published private(set) var joinedGroupChat: Chat?
+
     
     func incrementUnseenMessageCount(by value: Int)
     {
@@ -25,5 +27,15 @@ final class ChatManager
     func decrementUnseenMessageCount(by value: Int)
     {
         totalUnseenMessageCount = max(0, totalUnseenMessageCount - value)
+    }
+    
+    func broadcastNewCreatedChat(_ chat: Chat)
+    {
+        newCreatedChat = chat
+    }
+    
+    func broadcastJoinedGroupChat(_ chat: Chat)
+    {
+        joinedGroupChat = chat
     }
 }

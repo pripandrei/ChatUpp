@@ -125,8 +125,7 @@ extension GroupCreationViewModel
             
             self.chatGroup = group
             
-            NotificationCenter.default.post(name: .didCreateNewChat, object: group)
-            
+            ChatManager.shared.broadcastNewCreatedChat(group)
         } else {
             try await Task.sleep(for: .seconds(3))
             try await finishGroupCreation(attempt + 1)

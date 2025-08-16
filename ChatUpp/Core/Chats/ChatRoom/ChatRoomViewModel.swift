@@ -312,9 +312,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         messageChangedTypes = [.added(IndexPath(row: 0, section: 0))]
         
         //Add new chat row
-        NotificationCenter.default.post(name: .didJoinNewChat,
-                                        object: nil,
-                                        userInfo: ["chatID": conversation.id])
+        
+        ChatManager.shared.broadcastJoinedGroupChat(conversation)
+//        NotificationCenter.default.post(name: .didJoinNewChat,
+//                                        object: nil,
+//                                        userInfo: ["chatID": conversation.id])
         addListeners()
     }
     
@@ -370,8 +372,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             bindToDeletedMessages()
             addListeners()
         }
-        NotificationCenter.default.post(name: .didCreateNewChat,
-                                        object: chat)
+        ChatManager.shared.broadcastNewCreatedChat(chat)
         
         ChatRoomSessionManager.activeChatID = chat.id
     }
