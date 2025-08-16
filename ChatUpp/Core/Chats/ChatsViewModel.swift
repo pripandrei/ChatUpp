@@ -235,7 +235,7 @@ extension ChatsViewModel {
            if let unreadMessagesCount = cellVM.unreadMessageCount,
               unreadMessagesCount > 0
            {
-               ChatManager.shared.decrementUnseenMessageCount(by: -unreadMessagesCount)
+               ChatManager.shared.decrementUnseenMessageCount(by: unreadMessagesCount)
            }
            
            cellVM.invalidateSelf()
@@ -258,7 +258,7 @@ extension ChatsViewModel
         if let unreadMessagesCount = cellVM.unreadMessageCount,
            unreadMessagesCount > 0
         {
-            ChatManager.shared.decrementUnseenMessageCount(by: -unreadMessagesCount)
+            ChatManager.shared.decrementUnseenMessageCount(by: unreadMessagesCount)
         }
         
         cellVM.removeObservers()
