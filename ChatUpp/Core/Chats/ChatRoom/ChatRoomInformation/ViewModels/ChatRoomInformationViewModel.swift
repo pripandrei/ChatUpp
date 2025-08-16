@@ -96,35 +96,19 @@ extension ChatRoomInformationViewModel
     {
         guard let authUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid else {return}
         removeRealmParticipant(with: authUserID)
-        try await removeFirestoreParticipant(with: authUserID)
         
         let text = GroupEventMessage.userLeft.eventMessage
         let message = try await createMessage(messageText: text)
         
-        try await FirebaseChatService.shared.createMessage(
-            message: message,
-            atChatPath: chat.id
-        )
-        try await updateUnseenMessageCounterRemote()
-        try await FirebaseChatService.shared.updateChatRecentMessage(
-            recentMessageID: message.id,
-            chatID: chat.id
-        )
-    }
-    
-    @MainActor
-    private func updateUnseenMessageCounterRemote() async throws
-    {
-        let currentUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        /// grab participants that needs to be updated (unseen messages total count increase)
         let otherUserIDs = Array(chat.participants
             .map(\.userID)
-            .filter { $0 != currentUserID })
-
-        try await FirebaseChatService.shared.updateUnreadMessageCount(
-            for: otherUserIDs,
-            inChatWithID: chat.id,
-            increment: true
-        )
+            .filter { $0 != authUserID })
+        
+        try await FirebaseChatService.shared.leaveChatGroup(withID: chat.id,
+                                                            leavingParticipantID: authUserID,
+                                                            leavingMessage: message,
+                                                            participantsToUpdate: otherUserIDs)
     }
     
     private func removeRealmParticipant(with authUserID: String)
@@ -134,15 +118,7 @@ extension ChatRoomInformationViewModel
             realmChat.participants.remove(at: authParticipantIndex)
         }
     }
-    
-    @MainActor
-    private func removeFirestoreParticipant(with authUserID: String) async throws
-    {
-        try await FirebaseChatService.shared.removeParticipant(
-            participantID: authUserID,
-            fromChatWithID: chat.id
-        )
-    }
+
     
     @MainActor
     private func createMessage(messageText text: String) async throws -> Message
@@ -162,7 +138,7 @@ extension ChatRoomInformationViewModel
             type: .title
         )
         
-        try await FirebaseChatService.shared.createMessage(message: message, atChatPath: chat.id)
+//        try await FirebaseChatService.shared.createMessage(message: message, atChatPath: chat.id)
         
         return message
     }

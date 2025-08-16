@@ -26,7 +26,11 @@ final class FirebaseChatService {
     
     private init() {}
     
-    private let firestoreEncoder = Firestore.Encoder()
+    private let firestoreEncoder: Firestore.Encoder = {
+        let encoder = Firestore.Encoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }()
     private let firestoreDecoder = Firestore.Decoder()
     
     private let db = Firestore.firestore()
@@ -114,9 +118,13 @@ extension FirebaseChatService
 extension FirebaseChatService
 {
     @MainActor
-    func createMessage(message: Message, atChatPath path: String) async throws {
-        try getMessageDocument(messagePath: message.id, fromChatDocumentPath: path).setData(from: message.self, merge: false)
+    func createMessage(message: Message, atChatPath path: String) async throws
+    {
+        try getMessageDocument(messagePath: message.id,
+                               fromChatDocumentPath: path)
+        .setData(from: message.self, merge: false)
     }
+    
     func removeMessage(messageID: String, conversationID: String) async throws {
         try await getMessageDocument(messagePath: messageID,
                                      fromChatDocumentPath: conversationID).delete()
@@ -206,6 +214,56 @@ extension FirebaseChatService
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
             .limit(to: limit)
             .getDocuments(as: Message.self)
+    }
+}
+//MARK: update chat with batch
+extension FirebaseChatService
+{
+    func leaveChatGroup(withID groupID: String,
+                        leavingParticipantID: String,
+                        leavingMessage: Message,
+                        participantsToUpdate participantsIDs: [String]) async throws
+    {
+        let batch = db.batch()
+        
+        let chatRef = chatDocument(documentPath: groupID)
+        
+        /// participant remove
+        ///
+        let participant = "participants.\(leavingParticipantID)"
+        batch.updateData( [participant: FieldValue.delete()] , forDocument: chatRef)
+        
+        /// add message
+        ///
+        let messageRef = getMessageDocument(messagePath: leavingMessage.id,
+                                            fromChatDocumentPath: groupID)
+        do {
+            try batch.setData(from: leavingMessage,
+                              forDocument: messageRef,
+                              encoder: firestoreEncoder)
+        } catch {
+            print("Error creating message document on leaving group: \(error)")
+        }
+        
+        /// update participants unseen message count
+        ///
+        var unseenMessageCountData: [String: FieldValue] = [:]
+        
+        for id in participantsIDs
+        {
+            let fieldPath = "participants.\(id).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
+            unseenMessageCountData[fieldPath] = FieldValue.increment(Int64(1))
+        }
+        batch.setData(unseenMessageCountData, forDocument: chatRef, merge: true)
+        
+        /// update group recent message id
+        ///
+        let recentMessageIDData: [String: Any] = [
+            Chat.CodingKeys.recentMessageID.rawValue : leavingMessage.id
+        ]
+        batch.updateData(recentMessageIDData, forDocument: chatRef)
+        
+        try await batch.commit()
     }
 }
 
@@ -374,17 +432,17 @@ extension FirebaseChatService
             data[fieldPath] = FieldValue.increment(Int64(counterValue))
         }
         
-        let chat = try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
+//        let chat = try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
         
         //TODO: remove after test
-        if let participant = chat.participants.first(where: { $0.userID == participantsID.first })
-        {
-            if participant.unseenMessagesCount <= 0 {
-                print("stop this shit")
-            }
-        }
-    
-        print("counter value: \(counterValue) ")
+//        if let participant = chat.participants.first(where: { $0.userID == participantsID.first })
+//        {
+//            if participant.unseenMessagesCount <= 0 {
+//                print("stop this shit")
+//            }
+//        }
+//    
+//        print("counter value: \(counterValue) ")
         try await chatDocument(documentPath: chatID).updateData(data)
     }
     
