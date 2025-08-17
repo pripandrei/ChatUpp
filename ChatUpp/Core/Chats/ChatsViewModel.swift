@@ -24,7 +24,9 @@ enum ChatModificationType
     case removed(position: Int)
 }
 
-final class ChatsViewModel {
+final class ChatsViewModel
+{
+    private var userTimestampUpdateTimer: Timer?
     
     @Published private(set) var chatModificationType: ChatModificationType?
     @Published private(set) var chatDeletionIsInitiated: Bool = false
@@ -58,24 +60,13 @@ final class ChatsViewModel {
 
 //MARK: - CellViewModel functions
 
-extension ChatsViewModel {
-    
+extension ChatsViewModel
+{
     /// initial setup on initialization
-    private func setupCellViewModels() {
+    private func setupCellViewModels()
+    {
         let chats = retrieveChatsFromRealm()
         
-//        for chat in chats {
-//            let senderID = chat.participants.first(where: {$0.userID != authUser.uid})?.userID ?? ""
-//            let chatID = chat.id
-//            Task {
-//                do {
-//                    let count = try await FirebaseChatService.shared.getUnreadMessagesCountTest(from: chatID, whereMessageSenderID: senderID)
-//                    print("unread messages count: ", count)
-//                } catch {
-//                    print("error in geting count of unseen messages: ", error)
-//                }
-//            }
-//        }
         guard !chats.isEmpty else { return }
         self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
     }
@@ -102,11 +93,32 @@ extension ChatsViewModel {
         return cellViewModels.firstIndex(of: element)
     }
     
-    private func updateUserTimestamp() {
-        Task {
-            try await FirestoreUserService.shared.updateUser(with: authUser.uid,
-                                                             timestamp: Date())
+    private func updateUserTimestamp()
+    {
+        self.userTimestampUpdateTimer?.invalidate()
+        
+        self.userTimestampUpdateTimer = Timer.scheduledTimer(
+            withTimeInterval: 60,
+            repeats: true)
+        { [weak self] _ in
+            guard let self else {return}
+            Task {
+                do {
+                    try await FirestoreUserService.shared.updateUser(
+                        with: self.authUser.uid,
+                        timestamp: Date()
+                    )
+                } catch {
+                    print("Error while updating user timestamp: \(error)")
+                }
+            }
         }
+    }
+    
+    func stopUserUpdateTimer()
+    {
+        userTimestampUpdateTimer?.invalidate()
+        userTimestampUpdateTimer = nil
     }
 }
 

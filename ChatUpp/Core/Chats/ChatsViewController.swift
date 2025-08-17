@@ -206,6 +206,7 @@ class ChatsViewController: UIViewController {
     
     /// - cleanup 
     func cleanup() {
+        chatsViewModel.stopUserUpdateTimer()
         coordinatorDelegate = nil
         tableViewDataSource = nil
         searchController = nil
