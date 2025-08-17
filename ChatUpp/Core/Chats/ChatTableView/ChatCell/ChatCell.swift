@@ -90,7 +90,7 @@ class ChatCell: UITableViewCell {
         setupTitleForNameLabel()
         configureRecentMessage(cellViewModel.recentMessage)
         setUnreadMessageCount(cellViewModel.unreadMessageCount ?? 0)
-        setOnlineStatusActivity()
+//        setOnlineStatusActivity()
         setImage()
         setupBinding()
     }
@@ -109,11 +109,13 @@ class ChatCell: UITableViewCell {
         }
     }
     
-    private func setOnlineStatusActivity() {
-        if let activeStatus = cellViewModel.chatUser?.isActive {
-            onlineStatusCircleView.isHidden = !activeStatus
-            onlineStatusBorderView.isHidden = !activeStatus
-        }
+    private func setOnlineStatusActivity(status: Bool)
+    {
+        // set back after firebase functions will be active
+//        if let activeStatus = cellViewModel.chatUser?.isActive {
+//            onlineStatusCircleView.isHidden = !activeStatus
+//            onlineStatusBorderView.isHidden = !activeStatus
+//        }
     }
     
     private func setUnreadMessageCount(_ count: Int) {
@@ -231,8 +233,18 @@ class ChatCell: UITableViewCell {
                     if self.nameLabel.text != member.name {
                         self.nameLabel.text = member.name
                     }
-                    self.setOnlineStatusActivity()
+//                    self.setOnlineStatusActivity()
                 }
+            }.store(in: &subscriptions)
+        
+        cellViewModel.$isParticipantActive
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isActive in
+                guard let self else {return}
+                guard let isActive else {return}
+                
+                self.onlineStatusCircleView.isHidden = !isActive
+                self.onlineStatusBorderView.isHidden = !isActive
             }.store(in: &subscriptions)
         
         cellViewModel.$chat

@@ -481,6 +481,8 @@ extension ChatsViewController
             }
         }
         
+//        FirestoreUserService.shared.updateUserActiveStatus()
+        
         /// - avatar downlaod
         ///
 //        TestHelper.shared.downlaodUserAvatar()

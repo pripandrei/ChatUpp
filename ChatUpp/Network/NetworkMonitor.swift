@@ -16,9 +16,8 @@ final class NetworkMonitor
     private let monitor = NWPathMonitor()
     private let networkQueue = DispatchQueue(label: "NetworkMonitorQueue")
     
-    private(set) var isReachable: Bool = false
-//    var onStatusChanged: ((Bool) -> Void)?
-    var statusChanged = PassthroughSubject<Bool,Never>()
+    @Published private(set) var isReachable: Bool = false
+//    var statusChanged = PassthroughSubject<Bool,Never>()
     
     private init()
     {
@@ -31,9 +30,9 @@ final class NetworkMonitor
             let isConected = path.status == .satisfied
             self.isReachable = isConected
             
-            DispatchQueue.main.async {
-                self.statusChanged.send(isConected)
-            }
+//            DispatchQueue.main.async {
+//                self.statusChanged.send(isConected)
+//            }
         }
         monitor.start(queue: networkQueue)
     }

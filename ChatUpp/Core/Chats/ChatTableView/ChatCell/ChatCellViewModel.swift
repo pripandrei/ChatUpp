@@ -28,6 +28,7 @@ class ChatCellViewModel
     @Published private(set) var chat: Chat
     @Published private(set) var chatUser: User?
     @Published private(set) var titleName: String?
+    @Published private(set) var isParticipantActive: Bool?
     @Published private(set) var unreadMessageCount: Int?
     {
         didSet {
@@ -439,7 +440,8 @@ extension ChatCellViewModel
                         lastSeenDate: date,
                         isActive: isActive
                     ) else {return}
-                    self?.chatUser = updatedUser
+                    self?.isParticipantActive = isActive
+//                    self?.chatUser = updatedUser
                     RealmDataBase.shared.add(object: updatedUser)
                 }
             }.store(in: &cancellables)

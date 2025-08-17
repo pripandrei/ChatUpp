@@ -208,6 +208,31 @@ extension FirestoreUserService {
             }
         }
     }
+    
+    func updateUserActiveStatus() {
+        usersCollection.getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Error fetching users: \(error)")
+                return
+            }
+            
+            for document in querySnapshot?.documents ?? [] {
+                let userData = document.data()
+                
+                if userData["is_active"] != nil {
+                    document.reference.updateData([
+                        "is_active": false
+                    ]) { err in
+                        if let err = err {
+                            print("Error updating is active field: \(err)")
+                        } else {
+                            print("Successfully updated 'is_active' field for document \(document.documentID)")
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 

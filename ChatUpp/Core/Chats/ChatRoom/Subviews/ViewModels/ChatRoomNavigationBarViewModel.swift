@@ -27,7 +27,6 @@ final class ChatRoomNavigationBarViewModel
         case .chat(let chat): setNavigationItems(usingChat: chat); isGroup = chat.isGroup
         case .user(let user): setNavigationItems(usingUser: user); isGroup = false
         }
-        
         addListener(to: dataProvider)
     }
     
@@ -65,9 +64,21 @@ final class ChatRoomNavigationBarViewModel
             }.store(in: &cancellables)
         
         RealtimeUserService.shared.addObserverToUsers(participant.id)
-            .sink { [weak self] user in
-                self?._status = (user.isActive ?? false) ? "Online" : "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
-            }.store(in: &cancellables)
+            .combineLatest(
+                NetworkMonitor.shared.$isReachable
+                    .prepend(Just(NetworkMonitor.shared.isReachable))
+            )
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] user, isReachable in
+                guard isReachable else {
+                    self?._status = "waiting for network..."
+                    return
+                }
+                self?._status = (user.isActive ?? false)
+                    ? "Online"
+                    : "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
+            }
+            .store(in: &cancellables)
         
 //        RealmDataBase.shared.observeChanges(for: participant)
 //            .receive(on: DispatchQueue.main)
@@ -109,13 +120,14 @@ final class ChatRoomNavigationBarViewModel
             self._imageUrl = getThumbnailImagePath(from: user.photoUrl)
 //            self._imageUrl = user.photoUrl
         }
-
+        
         /// Currently will not receive updates (blaze plan needs to be active in firebase).
-        if user.isActive == true {
-            self._status = "Online"
-        } else {
-            self._status = "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
-        }
+        ///
+//        if user.isActive == true {
+//            self._status = "Online"
+//        } else {
+//            self._status = "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
+//        }
     }
     
     private func getThumbnailImagePath(from url: String?) -> String?
