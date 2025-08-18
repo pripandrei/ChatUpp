@@ -225,6 +225,7 @@ extension ChatCellViewModel
 //                    }
                     addMessageToRealm(recentMessage)
                     self.recentMessage = recentMessage
+                    self.showRecentMessageBanner()
                 }
             }
             return
@@ -595,6 +596,27 @@ extension ChatCellViewModel
             if !imageIsCached {
                 await self?.performProfileImageDataUpdate()
             }
+        }
+    }
+}
+
+
+extension ChatCellViewModel
+{
+    private func showRecentMessageBanner()
+    {
+        Task { @MainActor in
+            let name = chat.isGroup ? chat.name : chatUser?.name
+            guard let message = recentMessage,
+                  let avatarData = retrieveImageFromCache(),
+                  let name else { return }
+            
+            let bannerData = MessageBannerData(chat: chat,
+                                               message: message,
+                                               avatar: avatarData,
+                                               titleName: name)
+            
+            MessageBannerPresenter.shared.presentBanner(usingBannerData: bannerData)
         }
     }
 }

@@ -146,9 +146,13 @@ extension ChatsViewModel
     private func updateRealmChat(_ chat: Chat)
     {
         RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
-            dbChat.recentMessageID = chat.recentMessageID
+            if dbChat.recentMessageID != chat.recentMessageID {
+                dbChat.recentMessageID = chat.recentMessageID
+            }
             dbChat.name = chat.name
-            dbChat.thumbnailURL = chat.thumbnailURL
+            if dbChat.thumbnailURL != chat.thumbnailURL {
+                dbChat.thumbnailURL = chat.thumbnailURL
+            }
             dbChat.admins = chat.admins
             
             chat.participants.forEach { participant in

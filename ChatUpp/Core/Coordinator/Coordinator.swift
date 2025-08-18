@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import SwiftUI
+import Combine
 
 protocol Coordinator: AnyObject {
     func start()
@@ -26,12 +27,15 @@ protocol Coordinator: AnyObject {
     func dismissEditProfileVC()
     func showGroupCreationScreen()
     func showChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel)
+    func subscribeToConversationOpenRequest()
 }
 
 class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
     
     private var tabBar: TabBarViewController
     private var navControllerForLoginVC: UINavigationController!
+    
+    private var subscribers = Set<AnyCancellable>()
 
     init(tabBar: TabBarViewController) {
         self.tabBar = tabBar
@@ -97,11 +101,29 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
         Utilities.windowRoot = tabBar
     }
     
-    func openConversationVC(conversationViewModel: ChatRoomViewModel) {
+    func subscribeToConversationOpenRequest()
+    {
+        MessageBannerPresenter.shared.requestChatOpenSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] chat in
+                let chatVM = ChatRoomViewModel(conversation: chat)
+                self?.openConversationVC(conversationViewModel: chatVM)
+            }.store(in: &subscribers)
+    }
+    
+    func openConversationVC(conversationViewModel: ChatRoomViewModel)
+    {
         let conversationVC = ChatRoomViewController(conversationViewModel: conversationViewModel)
         conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
-        tabBar.chatsNavigationController?.pushViewController(conversationVC, animated: true)
+        
+        if let nav = tabBar.selectedViewController as? UINavigationController
+        {
+            nav.pushViewController(conversationVC, animated: true)
+            nav.setNavigationBarHidden(false, animated: false)
+        } else {
+            tabBar.chatsNavigationController?.pushViewController(conversationVC, animated: true)
+        }
     }
     
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel) {

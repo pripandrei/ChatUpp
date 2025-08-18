@@ -47,6 +47,7 @@ class ChatsViewController: UIViewController {
         setupSearchController()
         chatsViewModel.activateOnDisconnect()
         setupNavigationBarItems()
+        coordinatorDelegate?.subscribeToConversationOpenRequest()
 //        testFunction()
     }
     
