@@ -225,7 +225,9 @@ extension ChatCellViewModel
 //                    }
                     addMessageToRealm(recentMessage)
                     self.recentMessage = recentMessage
-                    self.showRecentMessageBanner()
+                    if chatID != ChatRoomSessionManager.activeChatID {
+                        self.showRecentMessageBanner()                        
+                    }
                 }
             }
             return
