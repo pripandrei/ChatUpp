@@ -26,3 +26,8 @@ extension MessageCellDragable
         return nil
     }
 }
+
+
+protocol MessageCellSeenable: AnyObject {
+    var frame: CGRect { get set }
+}

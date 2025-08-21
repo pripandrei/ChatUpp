@@ -289,44 +289,56 @@ extension FirebaseChatService
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
-    func updateMessagesSeenStatus(seenByUser userID: String? = nil,
-                                  _ messageIDs: [String],
+    func updateMessagesSeenStatus(startFromTimestamp timestamp: Date,
+                                  seenByUser userID: String? = nil,
                                   chatID: String) async throws
     {
-        var currentBatch = db.batch()
-        var batches = [WriteBatch]()
-        var writeCount = 0
+        var shouldContinue: Bool = true
+        var lastDoc: QueryDocumentSnapshot?
+
+        let messageRef = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+    
         
-        for id in messageIDs
+        while shouldContinue
         {
-            let messageRef = getMessageDocument(
-                messagePath: id,
-                fromChatDocumentPath: chatID
-            )
+            var query: Query = messageRef
+                .whereField("timestamp", isLessThanOrEqualTo: timestamp)
+                .whereField("message_seen", isEqualTo: false)
+                .order(by: "timestamp", descending: true)
+                .limit(to: 500)
             
-            /// if chat is group, append user that saw the message
-            if let userID {
-                currentBatch.updateData(["seenBy": FieldValue.arrayUnion([userID])], forDocument: messageRef)
-            } else {
-                currentBatch.updateData(["message_seen": true], forDocument: messageRef)
+            /// add pagination cursor
+            if let lastDoc {
+                query = query.start(afterDocument: lastDoc)
             }
             
-            writeCount += 1
+            let snapshot = try await query.getDocuments()
             
-            if writeCount >= 500
+            if snapshot.documents.isEmpty { shouldContinue = false; break }
+            
+            let batch = db.batch()
+            for doc in snapshot.documents
             {
-                batches.append(currentBatch)
-                currentBatch = db.batch()
-                writeCount = 0
+                /// if chat is group, append user that saw the message
+                if let userID {
+                    batch.updateData(["seenBy": FieldValue.arrayUnion([userID])], forDocument: doc.reference)
+                } else {
+                    batch.updateData(["message_seen": true], forDocument: doc.reference)
+                }
             }
-        }
-        
-        if writeCount > 0 {
-            batches.append(currentBatch)
-        }
-        
-        for batch in batches {
+            
             try await batch.commit()
+            print("updatede messages count firesbase: ", snapshot.documents.count)
+            // add last doc to start from it next loop cycle
+            lastDoc = snapshot.documents.last
+            let firstDoc = snapshot.documents.first
+            
+            if snapshot.documents.count < 500
+            {
+                shouldContinue = false
+            }
+            print("First doc updated firebase: ", try firstDoc?.data(as: Message.self))
+            print("Last doc updated firebase: ", try lastDoc?.data(as: Message.self))
         }
     }
     
@@ -401,15 +413,30 @@ extension FirebaseChatService
 
 extension FirebaseChatService
 {
-//    func updateUnreadMessageCount(for participantID: String, inChatWithID chatID: String, increment: Bool) async throws
-//    {
-//        let fieldPath = "participants.\(participantID).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
-//        
-//        let counterValue = increment ? +1 : -1
-//        let data = [fieldPath : FieldValue.increment(Int64(counterValue))]
-//        
-//        try await chatDocument(documentPath: chatID).updateData(data)
-//    }
+    //    func updateUnreadMessageCount(for participantID: String, inChatWithID chatID: String, increment: Bool) async throws
+    //    {
+    //        let fieldPath = "participants.\(participantID).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
+    //        
+    //        let counterValue = increment ? +1 : -1
+    //        let data = [fieldPath : FieldValue.increment(Int64(counterValue))]
+    //        
+    //        try await chatDocument(documentPath: chatID).updateData(data)
+    //    }
+    
+    
+    func updateUnseenMessagesCount(for participantsID: [String],
+                                   inChatWithID chatID: String,
+                                   counter: Int) async throws
+    {
+        var data: [String: Any] = [:]
+        
+        for id in participantsID
+        {
+            let fieldPath = "participants.\(id).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
+            data[fieldPath] = counter
+        }
+        try await chatDocument(documentPath: chatID).updateData(data)
+    }
     
     func updateUnreadMessageCount(for participantsID: [String],
                                   inChatWithID chatID: String,
@@ -420,7 +447,8 @@ extension FirebaseChatService
         
         var counterValue = 0
         
-        if let counter = counter {
+        if let counter = counter
+        {
             counterValue = increment ? counter : -counter
         } else {
             counterValue = increment ? +1 : -1
@@ -431,18 +459,6 @@ extension FirebaseChatService
             let fieldPath = "participants.\(id).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
             data[fieldPath] = FieldValue.increment(Int64(counterValue))
         }
-        
-//        let chat = try await chatDocument(documentPath: chatID).getDocument(as: Chat.self)
-        
-        //TODO: remove after test
-//        if let participant = chat.participants.first(where: { $0.userID == participantsID.first })
-//        {
-//            if participant.unseenMessagesCount <= 0 {
-//                print("stop this shit")
-//            }
-//        }
-//    
-//        print("counter value: \(counterValue) ")
         try await chatDocument(documentPath: chatID).updateData(data)
     }
     
@@ -572,7 +588,7 @@ extension FirebaseChatService
         
         let listener = query
             .limit(to: limit)
-            .addSnapshotListener(includeMetadataChanges: true) { snapshot, error in
+            .addSnapshotListener() { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
 
@@ -1014,7 +1030,10 @@ extension FirebaseChatService
     func updateMessageSeenStatusToTrue(fromChatWithID chatID: String) {
         let messagesCollection = self.chatsCollection.document(chatID).collection(FirestoreCollection.messages.rawValue)
 
-        messagesCollection.whereField("message_seen", isEqualTo: false).getDocuments { snapshot, error in
+        messagesCollection
+            .whereField("message_seen", isEqualTo: true)
+//            .whereField("sent_by", isNotEqualTo: "mEUBd6kqDIUgxkDT7oiSNplhtZx1")
+            .getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching messages: \(error)")
                 return
@@ -1029,7 +1048,7 @@ extension FirebaseChatService
             
             for document in documents {
                 let documentRef = messagesCollection.document(document.documentID)
-                batch.updateData(["message_seen": true], forDocument: documentRef)
+                batch.updateData(["message_seen": false], forDocument: documentRef)
             }
             
             // Commit the batch

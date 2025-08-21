@@ -202,6 +202,22 @@ extension Message
 }
 
 
+extension Message
+{
+    func updateSeenStatus(seenStatus: Bool) -> Message
+    {
+        return Message(id: self.id,
+                       messageBody: self.messageBody,
+                       senderId: self.senderId,
+                       timestamp: self.timestamp,
+                       messageSeen: seenStatus,
+                       isEdited: self.isEdited,
+                       imagePath: self.imagePath,
+                       imageSize: self.imageSize,
+                       repliedTo: self.repliedTo)
+    }
+}
+
 //MARK: - manager for fetching test data
 final class TestHelper
 {

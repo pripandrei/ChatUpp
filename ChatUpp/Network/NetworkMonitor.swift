@@ -17,7 +17,6 @@ final class NetworkMonitor
     private let networkQueue = DispatchQueue(label: "NetworkMonitorQueue")
     
     @Published private(set) var isReachable: Bool = false
-//    var statusChanged = PassthroughSubject<Bool,Never>()
     
     private init()
     {
@@ -29,33 +28,8 @@ final class NetworkMonitor
         monitor.pathUpdateHandler = { path in
             let isConected = path.status == .satisfied
             self.isReachable = isConected
-            
-//            DispatchQueue.main.async {
-//                self.statusChanged.send(isConected)
-//            }
         }
         monitor.start(queue: networkQueue)
     }
 }
 
-
-
-//private func retryGroupCreationOnReconnect() async throws
-//{
-//    try await withCheckedThrowingContinuation { continuation in
-//        NetworkMonitor.shared.statusChanged
-//            .receive(on: DispatchQueue.main)
-//            .prefix(1) // Only listen to the *first* reachable event
-//            .filter { $0 }
-//            .sink { [weak self] _ in
-//                Task {
-//                    do {
-//                        try await self?.finishGroupCreation()
-//                        continuation.resume()
-//                    } catch {
-//                        continuation.resume(throwing: error)
-//                    }
-//                }
-//            }.store(in: &subscribtions)
-//    }
-//}

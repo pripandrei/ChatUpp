@@ -110,7 +110,7 @@ class ChatCellViewModel
     }
     
     deinit {
-        print("Cell vm was deinit")
+//        print("Cell vm was deinit")
     }
 
     

@@ -15,3 +15,12 @@ actor RemoteMessagePaginator
         await block()
     }
 }
+
+
+actor MessageSeenStatusUodater
+{
+    func perform(_ block: () async -> Void) async
+    {
+        await block()
+    }
+}

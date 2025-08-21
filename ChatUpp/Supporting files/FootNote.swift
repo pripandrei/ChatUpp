@@ -84,3 +84,9 @@
 /// When user B (the one that is not self) removes chat, it will become invalid,
 /// however listener of messages will still receive removed messages.
 /// In this case, we dont need to perform any updates with received messages.
+
+//MARK: - [12].
+/// If message seen status was updated locally during network off,
+/// we should not just add the firestore message to realm
+/// because it will override it and message will be set to seen status false,
+/// again. So we update firestore message seen status before adding to realm

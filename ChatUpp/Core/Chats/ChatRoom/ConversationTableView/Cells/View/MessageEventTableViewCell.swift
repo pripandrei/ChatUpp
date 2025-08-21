@@ -125,6 +125,7 @@ final class MessageEventCell: UITableViewCell
 }
 
 extension MessageEventCell: MessageCellPreviewable {}
+extension MessageEventCell: MessageCellSeenable {}
 
 
 
@@ -183,3 +184,4 @@ extension MessageEventCell : TargetPreviewable
         return #colorLiteral(red: 0.2971534729, green: 0.3519872129, blue: 0.7117250562, alpha: 1)
     }
 }
+

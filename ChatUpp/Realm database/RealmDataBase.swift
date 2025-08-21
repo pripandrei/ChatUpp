@@ -102,6 +102,18 @@ final class RealmDataBase {
         }
     }
     
+    func refresh() {
+        realm?.refresh()
+    }
+    
+    func update(update: () -> Void)
+    {
+        let realm = try! Realm()
+        try? realm.write {
+            update()
+        }
+    }
+    
     // for background
     func updateBackground<T: Object>(object: T, update: (T) -> Void)
     {

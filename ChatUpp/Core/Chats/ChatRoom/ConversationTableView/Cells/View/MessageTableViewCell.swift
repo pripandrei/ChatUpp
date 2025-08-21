@@ -260,7 +260,6 @@ extension MessageTableViewCell: TargetPreviewable
     }
 }
 
-
 extension MessageTableViewCell: MessageCellDragable
 {
     var messageText: String?
@@ -281,3 +280,5 @@ extension MessageTableViewCell: MessageCellDragable
         return containerStackView.messageImageView.image
     }
 }
+
+extension MessageTableViewCell: MessageCellSeenable {}
