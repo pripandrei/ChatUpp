@@ -90,3 +90,9 @@
 /// we should not just add the firestore message to realm
 /// because it will override it and message will be set to seen status false,
 /// again. So we update firestore message seen status before adding to realm
+
+//MARK: - [13]
+/// When pagination of messages happens, it offsets content of table view
+/// to the very first cell. After that it wil be adjustead back,
+/// but during this phase we dont want to catche the smalles index path,
+/// so we just ignore updates ignore updates

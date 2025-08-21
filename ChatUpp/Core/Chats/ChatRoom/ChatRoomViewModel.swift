@@ -12,50 +12,11 @@ import UIKit
 import SwiftUI
 import RealmSwift
 
-enum GroupMembershipStatus
-{
-    case isMember
-    case notAMember
-    case pendingInvite
-}
-
-enum BufferedMessage {
-    case added(Message)
-    case modified(Message)
-    case removed(Message)
-}
-
-struct BufferedMessages
-{
-    var addedMessages: [Message]
-    var modifiedMessages: [Message]
-    var removedMessages: [Message]
-    
-    init(addedMessages: [Message], modifiedMessages: [Message], removedMessages: [Message]) {
-        self.addedMessages = addedMessages
-        self.modifiedMessages = modifiedMessages
-        self.removedMessages = removedMessages
-    }
-    
-    init() {
-        self.addedMessages = []
-        self.modifiedMessages = []
-        self.removedMessages = []
-    }
-    
-    mutating func removeAllBufferedMessages() {
-        addedMessages.removeAll()
-        modifiedMessages.removeAll()
-        removedMessages.removeAll()
-    }
-}
-
 class ChatRoomViewModel : SwiftUI.ObservableObject
 {
     private(set) var setupConversationTask: Task<Void, Never>?
     
     private(set) var remoteMessagePaginator = RemoteMessagePaginator()
-    private(set) var messageSeenStatusUpdater = MessageSeenStatusUodater()
     
     private(set) var realmService: ConversationRealmService?
     //    private(set) var messageFetcher : ConversationMessageFetcher
@@ -65,7 +26,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private(set) var conversation        : Chat?
     private(set) var participant         : User?
-     var messageClusters     : [MessageCluster] = []
+    private(set) var messageClusters     : [MessageCluster] = []
     private(set) var authUser            : AuthenticatedUserData = (try! AuthenticationManager.shared.getAuthenticatedUser())
     private(set) var lastPaginatedMessage: Message?
     private var cancellables             = Set<AnyCancellable>()
@@ -170,17 +131,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return authParticipantUnreadMessagesCount != localUnreadMessageCount
     }
     
-    func testGetUnreadMessagesCountFromRealm() -> [String]
-    {
-        guard let conversation = conversation
-        else { return [] }
-        let userID = authUser.uid
-        let filter = conversation.isGroup ?
-        NSPredicate(format: "NONE seenBy == %@ AND senderId != %@", userID, userID) : NSPredicate(format: "messageSeen == false AND senderId != %@", userID)
-
-        return Array(conversation.conversationMessages.filter(filter)).compactMap { $0.id }
-    }
-    
     private func setupServices(using conversation: Chat)
     {
         self.realmService = ConversationRealmService(conversation: conversation)
@@ -220,11 +170,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     init(participant: User?)
     {
         self.participant = participant
-        self.unseenMessagesCount = 0
-    }
-    
-    
-    init() {
         self.unseenMessagesCount = 0
     }
     
@@ -303,7 +248,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         try await FirebaseChatService.shared.createMessage(message: newMessage,
                                                            atChatPath: conversation.id)
         await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: newMessage.id)
-        updateUnseenMessageCounter(shouldIncrement: true)
+        updateUnseenMessageCounterLocally()
+        updateUnseenMessageCounterRemote()
         
         var messages = getCurrentMessagesFromCluster()
         messages.insert(newMessage, at: 0)
@@ -387,21 +333,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
         let seenByValue = (isGroupChat && type != .title) ? [authUserID] : nil
         let messageText = (messageText != nil) ? messageText! : ""
-        
-        //Test remove later
-//        var components = DateComponents()
-//        components.year = 2024
-//        components.month = 8
-//        components.day = 19
-//        components.hour = 18
-//        components.minute = Int.random(in: Range(1...59))
-//        components.second = 42
-//
-//        let calendar = Calendar.current
-//        if let date = calendar.date(from: components) {
-//            print(date) // 2024-08-19 15:38:00 +0000 (UTC)
-//        }
-        
+ 
         return Message(
             id: UUID().uuidString,
             messageBody: messageText,
@@ -422,7 +354,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                                              imageRepository: ImageSampleRepository? = nil)
     {
         realmService?.addMessagesToRealmChat([message])
-        updateUnseenMessageCounterLocal(shouldIncrement: true)
+        updateUnseenMessageCounterLocally()
     }
     
     @MainActor
@@ -435,7 +367,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                                       for: message.id)
         }
         await firestoreService?.addMessageToFirestoreDataBase(message)
-        updateUnseenMessageCounterRemote(shouldIncrement: true)
+//        updateUnseenMessageCounterRemote(shouldIncrement: true)
+        updateUnseenMessageCounterRemote()
         await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
     }
     
@@ -450,27 +383,16 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             limit: limit)
     }
     
-    private let unseenMessageUpdateQueue = DispatchQueue(label: "unseenMessageUpdateQueue")
-
-    /// - update messages components
-    @MainActor
-    func updateUnseenMessageCounter(shouldIncrement: Bool,
-                                    counter: Int? = nil)
-    {
-        updateUnseenMessageCounterLocal(shouldIncrement: shouldIncrement,
-                                        counter: counter)
-        updateUnseenMessageCounterRemote(shouldIncrement: shouldIncrement,
-                                         counter: counter)
-    }
-    
+    /// unseen messages counter update
+    ///
     @MainActor
     func updateUnseenMessageCounterLocally()
     {
         guard let conversation = self.conversation else { return }
-        let authUserID = self.authUser.uid
         RealmDataBase.shared.refresh()
+        let authUserID = self.authUser.uid
         let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
-        print("Inside ocunter update : " , count)
+        
         RealmDataBase.shared.update(object: conversation) { dbChat in
             if let participant = dbChat.getParticipant(byID: authUserID)
             {
@@ -479,19 +401,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
     }
     
-//    @MainActor
-    func updateUnseenMessageCounterRemote() 
+    //    @MainActor
+    func updateUnseenMessageCounterRemote()
     {
         guard let conversationID = self.conversation?.id else { return }
         let authUserID = self.authUser.uid
         let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
         
-//        Task {
-//            try await FirebaseChatService.shared.updateUnreadMessageCount(
-//                for: [authUserID],
-//                inChatWithID: conversationID,
-//                increment: true,
-//                counter: count
         Task.detached {
             do {
                 try await FirebaseChatService.shared.updateUnseenMessagesCount(
@@ -503,92 +419,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 print("Error updating unseen messages counter remote: ", error)
             }
         }
-//        }
     }
     
-    @MainActor
-    private func updateUnseenMessageCounterLocal(shouldIncrement: Bool,
-                                                 counter: Int? = nil)
-    {
-//        guard let conversation = conversation else { return }
-        guard let conversationID = self.conversation?.id else { return }
-//        let threadSafeChat = RealmDataBase.shared.makeThreadSafeObject(object: conversation)
-        let authUserID = self.authUser.uid
-
-//        Task.detached {
-            self.unseenMessageUpdateQueue.async {
-//                guard let chat = RealmDataBase.shared.resolveThreadSafeObject(threadSafeObject: threadSafeChat) else {return}
-                guard let chat = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Chat.self, primaryKey: conversationID) else {return}
-                
-                RealmDataBase.shared.updateTest(object: chat) { dbChat in
-                    if shouldIncrement {
-                        for participant in dbChat.participants where participant.userID != authUserID
-                        {
-                            let updatedCount = (counter != nil) ? counter! : 1
-                            participant.unseenMessagesCount += updatedCount
-                        }
-                    } else {
-                        if let participant = dbChat.getParticipant(byID: authUserID)
-                        {
-                            let updatedCount = (counter != nil) ? -counter! : -1
-                            participant.unseenMessagesCount = max(0, participant.unseenMessagesCount + updatedCount) // use + instead of - here, because two minuses (- -) result in +
-                            if participant.unseenMessagesCount <= 0 {
-                                print("stop here")
-                            }
-                        }
-                    }
-                }
-            }
-//        }
-    }
-    
-    @MainActor
-    private func updateUnseenMessageCounterRemote(shouldIncrement: Bool,
-                                                  counter: Int? = nil)
-    {
-        guard let conversationID = conversation?.id else { return }
-        let authUserID = self.authUser.uid
-        
-        Task.detached
-        {
-            guard let chat = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Chat.self, primaryKey: conversationID) else {return}
-            
-            let targetIDs = shouldIncrement
-            ? chat.participants
-                .filter { $0.userID != authUserID }
-                .map { $0.userID }
-            : [authUserID]
-            do {
-                try await FirebaseChatService.shared.updateUnreadMessageCount(
-                    for: targetIDs,
-                    inChatWithID: chat.id,
-                    increment: shouldIncrement,
-                    counter: counter
-                )
-            } catch {
-                print("Failed to update Firebase unread message count: \(error)")
-            }
-        }
-    }
-    
-    func markConsecutiveMessagesAsSeen(startingFrom startMessage: Message, in realm: Realm) throws {
-        // Get all messages from starting point backwards in time (older messages)
-        let allMessages = realm.objects(Message.self)
-            .filter("timestamp <= %@", startMessage.timestamp)
-            .sorted(byKeyPath: "timestamp", ascending: false) // descending = backwards in time
-        
-        try realm.write {
-            // Process messages going backwards until we hit one that's already seen
-            for message in allMessages {
-//                if message.isSeen {
-//                    break // Stop at first seen message
-//                }
-//                message.isSeen = true
-            }
-        }
-    }
-    
-//    @MainActor
+    /// Message seen status update
+    ///
     func updateFirebaseMessagesSeenStatus(startingFrom startMessage: Message)
     {
         guard let chatID = conversation?.id else { return }
@@ -598,7 +432,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         Task.detached
         {
-            print("is main thread? ", Thread.isMainThread)
             do {
                 try await FirebaseChatService
                     .shared
@@ -631,77 +464,21 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             let messages = chat.conversationMessages
                 .filter(filter)
                 .sorted(byKeyPath: "timestamp", ascending: false)
-            print("is main thread? ", Thread.isMainThread)
-            let count1 = chat.conversationMessages.filter { $0.messageSeen == false }.count
-//            print("This one is before seen status update count: ", count1)
+
             RealmDataBase.shared.update
             {
-                var counter = 0
                 for message in messages
                 {
                     if message.messageSeen == true || message.seenBy.contains(authUserID) { break }
-                    counter += 1
+                    
                     if isGroup {
                         message.seenBy.append(authUserID)
                         continue
                     }
                     message.messageSeen = true
                 }
-//                print("updated messages count======: \(counter)")
             }
-            
-            let count = chat.conversationMessages.filter { $0.messageSeen == false }.count
-//            print("After seen status update count: ", count)
         }.value
-    }
-
-//    @MainActor
-//    func updateMessageSeenStatus(from cellViewModel: MessageCellViewModel)
-//    {
-//        guard let chatID = conversation?.id else { return }
-//        let authUserID = authUser.uid
-//
-//        let isGroup = conversation?.isGroup ?? false
-//        Task.detached {
-//            await cellViewModel.updateFirestoreMessageSeenStatus(
-//                by: isGroup ? authUserID : nil,
-//                from: chatID
-//            )
-//        }
-//    }
-    
-//    func updateMessageSeenStatusTest(from cellViewModel: MessageCellViewModel)
-//    {
-//        guard let chatID = conversation?.id else { return }
-//        let authUserID = authUser.uid
-//
-//        let isGroup = conversation?.isGroup ?? false
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 5.1) {
-//            Task.detached {
-//                await cellViewModel.updateFirestoreMessageSeenStatusTest(
-//                    by: isGroup ? authUserID : nil,
-//                    from: chatID
-//                )
-//            }
-//        }
-//    }
-    
-    func clearMessageChanges() {
-        Task {
-            await MainActor.run {
-                messageChangedTypes.removeAll()
-            }
-        }
-    }
-    
-    func clearRemovedMessageChanges()
-    {
-        Task {
-            await MainActor.run {
-               changedTypesOfRemovedMessages.removeAll()
-            }
-        }
     }
     
     /// - unseen message check
@@ -729,6 +506,23 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //        let indexPath = IndexPath(row: 13, section: 3)
         let conversationCellVM = MessageCellViewModel(isUnseenCell: true)
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
+    }
+    
+    func clearMessageChanges() {
+        Task {
+            await MainActor.run {
+                messageChangedTypes.removeAll()
+            }
+        }
+    }
+    
+    func clearRemovedMessageChanges()
+    {
+        Task {
+            await MainActor.run {
+               changedTypesOfRemovedMessages.removeAll()
+            }
+        }
     }
     
     //TODO: - the whole function should be refactored along with reaction model, for better querying
@@ -1226,7 +1020,7 @@ extension ChatRoomViewModel
     private func processAddedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
     {
         // Separate messages that already exist vs new ones
-        var (existingMessages, newMessages) = messages.reduce(into: ([Message](), [Message]())) { result, message in
+        let (existingMessages, newMessages) = messages.reduce(into: ([Message](), [Message]())) { result, message in
             if let dbMessage = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id)
             {
                 /// See FootNote.swift [12]
@@ -1246,8 +1040,6 @@ extension ChatRoomViewModel
         {
             RealmDataBase.shared.add(objects: existingMessages)
         }
-        
-        let isMostRecentMessagePaginated = isMostRecentMessagePaginated
         
 //        // Process new messages concurrently
         await self.handleAddedMessage(newMessages)
@@ -1693,3 +1485,35 @@ extension ChatRoomViewModel
     }
 }
 
+//
+//enum BufferedMessage {
+//    case added(Message)
+//    case modified(Message)
+//    case removed(Message)
+//}
+//
+//struct BufferedMessages
+//{
+//    var addedMessages: [Message]
+//    var modifiedMessages: [Message]
+//    var removedMessages: [Message]
+//    
+//    init(addedMessages: [Message], modifiedMessages: [Message], removedMessages: [Message]) {
+//        self.addedMessages = addedMessages
+//        self.modifiedMessages = modifiedMessages
+//        self.removedMessages = removedMessages
+//    }
+//    
+//    init() {
+//        self.addedMessages = []
+//        self.modifiedMessages = []
+//        self.removedMessages = []
+//    }
+//    
+//    mutating func removeAllBufferedMessages() {
+//        addedMessages.removeAll()
+//        modifiedMessages.removeAll()
+//        removedMessages.removeAll()
+//    }
+//}
+//
