@@ -16,6 +16,118 @@ import PhotosUI
 import Combine
 import SkeletonView
 
+extension ChatRoomViewController
+{
+    private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
+    {
+        let chatType: ChatType = viewModel.conversation?.isGroup == true ? ._group : ._private
+
+        let showUserAvatar = (chatType == ._group) ? shouldShowUserAvatarForCell(at: indexPath) : false
+        
+        let showSenderName = (chatType == ._group) ? shouldShowSenderName(at: indexPath) : false
+        
+        let configuration = MessageLayoutConfiguration
+            .getLayoutConfiguration(for: chatType,
+                                    showSenderName: showSenderName,
+                                    showAvatar: showUserAvatar)
+        
+        return configuration
+    }
+    
+    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool
+    {
+        let messageItems = viewModel.messageClusters[indexPath.section].items
+        
+        guard messageItems[indexPath.row].messageAlignment == .left else { return false }
+        
+        guard indexPath.row > 0 else { return true }
+
+        guard
+            let currentMessage = messageItems[indexPath.row].message,
+            let previousMessage = messageItems[indexPath.row - 1].message
+        else {
+            return false
+        }
+
+        guard currentMessage.type != .title else { return false }
+        guard previousMessage.type != .title else { return true }
+
+        return currentMessage.senderId != previousMessage.senderId
+    }
+    
+    private func shouldShowSenderName(at indexPath: IndexPath) -> Bool
+    {
+        let messageItems = viewModel.messageClusters[indexPath.section].items
+        guard messageItems[indexPath.row].messageAlignment == .left else
+        { return false }
+        guard indexPath.row < messageItems.count - 1 else { return true }
+        
+        guard
+            let currentMessage = messageItems[indexPath.row].message,
+            let nextMessage = messageItems[indexPath.row + 1].message
+        else {
+            return false
+        }
+
+        guard currentMessage.type != .title else { return false }
+        guard nextMessage.type != .title else { return true }
+
+        return currentMessage.senderId != nextMessage.senderId
+    }
+}
+
+//MARK: - Table DataSource
+extension ChatRoomViewController
+{
+    enum Section: Hashable
+    {
+        case date(Date)
+    }
+    
+    typealias DataSource = UITableViewDiffableDataSource<Section,MessageCellViewModel>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<Section,MessageCellViewModel>
+    
+    private func makeDataSource() -> DataSource
+    {
+        let dataSource = DataSource(tableView: self.rootView.tableView,
+                                    cellProvider:
+                                        { tableView, indexPath, cellViewModel in
+            
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
+                for: indexPath
+            ) as? MessageTableViewCell else {
+                fatalError("Could not dequeue conversation cell")
+            }
+            
+            let messageLayoutConfiguration = self.makeLayoutConfigurationForCell(at: indexPath)
+            cell.configureCell(using: cellViewModel,
+                               layoutConfiguration: messageLayoutConfiguration)
+            
+            cell.containerStackView.handleContentRelayout = { [weak tableView] in
+                guard let tableView else {return}
+                tableView.beginUpdates()
+                tableView.endUpdates()
+            }
+            return cell
+        })
+        return dataSource
+    }
+    
+    private func configureSnapshot()
+    {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, MessageCellViewModel>()
+        
+        for cluster in viewModel.messageClusters
+        {
+            let section: Section = .date(cluster.date)
+            snapshot.appendSections([section])
+            snapshot.appendItems(cluster.items, toSection: section)
+        }
+        
+        tableViewDiffableDataSource.apply(snapshot, animatingDifferences: false)
+    }
+}
 
 final class ChatRoomViewController: UIViewController
 {
@@ -33,6 +145,7 @@ final class ChatRoomViewController: UIViewController
     private var lastSeenStatusCheckUpdate: Date = Date()
     
     private var tableViewDataSource :ConversationTableViewDataSource!
+    private var tableViewDiffableDataSource :DataSource!
     private var customNavigationBar :ChatRoomNavigationBar!
     private var rootView = ChatRoomRootView()
     private var viewModel: ChatRoomViewModel!
@@ -91,6 +204,19 @@ final class ChatRoomViewController: UIViewController
         self.setupBinding()
     }
     
+    private func configureTableView()
+    {
+        self.rootView.tableView.delegate = self
+        self.tableViewDiffableDataSource = makeDataSource()
+        self.configureSnapshot()
+    }
+    
+//    private func configureTableView() {
+//        tableViewDataSource = ConversationTableViewDataSource(conversationViewModel: viewModel)
+//        rootView.tableView.delegate = self
+//        rootView.tableView.dataSource = tableViewDataSource
+//    }
+//    
     private func addTargetsToButtons() {
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
@@ -308,12 +434,6 @@ final class ChatRoomViewController: UIViewController
 //        viewModel = nil
 //        tableViewDataSource = nil
 //        customNavigationBar = nil
-    }
-    
-    private func configureTableView() {
-        tableViewDataSource = ConversationTableViewDataSource(conversationViewModel: viewModel)
-        rootView.tableView.delegate = self
-        rootView.tableView.dataSource = tableViewDataSource
     }
     
     private func updateInputBarBottomConstraint(toSize size: CGFloat) {

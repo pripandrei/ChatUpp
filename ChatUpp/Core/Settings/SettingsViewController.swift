@@ -170,6 +170,7 @@ extension SettingsViewController {
         }
         
         // Data source initiation
+        
         let dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, settingsItem in
             let cell =  collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: settingsItem)
             return cell

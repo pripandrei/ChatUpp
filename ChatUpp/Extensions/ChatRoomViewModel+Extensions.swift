@@ -12,9 +12,25 @@ extension ChatRoomViewModel
 {
     typealias MessageItem = MessageCellViewModel
     
-    struct MessageCluster
+    struct MessageCluster: Hashable
     {
+        let id: UUID
         let date: Date
-        var items: [MessageItem]
+        var items: [MessageCellViewModel]
+        
+        init(id: UUID = UUID(), date: Date, items: [MessageItem]) {
+            self.id = id
+            self.date = date
+            self.items = items
+        }
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+        
+        static func ==(lhs: MessageCluster, rhs: MessageCluster) -> Bool
+        {
+            lhs.id == rhs.id
+        }
     }
 }

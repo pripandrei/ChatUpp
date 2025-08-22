@@ -8,8 +8,21 @@
 import Foundation
 import Combine
 
+extension MessageCellViewModel: Hashable
+{
+    static func == (lhs: MessageCellViewModel, rhs: MessageCellViewModel) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
 final class MessageCellViewModel
 {
+    let id = UUID()
+    
     @Published private(set) var message: Message?
     
     private(set) var messageContainerViewModel: MessageContainerViewModel?
