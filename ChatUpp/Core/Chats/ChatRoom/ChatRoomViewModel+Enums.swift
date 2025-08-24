@@ -7,6 +7,21 @@
 
 import UIKit
 
+enum DatasourceRowAnimation
+{
+    case bottom
+    case fade
+    case none
+    
+    var animation: UITableView.RowAnimation {
+        switch self {
+        case .bottom: return .bottom
+        case .fade: return .fade
+        case .none: return .none
+        }
+    }
+}
+
 enum MessageValueModification
 {
     case text
@@ -22,12 +37,15 @@ enum MessageValueModification
     }
 }
 
+
 enum MessagesUpdateType: Hashable
 {
     case added([MessageCellViewModel])
     case updated([MessageCellViewModel])
     case removed([MessageCellViewModel])
 }
+
+
 
 
 enum MessageChangeType: Hashable {

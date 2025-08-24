@@ -68,18 +68,22 @@ final class ConversationDataSourceManager
         return dataSource
     }
     
-    func configureSnapshot(animation: Bool = false)
+    func configureSnapshot(animationType: DatasourceRowAnimation = .none)
     {
         var snapshot = NSDiffableDataSourceSnapshot<Section, MessageCellViewModel>()
-        print("entered configure snapshot")
+        
         for cluster in viewModel.messageClusters
         {
             let section: Section = .date(cluster.date)
             snapshot.appendSections([section])
             snapshot.appendItems(cluster.items, toSection: section)
         }
-        diffableDataSource.defaultRowAnimation = .left
-        diffableDataSource.apply(snapshot, animatingDifferences: animation)
+        
+        let shouldAnimate: Bool = animationType.animation != .none
+        
+        diffableDataSource.defaultRowAnimation = animationType.animation
+        diffableDataSource.apply(snapshot,
+                                 animatingDifferences: shouldAnimate)
     }
     
 //    private func offsetContentBack()

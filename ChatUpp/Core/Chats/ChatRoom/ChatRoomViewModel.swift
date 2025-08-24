@@ -35,6 +35,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
     @Published private(set) var updatedItems: Set<MessageItem> = []
     @Published private(set) var updatedItems2: MessagesUpdateType?
+    private(set) var datasourceUpdateType = PassthroughSubject<DatasourceRowAnimation, Never>()
     @Published private(set) var changedTypesOfRemovedMessages: Set<MessageChangeType> = []
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
@@ -1044,7 +1045,7 @@ extension ChatRoomViewModel
 //        let allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
 //        
 //        self.messageChangedTypes = allChanges
-        self.updatedItems = []
+//        self.updatedItems = []
 
 //         Clear processed messages
         self.messageListenerService?.updatedMessages.removeAll()
@@ -1154,26 +1155,31 @@ extension ChatRoomViewModel
         }
         
         RealmDataBase.shared.add(objects: updatedMessages)
-        
         realmService?.addMessagesToRealmChat(newMessages)
-        let cellVMs = createMessageClustersWith(newMessages)
-        self.updatedItems2 = .added(cellVMs)
+        
+        if newMessages.count == 1 {
+            datasourceUpdateType.send(DatasourceRowAnimation.none)
+        } else {
+            datasourceUpdateType.send(DatasourceRowAnimation.bottom)
+        }
+//        let cellVMs = createMessageClustersWith(newMessages)
+//        self.updatedItems2 = .added(cellVMs)
     }
     
     @MainActor
     private func handleRemovedMessages(_ messages: [Message])
     {
         guard !messages.isEmpty else {return}
-        var removedVMs = [MessageCellViewModel]()
+//        var removedVMs = [MessageCellViewModel]()
         for message in messages
         {
             let day = message.timestamp.formatToYearMonthDay()
             guard let clusterIndex = messageClusters.firstIndex(where: { $0.date == day }) else {continue}
-            print("entered remove")
+        
             guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: {  $0.message?.id == message.id } ) else {continue}
             
             let removedVM = messageClusters[clusterIndex].items.remove(at: cellVMIndex)
-            removedVMs.append(removedVM)
+//            removedVMs.append(removedVM)
             
 //            messageClusters[clusterIndex].items.removeAll(where: { $0.message?.id == message.id })
             
@@ -1192,9 +1198,10 @@ extension ChatRoomViewModel
         }
         realmService?.removeMessagesFromRealm(messages: messages)
         
-        let items = MessagesUpdateType.removed(removedVMs)
-        self.updatedItems2 = items
-        print("exit remove")
+        self.datasourceUpdateType.send(.fade)
+        
+//        let items = MessagesUpdateType.removed(removedVMs)
+//        self.updatedItems2 = items
     }
     
     @MainActor
@@ -1204,22 +1211,22 @@ extension ChatRoomViewModel
 //        guard let cellVM = messageClusters.getCellViewModel(at: indexPath),
 //              let modificationValue = cellVM.getModifiedValueOfMessage(message)
 //        else { return nil }
-        var modifiedVMs = [MessageCellViewModel]()
+//        var modifiedVMs = [MessageCellViewModel]()
         RealmDataBase.shared.add(objects: messages)
-        for message in messages {
-            let day = message.timestamp.formatToYearMonthDay()
-            guard let clusterIdx = messageClusters.firstIndex(where: { $0.date == day }) else { return }
-            
-            guard let itemIdx = messageClusters[clusterIdx].items.firstIndex(where: { $0.message?.id == message.id }) else { return }
-            
-            let vm = MessageCellViewModel(message: message)
-//            messageClusters[clusterIdx].items[itemIdx].updateMessage(message)
-            messageClusters[clusterIdx].items[itemIdx] = vm
-//            let vm = messageClusters[clusterIdx].items[itemIdx]
-            modifiedVMs.append(vm)
-        }
-        let items = MessagesUpdateType.updated(modifiedVMs)
-        self.updatedItems2 = items
+//        for message in messages {
+//            let day = message.timestamp.formatToYearMonthDay()
+//            guard let clusterIdx = messageClusters.firstIndex(where: { $0.date == day }) else { return }
+//            
+//            guard let itemIdx = messageClusters[clusterIdx].items.firstIndex(where: { $0.message?.id == message.id }) else { return }
+//            
+//            let vm = MessageCellViewModel(message: message)
+////            messageClusters[clusterIdx].items[itemIdx].updateMessage(message)
+//            messageClusters[clusterIdx].items[itemIdx] = vm
+////            let vm = messageClusters[clusterIdx].items[itemIdx]
+//            modifiedVMs.append(vm)
+//        }
+//        let items = MessagesUpdateType.updated(modifiedVMs)
+//        self.updatedItems2 = items
 //        realmService?.updateMessage(message)
 //        return .modified(indexPath, modificationValue)
     }

@@ -10,6 +10,8 @@ import Combine
 
 final class MessageContainerViewModel
 {
+    @Published private(set) var updatedText: String?
+    
     @Published private(set) var message: Message?
     @Published private(set) var referencedMessage: Message?
     
@@ -21,6 +23,7 @@ final class MessageContainerViewModel
         self.init()
         self.message = message
         
+        self.observeMainMessage()
         self.setupComponents(from: message)
     }
 
@@ -120,6 +123,36 @@ extension MessageContainerViewModel
     {
         guard let imagePath = referencedMessage?.imagePath?.addSuffix("small") else {return nil}
         return CacheManager.shared.retrieveImageData(from: imagePath)
+    }
+}
+
+//MARK: Main Message listener
+extension MessageContainerViewModel
+{
+    private func observeMainMessage()
+    {
+        guard let message = self.message else {return}
+        
+        RealmDataBase.shared.observerObject(message)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] objectUpdate in
+                guard let self else {return}
+                
+                switch objectUpdate
+                {
+                case .changed(object: let object, property: let properties):
+                    properties.forEach { property in
+                        if property.name == "messageBody" 
+//                            || property.name == "messageSeen" || property.name  == "seenBy"
+                        {
+//                            self.message = object as? Message
+//                            self.updatedText = property.newValue as? String
+                        }
+                    }
+                default: break
+                }
+                
+            }.store(in: &cancellables)
     }
 }
 
