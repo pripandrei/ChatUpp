@@ -39,7 +39,7 @@ final class MessageContainerView: ContainerView
     var handleContentRelayout: (() -> Void)?
     
     var maxMessageWidth: CGFloat {
-        return MessageContainerView.maxWidth - 20
+        return MessageContainerView.maxWidth - 23
     }
 
     private lazy var messageSenderNameLabel: UILabel = {
@@ -96,14 +96,25 @@ extension MessageContainerView
                 self?.configureMessageImage(image)
                 //                }
             }).store(in: &subscribers)
-        
+//        
         viewModel.$message
+//            .dropFirst()
             .receive(on: DispatchQueue.main)
             .compactMap({ $0 })
             .sink { [weak self] message in
                 if message.isInvalidated { return }
-                self?.setupMessageLabel(with: message)
+//                self?.testMessageTextEdit(message)
+//                self?.setupMessageLabel(with: message)
             }.store(in: &subscribers)
+        
+//        viewModel.$updatedText
+//            .receive(on: DispatchQueue.main)
+//            .compactMap({ $0 })
+//            .sink { [weak self] text in
+////                if message.isInvalidated { return }
+////                self?.setupMessageLabel(with: message)
+//                self?.testMessageTextEdit(text)
+//            }.store(in: &subscribers)
     }
 }
 
@@ -127,6 +138,7 @@ extension MessageContainerView
         setupSenderNameLabel()
         setupMessageToReplyView()
         updateEditedLabel()
+        configureMessageSeenStatus()
         updateStackViewComponentsAppearance()
         setupMessageLabel(with: message)
         setupBindings()
@@ -144,7 +156,12 @@ extension MessageContainerView
         }
     }
     
-    func showTextMessage(_ text: String) {
+    func showTextMessage(_ text: String)
+    {
+        if text == "I’m just trying my luck with this and it doesn’t look too great for the job and the way the company looks I just have no confidence to get a hold and it’s a very good deal for"
+        {
+            print("stop")
+        }
         messageLabel.attributedText = messageTextLabelLinkSetup(from: text)
         handleMessageLayout()
     }
@@ -162,6 +179,7 @@ extension MessageContainerView
     {
         addSubview(messageComponentsStackView)
         
+        messageComponentsStackView.addArrangedSubview(editedLabel)
         messageComponentsStackView.addArrangedSubview(timeStamp)
         messageComponentsStackView.addArrangedSubview(seenStatusMark)
         
@@ -190,8 +208,13 @@ extension MessageContainerView
     
     private func setupEditedLabel()
     {
-        messageComponentsStackView.insertArrangedSubview(editedLabel, at: 0)
+//        messageComponentsStackView.insertArrangedSubview(editedLabel, at: 0)
         editedLabel.font = UIFont(name: "Helvetica", size: 13)
+    }
+    
+    private func setupTimestamp()
+    {
+        timeStamp.font = UIFont(name: "HelveticaNeue", size: 13)
     }
     
     func configureMessageImageView()
@@ -210,11 +233,6 @@ extension MessageContainerView
             messageImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -2),
             messageImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: -4),
         ])
-    }
-    
-    private func setupTimestamp()
-    {
-        timeStamp.font = UIFont(name: "HelveticaNeue", size: 13)
     }
     
     private func setupSenderNameLabel()
@@ -300,7 +318,8 @@ extension MessageContainerView
     
     func configureMessageSeenStatus()
     {
-        guard let message = viewModel.message else {return}
+        guard let message = viewModel.message,
+            viewModel.messageAlignment == .right else {return}
 //        if message.type == .text && message.messageBody == "" {return}
         
         let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
@@ -397,7 +416,7 @@ extension MessageContainerView
 {
     private var messageComponentsWidth: CGFloat
     {
-        let sideWidth = viewModel.messageAlignment == .right ? seenStatusMark.intrinsicContentSize.width : 0.0
+        let sideWidth = viewModel?.messageAlignment == .right ? seenStatusMark.intrinsicContentSize.width : 0.0
         return timeStamp.intrinsicContentSize.width + sideWidth + editedMessageWidth + 4.0
     }
 
@@ -414,7 +433,6 @@ extension MessageContainerView
     }
 }
 
-
 // MARK: - message layout
 
 extension MessageContainerView
@@ -428,9 +446,10 @@ extension MessageContainerView
     
     private func createMessageTextLayout()
     {
-        let textLayout = YYTextLayout(containerSize: CGSize(width: messageLabel.intrinsicContentSize.width, height: messageLabel.intrinsicContentSize.height), text: messageLabel.attributedText!)
+        layoutIfNeeded()
+        let textLayout = YYTextLayout(containerSize: CGSize(width: messageLabel.bounds.width, height: .greatestFiniteMagnitude), text: messageLabel.attributedText ?? NSAttributedString(string: ""))
         messageLabel.textLayout = textLayout
-        applyMessagePadding(strategy: .initial)
+//        applyMessagePadding(strategy: .initial)
     }
     
     /// padding strategy
@@ -583,9 +602,19 @@ extension MessageContainerView
         messageImageView.image = nil
         seenStatusMark.attributedText = nil
         editedLabel.text = nil
+        removeSubscriers()
         applyMessagePadding(strategy: .initial)
+//        messageLabel.invalidateIntrinsicContentSize()
+//        layoutIfNeeded()
+    }
+    
+    private func removeSubscriers()
+    {
+        subscribers.forEach { $0.cancel() }
+        subscribers.removeAll()
     }
 }
+
 
 
 //MARK: - enums
@@ -623,24 +652,25 @@ extension MessageContainerView
 
 
 
-//// MARK: Message edit animation
-//extension MessageContainerView
-//{
-//    private func testMessageTextEdit()
-//    {
+// MARK: Message edit animation
+extension MessageContainerView
+{
+    private func testMessageTextEdit(_ message: Message, _ text: String = "")
+    {
 //        if messageLabel.attributedText?.string == "Pedro pascal Hi there Pedro pascal Hi there Pedro pascal Hi there Pedro pascal Hi there Pedro pascal with on this"
 //        {
-//            executeAfter(seconds: 3.0, block: {
-//                self.messageLabel.messageUpdateType = .edited
-//                self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: "Pedro pascal")
-//
+            executeAfter(seconds: 3.0, block: {
+                self.messageLabel.messageUpdateType = .edited
+                self.setupMessageLabel(with: message)
+//                self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: text)
+
 //                self.handleMessageLayout()
-//
-//                UIView.animate(withDuration: 0.3) {
-//                    self.superview?.layoutIfNeeded()
-//                }
-//                self.handleContentRelayout?()
-//            })
+                print("entered content relayout update block")
+                UIView.animate(withDuration: 0.3) {
+                    self.superview?.layoutIfNeeded()
+                }
+                self.handleContentRelayout?()
+            })
 //        }
-//    }
-//}
+    }
+}

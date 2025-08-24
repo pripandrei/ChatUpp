@@ -16,7 +16,7 @@ final class MessageTableViewCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
-    var handleContentRelayout: (() -> Void)?
+//    var handleContentRelayout: (() -> Void)?
     
     private var containerStackViewBottomConstraint: NSLayoutConstraint!
     private var containerStackViewLeadingConstraint: NSLayoutConstraint!
@@ -108,9 +108,10 @@ final class MessageTableViewCell: UITableViewCell
         
         cellViewModel = viewModel
         
+
+        
         containerStackView.configure(with: viewModel.messageContainerViewModel!,
                                      layoutConfiguration: layoutConfiguration)
-        
         messageLayoutConfiguration = layoutConfiguration
         
         setupSenderAvatar()
@@ -173,7 +174,7 @@ extension MessageTableViewCell
         
         switch cellViewModel.messageAlignment {
         case .right:
-            containerStackView.configureMessageSeenStatus()
+//            containerStackView.configureMessageSeenStatus()
 
             containerStackViewLeadingConstraint.isActive = false
             containerStackViewTrailingConstraint.isActive = true
