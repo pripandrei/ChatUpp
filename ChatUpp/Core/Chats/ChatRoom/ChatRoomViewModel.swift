@@ -33,6 +33,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     @Published private(set) var unseenMessagesCount: Int
     @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
+    @Published private(set) var updatedItems: Set<MessageItem> = []
+    @Published private(set) var updatedItems2: MessagesUpdateType?
     @Published private(set) var changedTypesOfRemovedMessages: Set<MessageChangeType> = []
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
@@ -159,9 +161,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         if !conversation.isGroup {
             self.participant = getPrivateChatMember(from: conversation)
         }
-        
+        // REVERT BACK
         bindToMessages()
-        bindToDeletedMessages()
+//        bindToDeletedMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
 //       testMessagesCountAndUnseenCount() //
@@ -196,7 +198,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //        userListenerService?.addUsersListener()
 //        userListenerService?.addUserObserver()
         observeParticipantChanges()
-        
+         
         guard let startMessage = messageClusters.first?.items.first?.message
         else {return}
 
@@ -722,9 +724,9 @@ extension ChatRoomViewModel
         }
     }
     
-    func paginateAdditionalLocalMessages(ascending: Bool) -> ([IndexPath], IndexSet?)?
+    func paginateAdditionalLocalMessages(ascending: Bool) -> Bool
     {
-        guard conversation?.realm != nil else {return nil} // if group chat that we are not member of is opened
+        guard conversation?.realm != nil else {return false} // if group chat that we are not member of is opened
         
         var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
         let recentMessageIsPresent = paginatedMessages.contains(where: { $0.id == conversation?.recentMessageID })
@@ -737,21 +739,53 @@ extension ChatRoomViewModel
             }
             else if shouldFetchNewMessages
             {
-                return nil
+                return false
             }
         }
         
         if !paginatedMessages.isEmpty
         {
-            let clusterSnapshot = messageClusters
+//            let clusterSnapshot = messageClusters
             createMessageClustersWith(paginatedMessages)
-            let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
+//            let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
             self.lastPaginatedMessage = paginatedMessages.last
             self.validateMessagesForDeletion(paginatedMessages)
-            return (newRows, newSections)
+//            return (newRows, newSections)
+            return true
         }
-        return nil
+        return false
     }
+    
+//    func paginateAdditionalLocalMessages(ascending: Bool) -> ([IndexPath], IndexSet?)?
+//    {
+//        guard conversation?.realm != nil else {return nil} // if group chat that we are not member of is opened
+//        
+//        var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
+//        let recentMessageIsPresent = paginatedMessages.contains(where: { $0.id == conversation?.recentMessageID })
+//        
+//        if recentMessageIsPresent
+//        {
+//            if paginatedMessages.count > 1 && shouldFetchNewMessages
+//            {
+//                paginatedMessages = paginatedMessages.dropLast() // drop recent message. See FootNote.swift [8]
+//            }
+//            else if shouldFetchNewMessages
+//            {
+//                return nil
+//            }
+//        }
+//        
+//        if !paginatedMessages.isEmpty
+//        {
+//            let clusterSnapshot = messageClusters
+//            createMessageClustersWith(paginatedMessages)
+//            let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
+//            self.lastPaginatedMessage = paginatedMessages.last
+//            self.validateMessagesForDeletion(paginatedMessages)
+//            return (newRows, newSections)
+//        }
+//        return nil
+//    }
     
     private func prepareAdditionalMessagesForConversation(ascending: Bool) -> [Message]
     {
@@ -818,10 +852,11 @@ extension ChatRoomViewModel
                         .retrieveObjects(ofType: Message.self,
                                          filter: NSPredicate(format: "id IN %@", messageIDs)) else {return}
                     
-                    let modificationTypes = await self.processRemovedMessages(Set(messagesToDelete))
-                    
-                    self.deletedMessageIDs.removeAll()
-                    self.changedTypesOfRemovedMessages = modificationTypes
+                    // TODO: - fix this also
+//                    let modificationTypes = await self.processRemovedMessages(Set(messagesToDelete))
+//                    
+//                    self.deletedMessageIDs.removeAll()
+//                    self.changedTypesOfRemovedMessages = modificationTypes
                 }
             }.store(in: &cancellables)
     }
@@ -964,6 +999,19 @@ extension ChatRoomViewModel
 //MARK: - Messages update handlers
 extension ChatRoomViewModel
 {
+//    private func processMessageChanges2(_ messagesTypes: [DatabaseChangedObject<Message>])
+//    {
+//        for type in messagesTypes
+//        {
+//            switch type.changeType
+//            {
+//            case .added:
+//            case .modified:
+//            case .removed:
+//            }
+//        }
+//    }
+    
     private func processMessageChanges(_ messagesTypes: [DatabaseChangedObject<Message>]) async
     {
         // Group messages by change type
@@ -983,75 +1031,80 @@ extension ChatRoomViewModel
         // wait for message pagination to finish if any
         await isPaginationInactiveStream.first(where: { true })
         
+        await self.handleRemovedMessages(Array(removedMessages))
+        await self.handleAddedMessages(Array(filteredAdded))
+        await self.handleModifiedMessage(Array(filteredModified))
+        
         // Process changes in order: remove, modify, add
-        let removedTypes = await processRemovedMessages(removedMessages)
-        let modifiedTypes = await processModifiedMessages(filteredModified)
-        let addedTypes = await processAddedMessages(filteredAdded)
+//        let removedTypes = await processRemovedMessages(removedMessages)
+//        let modifiedTypes = await processModifiedMessages(filteredModified)
+//        let addedTypes = await processAddedMessages(filteredAdded)
         
         // Combine all changes and update
-        let allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
-        
-        self.messageChangedTypes = allChanges
+//        let allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
+//        
+//        self.messageChangedTypes = allChanges
+        self.updatedItems = []
 
 //         Clear processed messages
         self.messageListenerService?.updatedMessages.removeAll()
     }
 
-    @MainActor
-    private func processRemovedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
-    {
-        let sortedIndexPaths = messages
-            .compactMap { self.indexPath(of: $0) }
-            .sorted(by: >)
-        let changeTypes = sortedIndexPaths.compactMap { self.handleRemovedMessage(at: $0) }
-        return Set(changeTypes)
-    }
+//    @MainActor
+//    private func processRemovedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
+//    {
+//        let sortedIndexPaths = messages
+//            .compactMap { self.indexPath(of: $0) }
+//            .sorted(by: >)
+//        let changeTypes = sortedIndexPaths.compactMap { self.handleRemovedMessage(at: $0) }
+//        return Set(changeTypes)
+//    }
 
-    @MainActor
-    private func processModifiedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
-    {
-        return Set(messages.compactMap { message in
-            guard let indexPath = self.indexPath(of: message) else { return nil }
-            return self.handleModifiedMessage(message, at: indexPath)
-        })
-    }
-
-    @MainActor
-    private func processAddedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
-    {
-        // Separate messages that already exist vs new ones
-        let (existingMessages, newMessages) = messages.reduce(into: ([Message](), [Message]())) { result, message in
-            if let dbMessage = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id)
-            {
-                /// See FootNote.swift [12]
-                var updatedMessage = message
-                if (dbMessage.messageSeen == true && message.messageSeen == false) ||  (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
-                {
-                    updatedMessage = message.updateSeenStatus(seenStatus: true)
-                }
-                result.0.append(updatedMessage)
-            } else {
-                result.1.append(message)
-            }
-        }
-        
-        // Add existing messages to database
-        if !existingMessages.isEmpty
-        {
-            RealmDataBase.shared.add(objects: existingMessages)
-        }
-        
-//        // Process new messages concurrently
-        await self.handleAddedMessage(newMessages)
-
-        // Create change types for all added messages
-        return Set(newMessages
-            .compactMap { newMessage in
-                //TODO: check if messages are paginated up to most recent one
-                self.indexPath(of: newMessage)
-            }
-            .map { MessageChangeType.added($0) })
-    }
+//    @MainActor
+//    private func processModifiedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
+//    {
+//        return Set(messages.compactMap { message in
+//            guard let indexPath = self.indexPath(of: message) else { return nil }
+//            return self.handleModifiedMessage(message, at: indexPath)
+//        })
+//    }
+//
+//    @MainActor
+//    private func processAddedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
+//    {
+//        // Separate messages that already exist vs new ones
+//        let (existingMessages, newMessages) = messages.reduce(into: ([Message](), [Message]())) { result, message in
+//            if let dbMessage = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id)
+//            {
+//                /// See FootNote.swift [12]
+//                var updatedMessage = message
+//                if (dbMessage.messageSeen == true && message.messageSeen == false) ||  (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
+//                {
+//                    updatedMessage = message.updateSeenStatus(seenStatus: true)
+//                }
+//                result.0.append(updatedMessage)
+//            } else {
+//                result.1.append(message)
+//            }
+//        }
+//        
+//        // Add existing messages to database
+//        if !existingMessages.isEmpty
+//        {
+//            RealmDataBase.shared.add(objects: existingMessages)
+//        }
+//        
+////        // Process new messages concurrently
+//        await self.handleAddedMessage(newMessages)
+//
+//        // Create change types for all added messages
+//        return Set(newMessages
+//            .compactMap { newMessage in
+//                //TODO: check if messages are paginated up to most recent one
+//                self.indexPath(of: newMessage)
+//            }
+//            .map { MessageChangeType.added($0) })
+//    }
     
 
     /// Use this variable before updating realm with new message
@@ -1077,15 +1130,98 @@ extension ChatRoomViewModel
 extension ChatRoomViewModel
 {
     @MainActor
-    private func handleAddedMessage(_ messages: [Message]) async
+    private func handleAddedMessages(_ messages: [Message]) async
     {
-//        let isMostRecentMessagePaginated = isMostRecentMessagePaginated // important to check before message was added
-        realmService?.addMessagesToRealmChat(messages)
+        guard !messages.isEmpty else {return}
+        var newMessages = [Message]()
+        var updatedMessages = [Message]()
         
-        //check if messages are paginated up to most recent one
-//        if isMostRecentMessagePaginated {
-            createMessageClustersWith(messages)
-//        }
+        for message in messages
+        {
+            if let dbMessage = RealmDataBase.shared.retrieveSingleObjectTest(
+                ofType: Message.self,
+                primaryKey: message.id)
+            {
+                /// See FootNote.swift [12]
+                if (dbMessage.messageSeen == true && message.messageSeen == false) ||  (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
+                {
+                    let updatedMessage = message.updateSeenStatus(seenStatus: true)
+                    updatedMessages.append(updatedMessage)
+                }
+            } else {
+                newMessages.append(message)
+            }
+        }
+        
+        RealmDataBase.shared.add(objects: updatedMessages)
+        
+        realmService?.addMessagesToRealmChat(newMessages)
+        let cellVMs = createMessageClustersWith(newMessages)
+        self.updatedItems2 = .added(cellVMs)
+    }
+    
+    @MainActor
+    private func handleRemovedMessages(_ messages: [Message])
+    {
+        guard !messages.isEmpty else {return}
+        var removedVMs = [MessageCellViewModel]()
+        for message in messages
+        {
+            let day = message.timestamp.formatToYearMonthDay()
+            guard let clusterIndex = messageClusters.firstIndex(where: { $0.date == day }) else {continue}
+            print("entered remove")
+            guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: {  $0.message?.id == message.id } ) else {continue}
+            
+            let removedVM = messageClusters[clusterIndex].items.remove(at: cellVMIndex)
+            removedVMs.append(removedVM)
+            
+//            messageClusters[clusterIndex].items.removeAll(where: { $0.message?.id == message.id })
+            
+            if messageClusters[clusterIndex].items.isEmpty {
+                messageClusters.remove(at: clusterIndex)
+            }
+            
+            if clusterIndex == 0 && cellVMIndex == 0,
+               let recentMessageID = recentMessageItem?.message?.id
+            {
+                Task {
+                    await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: recentMessageID)
+                }
+            }
+            
+        }
+        realmService?.removeMessagesFromRealm(messages: messages)
+        
+        let items = MessagesUpdateType.removed(removedVMs)
+        self.updatedItems2 = items
+        print("exit remove")
+    }
+    
+    @MainActor
+    func handleModifiedMessage(_ messages: [Message]) /*-> MessageChangeType?*/
+    {
+        guard !messages.isEmpty else {return}
+//        guard let cellVM = messageClusters.getCellViewModel(at: indexPath),
+//              let modificationValue = cellVM.getModifiedValueOfMessage(message)
+//        else { return nil }
+        var modifiedVMs = [MessageCellViewModel]()
+        RealmDataBase.shared.add(objects: messages)
+        for message in messages {
+            let day = message.timestamp.formatToYearMonthDay()
+            guard let clusterIdx = messageClusters.firstIndex(where: { $0.date == day }) else { return }
+            
+            guard let itemIdx = messageClusters[clusterIdx].items.firstIndex(where: { $0.message?.id == message.id }) else { return }
+            
+            let vm = MessageCellViewModel(message: message)
+//            messageClusters[clusterIdx].items[itemIdx].updateMessage(message)
+            messageClusters[clusterIdx].items[itemIdx] = vm
+//            let vm = messageClusters[clusterIdx].items[itemIdx]
+            modifiedVMs.append(vm)
+        }
+        let items = MessagesUpdateType.updated(modifiedVMs)
+        self.updatedItems2 = items
+//        realmService?.updateMessage(message)
+//        return .modified(indexPath, modificationValue)
     }
 
     
@@ -1163,41 +1299,44 @@ extension ChatRoomViewModel
     }
     
     
-    @MainActor
-    private func handleRemovedMessage(at indexPath: IndexPath) -> MessageChangeType?
-    {
-        guard let message = messageClusters[indexPath.section].items[indexPath.row].message else {return nil}
-        
-        var isLastMessageInSection: Bool = false
-        
-        messageClusters.removeClusterItem(at: indexPath)
-        if messageClusters[indexPath.section].items.isEmpty
-        {
-            messageClusters.remove(at: indexPath.section)
-            isLastMessageInSection = true
-        }
-        
-        realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
-         
-        if indexPath.isFirst(), let recentMessageID = recentMessageItem?.message?.id
-        {
-            Task {
-                await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: recentMessageID)
-            }
-        }
-        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
-    }
-    @MainActor
-    func handleModifiedMessage(_ message: Message,
-                               at indexPath: IndexPath) -> MessageChangeType?
-    {
-        guard let cellVM = messageClusters.getCellViewModel(at: indexPath),
-              let modificationValue = cellVM.getModifiedValueOfMessage(message)
-        else { return nil }
-        
-        realmService?.updateMessage(message)
-        return .modified(indexPath, modificationValue)
-    }
+//    @MainActor
+//    private func handleRemovedMessage2(at indexPath: IndexPath) -> MessageChangeType?
+//    {
+//        guard let message = messageClusters[indexPath.section].items[indexPath.row].message else {return nil}
+//        
+//        var isLastMessageInSection: Bool = false
+//        
+//        messageClusters.removeClusterItem(at: indexPath)
+//        if messageClusters[indexPath.section].items.isEmpty
+//        {
+//            messageClusters.remove(at: indexPath.section)
+//            isLastMessageInSection = true
+//        }
+//        
+//        realmService?.removeMessageFromRealm(message: message) // message becomes unmanaged from here on, freeze it before accessing it further in current scope (ex. on debug with print)
+//         
+//        if indexPath.isFirst(), let recentMessageID = recentMessageItem?.message?.id
+//        {
+//            Task {
+//                await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: recentMessageID)
+//            }
+//        }
+//        return .removed(indexPath, isLastItemInSection: isLastMessageInSection)
+//    }
+
+    
+//    @MainActor
+//    func handleModifiedMessage(_ message: Message,
+//                               at indexPath: IndexPath) -> MessageChangeType?
+//    {
+//        guard let cellVM = messageClusters.getCellViewModel(at: indexPath),
+//              let modificationValue = cellVM.getModifiedValueOfMessage(message)
+//        else { return nil }
+//        
+//        realmService?.updateMessage(message)
+//        return .modified(indexPath, modificationValue)
+//    }
+    
     @MainActor
     func indexPath(of message: Message) -> IndexPath?
     {
@@ -1333,15 +1472,51 @@ extension ChatRoomViewModel
 // MARK: - messageCluster functions
 extension ChatRoomViewModel
 {
-    func createMessageClustersWith(_ messages: [Message])
+    
+//    func createMessageClustersWith(_ messages: [Message], ascending: Bool)
+//    {
+//        guard !messages.isEmpty else { return }
+//        
+//        var dateToClusterIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
+//        var tempMessageClusters = self.messageClusters
+//        
+//        for message in messages {
+//            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
+//            let messageItem = MessageItem(message: message)
+//            
+//            if let index = dateToClusterIndex[date] {
+//                if ascending
+//                {
+//                    tempMessageClusters[index].items.insert(messageItem, at: 0)
+//                    continue
+//                }
+//                tempMessageClusters[index].items.append(messageItem)
+//            } else
+//            {
+//                let newCluster = MessageCluster(date: date, items: [messageItem])
+//                if ascending {
+//                    tempMessageClusters.insert(newCluster, at: 0)
+//                } else {
+//                    tempMessageClusters.append(newCluster)
+//                }
+//                dateToClusterIndex[date] = ascending ? 0 : tempMessageClusters.count - 1
+//            }
+//        }
+//        self.messageClusters = tempMessageClusters
+//    }
+    
+    @discardableResult
+    func createMessageClustersWith(_ messages: [Message]) -> [MessageCellViewModel]
     {
-        guard !messages.isEmpty else { return }
+        guard !messages.isEmpty else { return [] }
         
-        var dateToIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
+        var cellVMs: [MessageCellViewModel] = []
+        
+        var dateToClusterIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
         var tempMessageClusters = self.messageClusters
         
         // Determine insertion direction by comparing timestamps
-        let isNewerThanCurrent = {
+        let isAscendingInsertion = {
             guard let firstCurrent = self.messageClusters.first?.items.first?.message?.timestamp,
                   let lastNew = messages.last?.timestamp else {
                 return true /// since table view is inverted, return true
@@ -1352,26 +1527,27 @@ extension ChatRoomViewModel
         for message in messages {
             guard let date = message.timestamp.formatToYearMonthDay() else { continue }
             let messageItem = MessageItem(message: message)
-            
-            if let index = dateToIndex[date] {
-                if isNewerThanCurrent {
+            cellVMs.append(messageItem)
+            if let index = dateToClusterIndex[date] {
+                if isAscendingInsertion {
                     tempMessageClusters[index].items.insert(messageItem, at: 0)
                 } else {
                     tempMessageClusters[index].items.append(messageItem)
                 }
             } else {
                 let newCluster = MessageCluster(date: date, items: [messageItem])
-                if isNewerThanCurrent {
+                if isAscendingInsertion {
                     tempMessageClusters.insert(newCluster, at: 0)
-                    dateToIndex[date] = 0
+                    dateToClusterIndex[date] = 0
                 } else {
                     tempMessageClusters.append(newCluster)
-                    dateToIndex[date] = tempMessageClusters.count - 1
+                    dateToClusterIndex[date] = tempMessageClusters.count - 1
                 }
             }
         }
         
         self.messageClusters = tempMessageClusters
+        return cellVMs
     }
     
     private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)

@@ -22,6 +22,14 @@ enum MessageValueModification
     }
 }
 
+enum MessagesUpdateType: Hashable
+{
+    case added([MessageCellViewModel])
+    case updated([MessageCellViewModel])
+    case removed([MessageCellViewModel])
+}
+
+
 enum MessageChangeType: Hashable {
     case modified(IndexPath, MessageValueModification)
     case added(IndexPath)

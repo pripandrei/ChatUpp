@@ -10,7 +10,8 @@ import Combine
 
 extension MessageCellViewModel: Hashable
 {
-    static func == (lhs: MessageCellViewModel, rhs: MessageCellViewModel) -> Bool {
+    static func ==(lhs: MessageCellViewModel, rhs: MessageCellViewModel) -> Bool
+    {
         return lhs.id == rhs.id
     }
     
@@ -21,6 +22,11 @@ extension MessageCellViewModel: Hashable
 
 final class MessageCellViewModel
 {
+    func updateMessage(_ message: Message)
+    {
+        self.message = message
+    }
+    
     let id = UUID()
     
     @Published private(set) var message: Message?

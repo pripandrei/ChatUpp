@@ -119,6 +119,16 @@ final class ConversationRealmService
         return RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: message.id)
     }
     
+    func retrieveMessagesFromRealm(_ messages: [Message]) -> [Message]
+    {
+        let ids = messages.map(\.id)
+        let predicate = NSPredicate(format: "id IN %@", ids as NSArray)
+        guard let messages = RealmDataBase.shared
+            .retrieveObjects(ofType: Message.self)?
+            .filter(predicate) else { return [] }
+        return Array(messages)
+    }
+    
     func addChatToRealm(_ chat: Chat) {
         RealmDataBase.shared.add(object: chat)
     }
@@ -159,6 +169,12 @@ final class ConversationRealmService
     {
         guard let realmMessage = retrieveMessageFromRealm(message) else {return}
         RealmDataBase.shared.delete(object: realmMessage)
+    }
+    
+    func removeMessagesFromRealm(messages: [Message])
+    {
+        let realmMessages = retrieveMessagesFromRealm(messages)
+        RealmDataBase.shared.delete(objects: realmMessages)
     }
     
     func updateRecentMessageFromRealmChat(withID messageID: String)

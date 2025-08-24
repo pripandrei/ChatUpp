@@ -16,118 +16,123 @@ import PhotosUI
 import Combine
 import SkeletonView
 
-extension ChatRoomViewController
-{
-    private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
-    {
-        let chatType: ChatType = viewModel.conversation?.isGroup == true ? ._group : ._private
-
-        let showUserAvatar = (chatType == ._group) ? shouldShowUserAvatarForCell(at: indexPath) : false
-        
-        let showSenderName = (chatType == ._group) ? shouldShowSenderName(at: indexPath) : false
-        
-        let configuration = MessageLayoutConfiguration
-            .getLayoutConfiguration(for: chatType,
-                                    showSenderName: showSenderName,
-                                    showAvatar: showUserAvatar)
-        
-        return configuration
-    }
-    
-    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool
-    {
-        let messageItems = viewModel.messageClusters[indexPath.section].items
-        
-        guard messageItems[indexPath.row].messageAlignment == .left else { return false }
-        
-        guard indexPath.row > 0 else { return true }
-
-        guard
-            let currentMessage = messageItems[indexPath.row].message,
-            let previousMessage = messageItems[indexPath.row - 1].message
-        else {
-            return false
-        }
-
-        guard currentMessage.type != .title else { return false }
-        guard previousMessage.type != .title else { return true }
-
-        return currentMessage.senderId != previousMessage.senderId
-    }
-    
-    private func shouldShowSenderName(at indexPath: IndexPath) -> Bool
-    {
-        let messageItems = viewModel.messageClusters[indexPath.section].items
-        guard messageItems[indexPath.row].messageAlignment == .left else
-        { return false }
-        guard indexPath.row < messageItems.count - 1 else { return true }
-        
-        guard
-            let currentMessage = messageItems[indexPath.row].message,
-            let nextMessage = messageItems[indexPath.row + 1].message
-        else {
-            return false
-        }
-
-        guard currentMessage.type != .title else { return false }
-        guard nextMessage.type != .title else { return true }
-
-        return currentMessage.senderId != nextMessage.senderId
-    }
-}
-
-//MARK: - Table DataSource
-extension ChatRoomViewController
-{
-    enum Section: Hashable
-    {
-        case date(Date)
-    }
-    
-    typealias DataSource = UITableViewDiffableDataSource<Section,MessageCellViewModel>
-    typealias Snapshot = NSDiffableDataSourceSnapshot<Section,MessageCellViewModel>
-    
-    private func makeDataSource() -> DataSource
-    {
-        let dataSource = DataSource(tableView: self.rootView.tableView,
-                                    cellProvider:
-                                        { tableView, indexPath, cellViewModel in
-            
-            guard let cell = tableView.dequeueReusableCell(
-                withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
-                for: indexPath
-            ) as? MessageTableViewCell else {
-                fatalError("Could not dequeue conversation cell")
-            }
-            
-            let messageLayoutConfiguration = self.makeLayoutConfigurationForCell(at: indexPath)
-            cell.configureCell(using: cellViewModel,
-                               layoutConfiguration: messageLayoutConfiguration)
-            
-            cell.containerStackView.handleContentRelayout = { [weak tableView] in
-                guard let tableView else {return}
-                tableView.beginUpdates()
-                tableView.endUpdates()
-            }
-            return cell
-        })
-        return dataSource
-    }
-    
-    private func configureSnapshot()
-    {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, MessageCellViewModel>()
-        
-        for cluster in viewModel.messageClusters
-        {
-            let section: Section = .date(cluster.date)
-            snapshot.appendSections([section])
-            snapshot.appendItems(cluster.items, toSection: section)
-        }
-        
-        tableViewDiffableDataSource.apply(snapshot, animatingDifferences: false)
-    }
-}
+//extension ChatRoomViewController
+//{
+//    private func makeLayoutConfigurationForCell(at indexPath: IndexPath) -> MessageLayoutConfiguration
+//    {
+//        let chatType: ChatType = viewModel.conversation?.isGroup == true ? ._group : ._private
+//
+//        let showUserAvatar = (chatType == ._group) ? shouldShowUserAvatarForCell(at: indexPath) : false
+//        
+//        let showSenderName = (chatType == ._group) ? shouldShowSenderName(at: indexPath) : false
+//        
+//        let configuration = MessageLayoutConfiguration
+//            .getLayoutConfiguration(for: chatType,
+//                                    showSenderName: showSenderName,
+//                                    showAvatar: showUserAvatar)
+//        
+//        return configuration
+//    }
+//    
+//    private func shouldShowUserAvatarForCell(at indexPath: IndexPath) -> Bool
+//    {
+//        let messageItems = viewModel.messageClusters[indexPath.section].items
+//        
+//        guard messageItems[indexPath.row].messageAlignment == .left else { return false }
+//        
+//        guard indexPath.row > 0 else { return true }
+//
+//        guard
+//            let currentMessage = messageItems[indexPath.row].message,
+//            let previousMessage = messageItems[indexPath.row - 1].message
+//        else {
+//            return false
+//        }
+//
+//        guard currentMessage.type != .title else { return false }
+//        guard previousMessage.type != .title else { return true }
+//
+//        return currentMessage.senderId != previousMessage.senderId
+//    }
+//    
+//    private func shouldShowSenderName(at indexPath: IndexPath) -> Bool
+//    {
+//        let messageItems = viewModel.messageClusters[indexPath.section].items
+//        guard messageItems[indexPath.row].messageAlignment == .left else
+//        { return false }
+//        guard indexPath.row < messageItems.count - 1 else { return true }
+//        
+//        guard
+//            let currentMessage = messageItems[indexPath.row].message,
+//            let nextMessage = messageItems[indexPath.row + 1].message
+//        else {
+//            return false
+//        }
+//
+//        guard currentMessage.type != .title else { return false }
+//        guard nextMessage.type != .title else { return true }
+//
+//        return currentMessage.senderId != nextMessage.senderId
+//    }
+//}
+//
+////MARK: - Table DataSource
+//extension ChatRoomViewController
+//{
+//    enum Section: Hashable
+//    {
+//        case date(Date)
+//    }
+//    
+//    typealias DataSource = UITableViewDiffableDataSource<Section,MessageCellViewModel>
+//    typealias Snapshot = NSDiffableDataSourceSnapshot<Section,MessageCellViewModel>
+//    
+//    private func makeDataSource() -> DataSource
+//    {
+//        let dataSource = DataSource(tableView: self.rootView.tableView,
+//                                    cellProvider:
+//                                        { tableView, indexPath, cellViewModel in
+//            
+//            guard let cell = tableView.dequeueReusableCell(
+//                withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
+//                for: indexPath
+//            ) as? MessageTableViewCell else {
+//                fatalError("Could not dequeue conversation cell")
+//            }
+//            
+//            let messageLayoutConfiguration = self.makeLayoutConfigurationForCell(at: indexPath)
+//            cell.configureCell(using: cellViewModel,
+//                               layoutConfiguration: messageLayoutConfiguration)
+//            
+//            cell.containerStackView.handleContentRelayout = { [weak tableView] in
+//                guard let tableView else {return}
+//                tableView.beginUpdates()
+//                tableView.endUpdates()
+//            }
+//            return cell
+//        })
+//        return dataSource
+//    }
+//    
+//    func configureSnapshot(animation: Bool = false)
+//    {
+//        var snapshot = NSDiffableDataSourceSnapshot<Section, MessageCellViewModel>()
+//        
+//        for cluster in viewModel.messageClusters
+//        {
+//            let section: Section = .date(cluster.date)
+//            snapshot.appendSections([section])
+//            snapshot.appendItems(cluster.items, toSection: section)
+//        }
+//        
+//        tableViewDiffableDataSource.apply(snapshot, animatingDifferences: animation)
+//    }
+//    
+//    private func updateDataSourceSnapshot()
+//    {
+//        
+//    }
+//}
 
 final class ChatRoomViewController: UIViewController
 {
@@ -144,8 +149,8 @@ final class ChatRoomViewController: UIViewController
     private var shouldIgnoreUnseenMessagesUpdate: Bool = false
     private var lastSeenStatusCheckUpdate: Date = Date()
     
-    private var tableViewDataSource :ConversationTableViewDataSource!
-    private var tableViewDiffableDataSource :DataSource!
+//    private var tableViewDataSource :ConversationTableViewDataSource!
+    private var dataSourceManager : ConversationDataSourceManager!
     private var customNavigationBar :ChatRoomNavigationBar!
     private var rootView = ChatRoomRootView()
     private var viewModel: ChatRoomViewModel!
@@ -207,8 +212,10 @@ final class ChatRoomViewController: UIViewController
     private func configureTableView()
     {
         self.rootView.tableView.delegate = self
-        self.tableViewDiffableDataSource = makeDataSource()
-        self.configureSnapshot()
+//        self.tableViewDiffableDataSource = makeDataSource()
+        self.dataSourceManager = ConversationDataSourceManager(conversationViewModel: self.viewModel,
+                                                               tableView: self.rootView.tableView)
+//        self.configureSnapshot()
     }
     
 //    private func configureTableView() {
@@ -264,7 +271,7 @@ final class ChatRoomViewController: UIViewController
         viewModel.addListeners()
 //        viewModel.realmService?.updateChatOpenStatusIfNeeded()
         if viewModel.authParticipantUnreadMessagesCount > 0 {
-            updateMessageSeenStatusIfNeeded()
+//            updateMessageSeenStatusIfNeeded()
         }
     }
     
@@ -290,13 +297,26 @@ final class ChatRoomViewController: UIViewController
                 default: break
                 }
             }.store(in: &subscriptions)
+        
+        viewModel.$updatedItems2
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] changeTypes in
+                guard let self = self else { return }
+                guard let change = changeTypes else {return}
+//                guard let element = changeTypes.first else {return}
+                self.dataSourceManager.configureSnapshot(animation: true)
+                
+//                self.dataSourceManager.updateTest(change)
+//                performBatchUpdateWithMessageChanges(changeTypes)
+//                viewModel.clearMessageChanges()
+            }.store(in: &subscriptions)
 
         viewModel.$messageChangedTypes
             .receive(on: DispatchQueue.main)
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else { return }
-                performBatchUpdateWithMessageChanges(changeTypes)
-                viewModel.clearMessageChanges()
+//                performBatchUpdateWithMessageChanges(changeTypes)
+//                viewModel.clearMessageChanges()
             }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.lineNumberModificationSubject
@@ -311,8 +331,9 @@ final class ChatRoomViewController: UIViewController
             .receive(on: DispatchQueue.main)
             .sink { [weak self] changeTypes in
                 guard let self = self, !changeTypes.isEmpty else { return }
-                self.deleteRows(withChangeTypes: changeTypes)
-                viewModel.clearRemovedMessageChanges()
+                // REVERT BACK
+//                self.deleteRows(withChangeTypes: changeTypes)
+//                viewModel.clearRemovedMessageChanges()
             }.store(in: &subscriptions)
         
     }
@@ -1216,12 +1237,14 @@ extension ChatRoomViewController: UITableViewDelegate
             
             self.viewModel.isLocalPaginationActive = true
             
-            if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
+//            if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
+            if viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
-                performeTableViewUpdateOnLocalPagination(
-                    withRows: newRows,
-                    sections: newSections
-                )
+                dataSourceManager.configureSnapshot(animation: false)
+//                performeTableViewUpdateOnLocalPagination(
+//                    withRows: newRows,
+//                    sections: newSections
+//                )
                 
                 viewModel.isLocalPaginationActive = false
                 
@@ -1239,10 +1262,11 @@ extension ChatRoomViewController: UITableViewDelegate
             viewModel.isLocalPaginationActive = false
             if !isNetworkPaginationRunning
             {
-                isNetworkPaginationRunning = true
-                await viewModel.remoteMessagePaginator.perform {
-                    await preformRemotePagination(ascending: ascending)
-                }
+                // REVERT BACK
+//                isNetworkPaginationRunning = true
+//                await viewModel.remoteMessagePaginator.perform {
+//                    await preformRemotePagination(ascending: ascending)
+//                }
             }
 //            viewModel.isLocalPaginationActive = false
         }
@@ -1354,52 +1378,52 @@ extension ChatRoomViewController: UITableViewDelegate
     }
 }
 
-//MARK: - SCROLL VIEW DELEGATE
-extension ChatRoomViewController: UIScrollViewDelegate
-{
-    func scrollViewDidScroll(_ scrollView: UIScrollView)
-    {
-        /// See FootNote.swift [13]
-        if shouldIgnoreUnseenMessagesUpdate
-        {
-            self.pendingIndexPathForSeenStatusCheck = nil
-            return
-        }
-        /// find min index path, to update all descending messages from it
-        findMinimalVisibleIndexPath()
-        
-        /// fire updates every > 0.1 time
-        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.1
-        {
-            self.lastSeenStatusCheckUpdate = Date()
-
-            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
-        }
-
-        /// Toggle scrollToBottom badge
-        isLastCellFullyVisible ?
-        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
-        :
-        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-    }
-    
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        toggleSectionHeaderVisibility(isScrollActive: true)
-    }
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
-    {
-        
-        toggleSectionHeaderVisibility(isScrollActive: false)
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool)
-    {
-        self.lastSeenStatusCheckUpdate = Date()
-        if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
-        
-        toggleSectionHeaderVisibility(isScrollActive: decelerate)
-    }
-}
+////MARK: - SCROLL VIEW DELEGATE
+//extension ChatRoomViewController: UIScrollViewDelegate
+//{
+//    func scrollViewDidScroll(_ scrollView: UIScrollView)
+//    {
+//        /// See FootNote.swift [13]
+//        if shouldIgnoreUnseenMessagesUpdate
+//        {
+//            self.pendingIndexPathForSeenStatusCheck = nil
+//            return
+//        }
+//        /// find min index path, to update all descending messages from it
+//        findMinimalVisibleIndexPath()
+//        
+//        /// fire updates every > 0.1 time
+//        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.1
+//        {
+//            self.lastSeenStatusCheckUpdate = Date()
+//
+//            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
+//        }
+//
+//        /// Toggle scrollToBottom badge
+//        isLastCellFullyVisible ?
+//        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
+//        :
+//        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+//    }
+//    
+//    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+//        toggleSectionHeaderVisibility(isScrollActive: true)
+//    }
+//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
+//    {
+//        
+//        toggleSectionHeaderVisibility(isScrollActive: false)
+//    }
+//    
+//    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool)
+//    {
+//        self.lastSeenStatusCheckUpdate = Date()
+//        if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
+//        
+//        toggleSectionHeaderVisibility(isScrollActive: decelerate)
+//    }
+//}
 
 //MARK: - ScrollView helper functions
 extension ChatRoomViewController

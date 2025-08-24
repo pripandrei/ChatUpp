@@ -550,7 +550,7 @@ extension FirebaseChatService
             .collection(FirestoreCollection.messages.rawValue)
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
         
-        query = document.exists ? query.start(atDocument: document) : query.start(after: [timestamp])
+        query = document.exists ? query.start(afterDocument: document) : query.start(after: [timestamp])
         
         return query
 //            .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
