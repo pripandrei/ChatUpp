@@ -10,7 +10,6 @@ import SwiftUI
 struct MessageNotificationBannerView: View
 {
     @ObservedObject var viewModel: MessageNotificationBannerViewModel
-//    var onTap: (() -> Void)?
     
     var body: some View
     {
@@ -53,47 +52,6 @@ struct MessageNotificationBannerView: View
                 self.viewModel.onTap?()
             }
     }
-}
-
-final class MessageNotificationBannerViewModel: SwiftUI.ObservableObject
-{
-    let messageBannerData: MessageBannerData
-    
-    init(messageBannerData: MessageBannerData)
-    {
-        self.messageBannerData = messageBannerData
-    }
-    
-    var onTap: (() -> Void)?
-    
-
-//    private(set) var chat: Chat
-//    private(set) var message: Message
-//    
-//    init(chat: Chat, message: Message)
-//    {
-//        self.chat = chat
-//        self.message = message
-//    }
-//    
-//    var messageSender: User?
-//    {
-//        let user = RealmDataBase.shared.retrieveSingleObject(
-//            ofType: User.self,
-//            primaryKey: message.senderId)
-//        return user
-//    }
-//    
-//    var messageSenderName: String?
-//    {
-//        return messageSender?.name
-//    }
-    
-    
-    
-//    init() {
-//        
-//    }
 }
 
 #Preview {

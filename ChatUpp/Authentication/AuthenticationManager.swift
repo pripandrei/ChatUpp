@@ -114,7 +114,8 @@ final class AuthenticationManager
 
 //MARK: - Sign in with Email
 
-extension AuthenticationManager {
+extension AuthenticationManager
+{
     func signIn(email: String, password: String, complition: @escaping (AuthenticatedUserData?) -> Void)  {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             guard let result = authResult, error == nil else {

@@ -66,19 +66,28 @@ final class ChatRoomViewController: UIViewController
         super.viewDidLoad()
         setupController()
     }
- 
-    private func scrollToCell(at indexPath: IndexPath)
-    {
-        guard indexPath.row < self.rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
-        
-        let updatedIndex = IndexPath(row: indexPath.row + 1, section: indexPath.section)
-        
-        self.rootView.tableView.scrollToRow(at: updatedIndex, at: .bottom, animated: false)
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        if viewModel.conversationInitializationStatus == .finished {
+            finalizeConversationSetup()
+        }
     }
     
     deinit {
         cleanUp()
 //        print("====ConversationVC Deinit")
+    }
+    
+    private func scrollToCell(at indexPath: IndexPath)
+    {
+        guard indexPath.row < self.rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
+        
+        let updatedIndex = IndexPath(row: indexPath.row + 1,
+                                     section: indexPath.section)
+        
+        self.rootView.tableView.scrollToRow(at: updatedIndex, at: .bottom, animated: false)
     }
 
     private func setupController()
@@ -115,44 +124,37 @@ final class ChatRoomViewController: UIViewController
         addTargetToJoinGroupBtn()
     }
     
-    private var canPassThrough: Bool = false
-    
     private func refreshTableView()
     {
-        let indexPath = self.viewModel.findFirstUnseenMessageIndex()
+        self.toggleSkeletonAnimation(.terminated)
+        self.dataSourceManager.configureSnapshot(animationType: .none)
+        self.view.layoutIfNeeded()
+    }
+    
+    private func finalizeConversationSetup()
+    {
+        viewModel.resetInitializationStatus()
         
-        if indexPath != nil {
+        let indexPath = self.viewModel.findLastUnseenMessageIndexPath()
+        
+        if let indexPath {
+            viewModel.insertUnseenMessagesTitle(afterIndexPath: indexPath)
+            
             self.didFinishInitialScrollToUnseenIndexPathIfAny = false
             // Delay table view willDisplay cell functionality
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.didFinishInitialScrollToUnseenIndexPathIfAny = true
             }
         }
+            
+        refreshTableView()
         
-        self.toggleSkeletonAnimation(.terminated)
-        self.rootView.tableView.reloadData()
-        self.view.layoutIfNeeded()
-
-        if let indexPath = self.viewModel.findFirstUnseenMessageIndex() {
+        if let indexPath {
             self.scrollToCell(at: indexPath)
         }
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        if viewModel.conversationInitializationStatus == .finished {
-            finalizeConversationSetup()
-        }
-    }
-    
-    private func finalizeConversationSetup()
-    {
-        viewModel.resetInitializationStatus()
-        viewModel.insertUnseenMessagesTitle()
-        refreshTableView()
+        
         viewModel.addListeners()
-//        viewModel.realmService?.updateChatOpenStatusIfNeeded()
+        
         if viewModel.authParticipantUnreadMessagesCount > 0 {
 //            updateMessageSeenStatusIfNeeded()
         }

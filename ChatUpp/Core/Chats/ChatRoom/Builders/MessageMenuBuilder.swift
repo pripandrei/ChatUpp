@@ -28,7 +28,6 @@ final class MessageMenuBuilder
     
     func buildUIMenuForMessage(message: Message) -> UIMenu
     {
-//        let selectedText = cell.messageLabel.text ?? "" // TODO: message can be used instead
         let isOwner = message.senderId == viewModel.authUser.uid
         
         let seen = createSeenAction(for: message, isOwner: isOwner)
@@ -134,48 +133,6 @@ final class MessageMenuBuilder
         return UIAction(title: "✔️ \(message.seenBy.count - 1) Seen",
                         image: UIImage(systemName: "eye.fill"),
                         attributes: (isOwner && message.seenBy.count > 1) ? [] : .hidden)
-        { _ in
-            
-        }
+        { _ in }
     }
 }
-
-
-
-//let freezedMessage = message.freeze()
-//self.viewModel.realmService?.removeMessageFromRealm(message: message)
-//
-//let lastMessageID = self.viewModel.conversation?.getLastMessage()?.id ?? ""
-//
-//self.viewModel.realmService?.updateRecentMessageFromRealmChat(withID: lastMessageID)
-//self.viewModel.firestoreService?.updateLastMessageFromFirestoreChat(lastMessageID)
-//
-//self.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: freezedMessage.id)
-//self.viewModel.firestoreService?.handleCounterUpdateOnMessageDeletionIfNeeded(freezedMessage)
-
-
-
-//
-//
-//func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//    guard !viewModel.messageClusters.isEmpty else { return }
-//
-//    if let sixthFromBottom = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5, in: tableView),
-//       sixthFromBottom == indexPath {
-//
-//        Task {
-//            if let (newRows, newSections) = await paginationManager.requestPagination(ascending: true, viewModel: viewModel) {
-//                self.performeTableViewUpdate(with: newRows, sections: newSections)
-//            }
-//        }
-//    }
-//    else if let sixthFromTop = getVisibleIndexPathForGlobalCell(atGlobalIndex: 5, fromEnd: true, in: tableView),
-//            sixthFromTop == indexPath {
-//
-//        Task {
-//            if let (newRows, newSections) = await paginationManager.requestPagination(ascending: false, viewModel: viewModel) {
-//                self.performeTableViewUpdate(with: newRows, sections: newSections)
-//            }
-//        }
-//    }
-//}

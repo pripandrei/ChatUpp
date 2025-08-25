@@ -150,21 +150,6 @@ final class ConversationRealmService
         return count
     }
     
-    ///// test
-    func getUnreadMessagesCountFromRealmTestish() -> Int
-    {
-        guard let conversation = conversation,
-              let userID = authenticatedUserID
-        else { return 0 }
-        guard let senderID = conversation.participants
-            .first(where: { $0.userID != userID })?.userID else {return 0}
-        let filter = conversation.isGroup ?
-        NSPredicate(format: "NONE seenBy == %@ AND senderId != %@", senderID, senderID) : NSPredicate(format: "messageSeen == false AND senderId != %@", senderID ?? "")
-
-        let count = conversation.conversationMessages.filter(filter).count
-        return count
-    }
-    
     func removeMessageFromRealm(message: Message)
     {
         guard let realmMessage = retrieveMessageFromRealm(message) else {return}

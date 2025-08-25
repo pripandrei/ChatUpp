@@ -484,29 +484,19 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }.value
     }
     
-    /// - unseen message check
-    
-    func findFirstUnseenMessageIndex() -> IndexPath?
-    {
-        guard conversation?.realm != nil else { return nil }
-        guard let unseenMessage = conversation?.conversationMessages
-            .filter("messageSeen == false AND senderId != %@", authUser.uid)
-            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
-            .first else { return nil }
-    
-        for (groupIndex, messageGroup) in messageClusters.enumerated()
-        {
-            if let viewModelIndex = messageGroup.items.firstIndex(where: { $0.message?.id == unseenMessage.id }) {
-                return IndexPath(item: viewModelIndex, section: groupIndex)
+    /// - unseen message manage
+    ///
+    func findLastUnseenMessageIndexPath() -> IndexPath? {
+        for (sectionIndex, messageGroup) in messageClusters.enumerated().reversed() {
+            if let rowIndex = messageGroup.items.lastIndex(where: { $0.message?.messageSeen == false }) {
+                return IndexPath(row: rowIndex, section: sectionIndex)
             }
         }
         return nil
     }
     
-    func insertUnseenMessagesTitle()
+    func insertUnseenMessagesTitle(afterIndexPath indexPath: IndexPath)
     {
-        guard let indexPath = findFirstUnseenMessageIndex() else {return}
-//        let indexPath = IndexPath(row: 13, section: 3)
         let conversationCellVM = MessageCellViewModel(isUnseenCell: true)
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
