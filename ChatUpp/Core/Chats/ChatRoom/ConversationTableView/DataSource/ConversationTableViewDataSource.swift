@@ -113,7 +113,10 @@ final class ConversationDataSourceManager
         return dataSource
     }
     
-    func configureSnapshot(animationType: DatasourceRowAnimation = .none)
+    func configureSnapshot(
+        animationType: DatasourceRowAnimation = .none,
+        completion: @escaping () -> Void = {}
+    )
     {
         var snapshot = NSDiffableDataSourceSnapshot<Section, MessageCellViewModel>()
         
@@ -125,15 +128,13 @@ final class ConversationDataSourceManager
         }
         
         let shouldAnimate: Bool = animationType.animation != .none
-        
         diffableDataSource.defaultRowAnimation = animationType.animation
+
         diffableDataSource.apply(snapshot,
                                  animatingDifferences: shouldAnimate)
-    }
-    
-    func getIndexPathForItem(_ item: MessageCellViewModel) -> IndexPath?
-    {
-        return diffableDataSource.indexPath(for: item)
+        {
+            completion()
+        }
     }
     
 //    private func offsetContentBack()
@@ -150,13 +151,13 @@ final class ConversationDataSourceManager
 //        }
 //    }
     
-    func updateDataSourceSnapshot(_ item: MessageCellViewModel)
-    {
-        var snapshot = diffableDataSource.snapshot()
-        snapshot.reloadItems([item])
-        diffableDataSource.defaultRowAnimation = .left
-        diffableDataSource.apply(snapshot, animatingDifferences: true)
-    }
+//    func updateDataSourceSnapshot(_ item: MessageCellViewModel)
+//    {
+//        var snapshot = diffableDataSource.snapshot()
+//        snapshot.reloadItems([item])
+//        diffableDataSource.defaultRowAnimation = .left
+//        diffableDataSource.apply(snapshot, animatingDifferences: true)
+//    }
     
     func updateTest(_ update: MessagesUpdateType,
                     insertPosition: InsertPosition = .beginning)

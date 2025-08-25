@@ -12,6 +12,7 @@ enum DatasourceRowAnimation
     case top
     case fade
     case left
+    case automatic
     case none
     
     var animation: UITableView.RowAnimation {
@@ -20,6 +21,7 @@ enum DatasourceRowAnimation
         case .fade: return .fade
         case .none: return .none
         case .left: return .left
+        case .automatic: return .automatic
         }
     }
 }

@@ -1138,7 +1138,15 @@ extension ChatRoomViewController: UITableViewDelegate
 //            if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             if viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
-                dataSourceManager.configureSnapshot(animationType: .none)
+                UIView.animate(withDuration: 0.0)
+                {
+                    self.shouldIgnoreUnseenMessagesUpdate = true
+                    self.dataSourceManager.configureSnapshot(animationType: .automatic)
+                    {
+                        self.shouldIgnoreUnseenMessagesUpdate = false
+                    }
+                }
+                
 //                performeTableViewUpdateOnLocalPagination(
 //                    withRows: newRows,
 //                    sections: newSections
@@ -1181,15 +1189,15 @@ extension ChatRoomViewController: UITableViewDelegate
 //        }
     }
     
-    func updateRealmSeenToFalse() {
-        guard let messages = viewModel.conversation?.conversationMessages else {return}
-        
-        RealmDataBase.shared.update {
-            for message in messages {
-                message.messageSeen = false
-            }
-        }
-    }
+//    func updateRealmSeenToFalse() {
+//        guard let messages = viewModel.conversation?.conversationMessages else {return}
+//        
+//        RealmDataBase.shared.update {
+//            for message in messages {
+//                message.messageSeen = false
+//            }
+//        }
+//    }
     
     private func performeTableViewUpdateOnRemotePagination(withRows rows: [IndexPath],
                                                            sections: IndexSet?)
