@@ -1156,11 +1156,15 @@ extension ChatRoomViewModel
         
         RealmDataBase.shared.add(objects: updatedMessages)
         realmService?.addMessagesToRealmChat(newMessages)
-        
+        createMessageClustersWith(newMessages)
         if newMessages.count == 1 {
             datasourceUpdateType.send(DatasourceRowAnimation.none)
-        } else {
-            datasourceUpdateType.send(DatasourceRowAnimation.bottom)
+        } else if newMessages.count > 1 {
+            datasourceUpdateType.send(DatasourceRowAnimation.top)
+        }
+        
+        if !updatedMessages.isEmpty {
+            datasourceUpdateType.send(DatasourceRowAnimation.left)
         }
 //        let cellVMs = createMessageClustersWith(newMessages)
 //        self.updatedItems2 = .added(cellVMs)

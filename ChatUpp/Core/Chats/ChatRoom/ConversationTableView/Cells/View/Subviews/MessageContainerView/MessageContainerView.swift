@@ -77,8 +77,8 @@ extension MessageContainerView
     private func setupBindings()
     {
         viewModel.$referencedMessage
-            .receive(on: DispatchQueue.main)
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] replyMessage in
                 if let replyMessage {
                     self?.updateMessageToReply(replyMessage)
@@ -98,12 +98,12 @@ extension MessageContainerView
             }).store(in: &subscribers)
 //        
         viewModel.$message
-//            .dropFirst()
+            .dropFirst()
             .receive(on: DispatchQueue.main)
             .compactMap({ $0 })
             .sink { [weak self] message in
                 if message.isInvalidated { return }
-//                self?.testMessageTextEdit(message)
+                self?.testMessageTextEdit(message)
 //                self?.setupMessageLabel(with: message)
             }.store(in: &subscribers)
         
@@ -131,6 +131,7 @@ extension MessageContainerView
         cleanupContent()
         
         self.viewModel = viewModel
+        setupBindings()
         self.messageLayoutConfiguration = layoutConfiguration
         
         timeStamp.text = viewModel.timestamp
@@ -141,7 +142,6 @@ extension MessageContainerView
         configureMessageSeenStatus()
         updateStackViewComponentsAppearance()
         setupMessageLabel(with: message)
-        setupBindings()
     }
     
     func setupMessageLabel(with message: Message)
@@ -402,7 +402,9 @@ extension MessageContainerView
                 messageText: messageText
             ) 
             let image = message.imagePath == nil ? nil : self.viewModel.retrieveReferencedImageData()
-            self.replyToMessageStack.configure(with: replyLabelText, imageData: image)
+            self.replyToMessageStack.configure(
+                with: replyLabelText,
+                imageData: image)
             
             UIView.animate(withDuration: 0.5) {
                 self.superview?.layoutIfNeeded()
@@ -446,8 +448,7 @@ extension MessageContainerView
     
     private func createMessageTextLayout()
     {
-        layoutIfNeeded()
-        let textLayout = YYTextLayout(containerSize: CGSize(width: messageLabel.bounds.width, height: .greatestFiniteMagnitude), text: messageLabel.attributedText ?? NSAttributedString(string: ""))
+        let textLayout = YYTextLayout(containerSize: CGSize(width: messageLabel.intrinsicContentSize.width, height: messageLabel.intrinsicContentSize.height), text: messageLabel.attributedText!)
         messageLabel.textLayout = textLayout
 //        applyMessagePadding(strategy: .initial)
     }
@@ -604,8 +605,8 @@ extension MessageContainerView
         editedLabel.text = nil
         removeSubscriers()
         applyMessagePadding(strategy: .initial)
-//        messageLabel.invalidateIntrinsicContentSize()
-//        layoutIfNeeded()
+        messageLabel.invalidateIntrinsicContentSize()
+        layoutIfNeeded() // to relayout message label text
     }
     
     private func removeSubscriers()
@@ -657,20 +658,18 @@ extension MessageContainerView
 {
     private func testMessageTextEdit(_ message: Message, _ text: String = "")
     {
-//        if messageLabel.attributedText?.string == "Pedro pascal Hi there Pedro pascal Hi there Pedro pascal Hi there Pedro pascal Hi there Pedro pascal with on this"
-//        {
-            executeAfter(seconds: 3.0, block: {
-                self.messageLabel.messageUpdateType = .edited
-                self.setupMessageLabel(with: message)
-//                self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: text)
-
-//                self.handleMessageLayout()
-                print("entered content relayout update block")
-                UIView.animate(withDuration: 0.3) {
-                    self.superview?.layoutIfNeeded()
-                }
-                self.handleContentRelayout?()
-            })
-//        }
+        executeAfter(seconds: 3.0, block: {
+            self.messageLabel.messageUpdateType = .edited
+            self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: message.messageBody)
+            self.updateEditedLabel()
+            self.messageComponentsStackView.setNeedsLayout()
+            self.configureMessageSeenStatus()
+            
+            self.handleMessageLayout()
+            UIView.animate(withDuration: 0.3) {
+                self.superview?.layoutIfNeeded()
+            }
+            self.handleContentRelayout?()
+        })
     }
 }

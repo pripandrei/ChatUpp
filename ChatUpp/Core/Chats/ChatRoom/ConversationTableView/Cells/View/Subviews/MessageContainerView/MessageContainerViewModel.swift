@@ -142,11 +142,12 @@ extension MessageContainerViewModel
                 {
                 case .changed(object: let object, property: let properties):
                     properties.forEach { property in
-                        if property.name == "messageBody" 
-//                            || property.name == "messageSeen" || property.name  == "seenBy"
+                        if property.name == "messageBody"
+                            || property.name == "messageSeen"
+                            || property.name == "seenBy"
+                            || property.name == "isEdited"
                         {
-//                            self.message = object as? Message
-//                            self.updatedText = property.newValue as? String
+                            self.message = object as? Message
                         }
                     }
                 default: break

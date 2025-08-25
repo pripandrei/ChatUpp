@@ -108,10 +108,6 @@ final class MessageTableViewCell: UITableViewCell
         
         cellViewModel = viewModel
         
-
-        
-        containerStackView.configure(with: viewModel.messageContainerViewModel!,
-                                     layoutConfiguration: layoutConfiguration)
         messageLayoutConfiguration = layoutConfiguration
         
         setupSenderAvatar()
@@ -120,6 +116,8 @@ final class MessageTableViewCell: UITableViewCell
         adjustMessageSide()
 
         setupReactionView(for: message)
+        containerStackView.configure(with: viewModel.messageContainerViewModel!,
+                                     layoutConfiguration: layoutConfiguration)
     }
 
     /// - cleanup

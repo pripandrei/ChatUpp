@@ -830,7 +830,7 @@ extension ChatRoomViewController {
                 await viewModel.saveImagesLocally(fromImageRepository: repository, for: message.id)
             }
 
-            createMessageBubble()
+//            createMessageBubble()
             closeInputBarHeaderView()
             
             await viewModel.initiateRemoteUpdatesOnMessageCreation(
