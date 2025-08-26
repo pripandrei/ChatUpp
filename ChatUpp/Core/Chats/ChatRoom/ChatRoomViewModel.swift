@@ -1379,7 +1379,7 @@ extension ChatRoomViewModel
         var limit = 20
         
         if strategy != nil {
-            limit = 10
+            limit = 25
         }
         
         let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
@@ -1610,7 +1610,6 @@ extension ChatRoomViewModel
                 limit: newMessages.count)
         }
         createMessageClustersWith(newMessages)
-
         return .didPaginate
     }
     

@@ -1092,7 +1092,7 @@ extension ChatRoomViewController: UITableViewDelegate
         if viewModel.conversationInitializationStatus == .inProgress {
             return CGFloat((70...120).randomElement()!)
         }
-       return  UITableView.automaticDimension
+        return  UITableView.automaticDimension
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
@@ -1107,7 +1107,7 @@ extension ChatRoomViewController: UITableViewDelegate
         if let globalIndex = globalIndex(for: indexPath,
                                          in: groupedClusterItems)
         {
-            if globalIndex == 2
+            if globalIndex == 3
             {
                 paginateIfNeeded(ascending: true)
             } else if globalIndex == totalItems - 6
@@ -1128,12 +1128,12 @@ extension ChatRoomViewController: UITableViewDelegate
         index += indexPath.row
         return index
     }
-
+    
     private func paginateIfNeeded(ascending: Bool)
     {
         Task { @MainActor in
             self.viewModel.isLocalPaginationActive = true
-        
+            
             if viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
                 UIView.animate(withDuration: 0.0)
@@ -1145,10 +1145,10 @@ extension ChatRoomViewController: UITableViewDelegate
                     }
                 }
                 
-//                performeTableViewUpdateOnLocalPagination(
-//                    withRows: newRows,
-//                    sections: newSections
-//                )
+                //                performeTableViewUpdateOnLocalPagination(
+                //                    withRows: newRows,
+                //                    sections: newSections
+                //                )
                 
                 viewModel.isLocalPaginationActive = false
                 
@@ -1174,16 +1174,16 @@ extension ChatRoomViewController: UITableViewDelegate
             viewModel.isLocalPaginationActive = false
         }
     }
- 
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-//        Task { @MainActor in
-//            guard let id = self.viewModel.conversation?.id else {return}
-//            
-//            self.updateRealmSeenToFalse()
-//            
-//            FirebaseChatService.shared.updateMessageSeenStatusToTrue(fromChatWithID: id)
-//        }
+        //        Task { @MainActor in
+        //            guard let id = self.viewModel.conversation?.id else {return}
+        //
+        //            self.updateRealmSeenToFalse()
+        //
+        //            FirebaseChatService.shared.updateMessageSeenStatusToTrue(fromChatWithID: id)
+        //        }
     }
     
     private func performeTableViewUpdateOnRemotePagination(withRows rows: [IndexPath],
@@ -1204,7 +1204,7 @@ extension ChatRoomViewController: UITableViewDelegate
             if !rows.isEmpty {
                 self.rootView.tableView.insertRows(at: rows, with: .none)
             }
-//            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
+            //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
             self.shouldIgnoreUnseenMessagesUpdate = true
         }, completion: { complete in
             self.shouldIgnoreUnseenMessagesUpdate = false
@@ -1220,32 +1220,47 @@ extension ChatRoomViewController: UITableViewDelegate
             CATransaction.commit()
         })
         
-//        rootView.tableView.setContentOffset(CGPoint(x: rootView.tableView.contentOffset.x, y: rootView.tableView.contentOffset.y), animated: false)
+        //        rootView.tableView.setContentOffset(CGPoint(x: rootView.tableView.contentOffset.x, y: rootView.tableView.contentOffset.y), animated: false)
         
-//        CATransaction.commit()
-//        })
+        //        CATransaction.commit()
+        //        })
     }
     
-//    private func performeTableViewUpdateOnLocalPagination(withRows rows: [IndexPath],
-//                                                          sections: IndexSet?)
-//    {
-//        UIView.animate(withDuration: 0.0)
-//        {
-//            self.rootView.tableView.performBatchUpdates
-//            {
-//                if let sections {
-//                    self.rootView.tableView.insertSections(sections, with: .none)
-//                }
-//                if !rows.isEmpty {
-//                    self.rootView.tableView.insertRows(at: rows, with: .none)
-//                }
-//                //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
-//                self.shouldIgnoreUnseenMessagesUpdate = true
-//            } completion: { completed in
-//                self.shouldIgnoreUnseenMessagesUpdate = false
-//            }
-//        }
-//    }
+    //    private func performeTableViewUpdateOnLocalPagination(withRows rows: [IndexPath],
+    //                                                          sections: IndexSet?)
+    //    {
+    //        UIView.animate(withDuration: 0.0)
+    //        {
+    //            self.rootView.tableView.performBatchUpdates
+    //            {
+    //                if let sections {
+    //                    self.rootView.tableView.insertSections(sections, with: .none)
+    //                }
+    //                if !rows.isEmpty {
+    //                    self.rootView.tableView.insertRows(at: rows, with: .none)
+    //                }
+    //                //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
+    //                self.shouldIgnoreUnseenMessagesUpdate = true
+    //            } completion: { completed in
+    //                self.shouldIgnoreUnseenMessagesUpdate = false
+    //            }
+    //        }
+    //    }
+    
+    private func offsetTableContentOnPaginationCompletion(
+        to contentOffsetY: CGFloat,
+        visibleCell: MessageTableViewCell?)
+    {
+        if self.rootView.tableView.contentOffset.y < -97.5
+        {
+            if let visibleCell = visibleCell,
+               let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
+            {
+                let lastCellRect = self.rootView.tableView.rectForRow(at: indexPathOfVisibleCell)
+                self.rootView.tableView.contentOffset.y = contentOffsetY + lastCellRect.minY
+            }
+        }
+    }
     
     private func preformRemotePagination(ascending: Bool) async
     {
@@ -1255,27 +1270,39 @@ extension ChatRoomViewController: UITableViewDelegate
             switch try await viewModel.paginateRemoteMessages(inAscendingOrder: ascending)
             {
             case .didPaginate:
-                await MainActor.run {
+                await MainActor.run
+                {
+                    let visibleCell: MessageTableViewCell? = self.rootView.tableView.visibleCells.first as? MessageTableViewCell
+                    let currentOffsetY = self.rootView.tableView.contentOffset.y
+                    
+                    CATransaction.begin()
+                    CATransaction.setDisableActions(true)
+                    
                     self.shouldIgnoreUnseenMessagesUpdate = true
-                    self.dataSourceManager.configureSnapshot(animationType: .none)
+                    
+                    self.dataSourceManager.configureSnapshot(
+                        animationType: .automatic)
                     {
                         self.shouldIgnoreUnseenMessagesUpdate = false
+                        self.offsetTableContentOnPaginationCompletion(
+                            to: currentOffsetY,
+                            visibleCell: visibleCell)
+                        CATransaction.commit()
+                        self.isNetworkPaginationRunning = false
                     }
-                    
-                    //                    performeTableViewUpdateOnRemotePagination(withRows: newRows,
-                    //                                                              sections: newSections)
-                    
+                
                     if ascending && viewModel.shouldAttachListenerToUpcomingMessages
                     {
                         viewModel.messageListenerService?.addListenerToUpcomingMessages()
                     }
                 }
-            default: break
+            default:
+                self.isNetworkPaginationRunning = false
+                break
             }
         } catch {
             print("Could not update conversation with additional messages: \(error)")
         }
-        isNetworkPaginationRunning = false
     }
 }
 

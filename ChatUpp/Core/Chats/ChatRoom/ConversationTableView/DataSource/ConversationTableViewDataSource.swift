@@ -82,9 +82,9 @@ final class ConversationDataSourceManager
             completion()
         }
     }
-    
+//    
 //    func updateTest(_ update: MessagesUpdateType,
-//                    insertPosition: InsertPosition = .beginning)
+//                    insertPosition: InsertPosition = .beginning, completion: @escaping () -> Void)
 //    {
 //        var snapshot = diffableDataSource.snapshot()
 //        print(snapshot.itemIdentifiers.count)
@@ -96,12 +96,13 @@ final class ConversationDataSourceManager
 //            snapshot.deleteItems(items)
 //            diffableDataSource.defaultRowAnimation = .fade
 //        case .added(let items):
+//            diffableDataSource.defaultRowAnimation = .none
 //            addItems(items,
 //                     insertPosition: insertPosition,
 //                     snapshot: &snapshot)
 //        }
 //        diffableDataSource.apply(snapshot,
-//                                 animatingDifferences: true)
+//                                 animatingDifferences: true) { completion() }
 //    }
 //    
 //    private func addItems(_ vms: [MessageCellViewModel],
