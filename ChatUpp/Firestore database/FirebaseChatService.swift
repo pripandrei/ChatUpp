@@ -337,8 +337,6 @@ extension FirebaseChatService
             {
                 shouldContinue = false
             }
-            print("First doc updated firebase: ", try firstDoc?.data(as: Message.self))
-            print("Last doc updated firebase: ", try lastDoc?.data(as: Message.self))
         }
     }
     

@@ -17,7 +17,7 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
     
     init (conversation: Chat) {
         self.conversation = conversation
-        self.groupTitle = conversation.title
+        self.groupTitle = conversation.name ?? "Uknown"
     }
     
     lazy var authenticatedUser: User? = {
@@ -63,14 +63,16 @@ extension ChatRoomInformationEditViewModel
         try await processImageSamples()
         
         // Check for group title changes
-        try await handleGroupChange(condition: conversation.title != groupTitle,
-                                    changeDescription: "changed group name to '\(groupTitle)'"
+        try await handleGroupChange(
+            condition: conversation.name != groupTitle,
+            changeDescription: "changed group name to '\(groupTitle)'"
         )
         
         // Check for group avatar changes
         let newAvatarPath = imageSampleRepository?.imagePath(for: .original)
-        try await handleGroupChange(condition: conversation.thumbnailURL != newAvatarPath,
-                                    changeDescription: "changed group avatar"
+        try await handleGroupChange(
+            condition: conversation.thumbnailURL != newAvatarPath,
+            changeDescription: "changed group avatar"
         )
         
         // Update local Realm and Firestore chat data

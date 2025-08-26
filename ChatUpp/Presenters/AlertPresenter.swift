@@ -54,7 +54,7 @@ final class AlertPresenter
     {
         let vm = viewModel
         let participantName = vm.chatUser?.name
-        let alertTitle = vm.chat.isGroup ? "Are you sure you want to leave \(vm.chat.title)?" : "Permanently delete chat with \(participantName ?? "User")?"
+        let alertTitle = vm.chat.isGroup ? "Are you sure you want to leave \(vm.chat.name ?? "unknown")?" : "Permanently delete chat with \(participantName ?? "User")?"
         let alertTitleAttributes: [NSAttributedString.Key:Any] = [
             .foregroundColor: #colorLiteral(red: 0.7950155139, green: 0.7501099706, blue: 0.7651557922, alpha: 1),
             .font: UIFont.systemFont(ofSize: 19),

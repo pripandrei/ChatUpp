@@ -148,30 +148,8 @@ class Chat: Object, Codable
         }
     }
     
-    func appendConversationMessage(_ message: Message) {
-        conversationMessages.append(message)
-    }
-    
-    func getMessages(startingFrom messageID: String,
-                     isMessageIncluded: Bool,
-                     ascending: Bool,
-                     limit: Int = ObjectsPaginationLimit.localMessages) -> [Message] {
-        
-        let sortedMessages = getMessagesResults(ascending: ascending)
-        
-        guard let startIndex = sortedMessages.firstIndex(where: { $0.id == messageID }) else {
-            return []
-        }
-        
-        let actualStartIndex = isMessageIncluded
-            ? startIndex
-            : sortedMessages.index(after: startIndex)
-        
-        guard actualStartIndex < sortedMessages.count else {
-            return []
-        }
-        
-        return Array(sortedMessages[actualStartIndex...].prefix(limit))
+    var isGroup: Bool {
+        return name != nil
     }
     
     func getMessages() -> [Message] {
@@ -198,61 +176,49 @@ class Chat: Object, Codable
         return participants.first(where: { $0.userID == ID })
     }
     
+    func getMessages(startingFrom messageID: String,
+                     isMessageIncluded: Bool,
+                     ascending: Bool,
+                     limit: Int = ObjectsPaginationLimit.localMessages) -> [Message]
+    {
+        let sortedMessages = getMessagesResults(ascending: ascending)
+        
+        guard let startIndex = sortedMessages.firstIndex(where: { $0.id == messageID }) else {
+            return []
+        }
+        
+        let actualStartIndex = isMessageIncluded
+            ? startIndex
+            : sortedMessages.index(after: startIndex)
+        
+        guard actualStartIndex < sortedMessages.count else {
+            return []
+        }
+        
+        return Array(sortedMessages[actualStartIndex...].prefix(limit))
+    }
+    
     
     // MARK: - Test functions
     
-    var title: String
-    {
-        if let name = name { return name }
-        
-        if let authUser = try? AuthenticationManager.shared.getAuthenticatedUser(),
-           let participant = participants.first(where: { $0.userID != authUser.uid }),
-           let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: participant.userID)
-        {
-            return user.name ?? "Unknown"
-        }
-        return "Unknown"
-    }
-    
-    
-    var members: [User] {
-        let participantsID = Array( participants.map { $0.userID } )
-        let filter = NSPredicate(format: "id IN %@", argumentArray: participantsID)
-        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
-        return users ?? []
-    }
-    
-//    var isGroup: Bool {
-//        participants.count > 2
-//    }
-    
-    var isGroup: Bool {
-        return name != nil
-    }
-    
-//    func incrementMessageCount() {
-//        RealmDBManager.shared.update(object: self) { chat in
-//            chat.messagesCount = (self.messagesCount ?? 0) + 1
+//    var title: String
+//    {
+//        if let name = name { return name }
+//        
+//        if let authUser = try? AuthenticationManager.shared.getAuthenticatedUser(),
+//           let participant = participants.first(where: { $0.userID != authUser.uid }),
+//           let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: participant.userID)
+//        {
+//            return user.name ?? "Unknown"
 //        }
+//        return "Unknown"
 //    }
+//    
     
-    //    func getLastSeenMessage() -> Message? {
-    //        guard let lastSeenMessage = conversationMessages
-    //            .filter("messageSeen == true")
-    //            .sorted(byKeyPath: "timestamp", ascending: false)
-    //            .first else { return nil }
-    //
-    //        return lastSeenMessage
-    //    }
-    
-}
-
-
-extension Chat {
-    static func == (lhs: Chat, rhs: Chat) -> Bool {
-        lhs.id == rhs.id &&
-        lhs.participants == rhs.participants &&
-        lhs.recentMessageID == rhs.recentMessageID
-        
-    }
+//    var members: [User] {
+//        let participantsID = Array( participants.map { $0.userID } )
+//        let filter = NSPredicate(format: "id IN %@", argumentArray: participantsID)
+//        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
+//        return users ?? []
+//    }
 }

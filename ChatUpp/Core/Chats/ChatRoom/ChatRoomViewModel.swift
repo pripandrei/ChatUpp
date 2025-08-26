@@ -107,7 +107,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return conversation?.conversationMessages.count == 1
     }
     
-    private var shouldDisplayLastMessage: Bool {
+    private var shouldDisplayLastMessage: Bool
+    {
         return authParticipantUnreadMessagesCount <= (realmService?.getUnreadMessagesCountFromRealm() ?? 0)
     }
     
@@ -131,7 +132,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         // Compare local and global/remote unread message counts
         let localUnreadMessageCount = realmService?.getUnreadMessagesCountFromRealm() ?? 0
-        return authParticipantUnreadMessagesCount != localUnreadMessageCount
+        return (authParticipantUnreadMessagesCount != localUnreadMessageCount)
+//        && localUnreadMessageCount <= 20
     }
     
     private func setupServices(using conversation: Chat)
@@ -687,7 +689,7 @@ extension ChatRoomViewModel
         guard !messages.isEmpty else {return}
         
         if !shouldDisplayLastMessage {
-            messages.removeFirst()
+            messages.removeLast()
         }
         createMessageClustersWith(messages)
         validateMessagesForDeletion(messages)
@@ -1172,7 +1174,7 @@ extension ChatRoomViewModel
         
             guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: {  $0.message?.id == message.id } ) else {continue}
             
-            let removedVM = messageClusters[clusterIndex].items.remove(at: cellVMIndex)
+            let _ = messageClusters[clusterIndex].items.remove(at: cellVMIndex)
 //            removedVMs.append(removedVM)
             
 //            messageClusters[clusterIndex].items.removeAll(where: { $0.message?.id == message.id })
@@ -1374,7 +1376,7 @@ extension ChatRoomViewModel
         guard let conversation = conversation else { return [] }
 
         // TODO: - Remove after testing done
-        var limit = 50
+        var limit = 20
         
         if strategy != nil {
             limit = 10
@@ -1390,7 +1392,7 @@ extension ChatRoomViewModel
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
                 fetchDirection: .ascending,
-                limit: 1000
+                limit: limit
             )
         case .descending(let startAtMessage, let included):
             return try await FirebaseChatService.shared.fetchMessagesFromChat(
@@ -1404,14 +1406,14 @@ extension ChatRoomViewModel
             let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
-                inclusive: true,
+                inclusive: false,
                 fetchDirection: .descending,
                 limit: limit
             )
             let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
-                inclusive: false,
+                inclusive: true,
                 fetchDirection: .ascending,
                 limit: limit
             )
@@ -1551,55 +1553,51 @@ extension ChatRoomViewModel
         return cellVMs
     }
     
-    private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)
-    {
-        let oldDates = Set(clusterSnapshot.map { $0.date })
-        
-        var newIndexPaths: [IndexPath] = []
-        var newSections = IndexSet()
-        
-        for (sectionIndex, updatedCluster) in messageClusters.enumerated() {
-            let isNewSection = !oldDates.contains(updatedCluster.date)
-            
-            if isNewSection
-            {
-                newSections.insert(sectionIndex)
-                
-                let updatedMessagesSet = Set(updatedCluster.items.compactMap { $0.message })
-                for (index, _) in updatedMessagesSet.enumerated()
-                {
-                    newIndexPaths.append(IndexPath(row: index, section: sectionIndex))
-                }
-                continue
-            }
-            
-            // Match existing section by date
-            guard let oldSection = clusterSnapshot.first(where: { $0.date == updatedCluster.date }) else { continue }
-            let oldMessagesSet = Set(oldSection.items.compactMap { $0.message })
-
-            for (rowIndex, item) in updatedCluster.items.enumerated() {
-                if let message = item.message, !oldMessagesSet.contains(message) {
-                    newIndexPaths.append(IndexPath(row: rowIndex, section: sectionIndex))
-                }
-            }
-        }
-        
-        return (newIndexPaths, newSections.isEmpty ? nil : newSections)
-    }
+//    private func getIndexPathsForAdditionalMessages(fromClusterSnapshot clusterSnapshot: [MessageCluster]) -> ([IndexPath], IndexSet?)
+//    {
+//        let oldDates = Set(clusterSnapshot.map { $0.date })
+//        
+//        var newIndexPaths: [IndexPath] = []
+//        var newSections = IndexSet()
+//        
+//        for (sectionIndex, updatedCluster) in messageClusters.enumerated() {
+//            let isNewSection = !oldDates.contains(updatedCluster.date)
+//            
+//            if isNewSection
+//            {
+//                newSections.insert(sectionIndex)
+//                
+//                let updatedMessagesSet = Set(updatedCluster.items.compactMap { $0.message })
+//                for (index, _) in updatedMessagesSet.enumerated()
+//                {
+//                    newIndexPaths.append(IndexPath(row: index, section: sectionIndex))
+//                }
+//                continue
+//            }
+//            
+//            // Match existing section by date
+//            guard let oldSection = clusterSnapshot.first(where: { $0.date == updatedCluster.date }) else { continue }
+//            let oldMessagesSet = Set(oldSection.items.compactMap { $0.message })
+//
+//            for (rowIndex, item) in updatedCluster.items.enumerated() {
+//                if let message = item.message, !oldMessagesSet.contains(message) {
+//                    newIndexPaths.append(IndexPath(row: rowIndex, section: sectionIndex))
+//                }
+//            }
+//        }
+//        
+//        return (newIndexPaths, newSections.isEmpty ? nil : newSections)
+//    }
     
     @MainActor
-    func handleAdditionalMessageClusterUpdate(inAscendingOrder order: Bool) async throws -> ([IndexPath], IndexSet?)?
+    func paginateRemoteMessages(inAscendingOrder order: Bool) async throws -> MessagesPaginationResult
     {
-        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return nil}
+        guard let strategy = getStrategyForAdditionalMessagesFetch(inAscendingOrder: order) else {return .noMoreMessagesToPaginate}
         
         let newMessages = try await fetchConversationMessages(using: strategy)
-        guard !newMessages.isEmpty else { return nil }
+        guard !newMessages.isEmpty else { return .noMoreMessagesToPaginate }
         
-//        if conversation?.isGroup == true {
-//            await syncGroupUsers(for: newMessages)
-//        }
         await fetchMessagesMetadata(Set(newMessages))
-        
         await isPaginationInactiveStream.first(where: { true })
         
         if conversation?.realm != nil
@@ -1611,14 +1609,14 @@ extension ChatRoomViewModel
                 ascending: order,
                 limit: newMessages.count)
         }
-        let clusterSnapshot = messageClusters
         createMessageClustersWith(newMessages)
 
-        let (newRows, newSections) = getIndexPathsForAdditionalMessages(fromClusterSnapshot: clusterSnapshot)
-        
-        assert(!newRows.isEmpty, "New rows array should not be empty at this point!")
-        
-        return (newRows, newSections)
+        return .didPaginate
+    }
+    
+    enum MessagesPaginationResult {
+        case didPaginate
+        case noMoreMessagesToPaginate
     }
 }
 
@@ -1641,7 +1639,7 @@ extension ChatRoomViewModel
             
             let remoteMessagesCount = try await FirebaseChatService.shared.getAllMessages(fromChatDocumentPath: conversation!.id).count
             
-            print("local messages count", localMessageCount)
+            print("local messages count", localMessageCount ?? 0)
             print("remote messages count", remoteMessagesCount)
             
         }
@@ -1655,9 +1653,9 @@ extension ChatRoomViewModel
                 whereMessageSenderID: senderID
             )
         
-            let localUnseenCpunt = realmService?.getUnreadMessagesCountFromRealm()
+            let localUnseenCount = realmService?.getUnreadMessagesCountFromRealm()
             print("Remote Unseen messages count: ",unreadCount)
-            print("Local Unseen messages count: ",localUnseenCpunt)
+            print("Local Unseen messages count: ",localUnseenCount ?? 0)
         }
     }
 }

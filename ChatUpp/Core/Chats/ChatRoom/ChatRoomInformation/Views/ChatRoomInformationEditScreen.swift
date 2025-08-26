@@ -26,7 +26,8 @@ struct ChatRoomInformationEditScreen: View
                     ForEach(EditOptionFields.allCases) { option in
                         switch option {
                         case .title:
-                            textField($viewModel.groupTitle, placeholder: option.placeHolder)
+                            textField($viewModel.groupTitle,
+                                      placeholder: option.placeHolder)
                         case .groupInfo:
                             textField($viewModel.groupDescription, placeholder: option.placeHolder)
                         }

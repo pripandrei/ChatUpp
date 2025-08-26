@@ -104,18 +104,10 @@ final class ChatRoomViewController: UIViewController
     private func configureTableView()
     {
         self.rootView.tableView.delegate = self
-//        self.tableViewDiffableDataSource = makeDataSource()
         self.dataSourceManager = ConversationDataSourceManager(conversationViewModel: self.viewModel,
                                                                tableView: self.rootView.tableView)
-//        self.configureSnapshot()
     }
-    
-//    private func configureTableView() {
-//        tableViewDataSource = ConversationTableViewDataSource(conversationViewModel: viewModel)
-//        rootView.tableView.delegate = self
-//        rootView.tableView.dataSource = tableViewDataSource
-//    }
-//    
+
     private func addTargetsToButtons() {
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
@@ -236,73 +228,73 @@ final class ChatRoomViewController: UIViewController
         
     }
     
-    private func performBatchUpdateWithMessageChanges(_ changes: Set<MessageChangeType>)
-    {
-        guard !changes.isEmpty else {return}
-        
-        var addedIndexPaths: [IndexPath] = []
-        var removedPaths: [(IndexPath, Bool)] = []
-        var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
-        
-        for change in changes
-        {
-            switch change
-            {
-            case .added(let indexPath):
-                addedIndexPaths.append(indexPath)
-            case .removed(let indexPath, let isLastRowInSection):
-                removedPaths.append((indexPath, isLastRowInSection))
-            case .modified(let indexPath, let modification):
-                modifiedPaths.append((indexPath, modification.animationType))
-            }
-        }
-
-        let isFirstRow = (addedIndexPaths.first?.row == 0 && addedIndexPaths.first?.section == 0)
-        
-        if addedIndexPaths.count == 1 && isFirstRow
-        {
-            handleTableViewCellInsertion(scrollToBottom: false)
-            return
-        }
-        
-        /// Group modifications by animation type (for clarity and batch efficiency)
-        let groupModifications = Dictionary(grouping: modifiedPaths,
-                                            by: { $0.animation })
-
-        rootView.tableView.performBatchUpdates
-        {
-            if !removedPaths.isEmpty
-            {
-                self.removeTableViewCells(at: removedPaths)
-            }
-            
-            if !addedIndexPaths.isEmpty
-            {
-                let newSections = getNewAddedSectionsIndexes(at: addedIndexPaths)
-                
-                rootView.tableView.insertRows(at: addedIndexPaths, with: .fade)
-                
-                if !newSections.isEmpty
-                {
-                    rootView.tableView.insertSections(newSections, with: .fade)
-                }
-            }
-        } completion: { completed in
-            
-            guard completed else {return}
-            
-            self.rootView.tableView.performBatchUpdates
-            {
-                for (animation, entrie) in groupModifications
-                {
-                    print("enter row reload")
-                    let indexPaths = entrie.map { $0.indexPath }
-                    self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
-                }
-            }
-        }
-        print("finish reloading table view")
-    }
+//    private func performBatchUpdateWithMessageChanges(_ changes: Set<MessageChangeType>)
+//    {
+//        guard !changes.isEmpty else {return}
+//        
+//        var addedIndexPaths: [IndexPath] = []
+//        var removedPaths: [(IndexPath, Bool)] = []
+//        var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
+//        
+//        for change in changes
+//        {
+//            switch change
+//            {
+//            case .added(let indexPath):
+//                addedIndexPaths.append(indexPath)
+//            case .removed(let indexPath, let isLastRowInSection):
+//                removedPaths.append((indexPath, isLastRowInSection))
+//            case .modified(let indexPath, let modification):
+//                modifiedPaths.append((indexPath, modification.animationType))
+//            }
+//        }
+//
+//        let isFirstRow = (addedIndexPaths.first?.row == 0 && addedIndexPaths.first?.section == 0)
+//        
+//        if addedIndexPaths.count == 1 && isFirstRow
+//        {
+//            handleTableViewCellInsertion(scrollToBottom: false)
+//            return
+//        }
+//        
+//        /// Group modifications by animation type (for clarity and batch efficiency)
+//        let groupModifications = Dictionary(grouping: modifiedPaths,
+//                                            by: { $0.animation })
+//
+//        rootView.tableView.performBatchUpdates
+//        {
+//            if !removedPaths.isEmpty
+//            {
+//                self.removeTableViewCells(at: removedPaths)
+//            }
+//            
+//            if !addedIndexPaths.isEmpty
+//            {
+//                let newSections = getNewAddedSectionsIndexes(at: addedIndexPaths)
+//                
+//                rootView.tableView.insertRows(at: addedIndexPaths, with: .fade)
+//                
+//                if !newSections.isEmpty
+//                {
+//                    rootView.tableView.insertSections(newSections, with: .fade)
+//                }
+//            }
+//        } completion: { completed in
+//            
+//            guard completed else {return}
+//            
+//            self.rootView.tableView.performBatchUpdates
+//            {
+//                for (animation, entrie) in groupModifications
+//                {
+//                    print("enter row reload")
+//                    let indexPaths = entrie.map { $0.indexPath }
+//                    self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
+//                }
+//            }
+//        }
+//        print("finish reloading table view")
+//    }
     
     //MARK: - Keyboard notification observers
     
@@ -1096,6 +1088,27 @@ extension ChatRoomViewController: UITableViewDelegate
        return  UITableView.automaticDimension
     }
     
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
+    {
+        guard !viewModel.messageClusters.isEmpty,
+              didFinishInitialScrollToUnseenIndexPathIfAny else { return }
+        
+        let groupedClusterItems = viewModel.messageClusters.map { $0.items }
+        let totalItems = groupedClusterItems.flatMap { $0 }.count
+        
+        
+        if let globalIndex = globalIndex(for: indexPath,
+                                         in: groupedClusterItems)
+        {
+            if globalIndex == 2
+            {
+                paginateIfNeeded(ascending: true)
+            } else if globalIndex == totalItems - 6
+            {
+                paginateIfNeeded(ascending: false)
+            }
+        }
+    }
     
     func globalIndex(for indexPath: IndexPath, in groupedData: [[ChatRoomViewModel.MessageItem]]) -> Int?
     {
@@ -1108,34 +1121,12 @@ extension ChatRoomViewController: UITableViewDelegate
         index += indexPath.row
         return index
     }
-    
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
-    {
-        guard !viewModel.messageClusters.isEmpty,
-              didFinishInitialScrollToUnseenIndexPathIfAny else { return }
-        
-        let groupedClusterItems = viewModel.messageClusters.map { $0.items }
-        let totalItems = groupedClusterItems.flatMap { $0 }.count
-        
-        
-        if let globalIndex = globalIndex(for: indexPath, in: groupedClusterItems) {
-            if globalIndex == 5
-            {
-                paginateIfNeeded(ascending: true)
-            } else if globalIndex == totalItems - 6
-            {
-                paginateIfNeeded(ascending: false)
-            }
-        }
-    }
-  
+
     private func paginateIfNeeded(ascending: Bool)
     {
         Task { @MainActor in
-            
             self.viewModel.isLocalPaginationActive = true
-            
-//            if let (newRows, newSections) = viewModel.paginateAdditionalLocalMessages(ascending: ascending)
+        
             if viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
                 UIView.animate(withDuration: 0.0)
@@ -1168,13 +1159,12 @@ extension ChatRoomViewController: UITableViewDelegate
             viewModel.isLocalPaginationActive = false
             if !isNetworkPaginationRunning
             {
-                // REVERT BACK
-//                isNetworkPaginationRunning = true
-//                await viewModel.remoteMessagePaginator.perform {
-//                    await preformRemotePagination(ascending: ascending)
-//                }
+                isNetworkPaginationRunning = true
+                await viewModel.remoteMessagePaginator.perform {
+                    await preformRemotePagination(ascending: ascending)
+                }
             }
-//            viewModel.isLocalPaginationActive = false
+            viewModel.isLocalPaginationActive = false
         }
     }
  
@@ -1188,16 +1178,6 @@ extension ChatRoomViewController: UITableViewDelegate
 //            FirebaseChatService.shared.updateMessageSeenStatusToTrue(fromChatWithID: id)
 //        }
     }
-    
-//    func updateRealmSeenToFalse() {
-//        guard let messages = viewModel.conversation?.conversationMessages else {return}
-//        
-//        RealmDataBase.shared.update {
-//            for message in messages {
-//                message.messageSeen = false
-//            }
-//        }
-//    }
     
     private func performeTableViewUpdateOnRemotePagination(withRows rows: [IndexPath],
                                                            sections: IndexSet?)
@@ -1239,43 +1219,51 @@ extension ChatRoomViewController: UITableViewDelegate
 //        })
     }
     
-    private func performeTableViewUpdateOnLocalPagination(withRows rows: [IndexPath],
-                                                          sections: IndexSet?)
-    {
-        UIView.animate(withDuration: 0.0)
-        {
-            self.rootView.tableView.performBatchUpdates
-            {
-                if let sections {
-                    self.rootView.tableView.insertSections(sections, with: .none)
-                }
-                if !rows.isEmpty {
-                    self.rootView.tableView.insertRows(at: rows, with: .none)
-                }
-                //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
-                self.shouldIgnoreUnseenMessagesUpdate = true
-            } completion: { completed in
-                self.shouldIgnoreUnseenMessagesUpdate = false
-            }
-        }
-    }
+//    private func performeTableViewUpdateOnLocalPagination(withRows rows: [IndexPath],
+//                                                          sections: IndexSet?)
+//    {
+//        UIView.animate(withDuration: 0.0)
+//        {
+//            self.rootView.tableView.performBatchUpdates
+//            {
+//                if let sections {
+//                    self.rootView.tableView.insertSections(sections, with: .none)
+//                }
+//                if !rows.isEmpty {
+//                    self.rootView.tableView.insertRows(at: rows, with: .none)
+//                }
+//                //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
+//                self.shouldIgnoreUnseenMessagesUpdate = true
+//            } completion: { completed in
+//                self.shouldIgnoreUnseenMessagesUpdate = false
+//            }
+//        }
+//    }
     
     private func preformRemotePagination(ascending: Bool) async
     {
         do {
             try await Task.sleep(for: .seconds(1))
             
-            if let (newRows, newSections) = try await viewModel.handleAdditionalMessageClusterUpdate(inAscendingOrder: ascending)
+            switch try await viewModel.paginateRemoteMessages(inAscendingOrder: ascending)
             {
+            case .didPaginate:
                 await MainActor.run {
-                    performeTableViewUpdateOnRemotePagination(withRows: newRows,
-                                                              sections: newSections)
+                    self.shouldIgnoreUnseenMessagesUpdate = true
+                    self.dataSourceManager.configureSnapshot(animationType: .none)
+                    {
+                        self.shouldIgnoreUnseenMessagesUpdate = false
+                    }
+                    
+                    //                    performeTableViewUpdateOnRemotePagination(withRows: newRows,
+                    //                                                              sections: newSections)
                     
                     if ascending && viewModel.shouldAttachListenerToUpcomingMessages
                     {
                         viewModel.messageListenerService?.addListenerToUpcomingMessages()
                     }
                 }
+            default: break
             }
         } catch {
             print("Could not update conversation with additional messages: \(error)")

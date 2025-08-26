@@ -62,6 +62,7 @@ final class ChatRoomRootView: UIView {
         tableView.estimatedRowHeight            = UITableView.automaticDimension // for skeleton animation
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
+        
         tableView.backgroundView = createBackgroundImageView()
         createBackgroundBlurEffect(for: tableView.backgroundView!)
         

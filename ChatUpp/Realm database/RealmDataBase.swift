@@ -328,7 +328,7 @@ extension RealmDataBase
         migration.enumerateObjects(ofType: "DBUser") { oldObject, newObject in
             guard let oldObject = oldObject else {return}
             
-            let user = migration.create("User", value: [
+            _ = migration.create("User", value: [
                 "id": oldObject["userId"] as? String ?? UUID().uuidString,
                 "name": oldObject["name"] as? String?,
                 "dateCreated": oldObject["dateCreated"] as? Date?,
