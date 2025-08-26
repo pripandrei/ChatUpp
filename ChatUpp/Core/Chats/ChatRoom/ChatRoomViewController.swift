@@ -184,6 +184,11 @@ final class ChatRoomViewController: UIViewController
             .sink { [weak self] updateType in
                 guard let self = self else { return }
                 self.dataSourceManager.configureSnapshot(animationType: updateType)
+                if case .none = updateType {
+                    print("entered one cell offset")
+                    self.createMessageBubble()
+                }
+                
             }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.lineNumberModificationSubject
@@ -359,8 +364,40 @@ extension ChatRoomViewController {
     
     private func createMessageBubble()
     {
-        mainQueue {
-            self.handleTableViewCellInsertion(scrollToBottom: true)
+//        mainQueue {
+//            self.handleTableViewCellInsertion(scrollToBottom: true)
+            let isNewSectionAdded = self.viewModel.messageClusters[0].items.count == 1 ? true : false
+            let indexPath = IndexPath(row: 0, section: 0)
+            self.animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                         withNewSectionAdded: isNewSectionAdded)
+//        }
+    }
+    
+    private func handleTableViewCellInsertion2(
+        with indexPath: IndexPath = IndexPath(row: 0, section: 0),
+        scrollToBottom: Bool)
+    {
+        let isNewSectionAdded = checkIfNewSectionWasAdded()
+        let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
+        let isIndexPathVisible = visibleIndexPaths?.contains(indexPath) ?? false
+        
+        handleRowAndSectionInsertion(with: indexPath, withAnimation: !isIndexPathVisible)
+        if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
+        {
+            animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
+                                         withNewSectionAdded: isNewSectionAdded)
+        }
+        
+        if scrollToBottom
+        {
+            executeAfter(seconds: 0.15)
+            {
+                if self.rootView.tableView.visibleCells.count > 0
+                {
+                    self.rootView.tableView.layoutIfNeeded()
+                    self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                }
+            }
         }
     }
 
@@ -641,7 +678,10 @@ extension ChatRoomViewController {
                 await viewModel.saveImagesLocally(fromImageRepository: repository, for: message.id)
             }
 
-//            createMessageBubble()
+//            mainQueue {
+                self.dataSourceManager.configureSnapshot(animationType: .none)
+                self.createMessageBubble()
+//            }
             closeInputBarHeaderView()
             
             await viewModel.initiateRemoteUpdatesOnMessageCreation(
@@ -1000,7 +1040,9 @@ extension ChatRoomViewController: UITableViewDelegate
         do {
             try await Task.sleep(for: .seconds(1))
             
-            switch try await viewModel.paginateRemoteMessages(inAscendingOrder: ascending)
+            let direction: PaginationDirection = ascending ?
+                .ascending : .descending
+            switch try await viewModel.paginateRemoteMessages(direction: direction)
             {
             case .didPaginate:
                 await MainActor.run
@@ -1022,11 +1064,6 @@ extension ChatRoomViewController: UITableViewDelegate
                             visibleCell: visibleCell)
                         CATransaction.commit()
                         self.isNetworkPaginationRunning = false
-                    }
-                
-                    if ascending && viewModel.shouldAttachListenerToUpcomingMessages
-                    {
-                        viewModel.messageListenerService?.addListenerToUpcomingMessages()
                     }
                 }
             default:

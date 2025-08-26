@@ -101,6 +101,11 @@ enum MessageFetchStrategy
 //    }
 }
 
+enum PaginationDirection {
+    case ascending
+    case descending
+}
+
 enum MessagesFetchDirection {
     case ascending
     case descending

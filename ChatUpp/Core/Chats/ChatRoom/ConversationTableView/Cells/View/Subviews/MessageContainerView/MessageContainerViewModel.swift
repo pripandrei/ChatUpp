@@ -133,6 +133,15 @@ extension MessageContainerViewModel
     {
         guard let message = self.message else {return}
         
+        /// message on creation is added to realm after this object is initiated, so check and delay observer
+        if message.realm == nil {
+            Task { @MainActor in
+                try await Task.sleep(for: .seconds(0.3))
+                self.observeMainMessage()
+            }
+            return
+        }
+        
         RealmDataBase.shared.observerObject(message)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] objectUpdate in

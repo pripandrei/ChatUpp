@@ -41,14 +41,13 @@ final class ConversationMessageListenerService
         let messageID = startMessage.id
         let messageTimestamp = startMessage.timestamp
  
-        Task {
-            
+        Task
+        {
             let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
                 inChat: conversationID,
                 startingAfterMessage: messageID,
                 messageTimestamp: messageTimestamp) { [weak self] messageUpdate in
                     guard let self = self else {return}
-                    //                    self.updatedMessages.send([messageUpdate])
                     self.updatedMessages.append(messageUpdate)
                 }
             self.listeners.append(listener)
