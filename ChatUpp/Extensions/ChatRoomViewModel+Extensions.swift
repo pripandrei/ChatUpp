@@ -8,7 +8,7 @@
 import Foundation
 
 //MARK: - Model representing section of messages
-extension ChatRoomViewModel
+extension ChatRoomViewModel: DataSourceProviding
 {
     typealias MessageItem = MessageCellViewModel
     

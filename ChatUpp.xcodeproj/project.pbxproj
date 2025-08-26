@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		75075F6D2E5DDEAC00DCA98F /* MessageLayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */; };
 		750F5BF12D9D5AE9007655F3 /* MessageEventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */; };
 		751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */; };
 		752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 752514B92D0CD2FF003330E7 /* Kingfisher */; };
@@ -214,6 +215,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLayoutManager.swift; sourceTree = "<group>"; };
 		750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageEventTableViewCell.swift; sourceTree = "<group>"; };
 		751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesBadge.swift; sourceTree = "<group>"; };
 		7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingListCell.swift; sourceTree = "<group>"; };
@@ -671,7 +673,7 @@
 		759894A72E4E679A003CF661 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
-				75E480802E49035400E8C005 /* MessageLayoutConfiguration */,
+				75E480802E49035400E8C005 /* MessageLayout */,
 				759894B82E4FD1FF003CF661 /* ViewModel */,
 				759894B72E4FD1EE003CF661 /* View */,
 			);
@@ -974,12 +976,13 @@
 			path = Subviews;
 			sourceTree = "<group>";
 		};
-		75E480802E49035400E8C005 /* MessageLayoutConfiguration */ = {
+		75E480802E49035400E8C005 /* MessageLayout */ = {
 			isa = PBXGroup;
 			children = (
+				75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */,
 				75E480812E49038900E8C005 /* MessageLayoutConfiguration.swift */,
 			);
-			path = MessageLayoutConfiguration;
+			path = MessageLayout;
 			sourceTree = "<group>";
 		};
 		75FB78F92AC315D200C2743A /* Tabbar */ = {
@@ -1246,6 +1249,7 @@
 				75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */,
 				75A7AFC72D396D1D00E081DF /* ChatRoomViewModel+Extensions.swift in Sources */,
 				75FD971E2DF230A800EC001E /* ReactionPresentationSheetView.swift in Sources */,
+				75075F6D2E5DDEAC00DCA98F /* MessageLayoutManager.swift in Sources */,
 				75A0861A2D1977DB00DE5333 /* ImageCropper.swift in Sources */,
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
 				757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */,

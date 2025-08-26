@@ -104,8 +104,15 @@ final class ChatRoomViewController: UIViewController
     private func configureTableView()
     {
         self.rootView.tableView.delegate = self
-        self.dataSourceManager = ConversationDataSourceManager(conversationViewModel: self.viewModel,
-                                                               tableView: self.rootView.tableView)
+        
+        let chatType: ChatType = viewModel.conversation?.isGroup == true ? ._group : ._private
+        let layoutProvider: MessageLayoutManager = .init(chatType: chatType,
+                                                         sourceProvider: self.viewModel)
+        self.dataSourceManager = ConversationDataSourceManager(
+            dataProvider: self.viewModel,
+            layoutProvider: layoutProvider,
+            tableView: self.rootView.tableView
+        )
     }
 
     private func addTargetsToButtons() {
