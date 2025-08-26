@@ -183,11 +183,17 @@ final class ChatRoomViewController: UIViewController
             .receive(on: DispatchQueue.main)
             .sink { [weak self] updateType in
                 guard let self = self else { return }
-                self.dataSourceManager.configureSnapshot(animationType: updateType)
-                if case .none = updateType {
-                    print("entered one cell offset")
-                    self.createMessageBubble()
+                
+                var updateType = updateType
+                if case .none = updateType
+                {
+                    if !self.isFirstIndexPathVisible() {
+                        updateType = .automatic
+                    }
                 }
+                
+                self.dataSourceManager.configureSnapshot(animationType: updateType)
+                self.createMessageBubble()
                 
             }.store(in: &subscriptions)
         
@@ -360,16 +366,41 @@ final class ChatRoomViewController: UIViewController
 }
 
 //MARK: - Handle cell message insertion
-extension ChatRoomViewController {
+extension ChatRoomViewController
+{
+    private func isFirstIndexPathVisible() -> Bool
+    {
+        let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
+        let indexPath = IndexPath(row: 0, section: 0)
+        return visibleIndexPaths?.contains(indexPath) ?? false
+    }
     
-    private func createMessageBubble()
+    private func createMessageBubble(scrollToBottom: Bool = false)
     {
 //        mainQueue {
 //            self.handleTableViewCellInsertion(scrollToBottom: true)
-            let isNewSectionAdded = self.viewModel.messageClusters[0].items.count == 1 ? true : false
-            let indexPath = IndexPath(row: 0, section: 0)
-            self.animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                         withNewSectionAdded: isNewSectionAdded)
+        let isFirstIndexVisible = isFirstIndexPathVisible()
+        let isNewSectionAdded = self.viewModel.messageClusters[0].items.count == 1 ? true : false
+        
+        if isFirstIndexVisible || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
+        {
+            self.animateFirstCellOffset(withNewSectionAdded: isNewSectionAdded)
+        }
+        
+        
+        
+        
+        if scrollToBottom
+        {
+            executeAfter(seconds: 0.15)
+            {
+                if self.rootView.tableView.visibleCells.count > 0
+                {
+                    self.rootView.tableView.layoutIfNeeded()
+                    self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                }
+            }
+        }
 //        }
     }
     
@@ -381,11 +412,11 @@ extension ChatRoomViewController {
         let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
         let isIndexPathVisible = visibleIndexPaths?.contains(indexPath) ?? false
         
-        handleRowAndSectionInsertion(with: indexPath, withAnimation: !isIndexPathVisible)
+        handleRowAndSectionInsertion(with: indexPath,
+                                     withAnimation: !isIndexPathVisible)
         if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
         {
-            animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                         withNewSectionAdded: isNewSectionAdded)
+            animateFirstCellOffset(withNewSectionAdded: isNewSectionAdded)
         }
         
         if scrollToBottom
@@ -412,8 +443,7 @@ extension ChatRoomViewController {
         handleRowAndSectionInsertion(with: indexPath, withAnimation: !isIndexPathVisible)
         if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
         {
-            animateCellOffsetOnInsertion(usingCellIndexPath: indexPath,
-                                         withNewSectionAdded: isNewSectionAdded)
+            animateFirstCellOffset(withNewSectionAdded: isNewSectionAdded)
         }
         
         if scrollToBottom
@@ -456,9 +486,9 @@ extension ChatRoomViewController {
         }
     }
     
-    private func animateCellOffsetOnInsertion(usingCellIndexPath indexPath: IndexPath,
-                                              withNewSectionAdded isNewSectionAdded: Bool)
+    private func animateFirstCellOffset(withNewSectionAdded isNewSectionAdded: Bool)
     {
+        let indexPath = IndexPath(row: 0, section: 0)
         let tableView = self.rootView.tableView
         let currentOffSet = tableView.contentOffset
         
@@ -679,8 +709,14 @@ extension ChatRoomViewController {
             }
 
 //            mainQueue {
-                self.dataSourceManager.configureSnapshot(animationType: .none)
-                self.createMessageBubble()
+            var updateType: DatasourceRowAnimation = .none
+            if !self.isFirstIndexPathVisible() {
+                updateType = .automatic
+            }
+            
+            self.dataSourceManager.configureSnapshot(animationType: updateType)
+            self.createMessageBubble()
+
 //            }
             closeInputBarHeaderView()
             

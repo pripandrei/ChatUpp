@@ -166,7 +166,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //        bindToDeletedMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
-//       testMessagesCountAndUnseenCount() //
+       testMessagesCountAndUnseenCount() //
     }
     
     init(participant: User?)
@@ -1082,6 +1082,7 @@ extension ChatRoomViewModel
         }
         
         RealmDataBase.shared.add(objects: updatedMessages)
+        print("this message was added: ", newMessages)
         realmService?.addMessagesToRealmChat(newMessages)
         createMessageClustersWith(newMessages)
         if newMessages.count == 1 {
