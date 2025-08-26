@@ -193,7 +193,7 @@ final class ChatRoomViewController: UIViewController
                 }
                 
                 self.dataSourceManager.configureSnapshot(animationType: updateType)
-                self.createMessageBubble()
+                self.handleNewMessageDisplay()
                 
             }.store(in: &subscriptions)
         
@@ -375,10 +375,8 @@ extension ChatRoomViewController
         return visibleIndexPaths?.contains(indexPath) ?? false
     }
     
-    private func createMessageBubble(scrollToBottom: Bool = false)
+    private func handleNewMessageDisplay()
     {
-//        mainQueue {
-//            self.handleTableViewCellInsertion(scrollToBottom: true)
         let isFirstIndexVisible = isFirstIndexPathVisible()
         let isNewSectionAdded = self.viewModel.messageClusters[0].items.count == 1 ? true : false
         
@@ -386,22 +384,18 @@ extension ChatRoomViewController
         {
             self.animateFirstCellOffset(withNewSectionAdded: isNewSectionAdded)
         }
-        
-        
-        
-        
-        if scrollToBottom
+    }
+    
+    private func scrollToBottom()
+    {
+        executeAfter(seconds: 0.15)
         {
-            executeAfter(seconds: 0.15)
+            if self.rootView.tableView.visibleCells.count > 0
             {
-                if self.rootView.tableView.visibleCells.count > 0
-                {
-                    self.rootView.tableView.layoutIfNeeded()
-                    self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-                }
+                self.rootView.tableView.layoutIfNeeded()
+                self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
             }
         }
-//        }
     }
     
     private func handleTableViewCellInsertion2(
@@ -708,16 +702,15 @@ extension ChatRoomViewController {
                 await viewModel.saveImagesLocally(fromImageRepository: repository, for: message.id)
             }
 
-//            mainQueue {
             var updateType: DatasourceRowAnimation = .none
-            if !self.isFirstIndexPathVisible() {
+            if !isFirstIndexPathVisible() {
                 updateType = .automatic
             }
             
-            self.dataSourceManager.configureSnapshot(animationType: updateType)
-            self.createMessageBubble()
+            dataSourceManager.configureSnapshot(animationType: updateType)
+            handleNewMessageDisplay()
+            scrollToBottom()
 
-//            }
             closeInputBarHeaderView()
             
             await viewModel.initiateRemoteUpdatesOnMessageCreation(

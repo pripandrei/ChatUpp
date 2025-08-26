@@ -166,7 +166,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //        bindToDeletedMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
-       testMessagesCountAndUnseenCount() //
+//       testMessagesCountAndUnseenCount() //
     }
     
     init(participant: User?)
@@ -480,9 +480,21 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     /// - unseen message manage
     ///
-    func findLastUnseenMessageIndexPath() -> IndexPath? {
-        for (sectionIndex, messageGroup) in messageClusters.enumerated().reversed() {
-            if let rowIndex = messageGroup.items.lastIndex(where: { $0.message?.messageSeen == false }) {
+    func findLastUnseenMessageIndexPath() -> IndexPath?
+    {
+        for (sectionIndex, messageGroup) in messageClusters.enumerated().reversed()
+        {
+            if let rowIndex = messageGroup.items
+                .lastIndex(where: { cellVM in
+                    guard cellVM.message?.senderId != authUser.uid else {return false}
+                    if conversation?.isGroup == true
+                    {
+                        guard let message = cellVM.message else {return false}
+                        return !message.seenBy.contains(authUser.uid)
+                    }
+                    return cellVM.message?.messageSeen == false
+                })
+            {
                 return IndexPath(row: rowIndex, section: sectionIndex)
             }
         }
@@ -783,22 +795,19 @@ extension ChatRoomViewModel
             .debounce(for: 2.0, scheduler: DispatchQueue.main)
             .filter { !$0.isEmpty }
             .sink { [weak self] messageIDs in
-                
                 guard let self else {return}
                 
                 Task { @MainActor in
-                    await self.isPaginationInactiveStream.first(where: { true })
+                    await self.isPaginationInactiveStream
+                        .first(where: { true })
                     
                     guard let messagesToDelete = RealmDataBase
                         .shared
                         .retrieveObjects(ofType: Message.self,
                                          filter: NSPredicate(format: "id IN %@", messageIDs)) else {return}
                     
-                    // TODO: - fix this also
-//                    let modificationTypes = await self.processRemovedMessages(Set(messagesToDelete))
-//                    
-//                    self.deletedMessageIDs.removeAll()
-//                    self.changedTypesOfRemovedMessages = modificationTypes
+                    self.handleRemovedMessages(Array(messagesToDelete))
+                    self.deletedMessageIDs.removeAll()
                 }
             }.store(in: &cancellables)
     }
