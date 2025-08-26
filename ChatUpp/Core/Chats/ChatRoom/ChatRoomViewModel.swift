@@ -33,10 +33,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     @Published private(set) var unseenMessagesCount: Int
     @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
-    @Published private(set) var updatedItems: Set<MessageItem> = []
-    @Published private(set) var updatedItems2: MessagesUpdateType?
     private(set) var datasourceUpdateType = PassthroughSubject<DatasourceRowAnimation, Never>()
-    @Published private(set) var changedTypesOfRemovedMessages: Set<MessageChangeType> = []
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
     
@@ -507,15 +504,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         Task {
             await MainActor.run {
                 messageChangedTypes.removeAll()
-            }
-        }
-    }
-    
-    func clearRemovedMessageChanges()
-    {
-        Task {
-            await MainActor.run {
-               changedTypesOfRemovedMessages.removeAll()
             }
         }
     }

@@ -32,7 +32,6 @@ final class ChatRoomViewController: UIViewController
     private var shouldIgnoreUnseenMessagesUpdate: Bool = false
     private var lastSeenStatusCheckUpdate: Date = Date()
     
-//    private var tableViewDataSource :ConversationTableViewDataSource!
     private var dataSourceManager : ConversationDataSourceManager!
     private var customNavigationBar :ChatRoomNavigationBar!
     private var rootView = ChatRoomRootView()
@@ -43,7 +42,6 @@ final class ChatRoomViewController: UIViewController
 
     private var isContextMenuPresented: Bool = false
     private var isKeyboardHidden: Bool = true
-    private var didFinishInitialScroll: Bool = false
     private var didFinishInitialScrollToUnseenIndexPathIfAny: Bool = true
     
     private var isLastCellFullyVisible: Bool {
@@ -74,10 +72,9 @@ final class ChatRoomViewController: UIViewController
             finalizeConversationSetup()
         }
     }
-    
+
     deinit {
         cleanUp()
-//        print("====ConversationVC Deinit")
     }
     
     private func scrollToCell(at indexPath: IndexPath)
@@ -182,38 +179,11 @@ final class ChatRoomViewController: UIViewController
                 }
             }.store(in: &subscriptions)
         
-//        viewModel.$updatedItems2
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] changeTypes in
-//                guard let self = self else { return }
-//                guard let change = changeTypes else {return}
-////                guard let element = changeTypes.first else {return}
-//                self.dataSourceManager.configureSnapshot(animation: true)
-//                
-////                self.dataSourceManager.updateTest(change)
-////                performBatchUpdateWithMessageChanges(changeTypes)
-////                viewModel.clearMessageChanges()
-//            }.store(in: &subscriptions)
-        
         viewModel.datasourceUpdateType
             .receive(on: DispatchQueue.main)
             .sink { [weak self] updateType in
                 guard let self = self else { return }
-//                guard let change = updateType else {return}
-//                guard let element = changeTypes.first else {return}
                 self.dataSourceManager.configureSnapshot(animationType: updateType)
-                
-//                self.dataSourceManager.updateTest(change)
-//                performBatchUpdateWithMessageChanges(changeTypes)
-//                viewModel.clearMessageChanges()
-            }.store(in: &subscriptions)
-
-        viewModel.$messageChangedTypes
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] changeTypes in
-                guard let self = self, !changeTypes.isEmpty else { return }
-//                performBatchUpdateWithMessageChanges(changeTypes)
-//                viewModel.clearMessageChanges()
             }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.lineNumberModificationSubject
@@ -223,85 +193,7 @@ final class ChatRoomViewController: UIViewController
                                              currentNumberOfLines: currentLinesNumber)
             }
             .store(in: &subscriptions)
-        
-        viewModel.$changedTypesOfRemovedMessages
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] changeTypes in
-                guard let self = self, !changeTypes.isEmpty else { return }
-                // REVERT BACK
-//                self.deleteRows(withChangeTypes: changeTypes)
-//                viewModel.clearRemovedMessageChanges()
-            }.store(in: &subscriptions)
-        
     }
-    
-//    private func performBatchUpdateWithMessageChanges(_ changes: Set<MessageChangeType>)
-//    {
-//        guard !changes.isEmpty else {return}
-//        
-//        var addedIndexPaths: [IndexPath] = []
-//        var removedPaths: [(IndexPath, Bool)] = []
-//        var modifiedPaths: [(indexPath: IndexPath, animation: UITableView.RowAnimation)] = []
-//        
-//        for change in changes
-//        {
-//            switch change
-//            {
-//            case .added(let indexPath):
-//                addedIndexPaths.append(indexPath)
-//            case .removed(let indexPath, let isLastRowInSection):
-//                removedPaths.append((indexPath, isLastRowInSection))
-//            case .modified(let indexPath, let modification):
-//                modifiedPaths.append((indexPath, modification.animationType))
-//            }
-//        }
-//
-//        let isFirstRow = (addedIndexPaths.first?.row == 0 && addedIndexPaths.first?.section == 0)
-//        
-//        if addedIndexPaths.count == 1 && isFirstRow
-//        {
-//            handleTableViewCellInsertion(scrollToBottom: false)
-//            return
-//        }
-//        
-//        /// Group modifications by animation type (for clarity and batch efficiency)
-//        let groupModifications = Dictionary(grouping: modifiedPaths,
-//                                            by: { $0.animation })
-//
-//        rootView.tableView.performBatchUpdates
-//        {
-//            if !removedPaths.isEmpty
-//            {
-//                self.removeTableViewCells(at: removedPaths)
-//            }
-//            
-//            if !addedIndexPaths.isEmpty
-//            {
-//                let newSections = getNewAddedSectionsIndexes(at: addedIndexPaths)
-//                
-//                rootView.tableView.insertRows(at: addedIndexPaths, with: .fade)
-//                
-//                if !newSections.isEmpty
-//                {
-//                    rootView.tableView.insertSections(newSections, with: .fade)
-//                }
-//            }
-//        } completion: { completed in
-//            
-//            guard completed else {return}
-//            
-//            self.rootView.tableView.performBatchUpdates
-//            {
-//                for (animation, entrie) in groupModifications
-//                {
-//                    print("enter row reload")
-//                    let indexPaths = entrie.map { $0.indexPath }
-//                    self.rootView.tableView.reloadRows(at: indexPaths, with: animation)
-//                }
-//            }
-//        }
-//        print("finish reloading table view")
-//    }
     
     //MARK: - Keyboard notification observers
     
@@ -459,88 +351,6 @@ final class ChatRoomViewController: UIViewController
         UIView.animate(withDuration: 0.3) {
             self.rootView.scrollBadgeButton.layer.opacity = shouldBeHidden ? 0.0 : 1.0
         }
-    }
-    
-    private func reloadCellRow(at indexPath: IndexPath, with animation: UITableView.RowAnimation)
-    {
-        guard let _ = self.rootView.tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
-        self.rootView.tableView.reloadRows(at: [indexPath], with: animation)
-    }
-
-    /// ATENTION: should be initiated only inside table batch updates
-    private func removeTableViewCells(at indexPathsWithFlags: [(IndexPath, Bool)])
-    {
-        let indexPathsToRemove = indexPathsWithFlags.map(\.0)
-        let emptySections = Set(indexPathsWithFlags.compactMap { $0.1 ? $0.0.section : nil })
-        
-        if !indexPathsToRemove.isEmpty {
-            rootView.tableView.deleteRows(at: indexPathsToRemove, with: .fade)
-        }
-        
-        if !emptySections.isEmpty {
-            rootView.tableView.deleteSections(IndexSet(emptySections), with: .fade)
-        }
-    }
-    
-    private func deleteRows(withChangeTypes types: Set<MessageChangeType>)
-    {
-        var removedPaths: [(IndexPath, Bool)] = []
-        
-        for type in types
-        {
-            switch type
-            {
-            case .removed(let indexPath, let isLastRowInSection):
-                removedPaths.append((indexPath, isLastRowInSection))
-            default: break
-            }
-        }
-        
-        let indexPathsToRemove = removedPaths.map(\.0)
-        let emptySections = Set(removedPaths.compactMap { $0.1 ? $0.0.section : nil })
-        
-        let visibleSet = Set(self.rootView.tableView.indexPathsForVisibleRows ?? [])
-        
-        let contains = visibleSet.contains(where: { indexPathsToRemove.contains($0) })
-
-        if contains {
-            CATransaction.begin()
-            self.rootView.tableView.performBatchUpdates {
-                rootView.tableView.deleteRows(at: indexPathsToRemove, with: .fade)
-                
-                if !emptySections.isEmpty {
-                    rootView.tableView.deleteSections(IndexSet(emptySections), with: .fade)
-                }
-            }
-            CATransaction.commit()
-        } else {
-            UIView.animate(withDuration: 0.0) {
-                self.rootView.tableView.performBatchUpdates {
-                    self.rootView.tableView.deleteRows(at: indexPathsToRemove, with: .none)
-                    
-                    if !emptySections.isEmpty {
-                        self.rootView.tableView.deleteSections(IndexSet(emptySections), with: .none)
-                    }
-                }
-            }
-        }
-    }
-    
-    private func getNewAddedSectionsIndexes(at indexPaths: [IndexPath]) -> IndexSet
-    {
-        var newSectionIndexes = IndexSet()
-        
-        let grouped = Dictionary(grouping: indexPaths, by: { $0.section })
-
-        for (section, pathsInSection) in grouped {
-            let insertedRowCount = pathsInSection.count
-            let currentRowCount = viewModel.messageClusters[section].items.count
-
-            if insertedRowCount == currentRowCount {
-                newSectionIndexes.insert(section)
-            }
-        }
-        return newSectionIndexes
     }
 }
 
@@ -1129,6 +939,7 @@ extension ChatRoomViewController: UITableViewDelegate
         return index
     }
     
+    /// Pagination
     private func paginateIfNeeded(ascending: Bool)
     {
         Task { @MainActor in
@@ -1144,12 +955,6 @@ extension ChatRoomViewController: UITableViewDelegate
                         self.shouldIgnoreUnseenMessagesUpdate = false
                     }
                 }
-                
-                //                performeTableViewUpdateOnLocalPagination(
-                //                    withRows: newRows,
-                //                    sections: newSections
-                //                )
-                
                 viewModel.isLocalPaginationActive = false
                 
                 if let startMessage = viewModel.lastPaginatedMessage
@@ -1174,78 +979,6 @@ extension ChatRoomViewController: UITableViewDelegate
             viewModel.isLocalPaginationActive = false
         }
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        //        Task { @MainActor in
-        //            guard let id = self.viewModel.conversation?.id else {return}
-        //
-        //            self.updateRealmSeenToFalse()
-        //
-        //            FirebaseChatService.shared.updateMessageSeenStatusToTrue(fromChatWithID: id)
-        //        }
-    }
-    
-    private func performeTableViewUpdateOnRemotePagination(withRows rows: [IndexPath],
-                                                           sections: IndexSet?)
-    {
-        var visibleCell: MessageTableViewCell? = nil
-        let currentOffsetY = self.rootView.tableView.contentOffset.y
-        
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        
-        self.rootView.tableView.performBatchUpdates({
-            visibleCell = self.rootView.tableView.visibleCells.first as? MessageTableViewCell
-            
-            if let sections {
-                self.rootView.tableView.insertSections(sections, with: .none)
-            }
-            if !rows.isEmpty {
-                self.rootView.tableView.insertRows(at: rows, with: .none)
-            }
-            //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
-            self.shouldIgnoreUnseenMessagesUpdate = true
-        }, completion: { complete in
-            self.shouldIgnoreUnseenMessagesUpdate = false
-            if self.rootView.tableView.contentOffset.y < -97.5 && complete
-            {
-                if let visibleCell = visibleCell,
-                   let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
-                {
-                    let lastCellRect = self.rootView.tableView.rectForRow(at: indexPathOfVisibleCell)
-                    self.rootView.tableView.contentOffset.y = currentOffsetY + lastCellRect.minY
-                }
-            }
-            CATransaction.commit()
-        })
-        
-        //        rootView.tableView.setContentOffset(CGPoint(x: rootView.tableView.contentOffset.x, y: rootView.tableView.contentOffset.y), animated: false)
-        
-        //        CATransaction.commit()
-        //        })
-    }
-    
-    //    private func performeTableViewUpdateOnLocalPagination(withRows rows: [IndexPath],
-    //                                                          sections: IndexSet?)
-    //    {
-    //        UIView.animate(withDuration: 0.0)
-    //        {
-    //            self.rootView.tableView.performBatchUpdates
-    //            {
-    //                if let sections {
-    //                    self.rootView.tableView.insertSections(sections, with: .none)
-    //                }
-    //                if !rows.isEmpty {
-    //                    self.rootView.tableView.insertRows(at: rows, with: .none)
-    //                }
-    //                //            self.shouldIgnoreUnseenMessagesUpdateForTimePeriod = Date()
-    //                self.shouldIgnoreUnseenMessagesUpdate = true
-    //            } completion: { completed in
-    //                self.shouldIgnoreUnseenMessagesUpdate = false
-    //            }
-    //        }
-    //    }
     
     private func offsetTableContentOnPaginationCompletion(
         to contentOffsetY: CGFloat,
@@ -1756,3 +1489,12 @@ struct TargetedPreviewComponentsSize
         
     }
 }
+
+//    override func viewWillDisappear(_ animated: Bool) {
+//        super.viewWillDisappear(animated)
+//        Task { @MainActor in
+//            guard let id = self.viewModel.conversation?.id else {return}
+//            self.updateRealmSeenToFalse()
+//            FirebaseChatService.shared.updateMessageSeenStatusToTrue(fromChatWithID: id)
+//        }
+//    }
