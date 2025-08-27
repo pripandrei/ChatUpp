@@ -250,8 +250,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         try await FirebaseChatService.shared.createMessage(message: newMessage,
                                                            atChatPath: conversation.id)
         await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: newMessage.id)
-        updateUnseenMessageCounterLocally()
-        updateUnseenMessageCounterRemote()
+        updateUnseenMessageCounterForAuthUserLocally()
+        updateUnseenMessageCounterForAuthUserRemote()
         
         var messages = getCurrentMessagesFromCluster()
         messages.insert(newMessage, at: 0)
@@ -351,7 +351,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     func handleLocalUpdatesOnMessageCreation(_ message: Message)
     {
         realmService?.addMessagesToRealmChat([message])
-        updateUnseenMessageCounterLocally()
+        updateUnseenMessageCounterForAuthUserLocally()
     }
     
     @MainActor
@@ -365,8 +365,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
         await firestoreService?.addMessageToFirestoreDataBase(message)
 //        updateUnseenMessageCounterRemote(shouldIncrement: true)
-        updateUnseenMessageCounterRemote()
-        await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
+//        updateUnseenMessageCounterForAuthUserRemote()
+        await updateParticipantsUnseenMessageCounterRemote()
+        await firestoreService?.updateRecentMessageFromFirestoreChat(
+            messageID: message.id)
     }
     
     private func setupMessageListenerOnChatCreation()
@@ -382,8 +384,30 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     /// unseen messages counter update
     ///
+    
+    
     @MainActor
-    func updateUnseenMessageCounterLocally()
+    private func updateParticipantsUnseenMessageCounterRemote() async
+    {
+        guard let chat = conversation else {return}
+        let currentUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        let otherUserIDs = Array(chat.participants
+            .map(\.userID)
+            .filter { $0 != currentUserID })
+
+        do {
+            try await FirebaseChatService.shared.updateUnreadMessageCount(
+                for: otherUserIDs,
+                inChatWithID: chat.id,
+                increment: true
+            )
+        } catch {
+            print("error on updating unseen message count for particiapnts: " , error)
+        }
+    }
+    
+    @MainActor
+    func updateUnseenMessageCounterForAuthUserLocally()
     {
         guard let conversation = self.conversation else { return }
         RealmDataBase.shared.refresh()
@@ -399,7 +423,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     //    @MainActor
-    func updateUnseenMessageCounterRemote()
+    func updateUnseenMessageCounterForAuthUserRemote()
     {
         guard let conversationID = self.conversation?.id else { return }
         let authUserID = self.authUser.uid
