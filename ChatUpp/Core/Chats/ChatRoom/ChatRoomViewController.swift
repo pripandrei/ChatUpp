@@ -185,7 +185,8 @@ final class ChatRoomViewController: UIViewController
                 guard let self = self else { return }
                 
                 var updateType = updateType
-                if case .none = updateType
+                let isUpdateAnimationNone = updateType == .none
+                if isUpdateAnimationNone
                 {
                     if !self.isFirstIndexPathVisible() {
                         updateType = .automatic
@@ -193,7 +194,9 @@ final class ChatRoomViewController: UIViewController
                 }
                 
                 self.dataSourceManager.configureSnapshot(animationType: updateType)
-                self.handleNewMessageDisplay()
+                if isUpdateAnimationNone {
+                    self.handleNewMessageDisplay()
+                }
                 
             }.store(in: &subscriptions)
         
@@ -562,9 +565,9 @@ extension ChatRoomViewController
         {
             Task {
                 await viewModel.updateRealmMessagesSeenStatus(startingFromMessage: unseenMessage)
-                viewModel.updateUnseenMessageCounterLocally()
+                viewModel.updateUnseenMessageCounterForAuthUserLocally()
                 viewModel.updateFirebaseMessagesSeenStatus(startingFrom: unseenMessage)
-                viewModel.updateUnseenMessageCounterRemote()
+                viewModel.updateUnseenMessageCounterForAuthUserRemote()
             }
         }
     }
