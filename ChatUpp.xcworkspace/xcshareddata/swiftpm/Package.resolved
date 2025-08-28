@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-  "originHash" : "88ae62bb24b81a0618071981be1340d34313792a812bfe42fdb5d17e9169b3f6",
-=======
-  "originHash" : "1d24902558aae3404dbfdb999ad5c050bc113bb9336f9c6c9188d9e18074eafa",
->>>>>>> feature/ChatRoom-implement-PhotoBrowser-for-message
+  "originHash" : "0d8e6c34e57788f5c834c74805198777fdc7a591cbd8d54305919af8554fe971",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -147,15 +143,6 @@
       "state" : {
         "revision" : "a0bc79961d7be727d258d33d5a6b2f1023270ba1",
         "version" : "1.22.5"
-      }
-    },
-    {
-      "identity" : "lightbox",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/hyperoslo/Lightbox.git",
-      "state" : {
-        "revision" : "398ee143f00bfc070023c155e6d088ffb399c8cb",
-        "version" : "2.5.1"
       }
     },
     {
