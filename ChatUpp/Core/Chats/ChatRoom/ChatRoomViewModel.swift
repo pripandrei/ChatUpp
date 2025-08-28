@@ -1469,6 +1469,7 @@ extension ChatRoomViewModel
                 messageListenerService?.addListenerToUpcomingMessages()
             }
         }
+        
         createMessageClustersWith(newMessages)
         return .didPaginate
     }
@@ -1476,6 +1477,22 @@ extension ChatRoomViewModel
     enum MessagesPaginationResult {
         case didPaginate
         case noMoreMessagesToPaginate
+    }
+}
+
+extension ChatRoomViewModel
+{
+    var mediaItems: [MediaItem]
+    {
+        return conversation!.conversationMessages
+            .filter("imagePath != nil")
+            .sorted(by: { $0.timestamp < $1.timestamp })
+            .compactMap { message in
+                guard let url = CacheManager.shared.getURL(for: message.imagePath!) else {return nil}
+                return MediaItem(
+                    imagePath: url,
+                    imageText: message.messageBody)
+            }
     }
 }
 

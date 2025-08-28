@@ -18,8 +18,11 @@ final class CacheManager
 //MARK: - Storage data cache
 extension CacheManager
 {
-    private var cacheDirectory: URL? {
-        return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+    private var cacheDirectory: URL?
+    {
+        return FileManager.default.urls(
+            for: .cachesDirectory,
+            in: .userDomainMask).first
     }
     
     func saveImageData(_ imageData: Data, toPath path: String)
@@ -49,8 +52,14 @@ extension CacheManager
     
     func doesImageExist(at path: String) -> Bool
     {
-        guard let pathURL = cacheDirectory?.appending(path: path) else {return false}
+        guard let pathURL = cacheDirectory?.appending(path: path)
+        else {return false}
         return FileManager.default.fileExists(atPath: pathURL.path())
+    }
+    
+    func getURL(for path: String) -> URL?
+    {
+        return cacheDirectory?.appending(path: path)
     }
 }
 

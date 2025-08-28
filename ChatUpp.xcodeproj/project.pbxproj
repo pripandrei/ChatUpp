@@ -10,6 +10,8 @@
 		75075F6D2E5DDEAC00DCA98F /* MessageLayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */; };
 		750F5BF12D9D5AE9007655F3 /* MessageEventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */; };
 		751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */; };
+		751598FC2E5F889200E22801 /* ImageBrowserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751598F72E5F886600E22801 /* ImageBrowserManager.swift */; };
+		751599022E5F899100E22801 /* SKPhotoBrowser in Frameworks */ = {isa = PBXBuildFile; productRef = 751599012E5F899100E22801 /* SKPhotoBrowser */; };
 		752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 752514B92D0CD2FF003330E7 /* Kingfisher */; };
 		7525150D2D0EE427003330E7 /* ProfileEditingListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */; };
 		752706522DAA6DEF002128DF /* TargetPreviewable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7527064D2DAA6DED002128DF /* TargetPreviewable.swift */; };
@@ -218,6 +220,7 @@
 		75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLayoutManager.swift; sourceTree = "<group>"; };
 		750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageEventTableViewCell.swift; sourceTree = "<group>"; };
 		751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesBadge.swift; sourceTree = "<group>"; };
+		751598F72E5F886600E22801 /* ImageBrowserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageBrowserManager.swift; sourceTree = "<group>"; };
 		7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingListCell.swift; sourceTree = "<group>"; };
 		7527064D2DAA6DED002128DF /* TargetPreviewable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetPreviewable.swift; sourceTree = "<group>"; };
 		752706542DAAF491002128DF /* ChatRoomNavigationBarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomNavigationBarViewModel.swift; sourceTree = "<group>"; };
@@ -372,6 +375,7 @@
 				757AB0E82BB9D70D00A64DA4 /* FirebaseDynamicLinks in Frameworks */,
 				75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */,
 				757AB0EA2BB9D70D00A64DA4 /* FirebaseFirestore in Frameworks */,
+				751599022E5F899100E22801 /* SKPhotoBrowser in Frameworks */,
 				756E6D1F2D8210890065CADB /* NVActivityIndicatorViewExtended in Frameworks */,
 				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */,
@@ -410,6 +414,14 @@
 				751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */,
 			);
 			path = "Custom Views";
+			sourceTree = "<group>";
+		};
+		751598FF2E5F88A000E22801 /* ImageBrowser */ = {
+			isa = PBXGroup;
+			children = (
+				751598F72E5F886600E22801 /* ImageBrowserManager.swift */,
+			);
+			path = ImageBrowser;
 			sourceTree = "<group>";
 		};
 		752706532DAAF477002128DF /* ViewModels */ = {
@@ -501,6 +513,7 @@
 		7543BE312ACC879D003001BF /* ChatRoom */ = {
 			isa = PBXGroup;
 			children = (
+				751598FF2E5F88A000E22801 /* ImageBrowser */,
 				759894B42E4E74B3003CF661 /* Builders */,
 				752706562DAB1A6D002128DF /* ServiceMediators */,
 				756E6D222D88A5A00065CADB /* ChatRoomInformation */,
@@ -1116,6 +1129,7 @@
 				756E6D152D820D1F0065CADB /* ActivityIndicatorView */,
 				756E6D1C2D8210890065CADB /* NVActivityIndicatorView */,
 				756E6D1E2D8210890065CADB /* NVActivityIndicatorViewExtended */,
+				751599012E5F899100E22801 /* SKPhotoBrowser */,
 			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
@@ -1155,6 +1169,7 @@
 				75A086142D19619E00DE5333 /* XCRemoteSwiftPackageReference "TOCropViewController" */,
 				756E6D142D820D1F0065CADB /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */,
 				756E6D1B2D8210890065CADB /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */,
+				751599002E5F899100E22801 /* XCRemoteSwiftPackageReference "SKPhotoBrowser" */,
 			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
@@ -1350,6 +1365,7 @@
 				75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */,
 				75BA7E4F2D34AE0C00A4C508 /* IndexPath+Extensions.swift in Sources */,
 				753185E92C22123300C4F9F4 /* UIButton + extensions.swift in Sources */,
+				751598FC2E5F889200E22801 /* ImageBrowserManager.swift in Sources */,
 				7527068A2DAEB37B002128DF /* ReactionPanelView.swift in Sources */,
 				75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */,
 				756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */,
@@ -1568,6 +1584,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		751599002E5F899100E22801 /* XCRemoteSwiftPackageReference "SKPhotoBrowser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/suzuki-0000/SKPhotoBrowser.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.1.0;
+			};
+		};
 		752514B82D0CD2FF003330E7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -1643,6 +1667,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		751599012E5F899100E22801 /* SKPhotoBrowser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 751599002E5F899100E22801 /* XCRemoteSwiftPackageReference "SKPhotoBrowser" */;
+			productName = SKPhotoBrowser;
+		};
 		752514B92D0CD2FF003330E7 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 752514B82D0CD2FF003330E7 /* XCRemoteSwiftPackageReference "Kingfisher" */;

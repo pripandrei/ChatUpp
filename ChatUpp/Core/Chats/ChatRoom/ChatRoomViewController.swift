@@ -15,7 +15,7 @@ import Photos
 import PhotosUI
 import Combine
 import SkeletonView
-
+import SKPhotoBrowser
 
 final class ChatRoomViewController: UIViewController
 {
@@ -48,6 +48,8 @@ final class ChatRoomViewController: UIViewController
         checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
     }
     
+    lazy private var photoBrowser: SKPhotoBrowserManager = SKPhotoBrowserManager()
+    
     //MARK: - Lifecycle
     
     convenience init(conversationViewModel: ChatRoomViewModel) {
@@ -63,6 +65,13 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
+//        executeAfter(seconds: 4.0) {
+//            print("open browser")
+//            self.photoBrowser.presentPhotoBrowser(
+//                on: self,
+//                usingItems: self.viewModel.mediaItems
+//            )
+//        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -945,7 +954,7 @@ extension ChatRoomViewController {
 }
 
 
-//MARK: - TABLE  DELEGATE
+//MARK: - TABLE DELEGATE
 extension ChatRoomViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView?
@@ -997,6 +1006,31 @@ extension ChatRoomViewController: UITableViewDelegate
                 paginateIfNeeded(ascending: false)
             }
         }
+    }
+    
+    func tableView(_ tableView: UITableView,
+                   didSelectRowAt indexPath: IndexPath)
+    {
+        tableView.deselectRow(at: indexPath, animated: false)
+        
+        guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return}
+        
+        initiatePhotoBrowserPresentation(from: cell)
+    }
+    
+    private func initiatePhotoBrowserPresentation(from cell: MessageTableViewCell)
+    {
+        let imageView = cell.containerStackView.messageImageView
+        let items = self.viewModel.mediaItems
+        
+        let initialIndex = items.firstIndex { $0.imagePath.lastPathComponent == cell.cellViewModel.message?.imagePath }
+         
+        self.photoBrowser.presentPhotoBrowser(
+            on: self,
+            usingItems: items,
+            initialIndex: initialIndex ?? 0,
+            originImageView: imageView
+        )
     }
     
     func globalIndex(for indexPath: IndexPath, in groupedData: [[ChatRoomViewModel.MessageItem]]) -> Int?
