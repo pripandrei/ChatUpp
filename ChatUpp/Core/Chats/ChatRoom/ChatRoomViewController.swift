@@ -65,13 +65,6 @@ final class ChatRoomViewController: UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         setupController()
-//        executeAfter(seconds: 4.0) {
-//            print("open browser")
-//            self.photoBrowser.presentPhotoBrowser(
-//                on: self,
-//                usingItems: self.viewModel.mediaItems
-//            )
-//        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -1015,7 +1008,9 @@ extension ChatRoomViewController: UITableViewDelegate
         
         guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return}
         
-        initiatePhotoBrowserPresentation(from: cell)
+        if cell.cellViewModel.message?.imagePath != nil {
+            initiatePhotoBrowserPresentation(from: cell)
+        }
     }
     
     private func initiatePhotoBrowserPresentation(from cell: MessageTableViewCell)
