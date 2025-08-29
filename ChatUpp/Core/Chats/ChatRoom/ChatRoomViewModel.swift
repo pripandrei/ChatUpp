@@ -161,9 +161,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         if !conversation.isGroup {
             self.participant = getPrivateChatMember(from: conversation)
         }
-        // REVERT BACK
+        
         bindToMessages()
-//        bindToDeletedMessages()
+        bindToDeletedMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
 //       testMessagesCountAndUnseenCount() //
@@ -997,77 +997,8 @@ extension ChatRoomViewModel
         await self.handleAddedMessages(Array(filteredAdded))
         await self.handleModifiedMessage(Array(filteredModified))
         
-        // Process changes in order: remove, modify, add
-//        let removedTypes = await processRemovedMessages(removedMessages)
-//        let modifiedTypes = await processModifiedMessages(filteredModified)
-//        let addedTypes = await processAddedMessages(filteredAdded)
-        
-        // Combine all changes and update
-//        let allChanges: Set<MessageChangeType> = removedTypes.union(modifiedTypes.union(addedTypes))
-//        
-//        self.messageChangedTypes = allChanges
-//        self.updatedItems = []
-
-//         Clear processed messages
         self.messageListenerService?.updatedMessages.removeAll()
     }
-
-//    @MainActor
-//    private func processRemovedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
-//    {
-//        let sortedIndexPaths = messages
-//            .compactMap { self.indexPath(of: $0) }
-//            .sorted(by: >)
-//        let changeTypes = sortedIndexPaths.compactMap { self.handleRemovedMessage(at: $0) }
-//        return Set(changeTypes)
-//    }
-
-//    @MainActor
-//    private func processModifiedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
-//    {
-//        return Set(messages.compactMap { message in
-//            guard let indexPath = self.indexPath(of: message) else { return nil }
-//            return self.handleModifiedMessage(message, at: indexPath)
-//        })
-//    }
-//
-//    @MainActor
-//    private func processAddedMessages(_ messages: Set<Message>) async -> Set<MessageChangeType>
-//    {
-//        // Separate messages that already exist vs new ones
-//        let (existingMessages, newMessages) = messages.reduce(into: ([Message](), [Message]())) { result, message in
-//            if let dbMessage = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: message.id)
-//            {
-//                /// See FootNote.swift [12]
-//                var updatedMessage = message
-//                if (dbMessage.messageSeen == true && message.messageSeen == false) ||  (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
-//                {
-//                    updatedMessage = message.updateSeenStatus(seenStatus: true)
-//                }
-//                result.0.append(updatedMessage)
-//            } else {
-//                result.1.append(message)
-//            }
-//        }
-//        
-//        // Add existing messages to database
-//        if !existingMessages.isEmpty
-//        {
-//            RealmDataBase.shared.add(objects: existingMessages)
-//        }
-//        
-////        // Process new messages concurrently
-//        await self.handleAddedMessage(newMessages)
-//
-//        // Create change types for all added messages
-//        return Set(newMessages
-//            .compactMap { newMessage in
-//                //TODO: check if messages are paginated up to most recent one
-//                self.indexPath(of: newMessage)
-//            }
-//            .map { MessageChangeType.added($0) })
-//    }
-    
 
     /// Use this variable before updating realm with new message
     var isMostRecentMessagePaginated: Bool
@@ -1164,30 +1095,12 @@ extension ChatRoomViewModel
     }
     
     @MainActor
-    func handleModifiedMessage(_ messages: [Message]) /*-> MessageChangeType?*/
+    func handleModifiedMessage(_ messages: [Message])
     {
         guard !messages.isEmpty else {return}
-//        guard let cellVM = messageClusters.getCellViewModel(at: indexPath),
-//              let modificationValue = cellVM.getModifiedValueOfMessage(message)
-//        else { return nil }
-//        var modifiedVMs = [MessageCellViewModel]()
+        
+        /// Message update is handled from within cell
         RealmDataBase.shared.add(objects: messages)
-//        for message in messages {
-//            let day = message.timestamp.formatToYearMonthDay()
-//            guard let clusterIdx = messageClusters.firstIndex(where: { $0.date == day }) else { return }
-//            
-//            guard let itemIdx = messageClusters[clusterIdx].items.firstIndex(where: { $0.message?.id == message.id }) else { return }
-//            
-//            let vm = MessageCellViewModel(message: message)
-////            messageClusters[clusterIdx].items[itemIdx].updateMessage(message)
-//            messageClusters[clusterIdx].items[itemIdx] = vm
-////            let vm = messageClusters[clusterIdx].items[itemIdx]
-//            modifiedVMs.append(vm)
-//        }
-//        let items = MessagesUpdateType.updated(modifiedVMs)
-//        self.updatedItems2 = items
-//        realmService?.updateMessage(message)
-//        return .modified(indexPath, modificationValue)
     }
 
     
@@ -1300,10 +1213,10 @@ extension ChatRoomViewModel
         guard let conversation = conversation else { return [] }
 
         // TODO: - Remove after testing done
-        var limit = 20
+        var limit = 10
         
         if strategy != nil {
-            limit = 25
+            limit = 10
         }
         
         let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy

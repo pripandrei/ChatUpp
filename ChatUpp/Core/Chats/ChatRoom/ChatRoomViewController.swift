@@ -920,24 +920,53 @@ extension ChatRoomViewController
 extension ChatRoomViewController {
     
     private func addGestureToTableView() {
-        let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
-        tap.cancelsTouchesInView = false
-        rootView.tableView.addGestureRecognizer(tap)
+//        let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
+//        tap.cancelsTouchesInView = false
+//        rootView.tableView.addGestureRecognizer(tap)
         
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTablePan))
         panGesture.delegate = self
         rootView.tableView.addGestureRecognizer(panGesture)
     }
+    
     private func addGestureToCloseBtn() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeInputBarHeaderView))
         rootView.inputBarHeader?.closeInputBarHeaderView?.addGestureRecognizer(tapGesture)
    }
     
-    @objc func resignKeyboard() {
-        if rootView.messageTextView.isFirstResponder {
-            rootView.messageTextView.resignFirstResponder()
+    private func resignKeyboard()
+    {
+        if self.rootView.messageTextView.isFirstResponder {
+            self.rootView.messageTextView.resignFirstResponder()
         }
     }
+    
+    @objc func resignKeyboard(_ sender: UITapGestureRecognizer)
+    {
+//        let table =  self.rootView.tableView
+//        let location = sender.location(in: table)
+//        
+//        if let indexPath = table.indexPathForRow(at: location),
+//           let cell = table.cellForRow(at: indexPath) as? MessageTableViewCell
+//        {
+////            cell.containerStackView.messageImageView.convert(cell.containerStackView.messageImageView.bounds, to: cell.contentView).contains(pointInCell)
+//            let pointInCell = sender.location(in: cell.contentView)
+//            if cell.containerStackView.frame.contains(pointInCell)
+//            {
+//                print("Tapped image")
+//                if cell.cellViewModel.message?.imagePath != nil {
+//                    initiatePhotoBrowserPresentation(from: cell)
+//                }
+//            }
+//        }
+//
+//        executeAfter(seconds: 0.1) {
+//            if self.rootView.messageTextView.isFirstResponder {
+//                self.rootView.messageTextView.resignFirstResponder()
+//            }
+//        }
+    }
+    
     @objc func closeInputBarHeaderView() {
         if rootView.inputBarHeader != nil {
             viewModel.resetCurrentReplyMessageIfNeeded()
@@ -1008,8 +1037,35 @@ extension ChatRoomViewController: UITableViewDelegate
         
         guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return}
         
-        if cell.cellViewModel.message?.imagePath != nil {
-            initiatePhotoBrowserPresentation(from: cell)
+//        let table =  self.rootView.tableView
+//        let location = sender.location(in: table)
+//        
+//        if let indexPath = table.indexPathForRow(at: location),
+//           let cell = table.cellForRow(at: indexPath) as? MessageTableViewCell
+//        {
+////            cell.containerStackView.messageImageView.convert(cell.containerStackView.messageImageView.bounds, to: cell.contentView).contains(pointInCell)
+//            let pointInCell = sender.location(in: cell.contentView)
+//            if cell.containerStackView.frame.contains(pointInCell)
+//            {
+//                print("Tapped image")
+//                if cell.cellViewModel.message?.imagePath != nil {
+//                    initiatePhotoBrowserPresentation(from: cell)
+//                }
+//            }
+//        }
+//
+        
+        if let touchLocation = tableView.panGestureRecognizer.location(in: cell) as CGPoint?
+        {
+            resignKeyboard()
+            
+            if cell.containerStackView.frame.contains(touchLocation)
+            {
+                if cell.cellViewModel.message?.imagePath != nil
+                {
+                    initiatePhotoBrowserPresentation(from: cell)
+                }
+            }
         }
     }
     

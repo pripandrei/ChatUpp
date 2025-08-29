@@ -580,13 +580,14 @@ extension FirebaseChatService
         
         var query: Query = chatDocument(documentPath: chatID)
             .collection(FirestoreCollection.messages.rawValue)
-            .order(by: Message.CodingKeys.timestamp.rawValue, descending: !ascending)
+            .order(by: Message.CodingKeys.timestamp.rawValue,
+                   descending: !ascending)
         
         query = document.exists ? query.start(atDocument: document) : query.start(after: [timestamp])
         
         let listener = query
             .limit(to: limit)
-            .addSnapshotListener() { snapshot, error in
+            .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
 

@@ -237,15 +237,18 @@ class ChatCell: UITableViewCell {
                 }
             }.store(in: &subscriptions)
         
-        cellViewModel.$isParticipantActive
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isActive in
-                guard let self else {return}
-                guard let isActive else {return}
-                
-                self.onlineStatusCircleView.isHidden = !isActive
-                self.onlineStatusBorderView.isHidden = !isActive
-            }.store(in: &subscriptions)
+        if !cellViewModel.chat.isGroup
+        {
+            cellViewModel.$isParticipantActive
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] isActive in
+                    guard let self else {return}
+                    guard let isActive else {return}
+                    
+                    self.onlineStatusCircleView.isHidden = !isActive
+                    self.onlineStatusBorderView.isHidden = !isActive
+                }.store(in: &subscriptions)
+        }
         
         cellViewModel.$chat
             .receive(on: DispatchQueue.main)
