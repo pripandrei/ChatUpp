@@ -262,6 +262,13 @@ final class ChatRoomViewController: UIViewController
 //        customNavigationBar = nil
     }
     
+    private func resignKeyboard()
+    {
+        if self.rootView.messageTextView.isFirstResponder {
+            self.rootView.messageTextView.resignFirstResponder()
+        }
+    }
+    
     private func updateInputBarBottomConstraint(toSize size: CGFloat) {
         self.rootView.inputBarBottomConstraint.constant = size
         view.layoutIfNeeded()
@@ -919,11 +926,8 @@ extension ChatRoomViewController
 //MARK: - GESTURES
 extension ChatRoomViewController {
     
-    private func addGestureToTableView() {
-//        let tap = UITapGestureRecognizer(target: self, action: #selector(resignKeyboard))
-//        tap.cancelsTouchesInView = false
-//        rootView.tableView.addGestureRecognizer(tap)
-        
+    private func addGestureToTableView()
+    {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTablePan))
         panGesture.delegate = self
         rootView.tableView.addGestureRecognizer(panGesture)
@@ -933,39 +937,6 @@ extension ChatRoomViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeInputBarHeaderView))
         rootView.inputBarHeader?.closeInputBarHeaderView?.addGestureRecognizer(tapGesture)
    }
-    
-    private func resignKeyboard()
-    {
-        if self.rootView.messageTextView.isFirstResponder {
-            self.rootView.messageTextView.resignFirstResponder()
-        }
-    }
-    
-    @objc func resignKeyboard(_ sender: UITapGestureRecognizer)
-    {
-//        let table =  self.rootView.tableView
-//        let location = sender.location(in: table)
-//        
-//        if let indexPath = table.indexPathForRow(at: location),
-//           let cell = table.cellForRow(at: indexPath) as? MessageTableViewCell
-//        {
-////            cell.containerStackView.messageImageView.convert(cell.containerStackView.messageImageView.bounds, to: cell.contentView).contains(pointInCell)
-//            let pointInCell = sender.location(in: cell.contentView)
-//            if cell.containerStackView.frame.contains(pointInCell)
-//            {
-//                print("Tapped image")
-//                if cell.cellViewModel.message?.imagePath != nil {
-//                    initiatePhotoBrowserPresentation(from: cell)
-//                }
-//            }
-//        }
-//
-//        executeAfter(seconds: 0.1) {
-//            if self.rootView.messageTextView.isFirstResponder {
-//                self.rootView.messageTextView.resignFirstResponder()
-//            }
-//        }
-    }
     
     @objc func closeInputBarHeaderView() {
         if rootView.inputBarHeader != nil {
@@ -1036,24 +1007,6 @@ extension ChatRoomViewController: UITableViewDelegate
         tableView.deselectRow(at: indexPath, animated: false)
         
         guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return}
-        
-//        let table =  self.rootView.tableView
-//        let location = sender.location(in: table)
-//        
-//        if let indexPath = table.indexPathForRow(at: location),
-//           let cell = table.cellForRow(at: indexPath) as? MessageTableViewCell
-//        {
-////            cell.containerStackView.messageImageView.convert(cell.containerStackView.messageImageView.bounds, to: cell.contentView).contains(pointInCell)
-//            let pointInCell = sender.location(in: cell.contentView)
-//            if cell.containerStackView.frame.contains(pointInCell)
-//            {
-//                print("Tapped image")
-//                if cell.cellViewModel.message?.imagePath != nil {
-//                    initiatePhotoBrowserPresentation(from: cell)
-//                }
-//            }
-//        }
-//
         
         if let touchLocation = tableView.panGestureRecognizer.location(in: cell) as CGPoint?
         {
@@ -1194,51 +1147,51 @@ extension ChatRoomViewController: UITableViewDelegate
 }
 
 ////MARK: - SCROLL VIEW DELEGATE
-//extension ChatRoomViewController: UIScrollViewDelegate
-//{
-//    func scrollViewDidScroll(_ scrollView: UIScrollView)
-//    {
-//        /// See FootNote.swift [13]
-//        if shouldIgnoreUnseenMessagesUpdate
-//        {
-//            self.pendingIndexPathForSeenStatusCheck = nil
-//            return
-//        }
-//        /// find min index path, to update all descending messages from it
-//        findMinimalVisibleIndexPath()
-//        
-//        /// fire updates every > 0.1 time
+extension ChatRoomViewController: UIScrollViewDelegate
+{
+    func scrollViewDidScroll(_ scrollView: UIScrollView)
+    {
+        /// See FootNote.swift [13]
+        if shouldIgnoreUnseenMessagesUpdate
+        {
+            self.pendingIndexPathForSeenStatusCheck = nil
+            return
+        }
+        /// find min index path, to update all descending messages from it
+        findMinimalVisibleIndexPath()
+        
+        /// fire updates every > 0.1 time
 //        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.1
 //        {
 //            self.lastSeenStatusCheckUpdate = Date()
 //
 //            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
 //        }
-//
-//        /// Toggle scrollToBottom badge
-//        isLastCellFullyVisible ?
-//        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
-//        :
-//        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-//    }
-//    
-//    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-//        toggleSectionHeaderVisibility(isScrollActive: true)
-//    }
-//    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
-//    {
-//        
-//        toggleSectionHeaderVisibility(isScrollActive: false)
-//    }
-//    
-//    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool)
-//    {
+
+        /// Toggle scrollToBottom badge
+        isLastCellFullyVisible ?
+        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
+        :
+        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        toggleSectionHeaderVisibility(isScrollActive: true)
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
+    {
+        toggleSectionHeaderVisibility(isScrollActive: false)
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool)
+    {
 //        self.lastSeenStatusCheckUpdate = Date()
 //        if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
 //        
-//        toggleSectionHeaderVisibility(isScrollActive: decelerate)
-//    }
-//}
+        toggleSectionHeaderVisibility(isScrollActive: decelerate)
+    }
+}
 
 //MARK: - ScrollView helper functions
 extension ChatRoomViewController
