@@ -1094,7 +1094,7 @@ extension ChatRoomViewController: UITableViewDelegate
         to contentOffsetY: CGFloat,
         visibleCell: MessageTableViewCell?)
     {
-        if self.rootView.tableView.contentOffset.y < -97.5
+        if self.rootView.tableView.contentOffset.y < -90.0
         {
             if let visibleCell = visibleCell,
                let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
@@ -1129,6 +1129,7 @@ extension ChatRoomViewController: UITableViewDelegate
                         animationType: .automatic)
                     {
                         self.shouldIgnoreUnseenMessagesUpdate = false
+
                         self.offsetTableContentOnPaginationCompletion(
                             to: currentOffsetY,
                             visibleCell: visibleCell)
@@ -1181,6 +1182,16 @@ extension ChatRoomViewController: UIScrollViewDelegate
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
     {
+        /// This code is a workaround to avoid content offset shift on new rows/sections insertion
+        /// EXPLANETION:
+        /// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
+        /// tableView will animate scrolling to the last inserted cell, we want this to avoid,
+        /// So we offset a bit content, which will result in content remaining at the same position after insertion
+//        if self.rootView.tableView.contentOffset.y <= -91 {
+////        if self.rootView.tableView.contentOffset.y <= -97.5 {
+//            self.rootView.tableView.contentOffset.y += 0.2
+//        }
+        
         toggleSectionHeaderVisibility(isScrollActive: false)
     }
     

@@ -133,8 +133,6 @@
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
 		75CC9FE62D594042002051EB /* ColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorManager.swift */; };
-		75D08B9C2BEFDCB1000AE1B5 /* YYText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08B952BEFDC8D000AE1B5 /* YYText.framework */; };
-		75D08B9D2BEFDCB1000AE1B5 /* YYText.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08B952BEFDC8D000AE1B5 /* YYText.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
 		75D08BAA2BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */; };
@@ -170,26 +168,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		75D08B942BEFDC8D000AE1B5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 753D3FF42BEFC1DB00BA26A4 /* YYText.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D918BFD61F372E3000106E14;
-			remoteInfo = YYText;
-		};
 		75D08B9A2BEFDC9E000AE1B5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D918BFD61F372E3000106E14;
 			remoteInfo = YYText;
-		};
-		75D08BA12BEFDCE9000AE1B5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 753D3FFA2BEFC23700BA26A4 /* FlagPhoneNumber.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0DF48B3922917047006AB39C;
-			remoteInfo = FlagPhoneNumber;
 		};
 		75D08BA72BEFDCF4000AE1B5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -209,7 +193,6 @@
 			files = (
 				75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */,
 				75D08BAA2BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Embed Frameworks */,
-				75D08B9D2BEFDCB1000AE1B5 /* YYText.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -238,8 +221,6 @@
 		7533D9B72B1659210057EBC7 /* PhoneSignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSignInViewController.swift; sourceTree = "<group>"; };
 		7533D9BA2B167ED80057EBC7 /* PhoneSigninViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSigninViewModel.swift; sourceTree = "<group>"; };
 		753D0B682AC1FA6100C22AC4 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
-		753D3FF42BEFC1DB00BA26A4 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = SOURCE_ROOT; };
-		753D3FFA2BEFC23700BA26A4 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = SOURCE_ROOT; };
 		7541615B2ABDDABC007CF0FA /* EmailCredentialsValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailCredentialsValidator.swift; sourceTree = "<group>"; };
 		7541EF062D8B6EFC00ABC8BA /* ChatRoomInformationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomInformationViewModel.swift; sourceTree = "<group>"; };
 		7543BE292ACB0EDA003001BF /* FirebaseChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseChatService.swift; sourceTree = "<group>"; };
@@ -380,7 +361,6 @@
 				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */,
 				757AB0EE2BB9D70D00A64DA4 /* FirebaseFirestoreSwift in Frameworks */,
-				75D08B9C2BEFDCB1000AE1B5 /* YYText.framework in Frameworks */,
 				757AB1012BB9D85100A64DA4 /* SkeletonView in Frameworks */,
 				757AB0F62BB9D70D00A64DA4 /* FirebaseStorageCombine-Community in Frameworks */,
 				757AB0F22BB9D70D00A64DA4 /* FirebaseInstallations in Frameworks */,
@@ -481,15 +461,6 @@
 				75DD0AEC2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift */,
 			);
 			path = PhoneSignin;
-			sourceTree = "<group>";
-		};
-		753D3FF32BEFC16200BA26A4 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				753D3FFA2BEFC23700BA26A4 /* FlagPhoneNumber.xcodeproj */,
-				753D3FF42BEFC1DB00BA26A4 /* YYText.xcodeproj */,
-			);
-			path = Frameworks;
 			sourceTree = "<group>";
 		};
 		7541EF002D8B6EEC00ABC8BA /* ViewModels */ = {
@@ -819,7 +790,6 @@
 			isa = PBXGroup;
 			children = (
 				75B5C4B82A49AB0A00F63A5A /* ChatUpp */,
-				753D3FF32BEFC16200BA26A4 /* Frameworks */,
 				75B5C4B72A49AB0A00F63A5A /* Products */,
 				754E56062BBA158E008F8E8A /* Frameworks */,
 			);
@@ -895,26 +865,10 @@
 			path = "Firebase storage";
 			sourceTree = "<group>";
 		};
-		75D08B912BEFDC8D000AE1B5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				75D08B952BEFDC8D000AE1B5 /* YYText.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		75D08B972BEFDC9E000AE1B5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				75D08B9B2BEFDC9E000AE1B5 /* YYText.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		75D08B9E2BEFDCE9000AE1B5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				75D08BA22BEFDCE9000AE1B5 /* FlagPhoneNumber.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1179,14 +1133,6 @@
 					ProjectRef = 75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */;
 				},
 				{
-					ProductGroup = 75D08B9E2BEFDCE9000AE1B5 /* Products */;
-					ProjectRef = 753D3FFA2BEFC23700BA26A4 /* FlagPhoneNumber.xcodeproj */;
-				},
-				{
-					ProductGroup = 75D08B912BEFDC8D000AE1B5 /* Products */;
-					ProjectRef = 753D3FF42BEFC1DB00BA26A4 /* YYText.xcodeproj */;
-				},
-				{
 					ProductGroup = 75D08B972BEFDC9E000AE1B5 /* Products */;
 					ProjectRef = 75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */;
 				},
@@ -1199,25 +1145,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		75D08B952BEFDC8D000AE1B5 /* YYText.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = YYText.framework;
-			remoteRef = 75D08B942BEFDC8D000AE1B5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		75D08B9B2BEFDC9E000AE1B5 /* YYText.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = YYText.framework;
 			remoteRef = 75D08B9A2BEFDC9E000AE1B5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		75D08BA22BEFDCE9000AE1B5 /* FlagPhoneNumber.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = FlagPhoneNumber.framework;
-			remoteRef = 75D08BA12BEFDCE9000AE1B5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */ = {
