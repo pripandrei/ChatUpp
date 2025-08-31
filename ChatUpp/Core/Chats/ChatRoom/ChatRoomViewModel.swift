@@ -363,6 +363,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             await saveImagesRemotelly(fromImageRepository: imageRepository,
                                       for: message.id)
         }
+        
         await firestoreService?.addMessageToFirestoreDataBase(message)
 //        updateUnseenMessageCounterRemote(shouldIncrement: true)
 //        updateUnseenMessageCounterForAuthUserRemote()
