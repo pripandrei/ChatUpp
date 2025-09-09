@@ -7,6 +7,9 @@
 
 import UIKit
 import SwiftUICore
+import SwiftUI
+import SDWebImageWebPCoder
+
 //import FirebaseDatabase
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -25,7 +28,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         coordinator = MainCoordinator(tabBar: tabBarController)
         
+        let WebPCoder = SDImageWebPCoder.shared
+        SDImageCodersManager.shared.addCoder(WebPCoder)
+        
+        let stickerVC = UIHostingController(rootView: StickersPackCollectionView())
+        
         window?.rootViewController = tabBarController
+//        window?.rootViewController = stickerVC
         window?.makeKeyAndVisible()
         
         coordinator?.start()

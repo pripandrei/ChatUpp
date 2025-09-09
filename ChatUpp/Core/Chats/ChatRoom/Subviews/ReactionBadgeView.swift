@@ -48,7 +48,8 @@ struct ReactionBadgeView: View
         .onTapGesture {
             showReactionPresentationSheet = true
         }
-        .sheet(isPresented: $showReactionPresentationSheet, content: {
+        .sheet(isPresented: $showReactionPresentationSheet,
+               content: {
             ReactionPresentationSheetView(viewModel: viewModel)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)

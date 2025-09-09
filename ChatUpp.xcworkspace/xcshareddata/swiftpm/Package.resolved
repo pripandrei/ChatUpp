@@ -1,5 +1,5 @@
 {
-  "originHash" : "e3d6032e5b758e32af83d72b87d1e45204e7b023ff26c8f90eeb92dc46b8d921",
+  "originHash" : "fa19e130dd3a01fb7aeaf2d006720273a4306b708571fe20f6edad3be17270d1",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -155,6 +155,24 @@
       }
     },
     {
+      "identity" : "librlottie-xcode",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/librlottie-Xcode.git",
+      "state" : {
+        "revision" : "4ae1ba205910c804ee2d4cd7dd7f122964fe3aad",
+        "version" : "0.2.1"
+      }
+    },
+    {
+      "identity" : "libwebp-xcode",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/libwebp-Xcode.git",
+      "state" : {
+        "revision" : "0d60654eeefd5d7d2bef3835804892c40225e8b2",
+        "version" : "1.5.0"
+      }
+    },
+    {
       "identity" : "lottie-spm",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/airbnb/lottie-spm.git",
@@ -206,6 +224,33 @@
       "state" : {
         "branch" : "master",
         "revision" : "7ffcc1165fe335b793f59c5a4ff0d472fcc1625a"
+      }
+    },
+    {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "34cf2423a2c4088d06a3b08655603b5bc3eeeb3a",
+        "version" : "5.21.2"
+      }
+    },
+    {
+      "identity" : "sdwebimageswiftui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImageSwiftUI.git",
+      "state" : {
+        "revision" : "451c6dfd5ecec2cf626d1d9ca81c2d4a60355172",
+        "version" : "3.1.3"
+      }
+    },
+    {
+      "identity" : "sdwebimagewebpcoder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImageWebPCoder.git",
+      "state" : {
+        "revision" : "f534cfe830a7807ecc3d0332127a502426cfa067",
+        "version" : "0.14.6"
       }
     },
     {
