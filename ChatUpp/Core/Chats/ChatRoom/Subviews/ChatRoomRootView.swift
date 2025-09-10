@@ -89,13 +89,11 @@ final class ChatRoomRootView: UIView {
     
 //    private lazy var textViewTrailingItemViewHostingView: UIView?
     
-    private(set) var textViewTrailingItem: MessageTextViewTrailingItemView = {
-//        let textViewTrailingItem = MessageTextViewTrailingItemView()
-//        let hostingVC = UIHostingController(rootView: textViewTrailingItem)
-//        return hostingVC.view
-        let item = MessageTextViewTrailingItemView()
-        return item
-    }()
+    private(set) var textViewTrailingItem: MessageTextViewTrailingItemView!
+//    private(set) var textViewTrailingItem: MessageTextViewTrailingItemView = {
+//        let item = MessageTextViewTrailingItemView()
+//        return item
+//    }()
     
     private(set) var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
@@ -198,7 +196,6 @@ final class ChatRoomRootView: UIView {
     {
         super.init(frame: frame)
         setupLayout()
-        setupBindings()
     }
     
     required init?(coder: NSCoder) {
@@ -213,20 +210,20 @@ final class ChatRoomRootView: UIView {
         scrollBadgeButton.layer.cornerRadius = scrollBadgeButton.bounds.size.width / 2
     }
     
-    private func setupBindings()
-    {
-        textViewTrailingItem.onTrailingItemChange = { item in
-            switch item
-            {
-            case .stickerItem: self.initiateStickersViewSetup()
-            case .keyboardItem: self.initiateKeyboard()
-            }
-        }
-    }
-    
     private func initiateStickersViewSetup()
     {
+        let stickerCollectionView = StickersCollectionView()
+        addSubview(stickerCollectionView)
+        stickerCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
+        NSLayoutConstraint.activate([
+            stickerCollectionView.topAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -25),
+            stickerCollectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            stickerCollectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+        ])
+        
+        inputBarBottomConstraint.constant = -336
     }
     
     private func initiateKeyboard()
@@ -249,31 +246,38 @@ final class ChatRoomRootView: UIView {
         setupUnseenMessageCounterBadgeConstraints()
         setupJoinChatRoomButtonConstraints()
         setupActivityIndicatorConstraint()
-        setupTextViewTrailingItemConstraints()
+        setupTextViewTrailingItem()
 //        setupUnseenMessagesBadgeConstraints()
     }
     
-    private func setupTextViewTrailingItemConstraints2()
-    {
-        let textViewTrailingItem = MessageTextViewTrailingItemView()
-        let hostingVC = UIHostingController(rootView: textViewTrailingItem)
-        let tailingView = hostingVC.view!
-        inputBarContainer.addSubview(tailingView)
-        tailingView.backgroundColor = .clear
-        tailingView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
-            tailingView.heightAnchor.constraint(equalTo: messageTextView.heightAnchor, multiplier: 0.75),
-//            tailingView.widthAnchor.constraint(equalTo: tailingView.heightAnchor),
-//            tailingView.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -8),
-        ])
-    }
+//    private func setupTextViewTrailingItemConstraints2()
+//    {
+////        let textViewTrailingItem = MessageTextViewTrailingItemView()
+//        let hostingVC = UIHostingController(rootView: self.textViewTrailingItem)
+//        let tailingView = hostingVC.view!
+//        inputBarContainer.addSubview(tailingView)
+//        tailingView.backgroundColor = .clear
+//        tailingView.translatesAutoresizingMaskIntoConstraints = false
+//        
+//        NSLayoutConstraint.activate([
+//            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
+//            tailingView.heightAnchor.constraint(equalTo: messageTextView.heightAnchor, multiplier: 0.75),
+////            tailingView.widthAnchor.constraint(equalTo: tailingView.heightAnchor),
+////            tailingView.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -8),
+//        ])
+//    }
     
-    private func setupTextViewTrailingItemConstraints()
+    private func setupTextViewTrailingItem()
     {
-        let textViewTrailingItem = MessageTextViewTrailingItemView()
-        let hostingVC = UIHostingController(rootView: textViewTrailingItem)
+        self.textViewTrailingItem = MessageTextViewTrailingItemView { item in
+            switch item
+            {
+            case .stickerItem: self.initiateStickersViewSetup()
+            case .keyboardItem: self.initiateKeyboard()
+            }
+        }
+//        let textViewTrailingItem = MessageTextViewTrailingItemView()
+        let hostingVC = UIHostingController(rootView: self.textViewTrailingItem)
         let tailingView = hostingVC.view!
         tailingView.backgroundColor = .clear
         

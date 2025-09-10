@@ -40,7 +40,8 @@ import SwiftUI
 struct MessageTextViewTrailingItemView: View, MessageTextViewTrailingItemProtocol
 {
     @State var textViewTrailingItem: MessageTextViewTrailingItem = .stickerItem
-    var onTrailingItemChange: ((MessageTextViewTrailingItem) -> Void)?
+//    @Binding var textViewTrwailingItem: MessageTextViewTrailingItem
+    var onTrailingItemChange: (MessageTextViewTrailingItem) -> Void
     
     var body: some View
     {
@@ -62,7 +63,7 @@ extension MessageTextViewTrailingItemView
     private func StickerButton() -> some View
     {
         Button {
-            onTrailingItemChange?(textViewTrailingItem)
+            onTrailingItemChange(textViewTrailingItem)
             toggleTextViewItem()
         }
         label: {
@@ -73,7 +74,7 @@ extension MessageTextViewTrailingItemView
     private func KeyboardButton() -> some View
     {
         Button {
-            onTrailingItemChange?(textViewTrailingItem)
+            onTrailingItemChange(textViewTrailingItem)
             toggleTextViewItem()
         }
         label: {
@@ -102,5 +103,5 @@ enum MessageTextViewTrailingItem
 }
 
 #Preview {
-    MessageTextViewTrailingItemView()
+    MessageTextViewTrailingItemView { _ in }
 }

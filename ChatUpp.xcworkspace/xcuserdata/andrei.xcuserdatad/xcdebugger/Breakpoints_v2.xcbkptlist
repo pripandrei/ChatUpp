@@ -7,16 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C594B6A0-10F8-4EC5-A105-26EA2D4B21B6"
+            uuid = "4D4915A1-649C-4468-B64E-CC5BDAE1D3EC"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomRootView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1190"
-            endingLineNumber = "1190"
-            landmarkName = "scrollViewDidEndDecelerating(_:)"
+            startingLineNumber = "215"
+            endingLineNumber = "215"
+            landmarkName = "initiateStickersViewSetup()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C30EC536-152F-4BD6-A9F7-58D3E8D06BA9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomRootView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "273"
+            endingLineNumber = "273"
+            landmarkName = "setupTextViewTrailingItem()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

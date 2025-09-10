@@ -8,12 +8,12 @@
 import UIKit
 import librlottie
 
-class ViewController: UIViewController
+class ViewController2: UIViewController
 {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        view.backgroundColor = .brown
         let stickersCollectionView = StickersCollectionView(frame: view.bounds)
         view.addSubview(stickersCollectionView)
     }
@@ -21,15 +21,18 @@ class ViewController: UIViewController
 
 final class StickersCollectionView: UIView
 {
-    private let animations = Stickers.Category.allCases
-        .flatMap { $0.pack.map { $0.deletingPathExtension().lastPathComponent } }
+    private let animations: [String] = {
+        return Stickers.Category.allCases
+            .flatMap { $0.pack.map { $0.deletingPathExtension().lastPathComponent } }
+    }()
+    
     private var collectionView: UICollectionView!
     private var displayLink: CADisplayLink?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .brown
+        backgroundColor = ColorManager.stickerViewBackgroundColor
         setupCollectionView()
         startAnimationLoop()
     }
@@ -41,35 +44,47 @@ final class StickersCollectionView: UIView
     deinit {
         stopAnimationLoop()
     }
-
-    private func setupCollectionView() {
-        let spacing: CGFloat = 10
+    
+    override func layoutSubviews()
+    {
+        if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout
+        {
+            let spacing: CGFloat = 10
+            let itemWidth = (bounds.width - spacing * 5) / 4
+            layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
+            layout.minimumLineSpacing = spacing
+            layout.minimumInteritemSpacing = spacing
+            layout.sectionInset = UIEdgeInsets(top: spacing,
+                                               left: spacing,
+                                               bottom: 0,
+                                               right: spacing)
+            startAnimationLoop()
+        }
+    }
+    
+    func setupCollectionView()
+    {
         let layout = UICollectionViewFlowLayout()
-        let itemWidth = (bounds.width - spacing * 5) / 4
-        layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
-        layout.minimumLineSpacing = spacing
-        layout.minimumInteritemSpacing = spacing
-        layout.sectionInset = UIEdgeInsets(top: spacing, left: spacing, bottom: spacing, right: spacing)
-
-        collectionView = UICollectionView(frame: bounds, collectionViewLayout: layout)
+        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .white
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(LottieCell.self, forCellWithReuseIdentifier: LottieCell.identifier)
+        collectionView.backgroundColor = .clear
 
         addSubview(collectionView)
 
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
+            collectionView.topAnchor.constraint(equalTo: topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
 
     // MARK: - Animation Loop
-    private func startAnimationLoop()
+    func startAnimationLoop()
     {
         displayLink = CADisplayLink(target: self, selector: #selector(renderFrame))
         displayLink?.add(to: .main, forMode: .common)
@@ -356,3 +371,50 @@ actor LottieAnimationManager
 
     deinit { cleanup() }
 }
+
+
+//MARK: layout items
+//extension StickersCollectionView
+//{
+//    func createCollectionViewLayout() -> UICollectionViewLayout
+//    {
+//        let spacing: CGFloat = 10
+//        
+//        let layout = UICollectionViewCompositionalLayout { sectionIndex, environment -> NSCollectionLayoutSection? in
+//            
+//            // Each item takes 1/4 of the width minus spacing
+//            let itemSize = NSCollectionLayoutSize(
+//                widthDimension: .fractionalWidth(0.25),
+//                heightDimension: .fractionalWidth(0.25) // square cells
+//            )
+//            
+//            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+//            item.contentInsets = NSDirectionalEdgeInsets(
+//                top: spacing / 2,
+//                leading: spacing / 2,
+//                bottom: spacing / 2,
+//                trailing: spacing / 2
+//            )
+//            
+//            // Group of 4 items horizontally
+//            let groupSize = NSCollectionLayoutSize(
+//                widthDimension: .fractionalWidth(1.0),
+//                heightDimension: .fractionalWidth(0.25)
+//            )
+//
+//            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 4)
+//            
+//            let section = NSCollectionLayoutSection(group: group)
+//            section.contentInsets = NSDirectionalEdgeInsets(
+//                top: spacing,
+//                leading: spacing,
+//                bottom: spacing,
+//                trailing: spacing
+//            )
+//            
+//            return section
+//        }
+//        
+//        return layout
+//    }
+//}
