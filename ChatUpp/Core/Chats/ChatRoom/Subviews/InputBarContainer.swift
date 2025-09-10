@@ -90,7 +90,7 @@ extension MessageTextViewTrailingItemView
         return Image(systemName: itemName)
             .resizable()
             .frame(width: imageWidth, height: imageHeight)
-            .foregroundStyle(Color(ColorManager.navigationBarBackgroundColor))
+            .foregroundStyle(Color(ColorManager.textFieldPlaceholderColor))
     }
 }
 

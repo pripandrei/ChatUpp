@@ -25,7 +25,7 @@ struct ColorManager
     static let mainAppBackgroundColorGradientTop: UIColor = #colorLiteral(red: 0.468229115, green: 0.2259758115, blue: 0.5086464882, alpha: 1)
     static let mainAppBackgroundColorGradientBottom: UIColor = #colorLiteral(red: 0.468229115, green: 0.2259758115, blue: 0.5086464882, alpha: 1)
     
-    static let textFieldPlaceholderColor: UIColor = #colorLiteral(red: 0.5250927806, green: 0.5004045963, blue: 0.5016652346, alpha: 1)
+    static let textFieldPlaceholderColor: UIColor = #colorLiteral(red: 0.4450023174, green: 0.4215864837, blue: 0.4220157266, alpha: 1)
     static let textFieldTextColor: UIColor = .white
     static let messageTextFieldBackgroundColor: UIColor = #colorLiteral(red: 0.1236810908, green: 0.08473216742, blue: 0.1324510276, alpha: 1)
     
@@ -44,7 +44,8 @@ struct ColorManager
     static let messageEventBackgroundColor: UIColor = #colorLiteral(red: 0.2021965683, green: 0.2685731351, blue: 0.3312993646, alpha: 1)
     static let messageSeenStatusIconColor: UIColor = outgoingMessageComponentsTextColor
     static let messageLinkColor: UIColor = #colorLiteral(red: 0, green: 0.6172372699, blue: 0.9823173881, alpha: 1)
-    static let stickerViewBackgroundColor: UIColor = #colorLiteral(red: 0.1425902545, green: 0.2372792959, blue: 0.2944935262, alpha: 1)
+    static let stickerViewBackgroundColor: UIColor = #colorLiteral(red: 0.1257298887, green: 0.2089383006, blue: 0.2593249977, alpha: 1)
+//    static let stickerViewBackgroundColor: UIColor = #colorLiteral(red: 0.20829162, green: 0.1772045493, blue: 0.2476014197, alpha: 1)
     
     static let skeletonItemColor: UIColor = #colorLiteral(red: 0.3543712497, green: 0.2847208381, blue: 0.3677620888, alpha: 1)
     static let skeletonAnimationColor: UIColor = #colorLiteral(red: 0.6587312222, green: 0.6021129489, blue: 0.779224813, alpha: 1)

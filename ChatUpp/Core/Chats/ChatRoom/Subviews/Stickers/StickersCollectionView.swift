@@ -8,6 +8,23 @@
 import UIKit
 import librlottie
 
+final class DisplayLinkProxy
+{
+    weak var target: AnyObject?
+    let selector: Selector
+    
+    init(target: AnyObject, selector: Selector)
+    {
+        self.selector = selector
+        self.target = target
+    }
+    
+    @objc func onDisplayLink(_ link: CADisplayLink)
+    {
+        _ = target?.perform(selector, with: link)
+    }
+}
+
 class ViewController2: UIViewController
 {
     
@@ -41,8 +58,13 @@ final class StickersCollectionView: UIView
         fatalError("Could not init stickerView")
     }
     
+//    override func willRemoveSubview(_ subview: UIView) {
+//        super.willRemoveSubview(subview)
+//    }
+    
     deinit {
         stopAnimationLoop()
+        print("Sticker collection DEINIT")
     }
     
     override func layoutSubviews()
@@ -86,11 +108,13 @@ final class StickersCollectionView: UIView
     // MARK: - Animation Loop
     func startAnimationLoop()
     {
-        displayLink = CADisplayLink(target: self, selector: #selector(renderFrame))
+        /// create proxy for displayLink to bypass strong reference to target self
+        let proxy = DisplayLinkProxy(target: self, selector: #selector(renderFrame))
+        displayLink = CADisplayLink(target: proxy, selector: #selector(DisplayLinkProxy.onDisplayLink(_:)))
         displayLink?.add(to: .main, forMode: .common)
     }
 
-    private func stopAnimationLoop() {
+    func stopAnimationLoop() {
         displayLink?.invalidate()
         displayLink = nil
     }
@@ -173,6 +197,10 @@ class LottieCell: UICollectionViewCell {
         super.prepareForReuse()
         lottieView.reset()
     }
+    
+    deinit {
+        print("LottieCell collection DEINIT")
+    }
 }
 
 
@@ -221,7 +249,8 @@ class RLLottieView: UIView
         animation = nil
         layer.contents = nil
 
-        Task {
+        Task { [weak self] in
+            guard let self else {return}
             if let anim = await LottieAnimationManager.shared.getAnimation(named: name)
             {
                 // Double-check cell is still expecting this animation
@@ -242,9 +271,13 @@ class RLLottieView: UIView
 
     private func renderFirstFrame()
     {
-        guard let animation = animation, let buffer = buffer else { return }
+        guard let animation = animation,
+              let buffer = buffer else { return }
+        
         renderQueue.async { [weak self] in
-            guard let self = self, let animation = self.animation, let buffer = self.buffer else { return }
+            guard let self = self,
+                    let animation = self.animation,
+                    let buffer = self.buffer else { return }
 
             lottie_animation_render(animation,
                                     0,
@@ -278,6 +311,7 @@ class RLLottieView: UIView
         let currentFrame = Int(progress * Double(totalFrames))
 
         renderQueue.async { [weak self] in
+            
             guard let self = self, let animation = self.animation, let buffer = self.buffer else { return }
 
             lottie_animation_render(animation,
@@ -302,7 +336,7 @@ class RLLottieView: UIView
                                       space: cachedColorSpace,
                                       bitmapInfo: cachedBitmapInfo.rawValue),
               let cgImage = context.makeImage() else { return }
-
+        
         DispatchQueue.main.async { [weak self] in
             self?.layer.contents = cgImage
         }
@@ -317,9 +351,9 @@ class RLLottieView: UIView
         layer.contents = nil
     }
 
-
     deinit {
         buffer?.deallocate()
+        print("RLLottieView Deinit!")
     }
 }
 

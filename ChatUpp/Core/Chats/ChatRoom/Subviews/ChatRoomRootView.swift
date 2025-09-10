@@ -26,6 +26,8 @@ final class ChatRoomRootView: UIView {
     
 //    private(set) var unseenMessagesBadge: UnseenMessagesBadge = UnseenMessagesBadge()
 
+    private var stickerCollectionView: StickersCollectionView?
+    
     private(set) var inputBarContainer: InputBarContainer = {
         let inputBarContainer = InputBarContainer()
         inputBarContainer.backgroundColor                           = ColorManager.inputBarMessageContainerBackgroundColor
@@ -214,6 +216,7 @@ final class ChatRoomRootView: UIView {
     {
         let stickerCollectionView = StickersCollectionView()
         addSubview(stickerCollectionView)
+        self.stickerCollectionView = stickerCollectionView
         stickerCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -223,12 +226,22 @@ final class ChatRoomRootView: UIView {
             stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
         ])
         
-        inputBarBottomConstraint.constant = -336
+        self.layoutIfNeeded()
+        UIView.animate(withDuration: 0.27) {
+            self.inputBarBottomConstraint.constant = -336
+            self.layoutIfNeeded()
+        }
     }
     
     private func initiateKeyboard()
     {
-        
+        messageTextView.becomeFirstResponder()
+//        stickerCollectionView?.stopAnimationLoop()
+        stickerCollectionView?.removeFromSuperview()
+        stickerCollectionView = nil
+//        Task {
+//            await LottieAnimationManager.shared.cleanup()            
+//        }
     }
     
     // MARK: - SETUP CONSTRAINTS
