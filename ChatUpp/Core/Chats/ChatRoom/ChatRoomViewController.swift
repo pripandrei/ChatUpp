@@ -230,7 +230,7 @@ final class ChatRoomViewController: UIViewController
                     return
                 }
                 
-                let keyboardHeight = -336.0
+                let keyboardHeight = -keyboardSize.height
                 updateInputBarBottomConstraint(toSize: keyboardHeight)
             }
         }
@@ -240,6 +240,7 @@ final class ChatRoomViewController: UIViewController
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
+            guard self.rootView.stickerCollectionView == nil else { return }
             isKeyboardHidden = true
             guard !isContextMenuPresented else {
                 updateInputBarBottomConstraint(toSize: 0)

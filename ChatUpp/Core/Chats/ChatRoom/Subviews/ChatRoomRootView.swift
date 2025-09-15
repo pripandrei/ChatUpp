@@ -26,7 +26,7 @@ final class ChatRoomRootView: UIView {
     
 //    private(set) var unseenMessagesBadge: UnseenMessagesBadge = UnseenMessagesBadge()
 
-    private var stickerCollectionView: StickersCollectionView?
+    private(set) var stickerCollectionView: StickersCollectionView?
     
     private(set) var inputBarContainer: InputBarContainer = {
         let inputBarContainer = InputBarContainer()
@@ -221,24 +221,31 @@ final class ChatRoomRootView: UIView {
         
         NSLayoutConstraint.activate([
             stickerCollectionView.topAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -25),
+//            stickerCollectionView.heightAnchor.constraint(equalToConstant: 700),
             stickerCollectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             stickerCollectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
         ])
         
+        messageTextView.resignFirstResponder()
+        
         self.layoutIfNeeded()
         UIView.animate(withDuration: 0.27) {
-            self.inputBarBottomConstraint.constant = -336
+            self.inputBarBottomConstraint.constant = -306
             self.layoutIfNeeded()
         }
+       
     }
     
     private func initiateKeyboard()
     {
         messageTextView.becomeFirstResponder()
 //        stickerCollectionView?.stopAnimationLoop()
-        stickerCollectionView?.removeFromSuperview()
-        stickerCollectionView = nil
+        executeAfter(seconds: 0.7)
+        { [weak self] in
+            self?.stickerCollectionView?.removeFromSuperview()
+            self?.stickerCollectionView = nil
+        }
 //        Task {
 //            await LottieAnimationManager.shared.cleanup()            
 //        }

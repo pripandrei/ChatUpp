@@ -102,6 +102,7 @@ final class MessageTableViewCell: UITableViewCell
     {
         guard let message = viewModel.message else {
             assert(false, "message should be valid at this point")
+            return
         }
         
         cleanupCellContent()

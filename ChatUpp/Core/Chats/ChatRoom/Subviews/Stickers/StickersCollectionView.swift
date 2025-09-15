@@ -1,76 +1,98 @@
-//
-//  Untitled.swift
-//  RLottieTest
-//
-//  Created by Andrei Pripa on 9/9/25.
-//
-
 import UIKit
 import librlottie
 
-final class DisplayLinkProxy
-{
-    weak var target: AnyObject?
-    let selector: Selector
-    
-    init(target: AnyObject, selector: Selector)
-    {
-        self.selector = selector
-        self.target = target
-    }
-    
-    @objc func onDisplayLink(_ link: CADisplayLink)
-    {
-        _ = target?.perform(selector, with: link)
+// Needed for concurrency
+extension OpaquePointer: @unchecked @retroactive Sendable {}
+
+
+// MARK: - Render Actor
+actor RenderActor {
+    static let shared = RenderActor()
+
+    func render(
+        animation: OpaquePointer,
+        frame: Int,
+        buffer: UnsafeMutablePointer<UInt32>,
+        size: CGSize
+    ) {
+        lottie_animation_render(
+            animation,
+            size_t(frame),
+            buffer,
+            size_t(size.width),
+            size_t(size.height),
+            size_t(Int(size.width) * MemoryLayout<UInt32>.size)
+        )
     }
 }
 
-class ViewController2: UIViewController
-{
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .brown
-        let stickersCollectionView = StickersCollectionView(frame: view.bounds)
-        view.addSubview(stickersCollectionView)
+
+// MARK: - Animation Cache Actor
+actor AnimationCacheActor {
+    static let shared = AnimationCacheActor()
+    private var cache: [String: OpaquePointer] = [:]
+
+    func getAnimation(named name: String) -> OpaquePointer?
+    {
+        if let anim = cache[name] {
+            return anim
+        }
+        guard let path = Bundle.main.path(forResource: name, ofType: "json"),
+              let anim = lottie_animation_from_file(path) else {
+            return nil
+        }
+        cache[name] = anim
+        return anim
+    }
+
+    func clearCache() {
+        for (_, anim) in cache {
+            lottie_animation_destroy(anim)
+        }
+        cache.removeAll()
+    }
+
+    deinit {
+        print("deinit Cache MANAger")
+        for (_, anim) in cache {
+            lottie_animation_destroy(anim)
+        }
     }
 }
 
-final class StickersCollectionView: UIView
-{
+
+// MARK: - StickersCollectionView
+final class StickersCollectionView: UIView {
     private let animations: [String] = {
         return Stickers.Category.allCases
             .flatMap { $0.pack.map { $0.deletingPathExtension().lastPathComponent } }
     }()
-    
+
     private var collectionView: UICollectionView!
     private var displayLink: CADisplayLink?
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
         backgroundColor = ColorManager.stickerViewBackgroundColor
         setupCollectionView()
         startAnimationLoop()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("Could not init stickerView")
     }
-    
-//    override func willRemoveSubview(_ subview: UIView) {
-//        super.willRemoveSubview(subview)
-//    }
-    
+
     deinit {
         stopAnimationLoop()
+        Task {
+            try await Task.sleep(for: .seconds(1.5))
+            await AnimationCacheActor.shared.clearCache()
+        }
         print("Sticker collection DEINIT")
     }
-    
-    override func layoutSubviews()
-    {
-        if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout
-        {
+
+    override func layoutSubviews() {
+        if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             let spacing: CGFloat = 10
             let itemWidth = (bounds.width - spacing * 5) / 4
             layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
@@ -80,19 +102,16 @@ final class StickersCollectionView: UIView
                                                left: spacing,
                                                bottom: 0,
                                                right: spacing)
-            startAnimationLoop()
         }
     }
-    
-    func setupCollectionView()
-    {
+
+    private func setupCollectionView() {
         let layout = UICollectionViewFlowLayout()
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(LottieCell.self, forCellWithReuseIdentifier: LottieCell.identifier)
-        collectionView.backgroundColor = .clear
 
         addSubview(collectionView)
 
@@ -114,13 +133,13 @@ final class StickersCollectionView: UIView
         displayLink?.add(to: .main, forMode: .common)
     }
 
-    func stopAnimationLoop() {
+
+    private func stopAnimationLoop() {
         displayLink?.invalidate()
         displayLink = nil
     }
 
-    @objc private func renderFrame()
-    {
+    @objc private func renderFrame() {
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
         for indexPath in visibleIndexPaths {
             if let cell = collectionView.cellForItem(at: indexPath) as? LottieCell {
@@ -130,9 +149,9 @@ final class StickersCollectionView: UIView
     }
 }
 
+
 // MARK: - UICollectionViewDataSource
-extension StickersCollectionView: UICollectionViewDataSource
-{
+extension StickersCollectionView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
         return animations.count
@@ -149,24 +168,22 @@ extension StickersCollectionView: UICollectionViewDataSource
     }
 }
 
+
 // MARK: - UICollectionViewDelegate
-extension StickersCollectionView: UICollectionViewDelegateFlowLayout
-{
-    // MARK: - Visibility Management
+extension StickersCollectionView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         willDisplay cell: UICollectionViewCell,
-                        forItemAt indexPath: IndexPath)
-    {
+                        forItemAt indexPath: IndexPath) {
         (cell as? LottieCell)?.lottieView.setVisible(true)
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         didEndDisplaying cell: UICollectionViewCell,
-                        forItemAt indexPath: IndexPath)
-    {
+                        forItemAt indexPath: IndexPath) {
         (cell as? LottieCell)?.lottieView.setVisible(false)
     }
 }
+
 
 // MARK: - LottieCell
 class LottieCell: UICollectionViewCell {
@@ -197,20 +214,17 @@ class LottieCell: UICollectionViewCell {
         super.prepareForReuse()
         lottieView.reset()
     }
-    
+
     deinit {
-        print("LottieCell collection DEINIT")
+        print("LottieCell DEINIT")
     }
 }
 
 
-
 // MARK: - RLLottieView
-class RLLottieView: UIView
-{
+class RLLottieView: UIView {
     private var animationName: String?
     private var animation: OpaquePointer?
-    private var frameNumber: Int = 0
     private var totalFrames: Int = 0
     private let renderSize = CGSize(width: 200, height: 200)
     private var buffer: UnsafeMutablePointer<UInt32>?
@@ -219,12 +233,12 @@ class RLLottieView: UIView
     private var startTime: CFTimeInterval = 0
     private var randomOffset: TimeInterval = 0
 
-    // Cached graphics objects
+    // cached graphics objects
     private let cachedColorSpace: CGColorSpace
     private let cachedBitmapInfo: CGBitmapInfo
 
-    private let renderQueue = DispatchQueue(label: "lottie.render.queue",
-                                            qos: .userInitiated)
+    // generation token
+    private var generation: Int = 0
 
     override init(frame: CGRect) {
         cachedColorSpace = CGColorSpaceCreateDeviceRGB()
@@ -243,91 +257,85 @@ class RLLottieView: UIView
     }
 
     // MARK: - Load Animation
-    func loadAnimation(named name: String)
-    {
+    func loadAnimation(named name: String) {
+        generation &+= 1
+        let currentGen = generation
+
         animationName = name
         animation = nil
         layer.contents = nil
 
         Task { [weak self] in
-            guard let self else {return}
-            if let anim = await LottieAnimationManager.shared.getAnimation(named: name)
-            {
-                // Double-check cell is still expecting this animation
-                guard self.animationName == name else { return }
-
-                await LottieAnimationManager.shared.cacheAnimation(anim, named: name)
+            guard let self else { return }
+            if let anim = await AnimationCacheActor.shared.getAnimation(named: name) {
+                guard self.generation == currentGen else { return }
 
                 self.animation = anim
                 self.totalFrames = Int(lottie_animation_get_totalframe(anim))
-                self.frameNumber = 0
                 self.startTime = CACurrentMediaTime()
                 self.randomOffset = TimeInterval.random(in: 0..<2.0)
-
-                self.renderFirstFrame()
+                self.renderFirstFrame(gen: currentGen)
             }
         }
     }
 
-    private func renderFirstFrame()
-    {
-        guard let animation = animation,
-              let buffer = buffer else { return }
-        
-        renderQueue.async { [weak self] in
-            guard let self = self,
-                    let animation = self.animation,
-                    let buffer = self.buffer else { return }
+    private func renderFirstFrame(gen: Int) {
+        guard let animation, let buffer else { return }
 
-            lottie_animation_render(animation,
-                                    0,
-                                    buffer,
-                                    size_t(self.renderSize.width),
-                                    size_t(self.renderSize.height),
-                                    size_t(Int(self.renderSize.width) * MemoryLayout<UInt32>.size))
-
+        Task {
+            await RenderActor.shared.render(animation: animation,
+                                            frame: 0,
+                                            buffer: buffer,
+                                            size: renderSize)
+            guard self.generation == gen else { return }
             self.createAndDisplayImage(from: buffer)
-            DispatchQueue.main.async { self.renderInProgress = false }
+            self.renderInProgress = false
         }
-
-    }
-
-    func setVisible(_ visible: Bool) {
-        isVisible = visible
     }
 
     func renderNextFrame() {
         guard isVisible,
-              let animation = animation,
-              let buffer = buffer,
+              let animation,
+              let buffer,
               !renderInProgress,
               totalFrames > 0 else { return }
 
         renderInProgress = true
+        let gen = generation
 
         let elapsed = CACurrentMediaTime() - startTime + randomOffset
         let duration = Double(totalFrames) / Double(lottie_animation_get_framerate(animation))
         let progress = fmod(elapsed, duration) / duration
         let currentFrame = Int(progress * Double(totalFrames))
 
-        renderQueue.async { [weak self] in
-            
-            guard let self = self, let animation = self.animation, let buffer = self.buffer else { return }
-
-            lottie_animation_render(animation,
-                                    size_t(currentFrame),
-                                    buffer,
-                                    size_t(self.renderSize.width),
-                                    size_t(self.renderSize.height),
-                                    size_t(Int(self.renderSize.width) * MemoryLayout<UInt32>.size))
-
+        Task {
+            await RenderActor.shared.render(animation: animation,
+                                            frame: currentFrame,
+                                            buffer: buffer,
+                                            size: renderSize)
+            guard self.generation == gen else { return }
             self.createAndDisplayImage(from: buffer)
-            DispatchQueue.main.async { self.renderInProgress = false }
+            self.renderInProgress = false
         }
     }
 
-    private func createAndDisplayImage(from cgBuffer: UnsafeMutableRawPointer)
-    {
+    // MARK: - Reset
+    func reset() {
+        generation &+= 1  // invalidate all pending renders
+        animation = nil
+        animationName = nil
+        isVisible = false
+        renderInProgress = false
+        layer.contents = nil
+    }
+
+    deinit {
+        buffer?.deallocate()
+        print("RLLottieView Deinit!")
+    }
+
+    // MARK: - Helpers
+    private func createAndDisplayImage(from cgBuffer: UnsafeMutableRawPointer) {
         guard let context = CGContext(data: cgBuffer,
                                       width: Int(renderSize.width),
                                       height: Int(renderSize.height),
@@ -336,119 +344,29 @@ class RLLottieView: UIView
                                       space: cachedColorSpace,
                                       bitmapInfo: cachedBitmapInfo.rawValue),
               let cgImage = context.makeImage() else { return }
-        
+
         DispatchQueue.main.async { [weak self] in
             self?.layer.contents = cgImage
         }
     }
 
-    func reset() {
-        isVisible = false
-        renderInProgress = false
-        frameNumber = 0
-        animationName = nil
-        animation = nil
-        layer.contents = nil
-    }
-
-    deinit {
-        buffer?.deallocate()
-        print("RLLottieView Deinit!")
+    func setVisible(_ visible: Bool) {
+        isVisible = visible
     }
 }
-
-extension OpaquePointer: @unchecked @retroactive Sendable {}
-    
-// MARK: - Animation Manager
-actor LottieAnimationManager
+final class DisplayLinkProxy
 {
-    static let shared = LottieAnimationManager()
-
-    private var cachedAnimations: [String: OpaquePointer] = [:]
-
-    private init() {}
-
-    // Async get with lazy loading
-    func getAnimation(named name: String) async -> OpaquePointer?
+    weak var target: AnyObject?
+    let selector: Selector
+    
+    init(target: AnyObject, selector: Selector)
     {
-        if let cached = cachedAnimations[name] {
-            return cached
-        }
-
-        // Do file loading off the actor context to avoid blocking
-        return await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                var anim: OpaquePointer? = nil
-                if let path = Bundle.main.path(forResource: name, ofType: "json") {
-                    anim = lottie_animation_from_file(path)
-                }
-
-                Task { @MainActor in
-                    continuation.resume(returning: anim)
-                }
-            }
-        }
+        self.selector = selector
+        self.target = target
     }
-
-    // Store animation
-    func cacheAnimation(_ anim: OpaquePointer, named name: String) {
-        cachedAnimations[name] = anim
+    
+    @objc func onDisplayLink(_ link: CADisplayLink)
+    {
+        _ = target?.perform(selector, with: link)
     }
-
-    // Cleanup everything
-    func cleanup() {
-        for (_, anim) in cachedAnimations {
-            lottie_animation_destroy(anim)
-        }
-        cachedAnimations.removeAll()
-    }
-
-    deinit { cleanup() }
 }
-
-
-//MARK: layout items
-//extension StickersCollectionView
-//{
-//    func createCollectionViewLayout() -> UICollectionViewLayout
-//    {
-//        let spacing: CGFloat = 10
-//        
-//        let layout = UICollectionViewCompositionalLayout { sectionIndex, environment -> NSCollectionLayoutSection? in
-//            
-//            // Each item takes 1/4 of the width minus spacing
-//            let itemSize = NSCollectionLayoutSize(
-//                widthDimension: .fractionalWidth(0.25),
-//                heightDimension: .fractionalWidth(0.25) // square cells
-//            )
-//            
-//            let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//            item.contentInsets = NSDirectionalEdgeInsets(
-//                top: spacing / 2,
-//                leading: spacing / 2,
-//                bottom: spacing / 2,
-//                trailing: spacing / 2
-//            )
-//            
-//            // Group of 4 items horizontally
-//            let groupSize = NSCollectionLayoutSize(
-//                widthDimension: .fractionalWidth(1.0),
-//                heightDimension: .fractionalWidth(0.25)
-//            )
-//
-//            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: 4)
-//            
-//            let section = NSCollectionLayoutSection(group: group)
-//            section.contentInsets = NSDirectionalEdgeInsets(
-//                top: spacing,
-//                leading: spacing,
-//                bottom: spacing,
-//                trailing: spacing
-//            )
-//            
-//            return section
-//        }
-//        
-//        return layout
-//    }
-//}
