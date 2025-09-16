@@ -214,6 +214,13 @@ final class ChatRoomRootView: UIView {
     
     private func initiateStickersViewSetup()
     {
+        guard stickerCollectionView == nil else {
+            messageTextView.resignFirstResponder()
+            return
+        }
+//        guard !isStickersViewPresented else {return}
+//        isStickersViewPresented = true
+        print("created stoicker")
         let stickerCollectionView = StickersCollectionView()
         addSubview(stickerCollectionView)
         self.stickerCollectionView = stickerCollectionView
@@ -227,24 +234,28 @@ final class ChatRoomRootView: UIView {
             stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
         ])
         
-        messageTextView.resignFirstResponder()
-        
         self.layoutIfNeeded()
         UIView.animate(withDuration: 0.27) {
             self.inputBarBottomConstraint.constant = -306
             self.layoutIfNeeded()
         }
-       
+        messageTextView.resignFirstResponder()
     }
+    
+//    private var isStickersViewPresented: Bool?
     
     private func initiateKeyboard()
     {
         messageTextView.becomeFirstResponder()
 //        stickerCollectionView?.stopAnimationLoop()
-        executeAfter(seconds: 0.7)
+        executeAfter(seconds: 0.8)
         { [weak self] in
+//            guard self?.isStickersViewPresented == false else {return}
+            guard self?.messageTextView.isFirstResponder == true else {return}
+            print("removed sticker")
             self?.stickerCollectionView?.removeFromSuperview()
             self?.stickerCollectionView = nil
+//            self?.isStickersViewPresented = false
         }
 //        Task {
 //            await LottieAnimationManager.shared.cleanup()            
