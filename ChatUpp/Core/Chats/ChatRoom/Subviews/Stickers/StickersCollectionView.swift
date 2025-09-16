@@ -4,10 +4,9 @@ import librlottie
 // Needed for concurrency
 extension OpaquePointer: @unchecked @retroactive Sendable {}
 
-actor RenderActor
-{
+// MARK: - Render Actor
+actor RenderActor {
     static let shared = RenderActor()
-    private(set) var cache: [String: OpaquePointer] = [:]
     
     func render(
         animation: OpaquePointer,
@@ -15,7 +14,6 @@ actor RenderActor
         buffer: UnsafeMutablePointer<UInt32>,
         size: CGSize
     ) {
-        //        lottie_animation_render_flush(animation)
         lottie_animation_render(
             animation,
             size_t(frame),
@@ -26,31 +24,13 @@ actor RenderActor
         )
     }
 }
-// MARK: - Render Actor
-actor StickersAnimationManager
-{
+
+// MARK: - Stickers Animation Manager
+actor StickersAnimationManager {
     static let shared = StickersAnimationManager()
     private(set) var cache: [String: OpaquePointer] = [:]
 
-    func render(
-        animation: OpaquePointer,
-        frame: Int,
-        buffer: UnsafeMutablePointer<UInt32>,
-        size: CGSize
-    ) {
-//        lottie_animation_render_flush(animation)
-        lottie_animation_render(
-            animation,
-            size_t(frame),
-            buffer,
-            size_t(size.width),
-            size_t(size.height),
-            size_t(Int(size.width) * MemoryLayout<UInt32>.size)
-        )
-    }
-
-    func getAnimation(named name: String) -> OpaquePointer?
-    {
+    func getAnimation(named name: String) -> OpaquePointer? {
         if let anim = cache[name] {
             return anim
         }
@@ -70,52 +50,29 @@ actor StickersAnimationManager
     }
 
     deinit {
-//        print("deinit Cache MANAger")
         for (_, anim) in cache {
             lottie_animation_destroy(anim)
         }
     }
+    func render(
+        animation: OpaquePointer,
+        frame: Int,
+        buffer: UnsafeMutablePointer<UInt32>,
+        size: CGSize
+    ) {
+        lottie_animation_render(
+            animation,
+            size_t(frame),
+            buffer,
+            size_t(size.width),
+            size_t(size.height),
+            size_t(Int(size.width) * MemoryLayout<UInt32>.size)
+        )
+    }
 }
 
-
-// MARK: - Animation Cache Actor
-//actor AnimationCacheActor
-//{
-//    static let shared = AnimationCacheActor()
-//    private(set) var cache: [String: OpaquePointer] = [:]
-//
-//    func getAnimation(named name: String) -> OpaquePointer?
-//    {
-//        if let anim = cache[name] {
-//            return anim
-//        }
-//        guard let path = Bundle.main.path(forResource: name, ofType: "json"),
-//              let anim = lottie_animation_from_file(path) else {
-//            return nil
-//        }
-//        cache[name] = anim
-//        return anim
-//    }
-//
-//    func clearCache() {
-//        for (_, anim) in cache {
-//            lottie_animation_destroy(anim)
-//        }
-//        cache.removeAll()
-//    }
-//
-//    deinit {
-////        print("deinit Cache MANAger")
-//        for (_, anim) in cache {
-//            lottie_animation_destroy(anim)
-//        }
-//    }
-//}
-
-
 // MARK: - StickersCollectionView
-final class StickersCollectionView: UIView
-{
+final class StickersCollectionView: UIView {
     private let animations: [String] = {
         return Stickers.Category.allCases
             .flatMap { $0.pack.map { $0.deletingPathExtension().lastPathComponent } }
@@ -123,6 +80,7 @@ final class StickersCollectionView: UIView
 
     private var collectionView: UICollectionView!
     private var displayLink: CADisplayLink?
+    private var frameSkipCounter = 0
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -138,9 +96,7 @@ final class StickersCollectionView: UIView
     deinit {
         stopAnimationLoop()
         Task {
-//            try await Task.sleep(for: .seconds(0.5))
             await StickersAnimationManager.shared.clearCache()
-            await print(StickersAnimationManager.shared.cache)
         }
         print("Sticker collection DEINIT")
     }
@@ -179,14 +135,11 @@ final class StickersCollectionView: UIView
     }
 
     // MARK: - Animation Loop
-    func startAnimationLoop()
-    {
-        /// create proxy for displayLink to bypass strong reference to target self
+    func startAnimationLoop() {
         let proxy = DisplayLinkProxy(target: self, selector: #selector(renderFrame))
         displayLink = CADisplayLink(target: proxy, selector: #selector(DisplayLinkProxy.onDisplayLink(_:)))
         displayLink?.add(to: .main, forMode: .common)
     }
-
 
     private func stopAnimationLoop() {
         displayLink?.invalidate()
@@ -194,6 +147,10 @@ final class StickersCollectionView: UIView
     }
 
     @objc private func renderFrame() {
+        // Frame skip (render every 2nd tick → ~30 FPS)
+        frameSkipCounter += 1
+        if frameSkipCounter % 2 != 0 { return }
+
         let visibleIndexPaths = collectionView.indexPathsForVisibleItems
         for indexPath in visibleIndexPaths {
             if let cell = collectionView.cellForItem(at: indexPath) as? LottieCell {
@@ -202,7 +159,6 @@ final class StickersCollectionView: UIView
         }
     }
 }
-
 
 // MARK: - UICollectionViewDataSource
 extension StickersCollectionView: UICollectionViewDataSource {
@@ -222,7 +178,6 @@ extension StickersCollectionView: UICollectionViewDataSource {
     }
 }
 
-
 // MARK: - UICollectionViewDelegate
 extension StickersCollectionView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
@@ -237,7 +192,6 @@ extension StickersCollectionView: UICollectionViewDelegateFlowLayout {
         (cell as? LottieCell)?.lottieView.setVisible(false)
     }
 }
-
 
 // MARK: - LottieCell
 class LottieCell: UICollectionViewCell {
@@ -268,19 +222,14 @@ class LottieCell: UICollectionViewCell {
         super.prepareForReuse()
         lottieView.reset()
     }
-
-    deinit {
-//        print("LottieCell DEINIT")
-    }
 }
-
 
 // MARK: - RLLottieView
 class RLLottieView: UIView {
     private var animationName: String?
     private var animation: OpaquePointer?
     private var totalFrames: Int = 0
-    private let renderSize = CGSize(width: 200, height: 200)
+    private let renderSize = CGSize(width: 200, height: 200) // ↓ Reduced size
     private var buffer: UnsafeMutablePointer<UInt32>?
     private var isVisible = false
     private var renderInProgress = false
@@ -337,18 +286,17 @@ class RLLottieView: UIView {
         guard let animation, let buffer else { return }
 
         Task {
+            guard self.generation == gen else { return }
             await RenderActor.shared.render(animation: animation,
                                             frame: 0,
                                             buffer: buffer,
-                                            size: renderSize)
-            guard self.generation == gen else { return }
+                                            size: self.renderSize)
             self.createAndDisplayImage(from: buffer)
             self.renderInProgress = false
         }
     }
 
-    func renderNextFrame()
-    {
+    func renderNextFrame() {
         guard isVisible,
               let animation,
               let buffer,
@@ -357,26 +305,29 @@ class RLLottieView: UIView {
 
         renderInProgress = true
         let gen = generation
+        let localBuffer = buffer  // ✅ keep safe reference
+        let localAnim = animation
 
         let elapsed = CACurrentMediaTime() - startTime + randomOffset
-        let duration = Double(totalFrames) / Double(lottie_animation_get_framerate(animation))
+        let duration = Double(totalFrames) / Double(lottie_animation_get_framerate(localAnim))
         let progress = fmod(elapsed, duration) / duration
         let currentFrame = Int(progress * Double(totalFrames))
 
-        Task {
-            await StickersAnimationManager.shared.render(animation: animation,
-                                            frame: currentFrame,
-                                            buffer: buffer,
-                                            size: renderSize)
-            guard self.generation == gen else { return }
-            self.createAndDisplayImage(from: buffer)
+        Task { [weak self] in
+            guard let self, self.generation == gen else { return }
+            await StickersAnimationManager.shared.render(animation: localAnim,
+                                                         frame: currentFrame,
+                                                         buffer: localBuffer,
+                                                         size: self.renderSize)
+
+            self.createAndDisplayImage(from: localBuffer)
             self.renderInProgress = false
         }
     }
 
+
     // MARK: - Reset
     func reset() {
-        print("reset")
         generation &+= 1  // invalidate all pending renders
         animation = nil
         animationName = nil
@@ -387,11 +338,11 @@ class RLLottieView: UIView {
 
     deinit {
         buffer?.deallocate()
-//        print("RLLottieView Deinit!")
     }
 
     // MARK: - Helpers
-    private func createAndDisplayImage(from cgBuffer: UnsafeMutableRawPointer) {
+    private func createAndDisplayImage(from cgBuffer: UnsafeMutableRawPointer)
+    {
         guard let context = CGContext(data: cgBuffer,
                                       width: Int(renderSize.width),
                                       height: Int(renderSize.height),
@@ -411,19 +362,17 @@ class RLLottieView: UIView {
     }
 }
 
-final class DisplayLinkProxy
-{
+// MARK: - DisplayLinkProxy
+final class DisplayLinkProxy {
     weak var target: AnyObject?
     let selector: Selector
     
-    init(target: AnyObject, selector: Selector)
-    {
+    init(target: AnyObject, selector: Selector) {
         self.selector = selector
         self.target = target
     }
     
-    @objc func onDisplayLink(_ link: CADisplayLink)
-    {
+    @objc func onDisplayLink(_ link: CADisplayLink) {
         _ = target?.perform(selector, with: link)
     }
 }

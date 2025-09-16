@@ -209,13 +209,36 @@ final class ChatRoomViewController: UIViewController
                                              currentNumberOfLines: currentLinesNumber)
             }
             .store(in: &subscriptions)
+        
+        inputMessageTextViewDelegate.textViewDidBeginEditing
+            .debounce(for: .seconds(0.2), scheduler: DispatchQueue.main)
+            .sink { [weak self] didBegin in
+                if didBegin && self?.rootView.stickerCollectionView != nil
+                {
+                    self?.rootView.showStickerIcon()
+                    executeAfter(seconds: 1) {
+                        if self?.rootView.trailingItemState.item == .stickerItem
+                        {
+                            self?.rootView.removeStickerView()
+                        }
+                    }
+                }
+            }
+            .store(in: &subscriptions)
     }
     
     //MARK: - Keyboard notification observers
     
     private func addKeyboardNotificationObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow),
+                                               name: UIResponder.keyboardWillShowNotification,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillHide),
+                                               name: UIResponder.keyboardWillHideNotification,
+                                               object: nil)
+//        NotificationCenter.default.addObserver(forName: <#T##NSNotification.Name?#>, object: <#T##Any?#>, queue: <#T##OperationQueue?#>, using: <#T##(Notification) -> Void#>)
     }
 
     @objc func keyboardWillShow(notification: NSNotification)
@@ -263,10 +286,32 @@ final class ChatRoomViewController: UIViewController
 //        customNavigationBar = nil
     }
     
+    private func dismissInputBarView()
+    {
+        if rootView.stickerCollectionView != nil
+        {
+            dismissStickerView()
+        } else {
+            resignKeyboard()
+        }
+    }
+    
     private func resignKeyboard()
     {
         if self.rootView.messageTextView.isFirstResponder {
             self.rootView.messageTextView.resignFirstResponder()
+        }
+    }
+    
+    private func dismissStickerView()
+    {
+        rootView.showStickerIcon()
+        UIView.animate(withDuration: 0.27) {
+            self.handleTableViewOffset(usingKeyboardSize: CGRect(origin: .zero,
+                                                                 size: CGSize(width: UIScreen.main.bounds.size.width, height: 336.0)))
+            self.rootView.layoutIfNeeded()
+        } completion: { _ in
+            self.rootView.removeStickerView()
         }
     }
     
@@ -931,7 +976,13 @@ extension ChatRoomViewController {
     {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTablePan))
         panGesture.delegate = self
+        
+//        let tapGesture = UITapGestureRecognizer(target: self,
+//                                                action: #selector(dismissInputBarView))
+//        tapGesture.delegate = self
+        
         rootView.tableView.addGestureRecognizer(panGesture)
+//        rootView.tableView.addGestureRecognizer(tapGesture)
     }
     
     private func addGestureToCloseBtn() {
@@ -1011,7 +1062,8 @@ extension ChatRoomViewController: UITableViewDelegate
         
         if let touchLocation = tableView.panGestureRecognizer.location(in: cell) as CGPoint?
         {
-            resignKeyboard()
+//            resignKeyboard()
+            dismissInputBarView()
             
             if cell.containerStackView.frame.contains(touchLocation)
             {

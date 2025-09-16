@@ -7,16 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "65420C03-CE7C-43A2-8F63-EC9D61F54DDF"
-            shouldBeEnabled = "No"
+            uuid = "A6C86E10-4337-4E4F-85BF-8107BF38A720"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/Stickers/StickersCollectionView.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/InputBarMessageTextViewDelegate.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "367"
-            endingLineNumber = "367"
-            landmarkName = "renderNextFrame()"
+            startingLineNumber = "48"
+            endingLineNumber = "48"
+            landmarkName = "textViewDidChange(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F406E1EF-B4C5-424C-A622-B40788A56744"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/ChatRoomRootView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "309"
+            endingLineNumber = "309"
+            landmarkName = "showStickerIcon()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

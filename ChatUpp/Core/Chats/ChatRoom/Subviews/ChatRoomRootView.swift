@@ -27,6 +27,7 @@ final class ChatRoomRootView: UIView {
 //    private(set) var unseenMessagesBadge: UnseenMessagesBadge = UnseenMessagesBadge()
 
     private(set) var stickerCollectionView: StickersCollectionView?
+    let trailingItemState = TrailingItemState()
     
     private(set) var inputBarContainer: InputBarContainer = {
         let inputBarContainer = InputBarContainer()
@@ -248,13 +249,12 @@ final class ChatRoomRootView: UIView {
     {
         messageTextView.becomeFirstResponder()
 //        stickerCollectionView?.stopAnimationLoop()
-        executeAfter(seconds: 0.8)
+        executeAfter(seconds: 1)
         { [weak self] in
 //            guard self?.isStickersViewPresented == false else {return}
             guard self?.messageTextView.isFirstResponder == true else {return}
             print("removed sticker")
-            self?.stickerCollectionView?.removeFromSuperview()
-            self?.stickerCollectionView = nil
+            self?.removeStickerView()
 //            self?.isStickersViewPresented = false
         }
 //        Task {
@@ -298,9 +298,20 @@ final class ChatRoomRootView: UIView {
 //        ])
 //    }
     
+    func removeStickerView()
+    {
+        stickerCollectionView?.removeFromSuperview()
+        stickerCollectionView = nil
+    }
+    
+    func showStickerIcon() {
+        trailingItemState.item = .stickerItem
+        textViewTrailingItem.isButtonDisabled = true
+    }
+    
     private func setupTextViewTrailingItem()
     {
-        self.textViewTrailingItem = MessageTextViewTrailingItemView { item in
+        self.textViewTrailingItem = MessageTextViewTrailingItemView(trailingItemState: trailingItemState) { item in
             switch item
             {
             case .stickerItem: self.initiateStickersViewSetup()

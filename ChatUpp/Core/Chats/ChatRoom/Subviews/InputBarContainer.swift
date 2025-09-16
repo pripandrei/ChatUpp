@@ -37,64 +37,53 @@ protocol MessageTextViewTrailingItemProtocol
 
 import SwiftUI
 
-struct MessageTextViewTrailingItemView: View, MessageTextViewTrailingItemProtocol
+struct MessageTextViewTrailingItemView: View
 {
-    @State var textViewTrailingItem: MessageTextViewTrailingItem = .stickerItem
-//    @Binding var textViewTrwailingItem: MessageTextViewTrailingItem
+    @ObservedObject var trailingItemState: TrailingItemState
     var onTrailingItemChange: (MessageTextViewTrailingItem) -> Void
+    @State var isButtonDisabled: Bool = false
     
-    var body: some View
-    {
-        switch textViewTrailingItem
-        {
-        case .keyboardItem: KeyboardButton()
-        case .stickerItem: StickerButton()
+    var body: some View {
+        Button {
+            onTrailingItemChange(trailingItemState.item)
+            toggleTextViewItem()
+            
+            isButtonDisabled = true
+            
+            Task {
+                try await Task.sleep(for: .seconds(1))
+                isButtonDisabled = false
+            }
+        } label: {
+            ItemImage()
         }
+        .disabled(isButtonDisabled)
     }
     
     private func toggleTextViewItem()
     {
-        textViewTrailingItem = (textViewTrailingItem == .keyboardItem) ? .stickerItem : .keyboardItem
-    }
-}
-
-extension MessageTextViewTrailingItemView
-{
-    private func StickerButton() -> some View
-    {
-        Button {
-            onTrailingItemChange(textViewTrailingItem)
-            toggleTextViewItem()
-        }
-        label: {
-            ItemImage()
+        withAnimation(.none) {
+            trailingItemState.item = (trailingItemState.item == .keyboardItem) ? .stickerItem : .keyboardItem
         }
     }
     
-    private func KeyboardButton() -> some View
-    {
-        Button {
-            onTrailingItemChange(textViewTrailingItem)
-            toggleTextViewItem()
-        }
-        label: {
-            ItemImage()
-        }
-    }
-    
-    private func ItemImage() -> some View
-    {
-        let itemName = textViewTrailingItem == .keyboardItem ? "keyboard" : "inset.filled.circle.dashed"
-        let imageHeight = textViewTrailingItem == .keyboardItem ? 20.0 : 25.0
-        let imageWidth = textViewTrailingItem == .keyboardItem ? 30.0 : 25.0
-        return Image(systemName: itemName)
+    private func ItemImage() -> some View {
+        let image = trailingItemState.item == .keyboardItem ? Image(systemName: "keyboard") : Image(.stickerIcon5)
+        let imageHeight = trailingItemState.item == .keyboardItem ? 20.0 : 25.0
+        let imageWidth = trailingItemState.item == .keyboardItem ? 30.0 : 30.0
+        return image
             .resizable()
+            .renderingMode(.template)
             .frame(width: imageWidth, height: imageHeight)
             .foregroundStyle(Color(ColorManager.textFieldPlaceholderColor))
     }
 }
 
 
+class TrailingItemState: SwiftUI.ObservableObject
+{
+    @Published var item: MessageTextViewTrailingItem = .stickerItem
+}
 
 enum MessageTextViewTrailingItem
 {
@@ -103,5 +92,5 @@ enum MessageTextViewTrailingItem
 }
 
 #Preview {
-    MessageTextViewTrailingItemView { _ in }
+//    MessageTextViewTrailingItemView(textViewTrailingItem: .constant(.stickerItem)) { _ in }
 }

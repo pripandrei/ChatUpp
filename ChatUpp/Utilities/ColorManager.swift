@@ -1691,3 +1691,387 @@ struct ColorManager
 //        isVisible = visible
 //    }
 //}
+
+
+
+/// this
+//
+//import UIKit
+//import librlottie
+//
+//// Needed for concurrency
+//extension OpaquePointer: @unchecked @retroactive Sendable {}
+//
+//// MARK: - PixelBuffer (Ref-counted owner for pixel memory)
+//final class PixelBuffer {
+//    let ptr: UnsafeMutablePointer<UInt32>
+//    let width: Int
+//    let height: Int
+//
+//    init(width: Int, height: Int) {
+//        self.width = width
+//        self.height = height
+//        let pixelCount = width * height
+//        ptr = UnsafeMutablePointer<UInt32>.allocate(capacity: pixelCount)
+//        ptr.initialize(repeating: 0, count: pixelCount)
+//    }
+//
+//    deinit {
+//        ptr.deinitialize(count: width * height)
+//        ptr.deallocate()
+//    }
+//}
+//
+//// MARK: - Render Actor
+//actor RenderActor {
+//    static let shared = RenderActor()
+//
+//    func render(
+//        animation: OpaquePointer,
+//        frame: Int,
+//        buffer: UnsafeMutablePointer<UInt32>,
+//        size: CGSize
+//    ) {
+//        lottie_animation_render(
+//            animation,
+//            size_t(frame),
+//            buffer,
+//            size_t(size.width),
+//            size_t(size.height),
+//            size_t(Int(size.width) * MemoryLayout<UInt32>.size)
+//        )
+//    }
+//}
+//
+//// MARK: - Stickers Animation Manager (actor owns cache & rendering by name)
+//actor StickersAnimationManager {
+//    static let shared = StickersAnimationManager()
+//
+//    private var cache: [String: OpaquePointer] = [:]
+//    private var activeRenders: Int = 0
+//
+//    // Loads animation into cache if missing and returns true if loaded/existed
+//    func ensureAnimationLoaded(named name: String) -> Bool {
+//        if cache[name] != nil { return true }
+//        guard let path = Bundle.main.path(forResource: name, ofType: "json"),
+//              let anim = lottie_animation_from_file(path) else {
+//            return false
+//        }
+//        cache[name] = anim
+//        return true
+//    }
+//
+//    func getAnimationInfo(named name: String) -> (totalFrames: Int, framerate: Double)? {
+//        guard let anim = cache[name] else { return nil }
+//        let total = Int(lottie_animation_get_totalframe(anim))
+//        let fr = Double(lottie_animation_get_framerate(anim))
+//        return (total, fr)
+//    }
+//
+//    // Render by name inside actor so pointer can't be destroyed mid-render
+//    func renderAnimation(named name: String, frame: Int, buffer: UnsafeMutablePointer<UInt32>, size: CGSize) {
+//        activeRenders += 1
+//        defer { activeRenders -= 1 }
+//        guard let anim = cache[name] else { return }
+//        lottie_animation_render(
+//            anim,
+//            size_t(frame),
+//            buffer,
+//            size_t(size.width),
+//            size_t(size.height),
+//            size_t(Int(size.width) * MemoryLayout<UInt32>.size)
+//        )
+//    }
+//
+//    // Clear cache but wait until active renders finish
+//    func clearCacheWhenIdle() async {
+//        while activeRenders > 0 { await Task.yield() }
+//        for (_, anim) in cache { lottie_animation_destroy(anim) }
+//        cache.removeAll()
+//    }
+//
+//    // Force clear (use only when you know no renders are running)
+//    func clearCacheImmediate() {
+//        for (_, anim) in cache { lottie_animation_destroy(anim) }
+//        cache.removeAll()
+//    }
+//
+//    deinit {
+//        for (_, anim) in cache { lottie_animation_destroy(anim) }
+//    }
+//}
+//
+//// MARK: - StickersCollectionView (uses actor-based manager + throttling)
+//final class StickersCollectionView: UIView {
+//    private let animations: [String] = {
+//        return Stickers.Category.allCases
+//            .flatMap { $0.pack.map { $0.deletingPathExtension().lastPathComponent } }
+//    }()
+//
+//    private var collectionView: UICollectionView!
+//    private var displayLink: CADisplayLink?
+//
+//    // Controls: render every n ticks (1 = every tick, 2 = every 2nd tick)
+//    private let frameSkip: Int
+//    private var tickCounter: Int = 0
+//
+//    init(frame: CGRect = .zero, frameSkip: Int = 3) {
+//        self.frameSkip = max(1, frameSkip)
+//        super.init(frame: frame)
+//        backgroundColor = ColorManager.stickerViewBackgroundColor
+//        setupCollectionView()
+//        startAnimationLoop()
+//    }
+//
+//    required init?(coder: NSCoder) { fatalError("Could not init stickerView") }
+//
+//    deinit {
+//        stopAnimationLoop()
+//        Task { await StickersAnimationManager.shared.clearCacheWhenIdle() }
+//        print("Sticker collection DEINIT")
+//    }
+//
+//    override func layoutSubviews() {
+//        super.layoutSubviews()
+//        if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+//            let spacing: CGFloat = 10
+//            let itemWidth = (bounds.width - spacing * 5) / 4
+//            layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
+//            layout.minimumLineSpacing = spacing
+//            layout.minimumInteritemSpacing = spacing
+//            layout.sectionInset = UIEdgeInsets(top: spacing, left: spacing, bottom: 0, right: spacing)
+//        }
+//    }
+//
+//    private func setupCollectionView() {
+//        let layout = UICollectionViewFlowLayout()
+//        collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+//        collectionView.backgroundColor = .clear
+//        collectionView.dataSource = self
+//        collectionView.delegate = self
+//        collectionView.register(LottieCell.self, forCellWithReuseIdentifier: LottieCell.identifier)
+//
+//        addSubview(collectionView)
+//
+//        collectionView.translatesAutoresizingMaskIntoConstraints = false
+//        NSLayoutConstraint.activate([
+//            collectionView.topAnchor.constraint(equalTo: topAnchor),
+//            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+//            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
+//            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor)
+//        ])
+//    }
+//
+//    // MARK: - Animation Loop
+//    func startAnimationLoop() {
+//        let proxy = DisplayLinkProxy(target: self, selector: #selector(renderFrame))
+//        displayLink = CADisplayLink(target: proxy, selector: #selector(DisplayLinkProxy.onDisplayLink(_:)))
+//        displayLink?.add(to: .main, forMode: .common)
+//    }
+//
+//    private func stopAnimationLoop() { displayLink?.invalidate(); displayLink = nil }
+//
+//    @objc private func renderFrame() {
+//        tickCounter += 1
+//        if tickCounter % frameSkip != 0 { return }
+//
+//        let visibleIndexPaths = collectionView.indexPathsForVisibleItems
+//        for indexPath in visibleIndexPaths {
+//            if let cell = collectionView.cellForItem(at: indexPath) as? LottieCell {
+//                cell.lottieView.renderNextFrame()
+//            }
+//        }
+//    }
+//}
+//
+//// MARK: - UICollectionViewDataSource
+//extension StickersCollectionView: UICollectionViewDataSource {
+//    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { animations.count }
+//
+//    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: LottieCell.identifier, for: indexPath) as! LottieCell
+//        cell.configure(withAnimationNamed: animations[indexPath.item])
+//        return cell
+//    }
+//}
+//
+//// MARK: - UICollectionViewDelegate
+//extension StickersCollectionView: UICollectionViewDelegateFlowLayout {
+//    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+//        (cell as? LottieCell)?.lottieView.setVisible(true)
+//    }
+//
+//    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+//        (cell as? LottieCell)?.lottieView.setVisible(false)
+//    }
+//}
+//
+//// MARK: - LottieCell
+//class LottieCell: UICollectionViewCell {
+//    static let identifier = "LottieCell"
+//    let lottieView = RLLottieView()
+//
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//        contentView.addSubview(lottieView)
+//        lottieView.translatesAutoresizingMaskIntoConstraints = false
+//        NSLayoutConstraint.activate([
+//            lottieView.topAnchor.constraint(equalTo: contentView.topAnchor),
+//            lottieView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+//            lottieView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+//            lottieView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
+//        ])
+//    }
+//
+//    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+//
+//    func configure(withAnimationNamed name: String) {
+//        lottieView.loadAnimation(named: name)
+//    }
+//
+//    override func prepareForReuse() {
+//        super.prepareForReuse()
+//        lottieView.reset()
+//    }
+//}
+//
+//// MARK: - RLLottieView (safe with PixelBuffer + actor-based rendering)
+//class RLLottieView: UIView {
+//    private(set) var animationName: String?
+//    private var totalFrames: Int = 0
+//    private var framerate: Double = 60.0
+//    private let renderSize = CGSize(width: 200, height: 200) // configurable
+//    private var bufferRef: PixelBuffer?
+//    private var isVisible = false
+//    private var renderInProgress = false
+//    private var startTime: CFTimeInterval = 0
+//    private var randomOffset: TimeInterval = 0
+//
+//    // cached graphics objects
+//    private let cachedColorSpace: CGColorSpace
+//    private let cachedBitmapInfo: CGBitmapInfo
+//
+//    // generation token
+//    private var generation: Int = 0
+//
+//    override init(frame: CGRect) {
+//        cachedColorSpace = CGColorSpaceCreateDeviceRGB()
+//        cachedBitmapInfo = CGBitmapInfo(rawValue: CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue)
+//        super.init(frame: frame)
+//
+//        bufferRef = PixelBuffer(width: Int(renderSize.width), height: Int(renderSize.height))
+//        contentMode = .scaleAspectFit
+//        layer.contentsGravity = .resizeAspect
+//        layer.masksToBounds = true
+//    }
+//
+//    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+//
+//    // MARK: - Load Animation
+//    // MARK: - Load Animation (Alternative solution)
+//    func loadAnimation(named name: String) {
+//        generation &+= 1
+//        let currentGen = generation
+//
+//        animationName = name
+//        totalFrames = 0
+//        framerate = 60.0
+//        layer.contents = nil
+//        
+//        // Ensure we have a buffer (recreate if needed)
+//        if bufferRef == nil {
+//            bufferRef = PixelBuffer(width: Int(renderSize.width), height: Int(renderSize.height))
+//        }
+//
+//        Task { [weak self] in
+//            guard let self = self else { return }
+//            // Ensure the animation is loaded into actor cache
+//            let loaded = await StickersAnimationManager.shared.ensureAnimationLoaded(named: name)
+//            guard loaded, self.generation == currentGen else { return }
+//
+//            if let info = await StickersAnimationManager.shared.getAnimationInfo(named: name) {
+//                self.totalFrames = info.totalFrames
+//                self.framerate = max(info.framerate, 1.0)
+//            }
+//
+//            self.startTime = CACurrentMediaTime()
+//            self.randomOffset = TimeInterval.random(in: 0..<2.0)
+//            self.renderFirstFrame(gen: currentGen)
+//        }
+//    }
+//
+//    private func renderFirstFrame(gen: Int) {
+//        guard let name = animationName, let bufferRef = bufferRef else { return }
+//        let localBuffer = bufferRef // strong ref for task
+//
+//        Task { [weak self] in
+//            await StickersAnimationManager.shared.renderAnimation(named: name, frame: 0, buffer: localBuffer.ptr, size: self?.renderSize ?? CGSize(width: 1, height: 1))
+//            guard let self = self, self.generation == gen else { return }
+//            self.createAndDisplayImage(from: localBuffer.ptr)
+//            self.renderInProgress = false
+//        }
+//    }
+//
+//    func renderNextFrame() {
+//        guard isVisible, let name = animationName, let bufferRef = bufferRef, !renderInProgress, totalFrames > 0 else { return }
+//
+//        renderInProgress = true
+//        let gen = generation
+//        let localBuffer = bufferRef
+//
+//        let elapsed = CACurrentMediaTime() - startTime + randomOffset
+//        let duration = Double(totalFrames) / max(framerate, 1.0)
+//        let progress = fmod(elapsed, duration) / duration
+//        let currentFrame = Int(progress * Double(totalFrames))
+//
+//        Task { [weak self] in
+//            await StickersAnimationManager.shared.renderAnimation(named: name, frame: currentFrame, buffer: localBuffer.ptr, size: self?.renderSize ?? CGSize(width: 1, height: 1))
+//            guard let self = self, self.generation == gen else { return }
+//            self.createAndDisplayImage(from: localBuffer.ptr)
+//            self.renderInProgress = false
+//        }
+//    }
+//
+//    // MARK: - Reset
+//    func reset() {
+//        generation &+= 1  // invalidate all pending renders
+//        animationName = nil
+//        totalFrames = 0
+//        framerate = 60.0
+//        isVisible = false
+//        renderInProgress = false
+//        layer.contents = nil
+//
+//        // Drop our reference to the PixelBuffer — inflight tasks keep their own copy
+//        bufferRef = nil
+//    }
+//
+//    deinit { bufferRef = nil }
+//
+//    // MARK: - Helpers
+//    private func createAndDisplayImage(from cgBuffer: UnsafeMutableRawPointer) {
+//        guard let context = CGContext(data: cgBuffer, width: Int(renderSize.width), height: Int(renderSize.height), bitsPerComponent: 8, bytesPerRow: Int(renderSize.width) * 4, space: cachedColorSpace, bitmapInfo: cachedBitmapInfo.rawValue), let cgImage = context.makeImage() else { return }
+//
+//        DispatchQueue.main.async { [weak self] in
+//            guard let self = self else { return }
+//            self.layer.contents = cgImage
+//            self.layer.contentsScale = UIScreen.main.scale
+//            self.setNeedsDisplay()
+//        }
+//    }
+//
+//    func setVisible(_ visible: Bool) { isVisible = visible }
+//}
+//
+//// MARK: - DisplayLinkProxy
+//final class DisplayLinkProxy {
+//    weak var target: AnyObject?
+//    let selector: Selector
+//
+//    init(target: AnyObject, selector: Selector) {
+//        self.selector = selector
+//        self.target = target
+//    }
+//
+//    @objc func onDisplayLink(_ link: CADisplayLink) { _ = target?.perform(selector, with: link) }
+//}

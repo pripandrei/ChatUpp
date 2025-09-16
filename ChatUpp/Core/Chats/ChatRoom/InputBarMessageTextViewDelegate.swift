@@ -14,6 +14,7 @@ final class InputBarMessageTextViewDelegate: NSObject, UITextViewDelegate
     private var conversationView: ChatRoomRootView!
     private(set) var messageTextViewNumberOfLines = 1
     private(set) var lineNumberModificationSubject = PassthroughSubject<(Int,Int), Never>()
+    private(set) var textViewDidBeginEditing = PassthroughSubject<Bool, Never>()
     private var _invalidateTextViewSize: Bool = false
     
     convenience init(view: ChatRoomRootView) {
@@ -25,6 +26,18 @@ final class InputBarMessageTextViewDelegate: NSObject, UITextViewDelegate
     
     private func setupDelegate() {
         conversationView.setTextViewDelegate(to: self)
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView)
+    {
+        print("did begin")
+        textViewDidBeginEditing.send(true)
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView)
+    {
+        print("did ended")
+        textViewDidBeginEditing.send(false)
     }
 
     func textViewDidChange(_ textView: UITextView)
