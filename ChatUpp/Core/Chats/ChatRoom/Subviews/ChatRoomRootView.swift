@@ -25,7 +25,7 @@ final class ChatRoomRootView: UIView {
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
     
 //    private(set) var unseenMessagesBadge: UnseenMessagesBadge = UnseenMessagesBadge()
-
+    let keyboardHeight: CGFloat
     private(set) var stickerCollectionView: StickersCollectionView?
     let trailingItemState = TrailingItemState()
     
@@ -197,6 +197,7 @@ final class ChatRoomRootView: UIView {
     
     override init(frame: CGRect)
     {
+        self.keyboardHeight = KeyboardService.keyboardHeight()
         super.init(frame: frame)
         setupLayout()
     }
@@ -215,16 +216,15 @@ final class ChatRoomRootView: UIView {
     
     private func initiateStickersViewSetup()
     {
-        guard stickerCollectionView == nil else {
-            messageTextView.resignFirstResponder()
-            return
-        }
-//        guard !isStickersViewPresented else {return}
-//        isStickersViewPresented = true
-        print("created stoicker")
+//        guard stickerCollectionView == nil else {
+//            messageTextView.resignFirstResponder()
+//            return
+//        }
+
         let stickerCollectionView = StickersCollectionView()
         addSubview(stickerCollectionView)
         self.stickerCollectionView = stickerCollectionView
+        
         stickerCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -234,32 +234,31 @@ final class ChatRoomRootView: UIView {
             stickerCollectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
         ])
-        
         self.layoutIfNeeded()
-        UIView.animate(withDuration: 0.27) {
-            self.inputBarBottomConstraint.constant = -306
-            self.layoutIfNeeded()
-        }
-        messageTextView.resignFirstResponder()
+//        self.layoutIfNeeded()
+//        UIView.animate(withDuration: 0.27) {
+//            self.inputBarBottomConstraint.constant = -306
+//            self.layoutIfNeeded()
+//        }
+//        messageTextView.resignFirstResponder()
     }
     
-//    private var isStickersViewPresented: Bool?
+//    func updateInputBarBottomConstraintConstant(_ constant: CGFloat)
+//    {
+//        UIView.animate(withDuration: 0.27) {
+//            self.inputBarBottomConstraint.constant = constant
+//            self.layoutIfNeeded()
+//        }
+//    }
     
     private func initiateKeyboard()
     {
         messageTextView.becomeFirstResponder()
-//        stickerCollectionView?.stopAnimationLoop()
         executeAfter(seconds: 1)
         { [weak self] in
-//            guard self?.isStickersViewPresented == false else {return}
             guard self?.messageTextView.isFirstResponder == true else {return}
-            print("removed sticker")
             self?.removeStickerView()
-//            self?.isStickersViewPresented = false
         }
-//        Task {
-//            await LottieAnimationManager.shared.cleanup()            
-//        }
     }
     
     // MARK: - SETUP CONSTRAINTS
@@ -311,10 +310,28 @@ final class ChatRoomRootView: UIView {
     
     private func setupTextViewTrailingItem()
     {
-        self.textViewTrailingItem = MessageTextViewTrailingItemView(trailingItemState: trailingItemState) { item in
+        self.textViewTrailingItem = MessageTextViewTrailingItemView(trailingItemState: trailingItemState)
+        { [weak self] item in
+            guard let self else {return}
             switch item
             {
-            case .stickerItem: self.initiateStickersViewSetup()
+            case .stickerItem:
+                guard self.stickerCollectionView == nil else {
+                    self.messageTextView.resignFirstResponder()
+                    return
+                }
+                self.initiateStickersViewSetup()
+                self.contentOffsetSubject.send()
+//                if self.messageTextView.isFirstResponder
+//                {
+//                    self.messageTextView.resignFirstResponder()
+//                }
+//                else {
+//                    self.contentOffsetSubject.send()
+//                }
+//                let height = -(self.keyboardHeight - 30)
+//                self.updateInputBarBottomConstraintConstant(height)
+//                self.messageTextView.resignFirstResponder()
             case .keyboardItem: self.initiateKeyboard()
             }
         }
@@ -333,6 +350,8 @@ final class ChatRoomRootView: UIView {
         ])
         
     }
+    
+    let contentOffsetSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
     
     // MARK: Private functions
     

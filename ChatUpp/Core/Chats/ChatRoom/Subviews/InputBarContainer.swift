@@ -82,7 +82,11 @@ struct MessageTextViewTrailingItemView: View
 
 class TrailingItemState: SwiftUI.ObservableObject
 {
-    @Published var item: MessageTextViewTrailingItem = .stickerItem
+    @Published var item: MessageTextViewTrailingItem = .stickerItem {
+        didSet {
+            print(item)
+        }
+    }
 }
 
 enum MessageTextViewTrailingItem
@@ -94,3 +98,84 @@ enum MessageTextViewTrailingItem
 #Preview {
 //    MessageTextViewTrailingItemView(textViewTrailingItem: .constant(.stickerItem)) { _ in }
 }
+
+
+
+
+
+
+class KeyboardService: NSObject
+{
+    static var serviceSingleton = KeyboardService()
+    var measuredSize: CGRect = CGRect.zero
+
+    private var field: UITextField?
+    
+    @objc class func keyboardHeight() -> CGFloat
+    {
+        let keyboardSize = KeyboardService.keyboardSize()
+        return keyboardSize.size.height
+    }
+
+    @objc class func keyboardSize() -> CGRect
+    {
+        return serviceSingleton.measuredSize
+    }
+
+    private func observeKeyboardNotifications()
+    {
+        let center = NotificationCenter.default
+        center.addObserver(self,
+                           selector: #selector(self.keyboardChange),
+                           name: UIResponder.keyboardWillShowNotification,
+                           object: nil)
+    }
+
+    private func observeKeyboard()
+    {
+        self.field = UITextField()
+        UIApplication.shared.windows.first?.addSubview(field!)
+        field?.becomeFirstResponder()
+    }
+
+    @objc private func keyboardChange(_ notification: Notification)
+    {
+        guard measuredSize == CGRect.zero,
+              let info = notification.userInfo,
+              let value = info[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
+        else { return }
+        
+        measuredSize = value.cgRectValue
+        field?.resignFirstResponder()
+        field?.removeFromSuperview()
+    }
+
+    override init() {
+        super.init()
+        observeKeyboardNotifications()
+        observeKeyboard()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+}
+
+//final class KeyboardService
+//{
+//    static let shared = KeyboardService()
+//    
+//    private(set) var keyboardHeight: CGFloat = 0
+//    
+//    private init() {}
+//    
+//    private func setNotification()
+//    {
+//        
+//    }
+//    
+//    private func findKeyboardHeight()
+//    {
+//        
+//    }
+//}

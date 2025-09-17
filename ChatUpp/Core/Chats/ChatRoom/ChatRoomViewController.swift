@@ -225,31 +225,66 @@ final class ChatRoomViewController: UIViewController
                 }
             }
             .store(in: &subscriptions)
+        
+        rootView.contentOffsetSubject
+            .sink { [weak self] _ in
+                guard let self else {return}
+                
+                if self.rootView.messageTextView.isFirstResponder
+                {
+                    self.rootView.messageTextView.resignFirstResponder()
+                    return
+                }
+                
+                let height = self.rootView.keyboardHeight
+                UIView.animate(withDuration: 0.27) {
+                    self.handleTableViewOffset(usingKeyboardHeight: height)
+                    self.rootView.layoutIfNeeded()
+                }
+               
+                
+            }
+            .store(in: &subscriptions)
     }
     
     //MARK: - Keyboard notification observers
     
-    private func addKeyboardNotificationObservers() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(keyboardWillShow),
-                                               name: UIResponder.keyboardWillShowNotification,
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(keyboardWillHide),
-                                               name: UIResponder.keyboardWillHideNotification,
-                                               object: nil)
-//        NotificationCenter.default.addObserver(forName: <#T##NSNotification.Name?#>, object: <#T##Any?#>, queue: <#T##OperationQueue?#>, using: <#T##(Notification) -> Void#>)
+    private func addKeyboardNotificationObservers()
+    {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
     }
 
     @objc func keyboardWillShow(notification: NSNotification)
     {
+        
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
+//            guard rootView.stickerCollectionView == nil else
+//            {
+//                if self.rootView.keyboardHight == nil {
+//                    self.rootView.keyboardHight = keyboardSize.height
+//                }
+//                self.rootView.messageTextView.resignFirstResponder()
+//                return
+//            }
+            
             if rootView.inputBarContainer.frame.origin.y > 580 /// first character typed in textField triggers keyboardWillShow, so we perform this check
             {
                 isKeyboardHidden = false
                 guard isContextMenuPresented else {
-                    handleTableViewOffset(usingKeyboardSize: keyboardSize)
+                    handleTableViewOffset(usingKeyboardHeight: keyboardSize.height)
                     return
                 }
                 
@@ -263,13 +298,20 @@ final class ChatRoomViewController: UIViewController
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
-            guard self.rootView.stickerCollectionView == nil else { return }
+            guard self.rootView.stickerCollectionView == nil else
+            {
+//                let height = -keyboardSize.height + 30
+//                let height = (self.rootView.keyboardHight ?? 336) 
+////                self.rootView.updateInputBarBottomConstraintConstant(-height)
+//                self.handleTableViewOffset(usingKeyboardHeight: height)
+                return
+            }
             isKeyboardHidden = true
             guard !isContextMenuPresented else {
                 updateInputBarBottomConstraint(toSize: 0)
                 return
             }
-            handleTableViewOffset(usingKeyboardSize: keyboardSize)
+            handleTableViewOffset(usingKeyboardHeight: keyboardSize.height)
         }
     }
     
@@ -307,8 +349,7 @@ final class ChatRoomViewController: UIViewController
     {
         rootView.showStickerIcon()
         UIView.animate(withDuration: 0.27) {
-            self.handleTableViewOffset(usingKeyboardSize: CGRect(origin: .zero,
-                                                                 size: CGSize(width: UIScreen.main.bounds.size.width, height: 336.0)))
+            self.handleTableViewOffset(usingKeyboardHeight: self.rootView.keyboardHeight)
             self.rootView.layoutIfNeeded()
         } completion: { _ in
             self.rootView.removeStickerView()
@@ -867,15 +908,16 @@ extension ChatRoomViewController
 //    }
 //
 
-    private func handleTableViewOffset(usingKeyboardSize keyboardSize: CGRect)
+    private func handleTableViewOffset(usingKeyboardHeight keyboardHeight: CGFloat)
     {
         // if number of lines inside textView is bigger than 1, it will expand
         let maxContainerViewY = 584.0 - 4.0
-        let keyboardSize = CGRect(origin: keyboardSize.origin,
-                                  size: CGSize(width:
-                                                keyboardSize.size.width,
-                                               height: keyboardSize.size.height - 30))
-        let keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardSize.height : keyboardSize.height
+        var keyboardHeight = keyboardHeight - 30
+//        let keyboardSize = CGRect(origin: keyboardSize.origin,
+//                                  size: CGSize(width:
+//                                                keyboardSize.size.width,
+//                                               height: keyboardSize.size.height - 30))
+        keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardHeight : keyboardHeight
         let editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)

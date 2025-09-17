@@ -30,14 +30,7 @@ final class InputBarMessageTextViewDelegate: NSObject, UITextViewDelegate
     
     func textViewDidBeginEditing(_ textView: UITextView)
     {
-        print("did begin")
         textViewDidBeginEditing.send(true)
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView)
-    {
-        print("did ended")
-        textViewDidBeginEditing.send(false)
     }
 
     func textViewDidChange(_ textView: UITextView)
@@ -106,3 +99,4 @@ extension InputBarMessageTextViewDelegate
         _invalidateTextViewSize = true
     }
 }
+
