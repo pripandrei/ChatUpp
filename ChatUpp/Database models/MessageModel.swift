@@ -22,15 +22,6 @@ class Reaction: EmbeddedObject, Codable
 {
     @Persisted var emoji: String
     @Persisted var userIDs: List<String>
-//    @Persisted var userIDs: List<String>
-    
-//    init(emoji: String, userIDs: List<String>)
-//    {
-////        super.init()
-//        self.emoji = emoji
-//        self.userIDs = userIDs
-////        self.userIDs.append(objectsIn: userIDs)
-//    }
 }
 
 class MessageImageSize: EmbeddedObject, Codable
@@ -179,7 +170,7 @@ extension Message
 {
     private func mapDecodedReactions(_ reactions: [String: [String]]) -> List<Reaction>
     {
-        var reactionsList = List<Reaction>()
+        let reactionsList = List<Reaction>()
         for (emoji, userIDs) in reactions
         {
             let reaction = Reaction()

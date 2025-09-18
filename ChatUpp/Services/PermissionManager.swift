@@ -14,7 +14,7 @@ final class PermissionManager
     
     private init() {}
     
-    func requestCameraPermision() -> AnyPublisher<Bool,Never>
+    func requestCameraPermision() -> AnyPublisher<Bool, Never>
     {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         switch status {

@@ -36,15 +36,15 @@ extension EmailValidator
     }
 }
 
-final class EmailCredentialsValidator: NSObject {
+final class CredentialsValidator: NSObject {
     
     var mail: UITextField
     var pass: UITextField
     
-    var viewModel: EmailValidator
+    var validator: EmailValidator
     
-    init(mailField: UITextField, passwordField: UITextField, viewModel: EmailValidator) {
-        self.viewModel = viewModel
+    init(mailField: UITextField, passwordField: UITextField, validator: EmailValidator) {
+        self.validator = validator
         self.mail = mailField
         self.pass = passwordField
         self.pass.isSecureTextEntry = true
@@ -53,7 +53,7 @@ final class EmailCredentialsValidator: NSObject {
 
 // MARK: - Text Field Delegate
 
-extension EmailCredentialsValidator: UITextFieldDelegate {
+extension CredentialsValidator: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         return textFieldShouldSwitchSelection(textField)
@@ -62,17 +62,20 @@ extension EmailCredentialsValidator: UITextFieldDelegate {
     func textFieldDidChangeSelection(_ textField: UITextField) {
         if let text = textField.text {
             switch textField {
-            case mail: viewModel.email = text
-            case pass: viewModel.password = text
+            case mail: validator.email = text
+            case pass: validator.password = text
             default: break
             }
         }
     }
     
     // Custom function
-    private func textFieldShouldSwitchSelection(_ textField: UITextField) -> Bool {
-        if textField == mail, let mailText = textField.text, !mailText.isEmpty,
-           let passwordText = pass.text, passwordText.isEmpty {
+    private func textFieldShouldSwitchSelection(_ textField: UITextField) -> Bool
+    {
+        if textField == mail,
+           let mailText = textField.text, !mailText.isEmpty,
+           let passwordText = pass.text, passwordText.isEmpty
+        {
             return pass.becomeFirstResponder()
         }
         return textField.resignFirstResponder()
@@ -81,11 +84,11 @@ extension EmailCredentialsValidator: UITextFieldDelegate {
 
 // MARK: - Validation
 
-extension EmailCredentialsValidator
+extension CredentialsValidator
 {
     func validate() -> Bool {
         do {
-            try viewModel.validateEmailCredentials()
+            try validator.validateEmailCredentials()
             return true
         } catch CredentialsError.emptyMail {
             mail.becomeFirstResponder()

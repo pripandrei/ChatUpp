@@ -13,9 +13,10 @@ import NVActivityIndicatorView
 import Combine
 import SwiftUI
 
-final class ChatRoomRootView: UIView {
-    
-    // MARK: - UI Elements
+final class ChatRoomRootView: UIView
+{
+    let contentOffsetSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
+    let keyboardHeight: CGFloat
     
     private let inputBarViewsTopConstraintConstant: CGFloat = 7.0
     private let inputBarButtonsSize: CGFloat = 31
@@ -23,9 +24,7 @@ final class ChatRoomRootView: UIView {
     private(set) var inputBarHeader          : InputBarHeaderView?
     private(set) var inputBarBottomConstraint: NSLayoutConstraint!
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
-    
-//    private(set) var unseenMessagesBadge: UnseenMessagesBadge = UnseenMessagesBadge()
-    let keyboardHeight: CGFloat
+
     private(set) var stickerCollectionView: StickersCollectionView?
     let trailingItemState = TrailingItemState()
     
@@ -55,14 +54,15 @@ final class ChatRoomRootView: UIView {
         
         // Bottom of table view has padding due to navigation controller
         let tableView                           = UITableView()
-        tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1) // Revert table view upside down
-//        tableView.backgroundColor               = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+        tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1)
         tableView.backgroundColor               = ColorManager.appBackgroundColor
         tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
         tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -20, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
-        tableView.estimatedRowHeight            = UITableView.automaticDimension // for skeleton animation
+        
+        // for skeleton animation
+        tableView.estimatedRowHeight            = UITableView.automaticDimension
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
         
@@ -181,7 +181,6 @@ final class ChatRoomRootView: UIView {
         scrollToBottomBtnBottomConstraint.isActive = true
         
         scrollBadgeButton.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -10).isActive = true
-//        scrollToBottomBtn.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: -10).isActive        = true
         scrollBadgeButton.heightAnchor.constraint(equalToConstant: 35).isActive                                        = true
         scrollBadgeButton.widthAnchor.constraint(equalToConstant: 35).isActive                                         = true
     }
@@ -213,59 +212,11 @@ final class ChatRoomRootView: UIView {
         sendEditMessageButton.layer.cornerRadius = sendEditMessageButton.bounds.height / 2
         scrollBadgeButton.layer.cornerRadius = scrollBadgeButton.bounds.size.width / 2
     }
-    
-    private func initiateStickersViewSetup()
-    {
-//        guard stickerCollectionView == nil else {
-//            messageTextView.resignFirstResponder()
-//            return
-//        }
 
-        let stickerCollectionView = StickersCollectionView()
-        addSubview(stickerCollectionView)
-        self.stickerCollectionView = stickerCollectionView
-        
-        stickerCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            stickerCollectionView.topAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -25),
-//            stickerCollectionView.heightAnchor.constraint(equalToConstant: 700),
-            stickerCollectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            stickerCollectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-        ])
-        self.layoutIfNeeded()
-//        self.layoutIfNeeded()
-//        UIView.animate(withDuration: 0.27) {
-//            self.inputBarBottomConstraint.constant = -306
-//            self.layoutIfNeeded()
-//        }
-//        messageTextView.resignFirstResponder()
-    }
-    
-//    func updateInputBarBottomConstraintConstant(_ constant: CGFloat)
-//    {
-//        UIView.animate(withDuration: 0.27) {
-//            self.inputBarBottomConstraint.constant = constant
-//            self.layoutIfNeeded()
-//        }
-//    }
-    
-    private func initiateKeyboard()
-    {
-        messageTextView.becomeFirstResponder()
-        executeAfter(seconds: 1)
-        { [weak self] in
-            guard self?.messageTextView.isFirstResponder == true else {return}
-            self?.removeStickerView()
-        }
-    }
-    
     // MARK: - SETUP CONSTRAINTS
     
     private func setupLayout()
     {
-//        backgroundColor = .systemBackground
         setupTableViewConstraints()
         setupInputBarContainerConstraints()
         setupMessageTextViewConstraints()
@@ -277,25 +228,7 @@ final class ChatRoomRootView: UIView {
         setupJoinChatRoomButtonConstraints()
         setupActivityIndicatorConstraint()
         setupTextViewTrailingItem()
-//        setupUnseenMessagesBadgeConstraints()
     }
-    
-//    private func setupTextViewTrailingItemConstraints2()
-//    {
-////        let textViewTrailingItem = MessageTextViewTrailingItemView()
-//        let hostingVC = UIHostingController(rootView: self.textViewTrailingItem)
-//        let tailingView = hostingVC.view!
-//        inputBarContainer.addSubview(tailingView)
-//        tailingView.backgroundColor = .clear
-//        tailingView.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        NSLayoutConstraint.activate([
-//            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
-//            tailingView.heightAnchor.constraint(equalTo: messageTextView.heightAnchor, multiplier: 0.75),
-////            tailingView.widthAnchor.constraint(equalTo: tailingView.heightAnchor),
-////            tailingView.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -8),
-//        ])
-//    }
     
     func removeStickerView()
     {
@@ -307,51 +240,6 @@ final class ChatRoomRootView: UIView {
         trailingItemState.item = .stickerItem
         textViewTrailingItem.isButtonDisabled = true
     }
-    
-    private func setupTextViewTrailingItem()
-    {
-        self.textViewTrailingItem = MessageTextViewTrailingItemView(trailingItemState: trailingItemState)
-        { [weak self] item in
-            guard let self else {return}
-            switch item
-            {
-            case .stickerItem:
-                guard self.stickerCollectionView == nil else {
-                    self.messageTextView.resignFirstResponder()
-                    return
-                }
-                self.initiateStickersViewSetup()
-                self.contentOffsetSubject.send()
-//                if self.messageTextView.isFirstResponder
-//                {
-//                    self.messageTextView.resignFirstResponder()
-//                }
-//                else {
-//                    self.contentOffsetSubject.send()
-//                }
-//                let height = -(self.keyboardHeight - 30)
-//                self.updateInputBarBottomConstraintConstant(height)
-//                self.messageTextView.resignFirstResponder()
-            case .keyboardItem: self.initiateKeyboard()
-            }
-        }
-//        let textViewTrailingItem = MessageTextViewTrailingItemView()
-        let hostingVC = UIHostingController(rootView: self.textViewTrailingItem)
-        let tailingView = hostingVC.view!
-        tailingView.backgroundColor = .clear
-        
-        inputBarContainer.addSubview(tailingView)
-        
-        tailingView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            tailingView.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -13),
-            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
-        ])
-        
-    }
-    
-    let contentOffsetSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
     
     // MARK: Private functions
     
@@ -401,6 +289,69 @@ final class ChatRoomRootView: UIView {
     }
 }
 
+// MARK: - TextView trailing items
+extension ChatRoomRootView
+{
+    private func setupTextViewTrailingItem()
+    {
+        self.textViewTrailingItem = MessageTextViewTrailingItemView(trailingItemState: trailingItemState)
+        { [weak self] item in
+            guard let self else {return}
+            switch item
+            {
+            case .stickerItem:
+                guard self.stickerCollectionView == nil else {
+                    self.messageTextView.resignFirstResponder()
+                    return
+                }
+                self.initiateStickersViewSetup()
+                self.contentOffsetSubject.send()
+            case .keyboardItem: self.initiateKeyboardItem()
+            }
+        }
+
+        let hostingVC = UIHostingController(rootView: self.textViewTrailingItem)
+        let tailingView = hostingVC.view!
+        tailingView.backgroundColor = .clear
+        
+        inputBarContainer.addSubview(tailingView)
+        
+        tailingView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            tailingView.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -13),
+            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
+        ])
+    }
+    
+    private func initiateStickersViewSetup()
+    {
+        let stickerCollectionView = StickersCollectionView()
+        addSubview(stickerCollectionView)
+        self.stickerCollectionView = stickerCollectionView
+        
+        stickerCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            stickerCollectionView.topAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -25),
+//            stickerCollectionView.heightAnchor.constraint(equalToConstant: 700),
+            stickerCollectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            stickerCollectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+        ])
+        self.layoutIfNeeded()
+    }
+    
+    private func initiateKeyboardItem()
+    {
+        messageTextView.becomeFirstResponder()
+        executeAfter(seconds: 1) { [weak self] in
+            guard self?.messageTextView.isFirstResponder == true else {return}
+            self?.removeStickerView()
+        }
+    }
+}
+
 // MARK: - SETUP EDIT VIEW
 extension ChatRoomRootView 
 {
@@ -410,7 +361,7 @@ extension ChatRoomRootView
         inputBarHeader = InputBarHeaderView(mode: mode)
         
         setupInputBarHeaderConstraints()
-        inputBarHeader!.setupSubviews()
+//        inputBarHeader!.setupSubviews()
     }
     
     func activateInputBarHeaderView(mode: InputBarHeaderView.Mode)

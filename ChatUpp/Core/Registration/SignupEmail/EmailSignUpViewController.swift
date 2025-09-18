@@ -20,10 +20,10 @@ class EmailSignUpViewController: UIViewController {
     private let doorLogo = UIImageView()
     private let provideEmailLabel = UILabel()
     
-    lazy private var textFieldValidator = EmailCredentialsValidator(
+    lazy private var textFieldValidator = CredentialsValidator(
         mailField: emailSignupField,
         passwordField: passwordSignupField,
-        viewModel: signUpViewModel
+        validator: signUpViewModel
     )
     
     override func viewDidLoad() {

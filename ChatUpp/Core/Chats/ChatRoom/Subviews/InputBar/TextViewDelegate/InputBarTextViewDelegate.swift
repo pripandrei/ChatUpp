@@ -9,7 +9,7 @@
 import UIKit
 import Combine
 
-final class InputBarMessageTextViewDelegate: NSObject, UITextViewDelegate
+final class InputBarTextViewDelegate: NSObject, UITextViewDelegate
 {
     private var conversationView: ChatRoomRootView!
     private(set) var messageTextViewNumberOfLines = 1
@@ -76,7 +76,7 @@ final class InputBarMessageTextViewDelegate: NSObject, UITextViewDelegate
 }
 
 //MARK: - Helper functions
-extension InputBarMessageTextViewDelegate
+extension InputBarTextViewDelegate
 {
     func getNumberOfLines(from textView: UITextView) -> Int
     {

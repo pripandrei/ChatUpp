@@ -279,6 +279,11 @@ extension MessageTableViewCell: MessageCellDragable
     {
         return containerStackView.messageImageView.image
     }
+    
+    var messageSenderName: String?
+    {
+        cellViewModel.messageSender?.name
+    }
 }
 
 extension MessageTableViewCell: MessageCellSeenable {}

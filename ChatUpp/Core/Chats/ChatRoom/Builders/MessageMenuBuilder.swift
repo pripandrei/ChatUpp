@@ -14,12 +14,11 @@ final class MessageMenuBuilder
     private var viewModel: ChatRoomViewModel!
     private var rootView: ChatRoomRootView!
     
-    private var contextMenuSelectedActionHandler: ((_ actionOption: InputBarHeaderView.Mode,
-                                                    _ text: String?) -> Void)?
+    private var contextMenuSelectedActionHandler: ((_ actionOption: InputBarHeaderView.Mode) -> Void)?
     
     init(viewModel: ChatRoomViewModel!,
          rootView: ChatRoomRootView!,
-         contextMenuSelectedActionHandler: ((_: InputBarHeaderView.Mode, _: String?) -> Void)? = nil)
+         contextMenuSelectedActionHandler: ((_: InputBarHeaderView.Mode) -> Void)? = nil)
     {
         self.viewModel = viewModel
         self.rootView = rootView
@@ -68,7 +67,8 @@ final class MessageMenuBuilder
                     image = UIImage(data: imageData)
                 }
                 let text = message.messageBody.isEmpty ? nil : message.messageBody
-                self.contextMenuSelectedActionHandler?(.reply(image), text)
+                // TODO: - remove text
+                self.contextMenuSelectedActionHandler?(.reply(text: text, image: image))
                 self.rootView.inputBarHeader?.updateTitleLabel(usingText: sender.name)
             }
         }
@@ -103,7 +103,8 @@ final class MessageMenuBuilder
                 }
                 
                 let text = message.messageBody.isEmpty ? nil : message.messageBody
-                self.contextMenuSelectedActionHandler?(.edit(image), text)
+                self.contextMenuSelectedActionHandler?(.edit(text: text,
+                                                             image: image))
                 self.viewModel.shouldEditMessage = { [message] editedText in
                     self.viewModel.firestoreService?.editMessageTextFromFirestore(editedText, messageID: message.id)
                 }
