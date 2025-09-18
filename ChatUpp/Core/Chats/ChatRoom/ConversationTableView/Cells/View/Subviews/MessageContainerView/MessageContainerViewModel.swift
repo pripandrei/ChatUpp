@@ -18,12 +18,16 @@ final class MessageContainerViewModel
     private(set) var messageImageDataSubject = PassthroughSubject<Data, Never>()
     private var cancellables: Set<AnyCancellable> = []
     
+    private(set) var messageComponentsViewModel: MessageComponentsViewModel!
+    
     convenience init(message: Message)
     {
         self.init()
         self.message = message
         
         self.observeMainMessage()
+        self.messageComponentsViewModel = .init(message: message,
+                                                context: messageAlignment == .right ? .outgoing : .incoming)
         self.setupComponents(from: message)
     }
 
@@ -42,10 +46,10 @@ final class MessageContainerViewModel
         return user?.name
     }
     
-    var timestamp: String? {
-        let hoursAndMinutes = message?.timestamp.formatToHoursAndMinutes()
-        return hoursAndMinutes
-    }
+//    var timestamp: String? {
+//        let hoursAndMinutes = message?.timestamp.formatToHoursAndMinutes()
+//        return hoursAndMinutes
+//    }
     
     var isReplayToMessage: Bool {
         guard referencedMessageSenderName != nil,

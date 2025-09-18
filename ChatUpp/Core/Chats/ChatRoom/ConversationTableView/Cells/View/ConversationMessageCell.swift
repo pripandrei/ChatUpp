@@ -11,8 +11,11 @@ import Combine
 import SkeletonView
 import SwiftUI
 
+//protocol MessageContentView: UIView {
+//    func configure(with message: Message)
+//}
 
-final class MessageTableViewCell: UITableViewCell
+final class ConversationMessageCell: UITableViewCell
 {
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
@@ -143,7 +146,7 @@ final class MessageTableViewCell: UITableViewCell
     
 // MARK: - UI INITIAL STEUP
 
-extension MessageTableViewCell
+extension ConversationMessageCell
 {
     private func setupContainerStackView()
     {
@@ -189,7 +192,7 @@ extension MessageTableViewCell
     }
 }
 
-extension MessageTableViewCell
+extension ConversationMessageCell
 {
     private func setupSenderAvatar()
     {
@@ -243,7 +246,7 @@ enum SeenStatusIcon: String {
     case double = "test-cropped-double-checkmark"
 }
 
-extension MessageTableViewCell: TargetPreviewable
+extension ConversationMessageCell: TargetPreviewable
 {
     func getTargetViewForPreview() -> UIView
     {
@@ -260,7 +263,7 @@ extension MessageTableViewCell: TargetPreviewable
     }
 }
 
-extension MessageTableViewCell: MessageCellDragable
+extension ConversationMessageCell: MessageCellDragable
 {
     var messageText: String?
     {
@@ -286,4 +289,4 @@ extension MessageTableViewCell: MessageCellDragable
     }
 }
 
-extension MessageTableViewCell: MessageCellSeenable {}
+extension ConversationMessageCell: MessageCellSeenable {}

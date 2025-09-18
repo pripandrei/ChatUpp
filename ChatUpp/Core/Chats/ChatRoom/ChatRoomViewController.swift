@@ -1043,7 +1043,7 @@ extension ChatRoomViewController: UITableViewDelegate
     {
         tableView.deselectRow(at: indexPath, animated: false)
         
-        guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return}
+        guard let cell = tableView.cellForRow(at: indexPath) as? ConversationMessageCell else {return}
         
         if let touchLocation = tableView.panGestureRecognizer.location(in: cell) as CGPoint?
         {
@@ -1060,7 +1060,7 @@ extension ChatRoomViewController: UITableViewDelegate
         }
     }
     
-    private func initiatePhotoBrowserPresentation(from cell: MessageTableViewCell)
+    private func initiatePhotoBrowserPresentation(from cell: ConversationMessageCell)
     {
         let imageView = cell.containerStackView.messageImageView
         let items = self.viewModel.mediaItems
@@ -1130,7 +1130,7 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func offsetTableContentOnPaginationCompletion(
         to contentOffsetY: CGFloat,
-        visibleCell: MessageTableViewCell?)
+        visibleCell: ConversationMessageCell?)
     {
         if self.rootView.tableView.contentOffset.y < -90.0
         {
@@ -1155,7 +1155,7 @@ extension ChatRoomViewController: UITableViewDelegate
             case .didPaginate:
                 await MainActor.run
                 {
-                    let visibleCell: MessageTableViewCell? = self.rootView.tableView.visibleCells.first as? MessageTableViewCell
+                    let visibleCell: ConversationMessageCell? = self.rootView.tableView.visibleCells.first as? ConversationMessageCell
                     let currentOffsetY = self.rootView.tableView.contentOffset.y
                     
                     CATransaction.begin()
@@ -1298,7 +1298,7 @@ extension ChatRoomViewController
             )
         }
         
-        if let messageCell = baseCell as? MessageTableViewCell,
+        if let messageCell = baseCell as? ConversationMessageCell,
            let message = messageCell.cellViewModel.message
         {
             let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
@@ -1587,7 +1587,7 @@ extension ChatRoomViewController
 
     func getMessageFromCell(_ cell: UITableViewCell) -> Message?
     {
-        if let messageCell = cell as? MessageTableViewCell,
+        if let messageCell = cell as? ConversationMessageCell,
             let cellMessage = messageCell.cellViewModel.message
         {
             return cellMessage

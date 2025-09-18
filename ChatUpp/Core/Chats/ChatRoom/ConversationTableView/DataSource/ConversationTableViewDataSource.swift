@@ -201,7 +201,7 @@ extension ConversationDataSourceManager
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
             for: indexPath
-        ) as? MessageTableViewCell else {
+        ) as? ConversationMessageCell else {
             fatalError("Could not dequeue conversation cell")
         }
         

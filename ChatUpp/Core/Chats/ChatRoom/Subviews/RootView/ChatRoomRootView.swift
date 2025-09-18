@@ -249,7 +249,7 @@ final class ChatRoomRootView: UIView
     
     private func registerCells(for tableView: UITableView)
     {
-        tableView.register(MessageTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
+        tableView.register(ConversationMessageCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
         tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
         tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
         tableView.register(UnseenMessagesTitleTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
