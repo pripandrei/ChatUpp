@@ -8,58 +8,6 @@
 import Foundation
 import RealmSwift
 
-enum MessageType: String, PersistableEnum, Codable
-{
-    case text
-    case title
-    case image
-    case audio
-    case video
-    case imageText = "image/text"
-}
-
-class Reaction: EmbeddedObject, Codable
-{
-    @Persisted var emoji: String
-    @Persisted var userIDs: List<String>
-}
-
-class MessageImageSize: EmbeddedObject, Codable
-{
-    @Persisted var width: Int
-    @Persisted var height: Int
-    
-    convenience init(width: Int, height: Int) {
-        self.init()
-        self.width = width
-        self.height = height
-    }
-    
-    enum CodingKeys: CodingKey {
-//        case id
-        case width
-        case height
-    }
-    
-    convenience required init(from decoder: any Decoder) throws
-    {
-        self.init()
-        
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        self.id = try container.decode(String.self, forKey: .id)
-        self.width = try container.decode(Int.self, forKey: .width)
-        self.height = try container.decode(Int.self, forKey: .height)
-    }
-    
-    func encode(to encoder: any Encoder) throws
-    {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(self.id, forKey: .id)
-        try container.encode(self.width, forKey: .width)
-        try container.encode(self.height, forKey: .height)
-    }
-}
-
 class Message: Object, Codable 
 {
     @Persisted(primaryKey: true) var id: String
@@ -72,6 +20,7 @@ class Message: Object, Codable
     @Persisted var imagePath: String?
     @Persisted var repliedTo: String?
     @Persisted var reactions: List<Reaction>
+    @Persisted var sticker: String?
     
     @Persisted var type: MessageType?
     
@@ -90,12 +39,14 @@ class Message: Object, Codable
         case repliedTo = "replied_to"
         case type = "type"
         case reactions = "reactions"
+        case sticker = "sticker"
     }
     
     convenience required init(from decoder: Decoder) throws {
         self.init()
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        
         self.id = try container.decode(String.self, forKey: .id)
         self.messageBody = try container.decode(String.self, forKey: .messageBody)
         self.senderId = try container.decode(String.self, forKey: .senderId)
@@ -106,6 +57,7 @@ class Message: Object, Codable
         self.imageSize = try container.decodeIfPresent(MessageImageSize.self, forKey: .imageSize)
         self.repliedTo = try container.decodeIfPresent(String.self, forKey: .repliedTo)
         self.type = try container.decodeIfPresent(MessageType.self, forKey: .type)
+        self.sticker = try container.decodeIfPresent(String.self, forKey: .sticker)
         
         let seenBy = try container.decodeIfPresent([String].self, forKey: .seenBy)
         self.seenBy.append(objectsIn: seenBy ?? [])
@@ -126,6 +78,7 @@ class Message: Object, Codable
         try container.encodeIfPresent(self.imageSize, forKey: .imageSize)
         try container.encodeIfPresent(self.repliedTo, forKey: .repliedTo)
         try container.encodeIfPresent(self.type, forKey: .type)
+        try container.encodeIfPresent(self.sticker, forKey: .sticker)
         
         let seenBy = Array(self.seenBy)
         try container.encodeIfPresent(seenBy, forKey: .seenBy)
@@ -144,7 +97,8 @@ class Message: Object, Codable
                      imagePath: String?,
                      imageSize: MessageImageSize?,
                      repliedTo: String?,
-                     type: MessageType? = nil
+                     type: MessageType? = nil,
+                     sticker: String? = nil
     )
     {
         
@@ -162,6 +116,7 @@ class Message: Object, Codable
         self.repliedTo = repliedTo
         self.type = type
         self.reactions = List<Reaction>()
+        self.sticker = sticker
     }
 }
 
@@ -205,7 +160,9 @@ extension Message
                        isEdited: self.isEdited,
                        imagePath: self.imagePath,
                        imageSize: self.imageSize,
-                       repliedTo: self.repliedTo)
+                       repliedTo: self.repliedTo,
+                       sticker: self.sticker
+        )
     }
 }
 

@@ -323,9 +323,25 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         ChatRoomSessionManager.activeChatID = chat.id
     }
     
+    @MainActor
+    func createMessageLocally(ofType type: MessageType,
+                              text: String?,
+                              media: MessageMediaParameters?) -> Message
+    {
+        var message = createNewMessage(ofType: type,
+                                       messageText: text,
+                                       mediaParameters: media)
+        
+        realmService?.addMessagesToRealmChat([message])
+        updateUnseenMessageCounterForAuthUserLocally()
+        createMessageClustersWith([message])
+        return message
+    }
+    
     func createNewMessage(ofType type: MessageType = .text,
                           messageText: String? = nil,
-                          imagePath: String? = nil) -> Message
+//                          imagePath: String? = nil,
+                          mediaParameters: MessageMediaParameters? = nil) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
@@ -340,37 +356,57 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             messageSeen: isGroupChat ? nil : false,
             seenBy: seenByValue,
             isEdited: false,
-            imagePath: imagePath,
+            imagePath: mediaParameters?.imagePath,
             imageSize: nil,
             repliedTo: currentlyReplyToMessageID,
-            type: type
+            type: type,
+            sticker: mediaParameters?.stickerPath
         )
     }
     
-    @MainActor
-    func handleLocalUpdatesOnMessageCreation(_ message: Message)
+//    @MainActor
+//    func handleLocalUpdatesOnMessageCreation(_ message: Message)
+//    {
+//        realmService?.addMessagesToRealmChat([message])
+//        updateUnseenMessageCounterForAuthUserLocally()
+//    }
+//    
+    func ensureConversationExists()
     {
-        realmService?.addMessagesToRealmChat([message])
-        updateUnseenMessageCounterForAuthUserLocally()
+        if self.conversation == nil { setupConversation() }
     }
     
-    @MainActor
-    func initiateRemoteUpdatesOnMessageCreation(_ message: Message,
-                                                imageRepository: ImageSampleRepository? = nil) async
+    func syncMessage(_ message: Message,
+                     imageRepository: ImageSampleRepository?)
     {
-        await self.setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
-        if let imageRepository { // if message contains image add it first
-            await saveImagesRemotelly(fromImageRepository: imageRepository,
-                                      for: message.id)
+        Task.detached { [weak self] in
+            
+            guard let self else { return }
+             
+            await self.setupConversationTask?.value 
+            if let repo = imageRepository {
+                await self.saveImagesRemotelly(fromImageRepository: repo, for: message.id)
+            }
+            await self.firestoreService?.addMessageToFirestoreDataBase(message)
+            await self.updateParticipantsUnseenMessageCounterRemote()
+            await self.firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
-        
-        await firestoreService?.addMessageToFirestoreDataBase(message)
-//        updateUnseenMessageCounterRemote(shouldIncrement: true)
-//        updateUnseenMessageCounterForAuthUserRemote()
-        await updateParticipantsUnseenMessageCounterRemote()
-        await firestoreService?.updateRecentMessageFromFirestoreChat(
-            messageID: message.id)
     }
+//    
+//    @MainActor
+//    func initiateRemoteUpdatesOnMessageCreation(_ message: Message,
+//                                                imageRepository: ImageSampleRepository? = nil) async
+//    {
+//        await self.setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
+//        if let imageRepository { // if message contains image add it first
+//            await saveImagesRemotelly(fromImageRepository: imageRepository,
+//                                      for: message.id)
+//        }
+//        
+//        await firestoreService?.addMessageToFirestoreDataBase(message)
+//        await updateParticipantsUnseenMessageCounterRemote()
+//        await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
+//    }
     
     private func setupMessageListenerOnChatCreation()
     {

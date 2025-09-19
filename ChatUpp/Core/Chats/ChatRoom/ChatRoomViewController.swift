@@ -716,61 +716,146 @@ extension ChatRoomViewController {
         callTextViewDidChange()
     }
     
+//    @objc func sendMessageButtonWasTapped()
+//    {
+//        Task { @MainActor in
+//            
+//            let trimmedText = getTrimmedString()
+//            let image = self.messageImage
+//            self.messageImage = nil
+//
+//            guard let messageType = determineMessageType(text: trimmedText,
+//                                                         image: image) else
+//            {
+//                return // Nothing to send
+//            }
+//
+//            let imageRepository = image.map {
+//                ImageSampleRepository(image: $0, type: .message)
+//            }
+//            
+//            let mediaParameters = MessageMediaParameters(
+//                imagePath: imageRepository?.imagePath(for: .original),
+//                stickerPath: "Test"
+//            )
+//
+//            let message = viewModel.createNewMessage(
+//                ofType: messageType,
+//                messageText: trimmedText,
+//                mediaParameters: mediaParameters
+//            )
+//            
+//            viewModel.createMessageClustersWith([message])
+//            
+//            if !viewModel.conversationExists {
+//                viewModel.setupConversation()
+//            }
+//
+//            viewModel.handleLocalUpdatesOnMessageCreation(message)
+//
+//            clearInputUI()
+//
+//            if let repository = imageRepository {
+//                await viewModel.saveImagesLocally(fromImageRepository: repository, for: message.id)
+//            }
+//
+//            var updateType: DatasourceRowAnimation = .none
+//            if !isFirstIndexPathVisible() {
+//                updateType = .automatic
+//            }
+//            
+//            dataSourceManager.configureSnapshot(animationType: updateType)
+//            handleNewMessageDisplay()
+//            scrollToBottom()
+//
+//            closeInputBarHeaderView()
+//            
+//            await viewModel.initiateRemoteUpdatesOnMessageCreation(
+//                message,
+//                imageRepository: imageRepository
+//            )
+//        }
+//    }
+//    
     @objc func sendMessageButtonWasTapped()
     {
-        Task { @MainActor in
-            
-            let trimmedText = getTrimmedString()
-            let image = self.messageImage
-            self.messageImage = nil
+        let trimmedText = getTrimmedString()
+        let image = self.messageImage
+        self.messageImage = nil
 
-            guard let messageType = determineMessageType(text: trimmedText,
-                                                         image: image) else
-            {
-                return // Nothing to send
+        guard let messageType = determineMessageType(text: trimmedText, image: image) else { return }
+        
+//        if !viewModel.conversationExists { viewModel.setupConversation() }
+        viewModel.ensureConversationExists()
+
+        let repo = image.map { ImageSampleRepository(image: $0, type: .message) }
+        let media = MessageMediaParameters(imagePath: repo?.imagePath(for: .original))
+
+        // 1) Create locally
+        let message = viewModel.createMessageLocally(ofType: messageType,
+                                                     text: trimmedText,
+                                                     media: media)
+
+        // 2) Update UI immediately
+        updateUIOnNewMessageCreation()
+
+        // 3) Save image locally if needed
+        if let repo = repo {
+            Task { @MainActor in
+                await viewModel.saveImagesLocally(fromImageRepository: repo, for: message.id)
             }
-
-            let imageRepository = image.map {
-                ImageSampleRepository(image: $0, type: .message)
-            }
-
-            let message = viewModel.createNewMessage(
-                ofType: messageType,
-                messageText: trimmedText,
-                imagePath: imageRepository?.imagePath(for: .original)
-            )
-            
-            viewModel.createMessageClustersWith([message])
-            
-            if !viewModel.conversationExists {
-                viewModel.setupConversation()
-            }
-
-            viewModel.handleLocalUpdatesOnMessageCreation(message)
-
-            clearInputUI()
-
-            if let repository = imageRepository {
-                await viewModel.saveImagesLocally(fromImageRepository: repository, for: message.id)
-            }
-
-            var updateType: DatasourceRowAnimation = .none
-            if !isFirstIndexPathVisible() {
-                updateType = .automatic
-            }
-            
-            dataSourceManager.configureSnapshot(animationType: updateType)
-            handleNewMessageDisplay()
-            scrollToBottom()
-
-            closeInputBarHeaderView()
-            
-            await viewModel.initiateRemoteUpdatesOnMessageCreation(
-                message,
-                imageRepository: imageRepository
-            )
         }
+
+        // 4) Start background sync
+        viewModel.syncMessage(message.freeze(), imageRepository: repo)
     }
+    
+    private func updateUIOnNewMessageCreation()
+    {
+        dataSourceManager.configureSnapshot(animationType: isFirstIndexPathVisible() ? .none : .automatic)
+        handleNewMessageDisplay()
+        clearInputUI()
+        closeInputBarHeaderView()
+        scrollToBottom()
+    }
+    
+    func createStickerMessage(_ path: String)
+    {
+        let media = MessageMediaParameters(stickerPath: path)
+        let message = viewModel.createMessageLocally(ofType: .sticker,
+                                                     text: nil,
+                                                     media: media)
+        updateUIOnNewMessageCreation()
+        viewModel.syncMessage(message, imageRepository: nil)
+    }
+
+
+    
+//    @objc func sendMessageButtonWasTapped4() {
+//        Task { @MainActor in
+//            await ensureConversationExists()
+//
+//            let trimmedText = getTrimmedString()
+//            let image = self.messageImage
+//            self.messageImage = nil
+//
+//            guard let messageType = determineMessageType(text: trimmedText, image: image) else { return }
+//
+//            let imageRepo = image.map { ImageSampleRepository(image: $0, type: .message) }
+//            let media = MessageMediaParameters(imagePath: imageRepo?.imagePath(for: .original))
+//
+//            let message = viewModel.createMessageLocally(
+//                ofType: messageType,
+//                text: trimmedText,
+//                media: media
+//            )
+//
+//            clearInputUI()
+//            updateUIAfterMessageCreation(message)
+//            viewModel.syncMessageToServer(message, imageRepository: imageRepo)
+//        }
+//    }
+
 
     @objc func addPicture()
     {
