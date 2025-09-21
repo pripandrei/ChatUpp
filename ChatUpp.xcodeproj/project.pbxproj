@@ -255,6 +255,7 @@
 		75AD5EBE2E7C9B9E0075377B /* MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75AD5EBD2E7C9B9A0075377B /* MessageType.swift */; };
 		75AD5EC12E7C9BBB0075377B /* MessageReaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75AD5EC02E7C9BB90075377B /* MessageReaction.swift */; };
 		75AD5EC32E7C9C020075377B /* MessageImageSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75AD5EC22E7C9BF60075377B /* MessageImageSize.swift */; };
+		75AD5EC52E7D7A470075377B /* StickerContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75AD5EC42E7D7A1B0075377B /* StickerContentView.swift */; };
 		75B48B572AF6837700A5FBFC /* ChatRoomRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B562AF6837700A5FBFC /* ChatRoomRootView.swift */; };
 		75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */; };
 		75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */; };
@@ -272,6 +273,7 @@
 		75BC06792DFB82D3002ED4AA /* NotificationCenter+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */; };
 		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
+		75C8F75C2E7F827A007317E0 /* StickersCollectionView_test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7592E7F826F007317E0 /* StickersCollectionView_test.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
 		75CC9FE62D594042002051EB /* ColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorManager.swift */; };
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
@@ -595,6 +597,7 @@
 		75AD5EBD2E7C9B9A0075377B /* MessageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageType.swift; sourceTree = "<group>"; };
 		75AD5EC02E7C9BB90075377B /* MessageReaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageReaction.swift; sourceTree = "<group>"; };
 		75AD5EC22E7C9BF60075377B /* MessageImageSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageImageSize.swift; sourceTree = "<group>"; };
+		75AD5EC42E7D7A1B0075377B /* StickerContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerContentView.swift; sourceTree = "<group>"; };
 		75B48B562AF6837700A5FBFC /* ChatRoomRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatRoomRootView.swift; sourceTree = "<group>"; };
 		75B48B582AFB2C4000A5FBFC /* ResultsTableController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableController.swift; sourceTree = "<group>"; };
 		75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatUpp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -614,6 +617,7 @@
 		75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationCenter+Extensions.swift"; sourceTree = "<group>"; };
 		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
+		75C8F7592E7F826F007317E0 /* StickersCollectionView_test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickersCollectionView_test.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
 		75CC9FE12D59402F002051EB /* ColorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorManager.swift; sourceTree = "<group>"; };
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
@@ -1150,6 +1154,7 @@
 		7587D3942E637B8000DEE900 /* Stickers */ = {
 			isa = PBXGroup;
 			children = (
+				75C8F7592E7F826F007317E0 /* StickersCollectionView_test.swift */,
 				75592EB02E70D4C500247CB5 /* StickersCollectionView.swift */,
 				756812E62E63D79200E421CE /* StickersPackModel.swift */,
 				7587D39C2E637C5600DEE900 /* StickersPackCollectionViewModel.swift */,
@@ -1612,6 +1617,7 @@
 		75E480792E48FF6C00E8C005 /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
+				75AD5EC42E7D7A1B0075377B /* StickerContentView.swift */,
 				75AD5EB72E7C55660075377B /* MessageComponents */,
 				759894AD2E4E6B88003CF661 /* MessageContainerView */,
 				75E4807C2E49027300E8C005 /* MessageLabel.swift */,
@@ -2075,6 +2081,7 @@
 				75FD971E2DF230A800EC001E /* ReactionPresentationSheetView.swift in Sources */,
 				75075F6D2E5DDEAC00DCA98F /* MessageLayoutManager.swift in Sources */,
 				75A0861A2D1977DB00DE5333 /* ImageCropper.swift in Sources */,
+				75C8F75C2E7F827A007317E0 /* StickersCollectionView_test.swift in Sources */,
 				75AD5EC12E7C9BBB0075377B /* MessageReaction.swift in Sources */,
 				75AD5EA82E7B04740075377B /* ReactionViewModel.swift in Sources */,
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
@@ -2128,6 +2135,7 @@
 				759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */,
 				75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */,
 				7527068D2DB3077F002128DF /* ReactionBadgeView.swift in Sources */,
+				75AD5EC52E7D7A470075377B /* StickerContentView.swift in Sources */,
 				7527065A2DAB1D3E002128DF /* ConversationFirestoreService.swift in Sources */,
 				751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */,
 				7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */,
@@ -2334,6 +2342,7 @@
 				DEVELOPMENT_TEAM = 8NY5358LMK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChatUpp/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "ChatUpp would like to access camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -2343,7 +2352,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pripandreika.com.ChatUpp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pripandrei.com.ChatUpp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -2361,6 +2370,7 @@
 				DEVELOPMENT_TEAM = 8NY5358LMK;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ChatUpp/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "ChatUpp would like to access camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -2370,7 +2380,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pripandreika.com.ChatUpp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pripandrei.com.ChatUpp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

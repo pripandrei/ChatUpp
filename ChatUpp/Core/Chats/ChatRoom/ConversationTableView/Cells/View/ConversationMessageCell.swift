@@ -25,6 +25,8 @@ final class ConversationMessageCell: UITableViewCell
     private var containerStackViewLeadingConstraint: NSLayoutConstraint!
     private var containerStackViewTrailingConstraint: NSLayoutConstraint!
     
+    private(set) var contentContainer: UIView?
+    
     private(set) var containerStackView: MessageContainerView = MessageContainerView()
     private(set) var reactionBadgeHostingView: UIView?
     private(set) var cellViewModel: MessageCellViewModel!
@@ -47,7 +49,7 @@ final class ConversationMessageCell: UITableViewCell
         
         backgroundColor = .clear
         setupBackgroundSelectionView()
-        setupContainerStackView()
+//        setupContainerStackView()
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
@@ -107,21 +109,48 @@ final class ConversationMessageCell: UITableViewCell
             assert(false, "message should be valid at this point")
             return
         }
-        
+
         cleanupCellContent()
         
         cellViewModel = viewModel
-        
         messageLayoutConfiguration = layoutConfiguration
         
         setupSenderAvatar()
-        setContainerStackViewBottomConstraint()
+//        setContainerStackViewBottomConstraint()
         setupBinding()
+//        adjustMessageSide()
+//
+//        setupReactionView(for: message)
+//        containerStackView.configure(with: viewModel.messageContainerViewModel!,
+//                                     layoutConfiguration: layoutConfiguration)
+        
+        contentContainer?.removeFromSuperview()
+        contentContainer = nil
+        
+        if viewModel.message?.type == nil {
+            let imageTextView = MessageContainerView()
+            imageTextView.configure(with: viewModel.messageContainerViewModel!,
+                                    layoutConfiguration: layoutConfiguration)
+            setupContainerView(imageTextView, type: .imageText)
+        }
+        
+        switch viewModel.message?.type
+        {
+        case .text, .image, .imageText:
+            let imageTextView = MessageContainerView()
+            setupContainerView(imageTextView, type: .imageText)
+            imageTextView.configure(with: viewModel.messageContainerViewModel!,
+                                    layoutConfiguration: layoutConfiguration)
+        case .sticker:
+            let stickerView = StickerContentView()
+            setupContainerView(stickerView, type: .sticker)
+            stickerView.configure(withStickerPath: message.sticker!)
+        default: break
+        }
         adjustMessageSide()
 
         setupReactionView(for: message)
-        containerStackView.configure(with: viewModel.messageContainerViewModel!,
-                                     layoutConfiguration: layoutConfiguration)
+        setContainerStackViewBottomConstraint()
     }
 
     /// - cleanup
@@ -142,33 +171,87 @@ final class ConversationMessageCell: UITableViewCell
             self.contentView.layoutIfNeeded()
         }
     }
+    
 }
     
 // MARK: - UI INITIAL STEUP
 
 extension ConversationMessageCell
 {
-    private func setupContainerStackView()
+    private func setupContainerView(_ view: UIView, type: MessageType)
     {
-        contentView.addSubview(containerStackView)
+        self.contentContainer = view
+        contentView.addSubview(contentContainer!)
     
-        containerStackView.spacing = 2
-        containerStackView.margins = .init(top: 6, left: 10, bottom: 6, right: 10)
-        containerStackView.layer.cornerRadius = 15
-        containerStackView.clipsToBounds = true
-        containerStackView.translatesAutoresizingMaskIntoConstraints = false
+        view.translatesAutoresizingMaskIntoConstraints = false
         
-        self.containerStackViewBottomConstraint = containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        self.containerStackViewBottomConstraint = view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        self.containerStackViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
         self.containerStackViewBottomConstraint.isActive = true
         
-        self.containerStackViewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
-        self.containerStackViewTrailingConstraint = containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+        self.containerStackViewLeadingConstraint = view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
+        self.containerStackViewTrailingConstraint = view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
         
-        containerStackView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        containerStackView.widthAnchor.constraint(lessThanOrEqualToConstant: MessageContainerView.maxWidth).isActive = true
+        view.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         
-        containerStackView.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
+        switch type
+        {
+        case .imageText, .image, .text:
+            view.widthAnchor.constraint(lessThanOrEqualToConstant: MessageContainerView.maxWidth).isActive = true
+            view.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
+            contentContainer?.backgroundColor = cellViewModel.messageAlignment == .right ?
+            ColorManager.outgoingMessageBackgroundColor : ColorManager.incomingMessageBackgroundColor
+        case .sticker:
+            view.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -10).isActive = true
+//            view.heightAnchor.constraint(equalToConstant: 170).isActive = true
+            contentContainer?.backgroundColor = .clear
+        default: break
+        }
     }
+    
+//    private func setupContainerStackView()
+//    {
+//        contentView.addSubview(containerStackView)
+//
+//        containerStackView.spacing = 2
+//        containerStackView.margins = .init(top: 6, left: 10, bottom: 6, right: 10)
+//        containerStackView.layer.cornerRadius = 15
+//        containerStackView.clipsToBounds = true
+//        containerStackView.translatesAutoresizingMaskIntoConstraints = false
+//
+//        self.containerStackViewBottomConstraint = containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+//        self.containerStackViewBottomConstraint.isActive = true
+//
+//        self.containerStackViewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
+//        self.containerStackViewTrailingConstraint = containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+//
+//        containerStackView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+//        containerStackView.widthAnchor.constraint(lessThanOrEqualToConstant: MessageContainerView.maxWidth).isActive = true
+//
+//        containerStackView.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
+//    }
+    
+//    private func setupContainerStackView()
+//    {
+//        contentView.addSubview(containerStackView)
+//
+//        containerStackView.spacing = 2
+//        containerStackView.margins = .init(top: 6, left: 10, bottom: 6, right: 10)
+//        containerStackView.layer.cornerRadius = 15
+//        containerStackView.clipsToBounds = true
+//        containerStackView.translatesAutoresizingMaskIntoConstraints = false
+//
+//        self.containerStackViewBottomConstraint = containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+//        self.containerStackViewBottomConstraint.isActive = true
+//
+//        self.containerStackViewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
+//        self.containerStackViewTrailingConstraint = containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+//
+//        containerStackView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+//        containerStackView.widthAnchor.constraint(lessThanOrEqualToConstant: MessageContainerView.maxWidth).isActive = true
+//
+//        containerStackView.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
+//    }
     
     private func adjustMessageSide()
     {
@@ -180,12 +263,12 @@ extension ConversationMessageCell
 
             containerStackViewLeadingConstraint.isActive = false
             containerStackViewTrailingConstraint.isActive = true
-            containerStackView.backgroundColor = ColorManager.outgoingMessageBackgroundColor
+//            contentContainer?.backgroundColor = ColorManager.outgoingMessageBackgroundColor
         case .left:
             containerStackViewTrailingConstraint.isActive = false
             containerStackViewLeadingConstraint.isActive = true
             containerStackViewLeadingConstraint.constant = leadingConstant
-            containerStackView.backgroundColor = ColorManager.incomingMessageBackgroundColor
+//            contentContainer?.backgroundColor = ColorManager.incomingMessageBackgroundColor
         case .center:
             break
         }

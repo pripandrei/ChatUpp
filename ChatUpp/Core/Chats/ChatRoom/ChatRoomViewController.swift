@@ -243,6 +243,11 @@ final class ChatRoomViewController: UIViewController
                 }
             }
             .store(in: &subscriptions)
+        
+        ChatManager.shared.newStickerSubject
+            .sink { sticker in
+                self.createStickerMessage(sticker)
+            }.store(in: &subscriptions)
     }
     
     //MARK: - Keyboard notification observers
@@ -716,67 +721,6 @@ extension ChatRoomViewController {
         callTextViewDidChange()
     }
     
-//    @objc func sendMessageButtonWasTapped()
-//    {
-//        Task { @MainActor in
-//            
-//            let trimmedText = getTrimmedString()
-//            let image = self.messageImage
-//            self.messageImage = nil
-//
-//            guard let messageType = determineMessageType(text: trimmedText,
-//                                                         image: image) else
-//            {
-//                return // Nothing to send
-//            }
-//
-//            let imageRepository = image.map {
-//                ImageSampleRepository(image: $0, type: .message)
-//            }
-//            
-//            let mediaParameters = MessageMediaParameters(
-//                imagePath: imageRepository?.imagePath(for: .original),
-//                stickerPath: "Test"
-//            )
-//
-//            let message = viewModel.createNewMessage(
-//                ofType: messageType,
-//                messageText: trimmedText,
-//                mediaParameters: mediaParameters
-//            )
-//            
-//            viewModel.createMessageClustersWith([message])
-//            
-//            if !viewModel.conversationExists {
-//                viewModel.setupConversation()
-//            }
-//
-//            viewModel.handleLocalUpdatesOnMessageCreation(message)
-//
-//            clearInputUI()
-//
-//            if let repository = imageRepository {
-//                await viewModel.saveImagesLocally(fromImageRepository: repository, for: message.id)
-//            }
-//
-//            var updateType: DatasourceRowAnimation = .none
-//            if !isFirstIndexPathVisible() {
-//                updateType = .automatic
-//            }
-//            
-//            dataSourceManager.configureSnapshot(animationType: updateType)
-//            handleNewMessageDisplay()
-//            scrollToBottom()
-//
-//            closeInputBarHeaderView()
-//            
-//            await viewModel.initiateRemoteUpdatesOnMessageCreation(
-//                message,
-//                imageRepository: imageRepository
-//            )
-//        }
-//    }
-//    
     @objc func sendMessageButtonWasTapped()
     {
         let trimmedText = getTrimmedString()
@@ -810,6 +754,16 @@ extension ChatRoomViewController {
         viewModel.syncMessage(message.freeze(), imageRepository: repo)
     }
     
+    func createStickerMessage(_ path: String)
+    {
+        let media = MessageMediaParameters(stickerPath: path)
+        let message = viewModel.createMessageLocally(ofType: .sticker,
+                                                     text: nil,
+                                                     media: media)
+        updateUIOnNewMessageCreation()
+        viewModel.syncMessage(message.freeze(), imageRepository: nil)
+    }
+    
     private func updateUIOnNewMessageCreation()
     {
         dataSourceManager.configureSnapshot(animationType: isFirstIndexPathVisible() ? .none : .automatic)
@@ -818,44 +772,6 @@ extension ChatRoomViewController {
         closeInputBarHeaderView()
         scrollToBottom()
     }
-    
-    func createStickerMessage(_ path: String)
-    {
-        let media = MessageMediaParameters(stickerPath: path)
-        let message = viewModel.createMessageLocally(ofType: .sticker,
-                                                     text: nil,
-                                                     media: media)
-        updateUIOnNewMessageCreation()
-        viewModel.syncMessage(message, imageRepository: nil)
-    }
-
-
-    
-//    @objc func sendMessageButtonWasTapped4() {
-//        Task { @MainActor in
-//            await ensureConversationExists()
-//
-//            let trimmedText = getTrimmedString()
-//            let image = self.messageImage
-//            self.messageImage = nil
-//
-//            guard let messageType = determineMessageType(text: trimmedText, image: image) else { return }
-//
-//            let imageRepo = image.map { ImageSampleRepository(image: $0, type: .message) }
-//            let media = MessageMediaParameters(imagePath: imageRepo?.imagePath(for: .original))
-//
-//            let message = viewModel.createMessageLocally(
-//                ofType: messageType,
-//                text: trimmedText,
-//                media: media
-//            )
-//
-//            clearInputUI()
-//            updateUIAfterMessageCreation(message)
-//            viewModel.syncMessageToServer(message, imageRepository: imageRepo)
-//        }
-//    }
-
 
     @objc func addPicture()
     {
@@ -1094,11 +1010,31 @@ extension ChatRoomViewController: UITableViewDelegate
         }
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
+    {
         if viewModel.conversationInitializationStatus == .inProgress {
             return CGFloat((70...120).randomElement()!)
         }
+        if viewModel.messageClusters[indexPath.section].items[indexPath.item].message?.type == .sticker
+        {
+            return 170
+        }
         return  UITableView.automaticDimension
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath)
+    {
+//        guard viewModel.messageClusters[indexPath.section].items[indexPath.item].message?.type == .sticker else {return}
+//        
+//        if let messageCell = cell as? ConversationMessageCell
+//        {
+//            if let view = messageCell.contentContainer as? StickerContentView {
+//                view.cleanup()
+////                print("cleanup")
+//            }
+//        }
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)

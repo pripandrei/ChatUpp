@@ -46,11 +46,6 @@ final class MessageContainerViewModel
         return user?.name
     }
     
-//    var timestamp: String? {
-//        let hoursAndMinutes = message?.timestamp.formatToHoursAndMinutes()
-//        return hoursAndMinutes
-//    }
-    
     var isReplayToMessage: Bool {
         guard referencedMessageSenderName != nil,
               referencedMessage != nil else {return false}

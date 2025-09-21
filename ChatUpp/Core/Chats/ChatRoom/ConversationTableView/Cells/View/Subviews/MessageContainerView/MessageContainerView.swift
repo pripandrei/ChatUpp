@@ -12,7 +12,13 @@ import Combine
 
 extension MessageContainerView
 {
-    static var maxWidth: CGFloat = 295.0
+//    static var maxWidth: CGFloat = 295.0
+    static var maxWidth: CGFloat
+    {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.keyWindow else {return 295.0 }
+        return window.bounds.width * 0.8
+    }
 }
 
 final class MessageContainerView: ContainerView
@@ -60,6 +66,7 @@ final class MessageContainerView: ContainerView
     override init()
     {
         super.init()
+        setupSelf()
         setupMessageLabel()
         setupMessageComonentsView()
 //        setupMessageComponentsStackView()
@@ -70,6 +77,18 @@ final class MessageContainerView: ContainerView
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+//MARK: - Setup self
+extension MessageContainerView
+{
+    private func setupSelf()
+    {
+        spacing = 2
+        margins = .init(top: 6, left: 10, bottom: 6, right: 10)
+        layer.cornerRadius = 15
+        clipsToBounds = true
     }
 }
 

@@ -15,8 +15,6 @@
 			</array>
 		</dict>
 	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>ChatUpp would like to access camera</string>
 	<key>GIDClientID</key>
 	<string>135894914510-54r1kek2gq9n1tadh60uutmjbopt1q8i.apps.googleusercontent.com</string>
 	<key>UIApplicationSceneManifest</key>
