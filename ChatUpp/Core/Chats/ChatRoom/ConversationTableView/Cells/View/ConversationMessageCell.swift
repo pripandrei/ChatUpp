@@ -171,7 +171,6 @@ final class ConversationMessageCell: UITableViewCell
             self.contentView.layoutIfNeeded()
         }
     }
-    
 }
     
 // MARK: - UI INITIAL STEUP

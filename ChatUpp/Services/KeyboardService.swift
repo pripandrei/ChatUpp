@@ -8,6 +8,7 @@
 import UIKit
 
 
+//MARK: - See FootNote.swift - [15]
 class KeyboardService: NSObject
 {
     static var shared = KeyboardService()

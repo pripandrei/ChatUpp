@@ -41,3 +41,34 @@ struct ImageSampleRepository
         }
     }
 }
+
+enum ImageSample
+{
+    case user, message
+    
+    enum SizeKey: String, CaseIterable
+    {
+        /// See FootNote.swift [10]
+        case original
+        case small
+        case medium
+    }
+
+    var sizeMapping: [SizeKey: CGSize]
+    {
+        switch self {
+        case .user:
+            return [
+                .original: CGSize(width: 720, height: 720),
+                .medium: CGSize(width: 200, height: 200),
+                .small: CGSize(width: 100, height: 100)
+            ]
+        case .message:
+            return [
+                .original: CGSize(width: 680, height: 680),
+//                .medium: CGSize(width: 200, height: 200),
+                .small: CGSize(width: 80, height: 80)
+            ]
+        }
+    }
+}

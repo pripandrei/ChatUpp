@@ -6,13 +6,10 @@
 //
 
 import UIKit
-//import Lottie
-//import librlottie
 
 final class StickerContentView: UIView
 {
-//    var stickerView: UIView = UIView()
-    var stickerRLottieView: RLLottieView = .init(renderSize: .init(width: 300, height: 300))
+    private var stickerRLottieView: RLLottieView = .init(renderSize: .init(width: 300, height: 300))
     private var displayLink: CADisplayLink?
     
     convenience init()
@@ -54,7 +51,7 @@ final class StickerContentView: UIView
 //MARK: - Render animation
 extension StickerContentView
 {
-    // MARK: - Animation Loop
+    //  Animation Loop
     func startAnimationLoop()
     {
         let proxy = DisplayLinkProxy(target: self, selector: #selector(renderFrame))

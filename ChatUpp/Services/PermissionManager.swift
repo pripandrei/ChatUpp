@@ -55,3 +55,10 @@ final class PermissionManager
     }
 }
 
+
+enum PermissionsError: Error
+{
+    case cameraDenied
+    case microphoneDenied
+    case photoLibraryDenied
+}
