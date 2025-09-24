@@ -52,8 +52,8 @@ final class StickerContentView: UIView
     
     func setupBinding(publisher: AnyPublisher<Bool, Never>)
     {
-        publisher.sink { isSeen in
-            if isSeen { self.updateMessageSeenStatus() }
+        publisher.sink { [weak self] isSeen in
+            if isSeen { self?.updateMessageSeenStatus() }
         }.store(in: &cancellables)
     }
     
