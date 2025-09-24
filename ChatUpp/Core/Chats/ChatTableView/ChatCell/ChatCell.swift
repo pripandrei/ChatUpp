@@ -84,9 +84,7 @@ class ChatCell: UITableViewCell {
     func configure(viewModel: ChatCellViewModel)
     {
         self.cellViewModel = viewModel
-        if cellViewModel.chat.id == "2A2AF4A2-44E5-49E2-910D-7AE3DEC8EDC4" {
-            print("stop")
-        }
+
         setupTitleForNameLabel()
         configureRecentMessage(cellViewModel.recentMessage)
         setUnreadMessageCount(cellViewModel.unreadMessageCount ?? 0)

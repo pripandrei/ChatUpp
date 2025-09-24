@@ -22,11 +22,6 @@ extension MessageCellViewModel: Hashable
 
 final class MessageCellViewModel
 {
-    func updateMessage(_ message: Message)
-    {
-        self.message = message
-    }
-    
     let id = UUID()
     
     @Published private(set) var message: Message?
@@ -82,6 +77,12 @@ final class MessageCellViewModel
         }
         return nil
     }
+    
+    func updateMessage(_ message: Message)
+    {
+        self.message = message
+    }
+    
 }
 
 //MARK: - Image cache

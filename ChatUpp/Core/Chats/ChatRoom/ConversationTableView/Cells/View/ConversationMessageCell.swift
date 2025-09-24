@@ -144,7 +144,8 @@ final class ConversationMessageCell: UITableViewCell
         case .sticker:
             let stickerView = StickerContentView()
             setupContainerView(stickerView, type: .sticker)
-            stickerView.configure(withStickerPath: message.sticker!)
+//            stickerView.configure(withStickerPath: message.sticker!)
+            stickerView.configure(with: viewModel.messageContainerViewModel!)
         default: break
         }
         adjustMessageSide()

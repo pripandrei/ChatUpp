@@ -6,16 +6,33 @@
 //
 
 import UIKit
+import Combine
 
 final class StickerContentView: UIView
 {
     private var stickerRLottieView: RLLottieView = .init(renderSize: .init(width: 300, height: 300))
     private var displayLink: CADisplayLink?
     
+    private let stickerComponentsView: MessageComponentsView = .init()
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     convenience init()
     {
         self.init(frame: .zero)
         setupSticker()
+        setupStickerComponentsView()
+    }
+    
+    private func setupStickerComponentsView()
+    {
+        addSubview(stickerComponentsView)
+        stickerComponentsView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            stickerComponentsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            stickerComponentsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 3),
+        ])
     }
     
     private func setupSticker()
@@ -33,20 +50,50 @@ final class StickerContentView: UIView
         ])
     }
     
-    func configure(withStickerPath path: String)
+    func setupBinding(publisher: AnyPublisher<Bool, Never>)
     {
-        stickerRLottieView.loadAnimation(named: path)
+        publisher.sink { isSeen in
+            if isSeen { self.updateMessageSeenStatus() }
+        }.store(in: &cancellables)
+    }
+    
+//    func configure(withStickerPath path: String)
+    func configure(with viewModel: MessageContainerViewModel)
+    {
+        guard let message = viewModel.message else { return }
+        
+        setupBinding(publisher: viewModel.messageSeenStatusChangedSubject.eraseToAnyPublisher())
+        
+        stickerRLottieView.loadAnimation(named: message.sticker!)
         stickerRLottieView.setVisible(true)
-        DisplayLinkManager.shered.addObject(stickerRLottieView)
-//        startAnimationLoop()
+//        DisplayLinkManager.shered.addObject(stickerRLottieView)
+        
+        stickerComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
+        startAnimationLoop()
     }
     
     deinit {
         print("sticker view deinit")
-        DisplayLinkManager.shered.cleanup(stickerRLottieView)
+//        DisplayLinkManager.shered.cleanup(stickerRLottieView)
         stickerRLottieView.setVisible(false)
-//        stopAnimationLoop()
+        stopAnimationLoop()
         stickerRLottieView.destroyAnimation()
+        stickerComponentsView.cleanupContent()
+    }
+}
+
+extension StickerContentView
+{
+    private func updateMessageSeenStatus()
+    {
+        executeAfter(seconds: 3.0, block: {
+            self.stickerComponentsView.messageComponentsStackView.setNeedsLayout()
+            self.stickerComponentsView.configureMessageSeenStatus()
+            
+            UIView.animate(withDuration: 0.3) {
+                self.superview?.layoutIfNeeded()
+            }
+        })
     }
 }
 

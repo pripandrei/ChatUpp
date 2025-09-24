@@ -124,7 +124,7 @@ extension MessageContainerView
             .compactMap({ $0 })
             .sink { [weak self] message in
                 if message.isInvalidated { return }
-                self?.testMessageTextEdit(message)
+                self?.updateMessage(message)
 //                self?.setupMessageLabel(with: message)
             }.store(in: &subscribers)
         
@@ -682,7 +682,7 @@ extension MessageContainerView
 // MARK: Message edit animation
 extension MessageContainerView
 {
-    private func testMessageTextEdit(_ message: Message, _ text: String = "")
+    private func updateMessage(_ message: Message)
     {
         executeAfter(seconds: 3.0, block: {
             self.messageLabel.messageUpdateType = .edited

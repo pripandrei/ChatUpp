@@ -14,6 +14,7 @@ final class MessageContainerViewModel
     
     @Published private(set) var message: Message?
     @Published private(set) var referencedMessage: Message?
+    private(set) var messageSeenStatusChangedSubject: PassthroughSubject = PassthroughSubject<Bool,Never>()
     
     private(set) var messageImageDataSubject = PassthroughSubject<Data, Never>()
     private var cancellables: Set<AnyCancellable> = []
@@ -150,13 +151,31 @@ extension MessageContainerViewModel
                 {
                 case .changed(object: let object, property: let properties):
                     properties.forEach { property in
-                        if property.name == "messageBody"
-                            || property.name == "messageSeen"
-                            || property.name == "seenBy"
-                            || property.name == "isEdited"
+                        
+                        switch property.name
                         {
+                        case "messageBody", "isEdited":
                             self.message = object as? Message
+                        case "messageSeen", "seenBy":
+                            self.message = object as? Message
+                            self.messageSeenStatusChangedSubject.send(true)
+                        default: break
                         }
+                        
+//                        if property.name == "messageBody"
+////                            || property.name == "messageSeen"
+////                            || property.name == "seenBy"
+//                            || property.name == "isEdited"
+//                        {
+//                            self.message = object as? Message
+//                        }
+//                        
+//                        if property.name == "messageSeen"
+//                            || property.name == "seenBy"
+//                        {
+//                            self.message = object as? Message
+//                            self.messageSeenStatusChangedSubject.send(true)
+//                        }
                     }
                 default: break
                 }
