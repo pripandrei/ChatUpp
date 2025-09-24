@@ -25,7 +25,7 @@ final class ChatRoomRootView: UIView
     private(set) var inputBarBottomConstraint: NSLayoutConstraint!
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
 
-    private(set) var stickerCollectionView: StickersCollectionView?
+    private(set) var stickerCollectionView: StickersPackCollectionView?
     let trailingItemState = TrailingItemState()
     
     private(set) var inputBarContainer: InputBarContainer = {
@@ -326,7 +326,7 @@ extension ChatRoomRootView
     
     private func initiateStickersViewSetup()
     {
-        let stickerCollectionView = StickersCollectionView()
+        let stickerCollectionView = StickersPackCollectionView()
         addSubview(stickerCollectionView)
         self.stickerCollectionView = stickerCollectionView
         

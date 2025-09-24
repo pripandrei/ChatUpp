@@ -280,6 +280,7 @@
 		75C8F76F2E81930E007317E0 /* CustomFPNTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F76E2E81930C007317E0 /* CustomFPNTextField.swift */; };
 		75C8F7712E8193CF007317E0 /* CustomizedShadowTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */; };
 		75C8F7772E819A79007317E0 /* ChatRoom+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */; };
+		75C8F77E2E84739E007317E0 /* DisplayLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F77D2E847396007317E0 /* DisplayLinkManager.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
 		75CC9FE62D594042002051EB /* ColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorManager.swift */; };
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
@@ -630,6 +631,7 @@
 		75C8F76E2E81930C007317E0 /* CustomFPNTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFPNTextField.swift; sourceTree = "<group>"; };
 		75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizedShadowTextField.swift; sourceTree = "<group>"; };
 		75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatRoom+Enums.swift"; sourceTree = "<group>"; };
+		75C8F77D2E847396007317E0 /* DisplayLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkManager.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
 		75CC9FE12D59402F002051EB /* ColorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorManager.swift; sourceTree = "<group>"; };
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
@@ -1331,6 +1333,7 @@
 		75AD5EA12E7B03400075377B /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				75C8F77D2E847396007317E0 /* DisplayLinkManager.swift */,
 				75AD5EA22E7B03630075377B /* KeyboardService.swift */,
 				75A9184A2C942E15006ED4CA /* CacheManager.swift */,
 				758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */,
@@ -2192,6 +2195,7 @@
 				75AD5EA32E7B036A0075377B /* KeyboardService.swift in Sources */,
 				7543BE352ACC87E1003001BF /* ChatRoomViewModel.swift in Sources */,
 				75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */,
+				75C8F77E2E84739E007317E0 /* DisplayLinkManager.swift in Sources */,
 				756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */,
 				75A7AFCE2D399B4B00E081DF /* ConversationViewModel+MessageClusterHandler.swift in Sources */,
 				7541EF072D8B6F0D00ABC8BA /* ChatRoomInformationViewModel.swift in Sources */,

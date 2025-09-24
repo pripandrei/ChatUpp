@@ -8,8 +8,9 @@
 import UIKit
 import librlottie
 
+
 // MARK: - RLLottieView
-class RLLottieView: UIView
+class RLLottieView: UIView, ObjectRenderable
 {
 //    private(set) var animationName: String?
     
@@ -170,4 +171,9 @@ class RLLottieView: UIView
     func setVisible(_ visible: Bool) {
         isVisible = visible
     }
+}
+
+protocol ObjectRenderable: AnyObject, Hashable, Equatable
+{
+    func renderNextFrame()
 }

@@ -37,13 +37,15 @@ final class StickerContentView: UIView
     {
         stickerRLottieView.loadAnimation(named: path)
         stickerRLottieView.setVisible(true)
-        startAnimationLoop()
+        DisplayLinkManager.shered.addObject(stickerRLottieView)
+//        startAnimationLoop()
     }
     
     deinit {
         print("sticker view deinit")
+        DisplayLinkManager.shered.cleanup(stickerRLottieView)
         stickerRLottieView.setVisible(false)
-        stopAnimationLoop()
+//        stopAnimationLoop()
         stickerRLottieView.destroyAnimation()
     }
 }
@@ -67,11 +69,6 @@ extension StickerContentView
     @objc private func renderFrame() {
         stickerRLottieView.renderNextFrame()
     }
-}
-
-final class DisplayLinkManager
-{
-    
 }
 
 
