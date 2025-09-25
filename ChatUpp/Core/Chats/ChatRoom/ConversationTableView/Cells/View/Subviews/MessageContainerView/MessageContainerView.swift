@@ -248,18 +248,19 @@ extension MessageContainerView
     private func setupMessageToReplyView()
     {
         guard let senderName = viewModel.referencedMessageSenderName,
-              let messageText = viewModel.referencedMessage?.messageBody else {
+              let messageText = viewModel.referencedMessage?.messageBody else
+        {
             removeArrangedSubview(replyToMessageStack)
             return
         }
         
-        let replyLabelText = messageText.isEmpty ? "Photo" : messageText
+        let replyLabelText = viewModel.getTextForReplyToMessage()
         let replyText = replyToMessageStack.createReplyMessageAttributedText(
             with: senderName,
             messageText: replyLabelText
         )
         
-        let imageData: Data? = viewModel.retrieveReferencedImageData()
+        let imageData: Data? = viewModel.getImageDataThumbnailFromReferencedMessage()
         
         replyToMessageStack.configure(with: replyText, imageData: imageData)
         
@@ -288,14 +289,14 @@ extension MessageContainerView
             }
         }
     }
-    
+
     private func updateMessageToReply(_ message: Message)
     {
         guard let messageSenderName = viewModel.referencedMessageSenderName else {return}
         executeAfter(seconds: 4.0, block: { [weak self] in
             guard let self else {return}
             messageLabel.messageUpdateType = .edited
-            let messageText = message.messageBody.isEmpty ? "Photo" : message.messageBody
+            let messageText = viewModel.getTextForReplyToMessage()
             let replyLabelText = replyToMessageStack.createReplyMessageAttributedText(
                 with: messageSenderName,
                 messageText: messageText

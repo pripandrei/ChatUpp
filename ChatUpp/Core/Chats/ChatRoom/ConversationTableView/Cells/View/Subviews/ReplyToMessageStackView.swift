@@ -7,65 +7,10 @@
 
 import UIKit
 
-
 //MARK: Stack view that presents message which was replied to
-
+//
 final class ReplyToMessageStackView: UIStackView
 {
-    // Custom image view that handles its own intrinsic sizing
-    class FixedSizeImageView: UIImageView {
-        private let fixedSize: CGSize
-        
-        init(size: CGSize) {
-            self.fixedSize = size
-            super.init(frame: .zero)
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        override var intrinsicContentSize: CGSize {
-            return fixedSize
-        }
-    }
-    
-    class ReplyInnerStackView: UIStackView
-    {
-        var _rectFillColor: UIColor = .white
-        var rectFillColor: UIColor = .white
-        {
-            didSet {
-                _rectFillColor = rectFillColor
-                setNeedsDisplay()
-            }
-        }
-        
-        override func draw(_ rect: CGRect)
-        {
-            _rectFillColor.setFill()
-            let rect = CGRect(x: 0, y: 0, width: 5, height: bounds.height)
-            UIRectFill(rect)
-        }
-
-        override init(frame: CGRect)
-        {
-            super.init(frame: frame)
-            
-            backgroundColor = ColorManager.outgoingReplyToMessageBackgroundColor
-            axis = .horizontal
-            clipsToBounds = true
-            layer.cornerRadius = 4
-            spacing = 10
-            isLayoutMarginsRelativeArrangement = true
-            layoutMargins = UIEdgeInsets(top: 5, left: 12, bottom: 5, right: 5)
-        }
-        
-        required init(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-    }
-    
     private var replyInnerStackView: ReplyInnerStackView = ReplyInnerStackView()
     
     lazy var imageView: FixedSizeImageView = {
@@ -93,28 +38,24 @@ final class ReplyToMessageStackView: UIStackView
         setupSelf(margins: margin)
     }
     
+    required init(coder: NSCoder) { fatalError() }
+    
     private func setupSelf(margins: UIEdgeInsets = .zero)
     {
         axis = .vertical
         spacing = 5
         isLayoutMarginsRelativeArrangement = true
         layoutMargins = margins
-//        layoutMargins = UIEdgeInsets(top: 7, left: 7, bottom: 0, right: 7)
-//        layoutMargins = UIEdgeInsets(top: 2, left: 0, bottom: 5, right: 0)
-        
-//            imageView.image = UIImage(named: "default_group_photo")
-        
-        // Set intrinsic content size for the image view
-//            imageView.intrinsicContentSize = CGSize(width: 30, height: 30)
-        
-//            imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-//            imageView.setContentHuggingPriority(.defaultHigh, for: .vertical) // Changed to high
-//            messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-//            messageLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-//
         replyInnerStackView.addArrangedSubview(messageLabel)
-//            let innerStack = replyInnerStackView(arrangedSubviews: [messageLabel])
         addArrangedSubview(replyInnerStackView)
+        
+        // image should always fit
+        imageView.setContentHuggingPriority(.required, for: .horizontal)
+        imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        // Label should be flexible
+        messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        messageLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
     
     func configure(with text: NSAttributedString,
@@ -138,10 +79,94 @@ final class ReplyToMessageStackView: UIStackView
         replyInnerStackView.backgroundColor = background
         replyInnerStackView.rectFillColor = barColor
     }
-    
-    
-    required init(coder: NSCoder) { fatalError() }
 }
+
+//MARK: - Inner stack view
+extension ReplyToMessageStackView
+{
+    class ReplyInnerStackView: UIStackView
+    {
+        var _rectFillColor: UIColor = .white
+        var rectFillColor: UIColor = .white
+        {
+            didSet {
+                _rectFillColor = rectFillColor
+                setNeedsDisplay()
+            }
+        }
+        
+        override func draw(_ rect: CGRect)
+        {
+            _rectFillColor.setFill()
+            let rect = CGRect(x: 0, y: 0, width: 5, height: bounds.height)
+            UIRectFill(rect)
+        }
+
+        override init(frame: CGRect)
+        {
+            super.init(frame: frame)
+            
+            backgroundColor = ColorManager.outgoingReplyToMessageBackgroundColor
+            axis = .horizontal
+            clipsToBounds = true
+            layer.cornerRadius = 4
+            spacing = 6
+            isLayoutMarginsRelativeArrangement = true
+            layoutMargins = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 5)
+        }
+        
+        required init(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+}
+
+//MARK: - Custom image view that handles its own intrinsic sizing
+extension ReplyToMessageStackView
+{
+    class FixedSizeImageView: UIImageView
+    {
+        private let fixedSize: CGSize
+        
+        init(size: CGSize) {
+            self.fixedSize = size
+            super.init(frame: .zero)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override var intrinsicContentSize: CGSize {
+            return fixedSize
+        }
+    }
+}
+
+extension ReplyToMessageStackView
+{
+    func createReplyMessageAttributedText(
+        with senderName: String,
+        messageText: String
+    ) -> NSMutableAttributedString
+    {
+        let boldAttributeForName: [NSAttributedString.Key: Any] = [
+            .font: UIFont.boldSystemFont(ofSize: 13),
+            .foregroundColor: UIColor.white
+        ]
+        let boldAttributeForText: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 13),
+            .foregroundColor: UIColor.white
+        ]
+        let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
+        let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
+        attributedText.append(replyMessageAttributedText)
+        
+        return attributedText
+    }
+}
+
+
 
 
 /// NOT IN USE CURRENTLY
@@ -192,29 +217,6 @@ class ReplyMessageLabel: UILabel
 }
 
 extension ReplyMessageLabel
-{
-    func createReplyMessageAttributedText(
-        with senderName: String,
-        messageText: String
-    ) -> NSMutableAttributedString
-    {
-        let boldAttributeForName: [NSAttributedString.Key: Any] = [
-            .font: UIFont.boldSystemFont(ofSize: 13),
-            .foregroundColor: UIColor.white
-        ]
-        let boldAttributeForText: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 13),
-            .foregroundColor: UIColor.white
-        ]
-        let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
-        let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
-        attributedText.append(replyMessageAttributedText)
-        
-        return attributedText
-    }
-}
-
-extension ReplyToMessageStackView
 {
     func createReplyMessageAttributedText(
         with senderName: String,

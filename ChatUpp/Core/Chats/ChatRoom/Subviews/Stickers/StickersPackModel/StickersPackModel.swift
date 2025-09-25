@@ -14,8 +14,11 @@ enum Stickers
         case harryGorilla
         case dolphieDolhp
         case duck
-        case felloutBoy
         case vaultBoy
+        case huskySiberian
+        case people
+        case lightningBug
+        case stealthMoon
         
         var id: String { rawValue }
         
@@ -25,8 +28,11 @@ enum Stickers
             case .duck: return "Duck"
             case .harryGorilla: return "Harry Gorilla"
             case .vaultBoy: return "Vault Boy"
-            case .felloutBoy: return "Fellout Boy"
             case .dolphieDolhp:  return "Dolhpin Dolp"
+            case .huskySiberian:  return "Husky Siberian"
+            case .people:  return "People"
+            case .stealthMoon:  return "Stealth Moon"
+            case .lightningBug: return "Lightning Bug"
             }
         }
         
@@ -36,8 +42,11 @@ enum Stickers
             case .duck: return "duck_"
             case .harryGorilla: return "hg_"
             case .vaultBoy: return "vb_"
-            case .felloutBoy: return "fb_"
             case .dolphieDolhp: return "dd_"
+            case .huskySiberian: return "hs_"
+            case .people: return "people_"
+            case .stealthMoon: return "sm_"
+            case .lightningBug: return "lb_"
             }
         }
         
@@ -47,10 +56,10 @@ enum Stickers
             case .harryGorilla: return 27
             case .vaultBoy: return 26
             case .dolphieDolhp: return 27
-            default: return 10
-//            case .people: return 34
-//            case .huskySiberian: return 24
-//            case .stealthMoon: return 31
+            case .lightningBug: return 30
+            case .people: return 34
+            case .huskySiberian: return 24
+            case .stealthMoon: return 31
             }
         }
         

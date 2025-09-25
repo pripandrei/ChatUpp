@@ -67,6 +67,18 @@ final class MessageContainerViewModel
         return message?.senderId == authUserID ? .right : .left
     }
     
+    /// internal functions
+    func getTextForReplyToMessage() -> String
+    {
+        switch message?.type
+        {
+        case .image: return "Photo"
+        case .imageText, .text: return message?.messageBody ?? ""
+        case .sticker: return "Sticker"
+        default: return ""
+        }
+    }
+    
     /// private functions
 
     private func setupComponents(from message: Message)
@@ -85,6 +97,29 @@ final class MessageContainerViewModel
         )
         self.referencedMessage = referencedMessage
     }
+    
+    func getImageDataThumbnailFromReferencedMessage() -> Data?
+    {
+        switch referencedMessage?.type
+        {
+        case .image, .imageText: return retrieveReferencedImageData()
+        case .sticker:
+            if let stickerName = referencedMessage?.sticker
+            {
+                return getStickerThumbnail(name: stickerName)
+            }
+        default: return nil
+        }
+        return nil
+//        return getStickerThumbnail(name: "hs_1" + "_thumbnail")
+    }
+    
+    private func getStickerThumbnail(name: String) -> Data?
+    {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "png") else
+        { return nil }
+        return try? Data(contentsOf: url)
+    }
 }
 
 //MARK: - Image fetch
@@ -102,6 +137,7 @@ extension MessageContainerViewModel
         }
     }
 }
+
 
 //MARK: - Image cache
 extension MessageContainerViewModel

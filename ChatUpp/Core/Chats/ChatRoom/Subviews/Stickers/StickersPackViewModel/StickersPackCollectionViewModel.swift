@@ -65,7 +65,8 @@ extension StickersPackCollectionViewModel
 //        let names = ["vb_10_webb", "vb_6_webb", "vb_3_webb"]
 //        let names = ["file_0"]
         let names = ["dd_24"]
-        let url = Bundle.main.url(forResource: names.randomElement()!, withExtension: "apng") ?? URL(filePath: "")
+        let url = Bundle.main.url(forResource: names.randomElement()!,
+                                  withExtension: "apng") ?? URL(filePath: "")
         print("URL: ", url)
         return url
     }

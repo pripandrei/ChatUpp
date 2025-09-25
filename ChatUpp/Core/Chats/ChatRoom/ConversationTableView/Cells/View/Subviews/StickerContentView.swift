@@ -11,8 +11,8 @@ import Combine
 final class StickerContentView: UIView
 {
     private var stickerRLottieView: RLLottieView = .init(renderSize: .init(width: 300, height: 300))
-    
     private let stickerComponentsView: MessageComponentsView = .init()
+    private var replyToMessageStackView: ReplyToMessageStackView?
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -47,7 +47,40 @@ final class StickerContentView: UIView
             stickerRLottieView.widthAnchor.constraint(equalTo: stickerRLottieView.heightAnchor),
         ])
     }
- 
+    
+    private func setupReplyToMessage(viewModel: MessageContainerViewModel)
+    {
+        self.replyToMessageStackView = .init(margin: .init(top: 2, left: 2, bottom: 2, right: 2))
+        addSubview(replyToMessageStackView!)
+        
+        replyToMessageStackView?.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            replyToMessageStackView!.topAnchor.constraint(equalTo: self.topAnchor),
+            replyToMessageStackView!.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            replyToMessageStackView!.widthAnchor.constraint(equalToConstant: 130)
+        ])
+        
+        guard let messageSenderName = viewModel.referencedMessageSenderName
+              /*let message = viewModel.referencedMessage*/ else {return}
+        
+        let messageText = viewModel.getTextForReplyToMessage()
+        let replyLabelText = replyToMessageStackView!.createReplyMessageAttributedText(
+            with: messageSenderName,
+            messageText: messageText
+        )
+        
+        let image = viewModel.getImageDataThumbnailFromReferencedMessage()
+        
+        self.replyToMessageStackView?.configure(
+            with: replyLabelText,
+            imageData: image)
+        
+        replyToMessageStackView?.setReplyInnerStackColors(
+            background: ColorManager.stickerReplyToMessageBackgroundColor.withAlphaComponent(0.9),
+            barColor: .white)
+    }
+    
     func setupBinding(publisher: AnyPublisher<Bool, Never>)
     {
         publisher.sink { [weak self] isSeen in
@@ -66,6 +99,11 @@ final class StickerContentView: UIView
         DisplayLinkManager.shered.addObject(stickerRLottieView)
         
         stickerComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
+        
+        if viewModel.message?.repliedTo != nil
+        {
+            setupReplyToMessage(viewModel: viewModel)
+        }
     }
     
     deinit {
@@ -74,6 +112,8 @@ final class StickerContentView: UIView
         stickerRLottieView.setVisible(false)
         stickerRLottieView.destroyAnimation()
         stickerComponentsView.cleanupContent()
+        replyToMessageStackView?.removeFromSuperview()
+        replyToMessageStackView = nil
     }
 }
 
