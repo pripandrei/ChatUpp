@@ -36,30 +36,6 @@ final class MessageComponentsViewModel
     {
         return message.messageSeen ?? (message.seenBy.count > 1)
     }
-    
-//    func observeMessageComponents()
-//    {
-//        RealmDataBase.shared.observerObject(message)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] objectUpdate in
-//                guard let self else {return}
-//                
-//                switch objectUpdate
-//                {
-//                case .changed(object: let object, property: let properties):
-//                    properties.forEach { property in
-//                        if property.name == "messageSeen"
-//                            || property.name == "seenBy"
-//                        {
-//                            property.newValue
-//                        }
-//                    }
-//                default: break
-//                }
-//                
-//            }.store(in: &cancellables)
-//    }
-    
 }
 
 
@@ -104,11 +80,6 @@ final class MessageComponentsView: UIView
             messageComponentsStackView.topAnchor.constraint(equalTo: topAnchor),
             messageComponentsStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
         ])
-        
-//        NSLayoutConstraint.activate([
-//            messageComponentsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-//            messageComponentsStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
-//        ])
     }
     
     private func setupEditedLabel()
@@ -129,15 +100,11 @@ final class MessageComponentsView: UIView
     
     private func updateStackViewComponentsAppearance()
     {
-//        if !viewModel.message.messageBody.isEmpty {
-//            print("stop")
-//        }
         guard let messageType = viewModel?.message.type else {return}
         
         switch messageType
         {
         case .image, .sticker:
-//            messageComponentsStackView.backgroundColor = #colorLiteral(red: 0.2408582568, green: 0.1759338379, blue: 0.2478298247, alpha: 0.4423020441).withAlphaComponent(1)
             messageComponentsStackView.backgroundColor = #colorLiteral(red: 0.121735774, green: 0.1175989285, blue: 0.1221210584, alpha: 1).withAlphaComponent(0.5)
             messageComponentsStackView.isLayoutMarginsRelativeArrangement = true
             messageComponentsStackView.layoutMargins = UIEdgeInsets(top: 1, left: 4, bottom: 1, right: 4)
@@ -149,20 +116,6 @@ final class MessageComponentsView: UIView
             messageComponentsStackView.layer.cornerRadius = .zero
         default: break
         }
-        
-//        if messageType == .image, messageType == .sticker
-//        {
-//            messageComponentsStackView.backgroundColor = #colorLiteral(red: 0.121735774, green: 0.1175989285, blue: 0.1221210584, alpha: 1).withAlphaComponent(0.5)
-//            messageComponentsStackView.isLayoutMarginsRelativeArrangement = true
-//            messageComponentsStackView.layoutMargins = UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
-//            messageComponentsStackView.layer.cornerRadius = 12
-//        } else {
-//            messageComponentsStackView.backgroundColor = .clear
-//            messageComponentsStackView.isLayoutMarginsRelativeArrangement = false
-//            messageComponentsStackView.layoutMargins = .zero
-//            messageComponentsStackView.layer.cornerRadius = .zero
-//        }
-        
         updateStackViewComponentsColor()
     }
     
@@ -182,12 +135,8 @@ final class MessageComponentsView: UIView
     
     func configureMessageSeenStatus()
     {
-        guard
-//            let message = viewModel.message,
-            viewModel.componentsContext == .outgoing else {return}
-//        if message.type == .text && message.messageBody == "" {return}
+        guard viewModel.componentsContext == .outgoing else {return}
         
-//        let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
         let isSeen = viewModel.isMessageSeen
         let iconSize = isSeen ? CGSize(width: 14, height: 10) : CGSize(width: 10, height: 10)
         
@@ -211,15 +160,12 @@ final class MessageComponentsView: UIView
     {
         var color: UIColor = ColorManager.outgoingMessageComponentsTextColor
         
-//        if let viewModel = viewModel
-//        {
         if viewModel.message.type == .image || viewModel.message.type == .sticker
         {
             color = .white
         } else {
             color = viewModel.componentsContext == .incoming ? ColorManager.incomingMessageComponentsTextColor : ColorManager.outgoingMessageComponentsTextColor
         }
-        //        }
         return color
     }
 }

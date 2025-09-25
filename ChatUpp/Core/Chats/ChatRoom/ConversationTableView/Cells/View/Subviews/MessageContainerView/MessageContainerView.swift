@@ -27,10 +27,6 @@ final class MessageContainerView: ContainerView
     
     private var viewModel: MessageContainerViewModel!
     private var messageComponentsView: MessageComponentsView = MessageComponentsView()
-//    private var messageComponentsStackView: UIStackView = UIStackView()
-//    private var seenStatusMark = YYLabel()
-//    private var editedLabel: UILabel = UILabel()
-//    private var timeStamp = YYLabel()
     private var messageLabel = MessageLabel()
     private(set) var messageImageView = UIImageView()
     private var subscribers = Set<AnyCancellable>()
@@ -69,9 +65,6 @@ final class MessageContainerView: ContainerView
         setupSelf()
         setupMessageLabel()
         setupMessageComonentsView()
-//        setupMessageComponentsStackView()
-//        setupTimestamp()
-//        setupEditedLabel()
         configureMessageImageView()
     }
     
@@ -111,13 +104,10 @@ extension MessageContainerView
         viewModel.messageImageDataSubject
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] imageData in
-                //                if data == self?.cellViewModel.imageData {
-//                self?.messageImage = UIImage(data: imageData)
                 guard let image = UIImage(data: imageData) else {return}
                 self?.configureMessageImage(image)
-                //                }
             }).store(in: &subscribers)
-//        
+
         viewModel.$message
             .dropFirst()
             .receive(on: DispatchQueue.main)
@@ -125,17 +115,7 @@ extension MessageContainerView
             .sink { [weak self] message in
                 if message.isInvalidated { return }
                 self?.updateMessage(message)
-//                self?.setupMessageLabel(with: message)
             }.store(in: &subscribers)
-        
-//        viewModel.$updatedText
-//            .receive(on: DispatchQueue.main)
-//            .compactMap({ $0 })
-//            .sink { [weak self] text in
-////                if message.isInvalidated { return }
-////                self?.setupMessageLabel(with: message)
-//                self?.testMessageTextEdit(text)
-//            }.store(in: &subscribers)
     }
 }
 
@@ -200,47 +180,14 @@ extension MessageContainerView
         ])
     }
     
-//    private func setupMessageComponentsStackView()
-//    {
-//        addSubview(messageComponentsStackView)
-//        
-//        messageComponentsStackView.addArrangedSubview(editedLabel)
-//        messageComponentsStackView.addArrangedSubview(timeStamp)
-//        messageComponentsStackView.addArrangedSubview(seenStatusMark)
-//        
-//        messageComponentsStackView.axis = .horizontal
-//        messageComponentsStackView.alignment = .center
-//        messageComponentsStackView.distribution = .equalSpacing
-//        messageComponentsStackView.spacing = 3
-//        messageComponentsStackView.clipsToBounds = true
-//        messageComponentsStackView.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        NSLayoutConstraint.activate([
-//            messageComponentsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-//            messageComponentsStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
-//        ])
-//    }
-    
     private func setupMessageLabel()
     {
         addArrangedSubview(messageLabel)
         messageLabel.numberOfLines = 0
         messageLabel.preferredMaxLayoutWidth = maxMessageWidth
         messageLabel.contentMode = .redraw
-//        messageLabel.layer.cornerRadius = 15
         messageLabel.clipsToBounds = true
     }
-    
-//    private func setupEditedLabel()
-//    {
-////        messageComponentsStackView.insertArrangedSubview(editedLabel, at: 0)
-//        editedLabel.font = UIFont(name: "Helvetica", size: 13)
-//    }
-    
-//    private func setupTimestamp()
-//    {
-//        timeStamp.font = UIFont(name: "HelveticaNeue", size: 13)
-//    }
     
     func configureMessageImageView()
     {
@@ -275,46 +222,12 @@ extension MessageContainerView
         
         messageSenderNameLabel.text = viewModel.messageSender?.name
     }
-    
-//    private func getColorForMessageComponents() -> UIColor
-//    {
-//        var color: UIColor = ColorManager.outgoingMessageComponentsTextColor
-//        
-//        if let viewModel = viewModel
-//        {
-//            if viewModel.message?.type == .image {
-//                color = .white
-//            } else {
-//                color = viewModel.messageAlignment == .left ? ColorManager.incomingMessageComponentsTextColor : ColorManager.outgoingMessageComponentsTextColor
-//            }
-//        }
-//        return color
-//    }
 }
 
 //MARK: - Update message components
 
 extension MessageContainerView
 {
-//    private func updateStackViewComponentsAppearance()
-//    {
-//        let messageType = viewModel.message?.type
-//        if messageType == .image
-//        {
-//            messageComponentsStackView.backgroundColor = #colorLiteral(red: 0.121735774, green: 0.1175989285, blue: 0.1221210584, alpha: 1).withAlphaComponent(0.5)
-//            messageComponentsStackView.isLayoutMarginsRelativeArrangement = true
-//            messageComponentsStackView.layoutMargins = UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
-//            messageComponentsStackView.layer.cornerRadius = 12
-//        } else {
-//            messageComponentsStackView.backgroundColor = .clear
-//            messageComponentsStackView.isLayoutMarginsRelativeArrangement = false
-//            messageComponentsStackView.layoutMargins = .zero
-//            messageComponentsStackView.layer.cornerRadius = .zero
-//        }
-//        
-//        updateStackViewComponentsColor()
-//    }
-    
     private func updateReplyToMessageColor()
     {
         var backgroundColor: UIColor = ColorManager.outgoingReplyToMessageBackgroundColor
@@ -327,45 +240,6 @@ extension MessageContainerView
         replyToMessageStack.setReplyInnerStackColors(background: backgroundColor,
                                                      barColor: barColor)
     }
-    
-//    private func updateStackViewComponentsColor() {
-//        timeStamp.textColor = getColorForMessageComponents()
-//        editedLabel.textColor = getColorForMessageComponents()
-//    }
-    
-//    private func updateEditedLabel()
-//    {
-//        if viewModel.message?.isEdited == true
-//        {
-//            editedLabel.text = "edited"
-//        }
-//    }
-    
-//    func configureMessageSeenStatus()
-//    {
-//        guard let message = viewModel.message,
-//            viewModel.messageAlignment == .right else {return}
-////        if message.type == .text && message.messageBody == "" {return}
-//        
-//        let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
-//
-//        let iconSize = isSeen ? CGSize(width: 16, height: 11) : CGSize(width: 12, height: 13)
-//        
-//        let seenIconColor: UIColor = viewModel.message?.type == .image ? .white : ColorManager.messageSeenStatusIconColor
-//        let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
-//        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?
-//            .withTintColor(seenIconColor)
-//            .resize(to: iconSize) else {return}
-//        
-//        let imageAttributedString = NSMutableAttributedString.yy_attachmentString(
-//            withContent: seenStatusIconImage,
-//            contentMode: .center,
-//            attachmentSize: seenStatusIconImage.size,
-//            alignTo: UIFont(name: "Helvetica", size: 14)!,
-//            alignment: .center)
-//        
-//        seenStatusMark.attributedText = imageAttributedString
-//    }
 }
 
 //MARK: Reply view update
@@ -441,12 +315,6 @@ extension MessageContainerView
 //MARK: - Computed properties
 extension MessageContainerView
 {
-//    private var messageComponentsWidth: CGFloat
-//    {
-//        let sideWidth = viewModel?.messageAlignment == .right ? seenStatusMark.intrinsicContentSize.width : 0.0
-//        return timeStamp.intrinsicContentSize.width + sideWidth + editedMessageWidth + 4.0
-//    }
-
     private var messageLastLineTextWidth: CGFloat {
         messageLabel.textLayout?.lines.last?.width ?? 0.0
     }
@@ -454,10 +322,6 @@ extension MessageContainerView
     private var messageTextBoundingWidth: CGFloat {
         return messageLabel.textLayout?.textBoundingRect.width ?? 0.0
     }
-    
-//    private var editedMessageWidth: CGFloat {
-//        return editedLabel.intrinsicContentSize.width
-//    }
 }
 
 // MARK: - message layout
@@ -624,10 +488,7 @@ extension MessageContainerView
     func cleanupContent()
     {
         messageLabel.attributedText = nil
-//        timeStamp.text = nil
         messageImageView.image = nil
-//        seenStatusMark.attributedText = nil
-//        editedLabel.text = nil
         removeSubscriers()
         applyMessagePadding(strategy: .initial)
         messageLabel.invalidateIntrinsicContentSize()

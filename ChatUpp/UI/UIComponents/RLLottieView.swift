@@ -173,7 +173,7 @@ class RLLottieView: UIView, ObjectRenderable
     }
 }
 
-protocol ObjectRenderable: AnyObject, Hashable, Equatable
+protocol ObjectRenderable: AnyObject
 {
     func renderNextFrame()
 }

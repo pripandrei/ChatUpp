@@ -65,7 +65,6 @@ final class MessageCellViewModel
     
     /// internal functions
     ///
-    
     func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification?
     {
         if message?.messageBody != newMessage.messageBody {

@@ -11,22 +11,15 @@ import Combine
 import SkeletonView
 import SwiftUI
 
-//protocol MessageContentView: UIView {
-//    func configure(with message: Message)
-//}
 
 final class ConversationMessageCell: UITableViewCell
 {
-    private var messageLayoutConfiguration: MessageLayoutConfiguration!
-    
-//    var handleContentRelayout: (() -> Void)?
-    
     private var containerStackViewBottomConstraint: NSLayoutConstraint!
     private var containerStackViewLeadingConstraint: NSLayoutConstraint!
     private var containerStackViewTrailingConstraint: NSLayoutConstraint!
+    private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
     private(set) var contentContainer: UIView?
-    
     private(set) var containerStackView: MessageContainerView = MessageContainerView()
     private(set) var reactionBadgeHostingView: UIView?
     private(set) var cellViewModel: MessageCellViewModel!
@@ -49,7 +42,6 @@ final class ConversationMessageCell: UITableViewCell
         
         backgroundColor = .clear
         setupBackgroundSelectionView()
-//        setupContainerStackView()
     }
     
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
@@ -73,9 +65,7 @@ final class ConversationMessageCell: UITableViewCell
             .sink(receiveValue: { [weak self] imageData in
                 self?.messageSenderAvatar.image = UIImage(data: imageData)
             }).store(in: &subscribers)
-
     }
-
     
     func setupReactionView(for message: Message)
     {
@@ -101,7 +91,6 @@ final class ConversationMessageCell: UITableViewCell
         
     /// - cell configuration
     ///
-    
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
@@ -116,14 +105,8 @@ final class ConversationMessageCell: UITableViewCell
         messageLayoutConfiguration = layoutConfiguration
         
         setupSenderAvatar()
-//        setContainerStackViewBottomConstraint()
         setupBinding()
-//        adjustMessageSide()
-//
-//        setupReactionView(for: message)
-//        containerStackView.configure(with: viewModel.messageContainerViewModel!,
-//                                     layoutConfiguration: layoutConfiguration)
-        
+
         contentContainer?.removeFromSuperview()
         contentContainer = nil
         
@@ -144,7 +127,6 @@ final class ConversationMessageCell: UITableViewCell
         case .sticker:
             let stickerView = StickerContentView()
             setupContainerView(stickerView, type: .sticker)
-//            stickerView.configure(withStickerPath: message.sticker!)
             stickerView.configure(with: viewModel.messageContainerViewModel!)
         default: break
         }
@@ -208,67 +190,19 @@ extension ConversationMessageCell
         default: break
         }
     }
-    
-//    private func setupContainerStackView()
-//    {
-//        contentView.addSubview(containerStackView)
-//
-//        containerStackView.spacing = 2
-//        containerStackView.margins = .init(top: 6, left: 10, bottom: 6, right: 10)
-//        containerStackView.layer.cornerRadius = 15
-//        containerStackView.clipsToBounds = true
-//        containerStackView.translatesAutoresizingMaskIntoConstraints = false
-//
-//        self.containerStackViewBottomConstraint = containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-//        self.containerStackViewBottomConstraint.isActive = true
-//
-//        self.containerStackViewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
-//        self.containerStackViewTrailingConstraint = containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-//
-//        containerStackView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-//        containerStackView.widthAnchor.constraint(lessThanOrEqualToConstant: MessageContainerView.maxWidth).isActive = true
-//
-//        containerStackView.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
-//    }
-    
-//    private func setupContainerStackView()
-//    {
-//        contentView.addSubview(containerStackView)
-//
-//        containerStackView.spacing = 2
-//        containerStackView.margins = .init(top: 6, left: 10, bottom: 6, right: 10)
-//        containerStackView.layer.cornerRadius = 15
-//        containerStackView.clipsToBounds = true
-//        containerStackView.translatesAutoresizingMaskIntoConstraints = false
-//
-//        self.containerStackViewBottomConstraint = containerStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-//        self.containerStackViewBottomConstraint.isActive = true
-//
-//        self.containerStackViewLeadingConstraint = containerStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
-//        self.containerStackViewTrailingConstraint = containerStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
-//
-//        containerStackView.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-//        containerStackView.widthAnchor.constraint(lessThanOrEqualToConstant: MessageContainerView.maxWidth).isActive = true
-//
-//        containerStackView.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
-//    }
-    
+ 
     private func adjustMessageSide()
     {
         let leadingConstant = messageLayoutConfiguration.leadingConstraintConstant
         
         switch cellViewModel.messageAlignment {
         case .right:
-//            containerStackView.configureMessageSeenStatus()
-
             containerStackViewLeadingConstraint.isActive = false
             containerStackViewTrailingConstraint.isActive = true
-//            contentContainer?.backgroundColor = ColorManager.outgoingMessageBackgroundColor
         case .left:
             containerStackViewTrailingConstraint.isActive = false
             containerStackViewLeadingConstraint.isActive = true
             containerStackViewLeadingConstraint.constant = leadingConstant
-//            contentContainer?.backgroundColor = ColorManager.incomingMessageBackgroundColor
         case .center:
             break
         }
