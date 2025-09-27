@@ -318,8 +318,9 @@ extension ChatRoomRootView
         tailingView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            tailingView.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -13),
-            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
+            tailingView.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -10),
+//            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
+            tailingView.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: -3),
         ])
     }
     
