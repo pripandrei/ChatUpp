@@ -80,12 +80,11 @@ final class ChatRoomRootView: UIView
         messageTextView.backgroundColor                           = ColorManager.messageTextFieldBackgroundColor
         messageTextView.layer.cornerRadius                        = 15
         messageTextView.font                                      = UIFont(name: "HelveticaNeue", size: 17)
-        messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 0)
+        messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 50)
         messageTextView.textColor                                 = ColorManager.textFieldTextColor
         messageTextView.isScrollEnabled                           = true
         messageTextView.textContainer.maximumNumberOfLines        = 0
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
-        
         
         return messageTextView
     }()

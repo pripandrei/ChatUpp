@@ -9,11 +9,14 @@ import UIKit
 import FlagPhoneNumber
 
 //MARK: - TEXTFIELD TEXT RECT ADJUST
-extension CustomizedShadowTextField {
-    open override func textRect(forBounds bounds: CGRect) -> CGRect {
+extension CustomizedShadowTextField
+{
+    open override func textRect(forBounds bounds: CGRect) -> CGRect
+    {
         var rect = super.textRect(forBounds: bounds)
-        rect.origin.x += 20
-        rect.size.width -= 30
+        let shiftSize = 20.0
+        rect.origin.x += shiftSize
+        rect.size.width -= (shiftSize * 2)
         return rect
     }
     open override func editingRect(forBounds bounds: CGRect) -> CGRect {
@@ -22,11 +25,13 @@ extension CustomizedShadowTextField {
 }
 
 //MARK: - TEXTFIELD TEXT RECT ADJUST
-extension CustomFPNTextField {
+extension CustomFPNTextField
+{
     open override func textRect(forBounds bounds: CGRect) -> CGRect {
         var rect = super.textRect(forBounds: bounds)
-        rect.origin.x += 20
-        rect.size.width -= 30
+        let shiftSize = 20.0
+        rect.origin.x += shiftSize
+        rect.size.width -= (shiftSize * 2)
         return rect
     }
     open override func editingRect(forBounds bounds: CGRect) -> CGRect {
