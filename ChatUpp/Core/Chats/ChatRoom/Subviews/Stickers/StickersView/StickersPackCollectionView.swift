@@ -8,12 +8,24 @@
 import UIKit
 import librlottie
 
+struct StickerPackSection
+{
+    let title: String
+    let items: [StickerRLottieCellViewModel]
+}
+
 // MARK: - StickersCollectionView
 final class StickersPackCollectionView: UIView
 {
-    private let stickerViewModels: [StickerRLottieCellViewModel] = {
+    private let stickerSections: [StickerPackSection] = {
         return Stickers.Category.allCases
-            .flatMap { $0.pack.map { StickerRLottieCellViewModel(stickerName: $0.deletingPathExtension().lastPathComponent) } }
+            .map { category in
+                if category.title == "Duck" {
+                    print("Stop")
+                }
+                let stickers = category.pack.map { StickerRLottieCellViewModel(stickerName: $0.deletingPathExtension().lastPathComponent) }
+                return StickerPackSection(title: category.title, items: stickers)
+            }
     }()
     
     private var collectionView: UICollectionView!
@@ -35,13 +47,13 @@ final class StickersPackCollectionView: UIView
         stopAnimationLoop()
 
         /// See FootNote.swift - [14]
-        let vms = stickerViewModels
+        let sections = stickerSections
         Task {
             await StickerAnimationManager.shared.destroyAnimation
             {
-                for vm in vms
+                for section in sections
                 {
-                    vm.destroyAnimation()
+                    section.items.forEach { $0.destroyAnimation() }
                 }
             }
         }
@@ -56,20 +68,24 @@ final class StickersPackCollectionView: UIView
             layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
             layout.minimumLineSpacing = spacing
             layout.minimumInteritemSpacing = spacing
-            layout.sectionInset = UIEdgeInsets(top: spacing,
+            layout.sectionInset = UIEdgeInsets(top: 0,
                                                left: spacing,
                                                bottom: 0,
                                                right: spacing)
         }
     }
 
-    private func setupCollectionView() {
+    private func setupCollectionView()
+    {
         let layout = UICollectionViewFlowLayout()
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(StickerRLottieCell.self, forCellWithReuseIdentifier: StickerRLottieCell.identifier)
+        collectionView.register(StickerSectionHeaderView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                withReuseIdentifier: StickerSectionHeaderView.reuseIdentifier)
 
         addSubview(collectionView)
 
@@ -111,11 +127,16 @@ final class StickersPackCollectionView: UIView
 
 // MARK: - DataSource
 
-extension StickersPackCollectionView: UICollectionViewDataSource {
+extension StickersPackCollectionView: UICollectionViewDataSource
+{
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return stickerSections.count
+    }
+    
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int
     {
-        return stickerViewModels.count
+        return stickerSections[section].items.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -126,9 +147,39 @@ extension StickersPackCollectionView: UICollectionViewDataSource {
             for: indexPath
         ) as! StickerRLottieCell
         
-        cell.configure(withViewModel: self.stickerViewModels[indexPath.item])
+        let vm = self.stickerSections[indexPath.section].items[indexPath.item]
+        cell.configure(withViewModel: vm)
         
         return cell
+    }
+    
+    // Header view
+    //
+    func collectionView(_ collectionView: UICollectionView,
+                        viewForSupplementaryElementOfKind kind: String,
+                        at indexPath: IndexPath) -> UICollectionReusableView
+    {
+        guard kind == UICollectionView.elementKindSectionHeader else {
+            return UICollectionReusableView()
+        }
+        
+        if let supplementaryView = collectionView.dequeueReusableSupplementaryView(
+            ofKind: kind,
+            withReuseIdentifier: StickerSectionHeaderView.reuseIdentifier,
+            for: indexPath) as? StickerSectionHeaderView
+        {
+            let title = stickerSections[indexPath.section].title
+            supplementaryView.configure(title: title)
+            return supplementaryView
+        }
+        return .init()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        referenceSizeForHeaderInSection section: Int) -> CGSize
+    {
+        return CGSize(width: collectionView.frame.width, height: 40.0)
     }
 }
 
@@ -151,7 +202,7 @@ extension StickersPackCollectionView: UICollectionViewDelegateFlowLayout {
     {
         collectionView.deselectItem(at: indexPath, animated: false)
         
-        let stickerName = self.stickerViewModels[indexPath.item].stickerName
+        let stickerName = self.stickerSections[indexPath.section].items[indexPath.item].stickerName
         ChatManager.shared.newStickerSubject.send(stickerName)
     }
 }
