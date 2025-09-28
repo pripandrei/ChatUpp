@@ -40,6 +40,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         coordinator?.start()
         
+        _ = KeyboardService.shared
 //        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor =  UIColor(Color.myCustomColor)
     }
 

@@ -59,7 +59,8 @@ class KeyboardService: NSObject
         tempTextField?.removeFromSuperview()
     }
 
-    override init() {
+    override init()
+    {
         super.init()
         observeKeyboardNotifications()
         observeKeyboard()
