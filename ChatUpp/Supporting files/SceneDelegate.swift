@@ -27,15 +27,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = TabBarViewController()
         
         coordinator = MainCoordinator(tabBar: tabBarController)
-        
-//        let WebPCoder = SDImageWebPCoder.shared
-//        SDImageCodersManager.shared.addCoder(WebPCoder)
-        
-//        let stickerVC = UIHostingController(rootView: StickersPackCollectionView())
-//        let stickerVC = ViewController2())
-        
+
         window?.rootViewController = tabBarController
-//        window?.rootViewController = stickerVC
         window?.makeKeyAndVisible()
         
         coordinator?.start()

@@ -246,7 +246,7 @@ final class ChatRoomViewController: UIViewController
         
         ChatManager.shared.newStickerSubject
             .sink { sticker in
-                self.createStickerMessage(sticker)
+                    self.createStickerMessage(sticker)
             }.store(in: &subscriptions)
     }
     
@@ -741,7 +741,7 @@ extension ChatRoomViewController {
                                                      media: media)
 
         // 2) Update UI immediately
-        updateUIOnNewMessageCreation()
+        updateUIOnNewMessageCreation(messageType)
 
         // 3) Save image locally if needed
         if let repo = repo {
@@ -760,15 +760,20 @@ extension ChatRoomViewController {
         let message = viewModel.createMessageLocally(ofType: .sticker,
                                                      text: nil,
                                                      media: media)
-        updateUIOnNewMessageCreation()
+        updateUIOnNewMessageCreation(.sticker)
         viewModel.syncMessage(message.freeze(), imageRepository: nil)
     }
     
-    private func updateUIOnNewMessageCreation()
+    private func updateUIOnNewMessageCreation(_ messageType: MessageType)
     {
         dataSourceManager.configureSnapshot(animationType: isFirstIndexPathVisible() ? .none : .automatic)
         handleNewMessageDisplay()
-        clearInputUI()
+        
+        switch messageType
+        {
+        case .text, .imageText: clearInputUI()
+        default: break
+        }
         closeInputBarHeaderView()
         scrollToBottom()
     }
