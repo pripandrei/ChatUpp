@@ -155,6 +155,7 @@ class ChatCell: UITableViewCell {
             Utilities.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
             return
         }
+        
         if let message = message
         {
             Utilities.stopSkeletonAnimation(for: self.messageLable, self.dateLable)

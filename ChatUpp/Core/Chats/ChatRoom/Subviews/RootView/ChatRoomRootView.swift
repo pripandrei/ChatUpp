@@ -27,6 +27,7 @@ final class ChatRoomRootView: UIView
 
     private(set) var stickerCollectionView: StickersPackCollectionView?
     private(set) var textViewTrailingItem: MessageTextViewTrailingItemView!
+    private(set) var textViewTrailingItemView: UIView!
     let trailingItemState = TrailingItemState()
     
     private(set) var inputBarContainer: InputBarContainer = {
@@ -267,16 +268,19 @@ final class ChatRoomRootView: UIView
         self.messageTextView.layer.opacity = 0.0
         self.sendMessageButton.layer.opacity = 0.0
         self.addPictureButton.layer.opacity = 0.0
+        self.textViewTrailingItemView.layer.opacity = 0.0
         
         UIView.animate(withDuration: shouldAnimate ? 0.5 : 0.0)
         {
             self.messageTextView.isHidden = !shouldHideJoinButton
             self.sendMessageButton.isHidden = !shouldHideJoinButton
             self.addPictureButton.isHidden = !shouldHideJoinButton
+            self.textViewTrailingItemView.isHidden = !shouldHideJoinButton
             
             self.messageTextView.layer.opacity = 1.0
             self.sendMessageButton.layer.opacity = 1.0
             self.addPictureButton.layer.opacity = 1.0
+            self.textViewTrailingItemView.layer.opacity = 1.0
         }
     }
 }
@@ -304,6 +308,7 @@ extension ChatRoomRootView
 
         let hostingVC = UIHostingController(rootView: self.textViewTrailingItem)
         let tailingView = hostingVC.view!
+        self.textViewTrailingItemView = tailingView
         tailingView.backgroundColor = .clear
         
         inputBarContainer.addSubview(tailingView)
