@@ -145,7 +145,8 @@ final class InputBarHeaderView: UIView {
     }
     
     // MARK: - Apply Mode
-    func applyMode(_ mode: Mode) {
+    func applyMode(_ mode: Mode)
+    {
         self.mode = mode
         titleLabel?.text = mode.labelText
         subtitleLabel?.text = mode.subtitleText()
@@ -192,13 +193,12 @@ final class InputBarHeaderView: UIView {
 
 extension InputBarHeaderView
 {
-    enum Mode: Equatable {
+    enum Mode: Equatable
+    {
         case edit(text: String?, image: UIImage?)
         case reply(text: String?, image: UIImage?)
         case image(UIImage)
-//    }
-    
-//    extension InputBarHeaderMode {
+
         var labelText: String {
             switch self {
             case .edit: return "Edit Message"

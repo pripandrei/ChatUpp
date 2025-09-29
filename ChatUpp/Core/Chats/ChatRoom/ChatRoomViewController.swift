@@ -1076,7 +1076,7 @@ extension ChatRoomViewController: UITableViewDelegate
 //            resignKeyboard()
             dismissInputBarView()
             
-            if cell.containerStackView.frame.contains(touchLocation)
+            if cell.contentContainer.frame.contains(touchLocation)
             {
                 if cell.cellViewModel.message?.imagePath != nil
                 {
@@ -1088,7 +1088,8 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func initiatePhotoBrowserPresentation(from cell: ConversationMessageCell)
     {
-        let imageView = cell.containerStackView.messageImageView
+//        let imageView = cell.contentContainer.messageImageView
+        guard let imageView = (cell.contentContainer as? MessageContainerView)?.messageImageView else {return}
         let items = self.viewModel.mediaItems
         
         let initialIndex = items.firstIndex { $0.imagePath.lastPathComponent == cell.cellViewModel.message?.imagePath }
@@ -1328,7 +1329,7 @@ extension ChatRoomViewController
            let message = messageCell.cellViewModel.message
         {
             let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
-            guard messageCell.containerStackView.frame.contains(tapLocationInCell) else { return nil }
+            guard messageCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
                 return menuBuilder.buildUIMenuForMessage(message: message)

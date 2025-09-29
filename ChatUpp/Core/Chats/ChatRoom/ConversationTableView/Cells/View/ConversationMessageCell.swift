@@ -14,13 +14,13 @@ import SwiftUI
 
 final class ConversationMessageCell: UITableViewCell
 {
-    private var containerStackViewBottomConstraint: NSLayoutConstraint!
-    private var containerStackViewLeadingConstraint: NSLayoutConstraint!
-    private var containerStackViewTrailingConstraint: NSLayoutConstraint!
+    private var contentContainerViewBottomConstraint: NSLayoutConstraint!
+    private var contentContainerViewLeadingConstraint: NSLayoutConstraint!
+    private var contentContainerViewTrailingConstraint: NSLayoutConstraint!
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
-    private(set) var contentContainer: UIView?
-    private(set) var containerStackView: MessageContainerView = MessageContainerView()
+    private(set) var contentContainer: UIView!
+//    private(set) var containerStackView: MessageContainerView = MessageContainerView()
     private(set) var reactionBadgeHostingView: UIView?
     private(set) var cellViewModel: MessageCellViewModel!
     
@@ -81,10 +81,10 @@ final class ConversationMessageCell: UITableViewCell
         contentView.addSubview(hostView.view)
         
         let horizontalConstraint = cellViewModel.messageAlignment == .right ?
-        hostView.view.trailingAnchor.constraint(equalTo: containerStackView.trailingAnchor, constant: -10) :
-        hostView.view.leadingAnchor.constraint(equalTo: containerStackView.leadingAnchor, constant: 10)
+        hostView.view.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -10) :
+        hostView.view.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 10)
         
-        hostView.view.topAnchor.constraint(equalTo: containerStackView.bottomAnchor, constant: -2).isActive = true
+        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
         
         horizontalConstraint.isActive = true
     }
@@ -104,12 +104,12 @@ final class ConversationMessageCell: UITableViewCell
         cellViewModel = viewModel
         messageLayoutConfiguration = layoutConfiguration
         
-        setupSenderAvatar()
         setupBinding()
 
         contentContainer?.removeFromSuperview()
         contentContainer = nil
         
+        // TODO: - remove this after applying type to all messages in db
         if viewModel.message?.type == nil {
             let imageTextView = MessageContainerView()
             imageTextView.configure(with: viewModel.messageContainerViewModel!,
@@ -131,9 +131,9 @@ final class ConversationMessageCell: UITableViewCell
         default: break
         }
         adjustMessageSide()
-
+        setupSenderAvatar()
         setupReactionView(for: message)
-        setContainerStackViewBottomConstraint()
+        setContentContainerViewBottomConstraint()
     }
 
     /// - cleanup
@@ -167,12 +167,12 @@ extension ConversationMessageCell
     
         view.translatesAutoresizingMaskIntoConstraints = false
         
-        self.containerStackViewBottomConstraint = view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-        self.containerStackViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
-        self.containerStackViewBottomConstraint.isActive = true
+        self.contentContainerViewBottomConstraint = view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        self.contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
+        self.contentContainerViewBottomConstraint.isActive = true
         
-        self.containerStackViewLeadingConstraint = view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
-        self.containerStackViewTrailingConstraint = view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+        self.contentContainerViewLeadingConstraint = view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
+        self.contentContainerViewTrailingConstraint = view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
         
         view.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
         
@@ -197,12 +197,12 @@ extension ConversationMessageCell
         
         switch cellViewModel.messageAlignment {
         case .right:
-            containerStackViewLeadingConstraint.isActive = false
-            containerStackViewTrailingConstraint.isActive = true
+            contentContainerViewLeadingConstraint.isActive = false
+            contentContainerViewTrailingConstraint.isActive = true
         case .left:
-            containerStackViewTrailingConstraint.isActive = false
-            containerStackViewLeadingConstraint.isActive = true
-            containerStackViewLeadingConstraint.constant = leadingConstant
+            contentContainerViewTrailingConstraint.isActive = false
+            contentContainerViewLeadingConstraint.isActive = true
+            contentContainerViewLeadingConstraint.constant = leadingConstant
         case .center:
             break
         }
@@ -242,16 +242,16 @@ extension ConversationMessageCell
     {
         guard let avatarSize = messageLayoutConfiguration.avatarSize else {return}
         
-        messageSenderAvatar.trailingAnchor.constraint(equalTo: containerStackView.leadingAnchor, constant: -8).isActive = true
+        messageSenderAvatar.trailingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: -8).isActive = true
         messageSenderAvatar.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3).isActive = true
         messageSenderAvatar.widthAnchor.constraint(equalToConstant: avatarSize.width).isActive = true
         messageSenderAvatar.heightAnchor.constraint(equalToConstant: avatarSize.height).isActive = true
     }
     
-    private func setContainerStackViewBottomConstraint()
+    private func setContentContainerViewBottomConstraint()
     {
         let isReactionsEmpty = cellViewModel.message?.reactions.isEmpty
-        self.containerStackViewBottomConstraint.constant = isReactionsEmpty ?? true ? -3 : -25
+        self.contentContainerViewBottomConstraint.constant = isReactionsEmpty ?? true ? -3 : -25
     }
 }
 
@@ -267,7 +267,7 @@ extension ConversationMessageCell: TargetPreviewable
 {
     func getTargetViewForPreview() -> UIView
     {
-        return containerStackView
+        return contentContainer ?? UIView()
     }
     
     func getTargetedPreviewColor() -> UIColor
@@ -297,12 +297,28 @@ extension ConversationMessageCell: MessageCellDragable
     
     var messageImage: UIImage?
     {
-        return containerStackView.messageImageView.image
+        return (contentContainer as? MessageContainerView)?.messageImageView.image
+//        return contentContainer.messageImageView.image
     }
     
     var messageSenderName: String?
     {
         cellViewModel.messageSender?.name
+    }
+}
+
+
+//MARK: - Message view type cast
+extension ConversationMessageCell
+{
+    var messageContentView: MessageContainerView?
+    {
+        return contentContainer as? MessageContainerView
+    }
+    
+    var stickerContentView: StickerContentView?
+    {
+        return contentContainer as? StickerContentView
     }
 }
 

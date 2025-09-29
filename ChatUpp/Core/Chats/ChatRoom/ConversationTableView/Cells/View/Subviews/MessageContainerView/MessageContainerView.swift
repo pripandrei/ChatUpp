@@ -52,7 +52,7 @@ final class MessageContainerView: ContainerView
         senderNameLabel.textColor = messageSenderNameColor
         return senderNameLabel
     }()
-    
+
     private var messageSenderNameColor: UIColor
     {
         let senderID = viewModel.message?.senderId
