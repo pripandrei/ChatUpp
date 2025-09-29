@@ -106,12 +106,26 @@ final class MessageContainerViewModel
         case .sticker:
             if let stickerName = referencedMessage?.sticker
             {
-                return getStickerThumbnail(name: stickerName)
+                return getStickerThumbnail(name: stickerName + "_thumbnail")
             }
         default: return nil
         }
         return nil
-//        return getStickerThumbnail(name: "hs_1" + "_thumbnail")
+    }
+    
+    @MainActor func getImageDataThumbnailFromMessage() -> Data?
+    {
+        switch message?.type
+        {
+        case .image, .imageText: return retrieveImageData()
+        case .sticker:
+            if let stickerName = message?.sticker
+            {
+                return getStickerThumbnail(name: stickerName + "_thumbnail")
+            }
+        default: return nil
+        }
+        return nil
     }
     
     private func getStickerThumbnail(name: String) -> Data?
@@ -197,21 +211,6 @@ extension MessageContainerViewModel
                             self.messageSeenStatusChangedSubject.send(true)
                         default: break
                         }
-                        
-//                        if property.name == "messageBody"
-////                            || property.name == "messageSeen"
-////                            || property.name == "seenBy"
-//                            || property.name == "isEdited"
-//                        {
-//                            self.message = object as? Message
-//                        }
-//                        
-//                        if property.name == "messageSeen"
-//                            || property.name == "seenBy"
-//                        {
-//                            self.message = object as? Message
-//                            self.messageSeenStatusChangedSubject.send(true)
-//                        }
                     }
                 default: break
                 }

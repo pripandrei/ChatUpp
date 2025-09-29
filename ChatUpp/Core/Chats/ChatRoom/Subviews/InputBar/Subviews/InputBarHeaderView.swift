@@ -196,13 +196,13 @@ extension InputBarHeaderView
     enum Mode: Equatable
     {
         case edit(text: String?, image: UIImage?)
-        case reply(text: String?, image: UIImage?)
+        case reply(senderName: String?, text: String?, image: UIImage?)
         case image(UIImage)
 
         var labelText: String {
             switch self {
             case .edit: return "Edit Message"
-            case .reply: return "Reply to "
+            case .reply(let senderName, _, _): return "Reply to " + (senderName ?? "")
             case .image: return "Attached image"
             }
         }
@@ -218,7 +218,7 @@ extension InputBarHeaderView
         var leadingInset: CGFloat {
             switch self {
             case .image: return 55
-            case .edit(_, let image), .reply(_, let image):
+            case .edit(_, let image), .reply(_, _ , let image):
                 return image != nil ? 55 : 10
             }
         }
@@ -227,16 +227,17 @@ extension InputBarHeaderView
             switch self {
             case .image:
                 return "Photo"
-            case .edit(let text, let image), .reply(let text, let image):
+            case .edit(let text, let image), .reply( _, let text, let image):
                 if let _ = image { return text ?? "Photo" }
                 return text ?? fallback
             }
         }
         
-        var thumbnail: UIImage? {
+        var thumbnail: UIImage?
+        {
             switch self {
             case .image(let image): return image
-            case .edit(_, let image), .reply(_, let image): return image
+            case .edit(_, let image), .reply(_, _, let image): return image
             }
         }
     }

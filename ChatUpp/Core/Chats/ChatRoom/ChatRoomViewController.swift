@@ -596,7 +596,6 @@ extension ChatRoomViewController
         }
         return false
     }
-    
 }
 
 //MARK: - Message seen status handler
@@ -1073,7 +1072,6 @@ extension ChatRoomViewController: UITableViewDelegate
         
         if let touchLocation = tableView.panGestureRecognizer.location(in: cell) as CGPoint?
         {
-//            resignKeyboard()
             dismissInputBarView()
             
             if cell.contentContainer.frame.contains(touchLocation)
@@ -1317,7 +1315,8 @@ extension ChatRoomViewController
         
         let menuBuilder = MessageMenuBuilder(
             viewModel: self.viewModel,
-            rootView: self.rootView
+            rootView: self.rootView,
+            cell: baseCell
         )
         { actionOption in
             self.handleContextMenuSelectedAction(
@@ -1370,12 +1369,6 @@ extension ChatRoomViewController
         }
     }
     
-//    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
-//    {
-//        guard let indexPath = configuration.identifier as? IndexPath,
-//              let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
-//    }
-    
     private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration,                                             forHighlightingContext: Bool) -> UITargetedPreview?
     {
         guard let indexPath = configuration.identifier as? IndexPath,
@@ -1408,6 +1401,12 @@ extension ChatRoomViewController
 //        self.rootView.inputBarHeader?.updateSubtitle(text)
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
     }
+    
+    //    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
+    //    {
+    //        guard let indexPath = configuration.identifier as? IndexPath,
+    //              let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
+    //    }
 }
 
 
@@ -1458,10 +1457,12 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
             }
             self.hapticWasInitiated = false
             self.handleContextMenuSelectedAction(
-                actionOption: .reply(text: dragableCell?.messageText,
-                                    image: dragableCell?.messageImage)
+                actionOption: .reply(
+                    senderName: dragableCell?.messageSenderName,
+                    text: dragableCell?.messageText,
+                    image: dragableCell?.messageImage)
             )
-            self.rootView.inputBarHeader?.updateTitleLabel(usingText: dragableCell?.messageSenderName)
+//            self.rootView.inputBarHeader?.updateTitleLabel(usingText: dragableCell?.messageSenderName)
             self.dragableCell = nil
         default: break
         }

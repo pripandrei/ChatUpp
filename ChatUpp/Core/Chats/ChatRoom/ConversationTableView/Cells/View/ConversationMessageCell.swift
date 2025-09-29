@@ -280,9 +280,37 @@ extension ConversationMessageCell: TargetPreviewable
     }
 }
 
+//MARK: - MessageCellDragable protocol implementation
 extension ConversationMessageCell: MessageCellDragable
 {
     var messageText: String?
+    {
+        switch cellViewModel.message?.type
+        {
+        case .image: return "Photo"
+        case .sticker: return "Sticker"
+        case .text, .imageText: return getFilteredMessageText()
+        case .audio: return "Voice Message"
+        case .video: return "Video"
+        default: return nil
+        }
+    }
+    
+    var messageImage: UIImage?
+    {
+        if let imageData = cellViewModel.messageContainerViewModel?.getImageDataThumbnailFromMessage()
+        {
+            return UIImage(data: imageData)
+        }
+        return nil
+    }
+    
+    var messageSenderName: String?
+    {
+        cellViewModel.messageSender?.name
+    }
+    
+    private func getFilteredMessageText() -> String?
     {
         if let text = cellViewModel.message?.messageBody {
             let cleaned = text.replacingOccurrences(
@@ -294,21 +322,10 @@ extension ConversationMessageCell: MessageCellDragable
         }
         return nil
     }
-    
-    var messageImage: UIImage?
-    {
-        return (contentContainer as? MessageContainerView)?.messageImageView.image
-//        return contentContainer.messageImageView.image
-    }
-    
-    var messageSenderName: String?
-    {
-        cellViewModel.messageSender?.name
-    }
 }
 
 
-//MARK: - Message view type cast
+//MARK: - Message content view type cast
 extension ConversationMessageCell
 {
     var messageContentView: MessageContainerView?
