@@ -173,19 +173,38 @@ class ChatCell: UITableViewCell {
         }
     }
     
-    private func setAttributedText(for message: Message) -> NSAttributedString?
-    {
-        if let imagePath = message.imagePath
-        {
-            let path = imagePath.addSuffix("small")
-            guard let imageData = CacheManager.shared.retrieveImageData(from: path) else
-            {
-                return nil
-            }
-            return setAttributedImageAttachment(imageData)
+    private func setAttributedText(for message: Message) -> NSAttributedString? {
+        switch message.type {
+        case .text:
+            return NSAttributedString(string: message.messageBody)
+
+        case .imageText:
+            return attributedImageMessage(path: message.imagePath, text: message.messageBody)
+
+        case .image:
+            return attributedImageMessage(path: message.imagePath)
+
+        case .sticker:
+            guard let name = message.sticker,
+                  let data = cellViewModel.getStickerThumbnail(name: name + "_thumbnail") else { return nil }
+            let attachment = setAttributedImageAttachment(data)
+            attachment.append(NSAttributedString(string: " Sticker"))
+            return attachment
+
+        default:
+            return nil
         }
-        return NSAttributedString(string: message.messageBody)
     }
+    
+    private func attributedImageMessage(path: String?, text: String? = nil) -> NSAttributedString?
+    {
+        guard let path = path?.addSuffix("small"),
+              let data = cellViewModel.retrieveMessageImageData(path) else { return nil }
+        let attachment = setAttributedImageAttachment(data)
+        if let text { attachment.append(NSAttributedString(string: " \(text)")) }
+        return attachment
+    }
+
     
     private func setAttributedImageAttachment(_ imageData: Data) -> NSMutableAttributedString
     {
@@ -302,7 +321,7 @@ class ChatCell: UITableViewCell {
         }
         
         // Case 3: Try cache → set image if found, otherwise skeleton
-        if let imageData = cellViewModel.retrieveImageFromCache() {
+        if let imageData = cellViewModel.retrieveChatAvatarFromCache() {
             profileImage.image = UIImage(data: imageData)
             Utilities.stopSkeletonAnimation(for: profileImage)
         } else {

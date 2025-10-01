@@ -15,8 +15,6 @@ class ChatCellViewModel
 {
     private var dataFetchTask: Task<Void,Never>?
     
-//    private var onChatRoomVCDidDissapear: (() -> Void)?
-    
     private var authUser = try! AuthenticationManager.shared.getAuthenticatedUser()
     
     private var cancellables = Set<AnyCancellable>()
@@ -68,33 +66,14 @@ class ChatCellViewModel
         initiateChatDataLoad()
         addRealmObserverToChat()
         observeAuthParticipantChanges()
-//        setupBinding()
     }
-    
-//    private func setupBinding()
-//    {
-//        ChatRoomSessionManager.activeChatID
-//            .dropFirst()
-//            .sink { activeChatID in
-//                if activeChatID != self.chat.id {
-//                    self.onChatRoomVCDidDissapear?()
-//                }
-//            }.store(in: &cancellables)
-//    }
-    
+
     var isAuthUserSenderOfRecentMessage: Bool {
         return authUser.uid == recentMessage?.senderId
     }
     
     private func initiateChatDataLoad()
     {
-//        do {
-//            try retrieveDataFromRealm()
-//        }
-//        catch {
-//            print("Error retrieving data from Realm: \(error)")
-//        }
-//        
         retrieveDataFromRealm()
         
         self.dataFetchTask = Task
@@ -116,17 +95,29 @@ class ChatCellViewModel
     
     // image data cache
     @MainActor
-    private func cacheImageData(_ data: Data)
+    private func cacheChatAvatarImageData(_ data: Data)
     {
         if let path = profileImageThumbnailPath {
             CacheManager.shared.saveImageData(data, toPath: path)
         }
     }
     @MainActor
-    func retrieveImageFromCache() -> Data?
+    func retrieveChatAvatarFromCache() -> Data?
     {
         guard let photoURL = profileImageThumbnailPath else { return nil }
         return CacheManager.shared.retrieveImageData(from: photoURL)
+    }
+    
+    func retrieveMessageImageData(_ path: String) -> Data?
+    {
+        return CacheManager.shared.retrieveImageData(from: path)
+    }
+    
+    func getStickerThumbnail(name: String) -> Data?
+    {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "png") else
+        { return nil }
+        return try? Data(contentsOf: url)
     }
     
     /// other (not self) member in private chat if any
@@ -214,15 +205,6 @@ extension ChatCellViewModel
                  
                 await MainActor.run
                 {
-//                    /// See FootnNote.swift - [4]
-//                    guard ChatRoomSessionManager.activeChatID.value != self.chat.id else
-//                    {
-//                        self.onChatRoomVCDidDissapear = {
-//                            self.addMessageToRealm(recentMessage)
-//                            self.recentMessage = recentMessage
-//                        }
-//                        return
-//                    }
                     addMessageToRealm(recentMessage)
                     self.recentMessage = recentMessage
                     if chatID != ChatRoomSessionManager.activeChatID {
@@ -308,9 +290,6 @@ extension ChatCellViewModel
     @MainActor
     private func fetchDataFromFirestore() async throws
     {
-        if chat.id == "2A2AF4A2-44E5-49E2-910D-7AE3DEC8EDC4" {
-            print("stop")
-        }
         try Task.checkCancellation()
         
         if let message = await loadRecentMessage() {
@@ -339,13 +318,8 @@ extension ChatCellViewModel
             await performMessageImageUpdate(recentMessage!.id)
         }
         
-        self.profileImageDataSubject.send(retrieveImageFromCache())
+        self.profileImageDataSubject.send(retrieveChatAvatarFromCache())
     }
-    
-//    private func checkIfAuthUserIsStillMemberOfChat() -> Bool
-//    {
-//        FirebaseChatService.shared.
-//    }
     
     private func updateNewUser(_ user: User)
     {
@@ -362,7 +336,7 @@ extension ChatCellViewModel
     {
         do {
             guard let imageData = try await fetchImageData() else {return}
-            await cacheImageData(imageData)
+            await cacheChatAvatarImageData(imageData)
             self.profileImageDataSubject.send(imageData)
         } catch {
             print("Could not perform image data update: ", error)
@@ -610,7 +584,7 @@ extension ChatCellViewModel
         Task { @MainActor in
             let name = chat.isGroup ? chat.name : chatUser?.name
             guard let message = recentMessage,
-                  let avatarData = retrieveImageFromCache(),
+                  let avatarData = retrieveChatAvatarFromCache(),
                   let name else { return }
             
             let bannerData = MessageBannerData(chat: chat,
