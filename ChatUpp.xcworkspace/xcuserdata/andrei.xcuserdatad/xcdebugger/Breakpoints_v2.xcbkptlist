@@ -7,32 +7,62 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9354B52D-9D2F-4F7A-9067-6E230C6E5BAC"
-            shouldBeEnabled = "No"
+            uuid = "C594B6A0-10F8-4EC5-A105-26EA2D4B21B6"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/MessageContainerView/MessageContainerViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "124"
-            endingLineNumber = "124"
-            landmarkName = "getImageDataThumbnailFromMessage()"
+            startingLineNumber = "1194"
+            endingLineNumber = "1194"
+            landmarkName = "preformRemotePagination(ascending:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C594B6A0-10F8-4EC5-A105-26EA2D4B21B6 - 560c95126813478d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 @Swift.MainActor @Sendable () -&gt; () in ChatUpp.ChatRoomViewController.preformRemotePagination(ascending: Swift.Bool) async -&gt; ()"
+                  moduleName = "ChatUpp.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1194"
+                  endingLineNumber = "1194">
+               </Location>
+               <Location
+                  uuid = "C594B6A0-10F8-4EC5-A105-26EA2D4B21B6 - 5810b47f08b912af"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in closure #1 @Swift.MainActor @Sendable () -&gt; () in ChatUpp.ChatRoomViewController.preformRemotePagination(ascending: Swift.Bool) async -&gt; ()"
+                  moduleName = "ChatUpp.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1195"
+                  endingLineNumber = "1195">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5EB75420-EA30-416B-AB69-A0D5A8F9DE84"
+            uuid = "9F78F182-D7FA-42DF-8943-D481A47DFF47"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/StickerContentView.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "73"
-            endingLineNumber = "73"
-            landmarkName = "setupReplyToMessage(viewModel:)"
+            startingLineNumber = "355"
+            endingLineNumber = "355"
+            landmarkName = "animateInputBarHeaderViewDestruction()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

@@ -6,9 +6,7 @@
 //
 
 import UIKit
-import SwiftUICore
-import SwiftUI
-import SDWebImageWebPCoder
+//import SwiftUI
 
 //import FirebaseDatabase
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {

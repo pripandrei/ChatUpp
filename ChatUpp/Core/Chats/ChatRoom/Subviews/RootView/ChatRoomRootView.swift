@@ -15,6 +15,11 @@ import SwiftUI
 
 final class ChatRoomRootView: UIView
 {
+    deinit
+    {
+        print("ChatRoomRootView deinit")
+    }
+    
     let contentOffsetSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
     let keyboardHeight: CGFloat
     

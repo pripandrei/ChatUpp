@@ -11,8 +11,10 @@ import Combine
 import Kingfisher
 import YYText
 
-class ChatCell: UITableViewCell {
-    
+class ChatCell: UITableViewCell
+{
+
+    private var messageLableTrailingToBadgeCounter: NSLayoutConstraint!
     private var cellViewModel: ChatCellViewModel!
     private var messageLable = CustomMessageLabel()
     private var nameLabel = UILabel()
@@ -44,7 +46,7 @@ class ChatCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
-//        print("chatCell was deinit =====")
+        print("chatCell was deinit =====")
     }
     
     override func layoutSubviews()
@@ -107,14 +109,14 @@ class ChatCell: UITableViewCell {
         }
     }
     
-    private func setOnlineStatusActivity(status: Bool)
-    {
+//    private func setOnlineStatusActivity(status: Bool)
+//    {
         // set back after firebase functions will be active
 //        if let activeStatus = cellViewModel.chatUser?.isActive {
 //            onlineStatusCircleView.isHidden = !activeStatus
 //            onlineStatusBorderView.isHidden = !activeStatus
 //        }
-    }
+//    }
     
     private func setUnreadMessageCount(_ count: Int) {
         //        guard let _ = cellViewModel.recentMessage else {return}
@@ -123,6 +125,7 @@ class ChatCell: UITableViewCell {
         
         let shouldShowUnreadCount = count > 0
         unreadMessagesBadgeLabel.isHidden = !shouldShowUnreadCount
+        messageLableTrailingToBadgeCounter.isActive = shouldShowUnreadCount
         
         if shouldShowUnreadCount {
             unreadMessagesBadgeLabel.text = "\(count)"
@@ -224,15 +227,9 @@ class ChatCell: UITableViewCell {
     private func setupBinding()
     {
         cellViewModel.profileImageDataSubject
-//            .compactMap( { $0 } )
-//            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] imageData in
                 guard let self = self else {return}
-                if cellViewModel.chatUser?.name == "Jitsu" || cellViewModel.chatUser?.name == "Keiz"
-                {
-                    print("stop")
-                }
                 if let image = imageData {
                     self.profileImage.image = UIImage(data: image)
                     Utilities.stopSkeletonAnimation(for: self.profileImage)
@@ -276,13 +273,10 @@ class ChatCell: UITableViewCell {
                     Utilities.stopSkeletonAnimation(for: self.nameLabel)
                     self.nameLabel.text = chat.name
                 }
-//                let imageData = self.cellViewModel.retrieveImageFromCache()
-//                self.setImage(imageData)
             }.store(in: &subscriptions)
         
         cellViewModel.$recentMessage
             .receive(on: DispatchQueue.main)
-//            .compactMap { $0 }
             .sink { [weak self] message in
                 guard let self = self else {return}
                 self.configureRecentMessage(message)
@@ -336,6 +330,16 @@ extension ChatCell {
     
     private func setupUI()
     {
+        contentView.addSubviews(
+            unreadMessagesBadgeLabel,
+            messageLable,
+            nameLabel,
+            profileImage,
+            dateLable,
+            seenStatusMark,
+            onlineStatusBorderView
+        )
+        
         setupProfileImage()
         setMessageLable()
         setNameLabel()
@@ -348,7 +352,6 @@ extension ChatCell {
     
     private func createOnlineStatusView()
     {
-        contentView.addSubview(onlineStatusBorderView)
         onlineStatusBorderView.addSubview(onlineStatusCircleView)
         
         onlineStatusBorderView.backgroundColor = ColorManager.appBackgroundColor
@@ -375,26 +378,24 @@ extension ChatCell {
     }
     
     private func setupUnreadMessagesCountLabel() {
-        contentView.addSubview(unreadMessagesBadgeLabel)
-        
+
         unreadMessagesBadgeLabel.textColor = ColorManager.textFieldTextColor
-        unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 17)
+        unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 14)
         unreadMessagesBadgeLabel.textAlignment = .center
-//        unreadMessagesBadgeLabel.linesCornerRadius = 8
         unreadMessagesBadgeLabel.isSkeletonable = true
-//        unreadMessagesBadgeLabel.skeletonTextLineHeight = .fixed(25)
-//        unreadMessagesBadgeLabel.skeletonPaddingInsets = UIEdgeInsets(top: 0, left: -10, bottom: 0, right: -10)
-        
+
         unreadMessagesBadgeLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        unreadMessagesBadgeLabel.setContentHuggingPriority(.required, for: .horizontal)
+        unreadMessagesBadgeLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
         NSLayoutConstraint.activate([
-            unreadMessagesBadgeLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -17),
+            unreadMessagesBadgeLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
             unreadMessagesBadgeLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -12),
         ])
     }
     
     private func setMessageLable() {
-        contentView.addSubview(messageLable)
         messageLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title2), size: 14)
         messageLable.textColor = #colorLiteral(red: 0.5970802903, green: 0.5856198668, blue: 0.6014393568, alpha: 1)
         messageLable.backgroundColor = .clear
@@ -412,16 +413,25 @@ extension ChatCell {
     private func configureMessageLableConstraints() {
         messageLable.translatesAutoresizingMaskIntoConstraints = false
         
+        let messageLableTrailingToParent = messageLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -15)
+        messageLableTrailingToParent.priority = .defaultHigh
+        
+        self.messageLableTrailingToBadgeCounter = messageLable.trailingAnchor.constraint(equalTo: unreadMessagesBadgeLabel.leadingAnchor, constant: -5)
+        
+        messageLable.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        messageLable.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        
         NSLayoutConstraint.activate([
             messageLable.topAnchor.constraint(equalTo: self.topAnchor, constant: self.bounds.height * 0.60),
             messageLable.leadingAnchor.constraint(equalTo: self.profileImage.trailingAnchor, constant: 10),
-            messageLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -55),
+            messageLableTrailingToParent,
+            messageLableTrailingToBadgeCounter,
             messageLable.heightAnchor.constraint(equalToConstant: 37)
         ])
     }
     
     private func setNameLabel() {
-        contentView.addSubview(nameLabel)
+//        contentView.addSubview(nameLabel)
         nameLabel.textColor = #colorLiteral(red: 0.8956019878, green: 1, blue: 1, alpha: 1)
         nameLabel.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .headline), size: 17)
         
@@ -439,7 +449,7 @@ extension ChatCell {
         
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 7),
-            nameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -65),
+            nameLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -80),
             nameLabel.bottomAnchor.constraint(equalTo: messageLable.topAnchor, constant: -1),
             nameLabel.leadingAnchor.constraint(equalTo: self.profileImage.trailingAnchor, constant: 10)
         ])
@@ -447,7 +457,7 @@ extension ChatCell {
     
     private func setupProfileImage()
     {
-        contentView.addSubview(profileImage)
+//        contentView.addSubview(profileImage)
 //        profileImage.layer.cornerRadius = self.bounds.size.width * 0.09
         profileImage.clipsToBounds = true
         profileImage.isSkeletonable = true
@@ -469,10 +479,11 @@ extension ChatCell {
     }
     
     private func setDateLable() {
-        contentView.addSubview(dateLable)
+//        contentView.addSubview(dateLable)
         
         dateLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title3), size: 14)
         dateLable.textColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1)
+        dateLable.textAlignment = .right
         dateLable.adjustsFontSizeToFitWidth = true
         
         dateLable.isSkeletonable = true
@@ -489,14 +500,14 @@ extension ChatCell {
         NSLayoutConstraint.activate([
             dateLable.topAnchor.constraint(equalTo: self.topAnchor, constant: 8),
             dateLable.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
-            dateLable.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
-            dateLable.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.25)
+//            dateLable.leadingAnchor.constraint(equalTo: messageLable.trailingAnchor, constant: 6),
+//            dateLable.heightAnchor.constraint(equalTo: self.heightAnchor, multiplier: 0.25)
         ])
     }
     
     private func setupSeenStatusMark()
     {
-        contentView.addSubview(seenStatusMark)
+//        contentView.addSubview(seenStatusMark)
         
         seenStatusMark.font = UIFont(name: "Helvetica", size: 8)
         seenStatusMark.translatesAutoresizingMaskIntoConstraints = false

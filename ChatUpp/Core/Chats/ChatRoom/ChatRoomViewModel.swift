@@ -1109,7 +1109,7 @@ extension ChatRoomViewModel
             let day = message.timestamp.formatToYearMonthDay()
             guard let clusterIndex = messageClusters.firstIndex(where: { $0.date == day }) else {continue}
         
-            guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: {  $0.message?.id == message.id } ) else {continue}
+            guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: { $0.message?.id == message.id } ) else {continue}
             
             let _ = messageClusters[clusterIndex].items.remove(at: cellVMIndex)
             

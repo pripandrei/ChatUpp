@@ -76,6 +76,7 @@ final class ChatRoomViewController: UIViewController
     }
 
     deinit {
+        print("ChatRoomVC deinit")
         cleanUp()
     }
     
@@ -347,7 +348,8 @@ final class ChatRoomViewController: UIViewController
         view.layoutIfNeeded()
     }
 
-    private func animateInputBarHeaderViewDestruction() {
+    private func animateInputBarHeaderViewDestruction()
+    {
         guard let inputBarHeaderView = rootView.inputBarHeader else {return}
 
         UIView.animate(withDuration: 0.2) {
@@ -975,13 +977,16 @@ extension ChatRoomViewController {
         rootView.tableView.addGestureRecognizer(panGesture)
     }
     
-    private func addGestureToCloseBtn() {
+    private func addGestureToCloseBtn()
+    {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeInputBarHeaderView))
         rootView.inputBarHeader?.closeButton?.addGestureRecognizer(tapGesture)
    }
     
-    @objc func closeInputBarHeaderView() {
-        if rootView.inputBarHeader != nil {
+    @objc func closeInputBarHeaderView()
+    {
+        if rootView.inputBarHeader != nil
+        {
             viewModel.resetCurrentReplyMessageIfNeeded()
             animateInputBarHeaderViewDestruction()
         }
