@@ -187,7 +187,7 @@ final class ChatRoomRootView: UIView
     // MARK: Internal variables
     var tableViewInitialTopInset: CGFloat
     {
-        return isKeyboardShown() ? CGFloat(336 - 30) : CGFloat(0)
+        return isKeyboardShown() ? CGFloat(keyboardHeight - 30) : CGFloat(0)
     }
     
     // MARK: - LIFECYCLE
@@ -255,6 +255,11 @@ final class ChatRoomRootView: UIView
     }
     
     // MARK: - Internal functions
+    
+    func updateInputBarBottomConstraint(toSize size: CGFloat) {
+        self.inputBarBottomConstraint.constant = size
+        self.layoutIfNeeded()
+    }
     
     func updateTableViewContentOffset(isInputBarHeaderRemoved: Bool) {
         //because tableview is inverted we should perform operations vice versa

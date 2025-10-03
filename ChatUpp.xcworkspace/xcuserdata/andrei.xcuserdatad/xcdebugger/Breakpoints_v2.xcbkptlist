@@ -7,62 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C594B6A0-10F8-4EC5-A105-26EA2D4B21B6"
+            uuid = "FF92680D-D09B-4A56-92D9-9E2A20565A28"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1194"
-            endingLineNumber = "1194"
-            landmarkName = "preformRemotePagination(ascending:)"
+            startingLineNumber = "279"
+            endingLineNumber = "279"
+            landmarkName = "keyboardWillShow(notification:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "C594B6A0-10F8-4EC5-A105-26EA2D4B21B6 - 560c95126813478d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Swift.MainActor @Sendable () -&gt; () in ChatUpp.ChatRoomViewController.preformRemotePagination(ascending: Swift.Bool) async -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1194"
-                  endingLineNumber = "1194">
-               </Location>
-               <Location
-                  uuid = "C594B6A0-10F8-4EC5-A105-26EA2D4B21B6 - 5810b47f08b912af"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in closure #1 @Swift.MainActor @Sendable () -&gt; () in ChatUpp.ChatRoomViewController.preformRemotePagination(ascending: Swift.Bool) async -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1195"
-                  endingLineNumber = "1195">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9F78F182-D7FA-42DF-8943-D481A47DFF47"
+            uuid = "C9F62775-8189-49DB-852E-DE3D22CF0B19"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "355"
-            endingLineNumber = "355"
-            landmarkName = "animateInputBarHeaderViewDestruction()"
+            startingLineNumber = "234"
+            endingLineNumber = "234"
+            landmarkName = "setupBinding()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

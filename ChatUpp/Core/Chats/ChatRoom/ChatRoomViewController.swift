@@ -282,8 +282,8 @@ final class ChatRoomViewController: UIViewController
                     return
                 }
                 
-                let keyboardHeight = -keyboardSize.height
-                updateInputBarBottomConstraint(toSize: keyboardHeight)
+                let keyboardHeight = -keyboardSize.height + 30
+                rootView.updateInputBarBottomConstraint(toSize: keyboardHeight)
             }
         }
     }
@@ -295,7 +295,7 @@ final class ChatRoomViewController: UIViewController
             guard self.rootView.stickerCollectionView == nil else { return }
             isKeyboardHidden = true
             guard !isContextMenuPresented else {
-                updateInputBarBottomConstraint(toSize: 0)
+                rootView.updateInputBarBottomConstraint(toSize: 0)
                 return
             }
             handleTableViewOffset(usingKeyboardHeight: keyboardSize.height)
@@ -341,11 +341,6 @@ final class ChatRoomViewController: UIViewController
         } completion: { _ in
             self.rootView.removeStickerView()
         }
-    }
-    
-    private func updateInputBarBottomConstraint(toSize size: CGFloat) {
-        self.rootView.inputBarBottomConstraint.constant = size
-        view.layoutIfNeeded()
     }
 
     private func animateInputBarHeaderViewDestruction()
