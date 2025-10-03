@@ -266,6 +266,7 @@ final class ChatRoomRootView: UIView
         let height = isInputBarHeaderRemoved ? 45.0 : -45.0
         tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
         tableView.contentInset.top -= height
+        tableView.verticalScrollIndicatorInsets.top -= height
     }
     
     func setTextViewDelegate(to delegate: UITextViewDelegate) {
