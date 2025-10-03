@@ -237,7 +237,7 @@ final class ChatRoomViewController: UIViewController
                     return
                 }
                 
-                let height = self.rootView.keyboardHeight
+                let height = KeyboardService.keyboardHeight()
                 UIView.animate(withDuration: 0.27) {
                     self.handleTableViewOffset(usingKeyboardHeight: height)
                     self.rootView.layoutIfNeeded()
@@ -274,17 +274,19 @@ final class ChatRoomViewController: UIViewController
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
-            if rootView.inputBarContainer.frame.origin.y > 580 /// first character typed in textField triggers keyboardWillShow, so we perform this check
+            guard rootView.inputBarContainer.frame.origin.y > 580 else {return} /// first character typed in textField triggers keyboardWillShow, so we perform this check
+            
+            isKeyboardHidden = false
+            let height = KeyboardService.keyboardHeight()
+            
+            guard isContextMenuPresented else
             {
-                isKeyboardHidden = false
-                guard isContextMenuPresented else {
-                    handleTableViewOffset(usingKeyboardHeight: keyboardSize.height)
-                    return
-                }
-                
-                let keyboardHeight = -keyboardSize.height + 30
-                rootView.updateInputBarBottomConstraint(toSize: keyboardHeight)
+                handleTableViewOffset(usingKeyboardHeight: height)
+                return
             }
+            
+            let keyboardHeight = -(height - 30)
+            rootView.updateInputBarBottomConstraint(toSize: keyboardHeight)
         }
     }
     
@@ -336,7 +338,7 @@ final class ChatRoomViewController: UIViewController
     {
         rootView.showStickerIcon()
         UIView.animate(withDuration: 0.27) {
-            self.handleTableViewOffset(usingKeyboardHeight: self.rootView.keyboardHeight)
+            self.handleTableViewOffset(usingKeyboardHeight: KeyboardService.keyboardHeight())
             self.rootView.layoutIfNeeded()
         } completion: { _ in
             self.rootView.removeStickerView()
@@ -369,7 +371,7 @@ final class ChatRoomViewController: UIViewController
             self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
         }
         
-        self.rootView.updateTableViewContentSize(isInputBarHeaderRemoved: true)
+        self.rootView.updateTableViewContentAttributes(isInputBarHeaderRemoved: true)
         self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
         self.rootView.layoutIfNeeded()
     }

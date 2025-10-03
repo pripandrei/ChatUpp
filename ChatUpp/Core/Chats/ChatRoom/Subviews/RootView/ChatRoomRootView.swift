@@ -21,7 +21,6 @@ final class ChatRoomRootView: UIView
     }
     
     let contentOffsetSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
-    let keyboardHeight: CGFloat
     
     private let inputBarViewsTopConstraintConstant: CGFloat = 7.0
     private let inputBarButtonsSize: CGFloat = 31
@@ -187,6 +186,7 @@ final class ChatRoomRootView: UIView
     // MARK: Internal variables
     var tableViewInitialTopInset: CGFloat
     {
+        let keyboardHeight = KeyboardService.keyboardHeight()
         return isKeyboardShown() ? CGFloat(keyboardHeight - 30) : CGFloat(0)
     }
     
@@ -194,7 +194,6 @@ final class ChatRoomRootView: UIView
     
     override init(frame: CGRect)
     {
-        self.keyboardHeight = KeyboardService.keyboardHeight()
         super.init(frame: frame)
         setupLayout()
     }
@@ -261,7 +260,8 @@ final class ChatRoomRootView: UIView
         self.layoutIfNeeded()
     }
     
-    func updateTableViewContentSize(isInputBarHeaderRemoved: Bool) {
+    func updateTableViewContentAttributes(isInputBarHeaderRemoved: Bool)
+    {
         //because tableview is inverted we should perform operations vice versa
         let height = isInputBarHeaderRemoved ? 45.0 : -45.0
         tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
@@ -377,7 +377,7 @@ extension ChatRoomRootView
     func activateInputBarHeaderView(mode: InputBarHeaderView.Mode)
     {
         if inputBarHeader == nil {
-            updateTableViewContentSize(isInputBarHeaderRemoved: false)
+            updateTableViewContentAttributes(isInputBarHeaderRemoved: false)
         }
         scrollToBottomBtnBottomConstraint.constant -= inputBarHeader == nil ? 45 : 0
 //        sendEditMessageButton.isHidden = !(mode == InputBarHeaderView.Mode.edit)
