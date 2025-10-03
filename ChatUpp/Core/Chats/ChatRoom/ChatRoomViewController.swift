@@ -369,7 +369,7 @@ final class ChatRoomViewController: UIViewController
             self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
         }
         
-        self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
+        self.rootView.updateTableViewContentSize(isInputBarHeaderRemoved: true)
         self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
         self.rootView.layoutIfNeeded()
     }
@@ -1397,7 +1397,7 @@ extension ChatRoomViewController
         actionOption: InputBarHeaderView.Mode
     )
     {
-        self.rootView.activateInputBarHeaderView(mode: actionOption)
+        self.rootView.activateInputBarHeaderView(mode: actionOption) 
         self.addGestureToCloseBtn()
         self.rootView.messageTextView.becomeFirstResponder()
 //        self.rootView.inputBarHeader?.updateSubtitle(text)

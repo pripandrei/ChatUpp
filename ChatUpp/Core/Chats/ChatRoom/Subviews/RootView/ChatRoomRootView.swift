@@ -261,10 +261,11 @@ final class ChatRoomRootView: UIView
         self.layoutIfNeeded()
     }
     
-    func updateTableViewContentOffset(isInputBarHeaderRemoved: Bool) {
+    func updateTableViewContentSize(isInputBarHeaderRemoved: Bool) {
         //because tableview is inverted we should perform operations vice versa
         let height = isInputBarHeaderRemoved ? 45.0 : -45.0
         tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
+        tableView.contentInset.top -= height
     }
     
     func setTextViewDelegate(to delegate: UITextViewDelegate) {
@@ -375,7 +376,7 @@ extension ChatRoomRootView
     func activateInputBarHeaderView(mode: InputBarHeaderView.Mode)
     {
         if inputBarHeader == nil {
-            updateTableViewContentOffset(isInputBarHeaderRemoved: false)
+            updateTableViewContentSize(isInputBarHeaderRemoved: false)
         }
         scrollToBottomBtnBottomConstraint.constant -= inputBarHeader == nil ? 45 : 0
 //        sendEditMessageButton.isHidden = !(mode == InputBarHeaderView.Mode.edit)
