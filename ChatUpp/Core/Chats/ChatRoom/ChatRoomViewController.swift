@@ -373,6 +373,8 @@ final class ChatRoomViewController: UIViewController
         mainQueue {
             self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
         }
+        
+        self.rootView.updateTableViewContentOffset(isInputBarHeaderRemoved: true)
         self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
         self.rootView.layoutIfNeeded()
     }
