@@ -19,8 +19,8 @@ final class StickerContentView: UIView
     convenience init()
     {
         self.init(frame: .zero)
-//        setupSticker()
-//        setupStickerComponentsView()
+        setupSticker()
+        setupStickerComponentsView()
     }
     
     private func setupStickerComponentsView()

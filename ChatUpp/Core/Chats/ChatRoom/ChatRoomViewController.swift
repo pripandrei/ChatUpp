@@ -247,8 +247,8 @@ final class ChatRoomViewController: UIViewController
             .store(in: &subscriptions)
         
         ChatManager.shared.newStickerSubject
-            .sink { sticker in
-                    self.createStickerMessage(sticker)
+            .sink { [weak self] sticker in
+                    self?.createStickerMessage(sticker)
             }.store(in: &subscriptions)
     }
     
