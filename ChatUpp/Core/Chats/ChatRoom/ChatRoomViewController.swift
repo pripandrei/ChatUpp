@@ -212,7 +212,8 @@ final class ChatRoomViewController: UIViewController
             .store(in: &subscriptions)
         
         inputMessageTextViewDelegate.textViewDidBeginEditing
-            .debounce(for: .seconds(0.2), scheduler: DispatchQueue.main)
+            .debounce(for: .seconds(0.2),
+                      scheduler: DispatchQueue.main)
             .sink { [weak self] didBegin in
                 if didBegin && self?.rootView.stickerCollectionView != nil
                 {
@@ -1149,7 +1150,7 @@ extension ChatRoomViewController: UITableViewDelegate
             if !isNetworkPaginationRunning
             {
                 isNetworkPaginationRunning = true
-                await viewModel.remoteMessagePaginator.perform {
+                await viewModel.remoteMessagePaginator?.perform {
                     await preformRemotePagination(ascending: ascending)
                 }
             }

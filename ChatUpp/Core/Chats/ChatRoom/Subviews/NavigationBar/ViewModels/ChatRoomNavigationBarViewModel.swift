@@ -79,16 +79,6 @@ final class ChatRoomNavigationBarViewModel
                     : "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
             }
             .store(in: &cancellables)
-        
-//        RealmDataBase.shared.observeChanges(for: participant)
-//            .receive(on: DispatchQueue.main)
-//            .sink { (changeType, object) in
-//                if changeType.name == "isActive"
-//                {
-//                    guard let isActive = changeType.newValue as? Bool else {return}
-//                    self._status = isActive ? "Online" : "last seen \(participant.lastSeen?.formatToYearMonthDayCustomString() ?? "Recently")"
-//                }
-//            }.store(in: &cancellables)
     }
     
     // MARK: - Navigation items set
@@ -101,7 +91,6 @@ final class ChatRoomNavigationBarViewModel
         
         if chat.thumbnailURL != self._imageUrl {
             self._imageUrl = getThumbnailImagePath(from: chat.thumbnailURL)
-//            self._imageUrl = chat.thumbnailURL
         }
         
         let chatStatus = "\(chat.participants.count) participants"
@@ -118,7 +107,6 @@ final class ChatRoomNavigationBarViewModel
         
         if user.photoUrl != self._imageUrl {
             self._imageUrl = getThumbnailImagePath(from: user.photoUrl)
-//            self._imageUrl = user.photoUrl
         }
         
         /// Currently will not receive updates (blaze plan needs to be active in firebase).
@@ -166,13 +154,3 @@ enum NavigationItemChangeField: String
     case thumbnailURL
 }
 
-
-
-//extension ChatRoomNavigationBarViewModel {
-//    var members: [User] {
-//        let participants = Array( conversation?.participants.map { $0.userID } ?? [] )
-//        let filter = NSPredicate(format: "id IN %@", argumentArray: participants)
-//        let users = RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray()
-//        return users ?? []
-//    }
-//}

@@ -127,9 +127,10 @@ final class ConversationMessageCell: UITableViewCell
         case .sticker:
             let stickerView = StickerContentView()
             setupContainerView(stickerView, type: .sticker)
-            stickerView.configure(with: viewModel.messageContainerViewModel!)
+//            stickerView.configure(with: viewModel.messageContainerViewModel!)
         default: break
         }
+        
         adjustMessageSide()
         setupSenderAvatar()
         setupReactionView(for: message)

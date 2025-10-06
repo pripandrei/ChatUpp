@@ -30,8 +30,8 @@ final class ChatRoomRootView: UIView
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
 
     private(set) var stickerCollectionView: StickersPackCollectionView?
-    private(set) var textViewTrailingItem: MessageTextViewTrailingItemView!
-    private(set) var textViewTrailingItemView: UIView!
+    private var textViewTrailingItem: MessageTextViewTrailingItemView!
+    private var textViewTrailingItemView: UIView!
     let trailingItemState = TrailingItemState()
     
     private(set) var inputBarContainer: InputBarContainer = {

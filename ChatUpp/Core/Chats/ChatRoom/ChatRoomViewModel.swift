@@ -15,14 +15,11 @@ import RealmSwift
 class ChatRoomViewModel : SwiftUI.ObservableObject
 {
     private(set) var setupConversationTask: Task<Void, Never>?
-    
-    private(set) var remoteMessagePaginator = RemoteMessagePaginator()
-    
     private(set) var realmService: ConversationRealmService?
-    //    private(set) var messageFetcher : ConversationMessageFetcher
     private(set) var firestoreService: ConversationFirestoreService?
-    private(set) var userListenerService : ConversationUsersListinerService?
-    private(set) var messageListenerService : ConversationMessageListenerService?
+    private(set) var messageListenerService: ConversationMessageListenerService?
+    private(set) var remoteMessagePaginator: RemoteMessagePaginator?
+    private(set) var datasourceUpdateType = PassthroughSubject<DatasourceRowAnimation, Never>()
     
     private(set) var conversation        : Chat?
     private(set) var participant         : User?
@@ -33,7 +30,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     @Published private(set) var unseenMessagesCount: Int
     @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
-    private(set) var datasourceUpdateType = PassthroughSubject<DatasourceRowAnimation, Never>()
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
     
@@ -138,9 +134,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
-        if conversation.isGroup {
-            self.userListenerService = ConversationUsersListinerService(chatUsers: Array(conversation.participants))
-        }
+        self.remoteMessagePaginator = .init()
     }
     
     private func getPrivateChatMember(from chat: Chat) -> User?
@@ -166,7 +160,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         bindToDeletedMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
-//       testMessagesCountAndUnseenCount() //
+        
+//        testMessagesCountAndUnseenCount() // test functions
     }
     
     init(participant: User?)
@@ -195,8 +190,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard conversation?.realm != nil else {return}
         
-//        userListenerService?.addUsersListener()
-//        userListenerService?.addUserObserver()
         observeParticipantChanges()
          
         guard let startMessage = messageClusters.first?.items.first?.message
@@ -212,7 +205,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let totalMessagesCount = messageClusters.reduce(0) { total, cluster in
             total + cluster.items.filter { $0.message != nil }.count
         }
-        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssage: startMessage, ascending: false, limit: totalMessagesCount)
+        messageListenerService?.addListenerToExistingMessagesTest(
+            startAtMesssage: startMessage,
+            ascending: false,
+            limit: totalMessagesCount
+        )
     }
     
     func removeAllListeners()
@@ -313,7 +310,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         self.setupConversationTask = Task(priority: .high) { @MainActor in
             await firestoreService?.addChatToFirestore(freezedChat)
-//            setupMessageListenerOnChatCreation()
             bindToMessages()
             bindToDeletedMessages()
             addListeners()
@@ -328,7 +324,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                               text: String?,
                               media: MessageMediaParameters?) -> Message
     {
-        var message = createNewMessage(ofType: type,
+        let message = createNewMessage(ofType: type,
                                        messageText: text,
                                        mediaParameters: media)
         
@@ -364,13 +360,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         )
     }
     
-//    @MainActor
-//    func handleLocalUpdatesOnMessageCreation(_ message: Message)
-//    {
-//        realmService?.addMessagesToRealmChat([message])
-//        updateUnseenMessageCounterForAuthUserLocally()
-//    }
-//    
     func ensureConversationExists()
     {
         if self.conversation == nil { setupConversation() }
@@ -392,22 +381,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             await self.firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
     }
-//    
-//    @MainActor
-//    func initiateRemoteUpdatesOnMessageCreation(_ message: Message,
-//                                                imageRepository: ImageSampleRepository? = nil) async
-//    {
-//        await self.setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
-//        if let imageRepository { // if message contains image add it first
-//            await saveImagesRemotelly(fromImageRepository: imageRepository,
-//                                      for: message.id)
-//        }
-//        
-//        await firestoreService?.addMessageToFirestoreDataBase(message)
-//        await updateParticipantsUnseenMessageCounterRemote()
-//        await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
-//    }
-    
+
     private func setupMessageListenerOnChatCreation()
     {
         guard let message = conversation?.getLastMessage(),
@@ -999,7 +973,7 @@ extension ChatRoomViewModel
                 guard let self = self else { return }
                 Task {
                     guard self.conversation?.isInvalidated == false else {return} // See FootNote.swift [11]
-                    await self.remoteMessagePaginator.perform {
+                    await self.remoteMessagePaginator?.perform {
                         await self.processMessageChanges(messagesTypes)
                     }
                 }
@@ -1062,6 +1036,7 @@ extension ChatRoomViewModel
     private func handleAddedMessages(_ messages: [Message]) async
     {
         guard !messages.isEmpty else {return}
+        
         var newMessages = [Message]()
         var updatedMessages = [Message]()
         
@@ -1072,7 +1047,7 @@ extension ChatRoomViewModel
                 primaryKey: message.id)
             {
                 /// See FootNote.swift [12]
-                if (dbMessage.messageSeen == true && message.messageSeen == false) ||  (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
+                if (dbMessage.messageSeen == true && message.messageSeen == false) || (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
                 {
                     let updatedMessage = message.updateSeenStatus(seenStatus: true)
                     updatedMessages.append(updatedMessage)
@@ -1083,9 +1058,10 @@ extension ChatRoomViewModel
         }
         
         RealmDataBase.shared.add(objects: updatedMessages)
-        print("this message was added: ", newMessages)
+
         realmService?.addMessagesToRealmChat(newMessages)
         createMessageClustersWith(newMessages)
+        
         if newMessages.count == 1 {
             datasourceUpdateType.send(DatasourceRowAnimation.none)
         } else if newMessages.count > 1 {

@@ -70,7 +70,6 @@ final class InputBarTextViewDelegate: NSObject, UITextViewDelegate
         } completion: { _ in
             let caretPosition = self.conversationView.messageTextView.selectedRange.location
             self.conversationView.messageTextView.scrollRangeToVisible(NSRange(location: caretPosition, length: 0))
-            
         }
     }
 }

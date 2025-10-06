@@ -10,8 +10,8 @@ import Combine
 
 
 // MARK: - SETUP NAVIGATION BAR ITEMS
-final class ChatRoomNavigationBar {
-    
+final class ChatRoomNavigationBar
+{
     private weak var coordinator: Coordinator?
     private weak var viewController: UIViewController!
     
@@ -137,7 +137,7 @@ extension ChatRoomNavigationBar
             titleLabel.font = UIFont(name:"HelveticaNeue-Bold", size: 17)
             titleLabel.textAlignment = .center
             
-            statusLabel.text = lastSeen == "online" ? lastSeen : "last seen \(lastSeen)"
+            statusLabel.text = lastSeen == "online" ? lastSeen : "last seen \(String(describing: lastSeen))"
             statusLabel.font = UIFont(name:"HelveticaNeue", size: 13)
             statusLabel.textColor = .white
 
