@@ -136,11 +136,7 @@ final class ConversationMessageCell: UITableViewCell
         setupReactionView(for: message)
         setContentContainerViewBottomConstraint()
     }
-    
-    deinit
-    {
-        print("deinit conversationMessageCELLL !")
-    }
+
     /// - cleanup
     private func cleanupCellContent()
     {

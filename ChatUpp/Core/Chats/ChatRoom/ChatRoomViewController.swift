@@ -76,7 +76,7 @@ final class ChatRoomViewController: UIViewController
     }
 
     deinit {
-        print("ChatRoomVC deinit")
+//        print("ChatRoomVC deinit")
         cleanUp()
     }
     
@@ -307,13 +307,14 @@ final class ChatRoomViewController: UIViewController
     
     //MARK: - Private functions
     
-    private func cleanUp() {
+    private func cleanUp()
+    {
         NotificationCenter.default.removeObserver(self)
         viewModel.removeAllListeners()
         dataSourceManager.cleanup()
-//        dataSourceManager = nil
         CacheManager.shared.clear()
         ChatRoomSessionManager.activeChatID = nil
+        //        dataSourceManager = nil
 //        coordinatorDelegate = nil
 //        viewModel = nil
 //        tableViewDataSource = nil

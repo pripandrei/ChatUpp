@@ -20,11 +20,7 @@ final class ChatRoomNavigationBar
     private var viewModel: ChatRoomNavigationBarViewModel
     
     private var cancellables: Set<AnyCancellable> = []
-    
-    deinit {
-        print("ChatRoomNavigationBar ====== deinit")
-    }
-    
+
     init(viewController: UIViewController,
          viewModel: ChatRoomNavigationBarViewModel,
          coordinator: Coordinator?)

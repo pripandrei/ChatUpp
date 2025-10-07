@@ -10,10 +10,6 @@ import Combine
 
 final class ChatRoomNavigationBarViewModel
 {
-    
-    deinit {
-        print("ChatRoomNavigationBarViewModel ____====== deinit")
-    }
     private var cancellables: Set<AnyCancellable> = []
     
     @Published private(set) var _title: String?
