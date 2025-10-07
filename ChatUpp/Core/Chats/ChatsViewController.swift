@@ -293,10 +293,7 @@ extension ChatsViewController: UISearchResultsUpdating {
             if text == lastSearchedText
             {
                 let searchResultData = await AlgoliaSearchManager.shared.performSearch(text)
-//                let filteredResults = searchResultData.compactMap { resultData in
-//                    return ResultsCellViewModel(memberUser: resultData)
-//                }
-                
+
                 let usersResults = searchResultData?.users.compactMap { users in
                     return ResultsCellViewModel(memberUser: users)
                 }

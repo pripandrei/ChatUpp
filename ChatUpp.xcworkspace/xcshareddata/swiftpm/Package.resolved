@@ -1,5 +1,5 @@
 {
-  "originHash" : "f75bc89098dc1cbba719f7ef6fd865ed6c4d2eec4d0fc9c769e02f9678fc0e1f",
+  "originHash" : "7dee311b995ab6607b8f9b03da6b507aab17da858145e4843484a83ef5287525",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/algolia/algoliasearch-client-swift.git",
       "state" : {
-        "revision" : "996d9e171fdf4692ba279ea2f8a29acfe077ab37",
-        "version" : "8.20.1"
+        "revision" : "e60bcaa80e3a83dc084f7ceb4b0fa269a1a9797c",
+        "version" : "9.31.0"
       }
     },
     {

@@ -81,7 +81,6 @@
 		757AB0F22BB9D70D00A64DA4 /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0F12BB9D70D00A64DA4 /* FirebaseInstallations */; };
 		757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0F32BB9D70D00A64DA4 /* FirebaseStorage */; };
 		757AB0F62BB9D70D00A64DA4 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0F52BB9D70D00A64DA4 /* FirebaseStorageCombine-Community */; };
-		757AB0F92BB9D7DD00A64DA4 /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0F82BB9D7DD00A64DA4 /* AlgoliaSearchClient */; };
 		757AB0FC2BB9D81B00A64DA4 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0FB2BB9D81B00A64DA4 /* GoogleSignIn */; };
 		757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB0FD2BB9D81B00A64DA4 /* GoogleSignInSwift */; };
 		757AB1012BB9D85100A64DA4 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 757AB1002BB9D85100A64DA4 /* SkeletonView */; };
@@ -186,6 +185,8 @@
 		75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */; };
 		75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB79002AC318D600C2743A /* UIView+Extensions.swift */; };
 		75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */; };
+		75FD79812E95CDD200B3782F /* Core in Frameworks */ = {isa = PBXBuildFile; productRef = 75FD79802E95CDD200B3782F /* Core */; };
+		75FD79832E95CDD200B3782F /* Search in Frameworks */ = {isa = PBXBuildFile; productRef = 75FD79822E95CDD200B3782F /* Search */; };
 		75FD971E2DF230A800EC001E /* ReactionPresentationSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */; };
 		75FD97202DF3914400EC001E /* SkeletonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */; };
 /* End PBXBuildFile section */
@@ -401,14 +402,15 @@
 				757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */,
 				7587D3AC2E63B7FD00DEE900 /* Gzip in Frameworks */,
 				75592EB42E70D59A00247CB5 /* librlottie in Frameworks */,
+				75FD79812E95CDD200B3782F /* Core in Frameworks */,
 				757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */,
+				75FD79832E95CDD200B3782F /* Search in Frameworks */,
 				756E6D162D820D1F0065CADB /* ActivityIndicatorView in Frameworks */,
 				757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */,
 				752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */,
 				757AB0F02BB9D70D00A64DA4 /* FirebaseFunctions in Frameworks */,
 				757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */,
 				756E6D1D2D8210890065CADB /* NVActivityIndicatorView in Frameworks */,
-				757AB0F92BB9D7DD00A64DA4 /* AlgoliaSearchClient in Frameworks */,
 				7587CE222C7CC403002D60CE /* RealmSwift in Frameworks */,
 				75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */,
 				757AB0EA2BB9D70D00A64DA4 /* FirebaseFirestore in Frameworks */,
@@ -1437,7 +1439,6 @@
 				757AB0F12BB9D70D00A64DA4 /* FirebaseInstallations */,
 				757AB0F32BB9D70D00A64DA4 /* FirebaseStorage */,
 				757AB0F52BB9D70D00A64DA4 /* FirebaseStorageCombine-Community */,
-				757AB0F82BB9D7DD00A64DA4 /* AlgoliaSearchClient */,
 				757AB0FB2BB9D81B00A64DA4 /* GoogleSignIn */,
 				757AB0FD2BB9D81B00A64DA4 /* GoogleSignInSwift */,
 				757AB1002BB9D85100A64DA4 /* SkeletonView */,
@@ -1451,6 +1452,8 @@
 				751599012E5F899100E22801 /* SKPhotoBrowser */,
 				7587D3AB2E63B7FD00DEE900 /* Gzip */,
 				75592EB32E70D59A00247CB5 /* librlottie */,
+				75FD79802E95CDD200B3782F /* Core */,
+				75FD79822E95CDD200B3782F /* Search */,
 			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
@@ -1482,7 +1485,6 @@
 			mainGroup = 75B5C4AD2A49AB0A00F63A5A;
 			packageReferences = (
 				757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				757AB0F72BB9D7DD00A64DA4 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 				757AB0FA2BB9D81B00A64DA4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				757AB0FF2BB9D85100A64DA4 /* XCRemoteSwiftPackageReference "SkeletonView" */,
 				7587CE202C7CC403002D60CE /* XCRemoteSwiftPackageReference "realm-swift" */,
@@ -1493,6 +1495,7 @@
 				751599002E5F899100E22801 /* XCRemoteSwiftPackageReference "SKPhotoBrowser" */,
 				7587D3AA2E63B7FD00DEE900 /* XCRemoteSwiftPackageReference "GzipSwift" */,
 				75592EB22E70D59A00247CB5 /* XCRemoteSwiftPackageReference "librlottie-Xcode" */,
+				75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
@@ -1956,14 +1959,6 @@
 				minimumVersion = 12.4.0;
 			};
 		};
-		757AB0F72BB9D7DD00A64DA4 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = 8.20.1;
-			};
-		};
 		757AB0FA2BB9D81B00A64DA4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
@@ -2002,6 +1997,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.7.4;
+			};
+		};
+		75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.31.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -2082,11 +2085,6 @@
 			package = 757AB0DE2BB9D70C00A64DA4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseStorageCombine-Community";
 		};
-		757AB0F82BB9D7DD00A64DA4 /* AlgoliaSearchClient */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 757AB0F72BB9D7DD00A64DA4 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
-			productName = AlgoliaSearchClient;
-		};
 		757AB0FB2BB9D81B00A64DA4 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 757AB0FA2BB9D81B00A64DA4 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
@@ -2121,6 +2119,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 75A086142D19619E00DE5333 /* XCRemoteSwiftPackageReference "TOCropViewController" */;
 			productName = TOCropViewController;
+		};
+		75FD79802E95CDD200B3782F /* Core */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = Core;
+		};
+		75FD79822E95CDD200B3782F /* Search */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = Search;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
