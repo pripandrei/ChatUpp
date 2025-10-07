@@ -1961,8 +1961,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
-				kind = exactVersion;
-				version = 10.23.0;
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.4.0;
 			};
 		};
 		757AB0F72BB9D7DD00A64DA4 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
