@@ -310,6 +310,8 @@ final class ChatRoomViewController: UIViewController
     private func cleanUp() {
         NotificationCenter.default.removeObserver(self)
         viewModel.removeAllListeners()
+        dataSourceManager.cleanup()
+//        dataSourceManager = nil
         CacheManager.shared.clear()
         ChatRoomSessionManager.activeChatID = nil
 //        coordinatorDelegate = nil

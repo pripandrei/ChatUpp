@@ -23,10 +23,10 @@ extension ConversationDataSourceManager
 
 final class ConversationDataSourceManager
 {
-    private var dataProvider: DataSourceProviding!
-    private var layoutProvider: MessageLayoutProvider!
+    private var dataProvider: DataSourceProviding
+    private var layoutProvider: MessageLayoutProvider
     private var diffableDataSource: DataSource!
-    private var tableView: UITableView!
+    private var tableView: UITableView
     
     init(dataProvider: DataSourceProviding,
          layoutProvider: MessageLayoutProvider,
@@ -37,6 +37,11 @@ final class ConversationDataSourceManager
         self.tableView = tableView
         self.diffableDataSource = makeDataSource()
         self.configureSnapshot()
+    }
+    
+    deinit
+    {
+        print("ConversationDataSourceManager -- dienit")
     }
     
     private func makeDataSource() -> DataSource
@@ -215,6 +220,11 @@ extension ConversationDataSourceManager
             tableView.endUpdates()
         }
         return cell
+    }
+    
+    func cleanup()
+    {
+        diffableDataSource = nil
     }
 }
 

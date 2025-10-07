@@ -39,6 +39,11 @@ final class MessageCellViewModel
         self.messageContainerViewModel = MessageContainerViewModel(message: message)
     }
     
+    deinit
+    {
+        print("MessageCellViewModel dienit")
+    }
+    
     convenience init(isUnseenCell: Bool) {
         self.init()
         self.displayUnseenMessagesTitle = isUnseenCell

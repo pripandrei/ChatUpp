@@ -26,7 +26,7 @@ final class ConversationMessageCell: UITableViewCell
     
     private var subscribers = Set<AnyCancellable>()
     
-    private var messageSenderAvatar: UIImageView = {
+    lazy private var messageSenderAvatar: UIImageView = {
         let senderAvatar = UIImageView()
         senderAvatar.clipsToBounds = true
         senderAvatar.translatesAutoresizingMaskIntoConstraints = false
@@ -136,7 +136,11 @@ final class ConversationMessageCell: UITableViewCell
         setupReactionView(for: message)
         setContentContainerViewBottomConstraint()
     }
-
+    
+    deinit
+    {
+        print("deinit conversationMessageCELLL !")
+    }
     /// - cleanup
     private func cleanupCellContent()
     {

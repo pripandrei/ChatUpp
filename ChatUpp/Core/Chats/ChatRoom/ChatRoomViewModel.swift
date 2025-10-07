@@ -76,7 +76,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     deinit {
-        print("chat room View model deinit")
+        print("ChatRoomViewModel model deinit")
     }
     
     var shouldAttachListenerToUpcomingMessages: Bool
