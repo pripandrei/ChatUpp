@@ -222,7 +222,6 @@
 		7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1D2C781425002D60CE /* RealmDataBase.swift */; };
 		7587CE222C7CC403002D60CE /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; };
 		7587D39D2E637C5B00DEE900 /* StickersPackCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587D39C2E637C5600DEE900 /* StickersPackCollectionViewModel.swift */; };
-		7587D3A02E6391AC00DEE900 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 7587D39F2E6391AC00DEE900 /* Lottie */; };
 		7587D3AC2E63B7FD00DEE900 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 7587D3AB2E63B7FD00DEE900 /* Gzip */; };
 		758945962E16F85600305F29 /* FootNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758945952E16F85200305F29 /* FootNote.swift */; };
 		758A48D42E4A2CB900D0A10B /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */; };
@@ -306,8 +305,6 @@
 		75F608842BEC2F560065DA83 /* InputBarTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* InputBarTextViewDelegate.swift */; };
 		75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* InputBarHeaderView.swift */; };
 		75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		75F9B10E2E68DA00000F496E /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 75F9B10D2E68DA00000F496E /* SDWebImageSwiftUI */; };
-		75F9B1112E68E862000F496E /* SDWebImageWebPCoder in Frameworks */ = {isa = PBXBuildFile; productRef = 75F9B1102E68E862000F496E /* SDWebImageWebPCoder */; };
 		75F9B1282E68F528000F496E /* YYText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08B9B2BEFDC9E000AE1B5 /* YYText.framework */; };
 		75F9B1292E68F528000F496E /* YYText.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08B9B2BEFDC9E000AE1B5 /* YYText.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		75F9B12A2E68F52C000F496E /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
@@ -1401,7 +1398,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				75F9B10E2E68DA00000F496E /* SDWebImageSwiftUI in Frameworks */,
 				757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */,
 				757AB0E62BB9D70D00A64DA4 /* FirebaseDatabaseSwift in Frameworks */,
 				7587D3AC2E63B7FD00DEE900 /* Gzip in Frameworks */,
@@ -1421,10 +1417,8 @@
 				751599022E5F899100E22801 /* SKPhotoBrowser in Frameworks */,
 				756E6D1F2D8210890065CADB /* NVActivityIndicatorViewExtended in Frameworks */,
 				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
-				75F9B1112E68E862000F496E /* SDWebImageWebPCoder in Frameworks */,
 				757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */,
 				757AB0EE2BB9D70D00A64DA4 /* FirebaseFirestoreSwift in Frameworks */,
-				7587D3A02E6391AC00DEE900 /* Lottie in Frameworks */,
 				75F9B12A2E68F52C000F496E /* FlagPhoneNumber.framework in Frameworks */,
 				757AB1012BB9D85100A64DA4 /* SkeletonView in Frameworks */,
 				757AB0F62BB9D70D00A64DA4 /* FirebaseStorageCombine-Community in Frameworks */,
@@ -3091,10 +3085,7 @@
 				756E6D1C2D8210890065CADB /* NVActivityIndicatorView */,
 				756E6D1E2D8210890065CADB /* NVActivityIndicatorViewExtended */,
 				751599012E5F899100E22801 /* SKPhotoBrowser */,
-				7587D39F2E6391AC00DEE900 /* Lottie */,
 				7587D3AB2E63B7FD00DEE900 /* Gzip */,
-				75F9B10D2E68DA00000F496E /* SDWebImageSwiftUI */,
-				75F9B1102E68E862000F496E /* SDWebImageWebPCoder */,
 				75592EB32E70D59A00247CB5 /* librlottie */,
 			);
 			productName = ChatUpp;
@@ -3136,10 +3127,7 @@
 				756E6D142D820D1F0065CADB /* XCRemoteSwiftPackageReference "ActivityIndicatorView" */,
 				756E6D1B2D8210890065CADB /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */,
 				751599002E5F899100E22801 /* XCRemoteSwiftPackageReference "SKPhotoBrowser" */,
-				7587D39E2E6391AC00DEE900 /* XCRemoteSwiftPackageReference "lottie-spm" */,
 				7587D3AA2E63B7FD00DEE900 /* XCRemoteSwiftPackageReference "GzipSwift" */,
-				75F9B10C2E68DA00000F496E /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
-				75F9B10F2E68E862000F496E /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */,
 				75592EB22E70D59A00247CB5 /* XCRemoteSwiftPackageReference "librlottie-Xcode" */,
 			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
@@ -3999,7 +3987,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pripandrei.com.ChatUpp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4027,7 +4015,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pripandrei.com.ChatUpp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4140,14 +4128,6 @@
 				kind = branch;
 			};
 		};
-		7587D39E2E6391AC00DEE900 /* XCRemoteSwiftPackageReference "lottie-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/airbnb/lottie-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.2;
-			};
-		};
 		7587D3AA2E63B7FD00DEE900 /* XCRemoteSwiftPackageReference "GzipSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/1024jp/GzipSwift.git";
@@ -4162,22 +4142,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.7.4;
-			};
-		};
-		75F9B10C2E68DA00000F496E /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.1.3;
-			};
-		};
-		75F9B10F2E68E862000F496E /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageWebPCoder.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.14.6;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -4298,11 +4262,6 @@
 			package = 7587CE202C7CC403002D60CE /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
 		};
-		7587D39F2E6391AC00DEE900 /* Lottie */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 7587D39E2E6391AC00DEE900 /* XCRemoteSwiftPackageReference "lottie-spm" */;
-			productName = Lottie;
-		};
 		7587D3AB2E63B7FD00DEE900 /* Gzip */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 7587D3AA2E63B7FD00DEE900 /* XCRemoteSwiftPackageReference "GzipSwift" */;
@@ -4317,16 +4276,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 75A086142D19619E00DE5333 /* XCRemoteSwiftPackageReference "TOCropViewController" */;
 			productName = TOCropViewController;
-		};
-		75F9B10D2E68DA00000F496E /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 75F9B10C2E68DA00000F496E /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
-		};
-		75F9B1102E68E862000F496E /* SDWebImageWebPCoder */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 75F9B10F2E68E862000F496E /* XCRemoteSwiftPackageReference "SDWebImageWebPCoder" */;
-			productName = SDWebImageWebPCoder;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
