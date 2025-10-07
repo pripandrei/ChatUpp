@@ -1857,7 +1857,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pripandrei.com.ChatUpp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pripandreika.com.ChatUpp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1885,7 +1885,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pripandrei.com.ChatUpp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pripandreika.com.ChatUpp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

@@ -31,8 +31,6 @@ final class FirestoreUserService {
     private func userDocument(userID: String) -> DocumentReference {
         usersCollection.document(userID)
     }
-    
-    let presenceRef = Database.database().reference(withPath: "users")
   
     // MARK: - CREATE NEW USER
     
