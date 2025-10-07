@@ -159,20 +159,20 @@ extension MessageContainerViewModel
     func cacheImage(data: Data)
     {
         guard let path = message?.imagePath else {return}
-        CacheManager.shared.saveImageData(data, toPath: path)
+        CacheManager.shared.saveData(data, toPath: path)
     }
     
     @MainActor
     func retrieveImageData() -> Data?
     {
         guard let path = message?.imagePath else {return nil}
-        return CacheManager.shared.retrieveImageData(from: path)
+        return CacheManager.shared.retrieveData(from: path)
     }
     
     func retrieveReferencedImageData() -> Data?
     {
         guard let imagePath = referencedMessage?.imagePath?.addSuffix("small") else {return nil}
-        return CacheManager.shared.retrieveImageData(from: imagePath)
+        return CacheManager.shared.retrieveData(from: imagePath)
     }
 }
 

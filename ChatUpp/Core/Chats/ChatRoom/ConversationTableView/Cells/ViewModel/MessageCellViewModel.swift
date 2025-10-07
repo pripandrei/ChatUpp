@@ -91,7 +91,7 @@ extension MessageCellViewModel
     {
         guard var path = messageSender?.photoUrl else {return nil}
         path = path.addSuffix(size)
-        return CacheManager.shared.retrieveImageData(from: path)
+        return CacheManager.shared.retrieveData(from: path)
     }
 }
 

@@ -184,7 +184,7 @@ final class TestHelper
         Task {
             let path = "D131B2EF-2DCC-4483-BB1E-98F0B49014A0_small.jpeg"
             let imageData = try await FirebaseStorageManager.shared.getImage(from: .user("DESg2qjjJPP20KQDWfKpJJnozv53"), imagePath: path)
-            CacheManager.shared.saveImageData(imageData, toPath: path)
+            CacheManager.shared.saveData(imageData, toPath: path)
         }
     }
 }

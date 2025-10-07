@@ -88,6 +88,6 @@ extension ImageSampleHandling
             to: .user(userId),
             imagePath: path
         )
-        CacheManager.shared.saveImageData(imageData, toPath: path)
+        CacheManager.shared.saveData(imageData, toPath: path)
     }
 }

@@ -29,7 +29,7 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
     {
         if let chatImageURL = conversation.thumbnailURL {
             let url = chatImageURL.addSuffix("medium")
-            return CacheManager.shared.retrieveImageData(from: url)
+            return CacheManager.shared.retrieveData(from: url)
         }
         return nil
     }
@@ -151,7 +151,7 @@ extension ChatRoomInformationEditViewModel: ImageRepositoryRepresentable
     private func saveImage(_ imageData: Data, path: String) async throws
     {
         try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .group(conversation.id), imagePath: path)
-        CacheManager.shared.saveImageData(imageData, toPath: path)
+        CacheManager.shared.saveData(imageData, toPath: path)
     }
     
 }

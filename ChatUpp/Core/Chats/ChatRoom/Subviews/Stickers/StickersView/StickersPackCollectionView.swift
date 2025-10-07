@@ -20,10 +20,7 @@ final class StickersPackCollectionView: UIView
     private let stickerSections: [StickerPackSection] = {
         return Stickers.Category.allCases
             .map { category in
-                if category.title == "Duck" {
-                    print("Stop")
-                }
-                let stickers = category.pack.map { StickerRLottieCellViewModel(stickerName: $0.deletingPathExtension().lastPathComponent) }
+                let stickers = category.pack.map { StickerRLottieCellViewModel(stickerName: $0) }
                 return StickerPackSection(title: category.title, items: stickers)
             }
     }()

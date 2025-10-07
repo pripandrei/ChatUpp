@@ -129,7 +129,7 @@ final class ChatRoomNavigationBarViewModel
 extension ChatRoomNavigationBarViewModel
 {
     func getImageFromCache(_ url: String) -> Data? {
-        return CacheManager.shared.retrieveImageData(from: url)
+        return CacheManager.shared.retrieveData(from: url)
     }
 }
 

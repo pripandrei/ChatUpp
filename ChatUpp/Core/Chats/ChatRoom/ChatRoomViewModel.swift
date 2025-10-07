@@ -613,7 +613,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             for (key, imageData) in imageRepository.samples {
                 let path = imageRepository.imagePath(for: key)
                 group.addTask(priority: .utility) {
-                    CacheManager.shared.saveImageData(imageData, toPath: path)
+                    CacheManager.shared.saveData(imageData, toPath: path)
                     print("Cached image: \(imageData) \(path)")
                 }
             }
@@ -660,7 +660,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 {
                     print("stop")
                 }
-                CacheManager.shared.saveImageData(imageData, toPath: path)
+                CacheManager.shared.saveData(imageData, toPath: path)
             }
         } catch {
             print("Could not fetch message image data: ", error)
@@ -908,7 +908,7 @@ extension ChatRoomViewModel
         return getRealmUsers(with: usersIDs)
             .compactMap { user -> User? in
                 guard let path = user.photoUrl else { return nil }
-                if !CacheManager.shared.doesImageExist(at: path) {
+                if !CacheManager.shared.doesFileExist(at: path) {
                     return user
                 }
                 return nil
@@ -945,7 +945,7 @@ extension ChatRoomViewModel
                             let imageData = try await FirebaseStorageManager.shared.getImage(
                                 from: .user(userID),
                                 imagePath: path)
-                            CacheManager.shared.saveImageData(imageData, toPath: path)
+                            CacheManager.shared.saveData(imageData, toPath: path)
                         }
                     } catch {
                         print("Error fetching avatar image data for user: \(userID); Error: \(error)")
@@ -1175,7 +1175,7 @@ extension ChatRoomViewModel
         
         if let path = referencedMessage.imagePath
         {
-            let imageExists = CacheManager.shared.doesImageExist(at: path.addSuffix("small"))
+            let imageExists = CacheManager.shared.doesFileExist(at: path.addSuffix("small"))
             imageExists ? () : await self.downloadImageData(from: referencedMessage)
         }
         
@@ -1423,7 +1423,7 @@ extension ChatRoomViewModel
 {
     func retrieveImageDataFromCache(for path: String) -> Data?
     {
-        return CacheManager.shared.retrieveImageData(from: path)
+        return CacheManager.shared.retrieveData(from: path)
     }
 }
 

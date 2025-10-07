@@ -79,13 +79,20 @@ enum Stickers
             }
         }
         
-        var pack: [URL]
+        var pack: [String]
         {
             return (1...count).compactMap { index in
-                Bundle.main.url(forResource: "\(prefix)\(index)",
-                                withExtension: "json")
+                return "\(prefix)\(index)"
             }
         }
+        
+//        var pack: [URL]
+//        {
+//            return (1...count).compactMap { index in
+//                Bundle.main.url(forResource: "\(prefix)\(index)",
+//                                withExtension: "json")
+//            }
+//        }
     }
     
     enum StickerFormat

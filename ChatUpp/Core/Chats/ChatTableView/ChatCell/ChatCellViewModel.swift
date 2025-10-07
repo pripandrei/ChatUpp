@@ -98,19 +98,19 @@ class ChatCellViewModel
     private func cacheChatAvatarImageData(_ data: Data)
     {
         if let path = profileImageThumbnailPath {
-            CacheManager.shared.saveImageData(data, toPath: path)
+            CacheManager.shared.saveData(data, toPath: path)
         }
     }
     @MainActor
     func retrieveChatAvatarFromCache() -> Data?
     {
         guard let photoURL = profileImageThumbnailPath else { return nil }
-        return CacheManager.shared.retrieveImageData(from: photoURL)
+        return CacheManager.shared.retrieveData(from: photoURL)
     }
     
     func retrieveMessageImageData(_ path: String) -> Data?
     {
-        return CacheManager.shared.retrieveImageData(from: path)
+        return CacheManager.shared.retrieveData(from: path)
     }
     
     func getStickerThumbnail(name: String) -> Data?
@@ -167,14 +167,14 @@ extension ChatCellViewModel
     private var shouldFetchProfileImage: Bool
     {
         guard let path = profileImageThumbnailPath else {return false}
-        return CacheManager.shared.doesImageExist(at: path) == false
+        return CacheManager.shared.doesFileExist(at: path) == false
     }
     
     @MainActor
     private var shouldFetchMessageImage: Bool
     {
         guard let path = recentMessageImageThumbnailPath else {return false}
-        return CacheManager.shared.doesImageExist(at: path) == false
+        return CacheManager.shared.doesFileExist(at: path) == false
     }
     
     var isRecentMessagePresent: Bool
@@ -388,7 +388,7 @@ extension ChatCellViewModel
         do {
             for path in paths {
                 let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(messageID), imagePath: path)
-                CacheManager.shared.saveImageData(imageData, toPath: path)
+                CacheManager.shared.saveData(imageData, toPath: path)
                 
             }
             self.recentMessage = self.recentMessage // trigger message image update
@@ -567,7 +567,7 @@ extension ChatCellViewModel
         Task { [weak self] in
             guard let imageURL = await self?.profileImageThumbnailPath else { return }
 
-            let imageIsCached = CacheManager.shared.doesImageExist(at: imageURL)
+            let imageIsCached = CacheManager.shared.doesFileExist(at: imageURL)
 
             if !imageIsCached {
                 await self?.performProfileImageDataUpdate()

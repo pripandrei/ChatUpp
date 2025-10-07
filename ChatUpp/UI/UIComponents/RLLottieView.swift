@@ -7,13 +7,11 @@
 
 import UIKit
 import librlottie
-
+import Gzip
 
 // MARK: - RLLottieView
 class RLLottieView: UIView, ObjectRenderable
 {
-//    private(set) var animationName: String?
-    
     private var animation: OpaquePointer?
     private var totalFrames: Int = 0
     private let renderSize: CGSize 
@@ -83,13 +81,44 @@ class RLLottieView: UIView, ObjectRenderable
         self.randomOffset = TimeInterval.random(in: 0..<2.0)
     }
     
+//    private nonisolated func getAnimation(name: String) -> OpaquePointer?
+//    {
+//        guard let path = Bundle.main.path(forResource: name, ofType: "json"),
+//              let anim = lottie_animation_from_file(path) else {
+//            return nil
+//        }
+//        return anim
+//    }
+    
     private nonisolated func getAnimation(name: String) -> OpaquePointer?
     {
-        guard let path = Bundle.main.path(forResource: name, ofType: "json"),
-              let anim = lottie_animation_from_file(path) else {
+        let fileName = name + ".json"
+        let animationExist = CacheManager.shared.doesFileExist(at: fileName)
+        let animationPath = animationExist ? CacheManager.shared.getURL(for: fileName)?.path() : nil
+        
+        if let animationPath
+        {
+            return lottie_animation_from_file(animationPath)
+        }
+        
+        guard let tgsPath = Bundle.main.path(forResource: name, ofType: "tgs"),
+              let tgsData = try? Data(contentsOf: .init(filePath: tgsPath)),
+              let unzippedData = try? tgsData.gunzipped()
+        else {
+            print("❌ Failed to unzip \(name).tgs")
             return nil
         }
-        return anim
+        
+        if let path = Bundle.main.path(forResource: name, ofType: "json") {
+            print(path)
+        }
+
+        CacheManager.shared.saveData(unzippedData, toPath: name + ".json")
+        
+        guard let jsonPath = CacheManager.shared.getURL(for: name + ".json")?.path() else
+        { return nil }
+        
+        return lottie_animation_from_file(jsonPath)
     }
 
     func renderNextFrame()
@@ -127,7 +156,6 @@ class RLLottieView: UIView, ObjectRenderable
     {
         generation &+= 1  // invalidate all pending renders
         animation = nil
-//        animationName = nil
         isVisible = false
         renderInProgress = false
         layer.contents = nil

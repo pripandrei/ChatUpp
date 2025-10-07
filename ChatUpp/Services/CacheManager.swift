@@ -25,17 +25,17 @@ extension CacheManager
             in: .userDomainMask).first
     }
     
-    func saveImageData(_ imageData: Data, toPath path: String)
+    func saveData(_ data: Data, toPath path: String)
     {
         guard let pathURL = cacheDirectory?.appending(path: path) else {return}
         do {
-            try imageData.write(to: pathURL)
+            try data.write(to: pathURL)
         } catch {
             print("Error while saving image data to cache: ", error.localizedDescription)
         }
     }
     
-    func retrieveImageData(from path: String) -> Data?
+    func retrieveData(from path: String) -> Data?
     {
         guard let pathURL = cacheDirectory?.appending(path: path) else {return nil}
         
@@ -50,7 +50,7 @@ extension CacheManager
         return nil
     }
     
-    func doesImageExist(at path: String) -> Bool
+    func doesFileExist(at path: String) -> Bool
     {
         guard let pathURL = cacheDirectory?.appending(path: path)
         else {return false}
