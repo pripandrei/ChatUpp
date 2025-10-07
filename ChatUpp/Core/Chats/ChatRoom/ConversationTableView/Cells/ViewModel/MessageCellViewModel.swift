@@ -22,11 +22,6 @@ extension MessageCellViewModel: Hashable
 
 final class MessageCellViewModel
 {
-    func updateMessage(_ message: Message)
-    {
-        self.message = message
-    }
-    
     let id = UUID()
     
     @Published private(set) var message: Message?
@@ -49,6 +44,11 @@ final class MessageCellViewModel
         self.displayUnseenMessagesTitle = isUnseenCell
     }
     
+//    deinit
+//    {
+//        print("MessageCellViewModel deinit")
+//    }
+    
     lazy var messageSender: User? = {
         guard let key = message?.senderId else { return nil }
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
@@ -70,7 +70,6 @@ final class MessageCellViewModel
     
     /// internal functions
     ///
-    
     func getModifiedValueOfMessage(_ newMessage: Message) -> MessageValueModification?
     {
         if message?.messageBody != newMessage.messageBody {
@@ -82,6 +81,12 @@ final class MessageCellViewModel
         }
         return nil
     }
+    
+    func updateMessage(_ message: Message)
+    {
+        self.message = message
+    }
+    
 }
 
 //MARK: - Image cache
@@ -91,7 +96,7 @@ extension MessageCellViewModel
     {
         guard var path = messageSender?.photoUrl else {return nil}
         path = path.addSuffix(size)
-        return CacheManager.shared.retrieveImageData(from: path)
+        return CacheManager.shared.retrieveData(from: path)
     }
 }
 

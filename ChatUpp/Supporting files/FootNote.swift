@@ -98,5 +98,11 @@
 /// so we just ignore updates ignore updates
 
 //MARK: - [14]
+/// Because render of animations can still be in process,
+/// we need to queue destruction of animations on actor (StickerAnimationManager) where render takes place.
+/// This way animations will be destroyed only after final render will come to it's end.
 ///
-///
+
+//MARK: - [14]
+/// 
+/// KeyboardService is used only to get the height of the keyboard from current device that the app is running on

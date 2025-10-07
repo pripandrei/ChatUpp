@@ -43,7 +43,7 @@ final class SettingsViewModel
         guard let realmUser = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: authUser.uid) else {return}
         self.user = realmUser
         guard let pictureURL = user.photoUrl else {return}
-        self.profileImageData = CacheManager.shared.retrieveImageData(from: pictureURL)
+        self.profileImageData = CacheManager.shared.retrieveData(from: pictureURL)
     }
     
     private func fetchUserFromDB() async throws
@@ -63,7 +63,7 @@ final class SettingsViewModel
     private func cacheProfileImage()
     {
         guard let path = user.photoUrl, let data = profileImageData else {return}
-        CacheManager.shared.saveImageData(data, toPath: path)
+        CacheManager.shared.saveData(data, toPath: path)
     }
     
     func getCurrentAuthProvider() async throws {

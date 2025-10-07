@@ -40,7 +40,6 @@ class ChatsViewController: UIViewController {
     // MARK: - UI SETUP
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.chatsViewModel = ChatsViewModel()
         setupBinding()
         configureTableView()

@@ -14,9 +14,12 @@ final class MessageContainerViewModel
     
     @Published private(set) var message: Message?
     @Published private(set) var referencedMessage: Message?
+    private(set) var messageSeenStatusChangedSubject: PassthroughSubject = PassthroughSubject<Bool,Never>()
     
     private(set) var messageImageDataSubject = PassthroughSubject<Data, Never>()
     private var cancellables: Set<AnyCancellable> = []
+    
+    private(set) var messageComponentsViewModel: MessageComponentsViewModel!
     
     convenience init(message: Message)
     {
@@ -24,6 +27,8 @@ final class MessageContainerViewModel
         self.message = message
         
         self.observeMainMessage()
+        self.messageComponentsViewModel = .init(message: message,
+                                                context: messageAlignment == .right ? .outgoing : .incoming)
         self.setupComponents(from: message)
     }
 
@@ -40,11 +45,6 @@ final class MessageContainerViewModel
         let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self,
                                                              primaryKey: referencedMessageID)
         return user?.name
-    }
-    
-    var timestamp: String? {
-        let hoursAndMinutes = message?.timestamp.formatToHoursAndMinutes()
-        return hoursAndMinutes
     }
     
     var isReplayToMessage: Bool {
@@ -67,6 +67,18 @@ final class MessageContainerViewModel
         return message?.senderId == authUserID ? .right : .left
     }
     
+    /// internal functions
+    func getTextForReplyToMessage() -> String
+    {
+        switch message?.type
+        {
+        case .image: return "Photo"
+        case .imageText, .text: return message?.messageBody ?? ""
+        case .sticker: return "Sticker"
+        default: return ""
+        }
+    }
+    
     /// private functions
 
     private func setupComponents(from message: Message)
@@ -84,6 +96,43 @@ final class MessageContainerViewModel
             primaryKey: messageID
         )
         self.referencedMessage = referencedMessage
+    }
+    
+    func getImageDataThumbnailFromReferencedMessage() -> Data?
+    {
+        switch referencedMessage?.type
+        {
+        case .image, .imageText: return retrieveReferencedImageData()
+        case .sticker:
+            if let stickerName = referencedMessage?.sticker
+            {
+                return getStickerThumbnail(name: stickerName + "_thumbnail")
+            }
+        default: return nil
+        }
+        return nil
+    }
+    
+    @MainActor func getImageDataThumbnailFromMessage() -> Data?
+    {
+        switch message?.type
+        {
+        case .image, .imageText: return retrieveImageData()
+        case .sticker:
+            if let stickerName = message?.sticker
+            {
+                return getStickerThumbnail(name: stickerName + "_thumbnail")
+            }
+        default: return nil
+        }
+        return nil
+    }
+    
+    private func getStickerThumbnail(name: String) -> Data?
+    {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "png") else
+        { return nil }
+        return try? Data(contentsOf: url)
     }
 }
 
@@ -103,26 +152,27 @@ extension MessageContainerViewModel
     }
 }
 
+
 //MARK: - Image cache
 extension MessageContainerViewModel
 {
     func cacheImage(data: Data)
     {
         guard let path = message?.imagePath else {return}
-        CacheManager.shared.saveImageData(data, toPath: path)
+        CacheManager.shared.saveData(data, toPath: path)
     }
     
     @MainActor
     func retrieveImageData() -> Data?
     {
         guard let path = message?.imagePath else {return nil}
-        return CacheManager.shared.retrieveImageData(from: path)
+        return CacheManager.shared.retrieveData(from: path)
     }
     
     func retrieveReferencedImageData() -> Data?
     {
         guard let imagePath = referencedMessage?.imagePath?.addSuffix("small") else {return nil}
-        return CacheManager.shared.retrieveImageData(from: imagePath)
+        return CacheManager.shared.retrieveData(from: imagePath)
     }
 }
 
@@ -151,12 +201,15 @@ extension MessageContainerViewModel
                 {
                 case .changed(object: let object, property: let properties):
                     properties.forEach { property in
-                        if property.name == "messageBody"
-                            || property.name == "messageSeen"
-                            || property.name == "seenBy"
-                            || property.name == "isEdited"
+                        
+                        switch property.name
                         {
+                        case "messageBody", "isEdited":
                             self.message = object as? Message
+                        case "messageSeen", "seenBy":
+                            self.message = object as? Message
+                            self.messageSeenStatusChangedSubject.send(true)
+                        default: break
                         }
                     }
                 default: break

@@ -76,7 +76,7 @@ final class SelectedGroupMembersViewModel: SwiftUI.ObservableObject
     func retrieveImageData(for member: User) -> Data?
     {
         guard let imagePath = getMemberProfileImagePath(member.photoUrl) else {return nil}
-        return CacheManager.shared.retrieveImageData(from: imagePath)
+        return CacheManager.shared.retrieveData(from: imagePath)
     }
     
     private func getMemberProfileImagePath(_ path: String?) -> String?

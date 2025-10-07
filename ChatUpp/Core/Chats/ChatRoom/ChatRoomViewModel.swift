@@ -15,14 +15,11 @@ import RealmSwift
 class ChatRoomViewModel : SwiftUI.ObservableObject
 {
     private(set) var setupConversationTask: Task<Void, Never>?
-    
-    private(set) var remoteMessagePaginator = RemoteMessagePaginator()
-    
     private(set) var realmService: ConversationRealmService?
-    //    private(set) var messageFetcher : ConversationMessageFetcher
     private(set) var firestoreService: ConversationFirestoreService?
-    private(set) var userListenerService : ConversationUsersListinerService?
-    private(set) var messageListenerService : ConversationMessageListenerService?
+    private(set) var messageListenerService: ConversationMessageListenerService?
+    private(set) var remoteMessagePaginator: RemoteMessagePaginator?
+    private(set) var datasourceUpdateType = PassthroughSubject<DatasourceRowAnimation, Never>()
     
     private(set) var conversation        : Chat?
     private(set) var participant         : User?
@@ -33,7 +30,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     @Published private(set) var unseenMessagesCount: Int
     @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
-    private(set) var datasourceUpdateType = PassthroughSubject<DatasourceRowAnimation, Never>()
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
     
@@ -77,10 +73,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         } else {
             return true
         }
-    }
-    
-    deinit {
-        print("chat room View model deinit")
     }
     
     var shouldAttachListenerToUpcomingMessages: Bool
@@ -138,9 +130,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         self.realmService = ConversationRealmService(conversation: conversation)
         self.firestoreService = ConversationFirestoreService(conversation: conversation)
         self.messageListenerService = ConversationMessageListenerService(conversation: conversation)
-        if conversation.isGroup {
-            self.userListenerService = ConversationUsersListinerService(chatUsers: Array(conversation.participants))
-        }
+        self.remoteMessagePaginator = .init()
     }
     
     private func getPrivateChatMember(from chat: Chat) -> User?
@@ -166,7 +156,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         bindToDeletedMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
-//       testMessagesCountAndUnseenCount() //
+        
+//        testMessagesCountAndUnseenCount() // test functions
     }
     
     init(participant: User?)
@@ -195,8 +186,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard conversation?.realm != nil else {return}
         
-//        userListenerService?.addUsersListener()
-//        userListenerService?.addUserObserver()
         observeParticipantChanges()
          
         guard let startMessage = messageClusters.first?.items.first?.message
@@ -212,7 +201,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let totalMessagesCount = messageClusters.reduce(0) { total, cluster in
             total + cluster.items.filter { $0.message != nil }.count
         }
-        messageListenerService?.addListenerToExistingMessagesTest(startAtMesssage: startMessage, ascending: false, limit: totalMessagesCount)
+        messageListenerService?.addListenerToExistingMessagesTest(
+            startAtMesssage: startMessage,
+            ascending: false,
+            limit: totalMessagesCount
+        )
     }
     
     func removeAllListeners()
@@ -313,7 +306,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         self.setupConversationTask = Task(priority: .high) { @MainActor in
             await firestoreService?.addChatToFirestore(freezedChat)
-//            setupMessageListenerOnChatCreation()
             bindToMessages()
             bindToDeletedMessages()
             addListeners()
@@ -323,9 +315,25 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         ChatRoomSessionManager.activeChatID = chat.id
     }
     
+    @MainActor
+    func createMessageLocally(ofType type: MessageType,
+                              text: String?,
+                              media: MessageMediaParameters?) -> Message
+    {
+        let message = createNewMessage(ofType: type,
+                                       messageText: text,
+                                       mediaParameters: media)
+        
+        realmService?.addMessagesToRealmChat([message])
+        updateUnseenMessageCounterForAuthUserLocally()
+        createMessageClustersWith([message])
+        return message
+    }
+    
     func createNewMessage(ofType type: MessageType = .text,
                           messageText: String? = nil,
-                          imagePath: String? = nil) -> Message
+//                          imagePath: String? = nil,
+                          mediaParameters: MessageMediaParameters? = nil) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
@@ -340,37 +348,36 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             messageSeen: isGroupChat ? nil : false,
             seenBy: seenByValue,
             isEdited: false,
-            imagePath: imagePath,
+            imagePath: mediaParameters?.imagePath,
             imageSize: nil,
             repliedTo: currentlyReplyToMessageID,
-            type: type
+            type: type,
+            sticker: mediaParameters?.stickerPath
         )
     }
     
-    @MainActor
-    func handleLocalUpdatesOnMessageCreation(_ message: Message)
+    func ensureConversationExists()
     {
-        realmService?.addMessagesToRealmChat([message])
-        updateUnseenMessageCounterForAuthUserLocally()
+        if self.conversation == nil { setupConversation() }
     }
     
-    @MainActor
-    func initiateRemoteUpdatesOnMessageCreation(_ message: Message,
-                                                imageRepository: ImageSampleRepository? = nil) async
+    func syncMessage(_ message: Message,
+                     imageRepository: ImageSampleRepository?)
     {
-        await self.setupConversationTask?.value /// await for chat to be remotely created before proceeding, if any
-        if let imageRepository { // if message contains image add it first
-            await saveImagesRemotelly(fromImageRepository: imageRepository,
-                                      for: message.id)
+        Task.detached { [weak self] in
+            
+            guard let self else { return }
+             
+            await self.setupConversationTask?.value 
+            if let repo = imageRepository {
+                await self.saveImagesRemotelly(fromImageRepository: repo, for: message.id)
+            }
+            await self.firestoreService?.addMessageToFirestoreDataBase(message)
+            await self.updateParticipantsUnseenMessageCounterRemote()
+            await self.firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
         }
-        await firestoreService?.addMessageToFirestoreDataBase(message)
-//        updateUnseenMessageCounterRemote(shouldIncrement: true)
-//        updateUnseenMessageCounterForAuthUserRemote()
-        await updateParticipantsUnseenMessageCounterRemote()
-        await firestoreService?.updateRecentMessageFromFirestoreChat(
-            messageID: message.id)
     }
-    
+
     private func setupMessageListenerOnChatCreation()
     {
         guard let message = conversation?.getLastMessage(),
@@ -606,7 +613,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             for (key, imageData) in imageRepository.samples {
                 let path = imageRepository.imagePath(for: key)
                 group.addTask(priority: .utility) {
-                    CacheManager.shared.saveImageData(imageData, toPath: path)
+                    CacheManager.shared.saveData(imageData, toPath: path)
                     print("Cached image: \(imageData) \(path)")
                 }
             }
@@ -653,7 +660,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 {
                     print("stop")
                 }
-                CacheManager.shared.saveImageData(imageData, toPath: path)
+                CacheManager.shared.saveData(imageData, toPath: path)
             }
         } catch {
             print("Could not fetch message image data: ", error)
@@ -901,7 +908,7 @@ extension ChatRoomViewModel
         return getRealmUsers(with: usersIDs)
             .compactMap { user -> User? in
                 guard let path = user.photoUrl else { return nil }
-                if !CacheManager.shared.doesImageExist(at: path) {
+                if !CacheManager.shared.doesFileExist(at: path) {
                     return user
                 }
                 return nil
@@ -938,7 +945,7 @@ extension ChatRoomViewModel
                             let imageData = try await FirebaseStorageManager.shared.getImage(
                                 from: .user(userID),
                                 imagePath: path)
-                            CacheManager.shared.saveImageData(imageData, toPath: path)
+                            CacheManager.shared.saveData(imageData, toPath: path)
                         }
                     } catch {
                         print("Error fetching avatar image data for user: \(userID); Error: \(error)")
@@ -962,7 +969,7 @@ extension ChatRoomViewModel
                 guard let self = self else { return }
                 Task {
                     guard self.conversation?.isInvalidated == false else {return} // See FootNote.swift [11]
-                    await self.remoteMessagePaginator.perform {
+                    await self.remoteMessagePaginator?.perform {
                         await self.processMessageChanges(messagesTypes)
                     }
                 }
@@ -1025,6 +1032,7 @@ extension ChatRoomViewModel
     private func handleAddedMessages(_ messages: [Message]) async
     {
         guard !messages.isEmpty else {return}
+        
         var newMessages = [Message]()
         var updatedMessages = [Message]()
         
@@ -1035,7 +1043,7 @@ extension ChatRoomViewModel
                 primaryKey: message.id)
             {
                 /// See FootNote.swift [12]
-                if (dbMessage.messageSeen == true && message.messageSeen == false) ||  (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
+                if (dbMessage.messageSeen == true && message.messageSeen == false) || (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
                 {
                     let updatedMessage = message.updateSeenStatus(seenStatus: true)
                     updatedMessages.append(updatedMessage)
@@ -1046,9 +1054,10 @@ extension ChatRoomViewModel
         }
         
         RealmDataBase.shared.add(objects: updatedMessages)
-        print("this message was added: ", newMessages)
+
         realmService?.addMessagesToRealmChat(newMessages)
         createMessageClustersWith(newMessages)
+        
         if newMessages.count == 1 {
             datasourceUpdateType.send(DatasourceRowAnimation.none)
         } else if newMessages.count > 1 {
@@ -1072,7 +1081,7 @@ extension ChatRoomViewModel
             let day = message.timestamp.formatToYearMonthDay()
             guard let clusterIndex = messageClusters.firstIndex(where: { $0.date == day }) else {continue}
         
-            guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: {  $0.message?.id == message.id } ) else {continue}
+            guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: { $0.message?.id == message.id } ) else {continue}
             
             let _ = messageClusters[clusterIndex].items.remove(at: cellVMIndex)
             
@@ -1166,7 +1175,7 @@ extension ChatRoomViewModel
         
         if let path = referencedMessage.imagePath
         {
-            let imageExists = CacheManager.shared.doesImageExist(at: path.addSuffix("small"))
+            let imageExists = CacheManager.shared.doesFileExist(at: path.addSuffix("small"))
             imageExists ? () : await self.downloadImageData(from: referencedMessage)
         }
         
@@ -1414,7 +1423,7 @@ extension ChatRoomViewModel
 {
     func retrieveImageDataFromCache(for path: String) -> Data?
     {
-        return CacheManager.shared.retrieveImageData(from: path)
+        return CacheManager.shared.retrieveData(from: path)
     }
 }
 
@@ -1448,68 +1457,3 @@ extension ChatRoomViewModel
         }
     }
 }
-
-//
-//enum BufferedMessage {
-//    case added(Message)
-//    case modified(Message)
-//    case removed(Message)
-//}
-//
-//struct BufferedMessages
-//{
-//    var addedMessages: [Message]
-//    var modifiedMessages: [Message]
-//    var removedMessages: [Message]
-//    
-//    init(addedMessages: [Message], modifiedMessages: [Message], removedMessages: [Message]) {
-//        self.addedMessages = addedMessages
-//        self.modifiedMessages = modifiedMessages
-//        self.removedMessages = removedMessages
-//    }
-//    
-//    init() {
-//        self.addedMessages = []
-//        self.modifiedMessages = []
-//        self.removedMessages = []
-//    }
-//    
-//    mutating func removeAllBufferedMessages() {
-//        addedMessages.removeAll()
-//        modifiedMessages.removeAll()
-//        removedMessages.removeAll()
-//    }
-//}
-//
-
-//    func createMessageClustersWith(_ messages: [Message], ascending: Bool)
-//    {
-//        guard !messages.isEmpty else { return }
-//
-//        var dateToClusterIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
-//        var tempMessageClusters = self.messageClusters
-//
-//        for message in messages {
-//            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
-//            let messageItem = MessageItem(message: message)
-//
-//            if let index = dateToClusterIndex[date] {
-//                if ascending
-//                {
-//                    tempMessageClusters[index].items.insert(messageItem, at: 0)
-//                    continue
-//                }
-//                tempMessageClusters[index].items.append(messageItem)
-//            } else
-//            {
-//                let newCluster = MessageCluster(date: date, items: [messageItem])
-//                if ascending {
-//                    tempMessageClusters.insert(newCluster, at: 0)
-//                } else {
-//                    tempMessageClusters.append(newCluster)
-//                }
-//                dateToClusterIndex[date] = ascending ? 0 : tempMessageClusters.count - 1
-//            }
-//        }
-//        self.messageClusters = tempMessageClusters
-//    }

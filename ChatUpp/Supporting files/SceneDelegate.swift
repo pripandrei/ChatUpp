@@ -6,7 +6,8 @@
 //
 
 import UIKit
-import SwiftUICore
+//import SwiftUI
+
 //import FirebaseDatabase
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -24,12 +25,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = TabBarViewController()
         
         coordinator = MainCoordinator(tabBar: tabBarController)
-        
+
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
         
         coordinator?.start()
         
+        _ = KeyboardService.shared
 //        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor =  UIColor(Color.myCustomColor)
     }
 

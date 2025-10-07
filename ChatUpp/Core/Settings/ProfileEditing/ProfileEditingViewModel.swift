@@ -137,7 +137,7 @@ extension ProfileEditingViewModel
             to: .user(authUser.uid),
             imagePath: path
         )
-        CacheManager.shared.saveImageData(imageData, toPath: path)
+        CacheManager.shared.saveData(imageData, toPath: path)
     }
     
     private func removePreviousImage() async

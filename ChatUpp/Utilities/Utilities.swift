@@ -12,7 +12,8 @@ enum UnwrappingError: Error {
     case nilValueFound(String)
 }
 
-struct Utilities {
+struct Utilities
+{
     static func findLoginViewControllerInHierarchy() -> UIViewController? {
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
 

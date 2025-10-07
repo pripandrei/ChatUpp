@@ -36,7 +36,7 @@ final class ChatRoomViewController: UIViewController
     private var customNavigationBar :ChatRoomNavigationBar!
     private var rootView = ChatRoomRootView()
     private var viewModel: ChatRoomViewModel!
-    private var inputMessageTextViewDelegate: InputBarMessageTextViewDelegate!
+    private var inputMessageTextViewDelegate: InputBarTextViewDelegate!
     private var subscriptions = Set<AnyCancellable>()
     private lazy var alertPresenter: AlertPresenter = .init()
 
@@ -59,7 +59,7 @@ final class ChatRoomViewController: UIViewController
     
     override func loadView() {
         view = rootView
-        inputMessageTextViewDelegate = InputBarMessageTextViewDelegate(view: rootView)
+        inputMessageTextViewDelegate = InputBarTextViewDelegate(view: rootView)
     }
 
     override func viewDidLoad() {
@@ -76,6 +76,7 @@ final class ChatRoomViewController: UIViewController
     }
 
     deinit {
+//        print("ChatRoomVC deinit")
         cleanUp()
     }
     
@@ -209,30 +210,84 @@ final class ChatRoomViewController: UIViewController
                                              currentNumberOfLines: currentLinesNumber)
             }
             .store(in: &subscriptions)
+        
+        inputMessageTextViewDelegate.textViewDidBeginEditing
+            .debounce(for: .seconds(0.2),
+                      scheduler: DispatchQueue.main)
+            .sink { [weak self] didBegin in
+                if didBegin && self?.rootView.stickerCollectionView != nil
+                {
+                    self?.rootView.showStickerIcon()
+                    executeAfter(seconds: 1) {
+                        if self?.rootView.trailingItemState.item == .stickerItem
+                        {
+                            self?.rootView.removeStickerView()
+                        }
+                    }
+                }
+            }
+            .store(in: &subscriptions)
+        
+        rootView.contentOffsetSubject
+            .sink { [weak self] _ in
+                guard let self else {return}
+                
+                if self.rootView.messageTextView.isFirstResponder
+                {
+                    self.rootView.messageTextView.resignFirstResponder()
+                    return
+                }
+                
+                let height = KeyboardService.keyboardHeight()
+                UIView.animate(withDuration: 0.27) {
+                    self.handleTableViewOffset(usingKeyboardHeight: height)
+                    self.rootView.layoutIfNeeded()
+                }
+            }
+            .store(in: &subscriptions)
+        
+        ChatManager.shared.newStickerSubject
+            .sink { [weak self] sticker in
+                    self?.createStickerMessage(sticker)
+            }.store(in: &subscriptions)
     }
     
     //MARK: - Keyboard notification observers
     
-    private func addKeyboardNotificationObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    private func addKeyboardNotificationObservers()
+    {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
     }
 
     @objc func keyboardWillShow(notification: NSNotification)
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
-            if rootView.inputBarContainer.frame.origin.y > 580 /// first character typed in textField triggers keyboardWillShow, so we perform this check
+            guard rootView.inputBarContainer.frame.origin.y > 580 else {return} /// first character typed in textField triggers keyboardWillShow, so we perform this check
+            
+            isKeyboardHidden = false
+            let height = KeyboardService.keyboardHeight()
+            
+            guard isContextMenuPresented else
             {
-                isKeyboardHidden = false
-                guard isContextMenuPresented else {
-                    handleTableViewOffset(usingKeyboardSize: keyboardSize)
-                    return
-                }
-                
-                let keyboardHeight = -336.0
-                updateInputBarBottomConstraint(toSize: keyboardHeight)
+                handleTableViewOffset(usingKeyboardHeight: height)
+                return
             }
+            
+            let keyboardHeight = -(height - 30)
+            rootView.updateInputBarBottomConstraint(toSize: keyboardHeight)
         }
     }
     
@@ -240,26 +295,40 @@ final class ChatRoomViewController: UIViewController
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
+            guard self.rootView.stickerCollectionView == nil else { return }
             isKeyboardHidden = true
             guard !isContextMenuPresented else {
-                updateInputBarBottomConstraint(toSize: 0)
+                rootView.updateInputBarBottomConstraint(toSize: 0)
                 return
             }
-            handleTableViewOffset(usingKeyboardSize: keyboardSize)
+            handleTableViewOffset(usingKeyboardHeight: keyboardSize.height)
         }
     }
     
     //MARK: - Private functions
     
-    private func cleanUp() {
+    private func cleanUp()
+    {
         NotificationCenter.default.removeObserver(self)
         viewModel.removeAllListeners()
+        dataSourceManager.cleanup()
         CacheManager.shared.clear()
         ChatRoomSessionManager.activeChatID = nil
+        //        dataSourceManager = nil
 //        coordinatorDelegate = nil
 //        viewModel = nil
 //        tableViewDataSource = nil
 //        customNavigationBar = nil
+    }
+    
+    private func dismissInputBarView()
+    {
+        if rootView.stickerCollectionView != nil
+        {
+            dismissStickerView()
+        } else {
+            resignKeyboard()
+        }
     }
     
     private func resignKeyboard()
@@ -269,12 +338,19 @@ final class ChatRoomViewController: UIViewController
         }
     }
     
-    private func updateInputBarBottomConstraint(toSize size: CGFloat) {
-        self.rootView.inputBarBottomConstraint.constant = size
-        view.layoutIfNeeded()
+    private func dismissStickerView()
+    {
+        rootView.showStickerIcon()
+        UIView.animate(withDuration: 0.27) {
+            self.handleTableViewOffset(usingKeyboardHeight: KeyboardService.keyboardHeight())
+            self.rootView.layoutIfNeeded()
+        } completion: { _ in
+            self.rootView.removeStickerView()
+        }
     }
 
-    private func animateInputBarHeaderViewDestruction() {
+    private func animateInputBarHeaderViewDestruction()
+    {
         guard let inputBarHeaderView = rootView.inputBarHeader else {return}
 
         UIView.animate(withDuration: 0.2) {
@@ -289,7 +365,7 @@ final class ChatRoomViewController: UIViewController
     private func startInputBarHeaderViewDestruction(_ inputBarHeaderView: InputBarHeaderView)
     {
         self.rootView.messageTextView.text.removeAll()
-        inputBarHeaderView.inputBarHightConstraint?.constant = 0
+        inputBarHeaderView.inputBarHeightConstraint?.constant = 0
         inputBarHeaderView.subviews.forEach({ view in
             view.layer.opacity = 0.0
         })
@@ -298,6 +374,8 @@ final class ChatRoomViewController: UIViewController
         mainQueue {
             self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
         }
+        
+        self.rootView.updateTableViewContentAttributes(isInputBarHeaderRemoved: true)
         self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
         self.rootView.layoutIfNeeded()
     }
@@ -406,34 +484,6 @@ extension ChatRoomViewController
             {
                 self.rootView.tableView.layoutIfNeeded()
                 self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-            }
-        }
-    }
-    
-    private func handleTableViewCellInsertion2(
-        with indexPath: IndexPath = IndexPath(row: 0, section: 0),
-        scrollToBottom: Bool)
-    {
-        let isNewSectionAdded = checkIfNewSectionWasAdded()
-        let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
-        let isIndexPathVisible = visibleIndexPaths?.contains(indexPath) ?? false
-        
-        handleRowAndSectionInsertion(with: indexPath,
-                                     withAnimation: !isIndexPathVisible)
-        if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
-        {
-            animateFirstCellOffset(withNewSectionAdded: isNewSectionAdded)
-        }
-        
-        if scrollToBottom
-        {
-            executeAfter(seconds: 0.15)
-            {
-                if self.rootView.tableView.visibleCells.count > 0
-                {
-                    self.rootView.tableView.layoutIfNeeded()
-                    self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-                }
             }
         }
     }
@@ -551,7 +601,6 @@ extension ChatRoomViewController
         }
         return false
     }
-    
 }
 
 //MARK: - Message seen status handler
@@ -591,7 +640,7 @@ extension ChatRoomViewController
     private func checkIfMessageWasSeen(at indexPath: IndexPath) -> Bool
     {
         let authUserID = viewModel.authUser.uid
-        
+         
         // proceed further only if message does not belong to authenticated user
         guard let message = viewModel.messageClusters[indexPath.section].items[indexPath.row].message,
               message.senderId != authUserID else { return true }
@@ -678,58 +727,59 @@ extension ChatRoomViewController {
     
     @objc func sendMessageButtonWasTapped()
     {
-        Task { @MainActor in
-            
-            let trimmedText = getTrimmedString()
-            let image = self.messageImage
-            self.messageImage = nil
+        let trimmedText = getTrimmedString()
+        let image = self.messageImage
+        self.messageImage = nil
 
-            guard let messageType = determineMessageType(text: trimmedText,
-                                                         image: image) else
-            {
-                return // Nothing to send
+        guard let messageType = determineMessageType(text: trimmedText, image: image) else { return }
+        
+//        if !viewModel.conversationExists { viewModel.setupConversation() }
+        viewModel.ensureConversationExists()
+
+        let repo = image.map { ImageSampleRepository(image: $0, type: .message) }
+        let media = MessageMediaParameters(imagePath: repo?.imagePath(for: .original))
+
+        // 1) Create locally
+        let message = viewModel.createMessageLocally(ofType: messageType,
+                                                     text: trimmedText,
+                                                     media: media)
+
+        // 2) Update UI immediately
+        updateUIOnNewMessageCreation(messageType)
+
+        // 3) Save image locally if needed
+        if let repo = repo {
+            Task { @MainActor in
+                await viewModel.saveImagesLocally(fromImageRepository: repo, for: message.id)
             }
-
-            let imageRepository = image.map {
-                ImageSampleRepository(image: $0, type: .message)
-            }
-
-            let message = viewModel.createNewMessage(
-                ofType: messageType,
-                messageText: trimmedText,
-                imagePath: imageRepository?.imagePath(for: .original)
-            )
-            
-            viewModel.createMessageClustersWith([message])
-            
-            if !viewModel.conversationExists {
-                viewModel.setupConversation()
-            }
-
-            viewModel.handleLocalUpdatesOnMessageCreation(message)
-
-            clearInputUI()
-
-            if let repository = imageRepository {
-                await viewModel.saveImagesLocally(fromImageRepository: repository, for: message.id)
-            }
-
-            var updateType: DatasourceRowAnimation = .none
-            if !isFirstIndexPathVisible() {
-                updateType = .automatic
-            }
-            
-            dataSourceManager.configureSnapshot(animationType: updateType)
-            handleNewMessageDisplay()
-            scrollToBottom()
-
-            closeInputBarHeaderView()
-            
-            await viewModel.initiateRemoteUpdatesOnMessageCreation(
-                message,
-                imageRepository: imageRepository
-            )
         }
+
+        // 4) Start background sync
+        viewModel.syncMessage(message.freeze(), imageRepository: repo)
+    }
+    
+    func createStickerMessage(_ path: String)
+    {
+        let media = MessageMediaParameters(stickerPath: path)
+        let message = viewModel.createMessageLocally(ofType: .sticker,
+                                                     text: nil,
+                                                     media: media)
+        updateUIOnNewMessageCreation(.sticker)
+        viewModel.syncMessage(message.freeze(), imageRepository: nil)
+    }
+    
+    private func updateUIOnNewMessageCreation(_ messageType: MessageType)
+    {
+        dataSourceManager.configureSnapshot(animationType: isFirstIndexPathVisible() ? .none : .automatic)
+        handleNewMessageDisplay()
+        
+        switch messageType
+        {
+        case .text, .imageText: clearInputUI()
+        default: break
+        }
+        closeInputBarHeaderView()
+        scrollToBottom()
     }
 
     @objc func addPicture()
@@ -821,15 +871,13 @@ extension ChatRoomViewController
 //    }
 //
 
-    private func handleTableViewOffset(usingKeyboardSize keyboardSize: CGRect)
+    private func handleTableViewOffset(usingKeyboardHeight keyboardHeight: CGFloat)
     {
         // if number of lines inside textView is bigger than 1, it will expand
         let maxContainerViewY = 584.0 - 4.0
-        let keyboardSize = CGRect(origin: keyboardSize.origin,
-                                  size: CGSize(width:
-                                                keyboardSize.size.width,
-                                               height: keyboardSize.size.height - 30))
-        let keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardSize.height : keyboardSize.height
+        var keyboardHeight = keyboardHeight - 30
+
+        keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardHeight : keyboardHeight
         let editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
         
         // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
@@ -916,8 +964,7 @@ extension ChatRoomViewController
         Task { @MainActor in
             guard let imageThumbnail = await photo.byPreparingThumbnail(ofSize: CGSize(width: 80, height: 80)) else {return}
             self.handleContextMenuSelectedAction(
-                actionOption: .image(imageThumbnail),
-                selectedMessageText: nil)
+                actionOption: .image(imageThumbnail))
             self.messageImage = photo
         }
     }
@@ -933,13 +980,16 @@ extension ChatRoomViewController {
         rootView.tableView.addGestureRecognizer(panGesture)
     }
     
-    private func addGestureToCloseBtn() {
+    private func addGestureToCloseBtn()
+    {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeInputBarHeaderView))
-        rootView.inputBarHeader?.closeInputBarHeaderView?.addGestureRecognizer(tapGesture)
+        rootView.inputBarHeader?.closeButton?.addGestureRecognizer(tapGesture)
    }
     
-    @objc func closeInputBarHeaderView() {
-        if rootView.inputBarHeader != nil {
+    @objc func closeInputBarHeaderView()
+    {
+        if rootView.inputBarHeader != nil
+        {
             viewModel.resetCurrentReplyMessageIfNeeded()
             animateInputBarHeaderViewDestruction()
         }
@@ -972,11 +1022,31 @@ extension ChatRoomViewController: UITableViewDelegate
         }
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
+    {
         if viewModel.conversationInitializationStatus == .inProgress {
             return CGFloat((70...120).randomElement()!)
         }
+        if viewModel.messageClusters[indexPath.section].items[indexPath.item].message?.type == .sticker
+        {
+            return 170
+        }
         return  UITableView.automaticDimension
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath)
+    {
+//        guard viewModel.messageClusters[indexPath.section].items[indexPath.item].message?.type == .sticker else {return}
+//        
+//        if let messageCell = cell as? ConversationMessageCell
+//        {
+//            if let view = messageCell.contentContainer as? StickerContentView {
+//                view.cleanup()
+////                print("cleanup")
+//            }
+//        }
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
@@ -1006,13 +1076,13 @@ extension ChatRoomViewController: UITableViewDelegate
     {
         tableView.deselectRow(at: indexPath, animated: false)
         
-        guard let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else {return}
+        guard let cell = tableView.cellForRow(at: indexPath) as? ConversationMessageCell else {return}
         
         if let touchLocation = tableView.panGestureRecognizer.location(in: cell) as CGPoint?
         {
-            resignKeyboard()
+            dismissInputBarView()
             
-            if cell.containerStackView.frame.contains(touchLocation)
+            if cell.contentContainer.frame.contains(touchLocation)
             {
                 if cell.cellViewModel.message?.imagePath != nil
                 {
@@ -1022,9 +1092,10 @@ extension ChatRoomViewController: UITableViewDelegate
         }
     }
     
-    private func initiatePhotoBrowserPresentation(from cell: MessageTableViewCell)
+    private func initiatePhotoBrowserPresentation(from cell: ConversationMessageCell)
     {
-        let imageView = cell.containerStackView.messageImageView
+//        let imageView = cell.contentContainer.messageImageView
+        guard let imageView = (cell.contentContainer as? MessageContainerView)?.messageImageView else {return}
         let items = self.viewModel.mediaItems
         
         let initialIndex = items.firstIndex { $0.imagePath.lastPathComponent == cell.cellViewModel.message?.imagePath }
@@ -1082,7 +1153,7 @@ extension ChatRoomViewController: UITableViewDelegate
             if !isNetworkPaginationRunning
             {
                 isNetworkPaginationRunning = true
-                await viewModel.remoteMessagePaginator.perform {
+                await viewModel.remoteMessagePaginator?.perform {
                     await preformRemotePagination(ascending: ascending)
                 }
             }
@@ -1092,7 +1163,7 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func offsetTableContentOnPaginationCompletion(
         to contentOffsetY: CGFloat,
-        visibleCell: MessageTableViewCell?)
+        visibleCell: ConversationMessageCell?)
     {
         if self.rootView.tableView.contentOffset.y < -90.0
         {
@@ -1117,7 +1188,7 @@ extension ChatRoomViewController: UITableViewDelegate
             case .didPaginate:
                 await MainActor.run
                 {
-                    let visibleCell: MessageTableViewCell? = self.rootView.tableView.visibleCells.first as? MessageTableViewCell
+                    let visibleCell: ConversationMessageCell? = self.rootView.tableView.visibleCells.first as? ConversationMessageCell
                     let currentOffsetY = self.rootView.tableView.contentOffset.y
                     
                     CATransaction.begin()
@@ -1252,20 +1323,20 @@ extension ChatRoomViewController
         
         let menuBuilder = MessageMenuBuilder(
             viewModel: self.viewModel,
-            rootView: self.rootView
+            rootView: self.rootView,
+            cell: baseCell
         )
-        { actionOption, selectedMessageText in
+        { actionOption in
             self.handleContextMenuSelectedAction(
-                actionOption: actionOption,
-                selectedMessageText: selectedMessageText
+                actionOption: actionOption
             )
         }
         
-        if let messageCell = baseCell as? MessageTableViewCell,
+        if let messageCell = baseCell as? ConversationMessageCell,
            let message = messageCell.cellViewModel.message
         {
             let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
-            guard messageCell.containerStackView.frame.contains(tapLocationInCell) else { return nil }
+            guard messageCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
                 return menuBuilder.buildUIMenuForMessage(message: message)
@@ -1306,12 +1377,6 @@ extension ChatRoomViewController
         }
     }
     
-//    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
-//    {
-//        guard let indexPath = configuration.identifier as? IndexPath,
-//              let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
-//    }
-    
     private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration,                                             forHighlightingContext: Bool) -> UITargetedPreview?
     {
         guard let indexPath = configuration.identifier as? IndexPath,
@@ -1335,16 +1400,21 @@ extension ChatRoomViewController
     }
     
     private func handleContextMenuSelectedAction(
-        actionOption: InputBarHeaderView.Mode,
-        selectedMessageText text: String?
+        actionOption: InputBarHeaderView.Mode
     )
     {
-        self.rootView.activateInputBarHeaderView(mode: actionOption)
+        self.rootView.activateInputBarHeaderView(mode: actionOption) 
         self.addGestureToCloseBtn()
         self.rootView.messageTextView.becomeFirstResponder()
-        self.rootView.inputBarHeader?.setInputBarHeaderSubtitleMessage(text)
+//        self.rootView.inputBarHeader?.updateSubtitle(text)
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
     }
+    
+    //    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
+    //    {
+    //        guard let indexPath = configuration.identifier as? IndexPath,
+    //              let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
+    //    }
 }
 
 
@@ -1395,9 +1465,12 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
             }
             self.hapticWasInitiated = false
             self.handleContextMenuSelectedAction(
-                actionOption: .edit(dragableCell?.messageImage),
-                selectedMessageText: dragableCell?.messageText
+                actionOption: .reply(
+                    senderName: dragableCell?.messageSenderName,
+                    text: dragableCell?.messageText,
+                    image: dragableCell?.messageImage)
             )
+//            self.rootView.inputBarHeader?.updateTitleLabel(usingText: dragableCell?.messageSenderName)
             self.dragableCell = nil
         default: break
         }
@@ -1550,7 +1623,7 @@ extension ChatRoomViewController
 
     func getMessageFromCell(_ cell: UITableViewCell) -> Message?
     {
-        if let messageCell = cell as? MessageTableViewCell,
+        if let messageCell = cell as? ConversationMessageCell,
             let cellMessage = messageCell.cellViewModel.message
         {
             return cellMessage

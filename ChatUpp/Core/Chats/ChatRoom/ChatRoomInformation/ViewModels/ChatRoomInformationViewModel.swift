@@ -43,7 +43,7 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
     func retrieveGroupImage() -> Data?
     {
         guard let path = imageThumbnailPath else { return nil }
-        return CacheManager.shared.retrieveImageData(from: path)
+        return CacheManager.shared.retrieveData(from: path)
     }
 }
 

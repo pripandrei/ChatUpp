@@ -102,7 +102,7 @@ final class UserViewViewModel: SwiftUI.ObservableObject
     {
         guard let url = imageURL else { return }
         
-        if let data = CacheManager.shared.retrieveImageData(from: url)
+        if let data = CacheManager.shared.retrieveData(from: url)
         {
             imageData = data
         }
@@ -110,7 +110,7 @@ final class UserViewViewModel: SwiftUI.ObservableObject
         {
             imageData = data
             if let url = imageURL {
-                CacheManager.shared.saveImageData(data, toPath: url)
+                CacheManager.shared.saveData(data, toPath: url)
             }
         }
     }

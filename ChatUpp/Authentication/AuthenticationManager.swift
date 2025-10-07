@@ -58,14 +58,7 @@ final class AuthenticationManager
         }
         throw AuthenticationStatus.userIsNotAuthenticated
     }
-    
-    //TEMP function until local DB is not implemented
-    
-//    func updateAuthUserPhone(_ phone: String) {
-//
-//        Auth.auth().currentUser?.updatePhoneNumber(<#T##phoneNumberCredential: PhoneAuthCredential##PhoneAuthCredential#>)
-//    }
-    
+
     //TODO: implement phone update functionality
     func updateAuthUserData(name: String?, phoneNumber: String?, photoURL: String?) {
         let profile = Auth.auth().currentUser?.createProfileChangeRequest()

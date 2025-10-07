@@ -13,16 +13,18 @@ final class MessageMenuBuilder
 {
     private var viewModel: ChatRoomViewModel!
     private var rootView: ChatRoomRootView!
+    private var cell: UITableViewCell!
     
-    private var contextMenuSelectedActionHandler: ((_ actionOption: InputBarHeaderView.Mode,
-                                                    _ text: String?) -> Void)?
+    private var contextMenuSelectedActionHandler: ((_ actionOption: InputBarHeaderView.Mode) -> Void)?
     
     init(viewModel: ChatRoomViewModel!,
          rootView: ChatRoomRootView!,
-         contextMenuSelectedActionHandler: ((_: InputBarHeaderView.Mode, _: String?) -> Void)? = nil)
+         cell: UITableViewCell,
+         contextMenuSelectedActionHandler: ((_: InputBarHeaderView.Mode) -> Void)? = nil)
     {
         self.viewModel = viewModel
         self.rootView = rootView
+        self.cell = cell
         self.contextMenuSelectedActionHandler = contextMenuSelectedActionHandler
     }
     
@@ -53,23 +55,20 @@ final class MessageMenuBuilder
     private func createReplyAction(message: Message) -> UIAction
     {
         UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { _ in
-            DispatchQueue.main.async {
-//                guard let sender = self.viewModel.getSendeOfMessage(message) else {return}
-                guard let sender = self.viewModel.getMessageSender(message.senderId) else {return}
-                self.viewModel.currentlyReplyToMessageID = message.id
-                
-                var image: UIImage?
-                
-                if message.type == .image || message.type == .imageText
-                {
-                    guard let path = message.imagePath?.addSuffix("small"),
-                          let imageData = self.viewModel.retrieveImageDataFromCache(for: path) else {return}
-                    
-                    image = UIImage(data: imageData)
-                }
-                let text = message.messageBody.isEmpty ? nil : message.messageBody
-                self.contextMenuSelectedActionHandler?(.reply(image), text)
-                self.rootView.inputBarHeader?.updateTitleLabel(usingText: sender.name)
+            DispatchQueue.main.async { [weak self] in
+
+                guard let sender = self?.viewModel.getMessageSender(message.senderId) else {return}
+                self?.viewModel.currentlyReplyToMessageID = message.id
+ 
+                let image: UIImage? = (self?.cell as? ConversationMessageCell)?.messageImage
+
+                let text = (self?.cell as? ConversationMessageCell)?.messageText
+                // TODO: - remove text
+                self?.contextMenuSelectedActionHandler?(.reply(
+                    senderName: sender.name,
+                    text: text,
+                    image: image)
+                )
             }
         }
     }
@@ -91,19 +90,12 @@ final class MessageMenuBuilder
         ) { _ in
             DispatchQueue.main.async {
                 self.rootView.messageTextView.text = message.messageBody
+ 
+                let image: UIImage? = (self.cell as? ConversationMessageCell)?.messageImage
                 
-                var image: UIImage?
-                
-                if message.type == .image || message.type == .imageText
-                {
-                    guard let path = message.imagePath?.addSuffix("small"),
-                          let imageData = self.viewModel.retrieveImageDataFromCache(for: path) else {return}
-                    
-                    image = UIImage(data: imageData)
-                }
-                
-                let text = message.messageBody.isEmpty ? nil : message.messageBody
-                self.contextMenuSelectedActionHandler?(.edit(image), text)
+                let text = (self.cell as? ConversationMessageCell)?.messageText
+                self.contextMenuSelectedActionHandler?(.edit(text: text,
+                                                             image: image))
                 self.viewModel.shouldEditMessage = { [message] editedText in
                     self.viewModel.firestoreService?.editMessageTextFromFirestore(editedText, messageID: message.id)
                 }
@@ -136,3 +128,4 @@ final class MessageMenuBuilder
         { _ in }
     }
 }
+

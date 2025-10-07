@@ -87,12 +87,12 @@ final class ResultsCellViewModel
     /// Cache retrieve/set
     ///
     private func cacheImageData(_ data: Data, path: String) {
-        CacheManager.shared.saveImageData(data, toPath: path)
+        CacheManager.shared.saveData(data, toPath: path)
     }
     
     private func retrieveImageData() -> Data? {
         if let path = imageURL {
-            return CacheManager.shared.retrieveImageData(from: path)
+            return CacheManager.shared.retrieveData(from: path)
         }
         return nil
     }

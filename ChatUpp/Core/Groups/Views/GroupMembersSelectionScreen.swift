@@ -15,7 +15,8 @@ struct GroupMembersSelectionScreen: View
     var body: some View
     {
         List {
-            if viewModel.showSelectedUsers {
+            if viewModel.showSelectedUsers
+            {
                 SelectedGroupMembersView(selectedMembers: $viewModel.selectedGroupMembers)
                     .listRowBackground(Color(ColorManager.listCellBackgroundColor))
             }

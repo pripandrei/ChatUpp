@@ -13,6 +13,7 @@ protocol MessageCellDragable: AnyObject
     var center: CGPoint { get set }
     var messageText: String? { get }
     var messageImage: UIImage? { get }
+    var messageSenderName: String? { get }
 }
 
 extension MessageCellDragable
@@ -22,6 +23,11 @@ extension MessageCellDragable
     }
     
     var messageImage: UIImage?
+    {
+        return nil
+    }
+    
+    var messageSenderName: String?
     {
         return nil
     }

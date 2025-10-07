@@ -23,10 +23,10 @@ extension ConversationDataSourceManager
 
 final class ConversationDataSourceManager
 {
-    private var dataProvider: DataSourceProviding!
-    private var layoutProvider: MessageLayoutProvider!
+    private var dataProvider: DataSourceProviding
+    private var layoutProvider: MessageLayoutProvider
     private var diffableDataSource: DataSource!
-    private var tableView: UITableView!
+    private var tableView: UITableView
     
     init(dataProvider: DataSourceProviding,
          layoutProvider: MessageLayoutProvider,
@@ -38,6 +38,11 @@ final class ConversationDataSourceManager
         self.diffableDataSource = makeDataSource()
         self.configureSnapshot()
     }
+    
+//    deinit
+//    {
+//        print("ConversationDataSourceManager deinit")
+//    }
     
     private func makeDataSource() -> DataSource
     {
@@ -201,7 +206,7 @@ extension ConversationDataSourceManager
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
             for: indexPath
-        ) as? MessageTableViewCell else {
+        ) as? ConversationMessageCell else {
             fatalError("Could not dequeue conversation cell")
         }
         
@@ -209,12 +214,17 @@ extension ConversationDataSourceManager
         cell.configureCell(using: viewModel,
                            layoutConfiguration: layoutConfiguration)
         
-        cell.containerStackView.handleContentRelayout = { [weak tableView] in
+        cell.messageContentView?.handleContentRelayout = { [weak tableView] in
             guard let tableView else {return}
             tableView.beginUpdates()
             tableView.endUpdates()
         }
         return cell
+    }
+    
+    func cleanup()
+    {
+        diffableDataSource = nil
     }
 }
 

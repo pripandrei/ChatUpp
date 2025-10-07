@@ -16,10 +16,13 @@ final class MailSignInViewController: UIViewController {
     private let logInButton = CustomizedShadowButton()
     private let envelopeLogo = UIImageView()
     private let signInWithEmailLabel = UILabel()
-    lazy private var textFieldValidator = EmailCredentialsValidator(mailField: mailLogInField,
-                                                                    passwordField: passwordLogInField,
-                                                                    viewModel: loginViewModel)
-
+    
+    lazy private var textFieldValidator = CredentialsValidator(
+        mailField: mailLogInField,
+        passwordField: passwordLogInField,
+        validator: loginViewModel
+    )
+    
     init(viewModel: LoginViewModel) {
         super.init(nibName: nil, bundle: nil)
         self.loginViewModel = viewModel

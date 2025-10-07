@@ -17,8 +17,8 @@ final class ChatManager
     @Published private(set) var totalUnseenMessageCount: Int = 0
     @Published private(set) var newCreatedChat: Chat?
     @Published private(set) var joinedGroupChat: Chat?
+    private(set) var newStickerSubject = PassthroughSubject<String,Never>()
 
-    
     func incrementUnseenMessageCount(by value: Int)
     {
         totalUnseenMessageCount += value
@@ -37,5 +37,10 @@ final class ChatManager
     func broadcastJoinedGroupChat(_ chat: Chat)
     {
         joinedGroupChat = chat
+    }
+    
+    func addNewSticker(_ path: String)
+    {
+        newStickerSubject.send(path)
     }
 }
