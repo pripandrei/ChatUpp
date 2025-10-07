@@ -76,21 +76,6 @@ final class RealtimeUserService: AuthUserProtocol {
         try await onDisconnectRefListener?.cancelDisconnectOperations()
     }
     
-//    func addObserverToUsers(_ userID: String, complition: @escaping (User) -> Void) -> RealtimeObservable
-//    {
-//        let userRef = usersReference.child(userID)
-//
-//        userRef.observe(.value) { snapshot in
-//            do {
-//                let user = try snapshot.data(as: User.self)
-//                complition(user)
-//            } catch {
-//                print("Could not decode Realtime DBUser: ", error.localizedDescription)
-//            }
-//        }
-//        return userRef
-//    }
-//    
     func addObserverToUsers(_ userID: String) -> AnyPublisher<User, Never>
     {
         let subject = PassthroughSubject<User, Never>()
@@ -106,40 +91,8 @@ final class RealtimeUserService: AuthUserProtocol {
         }
         return subject
             .handleEvents(receiveCancel: {
-//                userRef.removeAllObservers()
                 userRef.removeObserver(withHandle: handle)
             })
             .eraseToAnyPublisher()
     }
 }
-
-
-
-
-
-//MARK: - Currently not in use (DBUser is used instead)
-//
-//struct RealtimeDBUser: Codable {
-//    let userId: String
-//    let isActive: Bool
-//    let lastSeen: Double
-//    
-//    enum CodingKeys: String, CodingKey {
-//        case userId = "user_id"
-//        case isActive = "is_active"
-//        case lastSeen = "last_seen"
-//    }
-//    
-//    init(from decoder: Decoder) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//        self.userId = try container.decode(String.self, forKey: .userId)
-//        self.isActive = try container.decode(Bool.self, forKey: .isActive)
-//        self.lastSeen = try container.decode(Double.self, forKey: .lastSeen)
-//    }
-//    func encode(to encoder: Encoder) throws {
-//        var container = encoder.container(keyedBy: CodingKeys.self)
-//        try container.encode(self.userId, forKey: .userId)
-//        try container.encode(self.isActive, forKey: .isActive)
-//        try container.encode(self.lastSeen, forKey: .lastSeen)
-//    }
-//}

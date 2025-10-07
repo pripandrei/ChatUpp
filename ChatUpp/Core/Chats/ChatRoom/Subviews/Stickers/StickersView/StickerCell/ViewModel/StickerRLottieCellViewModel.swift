@@ -23,7 +23,7 @@ final class StickerRLottieCellViewModel
         stickerAnimation = nil
     }
     
-    deinit {
-        print("LottieCellViewModel DEINIT")
-    }
+//    deinit {
+//        print("LottieCellViewModel DEINIT")
+//    }
 }

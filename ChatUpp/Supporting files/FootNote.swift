@@ -103,6 +103,14 @@
 /// This way animations will be destroyed only after final render will come to it's end.
 ///
 
-//MARK: - [14]
-/// 
+//MARK: - [15]
+///
 /// KeyboardService is used only to get the height of the keyboard from current device that the app is running on
+
+//MARK: - [16]
+//
+/// This code is a workaround to avoid content offset shift on new rows/sections insertion
+/// EXPLANETION:
+/// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
+/// tableView will animate scrolling to the last inserted cell, we want this to avoid,
+/// So we offset a bit content, which will result in content remaining at the same position after insertion

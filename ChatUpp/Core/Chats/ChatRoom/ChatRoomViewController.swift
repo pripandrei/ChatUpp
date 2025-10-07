@@ -155,7 +155,7 @@ final class ChatRoomViewController: UIViewController
         viewModel.addListeners()
         
         if viewModel.authParticipantUnreadMessagesCount > 0 {
-//            updateMessageSeenStatusIfNeeded()
+            updateMessageSeenStatusIfNeeded()
         }
     }
     
@@ -314,11 +314,6 @@ final class ChatRoomViewController: UIViewController
         dataSourceManager.cleanup()
         CacheManager.shared.clear()
         ChatRoomSessionManager.activeChatID = nil
-        //        dataSourceManager = nil
-//        coordinatorDelegate = nil
-//        viewModel = nil
-//        tableViewDataSource = nil
-//        customNavigationBar = nil
     }
     
     private func dismissInputBarView()
@@ -427,7 +422,6 @@ final class ChatRoomViewController: UIViewController
 
         let isCellVisible = inputBarRect.origin.y >= cellRect.origin.y
         return isCellVisible ? .visible : .underInputBar
-//        return inputBarRect.origin.y >= cellRect.origin.y
     }
     
     private func checkIfCellIsFullyVisible(at indexPath: IndexPath) -> Bool
@@ -733,7 +727,6 @@ extension ChatRoomViewController {
 
         guard let messageType = determineMessageType(text: trimmedText, image: image) else { return }
         
-//        if !viewModel.conversationExists { viewModel.setupConversation() }
         viewModel.ensureConversationExists()
 
         let repo = image.map { ImageSampleRepository(image: $0, type: .message) }
@@ -844,33 +837,6 @@ extension ChatRoomViewController
 //MARK: - TABLE OFFSET HANDLER
 extension ChatRoomViewController
 {
-//    private func handleTableViewOffset(usingKeyboardSize keyboardSize: CGRect)
-//    {
-//        let maxContainerY = 584.0 - 4.0
-//        let isMaxLinesReached = rootView.inputBarContainer.frame.origin.y > maxContainerY
-//        let keyboardHeight = isMaxLinesReached ? -keyboardSize.height : keyboardSize.height
-//
-//        // Calculate text view height
-//        let lineHeight = rootView.messageTextView.font!.lineHeight
-//        let textViewHeight = (lineHeight * CGFloat(rootViewTextViewDelegate.messageTextViewNumberOfLines)) - lineHeight
-//
-//        // Calculate total inset including text view height and header
-//        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
-//        let totalInset = textViewHeight + editViewHeight + (keyboardHeight < 0 ? abs(keyboardHeight) : 0)
-//
-//        let currentOffset = rootView.tableView.contentOffset
-//        let newOffset = CGPoint(x: currentOffset.x,
-//                               y: keyboardHeight + currentOffset.y)
-//
-//        // Update layout
-//        rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-//        rootView.layoutSubviews()
-//        rootView.tableView.contentInset.top = totalInset
-//        rootView.tableView.setContentOffset(newOffset, animated: false)
-//        rootView.tableView.verticalScrollIndicatorInsets.top = totalInset
-//    }
-//
-
     private func handleTableViewOffset(usingKeyboardHeight keyboardHeight: CGFloat)
     {
         // if number of lines inside textView is bigger than 1, it will expand
@@ -1032,21 +998,6 @@ extension ChatRoomViewController: UITableViewDelegate
             return 170
         }
         return  UITableView.automaticDimension
-    }
-    
-    
-    
-    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath)
-    {
-//        guard viewModel.messageClusters[indexPath.section].items[indexPath.item].message?.type == .sticker else {return}
-//        
-//        if let messageCell = cell as? ConversationMessageCell
-//        {
-//            if let view = messageCell.contentContainer as? StickerContentView {
-//                view.cleanup()
-////                print("cleanup")
-//            }
-//        }
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
@@ -1233,12 +1184,12 @@ extension ChatRoomViewController: UIScrollViewDelegate
         findMinimalVisibleIndexPath()
         
         /// fire updates every > 0.1 time
-//        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.1
-//        {
-//            self.lastSeenStatusCheckUpdate = Date()
-//
-//            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
-//        }
+        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.1
+        {
+            self.lastSeenStatusCheckUpdate = Date()
+
+            if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
+        }
 
         /// Toggle scrollToBottom badge
         isLastCellFullyVisible ?
@@ -1253,23 +1204,20 @@ extension ChatRoomViewController: UIScrollViewDelegate
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
     {
-        /// This code is a workaround to avoid content offset shift on new rows/sections insertion
-        /// EXPLANETION:
-        /// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
-        /// tableView will animate scrolling to the last inserted cell, we want this to avoid,
-        /// So we offset a bit content, which will result in content remaining at the same position after insertion
-//        if self.rootView.tableView.contentOffset.y <= -91 {
-////        if self.rootView.tableView.contentOffset.y <= -97.5 {
-//            self.rootView.tableView.contentOffset.y += 0.2
-//        }
+        /// See FootNote.swift [16]
+        ///
+        if self.rootView.tableView.contentOffset.y <= -91
+        {
+            self.rootView.tableView.contentOffset.y += 0.2
+        }
         
         toggleSectionHeaderVisibility(isScrollActive: false)
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool)
     {
-//        self.lastSeenStatusCheckUpdate = Date()
-//        if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
+        self.lastSeenStatusCheckUpdate = Date()
+        if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
 //        
         toggleSectionHeaderVisibility(isScrollActive: decelerate)
     }
@@ -1358,7 +1306,6 @@ extension ChatRoomViewController
     func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview?
     {
         return makeTargetedPreview(for: configuration)
-//        return makeConversationMessagePreview(for: configuration, forHighlightingContext: true)
     }
 
     func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview?
@@ -1366,7 +1313,6 @@ extension ChatRoomViewController
         executeAfter(seconds: 0.5) {
             self.isContextMenuPresented = false
         }
-//        return makeConversationMessagePreview(for: configuration, forHighlightingContext: false)
         return makeTargetedDismissPreview(for: configuration)
     }
     
@@ -1375,28 +1321,6 @@ extension ChatRoomViewController
         if rootView.inputBarBottomConstraint.constant != 0.0 {
             isContextMenuPresented = true
         }
-    }
-    
-    private func makeConversationMessagePreview(for configuration: UIContextMenuConfiguration,                                             forHighlightingContext: Bool) -> UITargetedPreview?
-    {
-        guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) as? TargetPreviewable else { return nil }
-        
-        if forHighlightingContext {
-            UIView.animate(withDuration: 0.4) {
-                cell.getTargetViewForPreview().backgroundColor = UIColor.purple.withAlphaComponent(0.4)
-            }
-        } else {
-            UIView.animate(withDuration: 0.5) {
-                cell.getTargetViewForPreview().backgroundColor = cell.getTargetedPreviewColor()
-            }
-        }
-
-        let parameter = UIPreviewParameters()
-        parameter.backgroundColor = .clear
-        
-        return UITargetedPreview(view: cell.getTargetViewForPreview(),
-                                 parameters: parameter)
     }
     
     private func handleContextMenuSelectedAction(
@@ -1409,12 +1333,6 @@ extension ChatRoomViewController
 //        self.rootView.inputBarHeader?.updateSubtitle(text)
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
     }
-    
-    //    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?)
-    //    {
-    //        guard let indexPath = configuration.identifier as? IndexPath,
-    //              let cell = tableView.cellForRow(at: indexPath) as? MessageTableViewCell else { return }
-    //    }
 }
 
 
@@ -1681,11 +1599,3 @@ struct TargetedPreviewComponentsSize
     }
 }
 
-//    override func viewWillDisappear(_ animated: Bool) {
-//        super.viewWillDisappear(animated)
-//        Task { @MainActor in
-//            guard let id = self.viewModel.conversation?.id else {return}
-//            self.updateRealmSeenToFalse()
-//            FirebaseChatService.shared.updateMessageSeenStatusToTrue(fromChatWithID: id)
-//        }
-//    }
