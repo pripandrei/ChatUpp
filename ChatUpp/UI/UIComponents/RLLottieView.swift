@@ -98,9 +98,10 @@ class RLLottieView: UIView, ObjectRenderable
         
         if let animationPath
         {
+            print("path to lottie exists")
             return lottie_animation_from_file(animationPath)
         }
-        
+        print("path to lottie does not exists")
         guard let tgsPath = Bundle.main.path(forResource: name, ofType: "tgs"),
               let tgsData = try? Data(contentsOf: .init(filePath: tgsPath)),
               let unzippedData = try? tgsData.gunzipped()
@@ -112,7 +113,7 @@ class RLLottieView: UIView, ObjectRenderable
         if let path = Bundle.main.path(forResource: name, ofType: "json") {
             print(path)
         }
-
+        
         CacheManager.shared.saveData(unzippedData, toPath: name + ".json")
         
         guard let jsonPath = CacheManager.shared.getURL(for: name + ".json")?.path() else
@@ -176,7 +177,7 @@ class RLLottieView: UIView, ObjectRenderable
 
     deinit {
         buffer?.deallocate()
-        print("RLLottieView deinit")
+//        print("RLLottieView deinit")
     }
 
     // MARK: - Helpers

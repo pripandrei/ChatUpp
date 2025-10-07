@@ -54,7 +54,7 @@ final class StickersPackCollectionView: UIView
                 }
             }
         }
-        print("Sticker collection DEINIT")
+//        print("Sticker collection DEINIT")
     }
 
     override func layoutSubviews()

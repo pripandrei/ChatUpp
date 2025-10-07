@@ -107,7 +107,7 @@ final class StickerContentView: UIView
     }
     
     deinit {
-        print("sticker view deinit")
+//        print("sticker view deinit")
         DisplayLinkManager.shered.cleanup(stickerRLottieView)
         stickerRLottieView.setVisible(false)
         stickerRLottieView.destroyAnimation()

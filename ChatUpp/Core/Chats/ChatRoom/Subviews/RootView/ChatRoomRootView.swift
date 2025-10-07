@@ -204,6 +204,11 @@ final class ChatRoomRootView: UIView
         sendEditMessageButton.layer.cornerRadius = sendEditMessageButton.bounds.height / 2
         scrollBadgeButton.layer.cornerRadius = scrollBadgeButton.bounds.size.width / 2
     }
+    
+//    deinit
+//    {
+//        print("ChatRoomRootView deinit")
+//    }
 
     // MARK: - SETUP CONSTRAINTS
     

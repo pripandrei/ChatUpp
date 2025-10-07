@@ -44,6 +44,11 @@ final class MessageCellViewModel
         self.displayUnseenMessagesTitle = isUnseenCell
     }
     
+//    deinit
+//    {
+//        print("MessageCellViewModel deinit")
+//    }
+    
     lazy var messageSender: User? = {
         guard let key = message?.senderId else { return nil }
         return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)

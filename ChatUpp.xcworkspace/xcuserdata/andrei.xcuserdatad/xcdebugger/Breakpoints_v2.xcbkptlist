@@ -18,50 +18,6 @@
             endingLineNumber = "62"
             landmarkName = "loadAnimation(named:_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "1ABD96F2-9772-480B-BE06-4291E1D161AC - 3b2776729b5f177f"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for closure #1 () async -&gt; () in ChatUpp.RLLottieView.loadAnimation(named: Swift.String, _: Swift.Optional&lt;(Swift.OpaquePointer) -&gt; ()&gt;) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/UI/UIComponents/RLLottieView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "62"
-                  endingLineNumber = "62">
-               </Location>
-               <Location
-                  uuid = "1ABD96F2-9772-480B-BE06-4291E1D161AC - 1066e1172be13d78"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for closure #1 () async -&gt; () in ChatUpp.RLLottieView.loadAnimation(named: Swift.String, _: Swift.Optional&lt;(Swift.OpaquePointer) -&gt; ()&gt;) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/UI/UIComponents/RLLottieView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "62"
-                  endingLineNumber = "62">
-               </Location>
-               <Location
-                  uuid = "1ABD96F2-9772-480B-BE06-4291E1D161AC - e3f88836e3b46d33"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 @Swift.MainActor @Sendable () -&gt; () in closure #1 () async -&gt; () in ChatUpp.RLLottieView.loadAnimation(named: Swift.String, _: Swift.Optional&lt;(Swift.OpaquePointer) -&gt; ()&gt;) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/UI/UIComponents/RLLottieView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "62"
-                  endingLineNumber = "62">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

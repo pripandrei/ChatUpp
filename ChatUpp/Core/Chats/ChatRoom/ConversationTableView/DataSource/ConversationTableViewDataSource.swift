@@ -39,6 +39,11 @@ final class ConversationDataSourceManager
         self.configureSnapshot()
     }
     
+//    deinit
+//    {
+//        print("ConversationDataSourceManager deinit")
+//    }
+    
     private func makeDataSource() -> DataSource
     {
         let dataSource = DataSource(tableView: tableView,

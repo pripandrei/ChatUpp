@@ -44,6 +44,11 @@ final class ConversationMessageCell: UITableViewCell
         setupBackgroundSelectionView()
     }
     
+//    deinit
+//    {
+//        print("ConversationMessageCell deinit")
+//    }
+    
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
     private func setupBackgroundSelectionView()
     {
@@ -136,7 +141,7 @@ final class ConversationMessageCell: UITableViewCell
         setupReactionView(for: message)
         setContentContainerViewBottomConstraint()
     }
-
+    
     /// - cleanup
     private func cleanupCellContent()
     {
