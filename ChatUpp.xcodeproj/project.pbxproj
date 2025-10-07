@@ -95,7 +95,6 @@
 		7587CE1B2C77DA7D002D60CE /* Query+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */; };
 		7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1D2C781425002D60CE /* RealmDataBase.swift */; };
 		7587CE222C7CC403002D60CE /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; };
-		7587D39D2E637C5B00DEE900 /* StickersPackCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587D39C2E637C5600DEE900 /* StickersPackCollectionViewModel.swift */; };
 		7587D3AC2E63B7FD00DEE900 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 7587D3AB2E63B7FD00DEE900 /* Gzip */; };
 		758945962E16F85600305F29 /* FootNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758945952E16F85200305F29 /* FootNote.swift */; };
 		758A48D42E4A2CB900D0A10B /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */; };
@@ -293,7 +292,6 @@
 		75855B3E2CF14B5300FF8E9E /* ReuseIdentifire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReuseIdentifire.swift; sourceTree = "<group>"; };
 		7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Query+Extensions.swift"; sourceTree = "<group>"; };
 		7587CE1D2C781425002D60CE /* RealmDataBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataBase.swift; sourceTree = "<group>"; };
-		7587D39C2E637C5600DEE900 /* StickersPackCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickersPackCollectionViewModel.swift; sourceTree = "<group>"; };
 		758945952E16F85200305F29 /* FootNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootNote.swift; sourceTree = "<group>"; };
 		758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
@@ -717,7 +715,6 @@
 			isa = PBXGroup;
 			children = (
 				75C8F77C2E819E03007317E0 /* StickerManager */,
-				75C8F77B2E819DEC007317E0 /* StickersPackViewModel */,
 				75C8F77A2E819D7A007317E0 /* StickersPackModel */,
 				75C8F7792E819D64007317E0 /* StickersView */,
 			);
@@ -1214,14 +1211,6 @@
 			path = StickersPackModel;
 			sourceTree = "<group>";
 		};
-		75C8F77B2E819DEC007317E0 /* StickersPackViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				7587D39C2E637C5600DEE900 /* StickersPackCollectionViewModel.swift */,
-			);
-			path = StickersPackViewModel;
-			sourceTree = "<group>";
-		};
 		75C8F77C2E819E03007317E0 /* StickerManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -1597,7 +1586,6 @@
 				75C8F7712E8193CF007317E0 /* CustomizedShadowTextField.swift in Sources */,
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
 				757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */,
-				7587D39D2E637C5B00DEE900 /* StickersPackCollectionViewModel.swift in Sources */,
 				759894B22E4E7284003CF661 /* ContainerView.swift in Sources */,
 				75BC066E2DFADC6E002ED4AA /* NetworkMonitor.swift in Sources */,
 				75E2F2F12C3C17BE0058DC88 /* RealtimeUserService.swift in Sources */,

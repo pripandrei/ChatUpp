@@ -63,41 +63,11 @@ enum Stickers
             }
         }
         
-        var format: StickerFormat {
-//            switch self {
-//            case .felloutBoy: return .webp
-//            default: return .tgs
-//            }
-            
-            return .webp
-        }
-        
-        private var fileExtension: String {
-            switch format {
-            case .tgs: "tgs"
-            case .webp: "webp"
-            }
-        }
-        
         var pack: [String]
         {
             return (1...count).compactMap { index in
                 return "\(prefix)\(index)"
             }
         }
-        
-//        var pack: [URL]
-//        {
-//            return (1...count).compactMap { index in
-//                Bundle.main.url(forResource: "\(prefix)\(index)",
-//                                withExtension: "json")
-//            }
-//        }
-    }
-    
-    enum StickerFormat
-    {
-        case tgs
-        case webp
     }
 }
