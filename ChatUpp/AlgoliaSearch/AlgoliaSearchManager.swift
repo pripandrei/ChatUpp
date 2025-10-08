@@ -2,17 +2,21 @@ import Foundation
 import Core
 import Search
 
-final class AlgoliaSearchManager {
+final class AlgoliaSearchManager
+{
     static let shared = AlgoliaSearchManager()
     
-    //TODO: ID, apiKEY should not be here
     private let usersClient: SearchClient
     private let groupsClient: SearchClient
     
     private init()
     {
-        usersClient = try! SearchClient(appID: "TRVTKK4YUR", apiKey: "5ba2aee5ee2c0879fcd16f112a66e821")
-        groupsClient = try! SearchClient(appID: "TRVTKK4YUR", apiKey: "6c88391e8a0c760cd91bfa9d49e88f4a")
+        let app_ID = ProcessInfo.processInfo.environment["ALGOLIA_APP_ID"] ?? ""
+        let users_API_Key = ProcessInfo.processInfo.environment["ALGOLIA_API_KEY_USERS"] ?? ""
+        let groups_API_Key = ProcessInfo.processInfo.environment["ALGOLIA_API_KEY_GROUPS"] ?? ""
+        
+        usersClient = try! SearchClient(appID: app_ID, apiKey: users_API_Key)
+        groupsClient = try! SearchClient(appID: app_ID, apiKey: groups_API_Key)
     }
     
     func performSearch(_ searchText: String) async -> AlgoliaSearchResult? {

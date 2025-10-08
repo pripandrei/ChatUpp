@@ -50,6 +50,23 @@
             ReferencedContainer = "container:ChatUpp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "ALGOLIA_APP_ID"
+            value = "TRVTKK4YUR"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "ALGOLIA_API_KEY_USERS"
+            value = "5ba2aee5ee2c0879fcd16f112a66e821"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "ALGOLIA_API_KEY_GROUPS"
+            value = "6c88391e8a0c760cd91bfa9d49e88f4a"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
