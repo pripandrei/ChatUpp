@@ -16,7 +16,6 @@ struct ColorManager
     static let navigationSearchFieldBackgroundColor: UIColor = #colorLiteral(red: 0.1695529222, green: 0.1113216504, blue: 0.1723338962, alpha: 1)
     static let tabBarBackgroundColor: UIColor = #colorLiteral(red: 0.2214901745, green: 0.1582537889, blue: 0.2320964336, alpha: 1)
     static let tabBarSelectedItemsTintColor: UIColor = actionButtonsTintColor
-//    static let tabBarNormalItemsTintColor: UIColor = #colorLiteral(red: 0.6615501046, green: 0.6217032075, blue: 0.6508274078, alpha: 1)
     static let tabBarNormalItemsTintColor: UIColor = #colorLiteral(red: 0.5957366228, green: 0.5428973436, blue: 0.6221753955, alpha: 1)
     static let cellSelectionBackgroundColor: UIColor = #colorLiteral(red: 0.1026760712, green: 0.07338444144, blue: 0.1081472859, alpha: 1)
     static let listCellBackgroundColor: UIColor = #colorLiteral(red: 0.2667922974, green: 0.1890299022, blue: 0.2787306905, alpha: 1)
@@ -25,9 +24,7 @@ struct ColorManager
     static let mainAppBackgroundColorGradientBottom: UIColor = #colorLiteral(red: 0.468229115, green: 0.2259758115, blue: 0.5086464882, alpha: 1)
     static let textFieldPlaceholderColor: UIColor = #colorLiteral(red: 0.5449618697, green: 0.5162886381, blue: 0.5168147087, alpha: 1)
     static let textFieldTextColor: UIColor = .white
-//    #colorLiteral(red: 0.1863378584, green: 0.1262771785, blue: 0.1986569464, alpha: 1)
     static let messageTextFieldBackgroundColor: UIColor =  #colorLiteral(red: 0.1462480128, green: 0.1083115265, blue: 0.1505401731, alpha: 1)
-//    #colorLiteral(red: 0.1236810908, green: 0.08473216742, blue: 0.1324510276, alpha: 1)
     static let scrollToBottomButtonBackgroundColor: UIColor = #colorLiteral(red: 0.2306482196, green: 0.1865905523, blue: 0.2809014618, alpha: 1)
     static let inputBarMessageContainerBackgroundColor: UIColor = #colorLiteral(red: 0.4341781139, green: 0.1795937121, blue: 0.3866679668, alpha: 1)
     static let sendMessageButtonBackgroundColor: UIColor = #colorLiteral(red: 0.8080032468, green: 0.4144457579, blue: 0.9248802066, alpha: 1)
@@ -46,7 +43,6 @@ struct ColorManager
     static let messageLinkColor: UIColor = #colorLiteral(red: 0, green: 0.6172372699, blue: 0.9823173881, alpha: 1)
     static let stickerViewBackgroundColor: UIColor = #colorLiteral(red: 0.1257298887, green: 0.2089383006, blue: 0.2593249977, alpha: 1)
     static let stickerReplyToMessageBackgroundColor: UIColor = #colorLiteral(red: 0.2001897097, green: 0.2439186871, blue: 0.3068914711, alpha: 1)
-//    static let stickerViewBackgroundColor: UIColor = #colorLiteral(red: 0.20829162, green: 0.1772045493, blue: 0.2476014197, alpha: 1)
     
     static let skeletonItemColor: UIColor = #colorLiteral(red: 0.3543712497, green: 0.2847208381, blue: 0.3677620888, alpha: 1)
     static let skeletonAnimationColor: UIColor = #colorLiteral(red: 0.6587312222, green: 0.6021129489, blue: 0.779224813, alpha: 1)
@@ -60,56 +56,4 @@ struct ColorManager
         return messageBackgroundColors[index]
     }
 }
-//
-//func setupTabarAppearance()
-//{
-//    Utilities.setupNavigationBarAppearance()
-//    
-//    let tabBarAppearance = UITabBarAppearance()
-//    let tabBarItemAppearance = UITabBarItemAppearance()
-//
-//    tabBarAppearance.backgroundColor = #colorLiteral(red: 0.4662097692, green: 0.267136395, blue: 0.5042799115, alpha: 1).withAlphaComponent(0.2)
-//    tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemMaterialDark)
-//    
-////        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.298432827, green: 0.2027920783, blue: 0.3223546743, alpha: 1).withAlphaComponent(0.2)
-////        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
-//
-////        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.298432827, green: 0.2027920783, blue: 0.3223546743, alpha: 1).withAlphaComponent(0.2)
-////        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
-//
-//    
-//    tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarSelectedItemsTintColor]
-//    tabBarItemAppearance.selected.iconColor = ColorManager.tabBarSelectedItemsTintColor
-//    tabBarItemAppearance.normal.iconColor = ColorManager.tabBarNormalItemsTintColor
-//    tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarNormalItemsTintColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
-//
-//    tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
-//    
-//    addTabbarIcons()
-//    
-//    tabBar.standardAppearance = tabBarAppearance
-//    tabBar.scrollEdgeAppearance = tabBarAppearance
-//}
-//
-//func setupTabarAppearance()
-//{
-//    Utilities.setupNavigationBarAppearance()
-//    
-//    let tabBarAppearance = UITabBarAppearance()
-//    let tabBarItemAppearance = UITabBarItemAppearance()
-//
-//    tabBarAppearance.backgroundColor = #colorLiteral(red: 0.4331829548, green: 0.2255868614, blue: 0.4133677185, alpha: 1).withAlphaComponent(0.3)
-//    tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
-//
-//    tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarSelectedItemsTintColor]
-//    tabBarItemAppearance.selected.iconColor = ColorManager.tabBarSelectedItemsTintColor
-//    tabBarItemAppearance.normal.iconColor = ColorManager.tabBarNormalItemsTintColor
-//    tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarNormalItemsTintColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
-//
-//    tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
-//    
-//    addTabbarIcons()
-//    
-//    tabBar.standardAppearance = tabBarAppearance
-//    tabBar.scrollEdgeAppearance = tabBarAppearance
-//}
+

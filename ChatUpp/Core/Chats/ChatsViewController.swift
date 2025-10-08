@@ -48,7 +48,6 @@ class ChatsViewController: UIViewController {
         setupNavigationBarItems()
         coordinatorDelegate?.subscribeToConversationOpenRequest()
 //        testFunction()
-//        FirebaseChatService.shared.updateMessageTypes()
     }
     
     override func viewDidAppear(_ animated: Bool) {
