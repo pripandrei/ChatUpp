@@ -98,8 +98,10 @@ final class ConversationMessageCell: UITableViewCell
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
-        guard let message = viewModel.message else {
-            assert(false, "message should be valid at this point")
+        guard let message = viewModel.message,
+              let type = viewModel.message?.type else
+        {
+            assert(false, "message and it's type should be valid at this point")
             return
         }
 
@@ -113,19 +115,11 @@ final class ConversationMessageCell: UITableViewCell
         contentContainer?.removeFromSuperview()
         contentContainer = nil
         
-        // TODO: - remove this after applying type to all messages in db
-        if viewModel.message?.type == nil {
-            let imageTextView = MessageContainerView()
-            imageTextView.configure(with: viewModel.messageContainerViewModel!,
-                                    layoutConfiguration: layoutConfiguration)
-            setupContainerView(imageTextView, type: .imageText)
-        }
-        
-        switch viewModel.message?.type
+        switch type
         {
         case .text, .image, .imageText:
             let imageTextView = MessageContainerView()
-            setupContainerView(imageTextView, type: .imageText)
+            setupContainerView(imageTextView, type: type)
             imageTextView.configure(with: viewModel.messageContainerViewModel!,
                                     layoutConfiguration: layoutConfiguration)
         case .sticker:

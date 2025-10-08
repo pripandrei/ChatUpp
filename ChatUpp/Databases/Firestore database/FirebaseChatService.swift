@@ -1138,6 +1138,76 @@ extension FirebaseChatService
             }
         }
     }
+    
+
+    func updateMessageTypes()
+    {
+        chatsCollection.getDocuments { (chatsSnapshot, error) in
+            if let error = error {
+                print("❌ Error fetching chats: \(error)")
+                return
+            }
+            
+            guard let chatDocs = chatsSnapshot?.documents else { return }
+            
+            for chatDoc in chatDocs
+            {
+//                if chatDoc.documentID == "04D1507B-5AFE-482C-93E9-0A97A0B54B13" {
+//                    print("found chat!")
+                    let messagesRef = self.chatsCollection.document(chatDoc.documentID).collection("messages")
+                    
+                    messagesRef.getDocuments { (messagesSnapshot, error) in
+                        if let error = error {
+                            print("❌ Error fetching messages for chat \(chatDoc.documentID): \(error)")
+                            return
+                        }
+                        
+                        guard let messageDocs = messagesSnapshot?.documents else { return }
+                        
+                        for messageDoc in messageDocs {
+                            var data = messageDoc.data()
+                            
+                            // 🔹 Skip if "type" already exists
+                            if data["type"] != nil {
+                                print(data["type"])
+                                continue
+                            }
+                            
+                            let messageBody = data["message_body"] as? String ?? ""
+                            let imagePath = data["image_path"] as? String
+                            let sticker = data["sticker"] as? String
+                            
+                            var newType: String?
+                            
+                            // 🔹 Determine type only if needed
+                            if let sticker = sticker, !sticker.isEmpty {
+                                newType = "sticker"
+                            } else if !messageBody.isEmpty && imagePath == nil {
+                                newType = "text"
+                            } else if !messageBody.isEmpty && imagePath != nil {
+                                newType = "image/text"
+                            } else if messageBody.isEmpty && imagePath != nil {
+                                newType = "image"
+                            }
+                            
+                            // 🔹 Update only if we found a valid new type
+                            if let newType = newType {
+                                messagesRef.document(messageDoc.documentID).updateData(["type": newType]) { err in
+                                    if let err = err {
+                                        print("⚠️ Failed to update message \(messageDoc.documentID): \(err)")
+                                    } else {
+                                        print("✅ Updated message \(messageDoc.documentID) with type '\(newType)'")
+                                    }
+                                }
+                            }
+                        }
+                    }
+//                }
+//                break
+            }
+        }
+    }
+
 }
 
 enum MessageFetchError: Error

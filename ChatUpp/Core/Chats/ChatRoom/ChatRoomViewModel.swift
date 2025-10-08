@@ -1220,14 +1220,14 @@ extension ChatRoomViewModel
     func fetchConversationMessages(using strategy: MessageFetchStrategy? = nil) async throws -> [Message]
     {
         guard let conversation = conversation else { return [] }
-
-        // TODO: - Remove after testing done
-        var limit = 10
-        
-        if strategy != nil {
-            limit = 10
-        }
-        
+//
+//        // TODO: - Remove after testing done
+//        var limit = 10
+//        
+//        if strategy != nil {
+//            limit = 10
+//        }
+//        
         let fetchStrategy = (strategy == nil) ? try await determineFetchStrategy() : strategy
         
         switch fetchStrategy
@@ -1238,7 +1238,7 @@ extension ChatRoomViewModel
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
                 fetchDirection: .ascending,
-                limit: limit
+//                limit: limit
             )
         case .descending(let startAtMessage, let included):
             return try await FirebaseChatService.shared.fetchMessagesFromChat(
@@ -1246,7 +1246,7 @@ extension ChatRoomViewModel
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
                 fetchDirection: .descending,
-                limit: limit
+//                limit: limit
             )
         case .hybrit(let startAtMessage):
             let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
@@ -1254,14 +1254,14 @@ extension ChatRoomViewModel
                 startingFrom: startAtMessage.id,
                 inclusive: false,
                 fetchDirection: .descending,
-                limit: limit
+//                limit: limit
             )
             let ascendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
                 inclusive: true,
                 fetchDirection: .ascending,
-                limit: limit
+//                limit: limit
             )
             return descendingMessages + ascendingMessages
         default: return []
