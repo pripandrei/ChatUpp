@@ -30,7 +30,7 @@ final class StickerContentView: UIView
         
         NSLayoutConstraint.activate([
             stickerComponentsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            stickerComponentsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 3),
+            stickerComponentsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
         ])
     }
     
@@ -41,8 +41,8 @@ final class StickerContentView: UIView
         
         NSLayoutConstraint.activate([
             stickerRLottieView.topAnchor.constraint(equalTo: topAnchor),
-            stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            stickerRLottieView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            stickerRLottieView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
 //            stickerLottieView.heightAnchor.constraint(equalToConstant: 170),
             stickerRLottieView.widthAnchor.constraint(equalTo: stickerRLottieView.heightAnchor),
         ])

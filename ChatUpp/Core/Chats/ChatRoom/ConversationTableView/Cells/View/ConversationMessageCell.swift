@@ -20,7 +20,6 @@ final class ConversationMessageCell: UITableViewCell
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
     private(set) var contentContainer: UIView!
-//    private(set) var containerStackView: MessageContainerView = MessageContainerView()
     private(set) var reactionBadgeHostingView: UIView?
     private(set) var cellViewModel: MessageCellViewModel!
     

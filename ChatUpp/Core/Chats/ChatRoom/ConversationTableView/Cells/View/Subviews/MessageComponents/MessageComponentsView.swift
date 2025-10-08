@@ -101,13 +101,13 @@ final class MessageComponentsView: UIView
     private func updateStackViewComponentsAppearance()
     {
         guard let messageType = viewModel?.message.type else {return}
-        
+
         switch messageType
         {
         case .image, .sticker:
-            messageComponentsStackView.backgroundColor = #colorLiteral(red: 0.121735774, green: 0.1175989285, blue: 0.1221210584, alpha: 1).withAlphaComponent(0.5)
+            messageComponentsStackView.backgroundColor = #colorLiteral(red: 0.1982198954, green: 0.2070500851, blue: 0.2227896452, alpha: 1).withAlphaComponent(0.8)
             messageComponentsStackView.isLayoutMarginsRelativeArrangement = true
-            messageComponentsStackView.layoutMargins = UIEdgeInsets(top: 1, left: 4, bottom: 1, right: 4)
+            messageComponentsStackView.layoutMargins = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
             messageComponentsStackView.layer.cornerRadius = bounds.height / 2
         case .text, .imageText, .audio :
             messageComponentsStackView.backgroundColor = .clear

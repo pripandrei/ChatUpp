@@ -995,8 +995,9 @@ extension ChatRoomViewController: UITableViewDelegate
         }
         if viewModel.messageClusters[indexPath.section].items[indexPath.item].message?.type == .sticker
         {
-            return 170
+            return 180
         }
+        
         return  UITableView.automaticDimension
     }
     
