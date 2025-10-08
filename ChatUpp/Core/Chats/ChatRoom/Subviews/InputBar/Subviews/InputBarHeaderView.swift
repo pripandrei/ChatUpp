@@ -41,6 +41,7 @@ final class InputBarHeaderView: UIView {
     
     // MARK: - Setup
     func setupSubviews() {
+//        backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
         backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
         setupSelfHeightConstraint()
         

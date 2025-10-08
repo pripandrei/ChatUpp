@@ -52,8 +52,8 @@ struct Utilities
     {
         let appearance = UINavigationBarAppearance()
         
-        appearance.backgroundColor = #colorLiteral(red: 0.298432827, green: 0.2027920783, blue: 0.3223546743, alpha: 1).withAlphaComponent(0.2)
-        appearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
+        appearance.backgroundColor = ColorManager.tabBarBackgroundColor.withAlphaComponent(0.85)
+        appearance.backgroundEffect = UIBlurEffect(style: .light)
         
         appearance.shadowColor = .white.withAlphaComponent(0.5)
         

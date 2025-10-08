@@ -131,7 +131,7 @@ final class ChatRoomRootView: UIView
             .resizeImage(toSize: CGSize(width: 17, height: 15))
         scrollToBottomBtn.configuration?.image = image
         
-        scrollToBottomBtn.backgroundColor                           = ColorManager.inputBarMessageContainerBackgroundColor
+        scrollToBottomBtn.backgroundColor                           = ColorManager.scrollToBottomButtonBackgroundColor
         scrollToBottomBtn.translatesAutoresizingMaskIntoConstraints = false
         scrollToBottomBtn.layer.borderWidth = 0.25
         scrollToBottomBtn.layer.borderColor = #colorLiteral(red: 0.3582897782, green: 0.31710729, blue: 0.3442819118, alpha: 1)
