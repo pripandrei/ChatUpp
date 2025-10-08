@@ -275,10 +275,15 @@ final class ChatRoomViewController: UIViewController
     {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
-            guard rootView.inputBarContainer.frame.origin.y > 580 else {return} /// first character typed in textField triggers keyboardWillShow, so we perform this check
+            let height = keyboardSize.height
+            
+            guard rootView.inputBarContainer.frame.origin.y > 580 else {
+                let keyboardHeight = -(height - 30)
+                rootView.updateInputBarBottomConstraint(toSize: keyboardHeight)
+                return
+            } /// first character typed in textField triggers keyboardWillShow, so we perform this check
             
             isKeyboardHidden = false
-            let height = KeyboardService.keyboardHeight()
             
             guard isContextMenuPresented else
             {

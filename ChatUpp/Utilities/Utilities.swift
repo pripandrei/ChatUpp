@@ -52,11 +52,8 @@ struct Utilities
     {
         let appearance = UINavigationBarAppearance()
         
-//        appearance.backgroundColor = ColorManager.navigationBarBackgroundColor.withAlphaComponent(0.85)
-//        appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
-        
-        appearance.backgroundColor = ColorManager.tabBarBackgroundColor.withAlphaComponent(0.85)
-        appearance.backgroundEffect = UIBlurEffect(style: .light)
+        appearance.backgroundColor = #colorLiteral(red: 0.298432827, green: 0.2027920783, blue: 0.3223546743, alpha: 1).withAlphaComponent(0.2)
+        appearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
         
         appearance.shadowColor = .white.withAlphaComponent(0.5)
         
@@ -209,3 +206,170 @@ func measureDuration(lable: String ,
     let millisec = Double(duration.components.attoseconds) / 1_000_000_000_000_000.0
     print("\(lable) Duration of fetchMessagesMetadata: \(millisec) milliseconds")
 }
+
+
+//
+////  InputBarContainer.swift
+////  ChatUpp
+////
+////  Created by Andrei Pripa on 1/18/25.
+////
+//
+//import UIKit
+//
+//
+//// MARK: - Modified container for gesture trigger
+//final class InputBarContainer: UIVisualEffectView
+//{
+//    // since closeImageView frame is not inside it's super view (inputBarContainer)
+//    // gesture recognizer attached to it will not get triggered
+//    // so we need to override point to return true in case it matches the location in coordinate of closeImageView
+//    
+//    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool
+//    {
+//        if super.point(inside: point, with: event) {return true}
+//        
+//        for subview in subviews {
+//            let subviewPoint = subview.convert(point, from: self)
+//            if subview.point(inside: subviewPoint, with: event) {
+//                return true
+//            }
+//        }
+//        return false
+//    }
+//    
+//    
+//    override init(effect: UIVisualEffect?)
+//    {
+//        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
+//        super.init(effect: blurEffect)
+////        backgroundColor = #colorLiteral()
+//        backgroundColor = #colorLiteral(red: 0.2681900561, green: 0.1837917268, blue: 0.2812419236, alpha: 1).withAlphaComponent(0.6)
+//        alpha = 1
+////        layer.opacity = 0.9
+//    }
+////    override init(frame: CGRect)
+////    {
+////        super.init(frame: frame)
+//////        alpha = 0.2
+////        layer.opacity = 0.5
+////        backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
+//////        createBackgroundBlurEffect()
+////    }
+//    
+//    var blurEffectView: UIVisualEffectView!
+//    
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//    
+//    override func layoutSubviews() {
+//        super.layoutSubviews()
+////        blurEffectView.frame = self.bounds
+////        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//    }
+//    
+//    private func createBackgroundBlurEffect()
+//    {
+//        let blurEffect = UIBlurEffect(style: .systemThickMaterialDark)
+//        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+//        self.blurEffectView = blurEffectView
+//        blurEffectView.alpha = 1
+//        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+////        blurEffectView.frame = self.bounds
+////        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//        self.addSubview(blurEffectView)
+//    }
+//}
+//
+//
+//
+//
+
+
+
+
+
+//
+//
+//
+//
+//
+//
+////
+////  InputBarContainer.swift
+////  ChatUpp
+////
+////  Created by Andrei Pripa on 1/18/25.
+////
+//
+//import UIKit
+//
+//
+//// MARK: - Modified container for gesture trigger
+//final class InputBarContainer: UIVisualEffectView
+//{
+//    // since closeImageView frame is not inside it's super view (inputBarContainer)
+//    // gesture recognizer attached to it will not get triggered
+//    // so we need to override point to return true in case it matches the location in coordinate of closeImageView
+//    
+//    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool
+//    {
+//        if super.point(inside: point, with: event) {return true}
+//        
+//        for subview in subviews {
+//            let subviewPoint = subview.convert(point, from: self)
+//            if subview.point(inside: subviewPoint, with: event) {
+//                return true
+//            }
+//        }
+//        return false
+//    }
+//    
+//    
+//    override init(effect: UIVisualEffect?)
+//    {
+//        let blurEffect = UIBlurEffect(style: .systemMaterialDark)
+//        super.init(effect: blurEffect)
+////        backgroundColor = #colorLiteral()
+//        ColorManager.inputBarMessageContainerBackgroundColor.withAlphaComponent(0.9)
+//        alpha = 0.996
+////        layer.opacity = 0.9
+//    }
+////    override init(frame: CGRect)
+////    {
+////        super.init(frame: frame)
+//////        alpha = 0.2
+////        layer.opacity = 0.5
+////        backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
+//////        createBackgroundBlurEffect()
+////    }
+//    
+//    var blurEffectView: UIVisualEffectView!
+//    
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+//    
+//    override func layoutSubviews() {
+//        super.layoutSubviews()
+////        blurEffectView.frame = self.bounds
+////        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//    }
+//    
+//    private func createBackgroundBlurEffect()
+//    {
+//        let blurEffect = UIBlurEffect(style: .systemThickMaterialDark)
+//        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+//        self.blurEffectView = blurEffectView
+//        blurEffectView.alpha = 1
+//        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+////        blurEffectView.frame = self.bounds
+////        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//        self.addSubview(blurEffectView)
+//    }
+//}
+//
+//
+//
+//

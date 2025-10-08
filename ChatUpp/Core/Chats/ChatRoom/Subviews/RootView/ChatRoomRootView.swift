@@ -29,14 +29,7 @@ final class ChatRoomRootView: UIView
     private var textViewTrailingItemView: UIView!
     let trailingItemState = TrailingItemState()
     
-    private(set) var inputBarContainer: InputBarContainer = {
-        let inputBarContainer = InputBarContainer()
-        inputBarContainer.backgroundColor                           = ColorManager.inputBarMessageContainerBackgroundColor
-        inputBarContainer.bounds.size.height                        = 80
-        inputBarContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        return inputBarContainer
-    }()
+    private(set) var inputBarContainer: InputBarContainer = InputBarContainer()
     
     private(set) var unseenMessagesBadge = {
         let badge = UnseenMessagesBadge()
@@ -86,6 +79,7 @@ final class ChatRoomRootView: UIView
         messageTextView.isScrollEnabled                           = true
         messageTextView.textContainer.maximumNumberOfLines        = 0
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
+        messageTextView.keyboardAppearance = .dark
         
         return messageTextView
     }()

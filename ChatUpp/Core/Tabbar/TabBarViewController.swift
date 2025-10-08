@@ -71,8 +71,8 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         let tabBarAppearance = UITabBarAppearance()
         let tabBarItemAppearance = UITabBarItemAppearance()
 
-        tabBarAppearance.backgroundColor = ColorManager.navigationBarBackgroundColor.withAlphaComponent(0.85)
-        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .light)
+        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.298432827, green: 0.2027920783, blue: 0.3223546743, alpha: 1).withAlphaComponent(0.2)
+        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
 
         tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarSelectedItemsTintColor]
         tabBarItemAppearance.selected.iconColor = ColorManager.tabBarSelectedItemsTintColor
@@ -86,6 +86,7 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate
         tabBar.standardAppearance = tabBarAppearance
         tabBar.scrollEdgeAppearance = tabBarAppearance
     }
+
 
     func addTabbarIcons() {
         if let tabBarItems = tabBar.items {

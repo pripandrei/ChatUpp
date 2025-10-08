@@ -58,3 +58,33 @@ struct ColorManager
         return messageBackgroundColors[index]
     }
 }
+//
+//func setupTabarAppearance()
+//{
+//    Utilities.setupNavigationBarAppearance()
+//    
+//    let tabBarAppearance = UITabBarAppearance()
+//    let tabBarItemAppearance = UITabBarItemAppearance()
+//
+//    tabBarAppearance.backgroundColor = #colorLiteral(red: 0.4662097692, green: 0.267136395, blue: 0.5042799115, alpha: 1).withAlphaComponent(0.2)
+//    tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemMaterialDark)
+//    
+////        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.298432827, green: 0.2027920783, blue: 0.3223546743, alpha: 1).withAlphaComponent(0.2)
+////        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
+//
+////        tabBarAppearance.backgroundColor = #colorLiteral(red: 0.298432827, green: 0.2027920783, blue: 0.3223546743, alpha: 1).withAlphaComponent(0.2)
+////        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
+//
+//    
+//    tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarSelectedItemsTintColor]
+//    tabBarItemAppearance.selected.iconColor = ColorManager.tabBarSelectedItemsTintColor
+//    tabBarItemAppearance.normal.iconColor = ColorManager.tabBarNormalItemsTintColor
+//    tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarNormalItemsTintColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
+//
+//    tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
+//    
+//    addTabbarIcons()
+//    
+//    tabBar.standardAppearance = tabBarAppearance
+//    tabBar.scrollEdgeAppearance = tabBarAppearance
+//}
