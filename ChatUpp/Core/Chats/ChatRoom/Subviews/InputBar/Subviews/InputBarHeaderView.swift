@@ -26,6 +26,7 @@ final class InputBarHeaderView: UIView {
     private var symbolIcon: UIImageView?
     private var imageThumbnail: UIImageView?
     private var textInfoStackView: UIStackView?
+    private var blurEffectView: UIVisualEffectView!
     
     // MARK: - Init
     convenience init(mode: Mode) {
@@ -42,9 +43,9 @@ final class InputBarHeaderView: UIView {
     // MARK: - Setup
     func setupSubviews() {
 //        backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
-        backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
+        backgroundColor = .clear
         setupSelfHeightConstraint()
-        
+        createBackgroundBlurEffect()
         setupTitleLabel()
         setupSubtitleLabel()
         setupSymbolIcon()
@@ -52,6 +53,22 @@ final class InputBarHeaderView: UIView {
         setupCloseButton()
         setupTextInfoStackView()
         setupImageThumbnailView()
+    }
+    
+    private func createBackgroundBlurEffect()
+    {
+        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
+        blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.translatesAutoresizingMaskIntoConstraints = false
+        blurEffectView.backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor.withAlphaComponent(0.7)
+        insertSubview(blurEffectView, at: 0)
+
+        NSLayoutConstraint.activate([
+            blurEffectView.topAnchor.constraint(equalTo: topAnchor),
+            blurEffectView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            blurEffectView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            blurEffectView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
     }
     
     private func setupTitleLabel() {
