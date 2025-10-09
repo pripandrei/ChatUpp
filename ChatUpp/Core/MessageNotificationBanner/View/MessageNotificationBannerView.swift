@@ -13,44 +13,44 @@ struct MessageNotificationBannerView: View
     
     var body: some View
     {
-            HStack(spacing: 0)
+        HStack(spacing: 0)
+        {
+            let image = viewModel.messageBannerData.avatar
+                .flatMap { UIImage(data: $0) } ?? UIImage(named: "default_profile_photo")!
+            
+            Image(uiImage: image)
+                .resizable()
+                .frame(width: 60, height: 60)
+                .clipShape(Circle())
+            
+            VStack(alignment: .leading)
             {
-                let image = (viewModel.messageBannerData.avatar)
-                    .flatMap { UIImage(data: $0) } ?? UIImage(named: "default_profile_photo")!
+                Text(viewModel.messageBannerData.titleName)
+                    .font(.system(size: 18,
+                                  weight: .semibold))
+                    .foregroundStyle(Color.white)
+                    .lineLimit(1)
                 
-                Image(uiImage: image)
-                    .resizable()
-                    .frame(width: 60, height: 60)
-                    .clipShape(Circle())
-        
-                VStack(alignment: .leading)
-                {
-                    Text(viewModel.messageBannerData.titleName)
-                        .font(.system(size: 18,
-                                      weight: .semibold))
-                        .foregroundStyle(Color.white)
-                        .lineLimit(1)
-                    
-                    Text(viewModel.messageBannerData.message.messageBody)
-                        .font(.system(size: 16,
-                                      weight: .medium))
-                        .foregroundStyle(Color.white)
-                        .lineLimit(2)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 0)
+                Text(viewModel.messageBannerData.message.messageBody)
+                    .font(.system(size: 16,
+                                  weight: .medium))
+                    .foregroundStyle(Color.white)
+                    .lineLimit(2)
             }
-            .frame(
-                width: UIScreen.main.bounds.width - 40,
-                   height: 60,
-                   alignment: .leading)
-            .padding(.all, 10)
-            .background(Color(ColorManager.navigationBarBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: 15))
-            .shadow(color: .black, radius: 1, x: 0, y: 0)
-            .onTapGesture {
-                self.viewModel.onTap?()
-            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 0)
+        }
+        .frame(
+            width: UIScreen.main.bounds.width - 40,
+            height: 60,
+            alignment: .leading)
+        .padding(.all, 10)
+        .background(Color(ColorManager.navigationBarBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .shadow(color: .black, radius: 1, x: 0, y: 0)
+        .onTapGesture {
+            self.viewModel.onTap?()
+        }
     }
 }
 
