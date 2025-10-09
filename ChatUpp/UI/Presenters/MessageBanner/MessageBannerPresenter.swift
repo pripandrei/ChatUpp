@@ -10,15 +10,6 @@ import UIKit
 import SwiftUI
 import Combine
 
-struct MessageBannerData
-{
-    let chat: Chat
-    let message: Message
-    let avatar: Data?
-    let titleName: String
-    let contentThumbnail: Data?
-}
-
 final class MessageBannerPresenter
 {
     static let shared = MessageBannerPresenter()
