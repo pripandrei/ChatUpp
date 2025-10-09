@@ -97,13 +97,7 @@ final class GreetingView: UIView
         greetingRLottieView.setVisible(true)
         DisplayLinkManager.shered.addObject(greetingRLottieView)
     }
-    
-    // MARK: - Debug
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        print("RLottie bounds:", greetingRLottieView.bounds)
-    }
-    
+
     private func cleanup()
     {
         DisplayLinkManager.shered.cleanup(greetingRLottieView)
@@ -117,77 +111,3 @@ final class GreetingView: UIView
         cleanup()
     }
 }
-//
-//final class BlurredBackgroundView: UIView
-//{
-//    private let blurEffectView: UIVisualEffectView
-//    
-//    init(style: UIBlurEffect.Style = .systemMaterial,
-//         color: UIColor = ColorManager.appBackgroundColor,
-//         alpha: CGFloat = 0.7)
-//    {
-//        let blurEffect = UIBlurEffect(style: style)
-//        self.blurEffectView = UIVisualEffectView(effect: blurEffect)
-//        
-//        super.init(frame: .zero)
-//        setup(color, alpha)
-//    }
-//
-//    required init?(coder: NSCoder) { fatalError() }
-//
-//    private func setup(_ color: UIColor, _ alpha: CGFloat)
-//    {
-//        blurEffectView.translatesAutoresizingMaskIntoConstraints = false
-//        blurEffectView.backgroundColor = color.withAlphaComponent(alpha)
-//        addSubview(blurEffectView)
-//        
-//        NSLayoutConstraint.activate([
-//            blurEffectView.topAnchor.constraint(equalTo: topAnchor),
-//            blurEffectView.leadingAnchor.constraint(equalTo: leadingAnchor),
-//            blurEffectView.trailingAnchor.constraint(equalTo: trailingAnchor),
-//            blurEffectView.bottomAnchor.constraint(equalTo: bottomAnchor)
-//        ])
-//    }
-//    
-//    func updateBlurStyle(_ style: UIBlurEffect.Style) {
-//        blurEffectView.effect = UIBlurEffect(style: style)
-//    }
-//}
-//
-//final class BlurContainerView: UIView
-//{
-//    private let blurEffectView: UIVisualEffectView
-//    
-//    init(style: UIBlurEffect.Style = .systemThinMaterialDark,
-//         backgroundColor: UIColor? = nil)
-//    {
-//        self.blurEffectView = UIVisualEffectView(effect: UIBlurEffect(style: style))
-//        super.init(frame: .zero)
-//        setupBlurEffect(backgroundColor: backgroundColor)
-//    }
-//    
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
-//    
-//    private func setupBlurEffect(backgroundColor: UIColor?)
-//    {
-//        blurEffectView.translatesAutoresizingMaskIntoConstraints = false
-//        if let backgroundColor = backgroundColor {
-//            blurEffectView.backgroundColor = backgroundColor
-//        }
-//        insertSubview(blurEffectView, at: 0)
-//        
-//        NSLayoutConstraint.activate([
-//            blurEffectView.topAnchor.constraint(equalTo: topAnchor),
-//            blurEffectView.leadingAnchor.constraint(equalTo: leadingAnchor),
-//            blurEffectView.trailingAnchor.constraint(equalTo: trailingAnchor),
-//            blurEffectView.bottomAnchor.constraint(equalTo: bottomAnchor)
-//        ])
-//    }
-//    
-//    // Optional: Allow updating blur style dynamically
-//    func updateBlurStyle(_ style: UIBlurEffect.Style) {
-//        blurEffectView.effect = UIBlurEffect(style: style)
-//    }
-//}

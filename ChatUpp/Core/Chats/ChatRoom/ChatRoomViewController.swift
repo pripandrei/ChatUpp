@@ -95,6 +95,7 @@ final class ChatRoomViewController: UIViewController
         self.performAdditionalSetupForRootView()
         self.configureTableView()
         self.addGestureToTableView()
+        self.addGestureToRootView()
         self.setNavigationBarItems()
         self.addTargetsToButtons()
         self.addKeyboardNotificationObservers()
@@ -294,6 +295,8 @@ final class ChatRoomViewController: UIViewController
             
             isKeyboardHidden = false
             
+            self.rootView.toggleGreetingViewPosition(up: true)
+            
             guard isContextMenuPresented else
             {
                 handleTableViewOffset(usingKeyboardHeight: height)
@@ -311,6 +314,9 @@ final class ChatRoomViewController: UIViewController
         {
             guard self.rootView.stickerCollectionView == nil else { return }
             isKeyboardHidden = true
+            
+            self.rootView.toggleGreetingViewPosition(up: false)
+            
             guard !isContextMenuPresented else {
                 rootView.updateInputBarBottomConstraint(toSize: 0)
                 return
@@ -330,7 +336,7 @@ final class ChatRoomViewController: UIViewController
         ChatRoomSessionManager.activeChatID = nil
     }
     
-    private func dismissInputBarView()
+    @objc private func dismissInputBarView()
     {
         if rootView.stickerCollectionView != nil
         {
@@ -951,7 +957,13 @@ extension ChatRoomViewController
 }
 
 //MARK: - GESTURES
-extension ChatRoomViewController {
+extension ChatRoomViewController
+{
+    private func addGestureToRootView()
+    {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissInputBarView))
+        rootView.addGestureRecognizer(tapGesture)
+    }
     
     private func addGestureToTableView()
     {

@@ -23,11 +23,13 @@ final class ChatRoomRootView: UIView
     private(set) var inputBarHeader          : InputBarHeaderView?
     private(set) var inputBarBottomConstraint: NSLayoutConstraint!
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
+    private var greetingViewCenterYConstraint: NSLayoutConstraint?
 
     private(set) var stickerCollectionView: StickersPackCollectionView?
     private var textViewTrailingItem: MessageTextViewTrailingItemView!
     private var textViewTrailingItemView: UIView!
     let trailingItemState = TrailingItemState()
+    private var greetingView: GreetingView?
     
     private(set) var inputBarContainer: InputBarContainer = InputBarContainer()
     
@@ -221,8 +223,6 @@ final class ChatRoomRootView: UIView
         setupTextViewTrailingItem()
     }
     
-    private var greetingView: GreetingView?
-    
     func setupGreetingView()
     {
         self.greetingView = .init()
@@ -230,9 +230,12 @@ final class ChatRoomRootView: UIView
         
         greetingView?.translatesAutoresizingMaskIntoConstraints = false
         
+        let centerYConstraint = greetingView!.centerYAnchor.constraint(equalTo: centerYAnchor)
+        self.greetingViewCenterYConstraint = centerYConstraint
+        
         NSLayoutConstraint.activate([
+            centerYConstraint,
             greetingView!.centerXAnchor.constraint(equalTo: centerXAnchor),
-            greetingView!.centerYAnchor.constraint(equalTo: centerYAnchor),
             greetingView!.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.6),
             greetingView!.heightAnchor.constraint(equalTo: greetingView!.widthAnchor),
         ])
@@ -278,6 +281,13 @@ final class ChatRoomRootView: UIView
     }
     
     // MARK: - Internal functions
+    
+    func toggleGreetingViewPosition(up: Bool)
+    {
+        UIView.animate(withDuration: 0.3) {
+            self.greetingViewCenterYConstraint?.constant = up ? -120 : 0
+        }
+    }
     
     func updateInputBarBottomConstraint(toSize size: CGFloat) {
         self.inputBarBottomConstraint.constant = size
