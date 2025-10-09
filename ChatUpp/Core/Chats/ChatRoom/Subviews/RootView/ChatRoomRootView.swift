@@ -203,7 +203,7 @@ final class ChatRoomRootView: UIView
     
     deinit
     {
-        print("ChatRoomRootView deinit")
+//        print("ChatRoomRootView deinit")
     }
 
     // MARK: - SETUP CONSTRAINTS
@@ -285,7 +285,7 @@ final class ChatRoomRootView: UIView
     func toggleGreetingViewPosition(up: Bool)
     {
         UIView.animate(withDuration: 0.3) {
-            self.greetingViewCenterYConstraint?.constant = up ? -120 : 0
+            self.greetingViewCenterYConstraint?.constant = up ? -130 : 0
         }
     }
     

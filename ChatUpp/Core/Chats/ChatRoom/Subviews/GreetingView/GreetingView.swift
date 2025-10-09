@@ -9,7 +9,6 @@ import UIKit
 
 final class GreetingView: UIView
 {
-//    private let greetingAnimationNames: [String] = ["hg_5","dd_5","duck_5", "lb_5", "mb_5"]
     private let greetingRLottieView: RLLottieView = .init(renderSize: .init(width: 250, height: 250))
     private var blurredView: UIVisualEffectView?
     
@@ -106,14 +105,12 @@ final class GreetingView: UIView
     
     @objc private func handleTapGesture()
     {
-        print("yes")
         ChatManager.shared.newStickerSubject.send((animationName))
     }
     
     // MARK: - Lottie Setup
     private func setupGreetingRLottieAnimation()
     {
-//        greetingRLottieView.loadAnimation(named: greetingAnimationNames.randomElement() ?? "hg_5")
         greetingRLottieView.loadAnimation(named: animationName)
         greetingRLottieView.setVisible(true)
         DisplayLinkManager.shered.addObject(greetingRLottieView)
@@ -128,7 +125,7 @@ final class GreetingView: UIView
     
     deinit
     {
-        print("deinit GreetingView")
+//        print("deinit GreetingView")
         cleanup()
     }
 }

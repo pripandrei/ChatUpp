@@ -6,7 +6,6 @@
 //
 
 import UIKit
-//import FirebaseAuth
 
 class EmailSignUpViewController: UIViewController {
     
@@ -28,13 +27,12 @@ class EmailSignUpViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         Utilities.setGradientBackground(forView: view)
         controllerMainConfiguration()
     }
     
     deinit {
-        print("Sign Up email deinit !!")
+//        print("Sign Up email deinit !!")
     }
     
 //MARK: - UI Configuration
@@ -58,7 +56,6 @@ class EmailSignUpViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             doorLogo.topAnchor.constraint(equalTo: view.topAnchor, constant: 35),
-//            doorLogo.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 75),
             doorLogo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             doorLogo.heightAnchor.constraint(equalToConstant: 200),
             doorLogo.widthAnchor.constraint(equalToConstant: 230),
@@ -76,7 +73,6 @@ class EmailSignUpViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             provideEmailLabel.topAnchor.constraint(equalTo: doorLogo.bottomAnchor, constant: 0),
-//            provideEmailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 65),
             provideEmailLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
@@ -85,7 +81,6 @@ class EmailSignUpViewController: UIViewController {
     {
         emailSignupField.delegate = textFieldValidator
         emailSignupField.placeholder = "Provide an email"
-//        emailSignupField.borderStyle = .roundedRect
         emailSignupField.translatesAutoresizingMaskIntoConstraints = false
     }
     
@@ -95,7 +90,6 @@ class EmailSignUpViewController: UIViewController {
         passwordSignupField.placeholder = "Provide a password"
 //        passwordSignupField.isSecureTextEntry = true
         
-//        passwordSignupField.borderStyle = .roundedRect
         passwordSignupField.translatesAutoresizingMaskIntoConstraints = false
     }
     
@@ -118,7 +112,6 @@ class EmailSignUpViewController: UIViewController {
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 280),
-//            stackView.widthAnchor.constraint(equalToConstant: 300),
             stackView.heightAnchor.constraint(equalToConstant: 120),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
@@ -138,7 +131,6 @@ class EmailSignUpViewController: UIViewController {
             signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             signUpButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 73),
             signUpButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -73),
-//            signUpButton.widthAnchor.constraint(equalToConstant: 200),
             signUpButton.heightAnchor.constraint(equalToConstant: 40)
         ])
     }

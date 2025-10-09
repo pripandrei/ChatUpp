@@ -18,7 +18,7 @@ final class ImageCropper: NSObject
     }
     
     deinit {
-        print("ImageCropper was deinit")
+//        print("ImageCropper was deinit")
     }
     
     func presentCropViewController(from viewController: UIViewController)

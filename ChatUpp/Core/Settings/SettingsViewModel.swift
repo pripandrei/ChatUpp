@@ -24,7 +24,7 @@ final class SettingsViewModel
         initiateSelf()
     }
     deinit {
-        print("deinit settings view model")
+//        print("deinit settings view model")
     }
     
     private func initiateSelf()
@@ -105,16 +105,4 @@ final class SettingsViewModel
             print("Error signing out", error.localizedDescription)
         }
     }
-
-    
-//    private func updateUserOnlineStatus() async throws {
-//        guard let userId = dbUser?.userId else {return}
-//        try await UserManager.shared.updateUser(with: userId, usingName: nil, onlineStatus: false)
-//    }
-    
-//    func getUserImageAbsoluteURL() async throws -> URL?
-//    {
-//        guard let userID = user?.id, let url = user?.photoUrl else {return nil}
-//        return try await FirebaseStorageManager.shared.getUserImageURL(userID: userID, path: url)
-//    }
 }

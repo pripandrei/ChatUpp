@@ -46,7 +46,7 @@ class ChatCell: UITableViewCell
         fatalError("init(coder:) has not been implemented")
     }
     deinit {
-        print("chatCell was deinit =====")
+//        print("chatCell was deinit =====")
     }
     
     override func layoutSubviews()

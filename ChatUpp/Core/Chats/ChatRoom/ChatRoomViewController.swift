@@ -76,7 +76,7 @@ final class ChatRoomViewController: UIViewController
     }
 
     deinit {
-        print("ChatRoomVC deinit")
+//        print("ChatRoomVC deinit")
         cleanUp()
     }
     
@@ -344,7 +344,6 @@ final class ChatRoomViewController: UIViewController
     
     @objc private func dismissInputBarView()
     {
-        print("no")
         if rootView.stickerCollectionView != nil
         {
             dismissStickerView()

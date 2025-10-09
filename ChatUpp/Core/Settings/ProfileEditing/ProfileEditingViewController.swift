@@ -39,7 +39,7 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     }
     
     deinit {
-        print("ProfileEditingViewController was deinited")
+//        print("ProfileEditingViewController was deinited")
     }
     
     override func viewDidDisappear(_ animated: Bool) {

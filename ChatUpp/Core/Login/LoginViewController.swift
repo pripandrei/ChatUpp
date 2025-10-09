@@ -25,14 +25,13 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     {
         super.viewDidLoad()
         navigationController?.delegate = self
-//        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
         controllerMainSetup()
         Utilities.clearNavigationBarAppearance()
         Utilities.setGradientBackground(forView: view)
     }
   
     deinit {
-        print("Login WAS DEINIT +++")
+//        print("Login WAS DEINIT +++")
     }
     
     private func controllerMainSetup() {

@@ -36,7 +36,7 @@ class UsernameRegistrationViewController: UIViewController {
     }
     
     deinit {
-        print("Username VC was deinited !!!")
+//        print("Username VC was deinited !!!")
     }
     
     // MARK: - BINDING

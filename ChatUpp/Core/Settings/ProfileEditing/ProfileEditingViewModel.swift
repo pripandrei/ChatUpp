@@ -20,7 +20,7 @@ final class ProfileEditingViewModel
     private var imageSampleRepository: ImageSampleRepository?
     
     deinit {
-        print("ProfileEditingViewModel was deinited")
+//        print("ProfileEditingViewModel was deinited")
     }
     
     var userDataItems: [String?]
