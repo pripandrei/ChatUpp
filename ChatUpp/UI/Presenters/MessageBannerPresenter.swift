@@ -16,6 +16,7 @@ struct MessageBannerData
     let message: Message
     let avatar: Data?
     let titleName: String
+    let contentThumbnail: Data?
 }
 
 final class MessageBannerPresenter

@@ -17,5 +17,24 @@ final class MessageNotificationBannerViewModel: SwiftUI.ObservableObject
         self.messageBannerData = messageBannerData
     }
     
+    var messageText: String
+    {
+        switch messageBannerData.message.type
+        {
+        case .text, .imageText, .title:
+            return messageBannerData.message.messageBody
+        case .image:
+            return "Photo"
+        case .sticker:
+            return "Sticker"
+        case .audio:
+            return "Voice message"
+        case .video:
+            return "Video message"
+        case .none:
+            return ""
+        }
+    }
+    
     var onTap: (() -> Void)?
 }

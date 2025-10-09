@@ -582,15 +582,25 @@ extension ChatCellViewModel
     private func showRecentMessageBanner()
     {
         Task { @MainActor in
+            
             let name = chat.isGroup ? chat.name : chatUser?.name
             guard let message = recentMessage,
                   let avatarData = retrieveChatAvatarFromCache(),
                   let name else { return }
             
+            let imageData: Data?
+            if let imagePath = self.recentMessageImageThumbnailPath {
+                imageData = retrieveMessageImageData(imagePath)
+            } else if let sticker = message.sticker {
+                imageData = getStickerThumbnail(name: sticker + "_thumbnail")
+            } else { imageData = nil }
+            
             let bannerData = MessageBannerData(chat: chat,
                                                message: message,
                                                avatar: avatarData,
-                                               titleName: name)
+                                               titleName: name,
+                                               contentThumbnail: imageData
+            )
             
             MessageBannerPresenter.shared.presentBanner(usingBannerData: bannerData)
         }
