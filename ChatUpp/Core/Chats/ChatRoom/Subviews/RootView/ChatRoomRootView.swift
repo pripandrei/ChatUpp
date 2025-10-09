@@ -199,10 +199,10 @@ final class ChatRoomRootView: UIView
         scrollBadgeButton.layer.cornerRadius = scrollBadgeButton.bounds.size.width / 2
     }
     
-//    deinit
-//    {
-//        print("ChatRoomRootView deinit")
-//    }
+    deinit
+    {
+        print("ChatRoomRootView deinit")
+    }
 
     // MARK: - SETUP CONSTRAINTS
     
@@ -219,12 +219,11 @@ final class ChatRoomRootView: UIView
         setupJoinChatRoomButtonConstraints()
         setupActivityIndicatorConstraint()
         setupTextViewTrailingItem()
-        setupGreetingView()
     }
     
     private var greetingView: GreetingView?
     
-    private func setupGreetingView()
+    func setupGreetingView()
     {
         self.greetingView = .init()
         addSubview(greetingView!)
@@ -237,6 +236,19 @@ final class ChatRoomRootView: UIView
             greetingView!.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.6),
             greetingView!.heightAnchor.constraint(equalTo: greetingView!.widthAnchor),
         ])
+    }
+    
+    func removeGreetingView()
+    {
+        guard self.greetingView != nil else {return}
+        
+        UIView.animate(withDuration: 0.5)
+        {
+            self.greetingView?.alpha = 0.0
+        } completion: { _ in
+            self.greetingView?.removeFromSuperview()
+            self.greetingView = nil
+        }
     }
     
     func removeStickerView()

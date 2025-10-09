@@ -25,3 +25,29 @@ extension UIView
         }
     }
 }
+
+extension UIView
+{
+    func addBlurEffect(style: UIBlurEffect.Style = .systemThinMaterialDark,
+                       backgroundColor: UIColor? = nil,
+                       alpha: CGFloat = 0.5) -> UIVisualEffectView
+    {
+        let blurView = UIVisualEffectView(effect: UIBlurEffect(style: style))
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        
+        if let backgroundColor = backgroundColor {
+            blurView.backgroundColor = backgroundColor.withAlphaComponent(alpha)
+        }
+        
+        insertSubview(blurView, at: 0)
+        
+        NSLayoutConstraint.activate([
+            blurView.topAnchor.constraint(equalTo: topAnchor),
+            blurView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            blurView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+        
+        return blurView
+    }
+}

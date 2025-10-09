@@ -28,23 +28,9 @@ final class InputBarContainer: UIView {
         bounds.size.height                        = 80
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear  // Let blur show through
-        createBackgroundBlurEffect()
-    }
-
-    private func createBackgroundBlurEffect()
-    {
-        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
-        blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.translatesAutoresizingMaskIntoConstraints = false
-        blurEffectView.backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor.withAlphaComponent(0.7)
-        insertSubview(blurEffectView, at: 0)
-
-        NSLayoutConstraint.activate([
-            blurEffectView.topAnchor.constraint(equalTo: topAnchor),
-            blurEffectView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            blurEffectView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            blurEffectView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
+        self.blurEffectView = addBlurEffect(style: .systemThinMaterialDark,
+                                            backgroundColor: ColorManager.inputBarMessageContainerBackgroundColor,
+                                            alpha: 0.7)
     }
 }
 

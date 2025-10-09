@@ -19,6 +19,7 @@ enum Stickers
         case people
         case lightningBug
         case stealthMoon
+        case miaBunny
         
         var id: String { rawValue }
         
@@ -33,6 +34,7 @@ enum Stickers
             case .people:  return "People"
             case .stealthMoon:  return "Stealth Moon"
             case .lightningBug: return "Lightning Bug"
+            case .miaBunny: return "Mia Bunny"
             }
         }
         
@@ -47,6 +49,7 @@ enum Stickers
             case .people: return "people_"
             case .stealthMoon: return "sm_"
             case .lightningBug: return "lb_"
+            case .miaBunny: return "mb_"
             }
         }
         
@@ -60,6 +63,7 @@ enum Stickers
             case .people: return 34
             case .huskySiberian: return 24
             case .stealthMoon: return 31
+            case .miaBunny: return 30
             }
         }
         

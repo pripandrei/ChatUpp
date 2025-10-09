@@ -42,10 +42,11 @@ final class InputBarHeaderView: UIView {
     
     // MARK: - Setup
     func setupSubviews() {
-//        backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor
         backgroundColor = .clear
+        self.blurEffectView = addBlurEffect(style: .systemThinMaterialDark,
+                                            backgroundColor: ColorManager.inputBarMessageContainerBackgroundColor,
+                                            alpha: 0.7)
         setupSelfHeightConstraint()
-        createBackgroundBlurEffect()
         setupTitleLabel()
         setupSubtitleLabel()
         setupSymbolIcon()
@@ -54,23 +55,7 @@ final class InputBarHeaderView: UIView {
         setupTextInfoStackView()
         setupImageThumbnailView()
     }
-    
-    private func createBackgroundBlurEffect()
-    {
-        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
-        blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.translatesAutoresizingMaskIntoConstraints = false
-        blurEffectView.backgroundColor = ColorManager.inputBarMessageContainerBackgroundColor.withAlphaComponent(0.7)
-        insertSubview(blurEffectView, at: 0)
-
-        NSLayoutConstraint.activate([
-            blurEffectView.topAnchor.constraint(equalTo: topAnchor),
-            blurEffectView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            blurEffectView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            blurEffectView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-    }
-    
+ 
     private func setupTitleLabel() {
         titleLabel = UILabel()
         titleLabel?.textColor = ColorManager.actionButtonsTintColor

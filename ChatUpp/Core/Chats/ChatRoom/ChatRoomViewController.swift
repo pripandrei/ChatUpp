@@ -76,7 +76,7 @@ final class ChatRoomViewController: UIViewController
     }
 
     deinit {
-//        print("ChatRoomVC deinit")
+        print("ChatRoomVC deinit")
         cleanUp()
     }
     
@@ -92,13 +92,22 @@ final class ChatRoomViewController: UIViewController
 
     private func setupController()
     {
-        self.rootView.setInputBarParametersVisibility(shouldHideJoinButton: viewModel.shouldHideJoinGroupOption)
+        self.performAdditionalSetupForRootView()
         self.configureTableView()
         self.addGestureToTableView()
         self.setNavigationBarItems()
         self.addTargetsToButtons()
         self.addKeyboardNotificationObservers()
         self.setupBinding()
+    }
+    
+    private func performAdditionalSetupForRootView()
+    {
+        if viewModel.conversation == nil
+        {
+            self.rootView.setupGreetingView()
+        }
+        self.rootView.setInputBarParametersVisibility(shouldHideJoinButton: viewModel.shouldHideJoinGroupOption)
     }
     
     private func configureTableView()
