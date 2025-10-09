@@ -9,9 +9,14 @@ import UIKit
 
 final class GreetingView: UIView
 {
-    private let greetingAnimationNames: [String] = ["hg_5","dd_5","duck_5", "lb_5", "mb_5"]
+//    private let greetingAnimationNames: [String] = ["hg_5","dd_5","duck_5", "lb_5", "mb_5"]
     private let greetingRLottieView: RLLottieView = .init(renderSize: .init(width: 250, height: 250))
     private var blurredView: UIVisualEffectView?
+    
+    private let animationName: String = {
+        let animationName = ["hg_5","dd_5","duck_5", "lb_5", "mb_5"].randomElement() ?? "hg_5"
+        return animationName
+    }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -39,6 +44,7 @@ final class GreetingView: UIView
         setupView()
         setupConstraints()
         setupGreetingRLottieAnimation()
+        setupGesture()
     }
     
     required init?(coder: NSCoder) {
@@ -90,10 +96,25 @@ final class GreetingView: UIView
         ])
     }
     
+    //MARK: - Gesture
+    
+    private func setupGesture()
+    {
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        addGestureRecognizer(tapGestureRecognizer)
+    }
+    
+    @objc private func handleTapGesture()
+    {
+        print("yes")
+        ChatManager.shared.newStickerSubject.send((animationName))
+    }
+    
     // MARK: - Lottie Setup
     private func setupGreetingRLottieAnimation()
     {
-        greetingRLottieView.loadAnimation(named: greetingAnimationNames.randomElement() ?? "hg_5")
+//        greetingRLottieView.loadAnimation(named: greetingAnimationNames.randomElement() ?? "hg_5")
+        greetingRLottieView.loadAnimation(named: animationName)
         greetingRLottieView.setVisible(true)
         DisplayLinkManager.shered.addObject(greetingRLottieView)
     }

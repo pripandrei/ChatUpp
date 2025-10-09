@@ -23,11 +23,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private(set) var conversation        : Chat?
     private(set) var participant         : User?
-    private(set) var messageClusters     : [MessageCluster] = []
     private(set) var authUser            : AuthenticatedUserData = (try! AuthenticationManager.shared.getAuthenticatedUser())
     private(set) var lastPaginatedMessage: Message?
     private var cancellables             = Set<AnyCancellable>()
     
+    @Published private(set) var messageClusters     : [MessageCluster] = []
     @Published private(set) var unseenMessagesCount: Int
     @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []

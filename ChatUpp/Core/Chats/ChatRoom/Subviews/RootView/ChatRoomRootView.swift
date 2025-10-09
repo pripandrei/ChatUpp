@@ -241,11 +241,11 @@ final class ChatRoomRootView: UIView
         ])
     }
     
-    func removeGreetingView()
+    func removeGreetingViewIfNeeded()
     {
         guard self.greetingView != nil else {return}
         
-        UIView.animate(withDuration: 0.5)
+        UIView.animate(withDuration: 0.4)
         {
             self.greetingView?.alpha = 0.0
         } completion: { _ in

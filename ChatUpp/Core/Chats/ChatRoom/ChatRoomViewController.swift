@@ -173,6 +173,12 @@ final class ChatRoomViewController: UIViewController
     
     private func setupBinding()
     {
+        viewModel.$messageClusters
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] clusters in
+                if !clusters.isEmpty { self?.rootView.removeGreetingViewIfNeeded() }
+            }.store(in: &subscriptions)
+        
         viewModel.$unseenMessagesCount
             .receive(on: DispatchQueue.main)
             .sink { [weak self] unseenCount in
@@ -338,6 +344,7 @@ final class ChatRoomViewController: UIViewController
     
     @objc private func dismissInputBarView()
     {
+        print("no")
         if rootView.stickerCollectionView != nil
         {
             dismissStickerView()
@@ -773,6 +780,8 @@ extension ChatRoomViewController {
     
     func createStickerMessage(_ path: String)
     {
+        viewModel.ensureConversationExists()
+        
         let media = MessageMediaParameters(stickerPath: path)
         let message = viewModel.createMessageLocally(ofType: .sticker,
                                                      text: nil,
