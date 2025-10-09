@@ -11,12 +11,13 @@ final class AlgoliaSearchManager
     
     private init()
     {
-        let app_ID = ProcessInfo.processInfo.environment["ALGOLIA_APP_ID"] ?? ""
-        let users_API_Key = ProcessInfo.processInfo.environment["ALGOLIA_API_KEY_USERS"] ?? ""
-        let groups_API_Key = ProcessInfo.processInfo.environment["ALGOLIA_API_KEY_GROUPS"] ?? ""
+        guard let keys = AlgoliaAPIKeys.load() else
+        {
+            fatalError("⚠️ Missing Algolia credentials — please configure APIKeys.plist")
+        }
         
-        usersClient = try! SearchClient(appID: app_ID, apiKey: users_API_Key)
-        groupsClient = try! SearchClient(appID: app_ID, apiKey: groups_API_Key)
+        usersClient = try! SearchClient(appID: keys.appID, apiKey: keys.usersKey)
+        groupsClient = try! SearchClient(appID: keys.appID, apiKey: keys.groupsKey)
     }
     
     func performSearch(_ searchText: String) async -> AlgoliaSearchResult? {
