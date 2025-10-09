@@ -196,3 +196,85 @@ protocol ObjectRenderable: AnyObject
 {
     func renderNextFrame()
 }
+
+//
+//// MARK: this is just a thumbnail creation for test
+//extension RLLottieView
+//{
+//    func saveFirstFrameThumbnail(named fileName: String) async
+//    {
+//        // Only generate thumbnails for "mb_" animations
+////        guard fileName.hasPrefix("mb_") else { return }
+//
+//        guard let animation else {
+//            print("❌ No animation loaded for \(fileName)")
+//            return
+//        }
+//
+//        guard let buffer else {
+//            print("❌ No render buffer available for \(fileName)")
+//            return
+//        }
+//
+//        let width = Int(renderSize.width)
+//        let height = Int(renderSize.height)
+//
+//        // --- Render first frame ---
+//        await StickerAnimationManager.shared.render(
+//            animation: animation,
+//            frame: 0,
+//            buffer: buffer,
+//            size: renderSize
+//        )
+//
+//        // --- Convert buffer → CGImage ---
+//        guard let context = CGContext(
+//            data: buffer,
+//            width: width,
+//            height: height,
+//            bitsPerComponent: 8,
+//            bytesPerRow: width * 4,
+//            space: cachedColorSpace,
+//            bitmapInfo: cachedBitmapInfo.rawValue
+//        ),
+//        let cgImage = context.makeImage() else {
+//            print("❌ Failed to create CGImage for \(fileName)")
+//            return
+//        }
+//
+//        // --- Downscale to 70×70 ---
+//        let targetSize = CGSize(width: 70, height: 70)
+//        UIGraphicsBeginImageContextWithOptions(targetSize, false, 1.0)
+//        UIImage(cgImage: cgImage).draw(in: CGRect(origin: .zero, size: targetSize))
+//        let scaledImage = UIGraphicsGetImageFromCurrentImageContext()
+//        UIGraphicsEndImageContext()
+//
+//        guard let pngData = scaledImage?.pngData() else {
+//            print("❌ Failed to create PNG data for \(fileName)")
+//            return
+//        }
+//
+//        // --- Save to your custom directory ---
+//        let customDirPath = "/Users/andrei/Desktop/Sticker_thumb"
+//        let customDirURL = URL(fileURLWithPath: customDirPath, isDirectory: true)
+//
+//        let fileManager = FileManager.default
+//        if !fileManager.fileExists(atPath: customDirURL.path) {
+//            do {
+//                try fileManager.createDirectory(at: customDirURL, withIntermediateDirectories: true)
+//            } catch {
+//                print("❌ Failed to create directory:", error)
+//                return
+//            }
+//        }
+//
+//        let fileURL = customDirURL.appendingPathComponent(fileName + ".png")
+//
+//        do {
+//            try pngData.write(to: fileURL)
+//            print("✅ Thumbnail saved at:", fileURL.path)
+//        } catch {
+//            print("❌ Failed to save PNG:", error)
+//        }
+//    }
+//}

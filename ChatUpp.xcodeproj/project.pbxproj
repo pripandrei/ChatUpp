@@ -386,7 +386,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		755BEB392E9760BC0017577E /* MiaBunny */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MiaBunny; sourceTree = "<group>"; };
+		755BF3BA2E982AA10017577E /* MiaBunny */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MiaBunny; sourceTree = "<group>"; };
 		756E689F2E95692F00C5FDB9 /* StealthMoon */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = StealthMoon; sourceTree = "<group>"; };
 		756E691C2E9569F400C5FDB9 /* LightningBug */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LightningBug; sourceTree = "<group>"; };
 		756E698B2E956A2F00C5FDB9 /* HuskySiberian */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = HuskySiberian; sourceTree = "<group>"; };
@@ -740,7 +740,7 @@
 		7587D3A42E6392F100DEE900 /* Stikers */ = {
 			isa = PBXGroup;
 			children = (
-				755BEB392E9760BC0017577E /* MiaBunny */,
+				755BF3BA2E982AA10017577E /* MiaBunny */,
 				756E6BB52E956B6300C5FDB9 /* Duck */,
 				756E6B552E956B0C00C5FDB9 /* DolphineDolph */,
 				756E6AD82E956ADC00C5FDB9 /* People */,
@@ -1432,7 +1432,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				755BEB392E9760BC0017577E /* MiaBunny */,
+				755BF3BA2E982AA10017577E /* MiaBunny */,
 				756E689F2E95692F00C5FDB9 /* StealthMoon */,
 				756E691C2E9569F400C5FDB9 /* LightningBug */,
 				756E698B2E956A2F00C5FDB9 /* HuskySiberian */,
