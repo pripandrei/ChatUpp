@@ -12,27 +12,32 @@ import UIKit
 class KeyboardService: NSObject
 {
     static var shared = KeyboardService()
+    
     var measuredSize: CGRect = CGRect.zero
+    var isKeyboardVisible: Bool = false
 
     private var tempTextField: UITextField?
     
-    @objc class func keyboardHeight() -> CGFloat
+//    static func keyboardHeight() -> CGFloat
+//    {
+//        return KeyboardService.shared.measuredSize.size.height
+//    }
+//    
+    func keyboardHeight() -> CGFloat
     {
-        let keyboardSize = KeyboardService.keyboardSize()
-        return keyboardSize.size.height
-    }
-
-    @objc class func keyboardSize() -> CGRect
-    {
-        return shared.measuredSize
+        return measuredSize.size.height
     }
 
     private func observeKeyboardNotifications()
     {
         let center = NotificationCenter.default
         center.addObserver(self,
-                           selector: #selector(self.keyboardChange),
+                           selector: #selector(self.keyboardDidShow),
                            name: UIResponder.keyboardWillShowNotification,
+                           object: nil)
+        center.addObserver(self,
+                           selector: #selector(self.keyboardDidHidde),
+                           name: UIResponder.keyboardDidHideNotification,
                            object: nil)
     }
 
@@ -46,9 +51,16 @@ class KeyboardService: NSObject
         }
         tempTextField?.becomeFirstResponder()
     }
-
-    @objc private func keyboardChange(_ notification: Notification)
+    
+    @objc private func keyboardDidHidde(_ notification: Notification)
     {
+        self.isKeyboardVisible = false
+    }
+
+    @objc private func keyboardDidShow(_ notification: Notification)
+    {
+        self.isKeyboardVisible = true
+        
         guard measuredSize == CGRect.zero,
               let info = notification.userInfo,
               let value = info[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
@@ -57,6 +69,7 @@ class KeyboardService: NSObject
         measuredSize = value.cgRectValue
         tempTextField?.resignFirstResponder()
         tempTextField?.removeFromSuperview()
+        tempTextField = nil
     }
 
     override init()

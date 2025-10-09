@@ -201,7 +201,9 @@ extension ChatRoomNavigationBar
             
             self.isHidden = true
             UIView.animate(withDuration: 0.3, animations: {
-                self.temporaryImageView.center    = window.center
+                let isKeyboardVisible = KeyboardService.shared.isKeyboardVisible
+                let shiftedPoint: CGPoint = .init(x: window.center.x, y: window.center.y * 0.75)
+                self.temporaryImageView.center    = isKeyboardVisible ? shiftedPoint : window.center
                 self.temporaryImageView.transform = CGAffineTransform(scaleX: 8, y: 8)
                 self.temporaryDimmView.alpha      = 1
             })
@@ -222,7 +224,6 @@ extension ChatRoomNavigationBar
         
         private func setupTemporaryDimmView(withFrame frame: CGRect) -> UIView {
             let dimmView             = UIView(frame: frame)
-//            dimmView.backgroundColor = .black
             dimmView.alpha           = 0
             window?.addSubview(dimmView)
             

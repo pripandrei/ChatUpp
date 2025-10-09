@@ -254,7 +254,7 @@ final class ChatRoomViewController: UIViewController
                     return
                 }
                 
-                let height = KeyboardService.keyboardHeight()
+                let height = KeyboardService.shared.keyboardHeight()
                 UIView.animate(withDuration: 0.27) {
                     self.handleTableViewOffset(usingKeyboardHeight: height)
                     self.rootView.layoutIfNeeded()
@@ -363,7 +363,7 @@ final class ChatRoomViewController: UIViewController
     {
         rootView.showStickerIcon()
         UIView.animate(withDuration: 0.27) {
-            self.handleTableViewOffset(usingKeyboardHeight: KeyboardService.keyboardHeight())
+            self.handleTableViewOffset(usingKeyboardHeight: KeyboardService.shared.keyboardHeight())
             self.rootView.layoutIfNeeded()
         } completion: { _ in
             self.rootView.removeStickerView()
