@@ -219,6 +219,24 @@ final class ChatRoomRootView: UIView
         setupJoinChatRoomButtonConstraints()
         setupActivityIndicatorConstraint()
         setupTextViewTrailingItem()
+        setupGreetingView()
+    }
+    
+    private var greetingView: GreetingView?
+    
+    private func setupGreetingView()
+    {
+        self.greetingView = .init()
+        addSubview(greetingView!)
+        
+        greetingView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            greetingView!.centerXAnchor.constraint(equalTo: centerXAnchor),
+            greetingView!.centerYAnchor.constraint(equalTo: centerYAnchor),
+            greetingView!.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.6),
+            greetingView!.heightAnchor.constraint(equalTo: greetingView!.widthAnchor),
+        ])
     }
     
     func removeStickerView()

@@ -49,6 +49,7 @@
 		755A3F7B2AD0689500739861 /* ChatsTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */; };
 		755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */; };
 		755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F9F2AD2F2C100739861 /* Coordinator.swift */; };
+		755BEA9C2E9723320017577E /* GreetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755BEA9B2E97232E0017577E /* GreetingView.swift */; };
 		7563F87C2ADE25E6006FA374 /* ConversationTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F87B2ADE25E6006FA374 /* ConversationTableViewDataSource.swift */; };
 		7563F8802ADF6E31006FA374 /* FirestoreCollectionName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */; };
 		7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */; };
@@ -264,6 +265,7 @@
 		755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatsTableViewDataSource.swift; sourceTree = "<group>"; };
 		755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCellViewModel.swift; sourceTree = "<group>"; };
 		755A3F9F2AD2F2C100739861 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		755BEA9B2E97232E0017577E /* GreetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingView.swift; sourceTree = "<group>"; };
 		7563F87B2ADE25E6006FA374 /* ConversationTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewDataSource.swift; sourceTree = "<group>"; };
 		7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreCollectionName.swift; sourceTree = "<group>"; };
 		7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extensions.swift"; sourceTree = "<group>"; };
@@ -435,6 +437,7 @@
 		75007AF02C5564CF006B1D6E /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
+				755BEA9A2E9722FE0017577E /* GreetingView */,
 				75AD5EB22E7B22710075377B /* RootView */,
 				75AD5EAE2E7B05480075377B /* InputBar */,
 				75AD5EAC2E7B050E0075377B /* NavigationBar */,
@@ -581,6 +584,14 @@
 				755A3F9F2AD2F2C100739861 /* Coordinator.swift */,
 			);
 			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		755BEA9A2E9722FE0017577E /* GreetingView */ = {
+			isa = PBXGroup;
+			children = (
+				755BEA9B2E97232E0017577E /* GreetingView.swift */,
+			);
+			path = GreetingView;
 			sourceTree = "<group>";
 		};
 		7563F87D2ADE2C1A006FA374 /* ConversationTableView */ = {
@@ -1684,6 +1695,7 @@
 				752DE4102D219557003AC40C /* UserView.swift in Sources */,
 				7563F8C42AE8D2D1006FA374 /* String+Extensions.swift in Sources */,
 				75AD5EBE2E7C9B9E0075377B /* MessageType.swift in Sources */,
+				755BEA9C2E9723320017577E /* GreetingView.swift in Sources */,
 				75B5C4BC2A49AB0A00F63A5A /* SceneDelegate.swift in Sources */,
 				75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */,
 				75BA7E4F2D34AE0C00A4C508 /* IndexPath+Extensions.swift in Sources */,

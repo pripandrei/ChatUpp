@@ -80,16 +80,7 @@ class RLLottieView: UIView, ObjectRenderable
         self.startTime = CACurrentMediaTime()
         self.randomOffset = TimeInterval.random(in: 0..<2.0)
     }
-    
-//    private nonisolated func getAnimation(name: String) -> OpaquePointer?
-//    {
-//        guard let path = Bundle.main.path(forResource: name, ofType: "json"),
-//              let anim = lottie_animation_from_file(path) else {
-//            return nil
-//        }
-//        return anim
-//    }
-    
+
     private nonisolated func getAnimation(name: String) -> OpaquePointer?
     {
         let fileName = name + ".json"

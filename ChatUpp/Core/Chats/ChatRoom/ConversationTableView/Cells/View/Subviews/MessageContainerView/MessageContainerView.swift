@@ -59,10 +59,31 @@ final class MessageContainerView: ContainerView
         return ColorManager.color(for: senderID ?? "12345")
     }
     
-    override init()
+//    override init()
+//    {
+//        super.init()
+//        setupSelf()
+//        setupMessageLabel()
+//        setupMessageComonentsView()
+//        configureMessageImageView()
+//    }
+    
+//    private override init(spacing: CGFloat = 0, margin: UIEdgeInsets = .zero)
+//    {
+//        let spacing = 2.0
+//        let margins: UIEdgeInsets = .init(top: 6, left: 10, bottom: 6, right: 10)
+//        super.init(spacing: spacing, margin: margin)
+//        setupSelf()
+//        setupMessageLabel()
+//        setupMessageComonentsView()
+//        configureMessageImageView()
+//    }
+    
+    init()
     {
-        super.init()
-        setupSelf()
+        super.init(spacing: 2.0, margin: .init(top: 6, left: 10, bottom: 6, right: 10))
+        layer.cornerRadius = 15
+        clipsToBounds = true
         setupMessageLabel()
         setupMessageComonentsView()
         configureMessageImageView()
