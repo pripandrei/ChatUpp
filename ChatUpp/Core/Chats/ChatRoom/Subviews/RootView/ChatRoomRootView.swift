@@ -177,7 +177,7 @@ final class ChatRoomRootView: UIView
     // MARK: Internal variables
     var tableViewInitialTopInset: CGFloat
     {
-        let keyboardHeight = KeyboardService.shared.keyboardHeight()
+        let keyboardHeight = KeyboardService.shared.keyboardHeight
         return isKeyboardShown() ? CGFloat(keyboardHeight - 30) : CGFloat(0)
     }
     

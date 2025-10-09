@@ -18,12 +18,7 @@ class KeyboardService: NSObject
 
     private var tempTextField: UITextField?
     
-//    static func keyboardHeight() -> CGFloat
-//    {
-//        return KeyboardService.shared.measuredSize.size.height
-//    }
-//    
-    func keyboardHeight() -> CGFloat
+    var keyboardHeight: CGFloat
     {
         return measuredSize.size.height
     }

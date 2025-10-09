@@ -8,7 +8,8 @@
 import Foundation
 import UIKit
 
-protocol TextViewShadowConfigurable: AnyObject {
+protocol TextViewShadowConfigurable: AnyObject
+{
     var innerTopShadowLayer: CALayer! {get set}
     var innerBottomShadowLayer: CALayer! {get set}
     func setupTopShadow()
