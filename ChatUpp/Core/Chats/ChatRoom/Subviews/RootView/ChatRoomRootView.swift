@@ -555,7 +555,7 @@ extension ChatRoomRootView
     private func createBackgroundView() -> UIView
     {
         let view = UIView()
-        let backgroundImageView = UIImageView(image: UIImage(named: "chatRoom_background_1"))
+        let backgroundImageView = UIImageView(image: UIImage(named: "chatRoom_background_3"))
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.frame = view.bounds
         backgroundImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -565,9 +565,9 @@ extension ChatRoomRootView
     
     private func createBackgroundBlurEffect(for imageView: UIView)
     {
-        let blurEffect = UIBlurEffect(style: .systemChromeMaterialDark)
+        let blurEffect = UIBlurEffect(style: .systemMaterialDark)
         let blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.alpha = 0.8
+        blurEffectView.alpha = 0.6
 //        blurEffectView.layer.opacity = 0.8
         blurEffectView.frame = imageView.bounds
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
