@@ -62,7 +62,7 @@ final class ChatRoomRootView: UIView
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
         
-        tableView.backgroundView = createBackgroundImageView()
+        tableView.backgroundView = createBackgroundView()
         createBackgroundBlurEffect(for: tableView.backgroundView!)
         
         registerCells(for: tableView)
@@ -552,15 +552,20 @@ extension ChatRoomRootView
 //MARK: - setup table view background
 extension ChatRoomRootView
 {
-    private func createBackgroundImageView() -> UIImageView {
+    private func createBackgroundView() -> UIView
+    {
+        let view = UIView()
         let backgroundImageView = UIImageView(image: UIImage(named: "chatRoom_background_1"))
         backgroundImageView.contentMode = .scaleAspectFill
-        return backgroundImageView
+        backgroundImageView.frame = view.bounds
+        backgroundImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(backgroundImageView)
+        return view
     }
     
     private func createBackgroundBlurEffect(for imageView: UIView)
     {
-        let blurEffect = UIBlurEffect(style: .systemThinMaterialDark)
+        let blurEffect = UIBlurEffect(style: .systemChromeMaterialDark)
         let blurEffectView = UIVisualEffectView(effect: blurEffect)
         blurEffectView.alpha = 0.8
 //        blurEffectView.layer.opacity = 0.8

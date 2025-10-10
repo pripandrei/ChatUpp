@@ -95,7 +95,6 @@ final class ChatRoomViewController: UIViewController
         self.performAdditionalSetupForRootView()
         self.configureTableView()
         self.addGestureToTableView()
-        self.addGestureToRootView()
         self.setNavigationBarItems()
         self.addTargetsToButtons()
         self.addKeyboardNotificationObservers()
@@ -967,19 +966,20 @@ extension ChatRoomViewController
 //MARK: - GESTURES
 extension ChatRoomViewController
 {
-    private func addGestureToRootView()
-    {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissInputBarView))
-        rootView.addGestureRecognizer(tapGesture)
-    }
-    
     private func addGestureToTableView()
     {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTablePan))
         panGesture.delegate = self
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissInputBarView))
+        
+        tapGesture.delegate = self
+        tapGesture.cancelsTouchesInView = false
+        
         rootView.tableView.addGestureRecognizer(panGesture)
+        rootView.tableView.backgroundView?.addGestureRecognizer(tapGesture)
     }
-    
+
     private func addGestureToCloseBtn()
     {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeInputBarHeaderView))
@@ -1395,7 +1395,7 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
             guard translation.x < 0 else {return}
             
             let absX = abs(translationX)
-
+            
             if absX >= dragTreshhold
             {
                 let excess = absX - dragTreshhold
@@ -1423,12 +1423,16 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
                     text: dragableCell?.messageText,
                     image: dragableCell?.messageImage)
             )
-//            self.rootView.inputBarHeader?.updateTitleLabel(usingText: dragableCell?.messageSenderName)
+            
             self.dragableCell = nil
         default: break
         }
     }
+}
 
+//MARK: - Gesture delegate
+extension ChatRoomViewController
+{
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool
     {
         guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {
@@ -1451,6 +1455,20 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
         
         return true
     }
+    //    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+    //                           shouldReceive touch: UITouch) -> Bool
+    //    {
+    //        guard let stickerCollection = rootView.stickerCollectionView else {return true}
+    //
+    //        let tapLocation = touch.location(in: rootView)
+    //
+    //        if stickerCollection.frame.contains(tapLocation) || rootView.inputBarContainer.frame.contains(tapLocation)
+    ////            || rootView.inputBarHeader?.frame.contains(tapLocation)
+    //        {
+    //            return false
+    //        }
+    //        return true
+    //    }
 }
 
 
