@@ -408,7 +408,7 @@ extension ChatRoomRootView
             self.inputBarHeader?.transform = CGAffineTransform(translationX: 0, y: 80)
             self.layoutIfNeeded()
             
-            UIView.animate(withDuration: 0.4)
+            UIView.animate(withDuration: 0.3)
             {
                 self.inputBarHeader?.transform = .identity
                 self.updateTableViewContentAttributes(isInputBarHeaderRemoved: false)

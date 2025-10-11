@@ -373,7 +373,7 @@ final class ChatRoomViewController: UIViewController
     {
         guard let inputBarHeaderView = rootView.inputBarHeader else {return}
 
-        UIView.animate(withDuration: 0.2) {
+        UIView.animate(withDuration: 0.3) {
             self.startInputBarHeaderViewDestruction(inputBarHeaderView)
         } completion: { complition in
             if complition {
