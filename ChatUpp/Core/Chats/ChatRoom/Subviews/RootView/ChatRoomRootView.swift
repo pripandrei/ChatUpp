@@ -403,20 +403,17 @@ extension ChatRoomRootView
     {
         if self.inputBarHeader == nil
         {
-            UIView.animate(withDuration: 0.4)
-            {
-                self.updateTableViewContentAttributes(isInputBarHeaderRemoved: false)
-                self.scrollToBottomBtnBottomConstraint.constant -= 45
-            }
-            
             inputBarHeader = InputBarHeaderView(mode: mode)
             setupInputBarHeaderConstraints()
             self.inputBarHeader?.transform = CGAffineTransform(translationX: 0, y: 80)
-            
             self.layoutIfNeeded()
             
-            UIView.animate(withDuration: 0.4) {
+            UIView.animate(withDuration: 0.4)
+            {
                 self.inputBarHeader?.transform = .identity
+                self.updateTableViewContentAttributes(isInputBarHeaderRemoved: false)
+                self.scrollToBottomBtnBottomConstraint.constant -= 45
+                self.layoutIfNeeded()
             }
         } else {
             self.inputBarHeader?.applyMode(mode)
