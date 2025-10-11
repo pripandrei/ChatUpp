@@ -1351,7 +1351,9 @@ extension ChatRoomViewController
         return makeTargetedDismissPreview(for: configuration)
     }
     
-    func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?)
+    func tableView(_ tableView: UITableView,
+                   willDisplayContextMenu configuration: UIContextMenuConfiguration,
+                   animator: UIContextMenuInteractionAnimating?)
     {
         if rootView.inputBarBottomConstraint.constant != 0.0 {
             isContextMenuPresented = true
@@ -1362,10 +1364,9 @@ extension ChatRoomViewController
         actionOption: InputBarHeaderView.Mode
     )
     {
-        self.rootView.activateInputBarHeaderView(mode: actionOption) 
+        self.rootView.setupInputBarHeaderView(mode: actionOption) 
         self.addGestureToCloseBtn()
         self.rootView.messageTextView.becomeFirstResponder()
-//        self.rootView.inputBarHeader?.updateSubtitle(text)
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
     }
 }
@@ -1417,6 +1418,7 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
                 self.dragableCell?.center = self.draggingCellOriginalCenter
             }
             self.hapticWasInitiated = false
+            self.rootView.messageTextView.text = nil
             self.handleContextMenuSelectedAction(
                 actionOption: .reply(
                     senderName: dragableCell?.messageSenderName,

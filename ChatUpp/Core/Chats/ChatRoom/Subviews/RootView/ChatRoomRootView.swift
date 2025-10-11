@@ -397,30 +397,36 @@ extension ChatRoomRootView
 }
 
 // MARK: - SETUP EDIT VIEW
-extension ChatRoomRootView 
+extension ChatRoomRootView
 {
-    private func setupInputBarHeaderView(mode: InputBarHeaderView.Mode)
+    func setupInputBarHeaderView(mode: InputBarHeaderView.Mode)
     {
-        destroyInputBarHeaderView()
-        inputBarHeader = InputBarHeaderView(mode: mode)
-        
-        setupInputBarHeaderConstraints()
-//        inputBarHeader!.setupSubviews()
-    }
-    
-    func activateInputBarHeaderView(mode: InputBarHeaderView.Mode)
-    {
-        if inputBarHeader == nil {
-            updateTableViewContentAttributes(isInputBarHeaderRemoved: false)
+        if self.inputBarHeader == nil
+        {
+            UIView.animate(withDuration: 0.4)
+            {
+                self.updateTableViewContentAttributes(isInputBarHeaderRemoved: false)
+                self.scrollToBottomBtnBottomConstraint.constant -= 45
+            }
+            
+            inputBarHeader = InputBarHeaderView(mode: mode)
+            setupInputBarHeaderConstraints()
+            self.inputBarHeader?.transform = CGAffineTransform(translationX: 0, y: 80)
+            
+            self.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.4) {
+                self.inputBarHeader?.transform = .identity
+            }
+        } else {
+            self.inputBarHeader?.applyMode(mode)
+            self.inputBarHeader?.animateComponents(isUpdating: true)
         }
-        scrollToBottomBtnBottomConstraint.constant -= inputBarHeader == nil ? 45 : 0
-//        sendEditMessageButton.isHidden = !(mode == InputBarHeaderView.Mode.edit)
-        sendEditMessageButton.isHidden = !{
+        
+        self.sendEditMessageButton.isHidden = !{
             if case .edit = mode { return true }
             return false
         }()
-        setupInputBarHeaderView(mode: mode)
-        self.layoutIfNeeded()
     }
     
     func destroyInputBarHeaderView() {
@@ -478,7 +484,8 @@ extension ChatRoomRootView
         ])
     }
     
-    private func setupInputBarHeaderConstraints() {
+    private func setupInputBarHeaderConstraints()
+    {
         inputBarContainer.addSubview(inputBarHeader!)
         inputBarContainer.sendSubviewToBack(inputBarHeader!)
         

@@ -54,6 +54,7 @@ final class InputBarHeaderView: UIView {
         setupCloseButton()
         setupTextInfoStackView()
         setupImageThumbnailView()
+        animateComponents(isUpdating: false)
     }
  
     private func setupTitleLabel() {
@@ -81,13 +82,29 @@ final class InputBarHeaderView: UIView {
             symbolIcon!.widthAnchor.constraint(equalTo: symbolIcon!.heightAnchor),
             symbolIcon!.topAnchor.constraint(equalTo: topAnchor, constant: 10)
         ])
-        
-        symbolIcon?.transform = .init(scaleX: 0.01, y: 0.01)
-        executeAfter(seconds: 0.1) {
-            self.animateSymbolImage()
-        }
     }
     
+    func animateComponents(isUpdating: Bool)
+    {
+        if !isUpdating { closeButton?.transform = .init(scaleX: 0.01, y: 0.01) }
+        
+        symbolIcon?.transform = .init(scaleX: 0.01, y: 0.01)
+        imageThumbnail?.transform = .init(scaleX: 0.01, y: 0.01)
+        subtitleLabel?.alpha = 0.0
+        titleLabel?.alpha = 0.0
+        
+        executeAfter(seconds: 0.2)
+        {
+            UIView.animate(withDuration: 0.3) {
+                self.symbolIcon?.transform = .identity
+                self.closeButton?.transform = .identity
+                self.imageThumbnail?.transform = .identity
+                self.subtitleLabel?.alpha = 1.0
+                self.titleLabel?.alpha = 1.0
+            }
+        }
+    }
+
     private func setupSeparator() {
         separator = UILabel()
         separator?.backgroundColor = ColorManager.actionButtonsTintColor
@@ -181,15 +198,6 @@ final class InputBarHeaderView: UIView {
            let text = text
         {
             titleLabel?.text = currentText + text
-        }
-    }
-    
-    private func animateSymbolImage()
-    {
-//        symbolIcon?.transform = .init(scaleX: 0.01, y: 0.01)
-        
-        UIView.animate(withDuration: 0.5) {
-            self.symbolIcon?.transform = .identity
         }
     }
 }

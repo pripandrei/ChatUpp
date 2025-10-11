@@ -56,7 +56,7 @@ final class MessageMenuBuilder
     {
         UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { _ in
             DispatchQueue.main.async { [weak self] in
-
+                self?.rootView.messageTextView.text = nil
                 guard let sender = self?.viewModel.getMessageSender(message.senderId) else {return}
                 self?.viewModel.currentlyReplyToMessageID = message.id
  
