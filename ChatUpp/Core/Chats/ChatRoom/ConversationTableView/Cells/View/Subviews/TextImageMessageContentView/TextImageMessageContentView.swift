@@ -10,7 +10,7 @@ import UIKit
 import YYText
 import Combine
 
-extension MessageContainerView
+extension TextImageMessageContentView
 {
 //    static var maxWidth: CGFloat = 295.0
     static var maxWidth: CGFloat
@@ -21,11 +21,11 @@ extension MessageContainerView
     }
 }
 
-final class MessageContainerView: ContainerView
+final class TextImageMessageContentView: ContainerView
 {
     private var messageImageViewBottomConstraint: NSLayoutConstraint?
     
-    private var viewModel: MessageContainerViewModel!
+    private var viewModel: MessageContentViewModel!
     private var messageComponentsView: MessageComponentsView = MessageComponentsView()
     private var messageLabel = MessageLabel()
     private(set) var messageImageView = UIImageView()
@@ -42,7 +42,7 @@ final class MessageContainerView: ContainerView
     var handleContentRelayout: (() -> Void)?
     
     var maxMessageWidth: CGFloat {
-        return MessageContainerView.maxWidth - 23
+        return TextImageMessageContentView.maxWidth - 23
     }
 
     private lazy var messageSenderNameLabel: UILabel = {
@@ -95,7 +95,7 @@ final class MessageContainerView: ContainerView
 }
 
 //MARK: - Setup self
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private func setupSelf()
     {
@@ -107,7 +107,7 @@ extension MessageContainerView
 }
 
 //MARK: - message container configuration
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private func setupBindings()
     {
@@ -141,9 +141,9 @@ extension MessageContainerView
 }
 
 //MARK: - message container configuration
-extension MessageContainerView
+extension TextImageMessageContentView
 {
-    func configure(with viewModel: MessageContainerViewModel,
+    func configure(with viewModel: MessageContentViewModel,
                    layoutConfiguration: MessageLayoutConfiguration)
     {
         guard let message = viewModel.message else {
@@ -188,7 +188,7 @@ extension MessageContainerView
 
 
 //MARK: Setup Message container components (timestamp + edited + seen mark)
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private func setupMessageComonentsView()
     {
@@ -247,7 +247,7 @@ extension MessageContainerView
 
 //MARK: - Update message components
 
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private func updateReplyToMessageColor()
     {
@@ -264,7 +264,7 @@ extension MessageContainerView
 }
 
 //MARK: Reply view update
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private func setupMessageToReplyView()
     {
@@ -335,7 +335,7 @@ extension MessageContainerView
 }
 
 //MARK: - Computed properties
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private var messageLastLineTextWidth: CGFloat {
         messageLabel.textLayout?.lines.last?.width ?? 0.0
@@ -348,7 +348,7 @@ extension MessageContainerView
 
 // MARK: - message layout
 
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     func handleMessageLayout()
     {
@@ -391,7 +391,7 @@ extension MessageContainerView
 }
 
 //MARK: - image setup
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private func configureMessageImage(_ image: UIImage)
     {
@@ -454,7 +454,7 @@ extension MessageContainerView
 }
 
 //MARK: Message attributed text
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private func messageTextLabelLinkSetup(from text: String) -> NSAttributedString?
     {
@@ -505,7 +505,7 @@ extension MessageContainerView
 
 //MARK: cleanup
 
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     func cleanupContent()
     {
@@ -528,7 +528,7 @@ extension MessageContainerView
 
 
 //MARK: - enums
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     enum TextPaddingStrategy
     {
@@ -563,7 +563,7 @@ extension MessageContainerView
 
 
 // MARK: Message edit animation
-extension MessageContainerView
+extension TextImageMessageContentView
 {
     private func updateMessage(_ message: Message)
     {

@@ -23,6 +23,18 @@ final class StickerContentView: UIView
         setupStickerComponentsView()
     }
     
+    deinit {
+//        print("sticker view deinit")
+        DisplayLinkManager.shered.cleanup(stickerRLottieView)
+        stickerRLottieView.setVisible(false)
+        stickerRLottieView.destroyAnimation()
+        stickerComponentsView.cleanupContent()
+        replyToMessageStackView?.removeFromSuperview()
+        replyToMessageStackView = nil
+    }
+    
+    //MARK: - UI setup
+    
     private func setupStickerComponentsView()
     {
         addSubview(stickerComponentsView)
@@ -48,7 +60,7 @@ final class StickerContentView: UIView
         ])
     }
     
-    private func setupReplyToMessage(viewModel: MessageContainerViewModel)
+    private func setupReplyToMessage(viewModel: MessageContentViewModel)
     {
         self.replyToMessageStackView = .init(margin: .init(top: 2, left: 2, bottom: 2, right: 2))
         addSubview(replyToMessageStackView!)
@@ -81,6 +93,8 @@ final class StickerContentView: UIView
             barColor: .white)
     }
     
+    // MARK: - binding
+    
     func setupBinding(publisher: AnyPublisher<Bool, Never>)
     {
         publisher.sink { [weak self] isSeen in
@@ -88,7 +102,9 @@ final class StickerContentView: UIView
         }.store(in: &cancellables)
     }
     
-    func configure(with viewModel: MessageContainerViewModel)
+    // MARK: - configuration
+    
+    func configure(with viewModel: MessageContentViewModel)
     {
         guard let message = viewModel.message else { return }
         
@@ -105,17 +121,9 @@ final class StickerContentView: UIView
             setupReplyToMessage(viewModel: viewModel)
         }
     }
-    
-    deinit {
-//        print("sticker view deinit")
-        DisplayLinkManager.shered.cleanup(stickerRLottieView)
-        stickerRLottieView.setVisible(false)
-        stickerRLottieView.destroyAnimation()
-        stickerComponentsView.cleanupContent()
-        replyToMessageStackView?.removeFromSuperview()
-        replyToMessageStackView = nil
-    }
 }
+
+// MARK: - Seen status update
 
 extension StickerContentView
 {

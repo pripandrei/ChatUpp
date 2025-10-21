@@ -26,7 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         coordinator = MainCoordinator(tabBar: tabBarController)
 
-        let view = UIHostingController(rootView: AudioPlayerView())
+        let view = UIHostingController(rootView: AudioControlPanelView())
         window?.rootViewController = view
         window?.makeKeyAndVisible()
         

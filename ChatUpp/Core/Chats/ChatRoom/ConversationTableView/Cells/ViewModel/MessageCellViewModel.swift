@@ -26,7 +26,7 @@ final class MessageCellViewModel
     
     @Published private(set) var message: Message?
     
-    private(set) var messageContainerViewModel: MessageContainerViewModel?
+    private(set) var messageContainerViewModel: MessageContentViewModel?
     
     private(set) var displayUnseenMessagesTitle: Bool?
     private(set) var senderImageDataSubject = PassthroughSubject<Data, Never>()
@@ -36,7 +36,7 @@ final class MessageCellViewModel
         self.init()
         self.message = message
         
-        self.messageContainerViewModel = MessageContainerViewModel(message: message)
+        self.messageContainerViewModel = MessageContentViewModel(message: message)
     }
     
     convenience init(isUnseenCell: Bool) {

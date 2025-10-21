@@ -118,7 +118,7 @@ final class ConversationMessageCell: UITableViewCell
         switch type
         {
         case .text, .image, .imageText:
-            let imageTextView = MessageContainerView()
+            let imageTextView = TextImageMessageContentView()
             setupContainerView(imageTextView, type: type)
             imageTextView.configure(with: viewModel.messageContainerViewModel!,
                                     layoutConfiguration: layoutConfiguration)
@@ -178,7 +178,7 @@ extension ConversationMessageCell
         switch type
         {
         case .imageText, .image, .text:
-            view.widthAnchor.constraint(lessThanOrEqualToConstant: MessageContainerView.maxWidth).isActive = true
+            view.widthAnchor.constraint(lessThanOrEqualToConstant: TextImageMessageContentView.maxWidth).isActive = true
             view.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
             contentContainer?.backgroundColor = cellViewModel.messageAlignment == .right ?
             ColorManager.outgoingMessageBackgroundColor : ColorManager.incomingMessageBackgroundColor
@@ -327,9 +327,9 @@ extension ConversationMessageCell: MessageCellDragable
 //MARK: - Message content view type cast
 extension ConversationMessageCell
 {
-    var messageContentView: MessageContainerView?
+    var messageContentView: TextImageMessageContentView?
     {
-        return contentContainer as? MessageContainerView
+        return contentContainer as? TextImageMessageContentView
     }
     
     var stickerContentView: StickerContentView?

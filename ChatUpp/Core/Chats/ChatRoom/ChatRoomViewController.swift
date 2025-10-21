@@ -1081,7 +1081,7 @@ extension ChatRoomViewController: UITableViewDelegate
     private func initiatePhotoBrowserPresentation(from cell: ConversationMessageCell)
     {
 //        let imageView = cell.contentContainer.messageImageView
-        guard let imageView = (cell.contentContainer as? MessageContainerView)?.messageImageView else {return}
+        guard let imageView = (cell.contentContainer as? TextImageMessageContentView)?.messageImageView else {return}
         let items = self.viewModel.mediaItems
         
         let initialIndex = items.firstIndex { $0.imagePath.lastPathComponent == cell.cellViewModel.message?.imagePath }

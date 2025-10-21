@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-final class MessageContainerViewModel
+final class MessageContentViewModel
 {
     @Published private(set) var updatedText: String?
     
@@ -137,7 +137,7 @@ final class MessageContainerViewModel
 }
 
 //MARK: - Image fetch
-extension MessageContainerViewModel
+extension MessageContentViewModel
 {
     @MainActor
     func fetchMessageImageData()
@@ -154,7 +154,7 @@ extension MessageContainerViewModel
 
 
 //MARK: - Image cache
-extension MessageContainerViewModel
+extension MessageContentViewModel
 {
     func cacheImage(data: Data)
     {
@@ -177,7 +177,7 @@ extension MessageContainerViewModel
 }
 
 //MARK: Main Message listener
-extension MessageContainerViewModel
+extension MessageContentViewModel
 {
     private func observeMainMessage()
     {
@@ -220,7 +220,7 @@ extension MessageContainerViewModel
 }
 
 //MARK: Reply to message listener
-extension MessageContainerViewModel
+extension MessageContentViewModel
 {
     private func observeReplyToMessage()
     {
@@ -259,7 +259,7 @@ extension MessageContainerViewModel
 ///
 //MARK: - realm/firestore message update
 
-extension MessageContainerViewModel
+extension MessageContentViewModel
 {
     @MainActor
     func updateFirestoreMessageSeenStatus(by userID: String? = nil,
