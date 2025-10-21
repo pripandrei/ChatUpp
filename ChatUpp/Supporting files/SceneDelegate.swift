@@ -6,7 +6,7 @@
 //
 
 import UIKit
-//import SwiftUI
+import SwiftUI
 
 //import FirebaseDatabase
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -26,7 +26,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         coordinator = MainCoordinator(tabBar: tabBarController)
 
-        window?.rootViewController = tabBarController
+        let view = UIHostingController(rootView: AudioPlayerView())
+        window?.rootViewController = view
         window?.makeKeyAndVisible()
         
         coordinator?.start()

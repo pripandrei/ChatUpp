@@ -53,6 +53,9 @@
 		755BF3F82E98338D0017577E /* APIKeys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 755BF3F72E98338D0017577E /* APIKeys.plist */; };
 		755BF3FB2E9839950017577E /* AlgoliaAPIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755BF3FA2E98398C0017577E /* AlgoliaAPIKeys.swift */; };
 		755BFC8D2E9879F50017577E /* MessageBannerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755BFC8C2E9879F00017577E /* MessageBannerData.swift */; };
+		755BFC9E2E9A452D0017577E /* Fausto_Pape.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 755BFC9D2E9A452D0017577E /* Fausto_Pape.mp3 */; };
+		755BFCA02E9A45EA0017577E /* francia jazzline orchestra - twiligh.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 755BFC9F2E9A45EA0017577E /* francia jazzline orchestra - twiligh.mp3 */; };
+		755BFCA22E9A47710017577E /* Wolfgang.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 755BFCA12E9A47710017577E /* Wolfgang.mp3 */; };
 		7563F87C2ADE25E6006FA374 /* ConversationTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F87B2ADE25E6006FA374 /* ConversationTableViewDataSource.swift */; };
 		7563F8802ADF6E31006FA374 /* FirestoreCollectionName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */; };
 		7563F8C22AE8D26F006FA374 /* UILabel+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */; };
@@ -272,6 +275,9 @@
 		755BF3F72E98338D0017577E /* APIKeys.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = APIKeys.plist; sourceTree = "<group>"; };
 		755BF3FA2E98398C0017577E /* AlgoliaAPIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaAPIKeys.swift; sourceTree = "<group>"; };
 		755BFC8C2E9879F00017577E /* MessageBannerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBannerData.swift; sourceTree = "<group>"; };
+		755BFC9D2E9A452D0017577E /* Fausto_Pape.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Fausto_Pape.mp3; sourceTree = "<group>"; };
+		755BFC9F2E9A45EA0017577E /* francia jazzline orchestra - twiligh.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "francia jazzline orchestra - twiligh.mp3"; sourceTree = "<group>"; };
+		755BFCA12E9A47710017577E /* Wolfgang.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Wolfgang.mp3; sourceTree = "<group>"; };
 		7563F87B2ADE25E6006FA374 /* ConversationTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewDataSource.swift; sourceTree = "<group>"; };
 		7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreCollectionName.swift; sourceTree = "<group>"; };
 		7563F8C12AE8D26F006FA374 /* UILabel+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extensions.swift"; sourceTree = "<group>"; };
@@ -1143,6 +1149,9 @@
 				75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */,
 				75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */,
 				75B5C4C42A49AB0B00F63A5A /* LaunchScreen.storyboard */,
+				755BFC9F2E9A45EA0017577E /* francia jazzline orchestra - twiligh.mp3 */,
+				755BFCA12E9A47710017577E /* Wolfgang.mp3 */,
+				755BFC9D2E9A452D0017577E /* Fausto_Pape.mp3 */,
 			);
 			path = "Supporting files";
 			sourceTree = "<group>";
@@ -1601,6 +1610,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				755BFCA22E9A47710017577E /* Wolfgang.mp3 in Resources */,
+				755BFC9E2E9A452D0017577E /* Fausto_Pape.mp3 in Resources */,
+				755BFCA02E9A45EA0017577E /* francia jazzline orchestra - twiligh.mp3 in Resources */,
 				75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */,
 				755BF3F82E98338D0017577E /* APIKeys.plist in Resources */,
 				75B5C4C32A49AB0B00F63A5A /* Assets.xcassets in Resources */,
