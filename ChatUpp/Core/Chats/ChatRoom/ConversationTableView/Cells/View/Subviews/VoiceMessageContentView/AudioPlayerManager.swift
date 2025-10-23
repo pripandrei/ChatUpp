@@ -52,7 +52,9 @@ class AudioPlayerManager: SwiftUI.ObservableObject
     // Load audio from bundle
     func loadAudio(filename: String, fileExtension: String = "mp3")
     {
-        guard let url = Bundle.main.url(forResource: filename, withExtension: fileExtension) else {
+        guard let url = Bundle.main.url(forResource: filename,
+                                        withExtension: fileExtension) else
+        {
             print("Audio file not found in bundle")
             return
         }
@@ -63,6 +65,7 @@ class AudioPlayerManager: SwiftUI.ObservableObject
     private func generateWaveform(from url: URL)
     {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            
             guard let samples = self?.extractWaveformSamples(from: url, targetSampleCount: 60) else { return }
             
             DispatchQueue.main.async {

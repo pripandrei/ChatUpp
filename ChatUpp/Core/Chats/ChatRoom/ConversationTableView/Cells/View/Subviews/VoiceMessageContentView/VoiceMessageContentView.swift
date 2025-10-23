@@ -11,44 +11,40 @@ import SwiftUI
 final class VoiceMessageContentView: ContainerView
 {
     private let messageComponentsView: MessageComponentsView = .init()
-    private var playbackControlPanel: AudioControlPanelView?
-    
-    override init(spacing: CGFloat = 0, margin: UIEdgeInsets = .zero)
+    private var playbackControlPanel: AudioControlPanelView!
+
+    init(viewModel: MessageContentViewModel)
     {
         super.init(spacing: 2.0,
                    margin: .init(top: 6,
                                  left: 10,
                                  bottom: 6,
                                  right: 10))
-        
         layer.cornerRadius = 15
         clipsToBounds = true
-        setupPlaybackControlPanel()
+        
+        guard let path = viewModel.message?.audioPath,
+              let url = URL(string: path) else { fatalError("Audio path should be present") }
+        
+        setupPlaybackControlPanel(withUrl: url)
         setupMessageComponentsView()
+        messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
     }
-    
-//    init()
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupPlaybackControlPanel()
+    private func setupPlaybackControlPanel(withUrl URL: URL)
     {
-        self.playbackControlPanel = .init()
+        self.playbackControlPanel = .init(audioFileURL: URL)
+        
         guard let view = UIHostingController(rootView: playbackControlPanel).view else {return}
         addArrangedSubview(view)
         
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalToConstant: 65).isActive = true
 //        view.widthAnchor.constraint(equalToConstant: 200).isActive = true
-        
-    }
-    
-    func configure(with viewModel: MessageContentViewModel)
-    {
-        messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
-        
     }
     
     private func setupMessageComponentsView()
@@ -62,6 +58,10 @@ final class VoiceMessageContentView: ContainerView
         ])
     }
     
-    
+//    func configure(with viewModel: MessageContentViewModel)
+//    {
+//        messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
+//
+//    }
     
 }

@@ -14,31 +14,6 @@ enum ComponentsContext {
     case outgoing
 }
 
-final class MessageComponentsViewModel
-{
-    let message: Message
-    var componentsContext: ComponentsContext
-    private var cancellables: Set<AnyCancellable> = []
-    
-    init(message: Message,
-         context: ComponentsContext)
-    {
-        self.message = message
-        self.componentsContext = context
-    }
-    
-    var timestamp: String? {
-        let hoursAndMinutes = message.timestamp.formatToHoursAndMinutes()
-        return hoursAndMinutes
-    }
-    
-    var isMessageSeen: Bool
-    {
-        return message.messageSeen ?? (message.seenBy.count > 1)
-    }
-}
-
-
 final class MessageComponentsView: UIView
 {
     private var viewModel: MessageComponentsViewModel!

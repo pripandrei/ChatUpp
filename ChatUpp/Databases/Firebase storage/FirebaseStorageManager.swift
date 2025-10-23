@@ -15,10 +15,12 @@ enum StoragePathType
     case message(String)
     case group(String)
     
-    static private var storage = Storage.storage().reference()
+//    static private var storage = Storage.storage().reference()
     
-    var reference: StorageReference {
+    var reference: StorageReference
+    {
         let storage = Storage.storage().reference()
+        
         switch self {
         case .user(let id):
             return storage.child("users").child(id)
@@ -83,6 +85,82 @@ final class FirebaseStorageManager
 
 extension FirebaseStorageManager
 {
+//    func migrateImages(completion: @escaping (Result<Void, Error>) -> Void) {
+//        let rootRef = storage.reference().child("messages")
+//        
+//        // Step 1: list all "message" folders under messages/
+//        rootRef.listAll { result, error in
+//            if let error = error {
+//                completion(.failure(error))
+//                return
+//            }
+//            
+//            guard let items = result?.items else {
+//                completion(.failure(NSError(domain: "NoItemsFound", code: 0)))
+//                return
+//            }
+//            
+//            let dispatchGroup = DispatchGroup()
+//            var encounteredError: Error?
+//            
+//            for file in items {
+//                // Skip already migrated files
+//                if file.fullPath.starts(with: "messages/images/") {
+//                    continue
+//                }
+//                
+//                // Only migrate images
+//                if file.name.hasSuffix(".jpg") || file.name.hasSuffix(".png") {
+//                    dispatchGroup.enter()
+//                    self.moveFile(file) { error in
+//                        if let error = error {
+//                            encounteredError = error
+//                        }
+//                        dispatchGroup.leave()
+//                    }
+//                }
+//            }
+//            
+//            dispatchGroup.notify(queue: .main) {
+//                if let error = encounteredError {
+//                    completion(.failure(error))
+//                } else {
+//                    completion(.success(()))
+//                }
+//            }
+//        }
+//    }
+//    
+//    private func moveFile(_ oldFile: StorageReference, completion: @escaping (Error?) -> Void) {
+//        // Example: old path = messages/12345/image.jpg
+//        // new path = messages/images/12345/image.jpg
+//        let newPath = oldFile.fullPath.replacingOccurrences(of: "messages/", with: "messages/images/")
+//        let newFile = storage.reference(withPath: newPath)
+//        
+//        // Step 2: Download data
+//        oldFile.getData(maxSize: 10 * 1024 * 1024) { data, error in
+//            guard let data = data, error == nil else {
+//                completion(error)
+//                return
+//            }
+//            
+//            // Step 3: Upload to new path
+//            newFile.putData(data, metadata: nil) { _, error in
+//                if let error = error {
+//                    completion(error)
+//                    return
+//                }
+//                
+//                // Step 4: Delete old file (optional)
+//                oldFile.delete { deleteError in
+//                    completion(deleteError)
+//                }
+//            }
+//        }
+//    }
+//    
+    
+    
     func getUserIDs() -> [String] {
         return ["3MkyEPoXQ7hvbLLwWSwJ0KLYjhw2",
         "4aXrbFl1y9btJt7TD5jqQyc6cfV2",

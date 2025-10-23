@@ -21,6 +21,7 @@ class Message: Object, Codable
     @Persisted var repliedTo: String?
     @Persisted var reactions: List<Reaction>
     @Persisted var sticker: String?
+    @Persisted var audioPath: String?
     
     @Persisted var type: MessageType?
     
@@ -40,6 +41,7 @@ class Message: Object, Codable
         case type = "type"
         case reactions = "reactions"
         case sticker = "sticker"
+        case audioPath = "audio_path"
     }
     
     convenience required init(from decoder: Decoder) throws {
@@ -58,6 +60,7 @@ class Message: Object, Codable
         self.repliedTo = try container.decodeIfPresent(String.self, forKey: .repliedTo)
         self.type = try container.decodeIfPresent(MessageType.self, forKey: .type)
         self.sticker = try container.decodeIfPresent(String.self, forKey: .sticker)
+        self.audioPath = try container.decodeIfPresent(String.self, forKey: .audioPath)
         
         let seenBy = try container.decodeIfPresent([String].self, forKey: .seenBy)
         self.seenBy.append(objectsIn: seenBy ?? [])
@@ -79,6 +82,7 @@ class Message: Object, Codable
         try container.encodeIfPresent(self.repliedTo, forKey: .repliedTo)
         try container.encodeIfPresent(self.type, forKey: .type)
         try container.encodeIfPresent(self.sticker, forKey: .sticker)
+        try container.encodeIfPresent(self.audioPath, forKey: .audioPath)
         
         let seenBy = Array(self.seenBy)
         try container.encodeIfPresent(seenBy, forKey: .seenBy)
@@ -98,10 +102,10 @@ class Message: Object, Codable
                      imageSize: MessageImageSize?,
                      repliedTo: String?,
                      type: MessageType? = nil,
-                     sticker: String? = nil
+                     sticker: String? = nil,
+                     audioPath: String? = nil
     )
     {
-        
         self.init()
         self.id = id
     
@@ -117,6 +121,7 @@ class Message: Object, Codable
         self.type = type
         self.reactions = List<Reaction>()
         self.sticker = sticker
+        self.audioPath = audioPath
     }
 }
 
