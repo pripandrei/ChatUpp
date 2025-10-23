@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-final class StickerContentView: UIView
+final class StickerMessageContentView: UIView
 {
     private var stickerRLottieView: RLLottieView = .init(renderSize: .init(width: 300, height: 300))
     private let stickerComponentsView: MessageComponentsView = .init()
@@ -125,7 +125,7 @@ final class StickerContentView: UIView
 
 // MARK: - Seen status update
 
-extension StickerContentView
+extension StickerMessageContentView
 {
     private func updateMessageSeenStatus()
     {

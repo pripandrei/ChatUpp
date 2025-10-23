@@ -8,6 +8,8 @@
 import Foundation
 import Combine
 
+//MARK: - view model for all types (text/image/audio...) of messages content views
+
 final class MessageContentViewModel
 {
     @Published private(set) var updatedText: String?

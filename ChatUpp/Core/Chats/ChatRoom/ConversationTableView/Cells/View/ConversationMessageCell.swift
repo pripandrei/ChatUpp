@@ -123,9 +123,13 @@ final class ConversationMessageCell: UITableViewCell
             imageTextView.configure(with: viewModel.messageContainerViewModel!,
                                     layoutConfiguration: layoutConfiguration)
         case .sticker:
-            let stickerView = StickerContentView()
+            let stickerView = StickerMessageContentView()
             setupContainerView(stickerView, type: .sticker)
             stickerView.configure(with: viewModel.messageContainerViewModel!)
+        case .audio:
+            let audioView = VoiceMessageContentView()
+            setupContainerView(audioView, type: .audio)
+            audioView.configure(with: viewModel.messageContainerViewModel!)
         default: break
         }
         
@@ -186,6 +190,10 @@ extension ConversationMessageCell
             view.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -10).isActive = true
 //            view.heightAnchor.constraint(equalToConstant: 170).isActive = true
             contentContainer?.backgroundColor = .clear
+        case .audio:
+            view.widthAnchor.constraint(lessThanOrEqualToConstant: 200).isActive = true
+            contentContainer?.backgroundColor = cellViewModel.messageAlignment == .right ?
+            ColorManager.outgoingMessageBackgroundColor : ColorManager.incomingMessageBackgroundColor
         default: break
         }
     }
@@ -332,9 +340,9 @@ extension ConversationMessageCell
         return contentContainer as? TextImageMessageContentView
     }
     
-    var stickerContentView: StickerContentView?
+    var stickerContentView: StickerMessageContentView?
     {
-        return contentContainer as? StickerContentView
+        return contentContainer as? StickerMessageContentView
     }
 }
 

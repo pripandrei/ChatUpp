@@ -10,19 +10,15 @@ import UIKit
 import YYText
 import Combine
 
-extension TextImageMessageContentView
+final class TextImageMessageContentView: ContainerView
 {
-//    static var maxWidth: CGFloat = 295.0
     static var maxWidth: CGFloat
     {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.keyWindow else {return 295.0 }
         return window.bounds.width * 0.8
     }
-}
-
-final class TextImageMessageContentView: ContainerView
-{
+    
     private var messageImageViewBottomConstraint: NSLayoutConstraint?
     
     private var viewModel: MessageContentViewModel!
@@ -59,33 +55,17 @@ final class TextImageMessageContentView: ContainerView
         return ColorManager.color(for: senderID ?? "12345")
     }
     
-//    override init()
-//    {
-//        super.init()
-//        setupSelf()
-//        setupMessageLabel()
-//        setupMessageComonentsView()
-//        configureMessageImageView()
-//    }
-    
-//    private override init(spacing: CGFloat = 0, margin: UIEdgeInsets = .zero)
-//    {
-//        let spacing = 2.0
-//        let margins: UIEdgeInsets = .init(top: 6, left: 10, bottom: 6, right: 10)
-//        super.init(spacing: spacing, margin: margin)
-//        setupSelf()
-//        setupMessageLabel()
-//        setupMessageComonentsView()
-//        configureMessageImageView()
-//    }
-    
     init()
     {
-        super.init(spacing: 2.0, margin: .init(top: 6, left: 10, bottom: 6, right: 10))
+        super.init(spacing: 2.0,
+                   margin: .init(top: 6,
+                                 left: 10,
+                                 bottom: 6,
+                                 right: 10))
         layer.cornerRadius = 15
         clipsToBounds = true
         setupMessageLabel()
-        setupMessageComonentsView()
+        setupMessageComponentsView()
         configureMessageImageView()
     }
     
@@ -94,17 +74,6 @@ final class TextImageMessageContentView: ContainerView
     }
 }
 
-//MARK: - Setup self
-extension TextImageMessageContentView
-{
-    private func setupSelf()
-    {
-        spacing = 2
-        margins = .init(top: 6, left: 10, bottom: 6, right: 10)
-        layer.cornerRadius = 15
-        clipsToBounds = true
-    }
-}
 
 //MARK: - message container configuration
 extension TextImageMessageContentView
@@ -190,7 +159,7 @@ extension TextImageMessageContentView
 //MARK: Setup Message container components (timestamp + edited + seen mark)
 extension TextImageMessageContentView
 {
-    private func setupMessageComonentsView()
+    private func setupMessageComponentsView()
     {
         addSubview(messageComponentsView)
         messageComponentsView.translatesAutoresizingMaskIntoConstraints = false
@@ -547,16 +516,6 @@ extension TextImageMessageContentView
             case .trailling (let space): return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: space + 3.0)
             }
         }
-        
-//        var padding: UIEdgeInsets
-//        {
-//            switch self {
-//            case .image: return UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
-//            case .bottom: return UIEdgeInsets(top: 6, left: 10, bottom: 20, right: 10)
-//            case .initial: return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
-//            case .trailling (let space): return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: space + 10 + 3.0)
-//            }
-//        }
     }
 }
 

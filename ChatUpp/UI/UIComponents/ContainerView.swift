@@ -7,17 +7,11 @@
 
 import UIKit
 
-class ContainerView: UIView {
-
+class ContainerView: UIView
+{
     var spacing: CGFloat = .zero
     private var arrangedViews: [(view: UIView, padding: UIEdgeInsets)] = []
     private var arrangedConstraints: [NSLayoutConstraint] = []
-
-//    init()
-//    {
-//        super.init(frame: .zero)
-//        translatesAutoresizingMaskIntoConstraints = false
-//    }
     
     init(spacing: CGFloat = 0, margin: UIEdgeInsets = .zero)
     {
@@ -27,13 +21,6 @@ class ContainerView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
     }
     
-//    convenience init(spacing: CGFloat = 0, margin: UIEdgeInsets = .zero)
-//    {
-//        self.init()
-//        self.spacing = spacing
-//        self.margins = margin
-//    }
-
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -81,6 +68,7 @@ class ContainerView: UIView {
     {
         /// Remove only constraints created for arranged views
         /// (dont touch constraints of view that were added via addSubview)
+        ///
         NSLayoutConstraint.deactivate(arrangedConstraints)
         arrangedConstraints.removeAll()
         
@@ -97,8 +85,9 @@ class ContainerView: UIView {
             ])
             
             // Vertical constraints
-            if let prev = previousView {
-                // ✅ include BOTH previous bottom padding + current top padding
+            if let prev = previousView
+            {
+                // include both previous bottom padding + current top padding
                 let verticalGap = spacing + prev.padding.bottom + padding.top
                 let top = view.topAnchor.constraint(equalTo: prev.view.bottomAnchor, constant: verticalGap)
                 arrangedConstraints.append(top)
