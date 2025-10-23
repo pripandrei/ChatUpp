@@ -252,7 +252,7 @@ extension FirebaseStorageManager
         }
     }
     
-    // image migration from one dir to another
+    // image migration from one dir to anothe
     
     func migrateImages(completion: @escaping (Result<Void, Error>) -> Void) {
         let rootRef = storage.reference().child("messages")

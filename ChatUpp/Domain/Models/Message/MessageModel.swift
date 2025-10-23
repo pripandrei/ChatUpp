@@ -21,13 +21,14 @@ class Message: Object, Codable
     @Persisted var repliedTo: String?
     @Persisted var reactions: List<Reaction>
     @Persisted var sticker: String?
-    @Persisted var audioPath: String?
+    @Persisted var voicePath: String?
     
     @Persisted var type: MessageType?
     
     @Persisted var imageSize: MessageImageSize?
     
-    enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey
+    {
         case id = "id"
         case messageBody = "message_body"
         case senderId = "sent_by"
@@ -41,7 +42,7 @@ class Message: Object, Codable
         case type = "type"
         case reactions = "reactions"
         case sticker = "sticker"
-        case audioPath = "audio_path"
+        case voicePath = "voice_path"
     }
     
     convenience required init(from decoder: Decoder) throws {
@@ -60,7 +61,7 @@ class Message: Object, Codable
         self.repliedTo = try container.decodeIfPresent(String.self, forKey: .repliedTo)
         self.type = try container.decodeIfPresent(MessageType.self, forKey: .type)
         self.sticker = try container.decodeIfPresent(String.self, forKey: .sticker)
-        self.audioPath = try container.decodeIfPresent(String.self, forKey: .audioPath)
+        self.voicePath = try container.decodeIfPresent(String.self, forKey: .voicePath)
         
         let seenBy = try container.decodeIfPresent([String].self, forKey: .seenBy)
         self.seenBy.append(objectsIn: seenBy ?? [])
@@ -82,7 +83,7 @@ class Message: Object, Codable
         try container.encodeIfPresent(self.repliedTo, forKey: .repliedTo)
         try container.encodeIfPresent(self.type, forKey: .type)
         try container.encodeIfPresent(self.sticker, forKey: .sticker)
-        try container.encodeIfPresent(self.audioPath, forKey: .audioPath)
+        try container.encodeIfPresent(self.voicePath, forKey: .voicePath)
         
         let seenBy = Array(self.seenBy)
         try container.encodeIfPresent(seenBy, forKey: .seenBy)
@@ -103,7 +104,7 @@ class Message: Object, Codable
                      repliedTo: String?,
                      type: MessageType? = nil,
                      sticker: String? = nil,
-                     audioPath: String? = nil
+                     voicePath: String? = nil
     )
     {
         self.init()
@@ -121,7 +122,7 @@ class Message: Object, Codable
         self.type = type
         self.reactions = List<Reaction>()
         self.sticker = sticker
-        self.audioPath = audioPath
+        self.voicePath = voicePath
     }
 }
 

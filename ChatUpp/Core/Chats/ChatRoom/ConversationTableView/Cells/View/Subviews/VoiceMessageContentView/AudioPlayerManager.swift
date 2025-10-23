@@ -50,7 +50,7 @@ class AudioPlayerManager: SwiftUI.ObservableObject
     }
     
     // Load audio from bundle
-    func loadAudio(filename: String, fileExtension: String = "mp3")
+    func loadAudgio(filename: String, fileExtension: String = "mp3")
     {
         guard let url = Bundle.main.url(forResource: filename,
                                         withExtension: fileExtension) else
