@@ -5,17 +5,44 @@
 //  Created by Andrei Pripa on 11/20/23.
 //
 
+
 import Foundation
 import FirebaseStorage
 
 // MARK: - StoragePathType
 enum StoragePathType
 {
+    enum MessagePathType
+    {
+        case image(String)
+        case audio(String)
+        
+        var path: String
+        {
+            switch self
+            {
+//            case .audio(let name): return "\(directory)/\(name)"
+//            case .image(let name): return "\(directory)/\(name)"
+//            case .audio(let name), .image(let name): return name
+            case .audio(let name), .image(let name): return "\(directory)/\(name)"
+            }
+        }
+        
+        var directory: String
+        {
+            switch self
+            {
+            case .audio: return "voices"
+            case .image: return "images"
+            }
+        }
+    }
+    
     case user(String)
-    case message(String)
+    case message(MessagePathType)
     case group(String)
     
-//    static private var storage = Storage.storage().reference()
+    static var storage = Storage.storage()
     
     var reference: StorageReference
     {
@@ -24,8 +51,8 @@ enum StoragePathType
         switch self {
         case .user(let id):
             return storage.child("users").child(id)
-        case .message(let id):
-            return storage.child("messages").child(id)
+        case .message(let type):
+            return storage.child("messages").child(type.path)
         case .group(let id):
             return storage.child("groups").child(id)
         }
@@ -40,6 +67,7 @@ struct ImageMetadata {
 
 final class FirebaseStorageManager
 {
+    private let storage = Storage.storage()
     static let shared = FirebaseStorageManager()
     private let maxImageSize: Int64 = 3 * 1024 * 1024  // 3MB
     
@@ -81,86 +109,10 @@ final class FirebaseStorageManager
 
 
 
-//MARK: - For Test 
+//MARK: - For Test
 
 extension FirebaseStorageManager
 {
-//    func migrateImages(completion: @escaping (Result<Void, Error>) -> Void) {
-//        let rootRef = storage.reference().child("messages")
-//        
-//        // Step 1: list all "message" folders under messages/
-//        rootRef.listAll { result, error in
-//            if let error = error {
-//                completion(.failure(error))
-//                return
-//            }
-//            
-//            guard let items = result?.items else {
-//                completion(.failure(NSError(domain: "NoItemsFound", code: 0)))
-//                return
-//            }
-//            
-//            let dispatchGroup = DispatchGroup()
-//            var encounteredError: Error?
-//            
-//            for file in items {
-//                // Skip already migrated files
-//                if file.fullPath.starts(with: "messages/images/") {
-//                    continue
-//                }
-//                
-//                // Only migrate images
-//                if file.name.hasSuffix(".jpg") || file.name.hasSuffix(".png") {
-//                    dispatchGroup.enter()
-//                    self.moveFile(file) { error in
-//                        if let error = error {
-//                            encounteredError = error
-//                        }
-//                        dispatchGroup.leave()
-//                    }
-//                }
-//            }
-//            
-//            dispatchGroup.notify(queue: .main) {
-//                if let error = encounteredError {
-//                    completion(.failure(error))
-//                } else {
-//                    completion(.success(()))
-//                }
-//            }
-//        }
-//    }
-//    
-//    private func moveFile(_ oldFile: StorageReference, completion: @escaping (Error?) -> Void) {
-//        // Example: old path = messages/12345/image.jpg
-//        // new path = messages/images/12345/image.jpg
-//        let newPath = oldFile.fullPath.replacingOccurrences(of: "messages/", with: "messages/images/")
-//        let newFile = storage.reference(withPath: newPath)
-//        
-//        // Step 2: Download data
-//        oldFile.getData(maxSize: 10 * 1024 * 1024) { data, error in
-//            guard let data = data, error == nil else {
-//                completion(error)
-//                return
-//            }
-//            
-//            // Step 3: Upload to new path
-//            newFile.putData(data, metadata: nil) { _, error in
-//                if let error = error {
-//                    completion(error)
-//                    return
-//                }
-//                
-//                // Step 4: Delete old file (optional)
-//                oldFile.delete { deleteError in
-//                    completion(deleteError)
-//                }
-//            }
-//        }
-//    }
-//    
-    
-    
     func getUserIDs() -> [String] {
         return ["3MkyEPoXQ7hvbLLwWSwJ0KLYjhw2",
         "4aXrbFl1y9btJt7TD5jqQyc6cfV2",
@@ -217,9 +169,9 @@ extension FirebaseStorageManager
     }
     
     
-    
     // download,convert and upload missing image with extension _medium.jpg or _medium.jpeg for all users that do not have it
-    func processUserImageFolders() {
+    func processUserImageFolders()
+    {
         let storage = Storage.storage()
 
         for userID in self.getUserIDs() {
@@ -297,6 +249,99 @@ extension FirebaseStorageManager
                 }
             }
 //        }
+        }
+    }
+    
+    // image migration from one dir to another
+    
+    func migrateImages(completion: @escaping (Result<Void, Error>) -> Void) {
+        let rootRef = storage.reference().child("messages")
+        
+        rootRef.listAll { result, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let prefixes = result?.prefixes, !prefixes.isEmpty else {
+                print("⚠️ No message directories found under 'messages/'")
+                completion(.success(()))
+                return
+            }
+            
+            let dispatchGroup = DispatchGroup()
+            var encounteredError: Error?
+            
+            for folder in prefixes
+            {
+                dispatchGroup.enter()
+                folder.listAll { folderResult, folderError in
+                    if let folderError = folderError {
+                        encounteredError = folderError
+                        dispatchGroup.leave()
+                        return
+                    }
+                    
+                    let imageItems = folderResult?.items.filter {
+                        $0.name.hasSuffix(".jpeg") || $0.name.hasSuffix(".png") || $0.name.hasSuffix(".jpg")
+                    } ?? []
+                    
+                    for file in imageItems {
+                        self.moveFile(file) { error in
+                            if let error = error {
+                                encounteredError = error
+                            }
+                        }
+                    }
+                    
+                    dispatchGroup.leave()
+                }
+            }
+            
+            dispatchGroup.notify(queue: .main) {
+                if let error = encounteredError {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+        }
+    }
+    
+    private func moveFile(_ oldFile: StorageReference, completion: @escaping (Error?) -> Void) {
+        let newPath = oldFile.fullPath.replacingOccurrences(of: "messages/", with: "messages/images/")
+        let newFile = storage.reference(withPath: newPath)
+        
+        // Step 1: Get original metadata
+        oldFile.getMetadata { oldMetadata, error in
+            if let error = error {
+                completion(error)
+                return
+            }
+            
+            oldFile.getData(maxSize: 10 * 1024 * 1024) { data, error in
+                guard let data = data, error == nil else {
+                    completion(error)
+                    return
+                }
+
+                // Step 2: Create new metadata using old one (if available)
+                let newMetadata = StorageMetadata()
+                newMetadata.contentType = oldMetadata?.contentType ?? "image/jpeg"
+
+                // Step 3: Upload with correct metadata
+                newFile.putData(data, metadata: newMetadata) { _, uploadError in
+                    if let uploadError = uploadError {
+                        completion(uploadError)
+                        return
+                    }
+
+                    // Step 4: Delete old file
+                    oldFile.delete { deleteError in
+                        completion(deleteError)
+                    }
+                }
+            }
         }
     }
 }

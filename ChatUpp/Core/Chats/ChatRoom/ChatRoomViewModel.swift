@@ -632,7 +632,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                         try await FirebaseStorageManager
                             .shared
                             .saveImage(data: imageData,
-                                       to: .message(messageID),
+                                       to: .message(.image(messageID)),
                                        imagePath: path)
                         print("Saved Image with path: \(path)")
                     } catch {
@@ -655,7 +655,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         do {
             for path in paths {
-                let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(message.id), imagePath: path)
+                let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(.image(message.id)), imagePath: path)
                 if message.senderId == "ArzzEyzTb7QRD5LhxIX3B5xqsql1"
                 {
                     print("stop")

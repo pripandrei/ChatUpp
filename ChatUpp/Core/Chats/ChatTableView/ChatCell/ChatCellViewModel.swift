@@ -387,7 +387,7 @@ extension ChatCellViewModel
         let paths = [path, path.addSuffix("small")]
         do {
             for path in paths {
-                let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(messageID), imagePath: path)
+                let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(.image(messageID)), imagePath: path)
                 CacheManager.shared.saveData(imageData, toPath: path)
                 
             }
