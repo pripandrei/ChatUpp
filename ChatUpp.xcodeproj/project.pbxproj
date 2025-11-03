@@ -70,7 +70,6 @@
 		756525D72AB65427005DC594 /* UsernameRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */; };
 		756812EB2E63D7A800E421CE /* StickersPackModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756812E62E63D79200E421CE /* StickersPackModel.swift */; };
 		756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */; };
-		756BDFA62EA83BB7003D5EE2 /* 123ff.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 756BDFA52EA83BB7003D5EE2 /* 123ff.m4a */; };
 		756BDFA82EA84559003D5EE2 /* AudioPlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756BDFA72EA84553003D5EE2 /* AudioPlayerManager.swift */; };
 		756BDFAB2EAA9D3A003D5EE2 /* WaveformScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756BDFAA2EAA9D39003D5EE2 /* WaveformScrubber.swift */; };
 		756BDFAE2EAA9DD9003D5EE2 /* MessageComponentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756BDFAD2EAA9DCF003D5EE2 /* MessageComponentsViewModel.swift */; };
@@ -168,6 +167,11 @@
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
 		75D08BAA2BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */; };
+		75D38DA12EB90A5A0096B926 /* notification_sound.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA02EB90A5A0096B926 /* notification_sound.m4a */; };
+		75D38DA32EB90C300096B926 /* tokyo_lounge.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA22EB90C300096B926 /* tokyo_lounge.m4a */; };
+		75D38DA72EB953B90096B926 /* car-passing-and-birds-chirping-in-the-background-94401.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA52EB953B90096B926 /* car-passing-and-birds-chirping-in-the-background-94401.mp3 */; };
+		75D38DA82EB953B90096B926 /* car-pass-fast-4-times-58065.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA42EB953B90096B926 /* car-pass-fast-4-times-58065.mp3 */; };
+		75D38DA92EB953B90096B926 /* car-passing-by-272055.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA62EB953B90096B926 /* car-passing-by-272055.mp3 */; };
 		75D6DC332B0D735100D2CD26 /* MessageCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC322B0D735100D2CD26 /* MessageCellViewModel.swift */; };
 		75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */; };
 		75D7C5952AD72DBC00F6D4B9 /* ConversationMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5942AD72DBC00F6D4B9 /* ConversationMessageCell.swift */; };
@@ -298,7 +302,6 @@
 		756525D62AB65427005DC594 /* UsernameRegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameRegistrationViewController.swift; sourceTree = "<group>"; };
 		756812E62E63D79200E421CE /* StickersPackModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickersPackModel.swift; sourceTree = "<group>"; };
 		756891B32B6549E500DC7D71 /* ResultsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsCellViewModel.swift; sourceTree = "<group>"; };
-		756BDFA52EA83BB7003D5EE2 /* 123ff.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = 123ff.m4a; sourceTree = "<group>"; };
 		756BDFA72EA84553003D5EE2 /* AudioPlayerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerManager.swift; sourceTree = "<group>"; };
 		756BDFAA2EAA9D39003D5EE2 /* WaveformScrubber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformScrubber.swift; sourceTree = "<group>"; };
 		756BDFAD2EAA9DCF003D5EE2 /* MessageComponentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageComponentsViewModel.swift; sourceTree = "<group>"; };
@@ -379,6 +382,11 @@
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
 		75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = "<group>"; };
 		75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationScreen.swift; sourceTree = "<group>"; };
+		75D38DA02EB90A5A0096B926 /* notification_sound.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = notification_sound.m4a; sourceTree = "<group>"; };
+		75D38DA22EB90C300096B926 /* tokyo_lounge.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = tokyo_lounge.m4a; sourceTree = "<group>"; };
+		75D38DA42EB953B90096B926 /* car-pass-fast-4-times-58065.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "car-pass-fast-4-times-58065.mp3"; sourceTree = "<group>"; };
+		75D38DA52EB953B90096B926 /* car-passing-and-birds-chirping-in-the-background-94401.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "car-passing-and-birds-chirping-in-the-background-94401.mp3"; sourceTree = "<group>"; };
+		75D38DA62EB953B90096B926 /* car-passing-by-272055.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "car-passing-by-272055.mp3"; sourceTree = "<group>"; };
 		75D6DC322B0D735100D2CD26 /* MessageCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCellViewModel.swift; sourceTree = "<group>"; };
 		75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		75D7C5942AD72DBC00F6D4B9 /* ConversationMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationMessageCell.swift; sourceTree = "<group>"; };
@@ -1197,7 +1205,11 @@
 				75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */,
 				75B5C4C42A49AB0B00F63A5A /* LaunchScreen.storyboard */,
 				755BFC9F2E9A45EA0017577E /* francia jazzline orchestra - twiligh.mp3 */,
-				756BDFA52EA83BB7003D5EE2 /* 123ff.m4a */,
+				75D38DA42EB953B90096B926 /* car-pass-fast-4-times-58065.mp3 */,
+				75D38DA52EB953B90096B926 /* car-passing-and-birds-chirping-in-the-background-94401.mp3 */,
+				75D38DA62EB953B90096B926 /* car-passing-by-272055.mp3 */,
+				75D38DA22EB90C300096B926 /* tokyo_lounge.m4a */,
+				75D38DA02EB90A5A0096B926 /* notification_sound.m4a */,
 				755BFCA12E9A47710017577E /* Wolfgang.mp3 */,
 				755BFC9D2E9A452D0017577E /* Fausto_Pape.mp3 */,
 			);
@@ -1661,8 +1673,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				755BFCA22E9A47710017577E /* Wolfgang.mp3 in Resources */,
+				75D38DA32EB90C300096B926 /* tokyo_lounge.m4a in Resources */,
+				75D38DA12EB90A5A0096B926 /* notification_sound.m4a in Resources */,
+				75D38DA72EB953B90096B926 /* car-passing-and-birds-chirping-in-the-background-94401.mp3 in Resources */,
+				75D38DA82EB953B90096B926 /* car-pass-fast-4-times-58065.mp3 in Resources */,
+				75D38DA92EB953B90096B926 /* car-passing-by-272055.mp3 in Resources */,
 				755BFC9E2E9A452D0017577E /* Fausto_Pape.mp3 in Resources */,
-				756BDFA62EA83BB7003D5EE2 /* 123ff.m4a in Resources */,
 				755BFCA02E9A45EA0017577E /* francia jazzline orchestra - twiligh.mp3 in Resources */,
 				75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */,
 				755BF3F82E98338D0017577E /* APIKeys.plist in Resources */,

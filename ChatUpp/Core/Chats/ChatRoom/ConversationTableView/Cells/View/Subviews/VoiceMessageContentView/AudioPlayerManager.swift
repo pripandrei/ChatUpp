@@ -8,6 +8,12 @@
 import SwiftUI
 import AVFoundation
 
+
+enum AudioSamplesLevel
+{
+    case low, medium, high
+}
+
 // MARK: - Audio Player Manager
 class AudioPlayerManager: SwiftUI.ObservableObject
 {
@@ -38,6 +44,8 @@ class AudioPlayerManager: SwiftUI.ObservableObject
     // Load audio from file
     func loadAudio(url: URL) {
         do {
+//            guard let url2 = Bundle.main.url(forResource: "tokyo_lounge", withExtension: "m4a") else { return }
+            
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
             duration = audioPlayer?.duration ?? 0
@@ -50,7 +58,7 @@ class AudioPlayerManager: SwiftUI.ObservableObject
     }
     
     // Load audio from bundle
-    func loadAudgio(filename: String, fileExtension: String = "mp3")
+    func loadAudio(filename: String, fileExtension: String = "m4a")
     {
         guard let url = Bundle.main.url(forResource: filename,
                                         withExtension: fileExtension) else
@@ -66,7 +74,9 @@ class AudioPlayerManager: SwiftUI.ObservableObject
     {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             
-            guard let samples = self?.extractWaveformSamples(from: url, targetSampleCount: 60) else { return }
+            guard /*let targetCount = self?.getSampleCountForDuration(self?.duration ?? 0),*/
+                  let samples = self?.extractWaveformSamples(from: url, targetSampleCount: 55)
+            else { return }
             
             DispatchQueue.main.async {
                 self?.waveformSamples = samples
@@ -186,5 +196,18 @@ class AudioPlayerManager: SwiftUI.ObservableObject
     
     deinit {
         stopTimer()
+    }
+    
+    private func getSampleCountForDuration(_ duration: TimeInterval) -> Int
+    {
+        switch duration
+        {
+        case 0...3: return 20
+        case 3...6: return 25
+        case 6...12: return 30
+        case 12...20: return 40
+        case 20...30: return 50
+        default: return 60
+        }
     }
 }

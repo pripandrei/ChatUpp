@@ -18,15 +18,19 @@ final class VoiceMessageContentView: ContainerView
         super.init(spacing: 2.0,
                    margin: .init(top: 6,
                                  left: 10,
-                                 bottom: 6,
+                                 bottom: 12,
                                  right: 10))
         layer.cornerRadius = 15
         clipsToBounds = true
         
-        guard let path = viewModel.message?.audioPath,
-              let url = URL(string: path) else { fatalError("Audio path should be present") }
+        guard let path = viewModel.message?.voicePath,
+              let url = CacheManager.shared.getURL(for: path) else { fatalError("Audio path should be present") }
         
-        setupPlaybackControlPanel(withUrl: url)
+        
+
+            setupPlaybackControlPanel(withUrl: url)
+
+//        
         setupMessageComponentsView()
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
     }
@@ -42,9 +46,12 @@ final class VoiceMessageContentView: ContainerView
         guard let view = UIHostingController(rootView: playbackControlPanel).view else {return}
         addArrangedSubview(view)
         
+        view.backgroundColor = .carrot
+        
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.heightAnchor.constraint(equalToConstant: 65).isActive = true
-//        view.widthAnchor.constraint(equalToConstant: 200).isActive = true
+        
+        view.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        view.widthAnchor.constraint(equalToConstant: 250).isActive = true
     }
     
     private func setupMessageComponentsView()

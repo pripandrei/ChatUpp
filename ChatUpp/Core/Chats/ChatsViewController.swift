@@ -38,7 +38,8 @@ class ChatsViewController: UIViewController {
     private var searchTimer: Timer?
 
     // MARK: - UI SETUP
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         self.chatsViewModel = ChatsViewModel()
         setupBinding()
@@ -47,6 +48,17 @@ class ChatsViewController: UIViewController {
         chatsViewModel.activateOnDisconnect()
         setupNavigationBarItems()
         coordinatorDelegate?.subscribeToConversationOpenRequest()
+        
+//        if let url = Bundle.main.url(forResource: "notification_sound", withExtension: "m4a")
+//        {
+//            do {
+//                let audioData = try Data(contentsOf: url)
+//                CacheManager.shared.saveData(audioData, toPath: "notification_sound.m4a")
+//            } catch {
+//                print("could not get audio data form url: ", error)
+//            }
+//        }
+//        
 //        testFunction()
     }
     

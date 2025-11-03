@@ -23,14 +23,16 @@ class ContainerView: UIView
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
+    } 
     
     var margins: UIEdgeInsets = .zero {
         didSet { updateConstraintsForArrangedViews() }
     }
 
     // MARK: - Add View
-    func addArrangedSubview(_ view: UIView, padding: UIEdgeInsets = .zero, at index: Int? = nil)
+    func addArrangedSubview(_ view: UIView,
+                            padding: UIEdgeInsets = .zero,
+                            at index: Int? = nil)
     {
         view.translatesAutoresizingMaskIntoConstraints = false
         addSubview(view)

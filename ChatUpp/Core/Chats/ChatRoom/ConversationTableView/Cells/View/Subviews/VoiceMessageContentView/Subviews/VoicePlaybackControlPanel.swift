@@ -7,7 +7,7 @@
 
 import SwiftUI
 import AVFoundation
-
+  
 
 // MARK: - Audio control panel
 struct AudioControlPanelView: View
@@ -17,69 +17,58 @@ struct AudioControlPanelView: View
     
     var body: some View
     {
-        VStack(spacing: 0)
-        {
-            HStack(spacing: 0)
+        GeometryReader { geometry in
+            VStack(spacing: 0)
             {
-                Button(action: {
-                    audioManager.togglePlayPause()
-                }) {
-                    Image(systemName: audioManager.isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                        .resizable()
-                        .frame(width: 64, height: 64)
-                        .foregroundColor(.white)
-                    
-                }
-                .buttonStyle(.plain)
-
-                VStack
+                HStack(spacing: 0)
                 {
-                    WaveformScrubber(
-                        progress: $audioManager.progress,
-                        shouldUpdateProgress: $audioManager.shouldUpdateProgress,
-                        samples: audioManager.waveformSamples,
-                        filledColor: .blue,
-                        unfilledColor: .gray
-                    ) { newProgress in
-                        audioManager.seek(to: newProgress)
+                    Button(action: {
+                        audioManager.togglePlayPause()
+                    }) {
+                        Image(systemName: audioManager.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: geometry.size.height * 0.8)
+                            .foregroundColor(.white)
                     }
-                    .frame(height: 40)
-                    
-                    HStack {
+                    .buttonStyle(.plain)
+
+                    VStack(spacing: 4)
+                    {
+                        WaveformScrubber(
+                            progress: $audioManager.progress,
+                            shouldUpdateProgress: $audioManager.shouldUpdateProgress,
+                            samples: audioManager.waveformSamples
+//                            filledColor: .white,
+//                            unfilledColor: .pink.opacity(0.6)
+                        ) { newProgress in
+                            audioManager.seek(to: newProgress)
+                        }
+                        .frame(height: geometry.size.height * 0.3)
+                        .padding(.top,5)
+                        
                         Text(audioManager.formatTime(audioManager.duration - audioManager.currentTime))
-                            .font(.subheadline)
-                            .foregroundColor(Color(#colorLiteral(red: 0.9197804332, green: 0.9238422513, blue: 0.9495783448, alpha: 1)))
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(ColorManager.incomingMessageComponentsTextColor))
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 10)
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
-            .frame(height: 64)
-            
-//            Button("Load Sample Audio")
-//            {
-//                // Option 1: Load from bundle
-//                audioManager.loadAudio(filename: "123ff", fileExtension: "m4a")
-//                
-//                // Option 2: Load from URL
-//                // if let url = URL(string: "https://example.com/audio.mp3") {
-//                //     audioManager.loadAudio(url: url)
-//                // }
-//            }
-//            .padding()
         }
-        .onAppear(perform: {
-            audioManager.loadAudio(url: self.audioFileURL)
-        })
+        .onAppear {
+            audioManager.loadAudio(url: audioFileURL)
+        }
         .background(Color(ColorManager.outgoingMessageBackgroundColor))
-//        .clipShape(.rect(cornerRadius: 12))
-        .padding()
+        .clipped() // 👈 ensures it doesn't overflow the given height
     }
 }
 
 #Preview {
-    AudioControlPanelView(audioFileURL: .desktopDirectory)
+    let url = Bundle.main.url(forResource: "Wolfgang", withExtension: "mp3")
+    AudioControlPanelView(audioFileURL: url ?? .desktopDirectory)
 //    AudioControlPanel()
 }
 //

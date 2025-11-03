@@ -14,8 +14,8 @@ struct WaveformScrubber: View
     @GestureState private var isDragging = false
     
     var samples: [CGFloat]
-    var filledColor: Color = .blue
-    var unfilledColor: Color = .gray
+    var filledColor: Color = .white
+    var unfilledColor: Color = Color(ColorManager.incomingMessageComponentsTextColor)
     var onSeek: ((CGFloat) -> Void)?
     
     var body: some View
@@ -25,14 +25,14 @@ struct WaveformScrubber: View
             let height = geo.size.height
             let barWidth = samples.isEmpty ? 0 : width / CGFloat(samples.count)
             
-            HStack(alignment: .bottom, spacing: barWidth * 0.4) {
+            HStack(alignment: .bottom, spacing: barWidth * 0.5) {
                 ForEach(Array(samples.enumerated()), id: \.offset) { index, sample in
                     let barHeight = sample * height
                     let isFilled = CGFloat(index) / CGFloat(samples.count) <= progress
                     
                     Rectangle()
-                        .fill(isFilled ? filledColor : unfilledColor.opacity(0.4))
-                        .frame(width: barWidth * 0.6,
+                        .fill(isFilled ? filledColor : unfilledColor)
+                        .frame(width: barWidth * 0.5,
                                height: max(1, max(barHeight, 3.5)))
                         .cornerRadius(3)
                         .animation(.spring(duration: 0.15), value: progress)
