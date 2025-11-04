@@ -75,7 +75,7 @@ class AudioPlayerManager: SwiftUI.ObservableObject
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             
             guard /*let targetCount = self?.getSampleCountForDuration(self?.duration ?? 0),*/
-                  let samples = self?.extractWaveformSamples(from: url, targetSampleCount: 55)
+                  let samples = self?.extractWaveformSamples(from: url, targetSampleCount: 40)
             else { return }
             
             DispatchQueue.main.async {

@@ -18,6 +18,7 @@ struct AudioControlPanelView: View
     var body: some View
     {
         GeometryReader { geometry in
+            
             VStack(spacing: 0)
             {
                 HStack(spacing: 0)
@@ -30,6 +31,8 @@ struct AudioControlPanelView: View
                             .scaledToFit()
                             .frame(height: geometry.size.height * 0.8)
                             .foregroundColor(.white)
+                            .rotationEffect(.degrees(audioManager.isPlaying ? 180 : 0))
+                            .animation(.bouncy(duration: 0.3), value: audioManager.isPlaying)
                     }
                     .buttonStyle(.plain)
 
