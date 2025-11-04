@@ -172,6 +172,13 @@ final class ChatRoomViewController: UIViewController
     
     private func setupBinding()
     {
+        inputMessageTextViewDelegate.$isTextViewEmpty
+            .sink { isEmpty in
+                let shouldBeVisible = isEmpty
+                self.rootView.toggleVoiceRecButtonVisibility(shouldBeVisible)
+//                self.rootView.isVoiceRecButtonShown = isEmpty
+            }.store(in: &subscriptions)
+        
         viewModel.$messageClusters
             .receive(on: DispatchQueue.main)
             .sink { [weak self] clusters in

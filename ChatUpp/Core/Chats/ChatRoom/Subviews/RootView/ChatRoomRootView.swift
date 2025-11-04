@@ -91,11 +91,47 @@ final class ChatRoomRootView: UIView
         sendMessageButton.configuration                             = .filled()
         sendMessageButton.configuration?.image                      = UIImage(systemName: "arrow.up")
         sendMessageButton.configuration?.baseBackgroundColor        = ColorManager.sendMessageButtonBackgroundColor
-        sendMessageButton.clipsToBounds                             =  true
+        sendMessageButton.clipsToBounds                             = true
+        sendMessageButton.isHidden                                  = true
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
-        
         return sendMessageButton
     }()
+    
+//    lazy private(set) var voiceRecButton: UIImageView = {
+//        let imageView = UIImageView(image: UIImage(systemName: "mic"))
+//        imageView.tintColor = .systemGray
+//        imageView.contentMode = .scaleAspectFit
+//        imageView.isUserInteractionEnabled = true // must be true for taps
+//
+//        // Add tap gesture
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(beginVoiceRecording))
+//        imageView.addGestureRecognizer(tapGesture)
+//
+//        imageView.translatesAutoresizingMaskIntoConstraints = false
+//        return imageView
+//    }()
+//    
+    lazy private(set) var voiceRecButton: UIButton = {
+        let button = UIButton(type: .custom)
+        
+        var config = UIButton.Configuration.bordered()
+       
+        config.image = UIImage(systemName: "mic")
+        config.baseForegroundColor = .systemGray
+        config.baseBackgroundColor = .clear
+        
+        button.configuration = config
+
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = false
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(beginVoiceRecording), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc func beginVoiceRecording()
+    {
+        print("asd")
+    }
     
     private(set) var addPictureButton: UIButton = {
         let addPictureButton = UIButton()
@@ -214,6 +250,7 @@ final class ChatRoomRootView: UIView
         setupInputBarContainerConstraints()
         setupMessageTextViewConstraints()
         setupSendMessageBtnConstraints()
+        setupAudioRecordButtonConstraints()
         setupAddPictureButtonConstrains()
         setupSendEditMessageButtonConstraints()
         setupScrollToBottomBtn()
@@ -312,21 +349,60 @@ final class ChatRoomRootView: UIView
         joinChatRoomButton.isHidden = shouldHideJoinButton
         
         self.messageTextView.layer.opacity = 0.0
-        self.sendMessageButton.layer.opacity = 0.0
+//        self.sendMessageButton.layer.opacity = 0.0
+        self.voiceRecButton.layer.opacity = 0.0
         self.addPictureButton.layer.opacity = 0.0
         self.textViewTrailingItemView.layer.opacity = 0.0
         
         UIView.animate(withDuration: shouldAnimate ? 0.5 : 0.0)
         {
             self.messageTextView.isHidden = !shouldHideJoinButton
-            self.sendMessageButton.isHidden = !shouldHideJoinButton
+//            self.sendMessageButton.isHidden = !shouldHideJoinButton
+            self.voiceRecButton.isHidden = !shouldHideJoinButton
             self.addPictureButton.isHidden = !shouldHideJoinButton
             self.textViewTrailingItemView.isHidden = !shouldHideJoinButton
             
             self.messageTextView.layer.opacity = 1.0
-            self.sendMessageButton.layer.opacity = 1.0
+//            self.sendMessageButton.layer.opacity = 1.0
+            self.voiceRecButton.layer.opacity = 1.0
             self.addPictureButton.layer.opacity = 1.0
             self.textViewTrailingItemView.layer.opacity = 1.0
+        }
+    }
+    
+    func toggleVoiceRecButtonVisibility(_ isSown: Bool)
+    {
+        if isSown
+        {
+            voiceRecButton.isHidden = false
+            voiceRecButton.transform = .init(scaleX: 0.01, y: 0.01)
+            
+            UIView.animate(withDuration: 0.1) {
+                self.sendMessageButton.transform = .init(scaleX: 1.2, y: 1.2)
+            } completion: { _ in
+                UIView.animate(withDuration: 0.2) {
+                    self.sendMessageButton.transform = .init(scaleX: 0.1, y: 0.1)
+                    self.voiceRecButton.transform = .identity
+                } completion: { _ in
+                    self.sendMessageButton.isHidden = true
+                }
+            }
+        }
+        else
+        {
+            sendMessageButton.isHidden = false
+            sendMessageButton.transform = .init(scaleX: 0.01, y: 0.01)
+            
+            UIView.animate(withDuration: 0.1) {
+                self.voiceRecButton.transform = .init(scaleX: 1.2, y: 1.2)
+            } completion: { _ in
+                UIView.animate(withDuration: 0.2) {
+                    self.voiceRecButton.transform = .init(scaleX: 0.1, y: 0.1)
+                    self.sendMessageButton.transform = .identity
+                } completion: { _ in
+                    self.voiceRecButton.isHidden = true
+                }
+            }
         }
     }
 }
@@ -538,6 +614,18 @@ extension ChatRoomRootView
             sendMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
             sendMessageButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
             sendMessageButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
+        ])
+    }
+    
+    private func setupAudioRecordButtonConstraints()
+    {
+        inputBarContainer.addSubview(voiceRecButton)
+        
+        NSLayoutConstraint.activate([
+            voiceRecButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 5),
+            voiceRecButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
+            voiceRecButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
+            voiceRecButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
         ])
     }
     

@@ -16,6 +16,8 @@ final class InputBarTextViewDelegate: NSObject, UITextViewDelegate
     private(set) var lineNumberModificationSubject = PassthroughSubject<(Int,Int), Never>()
     private(set) var textViewDidBeginEditing = PassthroughSubject<Bool, Never>()
     private var _invalidateTextViewSize: Bool = false
+//    private(set) var textViewEmptyStateSubject = PassthroughSubject<Bool, Never>()
+    @Published private(set) var isTextViewEmpty = true
     
     convenience init(view: ChatRoomRootView) {
 //        self.init(frame: .zero)
@@ -35,6 +37,9 @@ final class InputBarTextViewDelegate: NSObject, UITextViewDelegate
 
     func textViewDidChange(_ textView: UITextView)
     {
+        textView.text.isEmpty != isTextViewEmpty ? self.isTextViewEmpty.toggle() : ()
+//        self.textViewEmptyStateSubject.send(textView.text.isEmpty)
+        
         // because textView height constraint priority is .required
         // new line will not occur and height will not change
         // so we need to calculate height ourselves using calculateTextViewFrameSize
