@@ -745,7 +745,7 @@ extension ChatRoomViewController {
         }
     }
 
-    private func clearInputUI() {
+    private func clearTextViewInput() {
         removeTextViewText()
         inputMessageTextViewDelegate.invalidateTextViewSize()
         callTextViewDidChange()
@@ -802,7 +802,7 @@ extension ChatRoomViewController {
         
         switch messageType
         {
-        case .text, .imageText: clearInputUI()
+        case .text, .imageText: clearTextViewInput()
         default: break
         }
         closeInputBarHeaderView()
@@ -991,7 +991,7 @@ extension ChatRoomViewController
     {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(closeInputBarHeaderView))
         rootView.inputBarHeader?.closeButton?.addGestureRecognizer(tapGesture)
-   }
+    }
     
     @objc func closeInputBarHeaderView()
     {

@@ -352,7 +352,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             imageSize: nil,
             repliedTo: currentlyReplyToMessageID,
             type: type,
-            sticker: mediaParameters?.stickerPath
+            sticker: mediaParameters?.stickerPath,
+            voicePath: mediaParameters?.audioPath
         )
     }
     

@@ -23,6 +23,7 @@ final class ChatRoomRootView: UIView
     private(set) var inputBarHeader          : InputBarHeaderView?
     private(set) var inputBarBottomConstraint: NSLayoutConstraint!
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
+    private(set) var textViewLeadingConstraint: NSLayoutConstraint!
     private var greetingViewCenterYConstraint: NSLayoutConstraint?
 
     private(set) var stickerCollectionView: StickersPackCollectionView?
@@ -30,6 +31,11 @@ final class ChatRoomRootView: UIView
     private var textViewTrailingItemView: UIView!
     let trailingItemState = TrailingItemState()
     private var greetingView: GreetingView?
+    
+    private var recCounterLabel: UILabel?
+    private var recRedDotView: UIView?
+    private var cancelRecButton: UIButton?
+    private var recLabelsStackView: UIStackView?
     
     private(set) var inputBarContainer: InputBarContainer = InputBarContainer()
     
@@ -127,11 +133,6 @@ final class ChatRoomRootView: UIView
         button.addTarget(self, action: #selector(beginVoiceRecording), for: .touchUpInside)
         return button
     }()
-    
-    @objc func beginVoiceRecording()
-    {
-        print("asd")
-    }
     
     private(set) var addPictureButton: UIButton = {
         let addPictureButton = UIButton()
@@ -407,6 +408,165 @@ final class ChatRoomRootView: UIView
     }
 }
 
+//MARK: - Voice rec setup
+extension ChatRoomRootView
+{
+    @objc func beginVoiceRecording()
+    {
+        resizeSendMessageButtonWithAnimation()
+        createRecLabelsStackView()
+        animateRecLabelsStackViewAppearance()
+        animateRedDotBlink()
+        animateTextViewResize()
+//        setupRecCounterLabel()
+        setupCancelRecButton()
+        animateStickerIconVisibility()
+    }
+    
+    private func animateStickerIconVisibility()
+    {
+        UIView.animate(withDuration: 0.15) {
+            self.textViewTrailingItemView.alpha = 0.0
+        }
+    }
+    
+    private func animateRecLabelsStackViewAppearance()
+    {
+//        self.recLabelsStackView?.isHidden = false
+//        self.recLabelsStackView?.alpha = 0.0
+        self.layoutIfNeeded()
+        UIView.animate(withDuration: 0.25) {
+            self.recLabelsStackView?.alpha = 1.0
+        }
+    }
+    
+    private func resizeSendMessageButtonWithAnimation()
+    {
+        UIView.animate(withDuration: 0.15)
+        {
+            self.voiceRecButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+            self.sendMessageButton.isHidden = false
+            self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.7, y: 2.7)
+        } completion: { _ in
+            UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseIn]) {
+                self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.4, y: 2.4)
+            } completion: { _ in
+                UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseOut]) {
+                    self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.5, y: 2.5)
+                }
+            }
+            self.voiceRecButton.isHidden = true
+        }
+    }
+    
+    private func animateRedDotBlink()
+    {
+        recRedDotView?.alpha = 1.0
+        
+        UIView.animate(withDuration: 0.5, delay: 0.3, options: [.repeat, .autoreverse])
+        {
+            self.recRedDotView?.alpha = 0.0
+        }
+    }
+    
+    private func animateTextViewResize()
+    {
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: [.curveEaseOut]) {
+            self.textViewLeadingConstraint.constant = 8
+            self.layoutIfNeeded()
+        }
+    }
+    
+    private func createRecLabelsStackView()
+    {
+        self.recLabelsStackView = UIStackView()
+        recLabelsStackView?.axis = .horizontal
+        recLabelsStackView?.spacing = 8
+        recLabelsStackView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.recRedDotView = makeRecRedDotView()
+        self.recCounterLabel = makeRecCounterLabel()
+        
+        recLabelsStackView?.addArrangedSubview(self.recRedDotView!)
+        recLabelsStackView?.addArrangedSubview(self.recCounterLabel!)
+        recLabelsStackView?.alpha = 0.0
+        
+        inputBarContainer.addSubview(recLabelsStackView!)
+        
+        NSLayoutConstraint.activate([
+            recLabelsStackView!.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: 15),
+            recLabelsStackView!.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
+        ])
+        
+    }
+    
+    func makeRecRedDotView() -> UIView
+    {
+        let dot = UIView()
+        dot.translatesAutoresizingMaskIntoConstraints = false
+        dot.backgroundColor = .red
+        dot.layer.cornerRadius = 5  // half of 10
+
+        NSLayoutConstraint.activate([
+            dot.widthAnchor.constraint(equalToConstant: 10),
+            dot.heightAnchor.constraint(equalToConstant: 10)
+        ])
+
+        return dot
+    }
+    
+    func makeRecCounterLabel() -> UILabel
+    {
+        let label = UILabel()
+        label.numberOfLines = 1
+        label.text = "00:00"
+        label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        label.textColor = .white
+//        self.recCounterLabel!.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }
+    
+    private func setupCancelRecButton()
+    {
+        self.cancelRecButton = UIButton(type: .custom)
+        self.cancelRecButton?.setTitle("Cancel", for: .normal)
+        self.cancelRecButton?.titleLabel?.font = .systemFont(ofSize: 15)
+        self.cancelRecButton?.setTitleColor(ColorManager.actionButtonsTintColor, for: .normal)
+        self.cancelRecButton?.translatesAutoresizingMaskIntoConstraints = false
+        self.cancelRecButton?.alpha = 0.0
+        
+        inputBarContainer.addSubview(cancelRecButton!)
+        
+        NSLayoutConstraint.activate([
+            self.cancelRecButton!.centerXAnchor.constraint(equalTo: messageTextView.centerXAnchor, constant: 20),
+            self.cancelRecButton!.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
+        ])
+        
+        UIView.animate(withDuration: 0.2, delay: 0.1, animations: {
+            self.cancelRecButton?.alpha = 1.0
+        })
+    }
+    
+//    func setupRecCounterLabel()
+//    {
+//        self.recCounterLabel = UILabel()
+//        self.recCounterLabel!.numberOfLines = 1
+//        self.recCounterLabel!.text = "0:00"
+//        self.recCounterLabel!.font = UIFont.systemFont(ofSize: 10, weight: .regular)
+//        self.recCounterLabel!.translatesAutoresizingMaskIntoConstraints = false
+//        
+//        NSLayoutConstraint.activate([
+//            recCounterLabel!.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: 10),
+//            recCounterLabel!.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
+////            recCounterLabel!.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: 10),
+////            recCounterLabel!.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: 10),
+//        ])
+//    }
+}
+
+
+
 // MARK: - TextView trailing items
 extension ChatRoomRootView
 {
@@ -439,8 +599,8 @@ extension ChatRoomRootView
         
         NSLayoutConstraint.activate([
             tailingView.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: -10),
-//            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
-            tailingView.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: -3),
+            tailingView.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
+//            tailingView.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: -3),
         ])
     }
     
@@ -591,17 +751,20 @@ extension ChatRoomRootView
         ])
     }
     
-    private func setupMessageTextViewConstraints() {
+    private func setupMessageTextViewConstraints()
+    {
         inputBarContainer.addSubview(messageTextView)
         
-        textViewHeightConstraint          = messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize)
-        textViewHeightConstraint.isActive = true
-        textViewHeightConstraint.priority = .required
+        textViewHeightConstraint           = messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize)
+        textViewHeightConstraint.isActive  = true
+        textViewHeightConstraint.priority  = .required
+        textViewLeadingConstraint          = messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 48)
+        textViewLeadingConstraint.isActive = true
         
         NSLayoutConstraint.activate([
             messageTextView.bottomAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -inputBarContainer.bounds.height * 0.52),
             messageTextView.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -48),
-            messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 48),
+//            messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 48),
             messageTextView.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
         ])
     }

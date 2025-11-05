@@ -40,8 +40,8 @@ struct MessageTextViewTrailingItemView: View
     
     private func ItemImage() -> some View {
         let image = trailingItemState.item == .keyboardItem ? Image(systemName: "keyboard") : Image(.stickerIcon5)
-        let imageHeight = trailingItemState.item == .keyboardItem ? 20.0 : 25.0
-        let imageWidth = trailingItemState.item == .keyboardItem ? 30.0 : 30.0
+        let imageHeight = trailingItemState.item == .keyboardItem ? 17.0 : 23.0
+        let imageWidth  = trailingItemState.item == .keyboardItem ? 27.0 : 27.0
         return image
             .resizable()
             .renderingMode(.template)
