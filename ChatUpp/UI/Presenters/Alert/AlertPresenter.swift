@@ -34,11 +34,25 @@ final class AlertPresenter
         presenter.present(alert, animated: true)
     }
     
-    func presentPermissionDeniedAlert(from presenter: UIViewController)
+    func presentPermissionDeniedAlert(from presenter: UIViewController, for permissionType: PermissionType)
     {
-        let alert = UIAlertController(title: "Permission Denied",
-                                      message: "Please allow camera permission in settings to use camera feature.",
+        let title = "Permission Denied"
+        let message: String
+        
+        switch permissionType
+        {
+        case .camera:
+            message = "Camera access is required to take photos."
+        case .microphone:
+            message = "Microphone access is required to record audio."
+        case .photoLibrary:
+            message = "Photo library access is required to select photos."
+        }
+        
+        let alert = UIAlertController(title: title,
+                                      message: message,
                                       preferredStyle: .alert)
+        
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Settings", style: .default) { _ in
             guard let settingsUrl = URL(string: UIApplication.openSettingsURLString),

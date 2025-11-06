@@ -14,10 +14,25 @@ enum AudioSamplesLevel
     case low, medium, high
 }
 
-// MARK: - Audio Player Manager
-class AudioPlayerManager: SwiftUI.ObservableObject
+extension AudioSessionManager: AVAudioRecorderDelegate
 {
-    @Published var progress: CGFloat = 0
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool)
+    {
+        if flag
+        {
+            print("finish rec success")
+        } else {
+            print("record failed")
+        }
+    }
+}
+
+// MARK: - Audio Session Manager
+class AudioSessionManager: NSObject, SwiftUI.ObservableObject
+{
+    static let shared = AudioSessionManager()
+    
+    @Published var progress: CGFloat = 0.0
     @Published var isPlaying = false
     @Published var duration: TimeInterval = 0
     @Published var currentTime: TimeInterval = 0
@@ -25,17 +40,60 @@ class AudioPlayerManager: SwiftUI.ObservableObject
     @Published var shouldUpdateProgress: Bool = true
     
     private var audioPlayer: AVAudioPlayer?
+    private var audioRecorder: AVAudioRecorder?
+    private var audioSession: AVAudioSession?
     private var timer: Timer?
     
-    init() {
+    private override init()
+    {
+        super.init()
         setupAudioSession()
     }
     
-    private func setupAudioSession() {
+    private func getAudioURL() -> URL
+    {
+        let path = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        let fileName = "voiceRec_\(Date().timeIntervalSince1970).m4a"
+        print("The path audio is stored: ", path.appendingPathComponent(fileName))
+        return path.appendingPathComponent(fileName)
+    }
+    
+    func startRecording()
+    {
+        let audioURL = getAudioURL()
+        
+        let settings = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 12000,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+        ]
+        
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback,
-                                                            mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
+            self.audioRecorder = try AVAudioRecorder(url: audioURL, settings: settings)
+            self.audioRecorder?.delegate = self
+            self.audioRecorder?.record()
+        } catch {
+            print("Could not initiate audio recording: \(error)")
+        }
+    }
+    
+    @discardableResult
+    func stopRecording() -> URL?
+    {
+        let url = audioRecorder?.url
+        self.audioRecorder?.stop()
+        self.audioRecorder = nil
+        return url
+    }
+    
+    private func setupAudioSession()
+    {
+        self.audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession?.setCategory(.playAndRecord,
+                                         mode: .default)
+            try audioSession?.setActive(true)
         } catch {
             print("Failed to set up audio session: \(error)")
         }

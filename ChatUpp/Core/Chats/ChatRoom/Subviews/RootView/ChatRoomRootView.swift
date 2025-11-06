@@ -92,7 +92,7 @@ final class ChatRoomRootView: UIView
         return messageTextView
     }()
     
-    private(set) var sendMessageButton: UIButton = {
+    lazy private(set) var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
         sendMessageButton.configuration                             = .filled()
         sendMessageButton.configuration?.image                      = UIImage(systemName: "arrow.up")
@@ -130,7 +130,7 @@ final class ChatRoomRootView: UIView
 
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(beginVoiceRecording), for: .touchUpInside)
+//        button.addTarget(self, action: #selector(beginVoiceRecording), for: .touchUpInside)
         return button
     }()
     
@@ -411,7 +411,21 @@ final class ChatRoomRootView: UIView
 //MARK: - Voice rec setup
 extension ChatRoomRootView
 {
-    @objc func beginVoiceRecording()
+//    @objc func beginVoiceRecording()
+//    {
+//        resizeSendMessageButtonWithAnimation()
+//        createRecLabelsStackView()
+//        animateRecLabelsStackViewAppearance()
+//        animateRedDotBlink()
+//        animateTextViewResize()
+////        setupRecCounterLabel()
+//        setupCancelRecButton()
+//        animateStickerIconVisibility()
+//        // bring send button to top
+//        //disable keyboard
+//    }
+//    
+    func setupVoiceRecUIComponents()
     {
         resizeSendMessageButtonWithAnimation()
         createRecLabelsStackView()
@@ -432,8 +446,6 @@ extension ChatRoomRootView
     
     private func animateRecLabelsStackViewAppearance()
     {
-//        self.recLabelsStackView?.isHidden = false
-//        self.recLabelsStackView?.alpha = 0.0
         self.layoutIfNeeded()
         UIView.animate(withDuration: 0.25) {
             self.recLabelsStackView?.alpha = 1.0
@@ -497,7 +509,6 @@ extension ChatRoomRootView
             recLabelsStackView!.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: 15),
             recLabelsStackView!.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
         ])
-        
     }
     
     func makeRecRedDotView() -> UIView
@@ -520,9 +531,8 @@ extension ChatRoomRootView
         let label = UILabel()
         label.numberOfLines = 1
         label.text = "00:00"
-        label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = .white
-//        self.recCounterLabel!.translatesAutoresizingMaskIntoConstraints = false
         
         return label
     }
@@ -531,7 +541,7 @@ extension ChatRoomRootView
     {
         self.cancelRecButton = UIButton(type: .custom)
         self.cancelRecButton?.setTitle("Cancel", for: .normal)
-        self.cancelRecButton?.titleLabel?.font = .systemFont(ofSize: 15)
+        self.cancelRecButton?.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         self.cancelRecButton?.setTitleColor(ColorManager.actionButtonsTintColor, for: .normal)
         self.cancelRecButton?.translatesAutoresizingMaskIntoConstraints = false
         self.cancelRecButton?.alpha = 0.0
@@ -547,22 +557,6 @@ extension ChatRoomRootView
             self.cancelRecButton?.alpha = 1.0
         })
     }
-    
-//    func setupRecCounterLabel()
-//    {
-//        self.recCounterLabel = UILabel()
-//        self.recCounterLabel!.numberOfLines = 1
-//        self.recCounterLabel!.text = "0:00"
-//        self.recCounterLabel!.font = UIFont.systemFont(ofSize: 10, weight: .regular)
-//        self.recCounterLabel!.translatesAutoresizingMaskIntoConstraints = false
-//        
-//        NSLayoutConstraint.activate([
-//            recCounterLabel!.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: 10),
-//            recCounterLabel!.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
-////            recCounterLabel!.topAnchor.constraint(equalTo: messageTextView.topAnchor, constant: 10),
-////            recCounterLabel!.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor, constant: 10),
-//        ])
-//    }
 }
 
 

@@ -130,6 +130,7 @@ final class ChatRoomViewController: UIViewController
         addTargetToEditMessageBtn()
         addTargetToScrollToBottomBtn()
         addTargetToJoinGroupBtn()
+        addTargetToVoiceRecButton()
     }
     
     private func refreshTableView()
@@ -686,8 +687,8 @@ extension ChatRoomViewController
 }
 
 //MARK: - VIEW BUTTON'S TARGET'S
-extension ChatRoomViewController {
-    
+extension ChatRoomViewController
+{
     private func addTargetToScrollToBottomBtn() {
         rootView.scrollBadgeButton.addTarget(self, action: #selector(scrollToBottomBtnWasTapped), for: .touchUpInside)
     }
@@ -702,6 +703,30 @@ extension ChatRoomViewController {
     }
     private func addTargetToJoinGroupBtn() {
         rootView.joinChatRoomButton.addTarget(self, action: #selector(joinGroupBtnWasTapped), for: .touchUpInside)
+    }
+    private func addTargetToVoiceRecButton()
+    {
+        rootView.voiceRecButton.addTarget(self, action: #selector(beginVoiceRecording), for: .touchUpInside)
+    }
+    
+    @objc func beginVoiceRecording()
+    {
+        PermissionManager.shared.requestMicrophonePermission { granted in
+            Task { @MainActor in
+                if granted {
+                    self.rootView.setupVoiceRecUIComponents()
+                    AudioSessionManager.shared.startRecording()
+                    executeAfter(seconds: 5.0) {
+                        let url = AudioSessionManager.shared.stopRecording()
+                        let activityVC = UIActivityViewController(activityItems: [url ?? .applicationDirectory], applicationActivities: nil)
+                        self.present(activityVC, animated: true)
+                    }
+                } else
+                {
+                    self.alertPresenter.presentPermissionDeniedAlert(from: self, for: .microphone)
+                }
+            }
+        }
     }
     
     @objc func joinGroupBtnWasTapped()
@@ -821,7 +846,8 @@ extension ChatRoomViewController {
                     if granted {
                         self.openCamera()
                     } else {
-                        self.alertPresenter.presentPermissionDeniedAlert(from: self)
+                        self.alertPresenter.presentPermissionDeniedAlert(from: self,
+                                                                         for: .camera)
                     }
                 }
             }

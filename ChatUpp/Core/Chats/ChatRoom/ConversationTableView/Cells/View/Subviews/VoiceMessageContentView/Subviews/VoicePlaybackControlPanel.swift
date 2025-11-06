@@ -12,7 +12,7 @@ import AVFoundation
 // MARK: - Audio control panel
 struct AudioControlPanelView: View
 {
-    @StateObject private var audioManager = AudioPlayerManager()
+    @StateObject private var audioManager = AudioSessionManager.shared
     @State var audioFileURL: URL
     
     var body: some View
