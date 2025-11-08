@@ -51,14 +51,6 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         setupAudioSession()
     }
     
-    private func getAudioURL() -> URL
-    {
-        let path = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        let fileName = "voiceRec_\(Date().timeIntervalSince1970).m4a"
-        print("The path audio is stored: ", path.appendingPathComponent(fileName))
-        return path.appendingPathComponent(fileName)
-    }
-    
     private func startRecordingTimer()
     {
         self.timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true, block: { _ in
@@ -68,7 +60,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     
     func startRecording()
     {
-        let audioURL = getAudioURL()
+        let audioURL = createAudioURL()
         
         let settings = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
@@ -87,10 +79,13 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         }
     }
     
-    @discardableResult
-    func stopRecording(withAudioRecDeletion shouldDelete: Bool = false) -> URL?
+    func isRecording() -> Bool
     {
-        let url = audioRecorder?.url
+        return self.audioRecorder?.isRecording ?? false
+    }
+    
+    func stopRecording(withAudioRecDeletion shouldDelete: Bool = false)
+    {
         self.audioRecorder?.stop()
         
         if shouldDelete
@@ -100,7 +95,19 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         }
         self.stopTimer()
         self.audioRecorder = nil
-        return url
+    }
+    
+    func getRecordedAudioURL() -> URL?
+    {
+        return audioRecorder?.url
+    }
+    
+    private func createAudioURL() -> URL
+    {
+        let path = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        let fileName = "voiceRec_\(Date().timeIntervalSince1970).m4a"
+        print("The path audio is stored: ", path.appendingPathComponent(fileName))
+        return path.appendingPathComponent(fileName)
     }
     
     private func setupAudioSession()

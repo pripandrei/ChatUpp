@@ -21,9 +21,6 @@ enum StoragePathType
         {
             switch self
             {
-//            case .audio(let name): return "\(directory)/\(name)"
-//            case .image(let name): return "\(directory)/\(name)"
-//            case .audio(let name), .image(let name): return name
             case .audio(let name), .image(let name): return "\(directory)/\(name)"
             }
         }
@@ -70,9 +67,14 @@ final class FirebaseStorageManager
     private let storage = Storage.storage()
     static let shared = FirebaseStorageManager()
     private let maxImageSize: Int64 = 3 * 1024 * 1024  // 3MB
+    private let maxVoiceSize: Int64 = 20 * 1024 * 1024  // 20MB
     
     private init() {}
-    
+}
+
+//MARK: - message image save/get
+extension FirebaseStorageManager
+{
     func getImage(from path: StoragePathType, imagePath: String) async throws -> Data {
         try await path.reference.child(imagePath).data(maxSize: maxImageSize)
     }
@@ -105,7 +107,45 @@ final class FirebaseStorageManager
     }
 }
 
-
+//MARK: - message voice save/get
+extension FirebaseStorageManager
+{
+    func getVoiceData(from path: StoragePathType, voicePath: String) async throws -> Data
+    {
+        try await path.reference.child(voicePath).data(maxSize: maxVoiceSize)
+    }
+    
+    func saveVoice(fromURL url: URL,
+                   to path: StoragePathType) async
+    {
+        let meta = StorageMetadata()
+        meta.contentType = "audio/m4a"
+        
+        let voiceName = url.lastPathComponent
+        
+        do {
+            let metaData = try await path.reference.child(voiceName).putFileAsync(from: url)
+        } catch {
+            print("Error while saving voice message to storage")
+        }
+    }
+    
+//    func saveVoice(data: Data,
+//                   to path: StoragePathType,
+//                   voicePath: String) async throws
+//    {
+//        let meta = StorageMetadata()
+//        meta.contentType = "audio/m4a"
+//        
+//        let metaData = try await path.reference.child(voicePath).putDataAsync(data, metadata: meta)
+//        
+//        guard let returnedPath = metaData.path,
+//              let returnedName = metaData.name else
+//        {
+//            throw URLError(.badServerResponse)
+//        }
+//    }
+}
 
 
 

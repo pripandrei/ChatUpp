@@ -316,6 +316,22 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     @MainActor
+    func createVoiceMessage(fromURL url: URL)
+    {
+//        let url = AudioSessionManager.shared.getRecordedAudioURL()
+//        AudioSessionManager.shared.stopRecording()
+        
+//        if let url = url
+//        {
+            ensureConversationExists()
+            let message = createMessageLocally(ofType: .audio,
+                                               text: nil,
+                                               media: .init(audioPath: url.lastPathComponent))
+            syncMessageWithFirestore(message.freeze(), imageRepository: nil)
+//        }
+    }
+    
+    @MainActor
     func createMessageLocally(ofType type: MessageType,
                               text: String?,
                               media: MessageMediaParameters?) -> Message
@@ -362,17 +378,26 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         if self.conversation == nil { setupConversation() }
     }
     
-    func syncMessage(_ message: Message,
-                     imageRepository: ImageSampleRepository?)
+    func syncMessageWithFirestore(_ message: Message,
+                                  imageRepository: ImageSampleRepository?)
     {
         Task.detached { [weak self] in
             
             guard let self else { return }
-             
-            await self.setupConversationTask?.value 
-            if let repo = imageRepository {
+            
+            await self.setupConversationTask?.value
+            
+            if let repo = imageRepository
+            {
                 await self.saveImagesRemotelly(fromImageRepository: repo, for: message.id)
             }
+            
+            if let path = message.voicePath,
+               let voiceMessageURL = CacheManager.shared.getURL(for: path)
+            {
+                await FirebaseStorageManager.shared.saveVoice(fromURL: voiceMessageURL, to: .message(.audio(message.id)))
+            }
+            
             await self.firestoreService?.addMessageToFirestoreDataBase(message)
             await self.updateParticipantsUnseenMessageCounterRemote()
             await self.firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
@@ -647,7 +672,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     // fetch image from message
     
-    @MainActor
+//    @MainActor
     private func downloadImageData(from message: Message) async
     {
         guard let path = message.imagePath else { return }
@@ -656,11 +681,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         do {
             for path in paths {
-                let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(.image(message.id)), imagePath: path)
-                if message.senderId == "ArzzEyzTb7QRD5LhxIX3B5xqsql1"
-                {
-                    print("stop")
-                }
+                let imageData = try await FirebaseStorageManager.shared.getImage(
+                    from: .message(.image(message.id)),
+                    imagePath: path
+                )
                 CacheManager.shared.saveData(imageData, toPath: path)
             }
         } catch {
@@ -1113,7 +1137,6 @@ extension ChatRoomViewModel
         /// Message update is handled from within cell
         RealmDataBase.shared.add(objects: messages)
     }
-
     
     @MainActor
     private func fetchMessagesMetadata(_ messages: Set<Message>) async
@@ -1135,10 +1158,14 @@ extension ChatRoomViewModel
             tasks.append { await self.downloadImageData(from: message) }
         }
         
+        if message.voicePath != nil {
+            tasks.append { await self.downloadVoiceMessageData(from: message) }
+        }
+        
         if conversation?.isGroup == true {
             tasks.append { await self.syncGroupUsers(for: [message]) }
         }
-
+        
         if let messageToReplyID = message.repliedTo
         {
             tasks.append {
@@ -1152,6 +1179,19 @@ extension ChatRoomViewModel
             }
         }
         return tasks
+    }
+    
+//    @MainActor
+    private func downloadVoiceMessageData(from message: Message) async
+    {
+        do {
+            let voiceData = try await FirebaseStorageManager.shared.getVoiceData(
+                from: .message(.audio(message.id)),
+                voicePath: message.voicePath!)
+            CacheManager.shared.saveData(voiceData, toPath: message.voicePath!)
+        } catch {
+            print("Could not get voice data for message \(message.id): \(error)")
+        }
     }
     
     @MainActor

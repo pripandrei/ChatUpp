@@ -185,7 +185,7 @@ final class ChatRoomViewController: UIViewController
         
         rootView.cancelRecordingSubject.sink { [weak self] _ in
             self?.rootView.destroyVoiceRecUIComponents()
-            let url = AudioSessionManager.shared.stopRecording(withAudioRecDeletion: true)
+            AudioSessionManager.shared.stopRecording(withAudioRecDeletion: true)
 //            let activityVC = UIActivityViewController(activityItems: [url ?? .applicationDirectory], applicationActivities: nil)
             //        self.present(activityVC, animated: true)
         }.store(in: &subscriptions)
@@ -594,8 +594,6 @@ extension ChatRoomViewController
         let currentOffSet = tableView.contentOffset
         
         rootView.tableView.layoutIfNeeded()
-        //        DispatchQueue.main.async { [weak self] in
-        //            guard let self = self,
         guard let cell = tableView.cellForRow(at: indexPath) else { return }
         
         // Shift content offset upward by new cell height + margin (if section inserted)
@@ -637,7 +635,6 @@ extension ChatRoomViewController
                 footer.transform = CGAffineTransform(scaleX: 1, y: 1)
             }
         }
-        //        }
     }
     
     private func checkIfNewSectionWasAdded() -> Bool {
@@ -783,14 +780,50 @@ extension ChatRoomViewController
         }
     }
 
-    private func clearTextViewInput() {
+    private func clearTextViewInput()
+    {
         removeTextViewText()
         inputMessageTextViewDelegate.invalidateTextViewSize()
         callTextViewDidChange()
     }
     
+//    private func sendVoiceMessage(voiceURL: URL)
+//    {
+//        viewModel.ensureConversationExists()
+//        let message = viewModel.createMessageLocally(ofType: .audio,
+//                                                     text: nil,
+//                                                     media: .init(audioPath: voiceURL.lastPathComponent))
+//        updateUIOnNewMessageCreation(.audio)
+//        viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: nil)
+//    }
+//    
+//    private func manageVoiceMessageCreation()
+//    {
+////        rootView.destroyVoiceRecUIComponents()
+//        let url = AudioSessionManager.shared.getRecordedAudioURL()
+//        AudioSessionManager.shared.stopRecording()
+//        
+//        if let url = url {
+//            sendVoiceMessage(voiceURL: url)
+//        }
+//    }
+//    
+    
     @objc func sendMessageButtonWasTapped()
     {
+        // audio message creation
+        if AudioSessionManager.shared.isRecording()
+        {
+            rootView.destroyVoiceRecUIComponents()
+            let url = AudioSessionManager.shared.getRecordedAudioURL()
+            AudioSessionManager.shared.stopRecording()
+//            manageVoiceMessageCreation()
+            if let url { viewModel.createVoiceMessage(fromURL: url) } 
+            updateUIOnNewMessageCreation(.audio)
+            return
+        }
+        
+        // text, image, text/image creation
         let trimmedText = getTrimmedString()
         let image = self.messageImage
         self.messageImage = nil
@@ -818,7 +851,7 @@ extension ChatRoomViewController
         }
 
         // 4) Start background sync
-        viewModel.syncMessage(message.freeze(), imageRepository: repo)
+        viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: repo)
     }
     
     func createStickerMessage(_ path: String)
@@ -830,7 +863,7 @@ extension ChatRoomViewController
                                                      text: nil,
                                                      media: media)
         updateUIOnNewMessageCreation(.sticker)
-        viewModel.syncMessage(message.freeze(), imageRepository: nil)
+        viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: nil)
     }
     
     private func updateUIOnNewMessageCreation(_ messageType: MessageType)
