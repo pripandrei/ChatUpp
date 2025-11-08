@@ -33,6 +33,7 @@ final class ChatRoomRootView: UIView
     let trailingItemState = TrailingItemState()
     private var greetingView: GreetingView?
     
+    private var recordingTimer: Timer?
     private var recCounterLabel: UILabel?
     private var recRedDotView: UIView?
     private var recLabelsStackView: UIStackView?
@@ -411,7 +412,7 @@ final class ChatRoomRootView: UIView
 
 //MARK: - Voice rec setup
 extension ChatRoomRootView
-{    
+{
     func setupVoiceRecUIComponents()
     {
         createRecLabelsStackView()
@@ -589,6 +590,11 @@ extension ChatRoomRootView
     @objc func cancelVoiceRecording()
     {
         self.cancelRecordingSubject.send()
+    }
+    
+    func updateRecCounterLabelText(with time: String)
+    {
+        recCounterLabel?.text = time
     }
 }
 

@@ -32,12 +32,13 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
 {
     static let shared = AudioSessionManager()
     
-    @Published var progress: CGFloat = 0.0
-    @Published var isPlaying = false
-    @Published var duration: TimeInterval = 0
-    @Published var currentTime: TimeInterval = 0
-    @Published var waveformSamples: [CGFloat] = []
+    @Published var playbackProgress: CGFloat = 0.0
+    @Published var isAudioPlaying = false
     @Published var shouldUpdateProgress: Bool = true
+    @Published var waveformSamples: [CGFloat] = []
+    @Published var audioTotalDuration: TimeInterval = 0.0
+    @Published var currentPlaybackTime: TimeInterval = 0.0
+    @Published var currentRecordingTime: TimeInterval = 0.0
     
     private var audioPlayer: AVAudioPlayer?
     private var audioRecorder: AVAudioRecorder?
@@ -58,6 +59,13 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         return path.appendingPathComponent(fileName)
     }
     
+    private func startRecordingTimer()
+    {
+        self.timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true, block: { _ in
+            self.currentRecordingTime = self.audioRecorder?.currentTime ?? 0.0
+        })
+    }
+    
     func startRecording()
     {
         let audioURL = getAudioURL()
@@ -73,6 +81,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
             self.audioRecorder = try AVAudioRecorder(url: audioURL, settings: settings)
             self.audioRecorder?.delegate = self
             self.audioRecorder?.record()
+            self.startRecordingTimer()
         } catch {
             print("Could not initiate audio recording: \(error)")
         }
@@ -89,7 +98,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
             let deleted = self.audioRecorder?.deleteRecording()
             print("Deletion of file status: \(deleted ?? false)")
         }
-        
+        self.stopTimer()
         self.audioRecorder = nil
         return url
     }
@@ -113,7 +122,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
             
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
-            duration = audioPlayer?.duration ?? 0
+            audioTotalDuration = audioPlayer?.duration ?? 0
             
             // Generate waveform samples
             generateWaveform(from: url)
@@ -191,19 +200,19 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     
     func play() {
         audioPlayer?.play()
-        isPlaying = true
-        startTimer()
+        isAudioPlaying = true
+        startPlaybackTimer()
     }
     
     func pause() {
         audioPlayer?.pause()
-        isPlaying = false
+        isAudioPlaying = false
         stopTimer()
     }
     
     func togglePlayPause()
     {
-        if isPlaying {
+        if isAudioPlaying {
             pause()
         } else {
             play()
@@ -214,13 +223,13 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     {
         guard let player = audioPlayer else { return }
         
-        let newTime = TimeInterval(progress) * duration
+        let newTime = TimeInterval(progress) * audioTotalDuration
         player.currentTime = newTime
-        self.progress = progress
-        self.currentTime = newTime
+        self.playbackProgress = progress
+        self.currentPlaybackTime = newTime
     }
     
-    private func startTimer()
+    private func startPlaybackTimer()
     {
         stopTimer()
         timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
@@ -236,18 +245,18 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     private func updateProgress()
     {
         guard let player = audioPlayer, shouldUpdateProgress else { return }
-        currentTime = player.currentTime
+        currentPlaybackTime = player.currentTime
         
-        if duration > 0 {
-            progress = CGFloat(currentTime / duration)
+        if audioTotalDuration > 0 {
+            playbackProgress = CGFloat(currentPlaybackTime / audioTotalDuration)
         }
         
-        if !player.isPlaying && isPlaying
+        if !player.isPlaying && isAudioPlaying
         {
             // Playback finished
-            isPlaying = false
+            isAudioPlaying = false
             stopTimer()
-            progress = 0
+            playbackProgress = 0
             player.currentTime = 0
         }
     }

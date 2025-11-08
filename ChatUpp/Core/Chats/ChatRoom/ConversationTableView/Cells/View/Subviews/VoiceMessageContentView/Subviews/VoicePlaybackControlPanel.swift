@@ -26,20 +26,20 @@ struct AudioControlPanelView: View
                     Button(action: {
                         audioManager.togglePlayPause()
                     }) {
-                        Image(systemName: audioManager.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        Image(systemName: audioManager.isAudioPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .resizable()
                             .scaledToFit()
                             .frame(height: geometry.size.height * 0.8)
                             .foregroundColor(.white)
-                            .rotationEffect(.degrees(audioManager.isPlaying ? 180 : 0))
-                            .animation(.bouncy(duration: 0.3), value: audioManager.isPlaying)
+                            .rotationEffect(.degrees(audioManager.isAudioPlaying ? 180 : 0))
+                            .animation(.bouncy(duration: 0.3), value: audioManager.isAudioPlaying)
                     }
                     .buttonStyle(.plain)
 
                     VStack(spacing: 4)
                     {
                         WaveformScrubber(
-                            progress: $audioManager.progress,
+                            progress: $audioManager.playbackProgress,
                             shouldUpdateProgress: $audioManager.shouldUpdateProgress,
                             samples: audioManager.waveformSamples
 //                            filledColor: .white,
@@ -50,7 +50,7 @@ struct AudioControlPanelView: View
                         .frame(height: geometry.size.height * 0.3)
                         .padding(.top,5)
                         
-                        Text(audioManager.formatTime(audioManager.duration - audioManager.currentTime))
+                        Text(audioManager.formatTime(audioManager.audioTotalDuration - audioManager.currentPlaybackTime))
                             .font(.system(size: 12))
                             .foregroundColor(Color(ColorManager.incomingMessageComponentsTextColor))
                             .frame(maxWidth: .infinity, alignment: .leading)
