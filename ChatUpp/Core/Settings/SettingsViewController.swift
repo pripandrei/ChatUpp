@@ -146,7 +146,7 @@ extension SettingsViewController {
             configuration.text = settingItem.name
             configuration.image = UIImage(named: settingItem.iconName)
             configuration.textProperties.color = .white
-            configuration.imageProperties.cornerRadius = 5
+            configuration.imageProperties.cornerRadius = 7
             configuration.imageProperties.reservedLayoutSize = CGSize(width: 22, height: 22)
             
             var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()

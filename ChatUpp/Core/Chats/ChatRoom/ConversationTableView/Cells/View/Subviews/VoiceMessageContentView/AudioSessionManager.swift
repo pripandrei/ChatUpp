@@ -79,10 +79,17 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     }
     
     @discardableResult
-    func stopRecording() -> URL?
+    func stopRecording(withAudioRecDeletion shouldDelete: Bool = false) -> URL?
     {
         let url = audioRecorder?.url
         self.audioRecorder?.stop()
+        
+        if shouldDelete
+        {
+            let deleted = self.audioRecorder?.deleteRecording()
+            print("Deletion of file status: \(deleted ?? false)")
+        }
+        
         self.audioRecorder = nil
         return url
     }

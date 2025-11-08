@@ -16,6 +16,7 @@ import SwiftUI
 final class ChatRoomRootView: UIView
 {
     let contentOffsetSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
+    let cancelRecordingSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
     
     private let inputBarViewsTopConstraintConstant: CGFloat = 7.0
     private let inputBarButtonsSize: CGFloat = 31
@@ -34,8 +35,8 @@ final class ChatRoomRootView: UIView
     
     private var recCounterLabel: UILabel?
     private var recRedDotView: UIView?
-    private var cancelRecButton: UIButton?
     private var recLabelsStackView: UIStackView?
+    private(set) var cancelRecButton: UIButton?
     
     private(set) var inputBarContainer: InputBarContainer = InputBarContainer()
     
@@ -410,64 +411,94 @@ final class ChatRoomRootView: UIView
 
 //MARK: - Voice rec setup
 extension ChatRoomRootView
-{
-//    @objc func beginVoiceRecording()
-//    {
-//        resizeSendMessageButtonWithAnimation()
-//        createRecLabelsStackView()
-//        animateRecLabelsStackViewAppearance()
-//        animateRedDotBlink()
-//        animateTextViewResize()
-////        setupRecCounterLabel()
-//        setupCancelRecButton()
-//        animateStickerIconVisibility()
-//        // bring send button to top
-//        //disable keyboard
-//    }
-//    
+{    
     func setupVoiceRecUIComponents()
     {
-        resizeSendMessageButtonWithAnimation()
         createRecLabelsStackView()
-        animateRecLabelsStackViewAppearance()
+        resizeSendMessageButtonWithAnimation(aniamationState: .creation)
+        animateRecLabelsStackViewAppearance(animationState: .creation)
         animateRedDotBlink()
-        animateTextViewResize()
-//        setupRecCounterLabel()
+        animateTextViewResize(animationState: .creation)
         setupCancelRecButton()
-        animateStickerIconVisibility()
+        animateCancelButtonAppearnace(animationState: .creation)
+        animateStickerIconVisibility(animationState: .destruction)
     }
     
-    private func animateStickerIconVisibility()
+    func destroyVoiceRecUIComponents()
     {
-        UIView.animate(withDuration: 0.15) {
-            self.textViewTrailingItemView.alpha = 0.0
+        resizeSendMessageButtonWithAnimation(aniamationState: .destruction)
+        animateCancelButtonAppearnace(animationState: .destruction)
+        animateRecLabelsStackViewAppearance(animationState: .destruction)
+        animateTextViewResize(animationState: .destruction)
+        
+        executeAfter(seconds: 1.2) { [weak self] in
+            self?.recLabelsStackView?.arrangedSubviews.forEach { view in
+                self?.recLabelsStackView?.removeArrangedSubview(view)
+                view.removeFromSuperview()
+            }
+            self?.recLabelsStackView?.removeFromSuperview()
+            self?.cancelRecButton?.removeFromSuperview()
+            
+            self?.recLabelsStackView = nil
+            self?.recCounterLabel = nil
+            self?.recRedDotView = nil
+            self?.cancelRecButton = nil
         }
     }
     
-    private func animateRecLabelsStackViewAppearance()
+    private func animateCancelButtonAppearnace(animationState: AnimationState)
+    {
+        UIView.animate(withDuration: 0.2, delay: 0.0, animations: {
+            self.cancelRecButton?.alpha = animationState == .creation ? 1.0 : 0.0
+        })
+    }
+    
+    private func animateStickerIconVisibility(animationState: AnimationState)
+    {
+        UIView.animate(withDuration: 0.15) {
+            self.textViewTrailingItemView.alpha = animationState == .creation ? 1.0 : 0.0
+        }
+    }
+    
+    private func animateRecLabelsStackViewAppearance(animationState: AnimationState)
     {
         self.layoutIfNeeded()
         UIView.animate(withDuration: 0.25) {
-            self.recLabelsStackView?.alpha = 1.0
+            self.recLabelsStackView?.alpha = animationState == .creation ? 1.0 : 0.0
         }
     }
     
-    private func resizeSendMessageButtonWithAnimation()
+    private func resizeSendMessageButtonWithAnimation(aniamationState: AnimationState)
     {
+        if aniamationState == .creation
+        {
+            UIView.animate(withDuration: 0.15)
+            {
+                self.voiceRecButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+                self.sendMessageButton.isHidden = false
+                self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.7, y: 2.7)
+            } completion: { _ in
+                UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseIn]) {
+                    self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.4, y: 2.4)
+                } completion: { _ in
+                    UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseOut]) {
+                        self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.5, y: 2.5)
+                    }
+                }
+                self.voiceRecButton.isHidden = true
+            }
+            
+            return
+        }
+        
+        self.voiceRecButton.isHidden = false
+        
         UIView.animate(withDuration: 0.15)
         {
-            self.voiceRecButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-            self.sendMessageButton.isHidden = false
-            self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.7, y: 2.7)
+            self.sendMessageButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+            self.voiceRecButton.transform = .identity
         } completion: { _ in
-            UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseIn]) {
-                self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.4, y: 2.4)
-            } completion: { _ in
-                UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseOut]) {
-                    self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.5, y: 2.5)
-                }
-            }
-            self.voiceRecButton.isHidden = true
+            self.sendMessageButton.isHidden = true
         }
     }
     
@@ -481,10 +512,10 @@ extension ChatRoomRootView
         }
     }
     
-    private func animateTextViewResize()
+    private func animateTextViewResize(animationState: AnimationState)
     {
         UIView.animate(withDuration: 0.3, delay: 0.0, options: [.curveEaseOut]) {
-            self.textViewLeadingConstraint.constant = 8
+            self.textViewLeadingConstraint.constant = animationState == .creation ? 8 : 48
             self.layoutIfNeeded()
         }
     }
@@ -544,6 +575,7 @@ extension ChatRoomRootView
         self.cancelRecButton?.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         self.cancelRecButton?.setTitleColor(ColorManager.actionButtonsTintColor, for: .normal)
         self.cancelRecButton?.translatesAutoresizingMaskIntoConstraints = false
+        self.cancelRecButton?.addTarget(self, action: #selector(cancelVoiceRecording), for: .touchUpInside)
         self.cancelRecButton?.alpha = 0.0
         
         inputBarContainer.addSubview(cancelRecButton!)
@@ -552,10 +584,11 @@ extension ChatRoomRootView
             self.cancelRecButton!.centerXAnchor.constraint(equalTo: messageTextView.centerXAnchor, constant: 20),
             self.cancelRecButton!.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
         ])
-        
-        UIView.animate(withDuration: 0.2, delay: 0.1, animations: {
-            self.cancelRecButton?.alpha = 1.0
-        })
+    }
+    
+    @objc func cancelVoiceRecording()
+    {
+        self.cancelRecordingSubject.send()
     }
 }
 
@@ -833,4 +866,11 @@ extension ChatRoomRootView
             image.draw(in: CGRect(origin: .zero, size: size))
         }
     }
+}
+
+
+enum AnimationState
+{
+    case creation
+    case destruction
 }

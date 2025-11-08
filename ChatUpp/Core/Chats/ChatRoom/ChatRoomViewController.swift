@@ -173,10 +173,17 @@ final class ChatRoomViewController: UIViewController
     
     private func setupBinding()
     {
+        rootView.cancelRecordingSubject.sink { [weak self] _ in
+            self?.rootView.destroyVoiceRecUIComponents()
+            let url = AudioSessionManager.shared.stopRecording(withAudioRecDeletion: true)
+//            let activityVC = UIActivityViewController(activityItems: [url ?? .applicationDirectory], applicationActivities: nil)
+            //        self.present(activityVC, animated: true)
+        }.store(in: &subscriptions)
+        
         inputMessageTextViewDelegate.$isTextViewEmpty
-            .sink { isEmpty in
+            .sink { [weak self] isEmpty in
                 let shouldBeVisible = isEmpty
-                self.rootView.toggleVoiceRecButtonVisibility(shouldBeVisible)
+                self?.rootView.toggleVoiceRecButtonVisibility(shouldBeVisible)
 //                self.rootView.isVoiceRecButtonShown = isEmpty
             }.store(in: &subscriptions)
         
@@ -708,7 +715,7 @@ extension ChatRoomViewController
     {
         rootView.voiceRecButton.addTarget(self, action: #selector(beginVoiceRecording), for: .touchUpInside)
     }
-    
+       
     @objc func beginVoiceRecording()
     {
         PermissionManager.shared.requestMicrophonePermission { granted in
@@ -716,11 +723,6 @@ extension ChatRoomViewController
                 if granted {
                     self.rootView.setupVoiceRecUIComponents()
                     AudioSessionManager.shared.startRecording()
-                    executeAfter(seconds: 5.0) {
-                        let url = AudioSessionManager.shared.stopRecording()
-                        let activityVC = UIActivityViewController(activityItems: [url ?? .applicationDirectory], applicationActivities: nil)
-                        self.present(activityVC, animated: true)
-                    }
                 } else
                 {
                     self.alertPresenter.presentPermissionDeniedAlert(from: self, for: .microphone)
