@@ -191,6 +191,7 @@ final class ChatRoomViewController: UIViewController
         }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.$isTextViewEmpty
+            .dropFirst()
             .sink { [weak self] isEmpty in
                 let shouldBeVisible = isEmpty
                 self?.rootView.toggleVoiceRecButtonVisibility(shouldBeVisible)

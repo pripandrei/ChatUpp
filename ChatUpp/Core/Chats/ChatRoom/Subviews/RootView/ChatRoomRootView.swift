@@ -525,7 +525,7 @@ extension ChatRoomRootView
     {
         self.recLabelsStackView = UIStackView()
         recLabelsStackView?.axis = .horizontal
-        recLabelsStackView?.spacing = 8
+        recLabelsStackView?.spacing = 5
         recLabelsStackView?.translatesAutoresizingMaskIntoConstraints = false
         
         self.recRedDotView = makeRecRedDotView()
