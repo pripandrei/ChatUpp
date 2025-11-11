@@ -7,96 +7,96 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A3947295-3414-4AFA-8658-EADBD896C3CB"
+            uuid = "93C9BD9D-B629-44B5-ADFF-426104343A96"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/VoiceMessageContentView/AudioSessionManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1104"
-            endingLineNumber = "1104"
-            landmarkName = "handleRemovedMessages(_:)"
-            landmarkType = "7">
+            startingLineNumber = "237"
+            endingLineNumber = "237"
+            landmarkName = "AudioSessionManager"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "4351A955-AF37-4EF6-B433-969FEB5D76A4"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1138"
-            endingLineNumber = "1138"
-            landmarkName = "fetchMessagesMetadata(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "210FAEFE-1FE4-4BA3-BAB2-28FAF36EF47A"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "672"
-            endingLineNumber = "672"
-            landmarkName = "downloadImageData(from:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "1DAF5A8C-B80E-42B7-BA12-B3BEB0B8878D"
+            uuid = "2DA9BF50-9131-4DB2-A9A3-D77608D8C5D3"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/VoiceMessageContentView/Subviews/VoicePlaybackControlPanel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "151"
-            endingLineNumber = "151"
-            landmarkName = "AudioControlPanelView"
-            landmarkType = "14">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "910239BB-02E7-49DE-BB7A-D4D359038D6C"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/VoiceMessageContentView/AudioSessionManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "220"
-            endingLineNumber = "220"
-            landmarkName = "play(audioURL:)"
+            startingLineNumber = "85"
+            endingLineNumber = "85"
+            landmarkName = "setupBinding()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "200C9D5F-EA46-4F0A-9504-98CAA6504900"
+            uuid = "B0BE7ECB-1B2E-4B7D-983E-D122B7FCC4B3"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/VoiceMessageContentView/AudioSessionManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "223"
-            endingLineNumber = "223"
-            landmarkName = "play(audioURL:)"
+            startingLineNumber = "244"
+            endingLineNumber = "244"
+            landmarkName = "AudioSessionManager"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "ADD4C1B4-E650-4939-8EA3-E65E95919009"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/VoiceMessageContentView/AudioSessionManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "247"
+            endingLineNumber = "247"
+            landmarkName = "AudioSessionManager"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E45B3B11-A690-4271-98E9-FB1942B8DA59"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/VoiceMessageContentView/AudioSessionManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "148"
+            endingLineNumber = "148"
+            landmarkName = "loadAudio(url:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E9DDD7FC-E1EC-403F-805F-6569781F16E7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/VoiceMessageContentView/AudioSessionManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "283"
+            endingLineNumber = "283"
+            landmarkName = "updatePlaybackTime()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

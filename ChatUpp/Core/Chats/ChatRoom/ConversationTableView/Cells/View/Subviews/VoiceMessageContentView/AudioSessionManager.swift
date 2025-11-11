@@ -219,22 +219,43 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     {
         if audioURL != self.currentlyLoadedAudioURL
         {
+            /// do not change order
             stopPlayback()
+//            currentPlaybackTime = time
             loadAudio(url: audioURL)
-            play()
+//            play()
             self.currentlyLoadedAudioURL = audioURL
-        } else {
-            togglePlayPause()
         }
+//        else {
         updateCurrentPlaybackTime(time: time)
+        togglePlayPause()
+//        }
     }
+    
+//    func play(audioURL: URL, startingAtTime time: TimeInterval = 0.0)
+//    {
+//        if audioURL != self.currentlyLoadedAudioURL
+//        {
+//            /// do not change order
+//            stopPlayback()
+//            currentPlaybackTime = time
+//            loadAudio(url: audioURL)
+////            play()
+//            self.currentlyLoadedAudioURL = audioURL
+//        }
+////        else {
+//        updateCurrentPlaybackTime(time: time)
+//        togglePlayPause()
+////        }
+//    }
     
     private func stopPlayback()
     {
         audioPlayer?.stop()
         audioPlayer = nil
         isAudioPlaying = false
-        self.currentlyLoadedAudioURL = nil
+        currentlyLoadedAudioURL = nil
+//        currentPlaybackTime = 0.0
         stopTimer()
     }
 
@@ -247,7 +268,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     {
         stopTimer()
         timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-            self?.updateProgress()
+            self?.updatePlaybackTime()
         }
     }
     
@@ -256,7 +277,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         timer = nil
     }
     
-    private func updateProgress()
+    private func updatePlaybackTime()
     {
         guard let player = audioPlayer /*, shouldUpdateProgress*/ else { return }
         self.currentPlaybackTime = player.currentTime

@@ -60,16 +60,37 @@ final class AudioControlPanelViewModel: SwiftUI.ObservableObject
 //            .assign(to: &$isPlaying)
         
         
+//        audioManager.$currentPlaybackTime
+//            .combineLatest(audioManager.$currentlyLoadedAudioURL)
+//            .sink { [weak self] playbackTime, currentAudioURL in
+//                guard let self else {return}
+//                
+//                if self.audioFileURL == currentAudioURL
+//                {
+//                    print("PlayBack time:  ", playbackTime)
+//                    self.currentPlaybackTime = playbackTime
+//                    
+//                    if shouldUpdateProgress
+//                    {
+//                        self.playbackProgress = CGFloat(playbackTime / self.audioTotalDuration)
+//                        print("PlayBack progress:  ", self.playbackProgress)
+//                    }
+//                }
+//            }.store(in: &cancellables)
+        
         audioManager.$currentPlaybackTime
-            .combineLatest(audioManager.$currentlyLoadedAudioURL)
-            .sink { [weak self] playbackTime, currentAudioURL in
+            .sink { [weak self] playbackTime in
                 guard let self else {return}
                 
-                if self.audioFileURL == currentAudioURL
+                if self.audioFileURL == self.audioManager.currentlyLoadedAudioURL
                 {
+                    print("PlayBack time:  ", playbackTime)
                     self.currentPlaybackTime = playbackTime
-                    if shouldUpdateProgress {
+                    
+                    if shouldUpdateProgress
+                    {
                         self.playbackProgress = CGFloat(playbackTime / self.audioTotalDuration)
+                        print("PlayBack progress:  ", self.playbackProgress)
                     }
                 }
             }.store(in: &cancellables)
