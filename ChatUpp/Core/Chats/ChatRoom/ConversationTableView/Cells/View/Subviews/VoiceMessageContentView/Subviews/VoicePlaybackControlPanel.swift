@@ -120,11 +120,6 @@ final class AudioControlPanelViewModel: SwiftUI.ObservableObject
 //        isPlaying = !isPlaying
     }
     
-//    func loadAudio()
-//    {
-//        audioManager.loadAudio(url: self.audioFileURL)
-//    }
-    
     func seek(to progress: CGFloat)
     {
 //        audioManager.seek(to: progress)
