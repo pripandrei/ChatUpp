@@ -32,13 +32,15 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
 {
     static let shared = AudioSessionManager()
     
-    @Published var playbackProgress: CGFloat = 0.0
+//    @Published var playbackProgress: CGFloat = 0.0
     @Published var isAudioPlaying = false
-    @Published var shouldUpdateProgress: Bool = true
-    @Published var waveformSamples: [CGFloat] = []
-    @Published var audioTotalDuration: TimeInterval = 0.0
+//    @Published var shouldUpdateProgress: Bool = true
+//    @Published var waveformSamples: [CGFloat] = []
+//    @Published var audioTotalDuration: TimeInterval = 0.0
     @Published var currentPlaybackTime: TimeInterval = 0.0
     @Published var currentRecordingTime: TimeInterval = 0.0
+    
+    @Published var currentlyLoadedAudioURL: URL?
     
     private var audioPlayer: AVAudioPlayer?
     private var audioRecorder: AVAudioRecorder?
@@ -53,7 +55,9 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     
     private func startRecordingTimer()
     {
-        self.timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true, block: { _ in
+        self.timer = Timer.scheduledTimer(withTimeInterval: 0.01,
+                                          repeats: true,
+                                          block: { _ in
             self.currentRecordingTime = self.audioRecorder?.currentTime ?? 0.0
         })
     }
@@ -122,51 +126,36 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         }
     }
     
+    func getAudioDuration(from url: URL) async -> CMTime
+    {
+        do {
+            return try await AVURLAsset(url: url).load(.duration)
+        } catch {
+            print("Could not load audio asset: \(error)")
+        }
+        return .invalid
+    }
+    
     // Load audio from file
-    func loadAudio(url: URL) {
+    func loadAudio(url: URL)
+    {
         do {
 //            guard let url2 = Bundle.main.url(forResource: "tokyo_lounge", withExtension: "m4a") else { return }
             
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
-            audioTotalDuration = audioPlayer?.duration ?? 0
-            
-            // Generate waveform samples
-            generateWaveform(from: url)
+//            audioTotalDuration = audioPlayer?.duration ?? 0
+            currentlyLoadedAudioURL = url
+//            // Generate waveform samples
+//            generateWaveform(from: url)
         } catch {
             print("Failed to load audio: \(error)")
         }
     }
     
-    // Load audio from bundle
-    func loadAudio(filename: String, fileExtension: String = "m4a")
+    func extractSamples(from url: URL,
+                        targetSampleCount: Int) -> [CGFloat]
     {
-        guard let url = Bundle.main.url(forResource: filename,
-                                        withExtension: fileExtension) else
-        {
-            print("Audio file not found in bundle")
-            return
-        }
-        loadAudio(url: url)
-    }
-    
-    // Generate waveform samples from audio file
-    private func generateWaveform(from url: URL)
-    {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            
-            guard /*let targetCount = self?.getSampleCountForDuration(self?.duration ?? 0),*/
-                  let samples = self?.extractWaveformSamples(from: url, targetSampleCount: 40)
-            else { return }
-            
-            DispatchQueue.main.async {
-                self?.waveformSamples = samples
-            }
-        }
-    }
-    
-    private func extractWaveformSamples(from url: URL,
-                                        targetSampleCount: Int) -> [CGFloat] {
         do {
             let file = try AVAudioFile(forReading: url)
             let format = file.processingFormat
@@ -205,13 +194,13 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         }
     }
     
-    func play() {
+    private func play() {
         audioPlayer?.play()
         isAudioPlaying = true
         startPlaybackTimer()
     }
     
-    func pause() {
+    private func pause() {
         audioPlayer?.pause()
         isAudioPlaying = false
         stopTimer()
@@ -226,14 +215,32 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         }
     }
     
-    func seek(to progress: CGFloat)
+    func play(audioURL: URL, startingAtTime time: TimeInterval = 0.0)
     {
-        guard let player = audioPlayer else { return }
-        
-        let newTime = TimeInterval(progress) * audioTotalDuration
-        player.currentTime = newTime
-        self.playbackProgress = progress
-        self.currentPlaybackTime = newTime
+        if audioURL != self.currentlyLoadedAudioURL
+        {
+            stopPlayback()
+            loadAudio(url: audioURL)
+            play()
+            self.currentlyLoadedAudioURL = audioURL
+        } else {
+            togglePlayPause()
+        }
+        updateCurrentPlaybackTime(time: time)
+    }
+    
+    private func stopPlayback()
+    {
+        audioPlayer?.stop()
+        audioPlayer = nil
+        isAudioPlaying = false
+        self.currentlyLoadedAudioURL = nil
+        stopTimer()
+    }
+
+    func updateCurrentPlaybackTime(time: TimeInterval)
+    {
+        audioPlayer?.currentTime = time
     }
     
     private func startPlaybackTimer()
@@ -251,29 +258,55 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     
     private func updateProgress()
     {
-        guard let player = audioPlayer, shouldUpdateProgress else { return }
-        currentPlaybackTime = player.currentTime
+        guard let player = audioPlayer /*, shouldUpdateProgress*/ else { return }
+        self.currentPlaybackTime = player.currentTime
         
-        if audioTotalDuration > 0 {
-            playbackProgress = CGFloat(currentPlaybackTime / audioTotalDuration)
-        }
+//        if audioTotalDuration > 0
+//        {
+//            playbackProgress = CGFloat(currentPlaybackTime / audioTotalDuration)
+//        }
         
         if !player.isPlaying && isAudioPlaying
         {
             // Playback finished
             isAudioPlaying = false
             stopTimer()
-            playbackProgress = 0
+//            playbackProgress = 0
+            currentPlaybackTime = 0
             player.currentTime = 0
         }
     }
     
-    func formatTime(_ time: TimeInterval) -> String
-    {
-        let minutes = Int(time) / 60
-        let seconds = Int(time) % 60
-        return String(format: "%d:%02d", minutes, seconds)
-    }
+    // Load audio from bundle
+//    func loadAudio(filename: String, fileExtension: String = "m4a")
+//    {
+//        guard let url = Bundle.main.url(forResource: filename,
+//                                        withExtension: fileExtension) else
+//        {
+//            print("Audio file not found in bundle")
+//            return
+//        }
+//        loadAudio(url: url)
+//    }
+    
+    
+//    func formatTime(_ time: TimeInterval) -> String
+//    {
+//        let minutes = Int(time) / 60
+//        let seconds = Int(time) % 60
+//        return String(format: "%d:%02d", minutes, seconds)
+//    }
+    
+    //    func seek(to progress: CGFloat)
+    //    {
+    ////        guard let player = audioPlayer else { return }
+    //
+    //        let newTime = TimeInterval(progress) * audioTotalDuration
+    ////        player.currentTime = newTime
+    //        self.playbackProgress = progress
+    //        self.currentPlaybackTime = newTime
+    //    }
+        
     
     deinit {
         stopTimer()

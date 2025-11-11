@@ -318,17 +318,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     @MainActor
     func createVoiceMessage(fromURL url: URL)
     {
-//        let url = AudioSessionManager.shared.getRecordedAudioURL()
-//        AudioSessionManager.shared.stopRecording()
-        
-//        if let url = url
-//        {
-            ensureConversationExists()
-            let message = createMessageLocally(ofType: .audio,
-                                               text: nil,
-                                               media: .init(audioPath: url.lastPathComponent))
-            syncMessageWithFirestore(message.freeze(), imageRepository: nil)
-//        }
+        ensureConversationExists()
+        let message = createMessageLocally(
+            ofType: .audio,
+            text: nil,
+            media: .init(audioPath: url.lastPathComponent)
+        )
+        syncMessageWithFirestore(message.freeze(), imageRepository: nil)
     }
     
     @MainActor
@@ -346,9 +342,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return message
     }
     
-    func createNewMessage(ofType type: MessageType = .text,
+    private func createNewMessage(ofType type: MessageType = .text,
                           messageText: String? = nil,
-//                          imagePath: String? = nil,
                           mediaParameters: MessageMediaParameters? = nil) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
@@ -417,7 +412,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     /// unseen messages counter update
     ///
-    
     
     @MainActor
     private func updateParticipantsUnseenMessageCounterRemote() async

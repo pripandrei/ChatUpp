@@ -7,13 +7,134 @@
 
 import SwiftUI
 import AVFoundation
+import Combine
   
+final class AudioControlPanelViewModel: SwiftUI.ObservableObject
+{
+    @Published var waveformSamples: [CGFloat] = []
+    @Published var isPlaying: Bool = false
+    @Published var playbackProgress: CGFloat = 0.0
+    @Published var currentPlaybackTime: TimeInterval = 0.0
+    @Published var shouldUpdateProgress: Bool = true
+    var audioTotalDuration: TimeInterval = 0.0
+    
+    private var cancellables: Set<AnyCancellable> = []
+    
+    private let audioManager = AudioSessionManager.shared
+    private let audioFileURL: URL
+    
+    init(audioFileURL: URL)
+    {
+        self.audioFileURL = audioFileURL
+//        loadAudio()
+        generateWaveform(from: audioFileURL)
+        Task
+        {
+            let duration = await audioManager.getAudioDuration(from: audioFileURL)
+            self.audioTotalDuration = CMTimeGetSeconds(duration)
+        }
+        setupBinding()
+    }
+    
+    private func setupBinding()
+    {
+//        audioManager.$currentlyLoadedAudioURL
+//            .dropFirst()
+//            .map { self.audioFileURL == $0 }
+//            .assign(to: &$isPlaying)
+        
+        audioManager.$currentlyLoadedAudioURL
+            .combineLatest(audioManager.$isAudioPlaying)
+            .dropFirst()
+            .sink { [weak self] currentAudioURL, isPlaying in
+                guard let self else {return}
+                
+                if currentAudioURL == self.audioFileURL
+                {
+                    self.isPlaying = isPlaying
+                } else {
+                    self.isPlaying = false
+                }
+            }
+            .store(in: &cancellables)
+//            .assign(to: &$isPlaying)
+        
+        
+        audioManager.$currentPlaybackTime
+            .combineLatest(audioManager.$currentlyLoadedAudioURL)
+            .sink { [weak self] playbackTime, currentAudioURL in
+                guard let self else {return}
+                
+                if self.audioFileURL == currentAudioURL
+                {
+                    self.currentPlaybackTime = playbackTime
+                    if shouldUpdateProgress {
+                        self.playbackProgress = CGFloat(playbackTime / self.audioTotalDuration)
+                    }
+                }
+            }.store(in: &cancellables)
+    }
+    
+    // Generate waveform samples from audio file
+    private func generateWaveform(from url: URL)
+    {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            
+//            guard /*let targetCount = self?.getSampleCountForDuration(self?.duration ?? 0),*/
+            guard let samples = self?.audioManager.extractSamples(from: url,
+                                                                  targetSampleCount: 40)
+            else { return }
+            
+            DispatchQueue.main.async {
+                self?.waveformSamples = samples
+            }
+        }
+    }
+    
+    func togglePlayPause()
+    {
+//        audioManager.togglePlayPause()
+        audioManager.play(audioURL: audioFileURL,
+                          startingAtTime: currentPlaybackTime)
+//        isPlaying = !isPlaying
+    }
+    
+//    func loadAudio()
+//    {
+//        audioManager.loadAudio(url: self.audioFileURL)
+//    }
+    
+    func seek(to progress: CGFloat)
+    {
+//        audioManager.seek(to: progress)
+        let newTime = TimeInterval(progress) * audioTotalDuration
+        if self.audioFileURL == audioManager.currentlyLoadedAudioURL
+        {
+            audioManager.updateCurrentPlaybackTime(time: newTime)
+        }
+        playbackProgress = progress
+        currentPlaybackTime = newTime
+    }
+    
+    func formatTime(_ time: TimeInterval) -> String
+    {
+        let minutes = Int(time) / 60
+        let seconds = Int(time) % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
+}
 
 // MARK: - Audio control panel
 struct AudioControlPanelView: View
 {
-    @StateObject private var audioManager = AudioSessionManager.shared
-    @State var audioFileURL: URL
+    @StateObject var viewModel: AudioControlPanelViewModel
+//    @StateObject private var audioManager = AudioSessionManager.shared
+//    @State var audioFileURL: URL
+    
+    init(audioFileURL: URL)
+    {
+        _viewModel = StateObject(wrappedValue: .init(audioFileURL: audioFileURL))
+    }
     
     var body: some View
     {
@@ -24,33 +145,35 @@ struct AudioControlPanelView: View
                 HStack(spacing: 0)
                 {
                     Button(action: {
-                        audioManager.togglePlayPause()
+                        viewModel.togglePlayPause()
                     }) {
-                        Image(systemName: audioManager.isAudioPlaying ? "pause.circle.fill" : "play.circle.fill")
+//                        Image(systemName: audioManager.isAudioPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        Image(systemName: viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .resizable()
                             .scaledToFit()
                             .frame(height: geometry.size.height * 0.8)
                             .foregroundColor(.white)
-                            .rotationEffect(.degrees(audioManager.isAudioPlaying ? 180 : 0))
-                            .animation(.bouncy(duration: 0.3), value: audioManager.isAudioPlaying)
+                            .rotationEffect(.degrees(viewModel.isPlaying ? 180 : 0))
+                            .animation(.bouncy(duration: 0.3), value: viewModel.isPlaying)
                     }
                     .buttonStyle(.plain)
 
                     VStack(spacing: 4)
                     {
                         WaveformScrubber(
-                            progress: $audioManager.playbackProgress,
-                            shouldUpdateProgress: $audioManager.shouldUpdateProgress,
-                            samples: audioManager.waveformSamples
+                            progress: $viewModel.playbackProgress,
+                            shouldUpdateProgress: $viewModel.shouldUpdateProgress,
+                            samples: viewModel.waveformSamples
 //                            filledColor: .white,
 //                            unfilledColor: .pink.opacity(0.6)
                         ) { newProgress in
-                            audioManager.seek(to: newProgress)
+                            viewModel.seek(to: newProgress)
                         }
                         .frame(height: geometry.size.height * 0.3)
                         .padding(.top,5)
                         
-                        Text(audioManager.formatTime(audioManager.audioTotalDuration - audioManager.currentPlaybackTime))
+//                        Text(audioManager.formatTime(audioManager.audioTotalDuration - audioManager.currentPlaybackTime))
+                        Text(viewModel.formatTime(viewModel.audioTotalDuration - viewModel.currentPlaybackTime))
                             .font(.system(size: 12))
                             .foregroundColor(Color(ColorManager.incomingMessageComponentsTextColor))
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -61,11 +184,11 @@ struct AudioControlPanelView: View
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
-        .onAppear {
-            audioManager.loadAudio(url: audioFileURL)
-        }
+//        .onAppear {
+//            viewModel.loadAudio()
+//        }
         .background(Color(ColorManager.outgoingMessageBackgroundColor))
-        .clipped() // 👈 ensures it doesn't overflow the given height
+        .clipped()
     }
 }
 

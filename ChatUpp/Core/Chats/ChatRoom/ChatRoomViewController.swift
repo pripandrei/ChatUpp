@@ -817,8 +817,8 @@ extension ChatRoomViewController
             rootView.destroyVoiceRecUIComponents()
             let url = AudioSessionManager.shared.getRecordedAudioURL()
             AudioSessionManager.shared.stopRecording()
-//            manageVoiceMessageCreation()
-            if let url { viewModel.createVoiceMessage(fromURL: url) } 
+
+            if let url { viewModel.createVoiceMessage(fromURL: url) }
             updateUIOnNewMessageCreation(.audio)
             return
         }

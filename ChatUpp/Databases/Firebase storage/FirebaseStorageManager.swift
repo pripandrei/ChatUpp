@@ -124,7 +124,7 @@ extension FirebaseStorageManager
         let voiceName = url.lastPathComponent
         
         do {
-            let metaData = try await path.reference.child(voiceName).putFileAsync(from: url)
+            let _ = try await path.reference.child(voiceName).putFileAsync(from: url)
         } catch {
             print("Error while saving voice message to storage")
         }
