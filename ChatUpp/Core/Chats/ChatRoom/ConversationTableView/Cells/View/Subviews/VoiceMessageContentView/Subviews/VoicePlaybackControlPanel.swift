@@ -11,22 +11,21 @@ import Combine
   
 final class AudioControlPanelViewModel: SwiftUI.ObservableObject
 {
-    @Published var waveformSamples: [CGFloat] = []
-    @Published var isPlaying: Bool = false
+    @Published private(set) var waveformSamples: [CGFloat] = []
+    @Published private(set) var isPlaying: Bool = false
+    @Published private(set) var currentPlaybackTime: TimeInterval = 0.0
     @Published var playbackProgress: CGFloat = 0.0
-    @Published var currentPlaybackTime: TimeInterval = 0.0
     @Published var shouldUpdateProgress: Bool = true
-    var audioTotalDuration: TimeInterval = 0.0
-    
-    private var cancellables: Set<AnyCancellable> = []
     
     private let audioManager = AudioSessionManager.shared
     private let audioFileURL: URL
+    private var cancellables: Set<AnyCancellable> = []
+        
+    var audioTotalDuration: TimeInterval = 0.0
     
     init(audioFileURL: URL)
     {
         self.audioFileURL = audioFileURL
-//        loadAudio()
         generateWaveform(from: audioFileURL)
         Task
         {
@@ -38,11 +37,6 @@ final class AudioControlPanelViewModel: SwiftUI.ObservableObject
     
     private func setupBinding()
     {
-//        audioManager.$currentlyLoadedAudioURL
-//            .dropFirst()
-//            .map { self.audioFileURL == $0 }
-//            .assign(to: &$isPlaying)
-        
         audioManager.$currentlyLoadedAudioURL
             .combineLatest(audioManager.$isAudioPlaying)
             .dropFirst()
@@ -57,27 +51,7 @@ final class AudioControlPanelViewModel: SwiftUI.ObservableObject
                 }
             }
             .store(in: &cancellables)
-//            .assign(to: &$isPlaying)
-        
-        
-//        audioManager.$currentPlaybackTime
-//            .combineLatest(audioManager.$currentlyLoadedAudioURL)
-//            .sink { [weak self] playbackTime, currentAudioURL in
-//                guard let self else {return}
-//                
-//                if self.audioFileURL == currentAudioURL
-//                {
-//                    print("PlayBack time:  ", playbackTime)
-//                    self.currentPlaybackTime = playbackTime
-//                    
-//                    if shouldUpdateProgress
-//                    {
-//                        self.playbackProgress = CGFloat(playbackTime / self.audioTotalDuration)
-//                        print("PlayBack progress:  ", self.playbackProgress)
-//                    }
-//                }
-//            }.store(in: &cancellables)
-        
+
         audioManager.$currentPlaybackTime
             .sink { [weak self] playbackTime in
                 guard let self else {return}
@@ -101,7 +75,6 @@ final class AudioControlPanelViewModel: SwiftUI.ObservableObject
     {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             
-//            guard /*let targetCount = self?.getSampleCountForDuration(self?.duration ?? 0),*/
             guard let samples = self?.audioManager.extractSamples(from: url,
                                                                   targetSampleCount: 40)
             else { return }
@@ -114,15 +87,12 @@ final class AudioControlPanelViewModel: SwiftUI.ObservableObject
     
     func togglePlayPause()
     {
-//        audioManager.togglePlayPause()
         audioManager.play(audioURL: audioFileURL,
                           startingAtTime: currentPlaybackTime)
-//        isPlaying = !isPlaying
     }
     
     func seek(to progress: CGFloat)
     {
-//        audioManager.seek(to: progress)
         let newTime = TimeInterval(progress) * audioTotalDuration
         if self.audioFileURL == audioManager.currentlyLoadedAudioURL
         {
@@ -144,9 +114,7 @@ final class AudioControlPanelViewModel: SwiftUI.ObservableObject
 struct AudioControlPanelView: View
 {
     @StateObject var viewModel: AudioControlPanelViewModel
-//    @StateObject private var audioManager = AudioSessionManager.shared
-//    @State var audioFileURL: URL
-    
+
     init(audioFileURL: URL)
     {
         _viewModel = StateObject(wrappedValue: .init(audioFileURL: audioFileURL))
@@ -163,7 +131,6 @@ struct AudioControlPanelView: View
                     Button(action: {
                         viewModel.togglePlayPause()
                     }) {
-//                        Image(systemName: audioManager.isAudioPlaying ? "pause.circle.fill" : "play.circle.fill")
                         Image(systemName: viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .resizable()
                             .scaledToFit()
@@ -188,7 +155,6 @@ struct AudioControlPanelView: View
                         .frame(height: geometry.size.height * 0.3)
                         .padding(.top,5)
                         
-//                        Text(audioManager.formatTime(audioManager.audioTotalDuration - audioManager.currentPlaybackTime))
                         Text(viewModel.formatTime(viewModel.audioTotalDuration - viewModel.currentPlaybackTime))
                             .font(.system(size: 12))
                             .foregroundColor(Color(ColorManager.incomingMessageComponentsTextColor))
@@ -200,9 +166,6 @@ struct AudioControlPanelView: View
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
-//        .onAppear {
-//            viewModel.loadAudio()
-//        }
         .background(Color(ColorManager.outgoingMessageBackgroundColor))
         .clipped()
     }

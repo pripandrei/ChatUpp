@@ -148,7 +148,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
 //    }
 }
 
-// MARK: Recording
+// MARK: - Recording
 extension AudioSessionManager
 {
     func startRecording()
@@ -205,7 +205,7 @@ extension AudioSessionManager
     }
 }
 
-// MARK: Playback
+// MARK: - Playback
 extension AudioSessionManager
 {
     func loadAudio(url: URL)
