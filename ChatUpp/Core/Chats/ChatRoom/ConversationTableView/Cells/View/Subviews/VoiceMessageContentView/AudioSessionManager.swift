@@ -185,7 +185,6 @@ extension AudioSessionManager
         }
         self.stopTimer()
         self.audioRecorder = nil
-//        self.recordCancellationSubject.send(())
     }
     
     func isRecording() -> Bool
@@ -243,15 +242,23 @@ extension AudioSessionManager
         }
     }
 
-    private func play() {
+    func play() {
         audioPlayer?.play()
         isAudioPlaying = true
         startPlaybackTimer()
     }
     
-    private func pause() {
+    func pause() {
         audioPlayer?.pause()
         isAudioPlaying = false
+        stopTimer()
+    }
+    
+    func stopPlayback()
+    {
+        audioPlayer?.stop()
+        isAudioPlaying = false
+        currentPlaybackTime = 0.0
         stopTimer()
     }
     
@@ -275,13 +282,5 @@ extension AudioSessionManager
                     self.stopPlayback()
                 }
             }
-    }
-    
-    private func stopPlayback()
-    {
-        audioPlayer?.stop()
-        isAudioPlaying = false
-        currentPlaybackTime = 0.0
-        stopTimer()
     }
 }
