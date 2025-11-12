@@ -133,7 +133,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         timerCancellable?.cancel()
         timerCancellable = nil
     }
-//    
+//
 //    private func getSampleCountForDuration(_ duration: TimeInterval) -> Int
 //    {
 //        switch duration
@@ -223,6 +223,7 @@ extension AudioSessionManager
     {
         if audioURL != self.currentlyLoadedAudioURL
         {
+            currentlyLoadedAudioURL = nil
             stopPlayback()
             loadAudio(url: audioURL)
         }
@@ -276,9 +277,7 @@ extension AudioSessionManager
     private func stopPlayback()
     {
         audioPlayer?.stop()
-        audioPlayer = nil
         isAudioPlaying = false
-        currentlyLoadedAudioURL = nil
         currentPlaybackTime = 0.0
         stopTimer()
     }
