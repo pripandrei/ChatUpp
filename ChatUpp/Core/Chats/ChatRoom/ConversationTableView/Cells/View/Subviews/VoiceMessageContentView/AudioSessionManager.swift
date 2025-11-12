@@ -8,6 +8,7 @@
 import SwiftUI
 import AVFoundation
 import Combine
+import Accelerate
 
 enum AudioSamplesLevel
 {
@@ -88,8 +89,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         return path.appendingPathComponent(fileName)
     }
     
-    func extractSamples(from url: URL,
-                        targetSampleCount: Int) -> [CGFloat]
+    func extractSamples(from url: URL, targetSampleCount: Int) -> [CGFloat]
     {
         do {
             let file = try AVAudioFile(forReading: url)
@@ -98,33 +98,33 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
             
             guard totalSamples > 0 else { return [] }
             
-            let samplesPerPixel = Int(totalSamples) / targetSampleCount
+            // Read entire file (unavoidable, but optimize what comes next)
             let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: totalSamples)!
-            
             try file.read(into: buffer)
             
             guard let floatData = buffer.floatChannelData?[0] else { return [] }
             
+            let samplesPerPixel = Int(totalSamples) / targetSampleCount
             var samples: [CGFloat] = []
+            samples.reserveCapacity(targetSampleCount) // Pre-allocate memory
             
-            for i in 0..<targetSampleCount
-            {
+            // Use strided iteration and vDSP for max amplitude calculation
+            for i in 0..<targetSampleCount {
                 let startIndex = i * samplesPerPixel
-                let endIndex = min(startIndex + samplesPerPixel, Int(totalSamples))
+                let count = min(samplesPerPixel, Int(totalSamples) - startIndex)
                 
+                // Use vDSP for vectorized max absolute value (MUCH faster)
                 var maxAmplitude: Float = 0
-                for j in startIndex..<endIndex {
-                    maxAmplitude = max(maxAmplitude, abs(floatData[j]))
+                floatData.advanced(by: startIndex).withMemoryRebound(to: Float.self, capacity: count) { ptr in
+                    vDSP_maxmgv(ptr, 1, &maxAmplitude, vDSP_Length(count))
                 }
                 
-                // Normalize to 0...1 range
                 samples.append(CGFloat(min(1.0, maxAmplitude * 2)))
             }
             
             return samples
         } catch {
             print("Failed to extract waveform: \(error)")
-            // Return placeholder samples
             return (0..<targetSampleCount).map { _ in CGFloat.random(in: 0.2...1.0) }
         }
     }
@@ -282,3 +282,165 @@ extension AudioSessionManager
         stopTimer()
     }
 }
+//
+//
+//func extractSamples(from url: URL, targetSampleCount: Int) -> [CGFloat] {
+//    do {
+//        let file = try AVAudioFile(forReading: url)
+//        let totalSamples = AVAudioFrameCount(file.length)
+//        
+//        guard totalSamples > 0 else { return [] }
+//        
+//        // Create downsampled format (e.g., 8kHz mono)
+//        guard let downsampledFormat = AVAudioFormat(
+//            commonFormat: .pcmFormatFloat32,
+//            sampleRate: 8000,
+//            channels: 1,
+//            interleaved: false
+//        ) else { return [] }
+//        
+//        let converter = AVAudioConverter(from: file.processingFormat, to: downsampledFormat)!
+//        
+//        // Calculate downsampled length
+//        let ratio = downsampledFormat.sampleRate / file.processingFormat.sampleRate
+//        let downsampledLength = AVAudioFrameCount(Double(totalSamples) * ratio)
+//        
+//        let downsampledBuffer = AVAudioPCMBuffer(
+//            pcmFormat: downsampledFormat,
+//            frameCapacity: downsampledLength
+//        )!
+//        
+//        // Read and convert in one go (much faster than original format)
+//        let inputBuffer = AVAudioPCMBuffer(
+//            pcmFormat: file.processingFormat,
+//            frameCapacity: totalSamples
+//        )!
+//        
+//        try file.read(into: inputBuffer)
+//        
+//        var error: NSError?
+//        converter.convert(to: downsampledBuffer, error: &error) { _, outStatus in
+//            outStatus.pointee = .haveData
+//            return inputBuffer
+//        }
+//        
+//        guard let floatData = downsampledBuffer.floatChannelData?[0] else { return [] }
+//        
+//        // Now process the much smaller buffer
+//        let samplesPerPixel = Int(downsampledLength) / targetSampleCount
+//        var samples: [CGFloat] = []
+//        
+//        for i in 0..<targetSampleCount {
+//            let startIndex = i * samplesPerPixel
+//            let endIndex = min(startIndex + samplesPerPixel, Int(downsampledLength))
+//            
+//            var maxAmplitude: Float = 0
+//            for j in startIndex..<endIndex {
+//                maxAmplitude = max(maxAmplitude, abs(floatData[j]))
+//            }
+//            
+//            samples.append(CGFloat(min(1.0, maxAmplitude * 2)))
+//        }
+//        
+//        return samples
+//    } catch {
+//        print("Failed to extract waveform: \(error)")
+//        return (0..<targetSampleCount).map { _ in CGFloat.random(in: 0.2...1.0) }
+//    }
+//}
+
+
+
+//
+//
+//func extractSamples(from url: URL, targetSampleCount: Int) -> [CGFloat] {
+//    do {
+//        let asset = AVAsset(url: url)
+//        let reader = try AVAssetReader(asset: asset)
+//        
+//        guard let track = asset.tracks(withMediaType: .audio).first else { return [] }
+//        
+//        let outputSettings: [String: Any] = [
+//            AVFormatIDKey: kAudioFormatLinearPCM,
+//            AVLinearPCMBitDepthKey: 16,
+//            AVLinearPCMIsFloatKey: false,
+//            AVLinearPCMIsBigEndianKey: false,
+//            AVLinearPCMIsNonInterleaved: false
+//        ]
+//        
+//        let output = AVAssetReaderTrackOutput(track: track, outputSettings: outputSettings)
+//        reader.add(output)
+//        reader.startReading()
+//        
+//        var samples: [CGFloat] = []
+//        let samplesPerPixel = max(1, Int(track.asset?.duration.value ?? 0) / targetSampleCount / 100)
+//        var sampleIndex = 0
+//        
+//        while let sampleBuffer = output.copyNextSampleBuffer() {
+//            guard let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else { continue }
+//            
+//            let length = CMBlockBufferGetDataLength(blockBuffer)
+//            var data = Data(count: length)
+//            
+//            data.withUnsafeMutableBytes { ptr in
+//                CMBlockBufferCopyDataBytes(blockBuffer, atOffset: 0, dataLength: length, destination: ptr.baseAddress!)
+//            }
+//            
+//            let int16Data = data.withUnsafeBytes { $0.bindMemory(to: Int16.self) }
+//            
+//            for (index, sample) in int16Data.enumerated() where index % samplesPerPixel == 0 {
+//                if sampleIndex % samplesPerPixel == 0 && samples.count < targetSampleCount {
+//                    let normalized = CGFloat(abs(sample)) / CGFloat(Int16.max)
+//                    samples.append(min(1.0, normalized * 2))
+//                }
+//                sampleIndex += 1
+//            }
+//        }
+//        
+//        return samples
+//    } catch {
+//        print("Failed to extract waveform: \(error)")
+//        return (0..<targetSampleCount).map { _ in CGFloat.random(in: 0.2...1.0) }
+//    }
+//}
+
+
+/// this >>>>
+//func extractSamples(from url: URL, targetSampleCount: Int) -> [CGFloat] {
+//    do {
+//        let file = try AVAudioFile(forReading: url)
+//        let format = file.processingFormat
+//        let totalSamples = AVAudioFrameCount(file.length)
+//        
+//        guard totalSamples > 0 else { return [] }
+//        
+//        // Read entire file (unavoidable, but optimize what comes next)
+//        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: totalSamples)!
+//        try file.read(into: buffer)
+//        
+//        guard let floatData = buffer.floatChannelData?[0] else { return [] }
+//        
+//        let samplesPerPixel = Int(totalSamples) / targetSampleCount
+//        var samples: [CGFloat] = []
+//        samples.reserveCapacity(targetSampleCount) // Pre-allocate memory
+//        
+//        // Use strided iteration and vDSP for max amplitude calculation
+//        for i in 0..<targetSampleCount {
+//            let startIndex = i * samplesPerPixel
+//            let count = min(samplesPerPixel, Int(totalSamples) - startIndex)
+//            
+//            // Use vDSP for vectorized max absolute value (MUCH faster)
+//            var maxAmplitude: Float = 0
+//            floatData.advanced(by: startIndex).withMemoryRebound(to: Float.self, capacity: count) { ptr in
+//                vDSP_maxmgv(ptr, 1, &maxAmplitude, vDSP_Length(count))
+//            }
+//            
+//            samples.append(CGFloat(min(1.0, maxAmplitude * 2)))
+//        }
+//        
+//        return samples
+//    } catch {
+//        print("Failed to extract waveform: \(error)")
+//        return (0..<targetSampleCount).map { _ in CGFloat.random(in: 0.2...1.0) }
+//    }
+//}
