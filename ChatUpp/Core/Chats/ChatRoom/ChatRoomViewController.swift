@@ -183,11 +183,15 @@ final class ChatRoomViewController: UIViewController
                 self.rootView.updateRecCounterLabelText(with: timeString)
             }.store(in: &subscriptions)
         
-        rootView.cancelRecordingSubject.sink { [weak self] _ in
+        Publishers.Merge(
+            rootView.cancelRecordingSubject,
+            AudioSessionManager.shared.recordCancellationSubject
+        )
+//        rootView.cancelRecordingSubject
+//            .combineLatest(AudioSessionManager.shared.recordCancellationSubject)
+            .sink { [weak self] _ in
             self?.rootView.destroyVoiceRecUIComponents()
             AudioSessionManager.shared.stopRecording(withAudioRecDeletion: true)
-//            let activityVC = UIActivityViewController(activityItems: [url ?? .applicationDirectory], applicationActivities: nil)
-            //        self.present(activityVC, animated: true)
         }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.$isTextViewEmpty
@@ -195,7 +199,6 @@ final class ChatRoomViewController: UIViewController
             .sink { [weak self] isEmpty in
                 let shouldBeVisible = isEmpty
                 self?.rootView.toggleVoiceRecButtonVisibility(shouldBeVisible)
-//                self.rootView.isVoiceRecButtonShown = isEmpty
             }.store(in: &subscriptions)
         
         viewModel.$messageClusters
@@ -786,28 +789,6 @@ extension ChatRoomViewController
         inputMessageTextViewDelegate.invalidateTextViewSize()
         callTextViewDidChange()
     }
-    
-//    private func sendVoiceMessage(voiceURL: URL)
-//    {
-//        viewModel.ensureConversationExists()
-//        let message = viewModel.createMessageLocally(ofType: .audio,
-//                                                     text: nil,
-//                                                     media: .init(audioPath: voiceURL.lastPathComponent))
-//        updateUIOnNewMessageCreation(.audio)
-//        viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: nil)
-//    }
-//    
-//    private func manageVoiceMessageCreation()
-//    {
-////        rootView.destroyVoiceRecUIComponents()
-//        let url = AudioSessionManager.shared.getRecordedAudioURL()
-//        AudioSessionManager.shared.stopRecording()
-//        
-//        if let url = url {
-//            sendVoiceMessage(voiceURL: url)
-//        }
-//    }
-//    
     
     @objc func sendMessageButtonWasTapped()
     {

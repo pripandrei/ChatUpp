@@ -423,6 +423,7 @@ extension ChatRoomRootView
         setupCancelRecButton()
         animateCancelButtonAppearnace(animationState: .creation)
         animateStickerIconVisibility(animationState: .destruction)
+        toggleMessageTextviewInteraction(isEnabled: false)
     }
     
     func destroyVoiceRecUIComponents()
@@ -445,6 +446,12 @@ extension ChatRoomRootView
             self?.recRedDotView = nil
             self?.cancelRecButton = nil
         }
+        toggleMessageTextviewInteraction(isEnabled: true)
+    }
+    
+    func toggleMessageTextviewInteraction(isEnabled: Bool)
+    {
+        messageTextView.isUserInteractionEnabled = isEnabled
     }
     
     private func animateCancelButtonAppearnace(animationState: AnimationState)

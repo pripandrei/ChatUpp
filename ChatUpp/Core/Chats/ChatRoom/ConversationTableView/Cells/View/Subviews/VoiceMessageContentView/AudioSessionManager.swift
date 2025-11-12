@@ -33,6 +33,8 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
 {
     static let shared = AudioSessionManager()
     
+    private(set) var recordCancellationSubject = PassthroughSubject<Void, Never>()
+    
     @Published private(set) var isAudioPlaying = false
     @Published private(set) var currentPlaybackTime: TimeInterval = 0.0
     @Published private(set) var currentRecordingTime: TimeInterval = 0.0
@@ -172,11 +174,6 @@ extension AudioSessionManager
         }
     }
     
-    func isRecording() -> Bool
-    {
-        return self.audioRecorder?.isRecording ?? false
-    }
-    
     func stopRecording(withAudioRecDeletion shouldDelete: Bool = false)
     {
         self.audioRecorder?.stop()
@@ -188,6 +185,12 @@ extension AudioSessionManager
         }
         self.stopTimer()
         self.audioRecorder = nil
+//        self.recordCancellationSubject.send(())
+    }
+    
+    func isRecording() -> Bool
+    {
+        return self.audioRecorder?.isRecording ?? false
     }
     
     func getRecordedAudioURL() -> URL?

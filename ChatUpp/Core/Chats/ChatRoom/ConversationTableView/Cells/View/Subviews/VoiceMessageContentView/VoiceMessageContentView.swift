@@ -11,7 +11,7 @@ import SwiftUI
 final class VoiceMessageContentView: ContainerView
 {
     private let messageComponentsView: MessageComponentsView = .init()
-    private var playbackControlPanel: AudioControlPanelView!
+    private var playbackControlPanel: VoicePlaybackControlPanelView!
 
     init(viewModel: MessageContentViewModel)
     {

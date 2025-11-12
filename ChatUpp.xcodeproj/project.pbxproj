@@ -172,6 +172,7 @@
 		75D38DA72EB953B90096B926 /* car-passing-and-birds-chirping-in-the-background-94401.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA52EB953B90096B926 /* car-passing-and-birds-chirping-in-the-background-94401.mp3 */; };
 		75D38DA82EB953B90096B926 /* car-pass-fast-4-times-58065.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA42EB953B90096B926 /* car-pass-fast-4-times-58065.mp3 */; };
 		75D38DA92EB953B90096B926 /* car-passing-by-272055.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA62EB953B90096B926 /* car-passing-by-272055.mp3 */; };
+		75D38DCD2EC51F860096B926 /* VoicePlaybackControlPanelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D38DCC2EC51F770096B926 /* VoicePlaybackControlPanelViewModel.swift */; };
 		75D6DC332B0D735100D2CD26 /* MessageCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC322B0D735100D2CD26 /* MessageCellViewModel.swift */; };
 		75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */; };
 		75D7C5952AD72DBC00F6D4B9 /* ConversationMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D7C5942AD72DBC00F6D4B9 /* ConversationMessageCell.swift */; };
@@ -387,6 +388,7 @@
 		75D38DA42EB953B90096B926 /* car-pass-fast-4-times-58065.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "car-pass-fast-4-times-58065.mp3"; sourceTree = "<group>"; };
 		75D38DA52EB953B90096B926 /* car-passing-and-birds-chirping-in-the-background-94401.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "car-passing-and-birds-chirping-in-the-background-94401.mp3"; sourceTree = "<group>"; };
 		75D38DA62EB953B90096B926 /* car-passing-by-272055.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "car-passing-by-272055.mp3"; sourceTree = "<group>"; };
+		75D38DCC2EC51F770096B926 /* VoicePlaybackControlPanelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePlaybackControlPanelViewModel.swift; sourceTree = "<group>"; };
 		75D6DC322B0D735100D2CD26 /* MessageCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCellViewModel.swift; sourceTree = "<group>"; };
 		75D6DC342B128A4100D2CD26 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
 		75D7C5942AD72DBC00F6D4B9 /* ConversationMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationMessageCell.swift; sourceTree = "<group>"; };
@@ -728,19 +730,18 @@
 			path = "Firestore database";
 			sourceTree = "<group>";
 		};
-		756BDFA92EA84C5A003D5EE2 /* ViewModels */ = {
+		756BDFA92EA84C5A003D5EE2 /* MessageContentViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				756BDFAD2EAA9DCF003D5EE2 /* MessageComponentsViewModel.swift */,
 				759894B92E4FD2A9003CF661 /* MessageContentViewModel.swift */,
 			);
-			path = ViewModels;
+			path = MessageContentViewModel;
 			sourceTree = "<group>";
 		};
 		756BDFB12EAA9E10003D5EE2 /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
-				75A751F82EA8001900159E95 /* VoicePlaybackControlPanel.swift */,
+				75D38DCE2EC51F8F0096B926 /* VoicePlaybackControlPanel */,
 				756BDFAA2EAA9D39003D5EE2 /* WaveformScrubber.swift */,
 			);
 			path = Subviews;
@@ -900,11 +901,11 @@
 		759894B72E4FD1EE003CF661 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				75E480792E48FF6C00E8C005 /* Subviews */,
 				75D7C5942AD72DBC00F6D4B9 /* ConversationMessageCell.swift */,
 				75855AF42CF0393A00FF8E9E /* UnseenMessagesTitleTableViewCell.swift */,
 				75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */,
 				750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */,
+				75E480792E48FF6C00E8C005 /* Subviews */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -979,9 +980,9 @@
 		75A751F42EA7FE8C00159E95 /* VoiceMessageContentView */ = {
 			isa = PBXGroup;
 			children = (
-				756BDFB12EAA9E10003D5EE2 /* Subviews */,
 				756BDFA72EA84553003D5EE2 /* AudioSessionManager.swift */,
 				75A751F52EA7FEAA00159E95 /* VoiceMessageContentView.swift */,
+				756BDFB12EAA9E10003D5EE2 /* Subviews */,
 			);
 			path = VoiceMessageContentView;
 			sourceTree = "<group>";
@@ -1131,7 +1132,8 @@
 		75AD5EB72E7C55660075377B /* MessageComponents */ = {
 			isa = PBXGroup;
 			children = (
-				75AD5EB82E7C55770075377B /* MessageComponentsView.swift */,
+				75D38DD12EC5205D0096B926 /* View */,
+				75D38DD02EC520470096B926 /* ViewModel */,
 			);
 			path = MessageComponents;
 			sourceTree = "<group>";
@@ -1379,6 +1381,47 @@
 			path = Groups;
 			sourceTree = "<group>";
 		};
+		75D38DCB2EC51F3F0096B926 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				75D38DCC2EC51F770096B926 /* VoicePlaybackControlPanelViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		75D38DCE2EC51F8F0096B926 /* VoicePlaybackControlPanel */ = {
+			isa = PBXGroup;
+			children = (
+				75D38DCB2EC51F3F0096B926 /* ViewModel */,
+				75D38DCF2EC51F9C0096B926 /* View */,
+			);
+			path = VoicePlaybackControlPanel;
+			sourceTree = "<group>";
+		};
+		75D38DCF2EC51F9C0096B926 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				75A751F82EA8001900159E95 /* VoicePlaybackControlPanel.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		75D38DD02EC520470096B926 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				756BDFAD2EAA9DCF003D5EE2 /* MessageComponentsViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		75D38DD12EC5205D0096B926 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				75AD5EB82E7C55770075377B /* MessageComponentsView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		75D7C5722AD5C15000F6D4B9 /* ChatCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -1425,7 +1468,7 @@
 		75E480792E48FF6C00E8C005 /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
-				756BDFA92EA84C5A003D5EE2 /* ViewModels */,
+				756BDFA92EA84C5A003D5EE2 /* MessageContentViewModel */,
 				75A751F42EA7FE8C00159E95 /* VoiceMessageContentView */,
 				75A751F72EA7FF3C00159E95 /* StickerMessageContentView */,
 				75AD5EB72E7C55660075377B /* MessageComponents */,
@@ -1807,6 +1850,7 @@
 				75E4807B2E49001700E8C005 /* ReplyToMessageStackView.swift in Sources */,
 				759894BA2E4FD2B5003CF661 /* MessageContentViewModel.swift in Sources */,
 				75BC06792DFB82D3002ED4AA /* NotificationCenter+Extensions.swift in Sources */,
+				75D38DCD2EC51F860096B926 /* VoicePlaybackControlPanelViewModel.swift in Sources */,
 				75D6DC352B128A4100D2CD26 /* UIImage+Extension.swift in Sources */,
 				75A751F62EA7FEF000159E95 /* VoiceMessageContentView.swift in Sources */,
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
