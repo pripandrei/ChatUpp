@@ -78,8 +78,8 @@ final class ChatRoomRootView: UIView
         return tableView
     }()
 
-    private(set) lazy var messageTextView: UITextView = {
-        let messageTextView = UITextView()
+    private(set) lazy var messageTextView: MessageTextView = {
+        let messageTextView = MessageTextView()
         let height                                                = inputBarContainer.bounds.height * 0.4
         messageTextView.backgroundColor                           = ColorManager.messageTextFieldBackgroundColor
         messageTextView.layer.cornerRadius                        = 15
@@ -415,6 +415,7 @@ extension ChatRoomRootView
 {
     func setupVoiceRecUIComponents()
     {
+        toggleMessageTextviewInteraction(isDisabled: true)
         createRecLabelsStackView()
         resizeSendMessageButtonWithAnimation(aniamationState: .creation)
         animateRecLabelsStackViewAppearance(animationState: .creation)
@@ -423,7 +424,6 @@ extension ChatRoomRootView
         setupCancelRecButton()
         animateCancelButtonAppearnace(animationState: .creation)
         animateStickerIconVisibility(animationState: .destruction)
-        toggleMessageTextviewInteraction(isEnabled: false)
     }
     
     func destroyVoiceRecUIComponents()
@@ -446,12 +446,13 @@ extension ChatRoomRootView
             self?.recRedDotView = nil
             self?.cancelRecButton = nil
         }
-        toggleMessageTextviewInteraction(isEnabled: true)
+        toggleMessageTextviewInteraction(isDisabled: false)
     }
     
-    func toggleMessageTextviewInteraction(isEnabled: Bool)
+    func toggleMessageTextviewInteraction(isDisabled: Bool)
     {
-        messageTextView.isUserInteractionEnabled = isEnabled
+//        messageTextView.isUserInteractionEnabled = isEnabled
+        messageTextView.isInputDisabled = isDisabled
     }
     
     private func animateCancelButtonAppearnace(animationState: AnimationState)

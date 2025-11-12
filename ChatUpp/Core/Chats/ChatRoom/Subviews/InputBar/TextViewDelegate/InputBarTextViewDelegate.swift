@@ -16,11 +16,9 @@ final class InputBarTextViewDelegate: NSObject, UITextViewDelegate
     private(set) var lineNumberModificationSubject = PassthroughSubject<(Int,Int), Never>()
     private(set) var textViewDidBeginEditing = PassthroughSubject<Bool, Never>()
     private var _invalidateTextViewSize: Bool = false
-//    private(set) var textViewEmptyStateSubject = PassthroughSubject<Bool, Never>()
     @Published private(set) var isTextViewEmpty = true
     
     convenience init(view: ChatRoomRootView) {
-//        self.init(frame: .zero)
         self.init()
         conversationView = view
         setupDelegate()
@@ -28,6 +26,14 @@ final class InputBarTextViewDelegate: NSObject, UITextViewDelegate
     
     private func setupDelegate() {
         conversationView.setTextViewDelegate(to: self)
+    }
+    
+    func textView(_ textView: UITextView,
+                  shouldChangeTextIn range: NSRange,
+                  replacementText text: String) -> Bool
+    {
+        guard let messageTextView = textView as? MessageTextView else { return true }
+        return !messageTextView.isInputDisabled
     }
     
     func textViewDidBeginEditing(_ textView: UITextView)
