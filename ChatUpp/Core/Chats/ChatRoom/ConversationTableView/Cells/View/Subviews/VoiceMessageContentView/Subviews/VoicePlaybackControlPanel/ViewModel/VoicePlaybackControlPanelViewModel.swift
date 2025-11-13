@@ -11,7 +11,7 @@ import Combine
   
 final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
 {
-    @Published private(set) var waveformSamples: [CGFloat] = []
+    @Published private(set) var waveformSamples: [Float] = []
     @Published private(set) var isPlaying: Bool = false
     @Published private(set) var currentPlaybackTime: TimeInterval = 0.0
     @Published var playbackProgress: CGFloat = 0.0

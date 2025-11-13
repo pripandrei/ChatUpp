@@ -93,7 +93,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         return path.appendingPathComponent(fileName)
     }
     
-    func extractSamples(from url: URL, targetSampleCount: Int) -> [CGFloat]
+    func extractSamples(from url: URL, targetSampleCount: Int) -> [Float]
     {
         do {
             let file = try AVAudioFile(forReading: url)
@@ -109,7 +109,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
             guard let floatData = buffer.floatChannelData?[0] else { return [] }
             
             let samplesPerPixel = Int(totalSamples) / targetSampleCount
-            var samples: [CGFloat] = []
+            var samples: [Float] = []
             samples.reserveCapacity(targetSampleCount) // Pre-allocate memory
             
             // Use strided iteration and vDSP for max amplitude calculation
@@ -123,13 +123,13 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
                     vDSP_maxmgv(ptr, 1, &maxAmplitude, vDSP_Length(count))
                 }
                 
-                samples.append(CGFloat(min(1.0, maxAmplitude * 10)))
+                samples.append(min(1.0, maxAmplitude * 10))
             }
             
             return samples
         } catch {
             print("Failed to extract waveform: \(error)")
-            return (0..<targetSampleCount).map { _ in CGFloat.random(in: 0.2...1.0) }
+            return (0..<targetSampleCount).map { _ in Float.random(in: 0.2...1.0) }
         }
     }
 

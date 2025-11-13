@@ -13,7 +13,7 @@ struct WaveformScrubber: View
     @Binding var shouldUpdateProgress: Bool
     @GestureState private var isDragging = false
     
-    var samples: [CGFloat]
+    var samples: [Float]
     var filledColor: Color = .white
     var unfilledColor: Color = Color(ColorManager.incomingMessageComponentsTextColor)
     var onSeek: ((CGFloat) -> Void)?
@@ -27,7 +27,7 @@ struct WaveformScrubber: View
             
             HStack(alignment: .bottom, spacing: barWidth * 0.5) {
                 ForEach(Array(samples.enumerated()), id: \.offset) { index, sample in
-                    let barHeight = sample * height
+                    let barHeight = CGFloat(sample) * height
                     let isFilled = CGFloat(index) / CGFloat(samples.count) <= progress
                     
                     Rectangle()

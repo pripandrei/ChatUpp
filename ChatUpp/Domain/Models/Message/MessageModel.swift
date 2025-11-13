@@ -22,6 +22,7 @@ class Message: Object, Codable
     @Persisted var reactions: List<Reaction>
     @Persisted var sticker: String?
     @Persisted var voicePath: String?
+    @Persisted var audioSamples: List<Float>
     
     @Persisted var type: MessageType?
     
@@ -43,6 +44,7 @@ class Message: Object, Codable
         case reactions = "reactions"
         case sticker = "sticker"
         case voicePath = "voice_path"
+        case audioSamples = "audio_samples"
     }
     
     convenience required init(from decoder: Decoder) throws {
@@ -68,6 +70,9 @@ class Message: Object, Codable
         
         let reactionsMap = try container.decode([String: [String]].self, forKey: .reactions)
         self.reactions = mapDecodedReactions(reactionsMap)
+        
+        let audioSamples = try container.decodeIfPresent([Float].self, forKey: .audioSamples)
+        self.audioSamples.append(objectsIn: audioSamples ?? [])
     }
     
     func encode(to encoder: Encoder) throws {
@@ -90,6 +95,9 @@ class Message: Object, Codable
         
         let mapedReactions = mapEncodedReactions(self.reactions)
         try container.encode(mapedReactions, forKey: .reactions)
+        
+        let audioSamples = Array(self.audioSamples)
+        try container.encodeIfPresent(audioSamples, forKey: .audioSamples)
     }
     
     convenience init(id: String,
@@ -104,7 +112,8 @@ class Message: Object, Codable
                      repliedTo: String?,
                      type: MessageType? = nil,
                      sticker: String? = nil,
-                     voicePath: String? = nil
+                     voicePath: String? = nil,
+                     audioSamples: [Float]? = nil
     )
     {
         self.init()
@@ -123,6 +132,7 @@ class Message: Object, Codable
         self.reactions = List<Reaction>()
         self.sticker = sticker
         self.voicePath = voicePath
+        self.audioSamples.append(objectsIn: audioSamples ?? [])
     }
 }
 
