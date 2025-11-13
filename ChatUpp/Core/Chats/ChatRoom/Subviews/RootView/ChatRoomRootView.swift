@@ -451,7 +451,6 @@ extension ChatRoomRootView
     
     func toggleMessageTextviewInteraction(isDisabled: Bool)
     {
-//        messageTextView.isUserInteractionEnabled = isEnabled
         messageTextView.isInputDisabled = isDisabled
     }
     

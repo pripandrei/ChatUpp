@@ -732,7 +732,6 @@ extension ChatRoomViewController
         PermissionManager.shared.requestMicrophonePermission { granted in
             Task { @MainActor in
                 if granted {
-//                    self.rootView.toggleMessageTextviewInteraction(isDisabled: true)
                     self.rootView.setupVoiceRecUIComponents()
                     AudioSessionManager.shared.pause()
                     AudioSessionManager.shared.startRecording()

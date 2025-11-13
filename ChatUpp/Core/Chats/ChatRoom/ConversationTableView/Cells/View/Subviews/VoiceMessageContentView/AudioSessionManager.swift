@@ -28,6 +28,7 @@ extension AudioSessionManager: AVAudioRecorderDelegate
     }
 }
 
+
 // MARK: - Audio Session Manager
 class AudioSessionManager: NSObject, SwiftUI.ObservableObject
 {
@@ -59,14 +60,15 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         stopRecording()
     }
     
-    // Session setup
     private func setupAudioSession()
     {
         self.audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession?.setCategory(.playAndRecord,
-                                         mode: .default)
+                                          mode: .default,
+                                          options: [.defaultToSpeaker, .allowBluetooth])
             try audioSession?.setActive(true)
+//            try audioSession?.overrideOutputAudioPort(.speaker)
         } catch {
             print("Failed to set up audio session: \(error)")
         }
@@ -121,7 +123,7 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
                     vDSP_maxmgv(ptr, 1, &maxAmplitude, vDSP_Length(count))
                 }
                 
-                samples.append(CGFloat(min(1.0, maxAmplitude * 2)))
+                samples.append(CGFloat(min(1.0, maxAmplitude * 10)))
             }
             
             return samples
@@ -135,38 +137,29 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         timerCancellable?.cancel()
         timerCancellable = nil
     }
-//
-//    private func getSampleCountForDuration(_ duration: TimeInterval) -> Int
-//    {
-//        switch duration
-//        {
-//        case 0...3: return 20
-//        case 3...6: return 25
-//        case 6...12: return 30
-//        case 12...20: return 40
-//        case 20...30: return 50
-//        default: return 60
-//        }
-//    }
 }
 
 // MARK: - Recording
 extension AudioSessionManager
 {
+    
     func startRecording()
     {
         let audioURL = createAudioURL()
         
-        let settings = [
+        let settings: [String: Any] = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
+            AVSampleRateKey: 44100,  // Standard sample rate
             AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+            AVEncoderBitRateKey: 128000,  // 128 kbps bitrate
+            AVLinearPCMBitDepthKey: 16    // 16-bit depth
         ]
         
         do {
             self.audioRecorder = try AVAudioRecorder(url: audioURL, settings: settings)
             self.audioRecorder?.delegate = self
+            self.audioRecorder?.isMeteringEnabled = true  // Enable metering if needed
             self.audioRecorder?.record()
             self.startRecordingTimer()
         } catch {
@@ -215,6 +208,7 @@ extension AudioSessionManager
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
+            audioPlayer?.volume = 1.0
             currentlyLoadedAudioURL = url
         } catch {
             print("Failed to load audio: \(error)")
