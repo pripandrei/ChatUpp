@@ -434,7 +434,7 @@ extension ChatRoomRootView
         animateRecLabelsStackViewAppearance(animationState: .destruction)
         animateTextViewResize(animationState: .destruction)
         
-        executeAfter(seconds: 1.2) { [weak self] in
+        executeAfter(seconds: 0.4) { [weak self] in
             self?.recLabelsStackView?.arrangedSubviews.forEach { view in
                 self?.recLabelsStackView?.removeArrangedSubview(view)
                 view.removeFromSuperview()
