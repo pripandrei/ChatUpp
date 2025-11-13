@@ -26,6 +26,7 @@ final class ChatRoomRootView: UIView
     private(set) var textViewHeightConstraint: NSLayoutConstraint!
     private(set) var textViewLeadingConstraint: NSLayoutConstraint!
     private var greetingViewCenterYConstraint: NSLayoutConstraint?
+    private var cancelButtonCenterXConstraint: NSLayoutConstraint?
 
     private(set) var stickerCollectionView: StickersPackCollectionView?
     private var textViewTrailingItem: MessageTextViewTrailingItemView!
@@ -420,9 +421,9 @@ extension ChatRoomRootView
         resizeSendMessageButtonWithAnimation(aniamationState: .creation)
         animateRecLabelsStackViewAppearance(animationState: .creation)
         animateRedDotBlink()
-        animateTextViewResize(animationState: .creation)
         setupCancelRecButton()
         animateCancelButtonAppearnace(animationState: .creation)
+        animateTextViewResize(animationState: .creation)
         animateStickerIconVisibility(animationState: .destruction)
     }
     
@@ -447,6 +448,7 @@ extension ChatRoomRootView
             self?.cancelRecButton = nil
         }
         toggleMessageTextviewInteraction(isDisabled: false)
+        cancelButtonCenterXConstraint = nil
     }
     
     func toggleMessageTextviewInteraction(isDisabled: Bool)
@@ -456,8 +458,10 @@ extension ChatRoomRootView
     
     private func animateCancelButtonAppearnace(animationState: AnimationState)
     {
+        self.layoutIfNeeded()
         UIView.animate(withDuration: 0.2, delay: 0.0, animations: {
             self.cancelRecButton?.alpha = animationState == .creation ? 1.0 : 0.0
+            self.cancelButtonCenterXConstraint?.constant = 20
         })
     }
     
@@ -588,8 +592,13 @@ extension ChatRoomRootView
         
         inputBarContainer.addSubview(cancelRecButton!)
         
+        self.cancelButtonCenterXConstraint = self.cancelRecButton!.centerXAnchor.constraint(
+            equalTo: messageTextView.centerXAnchor,
+            constant: 100
+        )
+        cancelButtonCenterXConstraint?.isActive = true
+        
         NSLayoutConstraint.activate([
-            self.cancelRecButton!.centerXAnchor.constraint(equalTo: messageTextView.centerXAnchor, constant: 20),
             self.cancelRecButton!.centerYAnchor.constraint(equalTo: messageTextView.centerYAnchor),
         ])
     }
