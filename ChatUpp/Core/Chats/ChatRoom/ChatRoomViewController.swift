@@ -726,18 +726,30 @@ extension ChatRoomViewController
     {
         rootView.voiceRecButton.addTarget(self, action: #selector(beginVoiceRecording), for: .touchUpInside)
     }
+    
+    private func triggerHapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle)
+    {
+        let haptic = UIImpactFeedbackGenerator(style: style)
+        haptic.prepare()
+        haptic.impactOccurred()
+    }
        
     @objc func beginVoiceRecording()
     {
-        PermissionManager.shared.requestMicrophonePermission { granted in
-            Task { @MainActor in
-                if granted {
-                    self.rootView.setupVoiceRecUIComponents()
-                    AudioSessionManager.shared.pause()
-                    AudioSessionManager.shared.startRecording()
-                } else
-                {
-                    self.alertPresenter.presentPermissionDeniedAlert(from: self, for: .microphone)
+        triggerHapticFeedback(style: .medium)
+        
+        executeAfter(seconds: 0.1) /// for haptic to work we need to delay rec start
+        {
+            PermissionManager.shared.requestMicrophonePermission { granted in
+                Task { @MainActor in
+                    if granted {
+                        self.rootView.setupVoiceRecUIComponents()
+                        AudioSessionManager.shared.pause()
+                        AudioSessionManager.shared.startRecording()
+                    } else
+                    {
+                        self.alertPresenter.presentPermissionDeniedAlert(from: self, for: .microphone)
+                    }
                 }
             }
         }
@@ -1464,9 +1476,7 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
                 let resitance = excess * resistanceFactor
                 translationX = -dragTreshhold - resitance
                 if !hapticWasInitiated {
-                    let haptic = UIImpactFeedbackGenerator(style: .heavy)
-                    haptic.prepare()
-                    haptic.impactOccurred()
+                    self.triggerHapticFeedback(style: .heavy)
                     self.hapticWasInitiated = true
                 }
             }
