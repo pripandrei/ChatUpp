@@ -74,7 +74,18 @@ final class ChatRoomViewController: UIViewController
             finalizeConversationSetup()
         }
     }
-
+    
+    override func viewWillDisappear(_ animated: Bool)
+    {
+        super.viewWillDisappear(animated)
+        
+        let isRecordingActive = AudioSessionManager.shared.isRecording()
+        if isRecordingActive
+        {
+            AudioSessionManager.shared.recordCancellationSubject.send(())
+        }
+    }
+    
     deinit {
 //        print("ChatRoomVC deinit")
         cleanUp()
@@ -187,11 +198,10 @@ final class ChatRoomViewController: UIViewController
             rootView.cancelRecordingSubject,
             AudioSessionManager.shared.recordCancellationSubject
         )
-//        rootView.cancelRecordingSubject
-//            .combineLatest(AudioSessionManager.shared.recordCancellationSubject)
-            .sink { [weak self] _ in
+        .sink { [weak self] _ in
             self?.rootView.destroyVoiceRecUIComponents()
             AudioSessionManager.shared.stopRecording(withAudioRecDeletion: true)
+            print("cancelled rec publisher")
         }.store(in: &subscriptions)
         
         inputMessageTextViewDelegate.$isTextViewEmpty
