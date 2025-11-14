@@ -23,10 +23,11 @@ final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
         
     var audioTotalDuration: TimeInterval = 0.0
     
-    init(audioFileURL: URL)
+    init(audioFileURL: URL, audioSamples: [Float])
     {
         self.audioFileURL = audioFileURL
-        generateWaveform(from: audioFileURL)
+        self.waveformSamples = audioSamples
+//        generateWaveform(from: audioFileURL)
         Task
         {
             let duration = await audioManager.getAudioDuration(from: audioFileURL)
@@ -70,20 +71,20 @@ final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
             }.store(in: &cancellables)
     }
     
-    // Generate waveform samples from audio file
-    private func generateWaveform(from url: URL)
-    {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            
-            guard let samples = self?.audioManager.extractSamples(from: url,
-                                                                  targetSampleCount: 40)
-            else { return }
-            
-            DispatchQueue.main.async {
-                self?.waveformSamples = samples
-            }
-        }
-    }
+//    // Generate waveform samples from audio file
+//    private func generateWaveform(from url: URL)
+//    {
+//        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+//            
+//            guard let samples = self?.audioManager.extractSamples(from: url,
+//                                                                  targetSampleCount: 40)
+//            else { return }
+//            
+//            DispatchQueue.main.async {
+//                self?.waveformSamples = samples
+//            }
+//        }
+//    }
     
     func togglePlayPause()
     {

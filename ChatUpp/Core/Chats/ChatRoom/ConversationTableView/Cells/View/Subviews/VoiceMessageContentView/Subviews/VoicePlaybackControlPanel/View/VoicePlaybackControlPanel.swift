@@ -15,9 +15,10 @@ struct VoicePlaybackControlPanelView: View
 {
     @StateObject var viewModel: VoicePlaybackControlPanelViewModel
 
-    init(audioFileURL: URL)
+    init(audioFileURL: URL, audioSamples: [Float])
     {
-        _viewModel = StateObject(wrappedValue: .init(audioFileURL: audioFileURL))
+        _viewModel = StateObject(wrappedValue: .init(audioFileURL: audioFileURL,
+                                                     audioSamples: audioSamples))
     }
     
     var body: some View
@@ -73,10 +74,9 @@ struct VoicePlaybackControlPanelView: View
 
 #Preview {
     let url = Bundle.main.url(forResource: "Wolfgang", withExtension: "mp3")
-    VoicePlaybackControlPanelView(audioFileURL: url ?? .desktopDirectory)
-//    AudioControlPanel()
+    let samples = AudioSessionManager.shared.extractSamples(from: url ?? .desktopDirectory, targetSampleCount: 40)
+    VoicePlaybackControlPanelView(audioFileURL: url ?? .desktopDirectory, audioSamples: samples)
 }
-//
 
 
 

@@ -24,13 +24,11 @@ final class VoiceMessageContentView: ContainerView
         clipsToBounds = true
         
         guard let path = viewModel.message?.voicePath,
-              let url = CacheManager.shared.getURL(for: path) else { fatalError("Audio path should be present") }
+              let url = CacheManager.shared.getURL(for: path),
+              let audioSamples = viewModel.message?.audioSamples else { fatalError("Audio path should be present") }
         
-        
-
-            setupPlaybackControlPanel(withUrl: url)
-
-//        
+        setupPlaybackControlPanel(withUrl: url, audioSamples: Array(audioSamples))
+   
         setupMessageComponentsView()
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
     }
@@ -39,9 +37,9 @@ final class VoiceMessageContentView: ContainerView
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupPlaybackControlPanel(withUrl URL: URL)
+    private func setupPlaybackControlPanel(withUrl URL: URL, audioSamples: [Float])
     {
-        self.playbackControlPanel = .init(audioFileURL: URL)
+        self.playbackControlPanel = .init(audioFileURL: URL, audioSamples: audioSamples)
         
         guard let view = UIHostingController(rootView: playbackControlPanel).view else {return}
         addArrangedSubview(view)
