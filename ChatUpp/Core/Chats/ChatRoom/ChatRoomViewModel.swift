@@ -316,21 +316,31 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     @MainActor
-    func createVoiceMessage(fromURL url: URL)
+    func createVoiceMessage(fromURL url: URL, withAudioSamples samples: [Float])
     {
         ensureConversationExists()
         let message = createMessageLocally(
             ofType: .audio,
             text: nil,
-            media: .init(audioPath: url.lastPathComponent)
+//            media: .init(audioPath: url.lastPathComponent)
+            media: .audio(path: url.lastPathComponent, samples: samples)
         )
         syncMessageWithFirestore(message.freeze(), imageRepository: nil)
+    }
+    
+    // Extract samples from audio file to generate waveforms
+    func generateWaveform(from url: URL) async -> [Float]
+    {
+        await Task.detached(priority: .userInitiated)
+        {
+            return AudioSessionManager.shared.extractSamples(from: url, targetSampleCount: 40)
+        }.value
     }
     
     @MainActor
     func createMessageLocally(ofType type: MessageType,
                               text: String?,
-                              media: MessageMediaParameters?) -> Message
+                              media: MessageMediaContent?) -> Message
     {
         let message = createNewMessage(ofType: type,
                                        messageText: text,
@@ -343,8 +353,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     private func createNewMessage(ofType type: MessageType = .text,
-                          messageText: String? = nil,
-                          mediaParameters: MessageMediaParameters? = nil) -> Message
+                                  messageText: String? = nil,
+                                  mediaParameters: MessageMediaContent? = nil) -> Message
     {
         let isGroupChat = conversation?.isGroup == true
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
@@ -364,7 +374,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             repliedTo: currentlyReplyToMessageID,
             type: type,
             sticker: mediaParameters?.stickerPath,
-            voicePath: mediaParameters?.audioPath
+            voicePath: mediaParameters?.audioPath,
+            audioSamples: mediaParameters?.audioSamples
         )
     }
     

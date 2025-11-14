@@ -815,54 +815,132 @@ extension ChatRoomViewController
     
     @objc func sendMessageButtonWasTapped()
     {
-        // audio message creation
-        if AudioSessionManager.shared.isRecording()
-        {
-            rootView.destroyVoiceRecUIComponents()
-            let url = AudioSessionManager.shared.getRecordedAudioURL()
-            AudioSessionManager.shared.stopRecording()
+        if AudioSessionManager.shared.isRecording() {
+            handleAudioMessageSend()
+        } else {
+            handleComposedMessageSend()
+        }
+    }
 
-            if let url { viewModel.createVoiceMessage(fromURL: url) }
-            updateUIOnNewMessageCreation(.audio)
+    private func handleAudioMessageSend()
+    {
+        rootView.destroyVoiceRecUIComponents()
+        
+        guard let url = AudioSessionManager.shared.getRecordedAudioURL() else {
+            AudioSessionManager.shared.stopRecording()
             return
         }
         
-        // text, image, text/image creation
-        let trimmedText = getTrimmedString()
-        let image = self.messageImage
-        self.messageImage = nil
+        AudioSessionManager.shared.stopRecording()
+        
+        Task {
+            let samples = await viewModel.generateWaveform(from: url)
+            viewModel.createVoiceMessage(fromURL: url, withAudioSamples: samples)
+            updateUIOnNewMessageCreation(.audio)
+        }
+    }
 
-        guard let messageType = determineMessageType(text: trimmedText, image: image) else { return }
+    /// - Handle text / image / text + image message sending
+    private func handleComposedMessageSend()
+    {
+        let trimmedText = getTrimmedString()
+        let image = messageImage
+        messageImage = nil
+        
+        guard let messageType = determineMessageType(text: trimmedText, image: image) else {
+            return
+        }
         
         viewModel.ensureConversationExists()
-
-        let repo = image.map { ImageSampleRepository(image: $0, type: .message) }
-        let media = MessageMediaParameters(imagePath: repo?.imagePath(for: .original))
-
-        // 1) Create locally
-        let message = viewModel.createMessageLocally(ofType: messageType,
-                                                     text: trimmedText,
-                                                     media: media)
-
-        // 2) Update UI immediately
+        
+        let imageSampleRepo = image.map { ImageSampleRepository(image: $0, type: .message) }
+        let media = imageSampleRepo.map { MessageMediaContent.image(path: $0.imagePath(for: .original)) }
+        
+        // 1.Create message
+        let message = viewModel.createMessageLocally(
+            ofType: messageType,
+            text: trimmedText,
+            media: media
+        )
+        
+        // 2.Update UI immediately
         updateUIOnNewMessageCreation(messageType)
-
-        // 3) Save image locally if needed
-        if let repo = repo {
+        
+        // 3.Handle image cache
+        if let repo = imageSampleRepo
+        {
             Task { @MainActor in
                 await viewModel.saveImagesLocally(fromImageRepository: repo, for: message.id)
             }
         }
 
-        // 4) Start background sync
-        viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: repo)
+        // 4.Start message remote sync
+        viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: imageSampleRepo)
     }
+    
+//    @objc func sendMessageButtonWasTapped()
+//    {
+//        // audio message creation
+//        if AudioSessionManager.shared.isRecording()
+//        {
+//            rootView.destroyVoiceRecUIComponents()
+//            let url = AudioSessionManager.shared.getRecordedAudioURL()
+//            AudioSessionManager.shared.stopRecording()
+//
+//            if let url
+//            {
+//                Task {
+//                    let samples = await viewModel.generateWaveform(from: url)
+//                    viewModel.createVoiceMessage(fromURL: url, withAudioSamples: samples)
+//                    updateUIOnNewMessageCreation(.audio)
+//                }
+//            }
+//            return
+//        }
+//        
+//        // text, image, text/image creation
+//        let trimmedText = getTrimmedString()
+//        let image = self.messageImage
+//        self.messageImage = nil
+//
+//        guard let messageType = determineMessageType(text: trimmedText, image: image) else { return }
+//        
+//        viewModel.ensureConversationExists()
+//        
+//        var media: MessageMediaContent? = nil
+//
+//        let imageSampleRepo = image.map { ImageSampleRepository(image: $0, type: .message) }
+//        
+//        if let imageRepo = imageSampleRepo
+//        {
+//            media = MessageMediaContent.image(path: imageRepo.imagePath(for: .original))
+//        }
+//
+//        // 1) Create locally
+//        let message = viewModel.createMessageLocally(ofType: messageType,
+//                                                     text: trimmedText,
+//                                                     media: media)
+//
+//        // 2) Update UI immediately
+//        updateUIOnNewMessageCreation(messageType)
+//
+//        // 3) Save image locally if needed
+//        if let repo = imageSampleRepo {
+//            Task { @MainActor in
+//                await viewModel.saveImagesLocally(fromImageRepository: repo, for: message.id)
+//            }
+//        }
+//
+//        // 4) Start background sync
+//        viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: imageSampleRepo)
+//    }
     
     func createStickerMessage(_ path: String)
     {
         viewModel.ensureConversationExists()
         
-        let media = MessageMediaParameters(stickerPath: path)
+//        let media = MessageMediaParameters(stickerPath: path)
+        let media = MessageMediaContent.sticker(path: path)
         let message = viewModel.createMessageLocally(ofType: .sticker,
                                                      text: nil,
                                                      media: media)
