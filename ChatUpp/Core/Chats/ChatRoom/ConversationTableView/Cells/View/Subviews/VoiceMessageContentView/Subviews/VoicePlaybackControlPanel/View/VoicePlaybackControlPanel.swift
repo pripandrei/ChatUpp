@@ -56,7 +56,8 @@ struct VoicePlaybackControlPanelView: View
                         .frame(height: geometry.size.height * 0.3)
                         .padding(.top,5)
                         
-                        Text(viewModel.formatTime(viewModel.audioTotalDuration - viewModel.currentPlaybackTime))
+//                        Text(viewModel.formatTime(viewModel.audioTotalDuration - viewModel.currentPlaybackTime))
+                        Text(viewModel.remainingTime)
                             .font(.system(size: 12))
                             .foregroundColor(Color(ColorManager.incomingMessageComponentsTextColor))
                             .frame(maxWidth: .infinity, alignment: .leading)

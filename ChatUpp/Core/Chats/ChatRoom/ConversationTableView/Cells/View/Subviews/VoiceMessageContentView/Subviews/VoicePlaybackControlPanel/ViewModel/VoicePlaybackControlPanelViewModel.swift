@@ -13,25 +13,28 @@ final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
 {
     @Published private(set) var waveformSamples: [Float] = []
     @Published private(set) var isPlaying: Bool = false
-    @Published private(set) var currentPlaybackTime: TimeInterval = 0.0
+    @Published private var currentPlaybackTime: TimeInterval = 0.0
+    @Published private var audioTotalDuration: TimeInterval = 0.0
     @Published var playbackProgress: CGFloat = 0.0
     @Published var shouldUpdateProgress: Bool = true
     
     private let audioManager = AudioSessionManager.shared
     private let audioFileURL: URL
     private var cancellables: Set<AnyCancellable> = []
-        
-    var audioTotalDuration: TimeInterval = 0.0
+    
+    var remainingTime: String
+    {
+        return (audioTotalDuration - currentPlaybackTime).mmSS
+    }
     
     init(audioFileURL: URL, audioSamples: [Float])
     {
         self.audioFileURL = audioFileURL
         self.waveformSamples = audioSamples
-//        generateWaveform(from: audioFileURL)
         Task
         {
             let duration = await audioManager.getAudioDuration(from: audioFileURL)
-            self.audioTotalDuration = CMTimeGetSeconds(duration)
+            await MainActor.run { self.audioTotalDuration = CMTimeGetSeconds(duration) }
         }
         setupBinding()
     }
@@ -91,12 +94,5 @@ final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
         }
         playbackProgress = progress
         currentPlaybackTime = newTime
-    }
-    
-    func formatTime(_ time: TimeInterval) -> String
-    {
-        let minutes = Int(time) / 60
-        let seconds = Int(time) % 60
-        return String(format: "%d:%02d", minutes, seconds)
     }
 }
