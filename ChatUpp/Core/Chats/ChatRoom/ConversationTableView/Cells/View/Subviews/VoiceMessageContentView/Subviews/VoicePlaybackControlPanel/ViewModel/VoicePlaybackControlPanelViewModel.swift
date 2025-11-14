@@ -71,21 +71,6 @@ final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
             }.store(in: &cancellables)
     }
     
-//    // Generate waveform samples from audio file
-//    private func generateWaveform(from url: URL)
-//    {
-//        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-//            
-//            guard let samples = self?.audioManager.extractSamples(from: url,
-//                                                                  targetSampleCount: 40)
-//            else { return }
-//            
-//            DispatchQueue.main.async {
-//                self?.waveformSamples = samples
-//            }
-//        }
-//    }
-    
     func togglePlayPause()
     {
         if audioManager.isRecording()

@@ -322,7 +322,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let message = createMessageLocally(
             ofType: .audio,
             text: nil,
-//            media: .init(audioPath: url.lastPathComponent)
             media: .audio(path: url.lastPathComponent, samples: samples)
         )
         syncMessageWithFirestore(message.freeze(), imageRepository: nil)

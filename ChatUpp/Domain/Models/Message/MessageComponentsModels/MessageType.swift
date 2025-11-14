@@ -8,30 +8,6 @@
 import Foundation
 import RealmSwift
 
-//class MessageContent: EmbeddedObject {
-//    @Persisted var type: String
-//}
-//
-//class TextContent: MessageContent {
-//    @Persisted var text: String = ""
-//}
-//
-//class AudioContent: MessageContent {
-//    @Persisted var audioPath: String = ""
-//    @Persisted var samples: List<Float>
-//}
-//
-//class ImageContent: MessageContent {
-//    @Persisted var imagePath: String = ""
-//    @Persisted var width: Float
-//    @Persisted var height: Float
-//}
-//
-//class VideoContent: MessageContent {
-//    @Persisted var videoPath: String = ""
-//    @Persisted var thumbnailPath: String?
-//}
-
 enum MessageType: String, PersistableEnum, Codable
 {
     case text
@@ -42,29 +18,6 @@ enum MessageType: String, PersistableEnum, Codable
     case video
     case imageText = "image/text"
 }
-
-//struct MessageMediaParameters
-//{
-//    let imagePath: String?
-//    let audioPath: String?
-//    let stickerPath: String?
-//    let videoPath: String?
-//    let audioSamples: [Float]?
-//    
-//    init(imagePath: String? = nil,
-//         audioPath: String? = nil,
-//         stickerPath: String? = nil,
-//         videoPath: String? = nil,
-//         audioSamples: [Float]? = nil)
-//    {
-//        self.imagePath = imagePath
-//        self.audioPath = audioPath
-//        self.stickerPath = stickerPath
-//        self.videoPath = videoPath
-//        self.audioSamples = audioSamples
-//    }
-//}
-
 
 enum MessageMediaContent
 {

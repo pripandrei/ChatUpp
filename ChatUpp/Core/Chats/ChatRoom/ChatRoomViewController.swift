@@ -877,69 +877,11 @@ extension ChatRoomViewController
         // 4.Start message remote sync
         viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: imageSampleRepo)
     }
-    
-//    @objc func sendMessageButtonWasTapped()
-//    {
-//        // audio message creation
-//        if AudioSessionManager.shared.isRecording()
-//        {
-//            rootView.destroyVoiceRecUIComponents()
-//            let url = AudioSessionManager.shared.getRecordedAudioURL()
-//            AudioSessionManager.shared.stopRecording()
-//
-//            if let url
-//            {
-//                Task {
-//                    let samples = await viewModel.generateWaveform(from: url)
-//                    viewModel.createVoiceMessage(fromURL: url, withAudioSamples: samples)
-//                    updateUIOnNewMessageCreation(.audio)
-//                }
-//            }
-//            return
-//        }
-//        
-//        // text, image, text/image creation
-//        let trimmedText = getTrimmedString()
-//        let image = self.messageImage
-//        self.messageImage = nil
-//
-//        guard let messageType = determineMessageType(text: trimmedText, image: image) else { return }
-//        
-//        viewModel.ensureConversationExists()
-//        
-//        var media: MessageMediaContent? = nil
-//
-//        let imageSampleRepo = image.map { ImageSampleRepository(image: $0, type: .message) }
-//        
-//        if let imageRepo = imageSampleRepo
-//        {
-//            media = MessageMediaContent.image(path: imageRepo.imagePath(for: .original))
-//        }
-//
-//        // 1) Create locally
-//        let message = viewModel.createMessageLocally(ofType: messageType,
-//                                                     text: trimmedText,
-//                                                     media: media)
-//
-//        // 2) Update UI immediately
-//        updateUIOnNewMessageCreation(messageType)
-//
-//        // 3) Save image locally if needed
-//        if let repo = imageSampleRepo {
-//            Task { @MainActor in
-//                await viewModel.saveImagesLocally(fromImageRepository: repo, for: message.id)
-//            }
-//        }
-//
-//        // 4) Start background sync
-//        viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: imageSampleRepo)
-//    }
-    
+ 
     func createStickerMessage(_ path: String)
     {
         viewModel.ensureConversationExists()
         
-//        let media = MessageMediaParameters(stickerPath: path)
         let media = MessageMediaContent.sticker(path: path)
         let message = viewModel.createMessageLocally(ofType: .sticker,
                                                      text: nil,
