@@ -68,7 +68,6 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
                                           mode: .default,
                                           options: [.defaultToSpeaker, .allowBluetooth])
             try audioSession?.setActive(true)
-//            try audioSession?.overrideOutputAudioPort(.speaker)
         } catch {
             print("Failed to set up audio session: \(error)")
         }
@@ -102,7 +101,6 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
             
             guard totalSamples > 0 else { return [] }
             
-            // Read entire file (unavoidable, but optimize what comes next)
             let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: totalSamples)!
             try file.read(into: buffer)
             
@@ -110,14 +108,12 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
             
             let samplesPerPixel = Int(totalSamples) / targetSampleCount
             var samples: [Float] = []
-            samples.reserveCapacity(targetSampleCount) // Pre-allocate memory
+            samples.reserveCapacity(targetSampleCount)
             
-            // Use strided iteration and vDSP for max amplitude calculation
             for i in 0..<targetSampleCount {
                 let startIndex = i * samplesPerPixel
                 let count = min(samplesPerPixel, Int(totalSamples) - startIndex)
                 
-                // Use vDSP for vectorized max absolute value (MUCH faster)
                 var maxAmplitude: Float = 0
                 floatData.advanced(by: startIndex).withMemoryRebound(to: Float.self, capacity: count) { ptr in
                     vDSP_maxmgv(ptr, 1, &maxAmplitude, vDSP_Length(count))
@@ -125,15 +121,16 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
                 
                 samples.append(min(1.0, maxAmplitude * 10))
             }
-            
             return samples
+            
         } catch {
             print("Failed to extract waveform: \(error)")
             return (0..<targetSampleCount).map { _ in Float.random(in: 0.2...1.0) }
         }
     }
 
-    private func stopTimer() {
+    private func stopTimer()
+    {
         timerCancellable?.cancel()
         timerCancellable = nil
     }

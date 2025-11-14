@@ -208,20 +208,6 @@ extension RealmDataBase
             .eraseToAnyPublisher()
     }
     
-//    func observerObject(_ object: Object,
-//                        completion: (RealmObjectUpdate) -> Void)
-//    {
-//        let token = object.observe { change in
-//            switch change {
-//            case .change(let object, let properties):
-//                completion(.changed(object: object, property: properties))
-//            case .deleted:
-//                completion(.deleted)
-//            default: break
-//            }
-//        }
-//    }
-    
     func observeChanges<T>(for object: T) -> AnyPublisher<(PropertyChange, RLMObjectBase), Never>
     {
         let subject = PassthroughSubject<(PropertyChange, RLMObjectBase), Never>()

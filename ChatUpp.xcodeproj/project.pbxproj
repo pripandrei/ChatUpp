@@ -103,7 +103,7 @@
 		758A48D42E4A2CB900D0A10B /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */; };
 		758A48D62E4A2CF900D0A10B /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */; };
 		758A48D82E4AA36F00D0A10B /* MessageCellDragable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758A48D72E4AA36900D0A10B /* MessageCellDragable.swift */; };
-		75911DC82EC6D22D00792D9D /* TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75911DC72EC6D22600792D9D /* TimeInterval.swift */; };
+		75911DC82EC6D22D00792D9D /* TimeInterval+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75911DC72EC6D22600792D9D /* TimeInterval+Extensions.swift */; };
 		7594FC222E884F7800E902C4 /* StickerSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7594FC212E884F7000E902C4 /* StickerSectionHeaderView.swift */; };
 		7597CE5B2D1494F000CFD1B8 /* ImageSampleRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */; };
 		759894AF2E4E6BA2003CF661 /* TextImageMessageContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759894AE2E4E6BA0003CF661 /* TextImageMessageContentView.swift */; };
@@ -314,7 +314,7 @@
 		758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		758A48D72E4AA36900D0A10B /* MessageCellDragable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCellDragable.swift; sourceTree = "<group>"; };
-		75911DC72EC6D22600792D9D /* TimeInterval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeInterval.swift; sourceTree = "<group>"; };
+		75911DC72EC6D22600792D9D /* TimeInterval+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Extensions.swift"; sourceTree = "<group>"; };
 		7594FC212E884F7000E902C4 /* StickerSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerSectionHeaderView.swift; sourceTree = "<group>"; };
 		7597CE5A2D1494ED00CFD1B8 /* ImageSampleRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSampleRepository.swift; sourceTree = "<group>"; };
 		759894AE2E4E6BA0003CF661 /* TextImageMessageContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextImageMessageContentView.swift; sourceTree = "<group>"; };
@@ -1509,7 +1509,7 @@
 		75FB78FF2AC3188C00C2743A /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				75911DC72EC6D22600792D9D /* TimeInterval.swift */,
+				75911DC72EC6D22600792D9D /* TimeInterval+Extensions.swift */,
 				75C8F76A2E81907D007317E0 /* OpaquePointer+Extensions.swift */,
 				75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */,
 				75BC066F2DFB5A06002ED4AA /* View+Extensions.swift */,
@@ -1806,7 +1806,7 @@
 				751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */,
 				7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */,
 				75E4807D2E49027600E8C005 /* MessageLabel.swift in Sources */,
-				75911DC82EC6D22D00792D9D /* TimeInterval.swift in Sources */,
+				75911DC82EC6D22D00792D9D /* TimeInterval+Extensions.swift in Sources */,
 				759894AF2E4E6BA2003CF661 /* TextImageMessageContentView.swift in Sources */,
 				7527065C2DAB1D6F002128DF /* ConversationUsersListinerService.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
