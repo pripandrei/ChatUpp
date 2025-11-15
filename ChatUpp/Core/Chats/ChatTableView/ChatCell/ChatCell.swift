@@ -176,8 +176,10 @@ class ChatCell: UITableViewCell
         }
     }
     
-    private func setAttributedText(for message: Message) -> NSAttributedString? {
-        switch message.type {
+    private func setAttributedText(for message: Message) -> NSAttributedString?
+    {
+        switch message.type
+        {
         case .text:
             return NSAttributedString(string: message.messageBody)
 
@@ -187,6 +189,9 @@ class ChatCell: UITableViewCell
         case .image:
             return attributedImageMessage(path: message.imagePath)
 
+        case .audio:
+            return NSAttributedString(string: "Voice Message")
+            
         case .sticker:
             guard let name = message.sticker,
                   let data = cellViewModel.getStickerThumbnail(name: name + "_thumbnail") else { return nil }
