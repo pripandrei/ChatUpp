@@ -87,9 +87,9 @@
 
 //MARK: - [12].
 /// If message seen status was updated locally during network off,
-/// we should not just add the firestore message to realm
-/// because it will override it and message will be set to seen status false,
-/// again. So we update firestore message seen status before adding to realm
+/// we should not just add remote (firestore) message to realm
+/// because it will override it and message will be set to seen status false, again
+/// So we update firestore message seen status before adding to realm
 
 //MARK: - [13]
 /// When pagination of messages happens, it offsets content of table view

@@ -12,6 +12,8 @@ import Gzip
 // MARK: - RLLottieView
 class RLLottieView: UIView, ObjectRenderable
 {
+    private static var preferredRenderSize: CGSize = .init(width: 200, height: 200)
+    
     private var animation: OpaquePointer?
     private var totalFrames: Int = 0
     private let renderSize: CGSize 
@@ -28,7 +30,7 @@ class RLLottieView: UIView, ObjectRenderable
     // generation token
     private var generation: Int = 0
 
-    init(renderSize: CGSize = .init(width: 200, height: 200))
+    init(renderSize: CGSize = .init(width: preferredRenderSize.width, height: preferredRenderSize.height))
     {
         self.renderSize = renderSize
         self.cachedColorSpace = CGColorSpaceCreateDeviceRGB()
@@ -46,7 +48,7 @@ class RLLottieView: UIView, ObjectRenderable
         // Convenience initializer
     override convenience init(frame: CGRect)
     {
-        self.init(renderSize: .init(width: 200, height: 200))
+        self.init(renderSize: .init(width: Self.preferredRenderSize.width, height: Self.preferredRenderSize.height))
         self.frame = frame
     }
 

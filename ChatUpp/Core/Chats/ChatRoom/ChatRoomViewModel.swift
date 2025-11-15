@@ -1065,20 +1065,29 @@ extension ChatRoomViewModel
         var newMessages = [Message]()
         var updatedMessages = [Message]()
         
-        for message in messages
+        for remoteMessage in messages
         {
-            if let dbMessage = RealmDataBase.shared.retrieveSingleObjectTest(
+            guard let dbMessage = RealmDataBase.shared.retrieveSingleObjectTest(
                 ofType: Message.self,
-                primaryKey: message.id)
+                primaryKey: remoteMessage.id
+            ) else {
+                // Message does not exist locally, treat as new
+                newMessages.append(remoteMessage)
+                continue
+            }
+            /// See FootNote.swift [12]
+            ///
+            let dbMessageMarkedAsSeen = (dbMessage.messageSeen == true) || dbMessage.seenBy.contains(authUser.uid)
+            let remoteMessageMarkedAsUnseen = (remoteMessage.messageSeen == false) || !remoteMessage.seenBy.contains(authUser.uid)
+            
+            if dbMessageMarkedAsSeen && remoteMessageMarkedAsUnseen
             {
-                /// See FootNote.swift [12]
-                if (dbMessage.messageSeen == true && message.messageSeen == false) || (dbMessage.seenBy.contains(authUser.uid) && !message.seenBy.contains(authUser.uid))
-                {
-                    let updatedMessage = message.updateSeenStatus(seenStatus: true)
-                    updatedMessages.append(updatedMessage)
-                }
+                // Preserve local seen status (user marked as seen while offline)
+                let updatedMessage = remoteMessage.updateSeenStatus(seenStatus: true)
+                updatedMessages.append(updatedMessage)
             } else {
-                newMessages.append(message)
+                // Use remote version as-is
+                updatedMessages.append(remoteMessage)
             }
         }
         

@@ -684,6 +684,76 @@ extension FirebaseChatService
 //MARK: Testing functions
 extension FirebaseChatService
 {
+    // Main entry point
+    func updateMissingAudioSamples(forChatIDs chatIDs: [String]) async {
+        for chatID in chatIDs {
+            await processChat(chatID: chatID)
+        }
+    }
+    
+    /// Process a single chat by iterating its messages subcollection
+    private func processChat(chatID: String) async
+    {
+        let messagesRef = db.collection("chats")
+            .document(chatID)
+            .collection("messages")
+        
+        do {
+            let snapshot = try await messagesRef.getDocuments()
+            
+            for doc in snapshot.documents {
+                do {
+                    let message = try doc.data(as: Message.self)
+                    try await processMessageIfNeeded(message, documentRef: doc.reference)
+                } catch {
+                    print("❌ Failed to decode/process message \(doc.documentID): \(error)")
+                }
+            }
+            
+        } catch {
+            print("❌ Failed to fetch messages for chat \(chatID): \(error)")
+        }
+    }
+    
+    /// Process a single message: extract samples only if needed
+    private func processMessageIfNeeded(_ message: Message,
+                                        documentRef: DocumentReference) async throws {
+        
+        guard message.type == .audio else { return }
+        
+        let samples = message.audioSamples
+//        let needsSamples = samples.isEmpty
+//        
+//        guard needsSamples else { return }
+//        
+        guard let voicePath = message.voicePath else {
+            print("⚠️ Message \(message.id) has type audio but no voice_path.")
+            return
+        }
+        
+        // Convert Firebase storage URL → local URL if needed
+        // If your extractSamples() accepts remote URL directly, remove this
+        
+        guard let url = CacheManager.shared.getURL(for: voicePath) else {
+            print("❌ Invalid voice_path URL: \(voicePath)")
+            return
+        }
+        
+        print("🎤 Extracting samples for message \(message.id)...")
+        
+        let extracted = await Task.detached(priority: .background)
+        {
+            return AudioSessionManager.shared.extractSamples(from: url, targetSampleCount: 40)
+        }.value
+//        let extracted = try await extractSamples(from: url, targetSampleCount: 40)
+        
+        try await documentRef.updateData([
+            "audio_samples": extracted
+        ])
+        
+        print("✅ Updated audio_samples for message \(message.id)")
+    }
+    
     func addEmptyReactionsToAllMessagesBatched() async throws
     {
         let chatsRef = chatsCollection
@@ -715,38 +785,7 @@ extension FirebaseChatService
                 }
             }
         }
-        
-        
-        
-//        chatsRef.getDocuments { chatSnapshot, error in
-//            guard let chatSnapshot = chatSnapshot, error == nil else {
-//                print("Failed to fetch chats: \(error?.localizedDescription ?? "unknown error")")
-//                return
-//            }
-//            
-//            for chatDoc in chatSnapshot.documents {
-//                let messagesRef = chatDoc.reference.collection("messages")
-//                
-//                messagesRef.getDocuments { messageSnapshot, error in
-//                    guard let messageSnapshot = messageSnapshot, error == nil else {
-//                        print("Failed to fetch messages for chat \(chatDoc.documentID): \(error?.localizedDescription ?? "unknown error")")
-//                        return
-//                    }
-//
-//                    for messageDoc in messageSnapshot.documents {
-//                        currentBatch.updateData(["reactions": [String: [String]]()], forDocument: messageDoc.reference)
-//                        writeCount += 1
-//                        
-//                        if writeCount >= 500
-//                        {
-//                            batches.append(currentBatch)
-//                            currentBatch = self.db.batch()
-//                            writeCount = 0
-//                        }
-//                    }
-//                }
-//            }
-//        }
+
         if writeCount > 0 {
             batches.append(currentBatch)
         }
