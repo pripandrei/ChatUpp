@@ -423,7 +423,6 @@ final class ChatRoomViewController: UIViewController
     
     private func startInputBarHeaderViewDestruction(_ inputBarHeaderView: InputBarHeaderView)
     {
-//        self.rootView.messageTextView.text.removeAll()
         inputBarHeaderView.inputBarHeightConstraint?.constant = 0
         inputBarHeaderView.subviews.forEach({ view in
             view.layer.opacity = 0.0

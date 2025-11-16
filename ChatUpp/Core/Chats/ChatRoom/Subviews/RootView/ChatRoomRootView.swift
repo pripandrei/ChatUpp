@@ -375,102 +375,7 @@ final class ChatRoomRootView: UIView
             self.textViewTrailingItemView.layer.opacity = 1.0
         }
     }
-    
-//    func toggleVoiceRecButtonVisibility(_ isSown: Bool)
-//    {
-//        if isSown
-//        {
-//            voiceRecButton.isHidden = false
-//            voiceRecButton.transform = .init(scaleX: 0.01, y: 0.01)
-//            
-//            UIView.animate(withDuration: 0.1) {
-//                self.sendMessageButton.transform = .init(scaleX: 1.2, y: 1.2)
-//            } completion: { _ in
-//                UIView.animate(withDuration: 0.2) {
-//                    self.sendMessageButton.transform = .init(scaleX: 0.1, y: 0.1)
-//                    self.voiceRecButton.transform = .identity
-//                } completion: { _ in
-//                    self.sendMessageButton.isHidden = true
-//                }
-//            }
-//        }
-//        else
-//        {
-//            sendMessageButton.isHidden = false
-//            sendMessageButton.transform = .init(scaleX: 0.01, y: 0.01)
-//            
-//            UIView.animate(withDuration: 0.1) {
-//                self.voiceRecButton.transform = .init(scaleX: 1.2, y: 1.2)
-//            } completion: { _ in
-//                UIView.animate(withDuration: 0.2) {
-//                    self.voiceRecButton.transform = .init(scaleX: 0.1, y: 0.1)
-//                    self.sendMessageButton.transform = .identity
-//                } completion: { _ in
-//                    self.voiceRecButton.isHidden = true
-//                }
-//            }
-//        }
-//    }
-    
-    func toggleVoiceRecButtonVisibility33(_ showVoice: Bool)
-    {
-        sendMessageButtonPropertyAnimator?.stopAnimation(true)
-        sendMessageButtonPropertyAnimator = nil
-
-        let voice = voiceRecButton
-        let send = sendMessageButton
-
-        let expandScale = CGAffineTransform(scaleX: 1.2, y: 1.2)
-        let shrinkScale = CGAffineTransform(scaleX: 0.01, y: 0.01)
-
-        if showVoice {
-            voice.isHidden = false
-            voice.transform = shrinkScale
-            send.isHidden = false
-        } else {
-            send.isHidden = false
-            send.transform = shrinkScale
-            voice.isHidden = false
-        }
-
-        // 4. First animation: pop the currently visible one
-        var firstAnimator = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
-        {
-            if showVoice {
-                send.transform = expandScale
-            } else {
-                voice.transform = expandScale
-            }
-        }
-
-        firstAnimator.addCompletion { _ in
-            firstAnimator = UIViewPropertyAnimator(duration: 0.2, curve: .linear)
-            {
-                if showVoice {
-                    send.transform = shrinkScale
-                    voice.transform = .identity
-                } else {
-                    voice.transform = shrinkScale
-                    send.transform = .identity
-                }
-            }
-
-            firstAnimator.addCompletion { _ in
-                if showVoice {
-                    send.isHidden = true
-                } else {
-                    voice.isHidden = true
-                }
-            }
-
-            self.sendMessageButtonPropertyAnimator = firstAnimator
-            firstAnimator.startAnimation()
-        }
-
-        sendMessageButtonPropertyAnimator = firstAnimator
-        firstAnimator.startAnimation()
-    }
-    
+ 
     func toggleVoiceRecButtonVisibility(_ isShown: Bool)
     {
         sendMessageButtonPropertyAnimator?.stopAnimation(true)
@@ -577,19 +482,40 @@ extension ChatRoomRootView
     
     private func resizeSendMessageButtonWithAnimation(aniamationState: AnimationState)
     {
+//        if aniamationState == .creation
+//        {
+//            UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseOut])
+//            {
+//                self.voiceRecButton.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+//                self.sendMessageButton.isHidden = false
+//                self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.7, y: 1.7)
+//            } completion: { _ in
+//                UIView.animate(withDuration: 0.1, delay: 0.05, options: [.curveEaseIn]) {
+//                    self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+//                } completion: { _ in
+//                    UIView.animate(withDuration: 0.05, delay: 0.0, options: [.curveEaseOut]) {
+//                        self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
+//                    }
+//                }
+//                self.voiceRecButton.isHidden = true
+//            }
+//            
+//            return
+//        }
+//        
         if aniamationState == .creation
         {
             UIView.animate(withDuration: 0.15)
             {
-                self.voiceRecButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+                self.voiceRecButton.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
                 self.sendMessageButton.isHidden = false
-                self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.7, y: 2.7)
+                self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
             } completion: { _ in
                 UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseIn]) {
-                    self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.4, y: 2.4)
+                    self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
                 } completion: { _ in
                     UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseOut]) {
-                        self.sendMessageButton.transform = CGAffineTransform(scaleX: 2.5, y: 2.5)
+                        self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
                     }
                 }
                 self.voiceRecButton.isHidden = true
@@ -602,7 +528,7 @@ extension ChatRoomRootView
         
         UIView.animate(withDuration: 0.15)
         {
-            self.sendMessageButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+            self.sendMessageButton.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
             self.voiceRecButton.transform = .identity
         } completion: { _ in
             self.sendMessageButton.isHidden = true
