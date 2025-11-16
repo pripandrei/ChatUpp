@@ -423,7 +423,7 @@ final class ChatRoomViewController: UIViewController
     
     private func startInputBarHeaderViewDestruction(_ inputBarHeaderView: InputBarHeaderView)
     {
-        self.rootView.messageTextView.text.removeAll()
+//        self.rootView.messageTextView.text.removeAll()
         inputBarHeaderView.inputBarHeightConstraint?.constant = 0
         inputBarHeaderView.subviews.forEach({ view in
             view.layer.opacity = 0.0
@@ -1093,7 +1093,7 @@ extension ChatRoomViewController
     {
         if rootView.inputBarHeader != nil
         {
-            viewModel.resetCurrentReplyMessageIfNeeded()
+            viewModel.resetCurrentReplyMessageIfNeeded() 
             animateInputBarHeaderViewDestruction()
         }
     }
@@ -1519,13 +1519,16 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
                 self.dragableCell?.center = self.draggingCellOriginalCenter
             }
             self.hapticWasInitiated = false
-            self.rootView.messageTextView.text = nil
-            self.handleContextMenuSelectedAction(
-                actionOption: .reply(
-                    senderName: dragableCell?.messageSenderName,
-                    text: dragableCell?.messageText,
-                    image: dragableCell?.messageImage)
-            )
+            
+            if abs(translationX) >= dragTreshhold
+            {
+                self.handleContextMenuSelectedAction(
+                    actionOption: .reply(
+                        senderName: dragableCell?.messageSenderName,
+                        text: dragableCell?.messageText,
+                        image: dragableCell?.messageImage)
+                )
+            }
             
             self.dragableCell = nil
         default: break
