@@ -13,7 +13,6 @@ import YYText
 
 class ChatCell: UITableViewCell
 {
-
     private var messageLableTrailingToBadgeCounter: NSLayoutConstraint!
     private var cellViewModel: ChatCellViewModel!
     private var messageLable = CustomMessageLabel()

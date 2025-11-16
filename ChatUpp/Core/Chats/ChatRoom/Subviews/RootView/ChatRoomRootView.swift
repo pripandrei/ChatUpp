@@ -18,6 +18,8 @@ final class ChatRoomRootView: UIView
     let contentOffsetSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
     let cancelRecordingSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
     
+    private var sendMessageButtonPropertyAnimator: UIViewPropertyAnimator?
+    
     private let inputBarViewsTopConstraintConstant: CGFloat = 7.0
     private let inputBarButtonsSize: CGFloat = 31
     
@@ -374,40 +376,133 @@ final class ChatRoomRootView: UIView
         }
     }
     
-    func toggleVoiceRecButtonVisibility(_ isSown: Bool)
+//    func toggleVoiceRecButtonVisibility(_ isSown: Bool)
+//    {
+//        if isSown
+//        {
+//            voiceRecButton.isHidden = false
+//            voiceRecButton.transform = .init(scaleX: 0.01, y: 0.01)
+//            
+//            UIView.animate(withDuration: 0.1) {
+//                self.sendMessageButton.transform = .init(scaleX: 1.2, y: 1.2)
+//            } completion: { _ in
+//                UIView.animate(withDuration: 0.2) {
+//                    self.sendMessageButton.transform = .init(scaleX: 0.1, y: 0.1)
+//                    self.voiceRecButton.transform = .identity
+//                } completion: { _ in
+//                    self.sendMessageButton.isHidden = true
+//                }
+//            }
+//        }
+//        else
+//        {
+//            sendMessageButton.isHidden = false
+//            sendMessageButton.transform = .init(scaleX: 0.01, y: 0.01)
+//            
+//            UIView.animate(withDuration: 0.1) {
+//                self.voiceRecButton.transform = .init(scaleX: 1.2, y: 1.2)
+//            } completion: { _ in
+//                UIView.animate(withDuration: 0.2) {
+//                    self.voiceRecButton.transform = .init(scaleX: 0.1, y: 0.1)
+//                    self.sendMessageButton.transform = .identity
+//                } completion: { _ in
+//                    self.voiceRecButton.isHidden = true
+//                }
+//            }
+//        }
+//    }
+    
+    func toggleVoiceRecButtonVisibility33(_ showVoice: Bool)
     {
-        if isSown
+        sendMessageButtonPropertyAnimator?.stopAnimation(true)
+        sendMessageButtonPropertyAnimator = nil
+
+        let voice = voiceRecButton
+        let send = sendMessageButton
+
+        let expandScale = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        let shrinkScale = CGAffineTransform(scaleX: 0.01, y: 0.01)
+
+        if showVoice {
+            voice.isHidden = false
+            voice.transform = shrinkScale
+            send.isHidden = false
+        } else {
+            send.isHidden = false
+            send.transform = shrinkScale
+            voice.isHidden = false
+        }
+
+        // 4. First animation: pop the currently visible one
+        var firstAnimator = UIViewPropertyAnimator(duration: 0.1, curve: .linear)
         {
-            voiceRecButton.isHidden = false
-            voiceRecButton.transform = .init(scaleX: 0.01, y: 0.01)
-            
-            UIView.animate(withDuration: 0.1) {
-                self.sendMessageButton.transform = .init(scaleX: 1.2, y: 1.2)
-            } completion: { _ in
-                UIView.animate(withDuration: 0.2) {
-                    self.sendMessageButton.transform = .init(scaleX: 0.1, y: 0.1)
-                    self.voiceRecButton.transform = .identity
-                } completion: { _ in
-                    self.sendMessageButton.isHidden = true
-                }
+            if showVoice {
+                send.transform = expandScale
+            } else {
+                voice.transform = expandScale
             }
         }
-        else
-        {
-            sendMessageButton.isHidden = false
-            sendMessageButton.transform = .init(scaleX: 0.01, y: 0.01)
-            
-            UIView.animate(withDuration: 0.1) {
-                self.voiceRecButton.transform = .init(scaleX: 1.2, y: 1.2)
-            } completion: { _ in
-                UIView.animate(withDuration: 0.2) {
-                    self.voiceRecButton.transform = .init(scaleX: 0.1, y: 0.1)
-                    self.sendMessageButton.transform = .identity
-                } completion: { _ in
-                    self.voiceRecButton.isHidden = true
+
+        firstAnimator.addCompletion { _ in
+            firstAnimator = UIViewPropertyAnimator(duration: 0.2, curve: .linear)
+            {
+                if showVoice {
+                    send.transform = shrinkScale
+                    voice.transform = .identity
+                } else {
+                    voice.transform = shrinkScale
+                    send.transform = .identity
                 }
             }
+
+            firstAnimator.addCompletion { _ in
+                if showVoice {
+                    send.isHidden = true
+                } else {
+                    voice.isHidden = true
+                }
+            }
+
+            self.sendMessageButtonPropertyAnimator = firstAnimator
+            firstAnimator.startAnimation()
         }
+
+        sendMessageButtonPropertyAnimator = firstAnimator
+        firstAnimator.startAnimation()
+    }
+    
+    func toggleVoiceRecButtonVisibility(_ isShown: Bool)
+    {
+        sendMessageButtonPropertyAnimator?.stopAnimation(true)
+        sendMessageButtonPropertyAnimator = nil
+        
+        // Determine which buttons to animate
+        let buttonToShow = isShown ? voiceRecButton : sendMessageButton
+        let buttonToHide = isShown ? sendMessageButton : voiceRecButton
+        
+        buttonToShow.isHidden = false
+        buttonToShow.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+        
+        sendMessageButtonPropertyAnimator = UIViewPropertyAnimator.runningPropertyAnimator(
+            withDuration: 0.1,
+            delay: 0.0,
+            animations: {
+                buttonToHide.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+            },
+            completion: { [weak self] _ in
+                self?.sendMessageButtonPropertyAnimator = UIViewPropertyAnimator.runningPropertyAnimator(
+                    withDuration: 0.2,
+                    delay: 0.0,
+                    animations: {
+                        buttonToHide.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+                        buttonToShow.transform = .identity
+                    },
+                    completion: { _ in
+                        buttonToHide.isHidden = true
+                    }
+                )
+            }
+        )
     }
 }
 
