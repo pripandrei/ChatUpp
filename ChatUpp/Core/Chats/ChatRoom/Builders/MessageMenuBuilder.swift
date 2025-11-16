@@ -51,7 +51,6 @@ final class MessageMenuBuilder
         
         return UIMenu(children: [firstSection, secondSection])
     }
-//    
 
     func buildUIMenuForEvent(message: Message) -> UIMenu
     {

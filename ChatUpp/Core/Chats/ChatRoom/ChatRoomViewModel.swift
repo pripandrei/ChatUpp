@@ -619,7 +619,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
 
         // Step 3: Sync to Firebase
-        let reactions = message.mapEncodedReactions(message.reactions)
+        let reactions = message.mapReactionsForEncoding(message.reactions)
         guard let conversation = conversation else { return }
         Task {
             do {
@@ -1023,7 +1023,7 @@ extension ChatRoomViewModel
         let removedIDs = Set(removedMessages.map(\.id))
         let filteredModified = modifiedMessages.filter { !removedIDs.contains($0.id) }
         let filteredAdded = addedMessages.filter { !removedIDs.contains($0.id) }
-        
+     
         await fetchMessagesMetadata(filteredAdded)
       
         // wait for message pagination to finish if any
@@ -1075,6 +1075,7 @@ extension ChatRoomViewModel
                 newMessages.append(remoteMessage)
                 continue
             }
+           
             /// See FootNote.swift [12]
             ///
             let dbMessageMarkedAsSeen = (dbMessage.messageSeen == true) || dbMessage.seenBy.contains(authUser.uid)
@@ -1105,8 +1106,6 @@ extension ChatRoomViewModel
         if !updatedMessages.isEmpty {
             datasourceUpdateType.send(DatasourceRowAnimation.left)
         }
-//        let cellVMs = createMessageClustersWith(newMessages)
-//        self.updatedItems2 = .added(cellVMs)
     }
     
     @MainActor

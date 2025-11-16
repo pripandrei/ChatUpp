@@ -684,13 +684,6 @@ extension ChatRoomViewController
         }
     }
     
-    private func checkIfCellIsCurrentlyVisible(_ cell: UITableViewCell) -> Bool
-    {
-        let cellFrame = cell.frame
-        let tableRect = rootView.tableView.bounds.offsetBy(dx: 0, dy: 65)
-        return tableRect.contains(cellFrame)
-    }
-    
     private func checkIfMessageWasSeen(at indexPath: IndexPath) -> Bool
     {
         let authUserID = viewModel.authUser.uid
