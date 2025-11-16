@@ -27,23 +27,31 @@ final class MessageMenuBuilder
         self.cell = cell
         self.contextMenuSelectedActionHandler = contextMenuSelectedActionHandler
     }
-    
+
     func buildUIMenuForMessage(message: Message) -> UIMenu
     {
         let isOwner = message.senderId == viewModel.authUser.uid
         
+        let supportsTextActions = ![.audio, .sticker].contains(message.type)
+        
         let seen = createSeenAction(for: message, isOwner: isOwner)
         let reply = createReplyAction(message: message)
-        let copy = createCopyAction(text: message.messageBody)
-        let edit = createEditAction(for: message, isOwner: isOwner)
+        let copy = supportsTextActions ? createCopyAction(text: message.messageBody) : nil
+        let edit = supportsTextActions ? createEditAction(for: message, isOwner: isOwner) : nil
         let delete = createDeleteAction(for: message, isOwner: isOwner)
         
-        let firstSection = UIMenu(options: .displayInline, children: [seen])
-        let secondSection = UIMenu(options: .displayInline, children: [reply, copy, edit, delete])
+        let firstSection = UIMenu(
+            options: .displayInline,
+            children: [seen]
+        )
+        let secondSection = UIMenu(
+            options: .displayInline,
+            children: [reply, copy, edit, delete].compactMap {$0}
+        )
         
         return UIMenu(children: [firstSection, secondSection])
     }
-    
+//    
 
     func buildUIMenuForEvent(message: Message) -> UIMenu
     {

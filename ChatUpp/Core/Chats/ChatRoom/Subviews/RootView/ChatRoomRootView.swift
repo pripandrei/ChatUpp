@@ -482,27 +482,6 @@ extension ChatRoomRootView
     
     private func resizeSendMessageButtonWithAnimation(aniamationState: AnimationState)
     {
-//        if aniamationState == .creation
-//        {
-//            UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseOut])
-//            {
-//                self.voiceRecButton.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
-//                self.sendMessageButton.isHidden = false
-//                self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.7, y: 1.7)
-//            } completion: { _ in
-//                UIView.animate(withDuration: 0.1, delay: 0.05, options: [.curveEaseIn]) {
-//                    self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-//                } completion: { _ in
-//                    UIView.animate(withDuration: 0.05, delay: 0.0, options: [.curveEaseOut]) {
-//                        self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
-//                    }
-//                }
-//                self.voiceRecButton.isHidden = true
-//            }
-//            
-//            return
-//        }
-//        
         if aniamationState == .creation
         {
             UIView.animate(withDuration: 0.15)

@@ -1400,7 +1400,9 @@ extension ChatRoomViewController
 //MARK: Context Menu configuration
 extension ChatRoomViewController
 {
-    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration?
+    func tableView(_ tableView: UITableView,
+                   contextMenuConfigurationForRowAt indexPath: IndexPath,
+                   point: CGPoint) -> UIContextMenuConfiguration?
     {
         guard viewModel.shouldHideJoinGroupOption,
               let baseCell = tableView.cellForRow(at: indexPath) else { return nil }
