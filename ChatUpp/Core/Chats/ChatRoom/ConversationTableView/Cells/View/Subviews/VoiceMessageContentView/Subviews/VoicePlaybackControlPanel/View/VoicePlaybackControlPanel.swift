@@ -14,11 +14,15 @@ import Combine
 struct VoicePlaybackControlPanelView: View
 {
     @StateObject var viewModel: VoicePlaybackControlPanelViewModel
+    private let colorScheme: ColorScheme
 
-    init(audioFileURL: URL, audioSamples: [Float])
+    init(audioFileURL: URL,
+         audioSamples: [Float],
+         colorScheme: ColorScheme)
     {
         _viewModel = StateObject(wrappedValue: .init(audioFileURL: audioFileURL,
                                                      audioSamples: audioSamples))
+        self.colorScheme = colorScheme
     }
     
     var body: some View
@@ -36,7 +40,7 @@ struct VoicePlaybackControlPanelView: View
                             .resizable()
                             .scaledToFit()
                             .frame(height: geometry.size.height * 0.8)
-                            .foregroundColor(.white)
+                            .foregroundColor(colorScheme.playButtonColor)
                             .rotationEffect(.degrees(viewModel.isPlaying ? 180 : 0))
                             .animation(.bouncy(duration: 0.3), value: viewModel.isPlaying)
                     }
@@ -47,16 +51,15 @@ struct VoicePlaybackControlPanelView: View
                         WaveformScrubber(
                             progress: $viewModel.playbackProgress,
                             shouldUpdateProgress: $viewModel.shouldUpdateProgress,
-                            samples: viewModel.waveformSamples
-//                            filledColor: .white,
-//                            unfilledColor: .pink.opacity(0.6)
+                            samples: viewModel.waveformSamples,
+                            filledColor: colorScheme.filledColor,
+                            unfilledColor: colorScheme.unfilledColor
                         ) { newProgress in
                             viewModel.seek(to: newProgress)
                         }
                         .frame(height: geometry.size.height * 0.3)
                         .padding(.top,5)
                         
-//                        Text(viewModel.formatTime(viewModel.audioTotalDuration - viewModel.currentPlaybackTime))
                         Text(viewModel.remainingTime)
                             .font(.system(size: 12))
                             .foregroundColor(Color(ColorManager.incomingMessageComponentsTextColor))
@@ -68,15 +71,27 @@ struct VoicePlaybackControlPanelView: View
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
-        .background(Color(ColorManager.outgoingMessageBackgroundColor))
+        .background(colorScheme.backgroundColor)
         .clipped()
+//        .drawingGroup() 
+    }
+}
+
+extension VoicePlaybackControlPanelView
+{
+    struct ColorScheme
+    {
+        let backgroundColor: Color
+        let filledColor: Color
+        let unfilledColor: Color
+        let playButtonColor: Color
     }
 }
 
 #Preview {
     let url = Bundle.main.url(forResource: "Wolfgang", withExtension: "mp3")
     let samples = AudioSessionManager.shared.extractSamples(from: url ?? .desktopDirectory, targetSampleCount: 40)
-    VoicePlaybackControlPanelView(audioFileURL: url ?? .desktopDirectory, audioSamples: samples)
+    VoicePlaybackControlPanelView(audioFileURL: url ?? .desktopDirectory, audioSamples: samples, colorScheme: .init(backgroundColor: .accentColor, filledColor: .accentColor, unfilledColor: .accentColor, playButtonColor: .accentColor))
 }
 
 

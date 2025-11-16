@@ -26,7 +26,8 @@ struct ColorManager
     static let messageTextFieldBackgroundColor: UIColor =  #colorLiteral(red: 0.1462480128, green: 0.1083115265, blue: 0.1505401731, alpha: 1)
     static let scrollToBottomButtonBackgroundColor: UIColor = #colorLiteral(red: 0.2306482196, green: 0.1865905523, blue: 0.2809014618, alpha: 1)
     static let inputBarMessageContainerBackgroundColor: UIColor = #colorLiteral(red: 0.4341781139, green: 0.1795937121, blue: 0.3866679668, alpha: 1)
-    static let sendMessageButtonBackgroundColor: UIColor = #colorLiteral(red: 0.8080032468, green: 0.4144457579, blue: 0.9248802066, alpha: 1)
+//    static let sendMessageButtonBackgroundColor: UIColor = #colorLiteral(red: 0.8080032468, green: 0.4144457579, blue: 0.9248802066, alpha: 1)
+    static let sendMessageButtonBackgroundColor: UIColor = #colorLiteral(red: 0.976365149, green: 0.4590291381, blue: 0.9979678988, alpha: 1)
     
     static let unseenMessagesBadgeBackgroundColor: UIColor = #colorLiteral(red: 0.8423270583, green: 0.4228419662, blue: 0.9524703622, alpha: 1)
     static let unseenMessagesBadgeTextColor: UIColor = .white

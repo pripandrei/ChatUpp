@@ -27,8 +27,8 @@ final class VoiceMessageContentView: ContainerView
               let url = CacheManager.shared.getURL(for: path),
               let audioSamples = viewModel.message?.audioSamples else { fatalError("Audio path should be present") }
         
-        setupPlaybackControlPanel(withUrl: url, audioSamples: Array(audioSamples))
-   
+        let controlPanelcolorScheme = makeColorSchemeForControlPanel(basedOnAlignment: viewModel.messageAlignment)
+        setupPlaybackControlPanel(withUrl: url, audioSamples: Array(audioSamples), colorScheme: controlPanelcolorScheme)
         setupMessageComponentsView()
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
     }
@@ -37,14 +37,19 @@ final class VoiceMessageContentView: ContainerView
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupPlaybackControlPanel(withUrl URL: URL, audioSamples: [Float])
+    private func setupPlaybackControlPanel(withUrl URL: URL,
+                                           audioSamples: [Float],
+                                           colorScheme: VoicePlaybackControlPanelView.ColorScheme)
     {
-        self.playbackControlPanel = .init(audioFileURL: URL, audioSamples: audioSamples)
+        self.playbackControlPanel = .init(audioFileURL: URL,
+                                          audioSamples: audioSamples,
+                                          colorScheme: colorScheme)
         
         guard let view = UIHostingController(rootView: playbackControlPanel).view else {return}
-        addArrangedSubview(view)
+        view.backgroundColor = .clear
+        view.isOpaque = true
         
-        view.backgroundColor = .carrot
+        addArrangedSubview(view)
         
         view.translatesAutoresizingMaskIntoConstraints = false
         
@@ -63,10 +68,21 @@ final class VoiceMessageContentView: ContainerView
         ])
     }
     
-//    func configure(with viewModel: MessageContentViewModel)
-//    {
-//        messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
-//
-//    }
+    private func makeColorSchemeForControlPanel(basedOnAlignment alignment: MessageAlignment) ->  VoicePlaybackControlPanelView.ColorScheme
+    {
+        switch alignment
+        {
+        case .right: return .init(backgroundColor: .init(ColorManager.outgoingMessageBackgroundColor),
+                                  filledColor: .white,
+                                  unfilledColor: .init(ColorManager.incomingMessageComponentsTextColor),
+                                  playButtonColor: .white)
+        case .left: return .init(backgroundColor: .init(ColorManager.incomingMessageBackgroundColor),
+                                 filledColor: .init((ColorManager.sendMessageButtonBackgroundColor)),
+                                 unfilledColor: .init(ColorManager.outgoingReplyToMessageBackgroundColor),
+                                 playButtonColor: .init(ColorManager.sendMessageButtonBackgroundColor))
+        default:
+            fatalError("Unhandled alignment case: \(alignment)")
+        }
+    }
     
 }

@@ -14,8 +14,8 @@ struct WaveformScrubber: View
     @GestureState private var isDragging = false
     
     var samples: [Float]
-    var filledColor: Color = .white
-    var unfilledColor: Color = Color(ColorManager.incomingMessageComponentsTextColor)
+    var filledColor: Color
+    var unfilledColor: Color
     var onSeek: ((CGFloat) -> Void)?
     
     var body: some View
@@ -50,7 +50,6 @@ struct WaveformScrubber: View
                         let newProgress = x / width
                         self.progress = newProgress
                         self.shouldUpdateProgress = false
-                        //                        onSeek?(newProgress)
                     }
                     .onEnded { value in
                         let x = max(0, min(value.location.x, width))

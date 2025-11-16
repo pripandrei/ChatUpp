@@ -180,6 +180,12 @@ extension Message
         return self
     }
     
+    func updateSeenBy(_ userID: String) -> Message
+    {
+        self.seenBy.append(userID)
+        return self
+    }
+    
 //    func updateSeenStatus(seenStatus: Bool) -> Message
 //    {
 //        return Message(

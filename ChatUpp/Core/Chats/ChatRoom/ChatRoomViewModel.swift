@@ -1084,7 +1084,9 @@ extension ChatRoomViewModel
             if dbMessageMarkedAsSeen && remoteMessageMarkedAsUnseen
             {
                 // Preserve local seen status (user marked as seen while offline)
-                let updatedMessage = remoteMessage.updateSeenStatus(seenStatus: true)
+                let updatedMessage = (conversation?.isGroup ?? false) ?
+                remoteMessage.updateSeenBy(authUser.uid) : remoteMessage.updateSeenStatus(seenStatus: true)
+//                let updatedMessage = remoteMessage.updateSeenStatus(seenStatus: true)
                 updatedMessages.append(updatedMessage)
             } else {
                 // Use remote version as-is
