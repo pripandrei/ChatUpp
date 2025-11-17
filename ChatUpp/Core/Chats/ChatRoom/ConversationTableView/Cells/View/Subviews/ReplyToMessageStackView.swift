@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import YYText
 
 //MARK: Stack view that presents message which was replied to
 //
@@ -20,9 +21,31 @@ final class ReplyToMessageStackView: UIStackView
         return imageView
     }()
     
-    private let messageLabel: UILabel = {
-        let label = UILabel()
+//    private let senderLabel: UILabel = {
+//        let label = UILabel()
+//        label.numberOfLines = 1
+//        label.lineBreakMode = .byTruncatingTail
+//        label.font = .boldSystemFont(ofSize: 13)
+//        label.textColor = .white
+//        return label
+//    }()
+//    
+//    private let messageTextLabel: UILabel = {
+//        let label = UILabel()
+//        label.numberOfLines = 1
+//        label.lineBreakMode = .byTruncatingTail
+//        label.font = .systemFont(ofSize: 13)
+//        label.textColor = .white
+//        return label
+//    }()
+    
+    private let messageLabel: YYLabel = {
+        let label = YYLabel()
         label.numberOfLines = 2
+//        label.preferredMaxLayoutWidth = 120
+//        label.lineBreakStrategy = .hangulWordPriority
+        
+//        label.lineBreakMode = .byTruncatingTail
         label.clipsToBounds = true
         return label
     }()
@@ -47,6 +70,8 @@ final class ReplyToMessageStackView: UIStackView
         isLayoutMarginsRelativeArrangement = true
         layoutMargins = margins
         replyInnerStackView.addArrangedSubview(messageLabel)
+//        replyInnerStackView.addArrangedSubview(senderLabel)
+//        replyInnerStackView.addArrangedSubview(messageTextLabel)
         addArrangedSubview(replyInnerStackView)
         
         // image should always fit
@@ -54,8 +79,8 @@ final class ReplyToMessageStackView: UIStackView
         imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         // Label should be flexible
-        messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        messageLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+//        messageLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+//        messageLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
     
     func configure(with text: NSAttributedString,
@@ -73,6 +98,21 @@ final class ReplyToMessageStackView: UIStackView
             imageView.removeFromSuperview()
         }
     }
+//    
+//    func configure(senderName: String, messageText: String, imageData: Data?)
+//    {
+//        senderLabel.text = senderName
+//        messageTextLabel.text = messageText
+//
+//        if let imageData {
+//            imageView.image = UIImage(data: imageData)
+//            replyInnerStackView.insertArrangedSubview(imageView, at: 0)
+//        } else {
+//            imageView.image = nil
+//            replyInnerStackView.removeArrangedSubview(imageView)
+//            imageView.removeFromSuperview()
+//        }
+//    }
     
     func setReplyInnerStackColors(background: UIColor, barColor: UIColor)
     {
@@ -223,9 +263,14 @@ extension ReplyMessageLabel
         messageText: String
     ) -> NSMutableAttributedString
     {
+        
+//        let paragraph = NSMutableParagraphStyle()
+//        paragraph.lineBreakMode = .byTruncatingTail
+        
         let boldAttributeForName: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 13),
-            .foregroundColor: UIColor.white
+            .foregroundColor: UIColor.white,
+//            .paragraphStyle: paragraph
         ]
         let boldAttributeForText: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 13),

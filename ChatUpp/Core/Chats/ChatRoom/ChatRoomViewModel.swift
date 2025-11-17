@@ -1083,9 +1083,14 @@ extension ChatRoomViewModel
             
             if dbMessageMarkedAsSeen && remoteMessageMarkedAsUnseen
             {
+//                if remoteMessage.messageBody == "Gay lobby" {
+//                    print("stop")
+//                }
+                
                 // Preserve local seen status (user marked as seen while offline)
                 let updatedMessage = (conversation?.isGroup ?? false) ?
-                remoteMessage.updateSeenBy(authUser.uid) : remoteMessage.updateSeenStatus(seenStatus: true)
+                remoteMessage.updateSeenBy(authUser.uid) :
+                remoteMessage.updateSeenStatus(seenStatus: true)
 //                let updatedMessage = remoteMessage.updateSeenStatus(seenStatus: true)
                 updatedMessages.append(updatedMessage)
             } else {
