@@ -245,14 +245,15 @@ extension TextImageMessageContentView
         }
         
         let replyLabelText = viewModel.getTextForReplyToMessage()
-        let replyText = replyToMessageStack.createReplyMessageAttributedText(
-            with: senderName,
-            messageText: replyLabelText
-        )
+//        let replyText = replyToMessageStack.createReplyMessageAttributedText(
+//            with: senderName,
+//            messageText: replyLabelText
+//        )
         
         let imageData: Data? = viewModel.getImageDataThumbnailFromReferencedMessage()
         
-        replyToMessageStack.configure(with: replyText, imageData: imageData)
+//        replyToMessageStack.configure(with: replyText, imageData: imageData)
+        replyToMessageStack.configure(senderName: senderName, messageText: replyLabelText, imageData: imageData)
         
         let index = messageLayoutConfiguration.shouldShowSenderName ? 1 : 0
     
@@ -287,14 +288,17 @@ extension TextImageMessageContentView
             guard let self else {return}
             messageLabel.messageUpdateType = .edited
             let messageText = viewModel.getTextForReplyToMessage()
-            let replyLabelText = replyToMessageStack.createReplyMessageAttributedText(
-                with: messageSenderName,
-                messageText: messageText
-            ) 
+//            let replyLabelText = replyToMessageStack.createReplyMessageAttributedText(
+//                with: messageSenderName,
+//                messageText: messageText
+//            ) 
             let image = message.imagePath == nil ? nil : self.viewModel.retrieveReferencedImageData()
-            self.replyToMessageStack.configure(
-                with: replyLabelText,
-                imageData: image)
+//            self.replyToMessageStack.configure(
+//                with: replyLabelText,
+//                imageData: image)
+            self.replyToMessageStack.configure(senderName: messageSenderName,
+                                               messageText: messageText,
+                                               imageData: image)
             
             UIView.animate(withDuration: 0.5) {
                 self.superview?.layoutIfNeeded()

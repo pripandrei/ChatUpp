@@ -15,41 +15,12 @@ final class ReplyToMessageStackView: UIStackView
     private var replyInnerStackView: ReplyInnerStackView = ReplyInnerStackView()
     
     lazy var imageView: FixedSizeImageView = {
-        let imageView = FixedSizeImageView(size: CGSize(width: 30, height: 30))
+        let imageView = FixedSizeImageView(size: CGSize(width: 40, height: 40))
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
     }()
-    
-//    private let senderLabel: UILabel = {
-//        let label = UILabel()
-//        label.numberOfLines = 1
-//        label.lineBreakMode = .byTruncatingTail
-//        label.font = .boldSystemFont(ofSize: 13)
-//        label.textColor = .white
-//        return label
-//    }()
-//    
-//    private let messageTextLabel: UILabel = {
-//        let label = UILabel()
-//        label.numberOfLines = 1
-//        label.lineBreakMode = .byTruncatingTail
-//        label.font = .systemFont(ofSize: 13)
-//        label.textColor = .white
-//        return label
-//    }()
-    
-    private let messageLabel: YYLabel = {
-        let label = YYLabel()
-        label.numberOfLines = 2
-//        label.preferredMaxLayoutWidth = 120
-//        label.lineBreakStrategy = .hangulWordPriority
-        
-//        label.lineBreakMode = .byTruncatingTail
-        label.clipsToBounds = true
-        return label
-    }()
-      
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupSelf()
@@ -69,9 +40,6 @@ final class ReplyToMessageStackView: UIStackView
         spacing = 5
         isLayoutMarginsRelativeArrangement = true
         layoutMargins = margins
-        replyInnerStackView.addArrangedSubview(messageLabel)
-//        replyInnerStackView.addArrangedSubview(senderLabel)
-//        replyInnerStackView.addArrangedSubview(messageTextLabel)
         addArrangedSubview(replyInnerStackView)
         
         // image should always fit
@@ -83,36 +51,23 @@ final class ReplyToMessageStackView: UIStackView
 //        messageLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
     
-    func configure(with text: NSAttributedString,
+    func configure(senderName: String,
+                   messageText: String,
                    imageData: Data? = nil)
     {
-        messageLabel.attributedText = text
-        
+        replyInnerStackView.senderLabel.text = senderName
+        replyInnerStackView.messageLabel.text = messageText
+
         if let imageData
         {
             imageView.image = UIImage(data: imageData)
-            replyInnerStackView.insertArrangedSubview(imageView, at: 0)
+            replyInnerStackView.contentStack.insertArrangedSubview(imageView, at: 0)
         } else {
             imageView.image = nil
-            replyInnerStackView.removeArrangedSubview(imageView)
+            replyInnerStackView.contentStack.removeArrangedSubview(imageView)
             imageView.removeFromSuperview()
         }
     }
-//    
-//    func configure(senderName: String, messageText: String, imageData: Data?)
-//    {
-//        senderLabel.text = senderName
-//        messageTextLabel.text = messageText
-//
-//        if let imageData {
-//            imageView.image = UIImage(data: imageData)
-//            replyInnerStackView.insertArrangedSubview(imageView, at: 0)
-//        } else {
-//            imageView.image = nil
-//            replyInnerStackView.removeArrangedSubview(imageView)
-//            imageView.removeFromSuperview()
-//        }
-//    }
     
     func setReplyInnerStackColors(background: UIColor, barColor: UIColor)
     {
@@ -126,38 +81,72 @@ extension ReplyToMessageStackView
 {
     class ReplyInnerStackView: UIStackView
     {
-        var _rectFillColor: UIColor = .white
+        let colorBarWidth: CGFloat = 5
+        
+        let contentStack: UIStackView = {
+            let contentStack = UIStackView()
+            contentStack.axis = .horizontal
+            contentStack.spacing = 6
+            contentStack.alignment = .top
+            return contentStack
+        }()
+        
+        let labelsStack: UIStackView = {
+            let labelsStack = UIStackView()
+            labelsStack.axis = .vertical
+            labelsStack.spacing = 2
+            return labelsStack
+        }()
+
+        let senderLabel: UILabel = {
+            let label = UILabel()
+            label.font = .systemFont(ofSize: 15, weight: .bold)
+            label.textColor = .white
+            label.numberOfLines = 1
+            label.lineBreakMode = .byTruncatingTail
+            return label
+        }()
+        
+        let messageLabel: UILabel = {
+            let label = UILabel()
+            label.font = .systemFont(ofSize: 15, weight: .medium)
+            label.textColor = .white
+            label.numberOfLines = 1
+            label.lineBreakMode = .byTruncatingTail
+            return label
+        }()
+
         var rectFillColor: UIColor = .white
         {
             didSet {
-                _rectFillColor = rectFillColor
+                senderLabel.textColor = rectFillColor.adjust(by: 0.2)
                 setNeedsDisplay()
             }
         }
-        
-        override func draw(_ rect: CGRect)
-        {
-            _rectFillColor.setFill()
-            let rect = CGRect(x: 0, y: 0, width: 5, height: bounds.height)
-            UIRectFill(rect)
+
+        override func draw(_ rect: CGRect) {
+            rectFillColor.setFill()
+            UIRectFill(CGRect(x: 0, y: 0, width: colorBarWidth, height: bounds.height))
         }
 
-        override init(frame: CGRect)
-        {
+        override init(frame: CGRect) {
             super.init(frame: frame)
-            
-            backgroundColor = ColorManager.outgoingReplyToMessageBackgroundColor
+
             axis = .horizontal
             clipsToBounds = true
             layer.cornerRadius = 4
             spacing = 6
             isLayoutMarginsRelativeArrangement = true
             layoutMargins = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 5)
+         
+            labelsStack.addArrangedSubview(senderLabel)
+            labelsStack.addArrangedSubview(messageLabel)
+            contentStack.addArrangedSubview(labelsStack)
+
+            addArrangedSubview(contentStack)
         }
-        
-        required init(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
+
+        required init(coder: NSCoder) { fatalError() }
     }
 }
 
@@ -182,30 +171,30 @@ extension ReplyToMessageStackView
         }
     }
 }
-
-extension ReplyToMessageStackView
-{
-    func createReplyMessageAttributedText(
-        with senderName: String,
-        messageText: String
-    ) -> NSMutableAttributedString
-    {
-        let boldAttributeForName: [NSAttributedString.Key: Any] = [
-            .font: UIFont.boldSystemFont(ofSize: 13),
-            .foregroundColor: UIColor.white
-        ]
-        let boldAttributeForText: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 13),
-            .foregroundColor: UIColor.white
-        ]
-        let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
-        let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
-        attributedText.append(replyMessageAttributedText)
-        
-        return attributedText
-    }
-}
-
+//
+//extension ReplyToMessageStackView
+//{
+//    func createReplyMessageAttributedText(
+//        with senderName: String,
+//        messageText: String
+//    ) -> NSMutableAttributedString
+//    {
+//        let boldAttributeForName: [NSAttributedString.Key: Any] = [
+//            .font: UIFont.boldSystemFont(ofSize: 13),
+//            .foregroundColor: UIColor.white
+//        ]
+//        let boldAttributeForText: [NSAttributedString.Key: Any] = [
+//            .font: UIFont.systemFont(ofSize: 13),
+//            .foregroundColor: UIColor.white
+//        ]
+//        let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
+//        let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
+//        attributedText.append(replyMessageAttributedText)
+//        
+//        return attributedText
+//    }
+//}
+//
 
 
 
@@ -283,3 +272,4 @@ extension ReplyMessageLabel
         return attributedText
     }
 }
+

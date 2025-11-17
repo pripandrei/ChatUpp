@@ -149,6 +149,7 @@
 		75BC06742DFB60E6002ED4AA /* GroupEventMessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */; };
 		75BC06792DFB82D3002ED4AA /* NotificationCenter+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */; };
 		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
+		75C0898E2ECABB4300F083D0 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0898D2ECABB3B00F083D0 /* UIColor+Extensions.swift */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75C8F7612E818CFF007317E0 /* StickerRlottieCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7602E818CF6007317E0 /* StickerRlottieCell.swift */; };
 		75C8F7632E818D3D007317E0 /* StickerRLottieCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7622E818D32007317E0 /* StickerRLottieCellViewModel.swift */; };
@@ -360,6 +361,7 @@
 		75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEventMessageList.swift; sourceTree = "<group>"; };
 		75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationCenter+Extensions.swift"; sourceTree = "<group>"; };
 		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		75C0898D2ECABB3B00F083D0 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
 		75C8F7602E818CF6007317E0 /* StickerRlottieCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerRlottieCell.swift; sourceTree = "<group>"; };
 		75C8F7622E818D32007317E0 /* StickerRLottieCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerRLottieCellViewModel.swift; sourceTree = "<group>"; };
@@ -1509,6 +1511,7 @@
 		75FB78FF2AC3188C00C2743A /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				75C0898D2ECABB3B00F083D0 /* UIColor+Extensions.swift */,
 				75911DC72EC6D22600792D9D /* TimeInterval+Extensions.swift */,
 				75C8F76A2E81907D007317E0 /* OpaquePointer+Extensions.swift */,
 				75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */,
@@ -1719,6 +1722,7 @@
 				7543BE352ACC87E1003001BF /* ChatRoomViewModel.swift in Sources */,
 				75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */,
 				75C8F77E2E84739E007317E0 /* DisplayLinkManager.swift in Sources */,
+				75C0898E2ECABB4300F083D0 /* UIColor+Extensions.swift in Sources */,
 				756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */,
 				75A7AFCE2D399B4B00E081DF /* ConversationViewModel+MessageClusterHandler.swift in Sources */,
 				7541EF072D8B6F0D00ABC8BA /* ChatRoomInformationViewModel.swift in Sources */,
