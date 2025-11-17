@@ -13,10 +13,6 @@ final class StickerMessageContentView: UIView
     private var stickerRLottieView: RLLottieView = .init(renderSize: .init(width: 300, height: 300))
     private let stickerComponentsView: MessageComponentsView = .init()
     private var replyToMessageStackView: ReplyToMessageStackView?
-    
-//    private var stickerTraillingConstraint: NSLayoutConstraint?
-//    private var stickerLeadingConstraint: NSLayoutConstraint?
-    
     private var cancellables = Set<AnyCancellable>()
     
     convenience init()
@@ -37,7 +33,6 @@ final class StickerMessageContentView: UIView
     }
     
     //MARK: - UI setup
-    
     private func setupStickerComponentsView()
     {
         addSubview(stickerComponentsView)
@@ -53,34 +48,21 @@ final class StickerMessageContentView: UIView
     {
         addSubview(stickerRLottieView)
         stickerRLottieView.translatesAutoresizingMaskIntoConstraints = false
-        
-//        stickerTraillingConstraint = stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15)
-//        stickerLeadingConstraint = stickerRLottieView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
-//        
-//        let stickerSideConstraint =
-        
+
         NSLayoutConstraint.activate([
             stickerRLottieView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-//            stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
             stickerRLottieView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-//            stickerLottieView.heightAnchor.constraint(equalToConstant: 170),
             stickerRLottieView.widthAnchor.constraint(equalTo: stickerRLottieView.heightAnchor),
         ])
     }
     
-//    private func adjustStickerSide(alignment: MessageAlignment)
-//    {
-//        switch alignment
-//        {
-//        case .right:
-//            stickerLeadingConstraint?.isActive = false
-//            stickerTraillingConstraint?.isActive = true
-//        case .left:
-//            stickerTraillingConstraint?.isActive = false
-//            stickerLeadingConstraint?.isActive = true
-//        default: break
-//        }
-//    }
+    private func adjustStickerAlignment(_ alignment: MessageAlignment)
+    {
+        let stickerSideConstraint = alignment == .right ?
+        stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15) :
+        stickerRLottieView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
+        stickerSideConstraint.isActive = true
+    }
     
     private func setupReplyToMessage(viewModel: MessageContentViewModel)
     {
@@ -140,10 +122,7 @@ final class StickerMessageContentView: UIView
             setupReplyToMessage(viewModel: viewModel)
         }
         
-        let stickerSideConstraint = viewModel.messageAlignment == .right ?
-        stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15) :
-        stickerRLottieView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
-        stickerSideConstraint.isActive = true
+        adjustStickerAlignment(viewModel.messageAlignment)
     }
 }
 

@@ -134,7 +134,6 @@ final class ConversationMessageCell: UITableViewCell
         case .audio:
             let audioView = VoiceMessageContentView(viewModel: viewModel.messageContainerViewModel!)
             setupContainerView(audioView, type: .audio)
-//            audioView.configure(with: viewModel.messageContainerViewModel!)
         default: break
         }
         
@@ -193,7 +192,6 @@ extension ConversationMessageCell
             ColorManager.outgoingMessageBackgroundColor : ColorManager.incomingMessageBackgroundColor
         case .sticker:
             view.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -10).isActive = true
-//            view.heightAnchor.constraint(equalToConstant: 170).isActive = true
             contentContainer?.backgroundColor = .clear
         case .audio:
             view.widthAnchor.constraint(lessThanOrEqualToConstant: 330).isActive = true
@@ -295,6 +293,11 @@ extension ConversationMessageCell: TargetPreviewable
 //MARK: - MessageCellDragable protocol implementation
 extension ConversationMessageCell: MessageCellDragable
 {
+    var messageID: String?
+    {
+        return cellViewModel.message?.id
+    }
+    
     var messageText: String?
     {
         switch cellViewModel.message?.type

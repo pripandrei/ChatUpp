@@ -11,6 +11,7 @@ import UIKit
 protocol MessageCellDragable: AnyObject
 {
     var center: CGPoint { get set }
+    var messageID: String? { get }
     var messageText: String? { get }
     var messageImage: UIImage? { get }
     var messageSenderName: String? { get }
@@ -28,6 +29,11 @@ extension MessageCellDragable
     }
     
     var messageSenderName: String?
+    {
+        return nil
+    }
+    
+    var messageID: String?
     {
         return nil
     }

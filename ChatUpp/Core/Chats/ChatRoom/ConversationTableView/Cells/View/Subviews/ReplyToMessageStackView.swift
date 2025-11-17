@@ -86,7 +86,7 @@ extension ReplyToMessageStackView
         let contentStack: UIStackView = {
             let contentStack = UIStackView()
             contentStack.axis = .horizontal
-            contentStack.spacing = 5
+            contentStack.spacing = 4
             contentStack.alignment = .top
             return contentStack
         }()
@@ -100,7 +100,7 @@ extension ReplyToMessageStackView
 
         let senderLabel: UILabel = {
             let label = UILabel()
-            label.font = .systemFont(ofSize: 15, weight: .bold)
+            label.font = .systemFont(ofSize: 14, weight: .semibold)
             label.textColor = .white
             label.numberOfLines = 1
             label.lineBreakMode = .byTruncatingTail
@@ -109,7 +109,7 @@ extension ReplyToMessageStackView
         
         let messageLabel: UILabel = {
             let label = UILabel()
-            label.font = .systemFont(ofSize: 15, weight: .medium)
+            label.font = .systemFont(ofSize: 14, weight: .regular)
             label.textColor = .white
             label.numberOfLines = 1
             label.lineBreakMode = .byTruncatingTail
@@ -137,7 +137,7 @@ extension ReplyToMessageStackView
             layer.cornerRadius = 4
             spacing = 6
             isLayoutMarginsRelativeArrangement = true
-            layoutMargins = UIEdgeInsets(top: 3, left: 10, bottom: 3, right: 5)
+            layoutMargins = UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12)
          
             labelsStack.addArrangedSubview(senderLabel)
             labelsStack.addArrangedSubview(messageLabel)
@@ -171,32 +171,6 @@ extension ReplyToMessageStackView
         }
     }
 }
-//
-//extension ReplyToMessageStackView
-//{
-//    func createReplyMessageAttributedText(
-//        with senderName: String,
-//        messageText: String
-//    ) -> NSMutableAttributedString
-//    {
-//        let boldAttributeForName: [NSAttributedString.Key: Any] = [
-//            .font: UIFont.boldSystemFont(ofSize: 13),
-//            .foregroundColor: UIColor.white
-//        ]
-//        let boldAttributeForText: [NSAttributedString.Key: Any] = [
-//            .font: UIFont.systemFont(ofSize: 13),
-//            .foregroundColor: UIColor.white
-//        ]
-//        let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
-//        let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
-//        attributedText.append(replyMessageAttributedText)
-//        
-//        return attributedText
-//    }
-//}
-//
-
-
 
 /// NOT IN USE CURRENTLY
 /// Customized reply message to simplify left side indentation color fill and text inset
@@ -252,19 +226,16 @@ extension ReplyMessageLabel
         messageText: String
     ) -> NSMutableAttributedString
     {
-        
-//        let paragraph = NSMutableParagraphStyle()
-//        paragraph.lineBreakMode = .byTruncatingTail
-        
         let boldAttributeForName: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 13),
-            .foregroundColor: UIColor.white,
-//            .paragraphStyle: paragraph
+            .foregroundColor: UIColor.white
         ]
+        
         let boldAttributeForText: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 13),
             .foregroundColor: UIColor.white
         ]
+            
         let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
         let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
         attributedText.append(replyMessageAttributedText)
@@ -273,3 +244,28 @@ extension ReplyMessageLabel
     }
 }
 
+
+//
+//extension ReplyToMessageStackView
+//{
+//    func createReplyMessageAttributedText(
+//        with senderName: String,
+//        messageText: String
+//    ) -> NSMutableAttributedString
+//    {
+//        let boldAttributeForName: [NSAttributedString.Key: Any] = [
+//            .font: UIFont.boldSystemFont(ofSize: 13),
+//            .foregroundColor: UIColor.white
+//        ]
+//        let boldAttributeForText: [NSAttributedString.Key: Any] = [
+//            .font: UIFont.systemFont(ofSize: 13),
+//            .foregroundColor: UIColor.white
+//        ]
+//        let attributedText = NSMutableAttributedString(string: senderName, attributes: boldAttributeForName)
+//        let replyMessageAttributedText = NSAttributedString(string: " \n\(messageText)", attributes: boldAttributeForText)
+//        attributedText.append(replyMessageAttributedText)
+//
+//        return attributedText
+//    }
+//}
+//

@@ -1516,6 +1516,7 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
             
             if abs(translationX) >= dragTreshhold
             {
+                self.viewModel.currentlyReplyToMessageID = dragableCell?.messageID
                 self.handleContextMenuSelectedAction(
                     actionOption: .reply(
                         senderName: dragableCell?.messageSenderName,
