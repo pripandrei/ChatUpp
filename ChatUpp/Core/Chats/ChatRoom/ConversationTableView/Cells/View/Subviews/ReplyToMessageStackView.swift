@@ -15,7 +15,7 @@ final class ReplyToMessageStackView: UIStackView
     private var replyInnerStackView: ReplyInnerStackView = ReplyInnerStackView()
     
     lazy var imageView: FixedSizeImageView = {
-        let imageView = FixedSizeImageView(size: CGSize(width: 40, height: 40))
+        let imageView = FixedSizeImageView(size: CGSize(width: 35, height: 35))
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
@@ -37,7 +37,7 @@ final class ReplyToMessageStackView: UIStackView
     private func setupSelf(margins: UIEdgeInsets = .zero)
     {
         axis = .vertical
-        spacing = 5
+//        spacing = 5
         isLayoutMarginsRelativeArrangement = true
         layoutMargins = margins
         addArrangedSubview(replyInnerStackView)
@@ -86,7 +86,7 @@ extension ReplyToMessageStackView
         let contentStack: UIStackView = {
             let contentStack = UIStackView()
             contentStack.axis = .horizontal
-            contentStack.spacing = 6
+            contentStack.spacing = 5
             contentStack.alignment = .top
             return contentStack
         }()
@@ -94,7 +94,7 @@ extension ReplyToMessageStackView
         let labelsStack: UIStackView = {
             let labelsStack = UIStackView()
             labelsStack.axis = .vertical
-            labelsStack.spacing = 2
+            labelsStack.spacing = 0
             return labelsStack
         }()
 
@@ -137,7 +137,7 @@ extension ReplyToMessageStackView
             layer.cornerRadius = 4
             spacing = 6
             isLayoutMarginsRelativeArrangement = true
-            layoutMargins = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 5)
+            layoutMargins = UIEdgeInsets(top: 3, left: 10, bottom: 3, right: 5)
          
             labelsStack.addArrangedSubview(senderLabel)
             labelsStack.addArrangedSubview(messageLabel)

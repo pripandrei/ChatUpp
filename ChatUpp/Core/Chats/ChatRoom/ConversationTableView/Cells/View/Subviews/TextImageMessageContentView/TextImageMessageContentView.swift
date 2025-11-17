@@ -237,8 +237,7 @@ extension TextImageMessageContentView
 {
     private func setupMessageToReplyView()
     {
-        guard let senderName = viewModel.referencedMessageSenderName,
-              let messageText = viewModel.referencedMessage?.messageBody else
+        guard let senderName = viewModel.referencedMessageSenderName else
         {
             removeArrangedSubview(replyToMessageStack)
             return
@@ -246,8 +245,9 @@ extension TextImageMessageContentView
         
         let replyLabelText = viewModel.getTextForReplyToMessage()
         let imageData: Data? = viewModel.getImageDataThumbnailFromReferencedMessage()
-        
-        replyToMessageStack.configure(senderName: senderName, messageText: replyLabelText, imageData: imageData)
+        replyToMessageStack.configure(senderName: senderName,
+                                      messageText: replyLabelText,
+                                      imageData: imageData)
         
         let index = messageLayoutConfiguration.shouldShowSenderName ? 1 : 0
     

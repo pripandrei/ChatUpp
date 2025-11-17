@@ -14,6 +14,9 @@ final class StickerMessageContentView: UIView
     private let stickerComponentsView: MessageComponentsView = .init()
     private var replyToMessageStackView: ReplyToMessageStackView?
     
+//    private var stickerTraillingConstraint: NSLayoutConstraint?
+//    private var stickerLeadingConstraint: NSLayoutConstraint?
+    
     private var cancellables = Set<AnyCancellable>()
     
     convenience init()
@@ -41,7 +44,7 @@ final class StickerMessageContentView: UIView
         stickerComponentsView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            stickerComponentsView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            stickerComponentsView.trailingAnchor.constraint(equalTo: stickerRLottieView.trailingAnchor, constant: -8),
             stickerComponentsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
         ])
     }
@@ -51,14 +54,33 @@ final class StickerMessageContentView: UIView
         addSubview(stickerRLottieView)
         stickerRLottieView.translatesAutoresizingMaskIntoConstraints = false
         
+//        stickerTraillingConstraint = stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15)
+//        stickerLeadingConstraint = stickerRLottieView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
+//        
+//        let stickerSideConstraint =
+        
         NSLayoutConstraint.activate([
-            stickerRLottieView.topAnchor.constraint(equalTo: topAnchor),
-            stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            stickerRLottieView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+//            stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
             stickerRLottieView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
 //            stickerLottieView.heightAnchor.constraint(equalToConstant: 170),
             stickerRLottieView.widthAnchor.constraint(equalTo: stickerRLottieView.heightAnchor),
         ])
     }
+    
+//    private func adjustStickerSide(alignment: MessageAlignment)
+//    {
+//        switch alignment
+//        {
+//        case .right:
+//            stickerLeadingConstraint?.isActive = false
+//            stickerTraillingConstraint?.isActive = true
+//        case .left:
+//            stickerTraillingConstraint?.isActive = false
+//            stickerLeadingConstraint?.isActive = true
+//        default: break
+//        }
+//    }
     
     private func setupReplyToMessage(viewModel: MessageContentViewModel)
     {
@@ -66,19 +88,24 @@ final class StickerMessageContentView: UIView
         addSubview(replyToMessageStackView!)
         
         replyToMessageStackView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        let replyToMessageSideConstraint = viewModel.messageAlignment == .right ?
+        replyToMessageStackView!.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15) :
+        replyToMessageStackView!.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15)
 
         NSLayoutConstraint.activate([
-            replyToMessageStackView!.topAnchor.constraint(equalTo: self.topAnchor),
-            replyToMessageStackView!.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            replyToMessageStackView!.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            replyToMessageSideConstraint,
             replyToMessageStackView!.widthAnchor.constraint(equalToConstant: 130)
         ])
   
         guard let messageSenderName = viewModel.referencedMessageSenderName else {return}
         
         let messageText = viewModel.getTextForReplyToMessage()
-
         let image = viewModel.getImageDataThumbnailFromReferencedMessage()
-        replyToMessageStackView?.configure(senderName: messageSenderName, messageText: messageText, imageData: image)
+        replyToMessageStackView?.configure(senderName: messageSenderName,
+                                           messageText: messageText,
+                                           imageData: image)
 
         replyToMessageStackView?.setReplyInnerStackColors(
             background: ColorManager.stickerReplyToMessageBackgroundColor.withAlphaComponent(0.9),
@@ -112,6 +139,11 @@ final class StickerMessageContentView: UIView
         {
             setupReplyToMessage(viewModel: viewModel)
         }
+        
+        let stickerSideConstraint = viewModel.messageAlignment == .right ?
+        stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15) :
+        stickerRLottieView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
+        stickerSideConstraint.isActive = true
     }
 }
 
