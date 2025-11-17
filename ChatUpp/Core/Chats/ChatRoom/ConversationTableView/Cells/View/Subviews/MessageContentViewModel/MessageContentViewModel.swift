@@ -68,14 +68,14 @@ final class MessageContentViewModel
         let authUserID = AuthenticationManager.shared.authenticatedUser?.uid
         return message?.senderId == authUserID ? .right : .left
     }
-    
+
     /// internal functions
     func getTextForReplyToMessage() -> String
     {
-        switch message?.type
+        switch referencedMessage?.type
         {
         case .image: return "Photo"
-        case .imageText, .text: return message?.messageBody ?? ""
+        case .imageText, .text: return referencedMessage?.messageBody ?? ""
         case .sticker: return "Sticker"
         default: return ""
         }

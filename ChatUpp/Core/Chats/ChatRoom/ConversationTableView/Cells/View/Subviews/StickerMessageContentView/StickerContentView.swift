@@ -72,22 +72,14 @@ final class StickerMessageContentView: UIView
             replyToMessageStackView!.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             replyToMessageStackView!.widthAnchor.constraint(equalToConstant: 130)
         ])
-        
-        guard let messageSenderName = viewModel.referencedMessageSenderName
-              /*let message = viewModel.referencedMessage*/ else {return}
+  
+        guard let messageSenderName = viewModel.referencedMessageSenderName else {return}
         
         let messageText = viewModel.getTextForReplyToMessage()
-//        let replyLabelText = replyToMessageStackView!.createReplyMessageAttributedText(
-//            with: messageSenderName,
-//            messageText: messageText
-//        )
-        
+
         let image = viewModel.getImageDataThumbnailFromReferencedMessage()
         replyToMessageStackView?.configure(senderName: messageSenderName, messageText: messageText, imageData: image)
-//        self.replyToMessageStackView?.configure(
-//            with: replyLabelText,
-//            imageData: image)
-        
+
         replyToMessageStackView?.setReplyInnerStackColors(
             background: ColorManager.stickerReplyToMessageBackgroundColor.withAlphaComponent(0.9),
             barColor: .white)
