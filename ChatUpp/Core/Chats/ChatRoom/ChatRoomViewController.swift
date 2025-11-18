@@ -21,6 +21,8 @@ final class ChatRoomViewController: UIViewController
 {
     weak var coordinatorDelegate :Coordinator?
     
+    private var animatedPreviewView: UIView?
+    
     private var pendingIndexPathForSeenStatusCheck: IndexPath?
     private var isNetworkPaginationRunning: Bool = false
     
@@ -461,12 +463,6 @@ final class ChatRoomViewController: UIViewController
         customNavigationBar = ChatRoomNavigationBar(viewController: self,
                                                     viewModel: navBarViewModel,
                                                     coordinator: coordinatorDelegate)
-    }
-    
-    enum CellVisibilityStatus {
-        case visible
-        case underInputBar
-        case offScreen
     }
     
     private func getCellVisibilityStatus(at indexPath: IndexPath) -> CellVisibilityStatus?
@@ -1085,7 +1081,7 @@ extension ChatRoomViewController
     {
         if rootView.inputBarHeader != nil
         {
-            viewModel.resetCurrentReplyMessageIfNeeded() 
+            viewModel.resetCurrentReplyMessageIfNeeded()
             animateInputBarHeaderViewDestruction()
         }
     }
@@ -1348,7 +1344,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
     {
         self.lastSeenStatusCheckUpdate = Date()
         if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
-//        
+//
         toggleSectionHeaderVisibility(isScrollActive: decelerate)
     }
 }
@@ -1461,7 +1457,7 @@ extension ChatRoomViewController
         actionOption: InputBarHeaderView.Mode
     )
     {
-        self.rootView.setupInputBarHeaderView(mode: actionOption) 
+        self.rootView.setupInputBarHeaderView(mode: actionOption)
         self.addGestureToCloseBtn()
         self.rootView.messageTextView.becomeFirstResponder()
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
@@ -1584,57 +1580,78 @@ extension ChatRoomViewController
             return nil
         }
         
-        let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
-
-        guard let snapshot = cell.contentView.snapshotView(afterScreenUpdates: true) else {
-            return nil
-        }
-        snapshot.frame = CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
+        // Keep the original cell visible but make it transparent during preview
+        // This keeps animations running in the background
+        cell.alpha = 0.01 // Almost invisible but still rendering
         
+        // Create a live rendering layer from the cell
+        let liveView = UIView(frame: cell.contentView.bounds)
+        liveView.backgroundColor = cell.contentView.backgroundColor
+        liveView.layer.cornerRadius = 10
+        liveView.layer.masksToBounds = true
+        
+        // Use layer rendering to show live content
+        // This creates a "window" into the actual cell's layer
+        let mirrorLayer = CAReplicatorLayer()
+        mirrorLayer.frame = liveView.bounds
+        mirrorLayer.instanceCount = 1
+        
+        // Create a container that references the cell
+        let cellReference = TargetedContentView(contentView: cell.contentView)
+        cellReference.frame = cell.contentView.bounds
+        cellReference.layer.cornerRadius = 10
+        cellReference.layer.masksToBounds = true
+        animatedPreviewView = cellReference
+
+        // Create reaction panel
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
             self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-            let delayInterval = 0.7 // do not modify to lower than 0.7 value (result in animation glitch on reload)
+            let delayInterval = 0.7
             self?.dismiss(animated: true)
             
-            executeAfter(seconds: delayInterval)
-            {
+            executeAfter(seconds: delayInterval) {
                 self?.rootView.tableView.reloadRows(at: [indexPath], with: .fade)
             }
         }
-        let hostingReactionVC = UIHostingController(rootView: reactionPanelView)
-        hostingReactionVC.view.backgroundColor = .clear
-
-        addChild(hostingReactionVC)
-        hostingReactionVC.view.translatesAutoresizingMaskIntoConstraints = false
-
-        snapshot.layer.cornerRadius = 10
-        snapshot.layer.masksToBounds = true
-        snapshot.translatesAutoresizingMaskIntoConstraints = false
-
-        let containerHeight = TargetedPreviewComponentsSize.getSnapshotContainerHeight(snapshot)
+        
+        let hostingView = UIHostingController(rootView: reactionPanelView).view!
+        hostingView.backgroundColor = .clear
+        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Calculate heights
+        let cellHeight = cell.bounds.height
+        let reactionHeight: CGFloat = 45
+        let spacing: CGFloat = TargetedPreviewComponentsSize.spaceReactionHeight
+        let totalHeight = reactionHeight + spacing + cellHeight
+        
+        // Create container
         let container = UIView(frame: CGRect(origin: .zero,
-                                             size: CGSize(width: cell.bounds.width, height: containerHeight)))
+                                             size: CGSize(width: cell.bounds.width, height: totalHeight)))
         container.backgroundColor = .clear
-        container.addSubview(snapshot)
-        container.addSubview(hostingReactionVC.view)
-
+        
+        container.addSubview(hostingView)
+        container.addSubview(cellReference)
+        
+        cellReference.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
-            hostingReactionVC.view.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
-            hostingReactionVC.view.topAnchor.constraint(equalTo: container.topAnchor),
-            hostingReactionVC.view.widthAnchor.constraint(equalToConstant: 306),
-            hostingReactionVC.view.heightAnchor.constraint(equalToConstant: 45),
-
-            snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            snapshot.topAnchor.constraint(equalTo: hostingReactionVC.view.bottomAnchor, constant: TargetedPreviewComponentsSize.spaceReactionHeight),
-            snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            hostingView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
+            hostingView.topAnchor.constraint(equalTo: container.topAnchor),
+            hostingView.widthAnchor.constraint(equalToConstant: 306),
+            hostingView.heightAnchor.constraint(equalToConstant: reactionHeight),
+            
+            cellReference.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            cellReference.topAnchor.constraint(equalTo: hostingView.bottomAnchor, constant: spacing),
+            cellReference.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            cellReference.heightAnchor.constraint(equalToConstant: cellHeight),
+            cellReference.bottomAnchor.constraint(equalTo: container.bottomAnchor)
         ])
-
-        let heightDifference = container.bounds.height - cell.bounds.height
-        let adjustedCenterY = cell.center.y + (heightDifference / 2) // In flipped space, add to go up
+        
+        let heightDifference = totalHeight - cellHeight
+        let adjustedCenterY = cell.center.y + (heightDifference / 2)
         let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
-
+        
         let previewTarget = UIPreviewTarget(container: rootView.tableView,
                                           center: centerPoint,
                                           transform: CGAffineTransform(scaleX: 1, y: -1))
@@ -1657,9 +1674,7 @@ extension ChatRoomViewController
         
         let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
  
-        guard let snapshot = cell.contentView.snapshotView(afterScreenUpdates: false) else {
-            return nil
-        }
+        guard let snapshot = animatedPreviewView else {return nil}
         snapshot.frame = CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
         
         let containerHeight = TargetedPreviewComponentsSize.getSnapshotContainerHeight(snapshot)
@@ -1691,6 +1706,24 @@ extension ChatRoomViewController
         parameters.shadowPath = UIBezierPath()
         
         return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
+    }
+    
+    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?)
+    {
+        animator?.addCompletion { [weak self] in
+            guard let _ = self,
+                  let indexPath = configuration.identifier as? IndexPath,
+                  let cell = tableView.cellForRow(at: indexPath) else {
+                return
+            }
+            
+            // Restore cell visibility after animation completes
+            cell.alpha = 1
+            if let view = self?.animatedPreviewView as? TargetedContentView {
+                view.cleanup()
+                self?.animatedPreviewView = nil
+            }
+        }
     }
 
     func getMessageFromCell(_ cell: UITableViewCell) -> Message?
@@ -1729,6 +1762,15 @@ extension ChatRoomViewController
     }
 }
 
+extension ChatRoomViewController
+{
+    enum CellVisibilityStatus {
+        case visible
+        case underInputBar
+        case offScreen
+    }
+}
+
 
 struct TargetedPreviewComponentsSize
 {
@@ -1749,7 +1791,58 @@ struct TargetedPreviewComponentsSize
     {
         return snapshot.bounds.height +
         TargetedPreviewComponentsSize.reactionHeight + TargetedPreviewComponentsSize.spaceReactionHeight
-        
     }
 }
 
+
+class TargetedContentView: UIView
+{
+    private weak var contentView: UIView?
+    private var displayLink: CADisplayLink?
+    
+    init(contentView: UIView)
+    {
+        self.contentView = contentView
+        super.init(frame: contentView.bounds)
+        self.backgroundColor = contentView.backgroundColor
+        
+        // Take continuous snapshots to show live updates
+        displayLink = CADisplayLink(target: self,
+                                    selector: #selector(updateSnapshot))
+        displayLink?.add(to: .main, forMode: .common)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc private func updateSnapshot()
+    {
+        guard let cell = contentView else {
+            displayLink?.invalidate()
+            return
+        }
+        
+        // Render the cell's layer into this view
+        layer.contents = nil
+        
+        if let snapshot = contentView?.snapshotView(afterScreenUpdates: false)
+        {
+            // Update subviews
+            subviews.forEach { $0.removeFromSuperview() }
+            snapshot.frame = bounds
+            addSubview(snapshot)
+        }
+    }
+    
+    func cleanup()
+    {
+        contentView = nil
+        displayLink?.invalidate()
+        displayLink = nil
+    }
+    
+    deinit {
+        displayLink?.invalidate()
+    }
+}
