@@ -77,6 +77,7 @@ final class MessageContentViewModel
         case .image: return "Photo"
         case .imageText, .text: return referencedMessage?.messageBody ?? ""
         case .sticker: return "Sticker"
+        case .audio: return "Voice Message"
         default: return ""
         }
     }

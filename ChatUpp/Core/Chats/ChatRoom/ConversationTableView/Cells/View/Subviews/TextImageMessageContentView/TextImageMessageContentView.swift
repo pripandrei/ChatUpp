@@ -214,23 +214,6 @@ extension TextImageMessageContentView
     }
 }
 
-//MARK: - Update message components
-
-extension TextImageMessageContentView
-{
-    private func updateReplyToMessageColor()
-    {
-        var backgroundColor: UIColor = ColorManager.outgoingReplyToMessageBackgroundColor
-        var barColor: UIColor = .white
-        
-        if viewModel.messageAlignment == .left {
-            backgroundColor = messageSenderNameColor.withAlphaComponent(0.3)
-            barColor = messageSenderNameColor
-        }
-        replyToMessageStack.setReplyInnerStackColors(background: backgroundColor,
-                                                     barColor: barColor)
-    }
-}
 
 //MARK: Reply view update
 extension TextImageMessageContentView
@@ -290,6 +273,19 @@ extension TextImageMessageContentView
                 self.superview?.layoutIfNeeded()
             }
         })
+    }
+    
+    private func updateReplyToMessageColor()
+    {
+        var backgroundColor: UIColor = ColorManager.outgoingReplyToMessageBackgroundColor
+        var barColor: UIColor = .white
+        
+        if viewModel.messageAlignment == .left {
+            backgroundColor = messageSenderNameColor.withAlphaComponent(0.3)
+            barColor = messageSenderNameColor
+        }
+        replyToMessageStack.setReplyInnerStackColors(background: backgroundColor,
+                                                     barColor: barColor)
     }
 }
 

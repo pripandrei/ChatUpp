@@ -12,9 +12,23 @@ final class VoiceMessageContentView: ContainerView
 {
     private let messageComponentsView: MessageComponentsView = .init()
     private var playbackControlPanel: VoicePlaybackControlPanelView!
+    private let viewModel: MessageContentViewModel
+    
+    lazy var replyToMessageStack: ReplyToMessageStackView = {
+        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
+        let replyToMessageStack = ReplyToMessageStackView(margin: margins)
+        return replyToMessageStack
+    }()
+    
+    private var messageSenderNameColor: UIColor
+    {
+        let senderID = viewModel.message?.senderId
+        return ColorManager.color(for: senderID ?? "12345")
+    }
 
     init(viewModel: MessageContentViewModel)
     {
+        self.viewModel = viewModel
         super.init(spacing: 2.0,
                    margin: .init(top: 6,
                                  left: 10,
@@ -31,6 +45,7 @@ final class VoiceMessageContentView: ContainerView
         setupPlaybackControlPanel(withUrl: url, audioSamples: Array(audioSamples), colorScheme: controlPanelcolorScheme)
         setupMessageComponentsView()
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
+        setupMessageToReplyView()
     }
     
     required init?(coder: NSCoder) {
@@ -85,4 +100,36 @@ final class VoiceMessageContentView: ContainerView
         }
     }
     
+    private func setupMessageToReplyView()
+    {
+        guard let senderName = viewModel.referencedMessageSenderName else
+        {
+            removeArrangedSubview(replyToMessageStack)
+            return
+        }
+        
+        let replyLabelText = viewModel.getTextForReplyToMessage()
+        let imageData: Data? = viewModel.getImageDataThumbnailFromReferencedMessage()
+        replyToMessageStack.configure(senderName: senderName,
+                                      messageText: replyLabelText,
+                                      imageData: imageData)
+        
+        let index = viewModel.message?.seenBy.isEmpty == true ? 0 : 1 // this is a check for wheather chat is group or not (seenBy will be empty if its 1 to 1 chat)
+    
+        addArrangedSubview(replyToMessageStack, at: index)
+        updateReplyToMessageColor()
+    }
+    
+    private func updateReplyToMessageColor()
+    {
+        var backgroundColor: UIColor = ColorManager.outgoingReplyToMessageBackgroundColor
+        var barColor: UIColor = .white
+        
+        if viewModel.messageAlignment == .left {
+            backgroundColor = messageSenderNameColor.withAlphaComponent(0.3)
+            barColor = messageSenderNameColor
+        }
+        replyToMessageStack.setReplyInnerStackColors(background: backgroundColor,
+                                                     barColor: barColor)
+    }
 }
