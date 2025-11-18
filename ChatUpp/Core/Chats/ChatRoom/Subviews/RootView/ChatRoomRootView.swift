@@ -29,6 +29,7 @@ final class ChatRoomRootView: UIView
     private(set) var textViewLeadingConstraint: NSLayoutConstraint!
     private var greetingViewCenterYConstraint: NSLayoutConstraint?
     private var cancelButtonCenterXConstraint: NSLayoutConstraint?
+    private(set) var stickerCollectionViewTopConstraint: NSLayoutConstraint?
 
     private(set) var stickerCollectionView: StickersPackCollectionView?
     private var textViewTrailingItem: MessageTextViewTrailingItemView!
@@ -245,7 +246,7 @@ final class ChatRoomRootView: UIView
     
     deinit
     {
-//        print("ChatRoomRootView deinit")
+        print("ChatRoomRootView deinit")
     }
 
     // MARK: - SETUP CONSTRAINTS
@@ -615,7 +616,6 @@ extension ChatRoomRootView
 }
 
 
-
 // MARK: - TextView trailing items
 extension ChatRoomRootView
 {
@@ -661,9 +661,10 @@ extension ChatRoomRootView
         
         stickerCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
+        self.stickerCollectionViewTopConstraint = stickerCollectionView.topAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -25)
+        
         NSLayoutConstraint.activate([
-            stickerCollectionView.topAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -25),
-//            stickerCollectionView.heightAnchor.constraint(equalToConstant: 700),
+            stickerCollectionViewTopConstraint!,
             stickerCollectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             stickerCollectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),

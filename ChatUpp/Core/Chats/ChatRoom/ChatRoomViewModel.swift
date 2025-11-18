@@ -166,6 +166,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         self.unseenMessagesCount = 0
     }
     
+    deinit
+    {
+        print(String(describing: Self.self) + " deinit")
+    }
+    
     private func observeParticipantChanges()
     {
         guard let chat = conversation else {return}

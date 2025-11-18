@@ -89,7 +89,7 @@ final class ChatRoomViewController: UIViewController
     }
     
     deinit {
-//        print("ChatRoomVC deinit")
+        print("ChatRoomVC deinit")
         cleanUp()
     }
     
@@ -386,6 +386,7 @@ final class ChatRoomViewController: UIViewController
     {
         if rootView.stickerCollectionView != nil
         {
+            rootView.showStickerIcon()
             dismissStickerView()
         } else {
             resignKeyboard()
@@ -401,9 +402,10 @@ final class ChatRoomViewController: UIViewController
     
     private func dismissStickerView()
     {
-        rootView.showStickerIcon()
-        UIView.animate(withDuration: 0.27) {
+        UIView.animate(withDuration: 0.27)
+        {
             self.handleTableViewOffset(usingKeyboardHeight: KeyboardService.shared.keyboardHeight)
+            self.rootView.stickerCollectionViewTopConstraint?.constant = 0.0
             self.rootView.layoutIfNeeded()
         } completion: { _ in
             self.rootView.removeStickerView()
