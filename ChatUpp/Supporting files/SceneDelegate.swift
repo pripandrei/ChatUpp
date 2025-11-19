@@ -23,18 +23,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         let tabBarController = TabBarViewController()
-        
         coordinator = MainCoordinator(tabBar: tabBarController)
 
-//        let view = UIHostingController(rootView: AudioControlPanelView(audioFileURL: .applicationDirectory))
-//        window?.rootViewController = view
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
         
         coordinator?.start()
         
         _ = KeyboardService.shared
-//        UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor =  UIColor(Color.myCustomColor)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

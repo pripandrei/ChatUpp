@@ -34,16 +34,19 @@ final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
         Task
         {
             let duration = await audioManager.getAudioDuration(from: audioFileURL)
-            await MainActor.run { self.audioTotalDuration = CMTimeGetSeconds(duration) }
+            await MainActor.run
+            {
+                self.audioTotalDuration = CMTimeGetSeconds(duration)
+                setupBinding()
+            }
         }
-        setupBinding()
     }
     
     private func setupBinding()
     {
         audioManager.$currentlyLoadedAudioURL
             .combineLatest(audioManager.$isAudioPlaying)
-            .dropFirst()
+//            .dropFirst()
             .sink { [weak self] currentAudioURL, isPlaying in
                 guard let self else {return}
                 
