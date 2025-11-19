@@ -681,7 +681,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     // fetch image from message
     
-//    @MainActor
+    @MainActor
     private func downloadImageData(from message: Message) async
     {
         guard let path = message.imagePath else { return }
@@ -1091,12 +1091,19 @@ extension ChatRoomViewModel
 //                if remoteMessage.messageBody == "Gay lobby" {
 //                    print("stop")
 //                }
+
+                var updatedMessage = remoteMessage.realm != nil ? remoteMessage.freeze() : remoteMessage
                 
-                // Preserve local seen status (user marked as seen while offline)
-                let updatedMessage = (conversation?.isGroup ?? false) ?
-                remoteMessage.updateSeenBy(authUser.uid) :
-                remoteMessage.updateSeenStatus(seenStatus: true)
-//                let updatedMessage = remoteMessage.updateSeenStatus(seenStatus: true)
+                updatedMessage = (conversation?.isGroup ?? false) ?
+                remoteMessage.updateSeenBy(authUser.uid) : remoteMessage.updateSeenStatus(seenStatus: true)
+                
+//                updatedMessage = (conversation?.isGroup ?? false) ?
+//                remoteMessage.updateSeenStatus(seenBy: [authUser.uid]) : remoteMessage.updateSeenStatus(seenStatus: true)
+                
+                //                if updatedMessage.realm != nil
+//                {
+//                    updatedMessage = updatedMessage.freeze()
+//                }
                 updatedMessages.append(updatedMessage)
             } else {
                 // Use remote version as-is
@@ -1205,7 +1212,7 @@ extension ChatRoomViewModel
         return tasks
     }
     
-//    @MainActor
+    @MainActor
     private func downloadVoiceMessageData(from message: Message) async
     {
         do {

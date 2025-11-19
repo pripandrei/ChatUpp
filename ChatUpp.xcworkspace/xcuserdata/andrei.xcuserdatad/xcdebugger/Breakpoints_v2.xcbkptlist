@@ -23,17 +23,33 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5546F6A5-2F63-4B49-AEFC-46873E35ACDD"
+            uuid = "12770179-2162-46B5-AA0C-266496BFB365"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/Subviews/VoiceMessageContentView/Subviews/VoicePlaybackControlPanel/View/VoicePlaybackControlPanel.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/DataSource/ConversationTableViewDataSource.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "51"
-            endingLineNumber = "51"
-            landmarkName = "VoicePlaybackControlPanelView"
-            landmarkType = "14">
+            startingLineNumber = "146"
+            endingLineNumber = "146"
+            landmarkName = "dequeueMessageCell(for:in:with:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A96D0957-A668-4EBD-898D-CBBA0DA9A7F7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ConversationTableView/Cells/View/ConversationMessageCell.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "116"
+            endingLineNumber = "116"
+            landmarkName = "configureCell(using:layoutConfiguration:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

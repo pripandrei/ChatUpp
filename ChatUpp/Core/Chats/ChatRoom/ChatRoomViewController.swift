@@ -1587,7 +1587,7 @@ extension ChatRoomViewController
     func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
     {
         guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath),
+              let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationMessageCell,
               let message: Message = getMessageFromCell(cell) else {
             return nil
         }
@@ -1619,11 +1619,11 @@ extension ChatRoomViewController
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
             self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-            let delayInterval = 0.7
+            let delayInterval = 0.7 // do not modify to lower than 0.7 value (result in animation glitch on reload)
             self?.dismiss(animated: true)
             
             executeAfter(seconds: delayInterval) {
-                self?.rootView.tableView.reloadRows(at: [indexPath], with: .fade)
+                self?.dataSourceManager.reloadItems([cell.cellViewModel])
             }
         }
         

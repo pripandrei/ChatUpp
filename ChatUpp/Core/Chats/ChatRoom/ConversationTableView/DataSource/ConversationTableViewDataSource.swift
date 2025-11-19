@@ -87,6 +87,14 @@ final class ConversationDataSourceManager
             completion()
         }
     }
+    
+    func reloadItems(_ items: [MessageCellViewModel])
+    {
+        var snapshot = diffableDataSource.snapshot()
+        snapshot.reloadItems(items)
+        diffableDataSource.defaultRowAnimation = .fade
+        diffableDataSource.apply(snapshot, animatingDifferences: true)
+    }
 }
 
 
