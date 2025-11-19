@@ -139,7 +139,6 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
 // MARK: - Recording
 extension AudioSessionManager
 {
-    
     func startRecording()
     {
         let audioURL = createAudioURL()

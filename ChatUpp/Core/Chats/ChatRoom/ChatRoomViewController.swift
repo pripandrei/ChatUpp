@@ -81,11 +81,7 @@ final class ChatRoomViewController: UIViewController
     {
         super.viewWillDisappear(animated)
         
-        let isRecordingActive = AudioSessionManager.shared.isRecording()
-        if isRecordingActive
-        {
-            AudioSessionManager.shared.recordCancellationSubject.send(())
-        }
+        terminateAudioSession()
     }
     
     deinit {
@@ -506,6 +502,20 @@ final class ChatRoomViewController: UIViewController
     {
         UIView.animate(withDuration: 0.3) {
             self.rootView.scrollBadgeButton.layer.opacity = shouldBeHidden ? 0.0 : 1.0
+        }
+    }
+    
+    private func terminateAudioSession()
+    {
+        let audioManager = AudioSessionManager.shared
+        
+        if audioManager.isRecording()
+        {
+            audioManager.recordCancellationSubject.send(())
+        }
+        if audioManager.isAudioPlaying
+        {
+            audioManager.stopPlayback()
         }
     }
 }
