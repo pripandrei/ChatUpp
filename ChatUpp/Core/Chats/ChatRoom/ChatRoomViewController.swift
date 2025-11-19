@@ -187,13 +187,13 @@ final class ChatRoomViewController: UIViewController
     private func setupBinding()
     {
         AudioSessionManager.shared.$currentRecordingTime
-            .sink { time in
+            .sink { [weak self] time in
                 let minutes = Int(time) / 60
                 let seconds = Int(time) % 60
                 let milliseconds = (Int((time - floor(time)) * 1000)) / 10
                 
                 let timeString = String(format: "%2d:%02d.%02d", minutes, seconds, milliseconds)
-                self.rootView.updateRecCounterLabelText(with: timeString)
+                self?.rootView.updateRecCounterLabelText(with: timeString)
             }.store(in: &subscriptions)
         
         Publishers.Merge(
