@@ -260,7 +260,8 @@ extension TextImageMessageContentView
     private func updateMessageToReply(_ message: Message)
     {
         guard let messageSenderName = viewModel.referencedMessageSenderName else {return}
-        executeAfter(seconds: 4.0, block: { [weak self] in
+        
+        executeAfter(seconds: 0.6, block: { [weak self] in
             guard let self else {return}
             messageLabel.messageUpdateType = .edited
             let messageText = viewModel.getTextForReplyToMessage()
@@ -512,7 +513,7 @@ extension TextImageMessageContentView
 {
     private func updateMessage(_ message: Message)
     {
-        executeAfter(seconds: 3.0, block: {
+        executeAfter(seconds: 0.2, block: {
             self.messageLabel.messageUpdateType = .edited
             self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: message.messageBody)
             self.messageComponentsView.updateEditedLabel()

@@ -173,14 +173,13 @@ extension Message
 
 extension Message
 {
-    /// If message is managed by realm, call this method in a write transaction or freeze object before update
-    /// 
+    /// If message is managed by realm, call these two methods in a write transaction or freeze object before update
+    ///
     func updateSeenStatus(seenStatus: Bool) -> Message
     {
         self.messageSeen = true
         return self
     }
-    
     func updateSeenBy(_ userID: String) -> Message
     {
         self.seenBy.append(userID)

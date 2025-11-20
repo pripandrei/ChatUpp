@@ -1096,14 +1096,7 @@ extension ChatRoomViewModel
                 
                 updatedMessage = (conversation?.isGroup ?? false) ?
                 remoteMessage.updateSeenBy(authUser.uid) : remoteMessage.updateSeenStatus(seenStatus: true)
-                
-//                updatedMessage = (conversation?.isGroup ?? false) ?
-//                remoteMessage.updateSeenStatus(seenBy: [authUser.uid]) : remoteMessage.updateSeenStatus(seenStatus: true)
-                
-                //                if updatedMessage.realm != nil
-//                {
-//                    updatedMessage = updatedMessage.freeze()
-//                }
+
                 updatedMessages.append(updatedMessage)
             } else {
                 // Use remote version as-is

@@ -81,7 +81,7 @@ final class UserViewViewModel: SwiftUI.ObservableObject
     var imageURL: String?
     {
         if let imageURL = user.photoUrl {
-            return imageURL.addSuffix("small")
+            return imageURL.addSuffix("small") // 
         }
         return nil
     }
