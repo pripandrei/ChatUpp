@@ -119,7 +119,9 @@ extension TextImageMessageContentView
             assert(false, "message should be valid at this point")
             return
         }
-        
+        if message.type == .image || message.type == .imageText {
+            print("stop")
+        }
         cleanupContent()
         
         self.viewModel = viewModel
