@@ -31,7 +31,8 @@ extension LoginViewModel: EmailValidator
 
 //MARK: - Sign in with google
     
-extension LoginViewModel {
+extension LoginViewModel
+{
     func googleSignIn()
     {
         let helper = SignInGoogleHelper()

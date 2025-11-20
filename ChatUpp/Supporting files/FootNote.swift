@@ -114,4 +114,10 @@
 /// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
 /// tableView will animate scrolling to the last inserted cell, we want this to avoid,
 /// So we offset a bit content, which will result in content remaining at the same position after insertion
+/// 
 
+//MARK: - [17]
+//
+// Reference: skeletonView requires for estimatedRowHeight to have a value
+// so we set it to work, and disable after,
+// to prevent other glitch related to rows when adding reaction

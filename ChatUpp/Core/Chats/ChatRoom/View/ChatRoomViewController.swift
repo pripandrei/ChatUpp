@@ -1609,7 +1609,7 @@ extension ChatRoomViewController
         mirrorLayer.instanceCount = 1
         
         // Create a container that references the cell
-        let cellReference = TargetedContentView(contentView: cell.contentView)
+        let cellReference = TargetedPreviewContentView(contentView: cell.contentView)
         cellReference.frame = cell.contentView.bounds
         cellReference.layer.cornerRadius = 10
         cellReference.layer.masksToBounds = true
@@ -1731,7 +1731,7 @@ extension ChatRoomViewController
             
             // Restore cell visibility after animation completes
             cell.alpha = 1
-            if let view = self?.animatedPreviewView as? TargetedContentView {
+            if let view = self?.animatedPreviewView as? TargetedPreviewContentView {
                 view.cleanup()
                 self?.animatedPreviewView = nil
             }
@@ -1759,15 +1759,12 @@ extension ChatRoomViewController
 {
     private func toggleSkeletonAnimation(_ state: SkeletonAnimationState)
     {
-        // Reference: skeletonView requires for estimatedRowHeight to have a value
-        // so we set it to work, and disable after,
-        // to prevent other glitch related to rows when adding reaction
         switch state {
         case .initiated:
-            rootView.tableView.estimatedRowHeight = 50 // read reference
+            rootView.tableView.estimatedRowHeight = 50 /// See FootNote.swift [17]
             Utilities.initiateSkeletonAnimation(for: rootView.tableView)
         case .terminated:
-            rootView.tableView.estimatedRowHeight = UITableView.automaticDimension // read reference
+            rootView.tableView.estimatedRowHeight = UITableView.automaticDimension /// See FootNote.swift [17]
             Utilities.stopSkeletonAnimation(for: rootView.tableView)
         default: break
         }
@@ -1780,81 +1777,5 @@ extension ChatRoomViewController
         case visible
         case underInputBar
         case offScreen
-    }
-}
-
-
-struct TargetedPreviewComponentsSize
-{
-    static let reactionHeight: CGFloat = 45.0
-    static let spaceReactionHeight: CGFloat = 14.0
-    static let menuHeight: CGFloat = 200
-    
-    static func calculateMaxSnapshotHeight(from view: UIView) -> CGFloat
-    {
-        return min(view.bounds.height,
-                   UIScreen.main.bounds.height -
-                   self.reactionHeight -
-                   self.spaceReactionHeight -
-                   self.menuHeight)
-    }
-    
-    static func getSnapshotContainerHeight(_ snapshot: UIView) -> CGFloat
-    {
-        return snapshot.bounds.height +
-        TargetedPreviewComponentsSize.reactionHeight + TargetedPreviewComponentsSize.spaceReactionHeight
-    }
-}
-
-
-class TargetedContentView: UIView
-{
-    private weak var contentView: UIView?
-    private var displayLink: CADisplayLink?
-    
-    init(contentView: UIView)
-    {
-        self.contentView = contentView
-        super.init(frame: contentView.bounds)
-        self.backgroundColor = contentView.backgroundColor
-        
-        // Take continuous snapshots to show live updates
-        displayLink = CADisplayLink(target: self,
-                                    selector: #selector(updateSnapshot))
-        displayLink?.add(to: .main, forMode: .common)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc private func updateSnapshot()
-    {
-        guard let cell = contentView else {
-            displayLink?.invalidate()
-            return
-        }
-        
-        // Render the cell's layer into this view
-        layer.contents = nil
-        
-        if let snapshot = contentView?.snapshotView(afterScreenUpdates: false)
-        {
-            // Update subviews
-            subviews.forEach { $0.removeFromSuperview() }
-            snapshot.frame = bounds
-            addSubview(snapshot)
-        }
-    }
-    
-    func cleanup()
-    {
-        contentView = nil
-        displayLink?.invalidate()
-        displayLink = nil
-    }
-    
-    deinit {
-        displayLink?.invalidate()
     }
 }
