@@ -327,6 +327,7 @@ final class ChatRoomViewController: UIViewController
     {
         if let _ = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
+            /// See FootNote.swift [15]
             let height = KeyboardService.shared.keyboardHeight
             
             guard rootView.inputBarContainer.frame.origin.y > 580 else {
@@ -1479,6 +1480,11 @@ extension ChatRoomViewController
         self.addGestureToCloseBtn()
         self.rootView.messageTextView.becomeFirstResponder()
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
+        
+        if case .image(_) = actionOption
+        {
+            self.rootView.toggleVoiceRecButtonVisibility(false)
+        }
     }
 }
 
