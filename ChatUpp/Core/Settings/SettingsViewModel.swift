@@ -10,7 +10,8 @@ import Combine
 
 final class SettingsViewModel
 {
-    private(set) var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
+//    private(set) var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
+    @Published private(set) var isUserSignedOut: Bool = false
     @Published private(set) var profileImageData: Data?
     private(set) var user: User!
     private(set) var authProvider: String!
@@ -24,7 +25,7 @@ final class SettingsViewModel
         initiateSelf()
     }
     deinit {
-//        print("deinit settings view model")
+        print("deinit settings view model")
     }
     
     private func initiateSelf()
@@ -95,12 +96,14 @@ final class SettingsViewModel
         try await FirestoreUserService.shared.deleteUserFromDB(userID: user.id)
     }
     
-    @objc func signOut() async {
+    @objc func signOut() async
+    {
         do {
             RealtimeUserService.shared.updateUserActiveStatus(isActive: false)
             try await RealtimeUserService.shared.cancelOnDisconnect()
             try AuthenticationManager.shared.signOut()
-            isUserSignedOut.value = true
+//            isUserSignedOut.value = true
+            isUserSignedOut = true
         } catch {
             print("Error signing out", error.localizedDescription)
         }

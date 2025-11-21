@@ -43,4 +43,9 @@ final class ChatManager
     {
         newStickerSubject.send(path)
     }
+    
+    func resetTotalUnseenMessageCount()
+    {
+        totalUnseenMessageCount = 0
+    }
 }

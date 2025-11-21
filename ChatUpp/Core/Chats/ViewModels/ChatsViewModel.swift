@@ -47,7 +47,7 @@ final class ChatsViewModel
     }
     
     deinit {
-//        print("deinit chats view model")
+        print("deinit chats view model")
     }
 
     func activateOnDisconnect() {

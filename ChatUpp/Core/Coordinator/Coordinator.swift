@@ -27,24 +27,43 @@ protocol Coordinator: AnyObject {
     func dismissEditProfileVC()
     func showGroupCreationScreen()
     func showChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel)
-    func subscribeToConversationOpenRequest()
+//    func subscribeToConversationOpenRequest()
 }
 
 class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
     
+    //    private weak var tabBar: TabBarViewController!  // Make weak
+    //    private var subscribers = Set<AnyCancellable>()
     private var tabBar: TabBarViewController
-    private var navControllerForLoginVC: UINavigationController!
+    private var loginNavigationController: UINavigationController!
     
-    private var subscribers = Set<AnyCancellable>()
-
+    
     init(tabBar: TabBarViewController) {
         self.tabBar = tabBar
+//        tabBar.coordinator = self  // Set weak reference back
     }
     
-    private func setupTabBarItems() {
+    
+//    deinit {
+//        subscribers.forEach { $0.cancel() }
+//        subscribers.removeAll()
+//    }
+    //    func subscribeToConversationOpenRequest()
+    //    {
+    //        MessageBannerPresenter.shared.requestChatOpenSubject
+    //            .receive(on: DispatchQueue.main)
+    //            .sink { [weak self] chat in
+    //                let chatVM = ChatRoomViewModel(conversation: chat)
+    //                self?.openConversationVC(conversationViewModel: chatVM)
+    //            }.store(in: &subscribers)
+    //    }
+    //
+    
+    private func setupTabBarItems()
+    {
         tabBar.setupTabBarController()
-        tabBar.chatsVC?.coordinatorDelegate = self
-        tabBar.settingsVC?.coordinatorDelegate = self
+        tabBar.chatsViewController?.coordinatorDelegate = self
+        tabBar.settingsViewController?.coordinatorDelegate = self
     }
     
     func start() {
@@ -59,38 +78,39 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
     func pushSignUpVC() {
         let signUpVC = EmailSignUpViewController()
         signUpVC.coordinator = self
-        navControllerForLoginVC.pushViewController(signUpVC, animated: true)
+        loginNavigationController.pushViewController(signUpVC, animated: true)
     }
     
     func pushPhoneSingInVC() {
         let phoneSignInVC = PhoneSignInViewController()
         phoneSignInVC.coordinator = self
-        navControllerForLoginVC.pushViewController(phoneSignInVC, animated: true)
+        loginNavigationController.pushViewController(phoneSignInVC, animated: true)
     }
     
-    func presentLogInForm() {
+    func presentLogInForm()
+    {
         let loginVC = LoginViewController()
         loginVC.coordinatorDelegate = self
         
-        navControllerForLoginVC = UINavigationController(rootViewController: loginVC)
+        loginNavigationController = UINavigationController(rootViewController: loginVC)
         
-        navControllerForLoginVC.modalTransitionStyle = .coverVertical
-        navControllerForLoginVC.modalPresentationStyle = .fullScreen
-        tabBar.present(navControllerForLoginVC, animated: true)
-        
+        loginNavigationController.modalTransitionStyle = .coverVertical
+        loginNavigationController.modalPresentationStyle = .fullScreen
+        tabBar.present(loginNavigationController, animated: true)
     }
     
     func pushUsernameRegistration() {
         let usernameRegistrationVC = UsernameRegistrationViewController()
         usernameRegistrationVC.coordinator = self
-        navControllerForLoginVC.pushViewController(usernameRegistrationVC, animated: true)
+        loginNavigationController.pushViewController(usernameRegistrationVC, animated: true)
     }
     
-    func handleSignOut() {
+    func handleSignOut()
+    {
 //        self.resetWindowRoot()
-        Task {
-            try await Task.sleep(nanoseconds: 1_500_000_000)
-            await tabBar.destroyItems()
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            tabBar.destroyItems()
         }
         presentLogInForm()
     }
@@ -100,17 +120,7 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
         self.tabBar = TabBarViewController()
         Utilities.windowRoot = tabBar
     }
-    
-    func subscribeToConversationOpenRequest()
-    {
-        MessageBannerPresenter.shared.requestChatOpenSubject
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] chat in
-                let chatVM = ChatRoomViewModel(conversation: chat)
-                self?.openConversationVC(conversationViewModel: chatVM)
-            }.store(in: &subscribers)
-    }
-    
+
     func openConversationVC(conversationViewModel: ChatRoomViewModel)
     {
         let conversationVC = ChatRoomViewController(conversationViewModel: conversationViewModel)
@@ -129,20 +139,21 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
     func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel) {
         let phoneCodeVerificationVC = PhoneCodeVerificationViewController(viewModel: phoneViewModel)
         phoneCodeVerificationVC.coordinator = self
-        navControllerForLoginVC.pushViewController(phoneCodeVerificationVC, animated: true)
+        loginNavigationController.pushViewController(phoneCodeVerificationVC, animated: true)
     }
     
     
-    func dismissNaviagtionController() {
+    func dismissNaviagtionController()
+    {
         setupTabBarItems()
-        navControllerForLoginVC.dismiss(animated: true)
-        navControllerForLoginVC = nil
+        loginNavigationController.dismiss(animated: true)
+        loginNavigationController = nil
 //        tabBar.selectedIndex = 0
     }
     
     func pushMailSignInController(viewModel: LoginViewModel) {
         let mailVC = MailSignInViewController(viewModel: viewModel)
-        navControllerForLoginVC.pushViewController(mailVC, animated: true)
+        loginNavigationController.pushViewController(mailVC, animated: true)
     }
     
     func pushProfileEditingVC(viewModel: ProfileEditingViewModel)

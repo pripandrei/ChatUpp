@@ -37,7 +37,7 @@ extension LoginViewModel
     {
         let helper = SignInGoogleHelper()
         
-        helper.signIn { signInResult in
+        helper.signIn { [weak self] signInResult in
             guard let tokens = signInResult else {
                 return
             }
@@ -47,7 +47,7 @@ extension LoginViewModel
                 }
                 
                 let dbUser = User(auth: authResultModel)
-                FirestoreUserService.shared.createNewUser(user: dbUser) { isCreated in
+                FirestoreUserService.shared.createNewUser(user: dbUser) { [weak self] isCreated in
                    isCreated ? (self?.loginStatus.value = .userIsAuthenticated) : nil
                 }
                 RealtimeUserService.shared.createUser(user: dbUser)

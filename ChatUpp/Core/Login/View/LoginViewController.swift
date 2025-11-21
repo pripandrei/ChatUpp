@@ -31,7 +31,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
     }
   
     deinit {
-//        print("Login WAS DEINIT +++")
+        print("Login WAS DEINIT +++")
     }
     
     private func controllerMainSetup() {

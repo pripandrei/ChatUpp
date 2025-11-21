@@ -41,20 +41,22 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
     }
 
     deinit {
-//        print("Settings ============ deinit")
+        print("Settings ============ deinit")
     }
     
-// MARK: - Binder
+    // MARK: - Binder
     
     func setupBinder()
     {
-        settingsViewModel.isUserSignedOut.bind { [weak self] isSignedOut in
-            if isSignedOut == true {
-                Task { @MainActor in
-                    self?.coordinatorDelegate?.handleSignOut()
+        settingsViewModel.$isUserSignedOut
+            .sink { [weak self] isSignedOut in
+                if isSignedOut == true {
+                    Task { @MainActor in
+                        self?.coordinatorDelegate?.handleSignOut()
+                    }
                 }
-            }
-        }
+            }.store(in: &subscribers)
+        
         
         settingsViewModel.$profileImageData
             .receive(on: DispatchQueue.main)
@@ -279,7 +281,10 @@ extension SettingsViewController
         collectionView = nil
         settingsViewModel = nil
         collectionViewListHeader = nil
-        subscribers = Set()
+        subscribers.forEach { subscriber in
+            subscriber.cancel()
+        }
+        subscribers.removeAll()
         self.removeFromParent()
     }
 }

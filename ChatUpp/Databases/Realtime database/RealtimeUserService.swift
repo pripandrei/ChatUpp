@@ -72,7 +72,8 @@ final class RealtimeUserService: AuthUserProtocol {
         }
     }
     
-    func cancelOnDisconnect() async throws {
+    func cancelOnDisconnect() async throws
+    {
         try await onDisconnectRefListener?.cancelDisconnectOperations()
     }
     

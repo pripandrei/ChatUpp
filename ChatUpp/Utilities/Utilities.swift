@@ -14,7 +14,8 @@ enum UnwrappingError: Error {
 
 struct Utilities
 {
-    static func findLoginViewControllerInHierarchy() -> UIViewController? {
+    static func findLoginViewControllerInHierarchy() -> UIViewController?
+    {
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
 
         if let tabBarController = rootViewController as? TabBarViewController,

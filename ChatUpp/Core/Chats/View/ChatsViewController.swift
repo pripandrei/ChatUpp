@@ -47,7 +47,7 @@ class ChatsViewController: UIViewController {
         setupSearchController()
         chatsViewModel.activateOnDisconnect()
         setupNavigationBarItems()
-        coordinatorDelegate?.subscribeToConversationOpenRequest()
+//        coordinatorDelegate?.subscribeToConversationOpenRequest()
         
         
 //        Task {
@@ -82,7 +82,7 @@ class ChatsViewController: UIViewController {
     }
     
     deinit {
-//        print("ChatsVC was DEINITED!==")
+        print("ChatsVC was DEINITED!==")
     }
     
     private func configureTableView() {
@@ -133,6 +133,13 @@ class ChatsViewController: UIViewController {
             .sink { [weak self] count in
                 self?.navigationItem.backBarButtonItem?.title = count > 0 ? "\(count)" : nil
                 self?.navigationController?.navigationBar.setNeedsLayout()
+            }.store(in: &subscriptions)
+        
+        MessageBannerPresenter.shared.requestChatOpenSubject
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] chat in
+                let chatVM = ChatRoomViewModel(conversation: chat)
+                self?.coordinatorDelegate?.openConversationVC(conversationViewModel: chatVM)
             }.store(in: &subscriptions)
     }
     
