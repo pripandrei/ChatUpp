@@ -27,37 +27,17 @@ protocol Coordinator: AnyObject {
     func dismissEditProfileVC()
     func showGroupCreationScreen()
     func showChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel)
-//    func subscribeToConversationOpenRequest()
 }
 
-class MainCoordinator: Coordinator, SwiftUI.ObservableObject {
-    
-    //    private weak var tabBar: TabBarViewController!  // Make weak
-    //    private var subscribers = Set<AnyCancellable>()
+class MainCoordinator: Coordinator, SwiftUI.ObservableObject
+{
     private var tabBar: TabBarViewController
     private var loginNavigationController: UINavigationController!
     
     
     init(tabBar: TabBarViewController) {
         self.tabBar = tabBar
-//        tabBar.coordinator = self  // Set weak reference back
     }
-    
-    
-//    deinit {
-//        subscribers.forEach { $0.cancel() }
-//        subscribers.removeAll()
-//    }
-    //    func subscribeToConversationOpenRequest()
-    //    {
-    //        MessageBannerPresenter.shared.requestChatOpenSubject
-    //            .receive(on: DispatchQueue.main)
-    //            .sink { [weak self] chat in
-    //                let chatVM = ChatRoomViewModel(conversation: chat)
-    //                self?.openConversationVC(conversationViewModel: chatVM)
-    //            }.store(in: &subscribers)
-    //    }
-    //
     
     private func setupTabBarItems()
     {
