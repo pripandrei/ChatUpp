@@ -325,9 +325,9 @@ final class ChatRoomViewController: UIViewController
 
     @objc func keyboardWillShow(notification: NSNotification)
     {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+        if let _ = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
         {
-            let height = keyboardSize.height
+            let height = KeyboardService.shared.keyboardHeight
             
             guard rootView.inputBarContainer.frame.origin.y > 580 else {
                 let keyboardHeight = -(height - 30)
@@ -337,7 +337,10 @@ final class ChatRoomViewController: UIViewController
             
             isKeyboardHidden = false
             
-            self.rootView.toggleGreetingViewPosition(up: true)
+            if rootView.greetingView != nil
+            {
+                self.rootView.toggleGreetingViewPosition(up: true)
+            }
             
             guard isContextMenuPresented else
             {
@@ -357,7 +360,10 @@ final class ChatRoomViewController: UIViewController
             guard self.rootView.stickerCollectionView == nil else { return }
             isKeyboardHidden = true
             
-            self.rootView.toggleGreetingViewPosition(up: false)
+            if rootView.greetingView != nil
+            {
+                rootView.toggleGreetingViewPosition(up: false)                
+            }
             
             guard !isContextMenuPresented else {
                 rootView.updateInputBarBottomConstraint(toSize: 0)

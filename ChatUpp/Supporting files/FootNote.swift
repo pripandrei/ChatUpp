@@ -42,13 +42,11 @@
 /// this makes table view to not shift its contentOffset after insertion
 
 //MARK: - [6].
-/// Firebase listeners, in regards to it's remove of documents feature,
-/// works inconsitent.
+/// Firebase listeners, in regards to it's remove of documents feature, works inconsitent.
 /// If chat is already opened and listener is already attached to messages,
 /// it will detect changes/removals, as long as you stay in chat and don't remove listener.
 /// However, this is not the case if chat is closed and documents were removed.
-/// On opening chat, and attaching listener it will some times give removed docs
-/// and some times not.
+/// On opening chat, and attaching listener it will some times give removed docs, and some times not.
 /// We can't rely on this behavior so we introduce our own removed messages checker,
 /// which will compare messages from local db with those from remote db,
 /// and remove those that are not present in remote but are in local.
@@ -64,8 +62,8 @@
 /// (or timestamp if last message was removed. See how addListenerToUpcomingMessages works)
 
 //MARK: - [8].
-/// When we don't posses the range of messages from the last paginated one
-/// till the chat recent message, then there is a gap of messages in our local db that needs to be fetched from remote db.
+/// When we don't posses the range of messages from the last paginated one, till the chat recent message,
+///  then there is a gap of messages in our local db that needs to be fetched from remote db.
 /// So we need to dropLast (chat recent message) to not display it in caht and
 /// fetch/paginate from remote db until we hit recent message to display
 
@@ -77,9 +75,8 @@
 
 //MARK: - [10].
 /// IMPORTANT: Keep this case order for iteration on image creation
-/// For more info see how 'createImageSamples' function
-/// from ImageSampleRepository works
-/// 
+/// For more info see how 'createImageSamples' function, from ImageSampleRepository, works
+///
 //MARK: - [11].
 /// When user B (the one that is not self) removes chat, it will become invalid,
 /// however listener of messages will still receive removed messages.
@@ -105,12 +102,14 @@
 
 //MARK: - [15]
 ///
-/// KeyboardService is used only to get the height of the keyboard from current device that the app is running on
+/// KeyboardService is used only to get the height of the keyboard from current device that the app is running on.
+/// Explanation: keyboard notification (UIResponder.keyboardWillShowNotification) systeam can be triggered multiple times per show/hidde action, and also provide with incorrect (not final) value of keyboard height.
+/// So we extract only once, on app run, the correct height via KeyboardService, and use it instead.
 
 //MARK: - [16]
 //
 /// This code is a workaround to avoid content offset shift on new rows/sections insertion
-/// EXPLANETION:
+/// EXPLANATION:
 /// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
 /// tableView will animate scrolling to the last inserted cell, we want this to avoid,
 /// So we offset a bit content, which will result in content remaining at the same position after insertion

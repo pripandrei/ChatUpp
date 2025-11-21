@@ -35,7 +35,7 @@ final class ChatRoomRootView: UIView
     private var textViewTrailingItem: MessageTextViewTrailingItemView!
     private var textViewTrailingItemView: UIView!
     let trailingItemState = TrailingItemState()
-    private var greetingView: GreetingView?
+    private(set) var greetingView: GreetingView?
     
     private var recordingTimer: Timer?
     private var recCounterLabel: UILabel?

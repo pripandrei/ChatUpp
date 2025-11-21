@@ -21,7 +21,6 @@ class TabBarViewController: UITabBarController
     public override func viewDidLoad()
     {
         super.viewDidLoad()
-        
         view.backgroundColor = ColorManager.tabBarBackgroundColor
         tabBar.isHidden = true
     }
@@ -34,19 +33,19 @@ class TabBarViewController: UITabBarController
         let chatsNavigationController = UINavigationController(rootViewController: chatsVC)
         let settingsNavigationController = UINavigationController(rootViewController: settingsVC)
         
-        settingsNavigationController.tabBarItem = UITabBarItem(title: "Chats",
-                                                               image: UIImage(named: "profile_icon"),
-                                                               tag: 1)
-        chatsNavigationController.tabBarItem = UITabBarItem(title: "Settings",
+        chatsNavigationController.tabBarItem = UITabBarItem(title: "Chats",
                                                             image: UIImage(named: "chats_icon"),
-                                                            tag: 2)
-        viewControllers = [chatsNavigationController,settingsNavigationController]
+                                                            tag: 1)
+        settingsNavigationController.tabBarItem = UITabBarItem(title: "Settings",
+                                                               image: UIImage(named: "profile_icon"),
+                                                               tag: 2)
+        
+        viewControllers = [chatsNavigationController, settingsNavigationController]
     }
     
     func setupTabBarController()
     {
         setupTabBarViewControllers()
-        
         tabBar.isHidden = false
         setupTabarAppearance()
         setBindings()
@@ -76,8 +75,7 @@ class TabBarViewController: UITabBarController
         tabBar.scrollEdgeAppearance = tabBarAppearance
     }
     
-    func destroyItems()
-    {
+    func destroyItems() {
         NotificationCenter.default.removeObserver(self)
         ChatManager.shared.resetTotalUnseenMessageCount()
         
@@ -101,26 +99,21 @@ class TabBarViewController: UITabBarController
 
 extension TabBarViewController
 {
-    var chatsNavigationController: UINavigationController?
-    {
+    var chatsNavigationController: UINavigationController? {
         return viewControllers?.first as? UINavigationController
     }
     
-    var settingsNavigationController: UINavigationController?
-    {
+    var settingsNavigationController: UINavigationController? {
         return viewControllers?[safe: 1] as? UINavigationController
     }
 
-    var chatsViewController: ChatsViewController?
-    {
+    var chatsViewController: ChatsViewController? {
         chatsNavigationController?.viewControllers.first as? ChatsViewController
     }
     
-    var settingsViewController: SettingsViewController?
-    {
+    var settingsViewController: SettingsViewController? {
         settingsNavigationController?.viewControllers.first as? SettingsViewController
     }
-    
 }
 
 //MARK: - Notification for badge update
@@ -139,14 +132,14 @@ extension TabBarViewController
 }
 
 //MARK: - Hide/show tab bar
+
 extension TabBarViewController: TabBarVisibilityProtocol
 {
     func hideTabBar()
     {
         guard tabBar.isHidden == false else { return }
 
-        UIView.animate(withDuration: 0.3)
-        {
+        UIView.animate(withDuration: 0.3) {
             self.tabBar.frame.origin.y = UIScreen.main.bounds.maxY
             self.view.layoutIfNeeded()
         } completion: { _ in
@@ -162,11 +155,9 @@ extension TabBarViewController: TabBarVisibilityProtocol
         let height = tabBar.bounds.size.height
         self.tabBar.frame.origin.y = UIScreen.main.bounds.maxY
         
-        UIView.animate(withDuration: 0.3)
-        {
+        UIView.animate(withDuration: 0.3) {
             self.tabBar.frame.origin.y -= height
             self.view.layoutIfNeeded()
         }
     }
 }
-
