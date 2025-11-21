@@ -31,7 +31,7 @@ extension Date
         return DateFormatter.customDateFormatterForYearMonthDay.string(from: self)
     }
     
-    func formattedAsDayLabel() -> String
+    func formattedAsRelativeDayLabel() -> String
     {
         let calendar = Calendar.current
         let formatter = DateFormatter()
@@ -49,7 +49,7 @@ extension Date
         return formatter.string(from: self)
     }
     
-    func formatDateTimestamp() -> String
+    func formattedAsTimeAgo() -> String
     {
         let now = Date()
         let secondsAgo = now.timeIntervalSince(self)
@@ -78,9 +78,47 @@ extension Date
             return dateFormatter.string(from: self)
         }
     }
+    
+    func formattedAsCompactDate() -> String
+    {
+        let now = Date()
+        let timeElapsed = now.timeIntervalSince(self)
+        let calendar = Calendar.current
+        let dateFormatter = DateFormatter()
+        
+        // time is today
+        if calendar.isDateInToday(self)
+        {
+            dateFormatter.dateFormat = "HH:mm"
+            return dateFormatter.string(from: self)
+        }
+        
+        // time is within current weak
+        if calendar.component(.weekOfYear, from: self) ==
+            calendar.component(.weekOfYear, from: now)
+            &&
+            calendar.component(.yearForWeekOfYear, from: self) ==
+            calendar.component(.yearForWeekOfYear, from: now)
+        {
+            dateFormatter.dateFormat = "MMM"
+            return dateFormatter.string(from: self)
+        }
+        
+        // time is within current year
+        if calendar.isDate(self, equalTo: now, toGranularity: .year)
+        {
+            dateFormatter.dateFormat = "dd.MM"
+            return dateFormatter.string(from: self)
+        }
+        
+        // time outside the current year
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        return dateFormatter.string(from: self)
+    }
 }
 
-extension DateFormatter {
+extension DateFormatter
+{
     static var customDateFormatterForYearMonthDay: DateFormatter {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"

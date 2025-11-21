@@ -76,7 +76,7 @@ final class ChatRoomNavigationBarViewModel
                 }
                 self?._status = (user.isActive ?? false)
                     ? "Online"
-                    : "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
+                    : "last seen \(user.lastSeen?.formattedAsTimeAgo() ?? "Recently")"
             }
             .store(in: &cancellables)
     }
@@ -114,7 +114,7 @@ final class ChatRoomNavigationBarViewModel
 //        if user.isActive == true {
 //            self._status = "Online"
 //        } else {
-//            self._status = "last seen \(user.lastSeen?.formatDateTimestamp() ?? "Recently")"
+//            self._status = "last seen \(user.lastSeen?.formattedAsTimeAgo() ?? "Recently")"
 //        }
     }
     

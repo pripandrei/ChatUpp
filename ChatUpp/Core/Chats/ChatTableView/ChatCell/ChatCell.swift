@@ -162,7 +162,7 @@ class ChatCell: UITableViewCell
         {
             Utilities.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
             self.messageLable.attributedText = setAttributedText(for: message)
-            self.dateLable.text = message.timestamp.formatToHoursAndMinutes()
+            self.dateLable.text = message.timestamp.formattedAsCompactDate()
             
             if cellViewModel.isAuthUserSenderOfRecentMessage
             {
