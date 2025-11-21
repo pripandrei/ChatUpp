@@ -1542,7 +1542,7 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
             }
             self.hapticWasInitiated = false
             
-            if abs(translationX) >= dragTreshhold
+            if (translation.x < 0) && (abs(translationX) >= dragTreshhold)
             {
                 self.viewModel.currentlyReplyToMessageID = dragableCell?.messageID
                 self.handleContextMenuSelectedAction(
