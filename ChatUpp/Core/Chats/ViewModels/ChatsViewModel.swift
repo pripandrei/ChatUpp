@@ -68,7 +68,13 @@ extension ChatsViewModel
         let chats = retrieveChatsFromRealm()
         
         guard !chats.isEmpty else { return }
-        self.cellViewModels = chats.map { ChatCellViewModel(chat: $0) }
+        self.cellViewModels = chats
+            .map { ChatCellViewModel(chat: $0) }
+            .sorted
+        {
+            ($0.recentMessage?.timestamp ?? .distantPast) >
+            ($1.recentMessage?.timestamp ?? .distantPast)
+        }
     }
     
     private func addCellViewModel(using chat: Chat)

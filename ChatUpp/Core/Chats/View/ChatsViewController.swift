@@ -47,24 +47,6 @@ class ChatsViewController: UIViewController {
         setupSearchController()
         chatsViewModel.activateOnDisconnect()
         setupNavigationBarItems()
-//        coordinatorDelegate?.subscribeToConversationOpenRequest()
-        
-        
-//        Task {
-//            let chatsIDs = ["60C80F67-5A4D-4D7D-9853-7AB88867DB3B"]
-//            await FirebaseChatService.shared.updateMissingAudioSamples(forChatIDs: chatsIDs)
-//        }
-        
-//        if let url = Bundle.main.url(forResource: "notification_sound", withExtension: "m4a")
-//        {
-//            do {
-//                let audioData = try Data(contentsOf: url)
-//                CacheManager.shared.saveData(audioData, toPath: "notification_sound.m4a")
-//            } catch {
-//                print("could not get audio data form url: ", error)
-//            }
-//        }
-//        
 //        testFunction()
     }
     

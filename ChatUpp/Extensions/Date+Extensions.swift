@@ -82,7 +82,6 @@ extension Date
     func formattedAsCompactDate() -> String
     {
         let now = Date()
-        let timeElapsed = now.timeIntervalSince(self)
         let calendar = Calendar.current
         let dateFormatter = DateFormatter()
         
@@ -100,7 +99,7 @@ extension Date
             calendar.component(.yearForWeekOfYear, from: self) ==
             calendar.component(.yearForWeekOfYear, from: now)
         {
-            dateFormatter.dateFormat = "MMM"
+            dateFormatter.dateFormat = "E"
             return dateFormatter.string(from: self)
         }
         
