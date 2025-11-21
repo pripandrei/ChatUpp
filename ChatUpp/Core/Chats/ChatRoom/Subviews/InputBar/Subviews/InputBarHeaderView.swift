@@ -14,7 +14,7 @@ import UIKit
 final class InputBarHeaderView: UIView {
     
     // MARK: - Properties
-    private var mode: Mode?
+    private(set) var mode: Mode?
     
     var inputBarHeightConstraint: NSLayoutConstraint?
     var textInfoStackViewLeadingConstraint: NSLayoutConstraint?
@@ -250,6 +250,17 @@ extension InputBarHeaderView
             case .image(let image): return image
             case .edit(_, let image), .reply(_, _, let image): return image
             }
+        }
+        
+        var isImage: Bool
+        {
+            if case .image(_) = self { return true}
+            return false
+//            switch self
+//            {
+//            case .image(_): return true
+//            default: return false
+//            }
         }
     }
 }

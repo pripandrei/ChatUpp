@@ -689,7 +689,7 @@ extension ChatRoomRootView
     {
         if self.inputBarHeader == nil
         {
-            inputBarHeader = InputBarHeaderView(mode: mode)
+            inputBarHeader = InputBarHeaderView(mode: mode) 
             setupInputBarHeaderConstraints()
             self.inputBarHeader?.transform = CGAffineTransform(translationX: 0, y: 80)
             self.layoutIfNeeded()
@@ -704,6 +704,10 @@ extension ChatRoomRootView
         } else {
             self.inputBarHeader?.applyMode(mode)
             self.inputBarHeader?.animateComponents(isUpdating: true)
+            if !mode.isImage && messageTextView.text.isEmpty
+            {
+                toggleVoiceRecButtonVisibility(true)
+            }
         }
         
         self.sendEditMessageButton.isHidden = !{

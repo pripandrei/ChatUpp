@@ -205,6 +205,10 @@ final class ChatRoomViewController: UIViewController
         inputMessageTextViewDelegate.$isTextViewEmpty
             .dropFirst()
             .sink { [weak self] isEmpty in
+                
+                // return if input bar currently contains image
+                if case .image(_) = self?.rootView.inputBarHeader?.mode { return }
+                
                 let shouldBeVisible = isEmpty
                 self?.rootView.toggleVoiceRecButtonVisibility(shouldBeVisible)
             }.store(in: &subscriptions)
@@ -1100,6 +1104,10 @@ extension ChatRoomViewController
     {
         if rootView.inputBarHeader != nil
         {
+            if case .image(_) = self.rootView.inputBarHeader?.mode, inputMessageTextViewDelegate.isTextViewEmpty
+            {
+                rootView.toggleVoiceRecButtonVisibility(true)
+            }
             viewModel.resetCurrentReplyMessageIfNeeded()
             animateInputBarHeaderViewDestruction()
         }
