@@ -173,40 +173,49 @@ extension Message
 
 extension Message
 {
-    /// If message is managed by realm, call these two methods in a write transaction or freeze object before update
-    ///
     func updateSeenStatus(seenStatus: Bool) -> Message
     {
-        self.messageSeen = true
-        return self
-    }
-    func updateSeenBy(_ userID: String) -> Message
-    {
-        self.seenBy.append(userID)
-        return self
+        let unmanagedMessage = Message(value: self)
+        unmanagedMessage.messageSeen = true
+        return unmanagedMessage
     }
     
-    func updateSeenStatus(seenStatus: Bool? = nil,
-                          seenBy: [String]? = nil) -> Message
+    func updateSeenBy(_ userID: String) -> Message
     {
-        return Message(
-            id: self.id,
-            messageBody: self.messageBody,
-            senderId: self.senderId,
-            timestamp: self.timestamp,
-            messageSeen: seenStatus,
-            seenBy: seenBy != nil ? seenBy : Array(self.seenBy) ,
-            isEdited: self.isEdited,
-            imagePath: self.imagePath,
-            imageSize: self.imageSize,
-            repliedTo: self.repliedTo,
-            type: self.type,
-            sticker: self.sticker,
-            voicePath: self.voicePath,
-            audioSamples: Array(self.audioSamples),
-            reactions: self.mapReactionsForEncoding(reactions)
-        )
+        let unmanagedMessage = Message(value: self)
+        unmanagedMessage.seenBy.append(userID)
+        return unmanagedMessage
     }
+    
+    /// If message is managed by realm, call these two methods in a write transaction or freeze object before update
+    ///
+//    func updateSeenStatus(seenStatus: Bool) -> Message
+//    {
+//        self.messageSeen = true
+//        return self
+//    }
+    
+//    func updateSeenStatus(seenStatus: Bool? = nil,
+//                          seenBy: [String]? = nil) -> Message
+//    {
+//        return Message(
+//            id: self.id,
+//            messageBody: self.messageBody,
+//            senderId: self.senderId,
+//            timestamp: self.timestamp,
+//            messageSeen: seenStatus,
+//            seenBy: seenBy != nil ? seenBy : Array(self.seenBy) ,
+//            isEdited: self.isEdited,
+//            imagePath: self.imagePath,
+//            imageSize: self.imageSize,
+//            repliedTo: self.repliedTo,
+//            type: self.type,
+//            sticker: self.sticker,
+//            voicePath: self.voicePath,
+//            audioSamples: Array(self.audioSamples),
+//            reactions: self.mapReactionsForEncoding(reactions)
+//        )
+//    }
 }
 
 //MARK: - manager for fetching test data

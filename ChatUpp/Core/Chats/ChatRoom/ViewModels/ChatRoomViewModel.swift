@@ -1072,7 +1072,7 @@ extension ChatRoomViewModel
         
         for remoteMessage in messages
         {
-            guard let dbMessage = RealmDataBase.shared.retrieveSingleObjectTest(
+            guard let dbMessage = RealmDataBase.shared.retrieveSingleObject(
                 ofType: Message.self,
                 primaryKey: remoteMessage.id
             ) else {
@@ -1088,13 +1088,7 @@ extension ChatRoomViewModel
             
             if dbMessageMarkedAsSeen && remoteMessageMarkedAsUnseen
             {
-//                if remoteMessage.messageBody == "Gay lobby" {
-//                    print("stop")
-//                }
-
-                var updatedMessage = remoteMessage.realm != nil ? remoteMessage.freeze() : remoteMessage
-                
-                updatedMessage = (conversation?.isGroup ?? false) ?
+                let updatedMessage = (conversation?.isGroup ?? false) ?
                 remoteMessage.updateSeenBy(authUser.uid) : remoteMessage.updateSeenStatus(seenStatus: true)
 
                 updatedMessages.append(updatedMessage)
