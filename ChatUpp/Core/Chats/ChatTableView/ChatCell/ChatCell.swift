@@ -142,9 +142,10 @@ class ChatCell: UITableViewCell
         let iconSize = isSeen ? CGSize(width: 17, height: 12) : CGSize(width: 13, height: 13)
         
         let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
-        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?
-            .withTintColor(ColorManager.actionButtonsTintColor)
-            .resize(to: iconSize) else {return}
+        
+        guard let seenStatusIconImage = SeenStatusIconStorage.image(named: seenStatusIcon,
+                                                                  size: iconSize,
+                                                                  color: ColorManager.actionButtonsTintColor) else {return}
         
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
         
@@ -518,7 +519,7 @@ extension ChatCell {
         
         NSLayoutConstraint.activate([
             seenStatusMark.topAnchor.constraint(equalTo: self.topAnchor, constant: 6),
-            seenStatusMark.trailingAnchor.constraint(equalTo: dateLable.leadingAnchor, constant: -4),
+            seenStatusMark.trailingAnchor.constraint(equalTo: dateLable.leadingAnchor, constant: -7),
         ])
     }
 }

@@ -117,11 +117,8 @@ final class MessageComponentsView: UIView
         
         let seenIconColor: UIColor = getColorForMessageComponents()
         let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
-//        guard let seenStatusIconImage = UIImage(named: seenStatusIcon)?
-//            .withTintColor(seenIconColor)
-//            .resize(to: iconSize)
-//        else {return}
-        guard let seenStatusIconImage = SeenStatusIconCache.image(named: seenStatusIcon,
+
+        guard let seenStatusIconImage = SeenStatusIconStorage.image(named: seenStatusIcon,
                                                                   size: iconSize,
                                                                   color: seenIconColor)
         else {return}
@@ -189,31 +186,5 @@ extension MessageComponentsView
     }
 }
 
-extension MessageComponentsView
-{
-    final class SeenStatusIconCache
-    {
-        static var cache = [String: UIImage]()
-        
-        static func image(named name: String,
-                          size: CGSize,
-                          color: UIColor) -> UIImage? {
-            
-            let key = "\(name)-\(size.width)x\(size.height)-\(color.description)"
-            
-            if let cached = cache[key]
-            {
-                return cached
-            }
-            
-            guard let base = UIImage(named: name)?
-                .withTintColor(color)
-                .resize(to: size)
-            else { return nil }
-            
-            cache[key] = base
-            return base
-        }
-    }
-}
+
 

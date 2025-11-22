@@ -139,6 +139,7 @@
 		75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */; };
 		75B5C4C32A49AB0B00F63A5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */; };
 		75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C42A49AB0B00F63A5A /* LaunchScreen.storyboard */; };
+		75B9CAB82ED16A93002D701F /* SeenStatusIconStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B9CAB72ED16A88002D701F /* SeenStatusIconStorage.swift */; };
 		75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */; };
 		75BA23852D2F02F700A4C508 /* ImageSaveble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23842D2F02E600A4C508 /* ImageSaveble.swift */; };
 		75BA7E4F2D34AE0C00A4C508 /* IndexPath+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */; };
@@ -352,6 +353,7 @@
 		75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		75B5C4C52A49AB0B00F63A5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		75B5C4C72A49AB0B00F63A5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		75B9CAB72ED16A88002D701F /* SeenStatusIconStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeenStatusIconStorage.swift; sourceTree = "<group>"; };
 		75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropViewControllerRepresentable.swift; sourceTree = "<group>"; };
 		75BA23842D2F02E600A4C508 /* ImageSaveble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSaveble.swift; sourceTree = "<group>"; };
 		75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IndexPath+Extensions.swift"; sourceTree = "<group>"; };
@@ -705,6 +707,7 @@
 		756525C82A8127CC005DC594 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				75B9CAB92ED16B3C002D701F /* ImageCache */,
 				75AD5EB62E7C47300075377B /* Media */,
 				756525C92A8127F5005DC594 /* Observable.swift */,
 				75C8F7642E818E64007317E0 /* DisplayLinkProxy.swift */,
@@ -1203,6 +1206,14 @@
 				75D38DA02EB90A5A0096B926 /* notification_sound.m4a */,
 			);
 			path = "Supporting files";
+			sourceTree = "<group>";
+		};
+		75B9CAB92ED16B3C002D701F /* ImageCache */ = {
+			isa = PBXGroup;
+			children = (
+				75B9CAB72ED16A88002D701F /* SeenStatusIconStorage.swift */,
+			);
+			path = ImageCache;
 			sourceTree = "<group>";
 		};
 		75BC06682DFADC60002ED4AA /* Network */ = {
@@ -1808,6 +1819,7 @@
 				75C8F7712E8193CF007317E0 /* CustomizedShadowTextField.swift in Sources */,
 				756525D52AB50079005DC594 /* FirestoreUserService.swift in Sources */,
 				757E81B52D232EC400727277 /* SelectedGroupMembersView.swift in Sources */,
+				75B9CAB82ED16A93002D701F /* SeenStatusIconStorage.swift in Sources */,
 				759894B22E4E7284003CF661 /* ContainerView.swift in Sources */,
 				75BC066E2DFADC6E002ED4AA /* NetworkMonitor.swift in Sources */,
 				756BDFAE2EAA9DD9003D5EE2 /* MessageComponentsViewModel.swift in Sources */,
