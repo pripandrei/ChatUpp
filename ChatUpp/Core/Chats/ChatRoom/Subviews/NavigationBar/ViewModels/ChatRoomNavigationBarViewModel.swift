@@ -64,6 +64,7 @@ final class ChatRoomNavigationBarViewModel
             }.store(in: &cancellables)
         
         RealtimeUserService.shared.addObserverToUsers(participant.id)
+            .prepend(participant)
             .combineLatest(
                 NetworkMonitor.shared.$isReachable
                     .prepend(Just(NetworkMonitor.shared.isReachable))

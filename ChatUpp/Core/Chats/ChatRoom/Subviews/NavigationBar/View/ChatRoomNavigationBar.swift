@@ -41,7 +41,8 @@ final class ChatRoomNavigationBar
     
     private func setupNavigationTitleContainer()
     {
-        self.navigationItemsContainer = NavigationTitleContainer(name: viewModel._title, lastSeen: viewModel._status)
+        self.navigationItemsContainer = NavigationTitleContainer(name: viewModel._title,
+                                                                 lastSeen: viewModel._status)
         viewController.navigationItem.titleView = self.navigationItemsContainer
     }
     
