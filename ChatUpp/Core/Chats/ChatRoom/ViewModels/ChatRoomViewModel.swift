@@ -1039,12 +1039,7 @@ extension ChatRoomViewModel
       
         // wait for message pagination to finish if any
         await isPaginationInactiveStream.first(where: { true })
-        
-        if !filteredModified.isEmpty || !removedMessages.isEmpty
-        {
-            print("stop, modified or removed are present")
-        }
-        
+
         await self.handleRemovedMessages(Array(removedMessages))
         await self.handleAddedMessages(Array(filteredAdded))
         await self.handleModifiedMessage(Array(filteredModified))
@@ -1094,10 +1089,11 @@ extension ChatRoomViewModel
            
             /// See FootNote.swift [12]
             ///
-            let dbMessageMarkedAsSeen = (dbMessage.messageSeen == true) || dbMessage.seenBy.contains(authUser.uid)
             let remoteMessageMarkedAsUnseen = (remoteMessage.messageSeen == false) || !remoteMessage.seenBy.contains(authUser.uid)
-            
-            if dbMessageMarkedAsSeen && remoteMessageMarkedAsUnseen
+            let dbMessageMarkedAsSeen = dbMessage.messageSeen ?? dbMessage.seenBy.contains(authUser.uid)
+            let remoteMessageMarkedAsSeen = remoteMessage.messageSeen ?? remoteMessage.seenBy.contains(authUser.uid)
+ 
+            if dbMessageMarkedAsSeen && !remoteMessageMarkedAsSeen
             {
                 let updatedMessage = (conversation?.isGroup ?? false) ?
                 remoteMessage.updateSeenBy(authUser.uid) : remoteMessage.updateSeenStatus(seenStatus: true)
