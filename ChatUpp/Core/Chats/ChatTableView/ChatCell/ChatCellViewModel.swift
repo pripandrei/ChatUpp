@@ -207,8 +207,8 @@ extension ChatCellViewModel
                 {
                     addMessageToRealm(recentMessage)
                     self.recentMessage = recentMessage
-                    if chatID != ChatRoomSessionManager.activeChatID,
-                       recentMessage.senderId != authUser.uid
+                    if chatID != ChatRoomSessionManager.activeChatID
+//                       recentMessage.senderId != authUser.uid
                     {
                         self.showRecentMessageBanner()
                     }
