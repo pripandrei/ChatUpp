@@ -115,11 +115,6 @@ final class ConversationMessageCell: UITableViewCell
         contentContainer?.removeFromSuperview()
         contentContainer = nil
         
-        if viewModel.message?.id == "3F264506-1E59-49A5-85B7-D63D330D6C49"
-        {
-            print("stop")
-        }
-        
         switch type
         {
         case .text, .image, .imageText:

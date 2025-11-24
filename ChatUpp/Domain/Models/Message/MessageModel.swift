@@ -159,7 +159,9 @@ extension Message
     
     override func isEqual(_ object: Any?) -> Bool
     {
-        guard let other = object as? Message else { return false }
+        guard let other = object as? Message,
+              !self.isInvalidated,
+              !other.isInvalidated else { return false }
         return other.id == self.id
     }
 }

@@ -651,7 +651,6 @@ extension ChatCellViewModel
 
 class ChatRoomSessionManager
 {
-//    static var activeChatID = CurrentValueSubject<String?, Never>(nil)
     static var activeChatID: String? = nil
 }
 

@@ -1123,7 +1123,7 @@ extension ChatRoomViewModel
     @MainActor
     private func handleRemovedMessages(_ messages: [Message])
     {
-        guard !messages.isEmpty else {return}
+        guard !messages.isEmpty else { return }
         
         for message in messages
         {
@@ -1131,6 +1131,7 @@ extension ChatRoomViewModel
             guard let clusterIndex = messageClusters.firstIndex(where: { $0.date == day }) else {continue}
             
             // TODO: - crash on last message removal. Check chat cell recent message if it's deleted before this code runs
+            //
             guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: { $0.message?.id == message.id } ) else {continue}
             
             let _ = messageClusters[clusterIndex].items.remove(at: cellVMIndex)
