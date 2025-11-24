@@ -1041,7 +1041,7 @@ extension ChatRoomViewModel
 
         // wait for message pagination to finish if any
         await isPaginationInactiveStream.first(where: { true })
-        
+
         await self.handleRemovedMessages(Array(removedMessages))
         await self.handleAddedMessages(Array(filteredAdded))
         await self.handleModifiedMessage(Array(filteredModified))
@@ -1105,8 +1105,8 @@ extension ChatRoomViewModel
         }
         
         RealmDataBase.shared.add(objects: updatedMessages)
+
         realmService?.addMessagesToRealmChat(newMessages)
-        
         createMessageClustersWith(newMessages)
         
         if newMessages.count == 1 {
@@ -1182,8 +1182,8 @@ extension ChatRoomViewModel
             tasks.append { await self.downloadImageData(from: message) }
         }
         
-        if message.voicePath != nil
-//           !CacheManager.shared.doesFileExist(at: message.voicePath!)
+        if message.voicePath != nil,
+           !CacheManager.shared.doesFileExist(at: message.voicePath!)
         {
             tasks.append { await self.downloadVoiceMessageData(from: message) }
         }
