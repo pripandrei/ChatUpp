@@ -207,8 +207,10 @@ extension ChatCellViewModel
                 {
                     addMessageToRealm(recentMessage)
                     self.recentMessage = recentMessage
-                    if chatID != ChatRoomSessionManager.activeChatID {
-                        self.showRecentMessageBanner()                        
+                    if chatID != ChatRoomSessionManager.activeChatID,
+                       recentMessage.senderId != authUser.uid
+                    {
+                        self.showRecentMessageBanner()
                     }
                 }
             }
@@ -642,10 +644,6 @@ extension ChatCellViewModel
     func invalidateSelf() {
         removeObservers()
         cancelFetchTask()
-//        titleName = nil
-//        unreadMessageCount = nil
-//        chatUser = nil
-//        recentMessage = nil
     }
 }
 
