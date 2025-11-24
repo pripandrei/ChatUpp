@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-class Message: Object, Codable 
+class Message: Object, Codable
 {
     @Persisted(primaryKey: true) var id: String
     @Persisted var messageBody: String
@@ -143,6 +143,27 @@ class Message: Object, Codable
     }
 }
 
+//MARK: - Hashable implementation
+extension Message
+{
+    static func ==(lhs: Message, rhs: Message) -> Bool
+    {
+        return lhs.id == rhs.id
+    }
+    
+    override var hash: Int {
+        var hasher = Hasher()
+        hasher.combine(id)
+        return hasher.finalize()
+    }
+    
+    override func isEqual(_ object: Any?) -> Bool
+    {
+        guard let other = object as? Message else { return false }
+        return other.id == self.id
+    }
+}
+
 //MARK: - map reactions firebase <--> realm
 extension Message
 {
@@ -240,3 +261,4 @@ final class TestHelper
         }
     }
 }
+

@@ -1000,13 +1000,15 @@ extension ChatRoomViewModel
 //MARK: - Message listener bindings
 extension ChatRoomViewModel
 {
-    private func bindToMessages() {
+    private func bindToMessages()
+    {
         messageListenerService?.$updatedMessages
-            .debounce(for: .seconds(0.4),
+            .debounce(for: .seconds(0.5), /// See FootNote.swift [18]
                       scheduler: DispatchQueue.global(qos: .background))
             .filter { !$0.isEmpty }
             .sink { [weak self] messagesTypes in
                 guard let self = self else { return }
+                self.messageListenerService?.updatedMessages.removeAll()
                 Task {
                     guard self.conversation?.isInvalidated == false else {return} // See FootNote.swift [11]
                     await self.remoteMessagePaginator?.perform {
@@ -1034,17 +1036,15 @@ extension ChatRoomViewModel
         let removedIDs = Set(removedMessages.map(\.id))
         let filteredModified = modifiedMessages.filter { !removedIDs.contains($0.id) }
         let filteredAdded = addedMessages.filter { !removedIDs.contains($0.id) }
-     
+
         await fetchMessagesMetadata(filteredAdded)
-      
+
         // wait for message pagination to finish if any
         await isPaginationInactiveStream.first(where: { true })
-
+        
         await self.handleRemovedMessages(Array(removedMessages))
         await self.handleAddedMessages(Array(filteredAdded))
         await self.handleModifiedMessage(Array(filteredModified))
-        
-        self.messageListenerService?.updatedMessages.removeAll()
     }
 
     /// Use this variable before updating realm with new message
@@ -1089,10 +1089,9 @@ extension ChatRoomViewModel
            
             /// See FootNote.swift [12]
             ///
-            let remoteMessageMarkedAsUnseen = (remoteMessage.messageSeen == false) || !remoteMessage.seenBy.contains(authUser.uid)
             let dbMessageMarkedAsSeen = dbMessage.messageSeen ?? dbMessage.seenBy.contains(authUser.uid)
             let remoteMessageMarkedAsSeen = remoteMessage.messageSeen ?? remoteMessage.seenBy.contains(authUser.uid)
- 
+
             if dbMessageMarkedAsSeen && !remoteMessageMarkedAsSeen
             {
                 let updatedMessage = (conversation?.isGroup ?? false) ?
@@ -1106,7 +1105,6 @@ extension ChatRoomViewModel
         }
         
         RealmDataBase.shared.add(objects: updatedMessages)
-
         realmService?.addMessagesToRealmChat(newMessages)
         
         createMessageClustersWith(newMessages)
@@ -1184,8 +1182,8 @@ extension ChatRoomViewModel
             tasks.append { await self.downloadImageData(from: message) }
         }
         
-        if message.voicePath != nil,
-           !CacheManager.shared.doesFileExist(at: message.voicePath!)
+        if message.voicePath != nil
+//           !CacheManager.shared.doesFileExist(at: message.voicePath!)
         {
             tasks.append { await self.downloadVoiceMessageData(from: message) }
         }

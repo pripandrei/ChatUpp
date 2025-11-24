@@ -17,7 +17,7 @@ final class ConversationMessageListenerService
     
     private var cancellables: Set<AnyCancellable> = []
 
-    private(set) var updatedMessage = PassthroughSubject<DatabaseChangedObject<Message>,Never>()
+//    private(set) var updatedMessage = PassthroughSubject<DatabaseChangedObject<Message>,Never>()
     @Published var updatedMessages: [DatabaseChangedObject<Message>] = []
 
     init(conversation: Chat?) {

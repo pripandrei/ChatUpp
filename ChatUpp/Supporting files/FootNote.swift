@@ -95,6 +95,7 @@
 /// so we just ignore updates ignore updates
 
 //MARK: - [14]
+///
 /// Because render of animations can still be in process,
 /// we need to queue destruction of animations on actor (StickerAnimationManager) where render takes place.
 /// This way animations will be destroyed only after final render will come to it's end.
@@ -112,11 +113,18 @@
 /// EXPLANATION:
 /// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
 /// tableView will animate scrolling to the last inserted cell, we want this to avoid,
-/// So we offset a bit content, which will result in content remaining at the same position after insertion
-/// 
+/// so we offset a bit content, which will result in content remaining at the same position after insertion
+///
 
 //MARK: - [17]
 //
 // Reference: skeletonView requires for estimatedRowHeight to have a value
 // so we set it to work, and disable after,
 // to prevent other glitch related to rows when adding reaction
+
+//MARK: - [17]
+//
+///  In a scenario where user scrolls fast through table view of messages,
+///  debouncing for a period of time will save us from firing of sink block 
+///  each time the "updatedMessages" array is changed. That way, minimizing the initiation of message update processing
+///
