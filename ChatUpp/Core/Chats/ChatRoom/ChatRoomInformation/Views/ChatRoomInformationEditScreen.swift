@@ -15,12 +15,12 @@ struct ChatRoomInformationEditScreen: View
     @ObservedObject var viewModel: ChatRoomInformationEditViewModel
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var imageDataContainer: IdentifiableItem<Data>?
-    
     @Binding var refreshID: UUID
+    @State var isLoading: Bool = false
     
     var body: some View
     {
-        NavigationStack {
+        ZStack {
             List {
                 Section {
                     ForEach(EditOptionFields.allCases) { option in
@@ -29,7 +29,8 @@ struct ChatRoomInformationEditScreen: View
                             textField($viewModel.groupTitle,
                                       placeholder: option.placeHolder)
                         case .groupInfo:
-                            textField($viewModel.groupDescription, placeholder: option.placeHolder)
+                            textField($viewModel.groupDescription,
+                                      placeholder: option.placeHolder)
                         }
                     }
                 } header: {
@@ -44,6 +45,7 @@ struct ChatRoomInformationEditScreen: View
             }
             .toolbarBackground(.hidden, for: .navigationBar)
         }
+        .isLoading(isLoading)
     }
 }
 
@@ -197,11 +199,13 @@ extension ChatRoomInformationEditScreen
         Button {
             Task {
                 do {
+                    self.isLoading = true
                     let editedStatus = try await viewModel.saveEditedData()
                     editedStatus == .changed ? (refreshID = UUID()) : ()
                 } catch {
                     print("Error while saving edited data: \(error)")
                 }
+                self.isLoading = false
                 dismiss()
             }
         } label: {

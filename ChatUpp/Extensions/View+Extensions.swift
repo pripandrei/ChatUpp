@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LoaderUI
 
 extension View
 {
@@ -18,6 +19,21 @@ extension View
             }
         } message: {
             Text(message)
+        }
+    }
+    
+    func isLoading(_ loading: Bool) -> some View
+    {
+        ZStack
+        {
+            self
+            
+            if loading
+            {
+                CircleStrokeSpin()
+                    .frame(width: 50, height: 50)
+                    .foregroundStyle(Color.blue)
+            }
         }
     }
 }

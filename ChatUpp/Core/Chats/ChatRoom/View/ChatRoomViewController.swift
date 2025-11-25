@@ -783,7 +783,7 @@ extension ChatRoomViewController
             self.rootView.joinChatRoomButton.layer.opacity = 0.0
         } completion: { _ in
             self.rootView.joinChatRoomButton.isHidden = true
-            self.rootView.joinActivityIndicator.startAnimating()
+            self.rootView.joinActivityIndicator.startAnimating() 
             
             Task { @MainActor in
                 try await Task.sleep(for: .seconds(1))

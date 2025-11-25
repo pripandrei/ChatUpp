@@ -140,6 +140,7 @@
 		75B5C4C32A49AB0B00F63A5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */; };
 		75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C42A49AB0B00F63A5A /* LaunchScreen.storyboard */; };
 		75B9CAB82ED16A93002D701F /* SeenStatusIconStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B9CAB72ED16A88002D701F /* SeenStatusIconStorage.swift */; };
+		75B9CABE2ED6342B002D701F /* LoaderUI in Frameworks */ = {isa = PBXBuildFile; productRef = 75B9CABD2ED6342B002D701F /* LoaderUI */; };
 		75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */; };
 		75BA23852D2F02F700A4C508 /* ImageSaveble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23842D2F02E600A4C508 /* ImageSaveble.swift */; };
 		75BA7E4F2D34AE0C00A4C508 /* IndexPath+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA7E4E2D34AE0300A4C508 /* IndexPath+Extensions.swift */; };
@@ -449,6 +450,7 @@
 				757AB0EA2BB9D70D00A64DA4 /* FirebaseFirestore in Frameworks */,
 				751599022E5F899100E22801 /* SKPhotoBrowser in Frameworks */,
 				756E6D1F2D8210890065CADB /* NVActivityIndicatorViewExtended in Frameworks */,
+				75B9CABE2ED6342B002D701F /* LoaderUI in Frameworks */,
 				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */,
 				75F9B12A2E68F52C000F496E /* FlagPhoneNumber.framework in Frameworks */,
@@ -1689,6 +1691,7 @@
 				75592EB32E70D59A00247CB5 /* librlottie */,
 				75FD79802E95CDD200B3782F /* Core */,
 				75FD79822E95CDD200B3782F /* Search */,
+				75B9CABD2ED6342B002D701F /* LoaderUI */,
 			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
@@ -1731,6 +1734,7 @@
 				7587D3AA2E63B7FD00DEE900 /* XCRemoteSwiftPackageReference "GzipSwift" */,
 				75592EB22E70D59A00247CB5 /* XCRemoteSwiftPackageReference "librlottie-Xcode" */,
 				75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
+				75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */,
 			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
@@ -2250,6 +2254,14 @@
 				minimumVersion = 2.7.4;
 			};
 		};
+		75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ninjaprox/LoaderUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.1;
+			};
+		};
 		75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
@@ -2370,6 +2382,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 75A086142D19619E00DE5333 /* XCRemoteSwiftPackageReference "TOCropViewController" */;
 			productName = TOCropViewController;
+		};
+		75B9CABD2ED6342B002D701F /* LoaderUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */;
+			productName = LoaderUI;
 		};
 		75FD79802E95CDD200B3782F /* Core */ = {
 			isa = XCSwiftPackageProductDependency;
