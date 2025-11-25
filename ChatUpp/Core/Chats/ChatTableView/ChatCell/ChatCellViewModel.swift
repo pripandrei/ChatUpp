@@ -25,7 +25,7 @@ class ChatCellViewModel
     
     @Published private(set) var chat: Chat
     @Published private(set) var chatUser: User?
-    @Published private(set) var titleName: String?
+//    @Published private(set) var titleName: String?
     @Published private(set) var isParticipantActive: Bool?
     @Published private(set) var unreadMessageCount: Int?
     {
@@ -480,6 +480,11 @@ extension ChatCellViewModel
                     self?.handleParticipantsChange()
                 case .thumbnailURL:
                     self?.handleThumbnailChange()
+                case .name:
+                    if let chat = propertyChange.1 as? Chat
+                    {
+                        self?.chat = chat
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -565,15 +570,17 @@ extension ChatCellViewModel
         }
     }
 
-    private func handleThumbnailChange() {
+    private func handleThumbnailChange()
+    {
         Task { [weak self] in
             guard let imageURL = await self?.profileImageThumbnailPath else { return }
+            
 
-            let imageIsCached = CacheManager.shared.doesFileExist(at: imageURL)
-
-            if !imageIsCached {
+            guard let imageData = CacheManager.shared.retrieveData(from: imageURL) else {
                 await self?.performProfileImageDataUpdate()
+                return
             }
+            self?.profileImageDataSubject.send(imageData)
         }
     }
 }
@@ -658,9 +665,10 @@ enum ChatObservedProperty: String
     case recentMessageID
     case participants
     case thumbnailURL
+    case name
 
-    init?(from name: String) {
-        self.init(rawValue: name)
+    init?(from rawValue: String) {
+        self.init(rawValue: rawValue)
     }
 }
 
