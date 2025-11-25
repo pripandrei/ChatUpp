@@ -8,15 +8,13 @@
 import UIKit
 import Foundation
 import YYText
-
-protocol MessageCellPreviewable
-{
-    var cellViewModel: MessageCellViewModel! { get }
-}
+import SwiftUI
 
 final class MessageEventCell: UITableViewCell
 {
     private(set) var cellViewModel: MessageCellViewModel!
+    private(set) var reactionBadgeHostingView: UIView?
+    private var contentContainerViewBottomConstraint: NSLayoutConstraint!
     
     let messageLabel: UILabel =
     {
@@ -76,6 +74,32 @@ final class MessageEventCell: UITableViewCell
         
         messageLabel.attributedText = makeAttributedMessage(username: username,
                                                                  text: textMessage)
+        setupReactionView(for: viewModel.message!)
+        setContentContainerViewBottomConstraint()
+    }
+    
+    private func setContentContainerViewBottomConstraint()
+    {
+        let isReactionsEmpty = cellViewModel.message?.reactions.isEmpty
+        self.contentContainerViewBottomConstraint.constant = isReactionsEmpty ?? true ? -7 : -27
+    }
+    
+    func setupReactionView(for message: Message)
+    {
+        guard !message.reactions.isEmpty else {return}
+        
+        let reactionVM = ReactionViewModel(message: message)
+        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+        
+        self.reactionBadgeHostingView = hostView.view
+        
+        hostView.view.backgroundColor = .clear
+        hostView.view.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(hostView.view)
+        
+        hostView.view.centerXAnchor.constraint(equalTo: messageEventContainer.centerXAnchor).isActive = true
+        
+        hostView.view.topAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -2).isActive = true
     }
     
     private func makeAttributedMessage(username: String?, text: String?) -> NSAttributedString
@@ -109,7 +133,7 @@ final class MessageEventCell: UITableViewCell
     {
         contentView.addSubview(messageEventContainer)
         messageEventContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        messageEventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,  constant: -5).isActive = true
+        messageEventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
         messageEventContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
     }
     
@@ -121,19 +145,15 @@ final class MessageEventCell: UITableViewCell
         messageLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -3).isActive = true
         messageLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 8).isActive = true
         messageLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -8).isActive = true
+        
+        contentContainerViewBottomConstraint = messageEventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+//        contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
+        contentContainerViewBottomConstraint.isActive = true
     }
 }
 
-extension MessageEventCell: MessageCellPreviewable {}
+extension MessageEventCell: TargetPreviewable {}
 extension MessageEventCell: MessageCellSeenable {}
-
-
-
-
-
-
-
-
 
 
 
@@ -169,19 +189,6 @@ struct MessageContextMenuConfiguration {
         self.displayText = displayText
         self.isOwner = isOwner
         self.senderName = senderName
-    }
-}
-
-extension MessageEventCell : TargetPreviewable
-{
-    func getTargetViewForPreview() -> UIView
-    {
-        return messageEventContainer
-    }
-    
-    func getTargetedPreviewColor() -> UIColor
-    {
-        return #colorLiteral(red: 0.2971534729, green: 0.3519872129, blue: 0.7117250562, alpha: 1)
     }
 }
 

@@ -1603,7 +1603,7 @@ extension ChatRoomViewController
     func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
     {
         guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) as? ConversationMessageCell,
+              let cell = rootView.tableView.cellForRow(at: indexPath),
               let message: Message = getMessageFromCell(cell) else {
             return nil
         }
@@ -1638,8 +1638,9 @@ extension ChatRoomViewController
             let delayInterval = 0.7 // do not modify to lower than 0.7 value (result in animation glitch on reload)
             self?.dismiss(animated: true)
             
-            executeAfter(seconds: delayInterval) {
-                self?.dataSourceManager.reloadItems([cell.cellViewModel])
+            executeAfter(seconds: delayInterval) { 
+                guard let cellVM = (cell as? TargetPreviewable)?.cellViewModel else {return}
+                self?.dataSourceManager.reloadItems([cellVM])
             }
         }
         

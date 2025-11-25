@@ -10,6 +10,6 @@ import UIKit
 
 protocol TargetPreviewable
 {
-    func getTargetViewForPreview() -> UIView
-    func getTargetedPreviewColor() -> UIColor
+    var cellViewModel: MessageCellViewModel! { get }
 }
+
