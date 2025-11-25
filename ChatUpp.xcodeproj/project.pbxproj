@@ -96,7 +96,7 @@
 		75855AF52CF0393A00FF8E9E /* UnseenMessagesTitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75855AF42CF0393A00FF8E9E /* UnseenMessagesTitleTableViewCell.swift */; };
 		75855B3F2CF14B5300FF8E9E /* ReuseIdentifire.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75855B3E2CF14B5300FF8E9E /* ReuseIdentifire.swift */; };
 		7587CE1B2C77DA7D002D60CE /* Query+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */; };
-		7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1D2C781425002D60CE /* RealmDataBase.swift */; };
+		7587CE1E2C781425002D60CE /* RealmDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7587CE1D2C781425002D60CE /* RealmDatabase.swift */; };
 		7587CE222C7CC403002D60CE /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; };
 		7587D3AC2E63B7FD00DEE900 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 7587D3AB2E63B7FD00DEE900 /* Gzip */; };
 		758945962E16F85600305F29 /* FootNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 758945952E16F85200305F29 /* FootNote.swift */; };
@@ -312,7 +312,7 @@
 		75855AF42CF0393A00FF8E9E /* UnseenMessagesTitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesTitleTableViewCell.swift; sourceTree = "<group>"; };
 		75855B3E2CF14B5300FF8E9E /* ReuseIdentifire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReuseIdentifire.swift; sourceTree = "<group>"; };
 		7587CE1A2C77DA7D002D60CE /* Query+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Query+Extensions.swift"; sourceTree = "<group>"; };
-		7587CE1D2C781425002D60CE /* RealmDataBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataBase.swift; sourceTree = "<group>"; };
+		7587CE1D2C781425002D60CE /* RealmDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDatabase.swift; sourceTree = "<group>"; };
 		758945952E16F85200305F29 /* FootNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootNote.swift; sourceTree = "<group>"; };
 		758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		758A48D52E4A2CF600D0A10B /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
@@ -794,7 +794,7 @@
 		7587CE1C2C781330002D60CE /* Realm database */ = {
 			isa = PBXGroup;
 			children = (
-				7587CE1D2C781425002D60CE /* RealmDataBase.swift */,
+				7587CE1D2C781425002D60CE /* RealmDatabase.swift */,
 			);
 			path = "Realm database";
 			sourceTree = "<group>";
@@ -1878,7 +1878,7 @@
 				75AD5EC52E7D7A470075377B /* StickerContentView.swift in Sources */,
 				7527065A2DAB1D3E002128DF /* ConversationFirestoreService.swift in Sources */,
 				751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */,
-				7587CE1E2C781425002D60CE /* RealmDataBase.swift in Sources */,
+				7587CE1E2C781425002D60CE /* RealmDatabase.swift in Sources */,
 				75E4807D2E49027600E8C005 /* MessageLabel.swift in Sources */,
 				75911DC82EC6D22D00792D9D /* TimeInterval+Extensions.swift in Sources */,
 				759894AF2E4E6BA2003CF661 /* TextImageMessageContentView.swift in Sources */,

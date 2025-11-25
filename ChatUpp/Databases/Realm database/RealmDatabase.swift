@@ -11,17 +11,17 @@ import Realm
 import Combine
 
 
-final class RealmDataBase {
-    
-    private var notificationTokens: [NotificationToken]?
-    
-    static var shared = RealmDataBase()
+final class RealmDatabase
+{
+    static var shared = RealmDatabase()
     
     static private let schemaVersion: UInt64 = 25
     
-    var realm: Realm?
+    private var notificationTokens: [NotificationToken]?
+    private var realm: Realm?
     
-    private init() {
+    private init()
+    {
         initiateDatabase()
     }
     
@@ -35,7 +35,8 @@ final class RealmDataBase {
         }
     }
     
-    func retrieveObjects<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Results<T>?
+    func retrieveObjects<T: Object>(ofType type: T.Type,
+                                    filter: NSPredicate? = nil) -> Results<T>?
     {
         var results = realm?.objects(type)
         
@@ -46,100 +47,31 @@ final class RealmDataBase {
         return results
     }
     
-    // for background
-    func retrieveObjectsTest<T: Object>(ofType type: T.Type, filter: NSPredicate? = nil) -> Results<T>?
+    func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T?
     {
-        let realm = try! Realm()
-        var results = realm.objects(type)
-        
-        if let predicate = filter {
-            results = results.filter(predicate)
-        }
-        
-        return results
-    }
-
-    func retrieveSingleObject<T: Object>(ofType type: T.Type, primaryKey: String) -> T? {
-//        let realm = try! Realm()
         return realm?.object(ofType: type, forPrimaryKey: primaryKey)
     }
     
     /// for background
-    func retrieveSingleObjectTest<T: Object>(ofType type: T.Type, primaryKey: String) -> T?
+    func retrieveSingleObjectFromNewRalmInstance<T: Object>(ofType type: T.Type, primaryKey: String) -> T?
     {
         let realm = try! Realm()
         return realm.object(ofType: type, forPrimaryKey: primaryKey)
     }
-    
-    /// for background
-    func updateTest<T: Object>(object: T, update: (T) -> Void)
+
+    func update<T: Object>(object: T, update: (T) -> Void)
     {
-        let realm = try! Realm()
-        try? realm.write {
-            update(object)
-        }
-    }
-    
-    /// for background
-    func addTest<T: Object>(object: T) {
-        let realm = try! Realm()
-        try? realm.write {
-            realm.add(object, update: .modified)
-        }
-    }
-    
-    func addMultipleTest<T: Object>(objects: [T]) {
-        let realm = try! Realm()
-        try? realm.write {
-            realm.add(objects, update: .modified)
-        }
-    }
-    
-    
-    func update<T: Object>(object: T, update: (T) -> Void) {
         try? realm?.write {
             update(object)
         }
     }
     
-    func refresh() {
-        realm?.refresh()
-    }
-    
+    /// for background
     func update(update: () -> Void)
     {
         let realm = try! Realm()
         try? realm.write {
             update()
-        }
-    }
-    
-    // for background
-    func updateBackground<T: Object>(object: T, update: (T) -> Void)
-    {
-        let realm = try! Realm()
-        try? realm.write {
-            update(object)
-        }
-    }
-    
-    // for background
-    func update<T: Object>(objects: [T], update: ([T]) -> Void)
-    {
-        let realm = try! Realm()
-        
-        try? realm.write {
-            update(objects)
-        }
-    }
-    
-    func update<T: Object>(objectWithKey key: String,
-                           type: T.Type, update: (T) -> Void)
-    {
-        guard let object = retrieveSingleObject(ofType: type, primaryKey: key) else {return}
-        
-        try? realm?.write {
-            update(object)
         }
     }
     
@@ -156,13 +88,8 @@ final class RealmDataBase {
             realm?.add(objects, update: .modified)
         }
     }
-    
-    func delete<T: Object>(object: T) {
-        try? realm?.write({
-            realm?.delete(object)
-        })
-    }
-    
+
+    /// - delete multiple object
     func delete<T: Object>(objects: [T])
     {
         let realm = try! Realm()
@@ -170,6 +97,10 @@ final class RealmDataBase {
         try? realm.write({
             realm.delete(objects)
         })
+    }
+    
+    func refresh() {
+        realm?.refresh()
     }
     
     func makeThreadSafeObject<T: Object>(object: T) -> ThreadSafeReference<T> {
@@ -184,7 +115,7 @@ final class RealmDataBase {
 }
 
 //MARK: - realm object observer
-extension RealmDataBase
+extension RealmDatabase
 {
     
     func observerObject(_ object: Object) -> AnyPublisher<RealmObjectUpdate, Never>
@@ -255,12 +186,12 @@ extension RealmDataBase
 }
 
 //MARK: - Realm configuration
-extension RealmDataBase
+extension RealmDatabase
 {
     private func createConfiguration() -> Realm.Configuration
     {
         return Realm.Configuration(
-            schemaVersion: RealmDataBase.schemaVersion,
+            schemaVersion: RealmDatabase.schemaVersion,
             migrationBlock: { [weak self] migration, oldSchemaVersion in
                 if oldSchemaVersion < 11 { self?.migrateToVersion11(migration: migration) }
                 if oldSchemaVersion < 13 { self?.migrateToVersion13(migration: migration) }
@@ -278,7 +209,7 @@ extension RealmDataBase
 
 //MARK: - Migrations
 
-extension RealmDataBase
+extension RealmDatabase
 {
     private func migrateToVersion11(migration: Migration)
     {
@@ -392,7 +323,7 @@ extension RealmDataBase
 }
 
 //MARK: - Realm file path
-extension RealmDataBase 
+extension RealmDatabase 
 {
     static var realmFilePath: String? {
         guard let fileURL = Realm.Configuration.defaultConfiguration.fileURL else { return nil }

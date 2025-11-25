@@ -77,62 +77,7 @@ final class PermissionManager
             }
         }
     }
-//    
-//    func requestMicrophonePermission() -> AnyPublisher<Bool, Never>
-//    {
-//        if #available(iOS 17.0, *)
-//        {
-//            let status = AVAudioApplication.shared.recordPermission
-//            if status == .undetermined {
-//                return Future { promise in
-//                    AVAudioApplication.requestRecordPermission { allowed in
-//                        promise(.success(allowed))
-//                    }
-//                }.eraseToAnyPublisher()
-//            } else {
-//                return Just(status == .granted).eraseToAnyPublisher()
-//            }
-//        } else
-//        {
-//            let status = AVAudioSession.sharedInstance().recordPermission
-//            if status == .undetermined {
-//                return Future { promise in
-//                    AVAudioSession.sharedInstance().requestRecordPermission { allowed in
-//                        promise(.success(allowed))
-//                    }
-//                }.eraseToAnyPublisher()
-//            } else {
-//                return Just(status == .granted).eraseToAnyPublisher()
-//            }
-//        }
-//    }
-//    
-//    func requestMicrophonePermission2()
-//    {
-//        if #available(iOS 17.0, *)
-//        {
-//            AVAudioApplication.requestRecordPermission { allowed in
-//                if allowed {
-//                    print("audio rec allowed")
-//                }
-//                else {
-//                    print("audio rec not allowed")
-//                }
-//            }
-//        }
-//        else
-//        {
-//            AVAudioSession.sharedInstance().requestRecordPermission { granted in
-//                if granted {
-//                    print("mic access granted")
-//                }
-//                else {
-//                    print("mic access denied")
-//                }
-//            }
-//        }
-//    }
-    
+
     func isCameraAvailable() -> Bool
     {
         return UIImagePickerController.isSourceTypeAvailable(.camera)

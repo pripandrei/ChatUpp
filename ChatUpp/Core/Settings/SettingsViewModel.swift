@@ -41,7 +41,7 @@ final class SettingsViewModel
     
     func retrieveDataFromDB()
     {
-        guard let realmUser = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: authUser.uid) else {return}
+        guard let realmUser = RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: authUser.uid) else {return}
         self.user = realmUser
         guard let pictureURL = user.photoUrl else {return}
         self.profileImageData = CacheManager.shared.retrieveData(from: pictureURL)
@@ -58,7 +58,7 @@ final class SettingsViewModel
     
     private func addUserToRealmDB()
     {
-        RealmDataBase.shared.add(object: self.user)
+        RealmDatabase.shared.add(object: self.user)
     }
     
     private func cacheProfileImage()

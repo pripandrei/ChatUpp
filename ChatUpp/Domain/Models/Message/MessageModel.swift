@@ -221,7 +221,7 @@ final class TestHelper
     func downloadUser() {
         Task {
             let user = try await FirestoreUserService.shared.getUserFromDB(userID: "DESg2qjjJPP20KQDWfKpJJnozv53")
-            RealmDataBase.shared.add(object: user)
+            RealmDatabase.shared.add(object: user)
         }
     }
     

@@ -40,7 +40,7 @@ final class ChatsViewModel
     @Published var initialChatsDoneFetching: Bool = false
     
     init() {
-        print(RealmDataBase.realmFilePath ?? "unknown realm file path")
+        print(RealmDatabase.realmFilePath ?? "unknown realm file path")
         setupCellViewModels()
         observeChats()
         updateUserTimestamp() // while firestore functions is deactivated
@@ -134,42 +134,37 @@ extension ChatsViewModel
 {
     private func retrieveChatsFromRealm() -> [Chat] {
         let filter = NSPredicate(format: "ANY \(Chat.CodingKeys.participants.rawValue).userID == %@", authUser.uid)
-        return RealmDataBase.shared.retrieveObjects(ofType: Chat.self, filter: filter)?.toArray() ?? []
+        return RealmDatabase.shared.retrieveObjects(ofType: Chat.self, filter: filter)?.toArray() ?? []
     }
     
     private func retrieveChatFromRealm(_ chat: Chat) -> Chat? {
-        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
+        return RealmDatabase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id)
     }
     
     private func addChatToRealm(_ chat: Chat) {
-        RealmDataBase.shared.add(object: chat)
+        RealmDatabase.shared.add(object: chat)
     }
     
     private func deleteRealmChat(_ chat: Chat) {
-        RealmDataBase.shared.delete(object: chat)
+        RealmDatabase.shared.delete(objects: [chat])
     }
     
-    private func updateRealmChat(_ chat: Chat)
+    private func updateRealmChat(_ realmChat: Chat, with firestoreChat: Chat)
     {
-        RealmDataBase.shared.update(objectWithKey: chat.id, type: Chat.self) { dbChat in
-            if dbChat.recentMessageID != chat.recentMessageID {
-                dbChat.recentMessageID = chat.recentMessageID
-            }
-            dbChat.name = chat.name
-            if dbChat.thumbnailURL != chat.thumbnailURL {
-                dbChat.thumbnailURL = chat.thumbnailURL
-            }
-            dbChat.admins = chat.admins
+        RealmDatabase.shared.update(object: realmChat) { realmDB in
+            realmDB.recentMessageID = firestoreChat.recentMessageID
+            realmDB.name = firestoreChat.name
+            realmDB.thumbnailURL = firestoreChat.thumbnailURL
+            realmDB.admins = firestoreChat.admins
             
-            chat.participants.forEach { participant in
-                if let existingParticipant = dbChat.participants.first(where: { $0.userID == participant.userID})
+            for incoming in firestoreChat.participants {
+                if let existing = realmDB.participants.first(where: { $0.userID == incoming.userID })
                 {
-                    existingParticipant.userID = participant.userID
-                    existingParticipant.isDeleted = participant.isDeleted
-                    existingParticipant.unseenMessagesCount = participant.unseenMessagesCount
-                }
-                else {
-                    dbChat.participants.append(participant)
+                    existing.userID = incoming.userID
+                    existing.isDeleted = incoming.isDeleted
+                    existing.unseenMessagesCount = incoming.unseenMessagesCount
+                } else {
+                    realmDB.participants.append(incoming)
                 }
             }
         }
@@ -226,19 +221,19 @@ extension ChatsViewModel {
     
     @objc private func handleAddedChat(_ chat: Chat)
     {
-        guard let _ = retrieveChatFromRealm(chat) else {
+        if let existingChat = retrieveChatFromRealm(chat) {
+            updateRealmChat(existingChat, with: chat)
+        } else {
             addChatToRealm(chat)
             addCellViewModel(using: chat)
             self.chatModificationType = .added
-            return
         }
-        updateRealmChat(chat)
     }
     
     private func handleModifiedChat(_ chat: Chat)
     {
-//        guard let _ = retrieveChatFromRealm(chat) else {return}
-        updateRealmChat(chat)
+        guard let realmChat = retrieveChatFromRealm(chat) else {return}
+        updateRealmChat(realmChat, with: chat)
         
         guard let cellVM = findCellViewModel(containing: chat),
               let viewModelIndex = findIndex(of: cellVM) else { return }

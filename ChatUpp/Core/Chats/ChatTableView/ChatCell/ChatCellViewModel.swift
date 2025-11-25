@@ -191,7 +191,7 @@ extension ChatCellViewModel
     private func setNewRecentMessage(messageID: String)
     {
         let chatID = chat.id
-        guard let newMessage = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self,
+        guard let newMessage = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self,
                                                                          primaryKey: messageID) else
         {
             Task {
@@ -250,7 +250,7 @@ extension ChatCellViewModel {
     private func retrieveMember() throws -> User 
     {
         guard let memberID = findMemberID(),
-              let member = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else {
+              let member = RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else {
             throw
             RealmRetrieveError.memberNotPresent }
         return member
@@ -259,7 +259,7 @@ extension ChatCellViewModel {
     private func retrieveRecentMessage() throws -> Message
     {
         guard let messageID = chat.recentMessageID,
-              let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
+              let message = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: messageID) else {
             throw RealmRetrieveError.messageNotPresent }
         return message
     }
@@ -274,11 +274,11 @@ extension ChatCellViewModel {
     
     private func addMessageToRealm(_ message: Message)
     {
-        RealmDataBase.shared.add(object: message)
+        RealmDatabase.shared.add(object: message)
         
         if !chat.conversationMessages.contains(where: { $0.id == message.id} )
         {
-            RealmDataBase.shared.update(object: chat) { chat in
+            RealmDatabase.shared.update(object: chat) { chat in
                 chat.conversationMessages.append(message)
             }
         }
@@ -303,7 +303,7 @@ extension ChatCellViewModel
         if !chat.isGroup
         {
             if let user = await loadOtherMemberOfChat() {
-                RealmDataBase.shared.add(object: user)
+                RealmDatabase.shared.add(object: user)
                 self.chatUser = user
             }
         }
@@ -325,7 +325,7 @@ extension ChatCellViewModel
     
     private func updateNewUser(_ user: User)
     {
-        RealmDataBase.shared.add(object: user)
+        RealmDatabase.shared.add(object: user)
         
         if user.photoUrl != self.chatUser?.photoUrl
         {
@@ -421,7 +421,7 @@ extension ChatCellViewModel
                     ) else {return}
                     self?.isParticipantActive = isActive
 //                    self?.chatUser = updatedUser
-                    RealmDataBase.shared.add(object: updatedUser)
+                    RealmDatabase.shared.add(object: updatedUser)
                 }
             }.store(in: &cancellables)
     }
@@ -440,7 +440,7 @@ extension ChatCellViewModel
                     let updatedUser = userUpdateObject.data
                     let oldPhotoURL = self?.chatUser?.photoUrl
                     self?.chatUser = updatedUser
-                    RealmDataBase.shared.add(object: updatedUser)
+                    RealmDatabase.shared.add(object: updatedUser)
                     if updatedUser.photoUrl != oldPhotoURL
                     {
                         self?.handleThumbnailChange()
@@ -455,7 +455,7 @@ extension ChatCellViewModel
     {
         guard let participant = chat.getParticipant(byID: authUser.uid) else {return}
         
-        RealmDataBase.shared.observeChanges(for: participant)
+        RealmDatabase.shared.observeChanges(for: participant)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] change in
                 guard let self = self, change.0.name == "unseenMessagesCount" else { return }
@@ -468,7 +468,7 @@ extension ChatCellViewModel
     
     private func addRealmObserverToChat()
     {
-        RealmDataBase.shared.observeChanges(for: chat)
+        RealmDatabase.shared.observeChanges(for: chat)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] propertyChange in
                 guard let property = ChatObservedProperty(from: propertyChange.0.name) else { return }
@@ -507,7 +507,7 @@ extension ChatCellViewModel
             
             if changeObject.changeType == .modified
             {
-                RealmDataBase.shared.add(object: changeObject.data)
+                RealmDatabase.shared.add(object: changeObject.data)
                 
                 if changeObject.data.imagePath != nil {
                     Task {
@@ -519,8 +519,8 @@ extension ChatCellViewModel
             }
             if changeObject.changeType == .removed {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    guard let message = RealmDataBase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: changeObject.data.id) else {return}
-                    RealmDataBase.shared.delete(object: message)                    
+                    guard let message = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: changeObject.data.id) else {return}
+                    RealmDatabase.shared.delete(objects: [message])                    
                 }
             }
         }.store(in: &recentMessagesCancellables)
@@ -530,7 +530,7 @@ extension ChatCellViewModel
     {
         guard let recentMessage = recentMessage else {return}
         
-        RealmDataBase.shared.observeChanges(for: recentMessage)
+        RealmDatabase.shared.observeChanges(for: recentMessage)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] propertyChange in
                 guard let self = self else { return }

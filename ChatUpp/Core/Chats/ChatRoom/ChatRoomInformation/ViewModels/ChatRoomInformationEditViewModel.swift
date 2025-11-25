@@ -22,7 +22,7 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
     
     lazy var authenticatedUser: User? = {
         guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
-        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+        return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
 
     func retrieveImageData() -> Data?
@@ -98,7 +98,7 @@ extension ChatRoomInformationEditViewModel
     @MainActor
     private func addMessageToDatabase(_ message: Message) async throws
     {
-        RealmDataBase.shared.add(object: message)
+        RealmDatabase.shared.add(object: message)
         try await FirebaseChatService.shared.createMessage(
             message: message,
             atChatPath: conversation.id
@@ -108,7 +108,7 @@ extension ChatRoomInformationEditViewModel
     @MainActor
     private func updateRealmConversation(newAvatarPath: String?)
     {
-        RealmDataBase.shared.update(object: conversation) { realmChat in
+        RealmDatabase.shared.update(object: conversation) { realmChat in
             realmChat.name = groupTitle
             realmChat.thumbnailURL = newAvatarPath
         }

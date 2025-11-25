@@ -89,8 +89,8 @@ final class AlgoliaSearchManager
         if let firstResult = response.results.first,
            case .searchResponse(let searchResponse) = firstResult
         {
-            for hit in searchResponse.hits {
-                // objectID is directly accessible as a property
+            for hit in searchResponse.hits
+            {
                 let groupID = hit.objectID
                 let groupChat = try await FirebaseChatService.shared.fetchChat(withID: groupID)
                 groups.append(groupChat)
@@ -101,7 +101,8 @@ final class AlgoliaSearchManager
     }
 }
 
-struct AlgoliaSearchResult {
+struct AlgoliaSearchResult
+{
     let users: [User]
     let groups: [Chat]
 }

@@ -22,7 +22,7 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
     }
     
     var isAuthUserGroupMember: Bool {
-        return RealmDataBase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) != nil
+        return RealmDatabase.shared.retrieveSingleObject(ofType: Chat.self, primaryKey: chat.id) != nil
     }
     
     var groupName: String {
@@ -37,7 +37,7 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
     
     lazy var authenticatedUser: User? = {
         guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
-        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+        return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
     
     func retrieveGroupImage() -> Data?
@@ -70,7 +70,7 @@ extension ChatRoomInformationViewModel
                 .prefix(1)) // 1 - for testing purposes
             guard !newMemberIDs.isEmpty else {return}
             let members = try await FirestoreUserService.shared.fetchUsers(with: newMemberIDs)
-            RealmDataBase.shared.add(objects: members)
+            RealmDatabase.shared.add(objects: members)
             self.members.append(contentsOf: members)
         } catch {
             print("Could not fetch users: \(error)")
@@ -81,7 +81,7 @@ extension ChatRoomInformationViewModel
     {
         let membersID = Array(chat.participants.map { $0.userID })
         let filter = NSPredicate(format: "id IN %@", membersID)
-        return RealmDataBase.shared.retrieveObjects(ofType: User.self,
+        return RealmDatabase.shared.retrieveObjects(ofType: User.self,
                                                     filter: filter)?.toArray() ?? []
     }
 }
@@ -113,7 +113,7 @@ extension ChatRoomInformationViewModel
     
     private func removeRealmParticipant(with authUserID: String)
     {
-        RealmDataBase.shared.update(object: chat) { realmChat in
+        RealmDatabase.shared.update(object: chat) { realmChat in
             guard let authParticipantIndex = realmChat.participants.firstIndex(where: { $0.userID == authUserID }) else { return }
             realmChat.participants.remove(at: authParticipantIndex)
         }

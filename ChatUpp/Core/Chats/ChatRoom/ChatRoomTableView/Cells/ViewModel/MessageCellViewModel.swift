@@ -51,7 +51,7 @@ final class MessageCellViewModel
     
     lazy var messageSender: User? = {
         guard let key = message?.senderId else { return nil }
-        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+        return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
     
     var resizedMessageImagePath: String? {

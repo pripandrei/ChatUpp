@@ -82,7 +82,7 @@ final class UsernameRegistrationViewModel
         
         print("User ID: ",user.id)
         
-        RealmDataBase.shared.add(object: user)
+        RealmDatabase.shared.add(object: user)
     }
     
     func finishRegistration()

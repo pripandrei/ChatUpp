@@ -83,12 +83,12 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
     func getMessageSender(_ senderID: String) -> User?
     {
-        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: senderID)
+        return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: senderID)
     }
     
     private lazy var authenticatedUser: User? = {
         guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
-        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+        return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
     
     private var isChatFetchedFirstTime: Bool
@@ -136,7 +136,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private func getPrivateChatMember(from chat: Chat) -> User?
     {
         guard let memberID = chat.participants.first(where: { $0.userID != authUser.uid })?.userID,
-              let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else { return nil }
+              let user = RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: memberID) else { return nil }
         return user
     }
     
@@ -176,7 +176,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let chat = conversation else {return}
         guard let participant = chat.getParticipant(byID: authUser.uid) else {return}
         
-        RealmDataBase.shared.observeChanges(for: participant)
+        RealmDatabase.shared.observeChanges(for: participant)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] change in
                 guard let self = self, change.0.name == "unseenMessagesCount" else { return }
@@ -240,7 +240,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let participant = ChatParticipant(userID: authUser.uid, unseenMessageCount: 0)
         conversation.participants.append(participant)
         try await FirebaseChatService.shared.addParticipant(participant: participant, toChat: conversation.id)
-        RealmDataBase.shared.add(object: conversation)
+        RealmDatabase.shared.add(object: conversation)
         
         let text = GroupEventMessage.userJoined.eventMessage
         let newMessage = createNewMessage(ofType: .title, messageText: text)
@@ -452,11 +452,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     func updateUnseenMessageCounterForAuthUserLocally()
     {
         guard let conversation = self.conversation else { return }
-        RealmDataBase.shared.refresh()
+        RealmDatabase.shared.refresh()
         let authUserID = self.authUser.uid
         let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
         
-        RealmDataBase.shared.update(object: conversation) { dbChat in
+        RealmDatabase.shared.update(object: conversation) { dbChat in
             if let participant = dbChat.getParticipant(byID: authUserID)
             {
                 participant.unseenMessagesCount = count
@@ -517,7 +517,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         await Task.detached
         {
-            guard let chat = RealmDataBase.shared.retrieveSingleObjectTest(
+            guard let chat = RealmDatabase.shared.retrieveSingleObjectFromNewRalmInstance(
                 ofType: Chat.self,
                 primaryKey: chatID) else {
                 return
@@ -528,7 +528,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 .filter(filter)
                 .sorted(byKeyPath: "timestamp", ascending: false)
 
-            RealmDataBase.shared.update
+            RealmDatabase.shared.update
             {
                 for message in messages
                 {
@@ -585,7 +585,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     @MainActor
     func updateReactionInDataBase(_ reactionEmoji: String, from message: Message)
     {
-        RealmDataBase.shared.update(object: message) { realmMessage in
+        RealmDatabase.shared.update(object: message) { realmMessage in
             // Step 1: Check if user already reacted with any emoji
             var didRemove = false
 
@@ -872,7 +872,7 @@ extension ChatRoomViewModel
                     await self.isPaginationInactiveStream
                         .first(where: { true })
                     
-                    guard let messagesToDelete = RealmDataBase
+                    guard let messagesToDelete = RealmDatabase
                         .shared
                         .retrieveObjects(ofType: Message.self,
                                          filter: NSPredicate(format: "id IN %@", messageIDs)) else {return}
@@ -931,7 +931,7 @@ extension ChatRoomViewModel
             if !missingUserIDs.isEmpty
             {
                 let users = try await FirestoreUserService.shared.fetchUsers(with: missingUserIDs)
-                RealmDataBase.shared.add(objects: users)
+                RealmDatabase.shared.add(objects: users)
             }
             
             let srotedUsersForImageFetch = self.getUsersWithMissingLocalAvatars(senderIDs)
@@ -965,7 +965,7 @@ extension ChatRoomViewModel
     
     private func getRealmUsers(with userIDs: Set<String>) -> [User] {
         let filter = NSPredicate(format: "id IN %@", Array(userIDs))
-        return RealmDataBase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray() ?? []
+        return RealmDatabase.shared.retrieveObjects(ofType: User.self, filter: filter)?.toArray() ?? []
     }
     
     @MainActor
@@ -1078,7 +1078,7 @@ extension ChatRoomViewModel
         
         for remoteMessage in messages
         {
-            guard let dbMessage = RealmDataBase.shared.retrieveSingleObject(
+            guard let dbMessage = RealmDatabase.shared.retrieveSingleObject(
                 ofType: Message.self,
                 primaryKey: remoteMessage.id
             ) else {
@@ -1104,7 +1104,7 @@ extension ChatRoomViewModel
             }
         }
         
-        RealmDataBase.shared.add(objects: updatedMessages)
+        RealmDatabase.shared.add(objects: updatedMessages)
 
         realmService?.addMessagesToRealmChat(newMessages)
         createMessageClustersWith(newMessages)
@@ -1160,7 +1160,7 @@ extension ChatRoomViewModel
         guard !messages.isEmpty else {return}
         
         /// Message update is handled from within cell
-        RealmDataBase.shared.add(objects: messages)
+        RealmDatabase.shared.add(objects: messages)
     }
     
     @MainActor
@@ -1235,7 +1235,7 @@ extension ChatRoomViewModel
     
     private func fetchRreferencedMessageData(_ refMessageID: String) async throws
     {
-        let realmRefMessage = RealmDataBase.shared.retrieveSingleObjectTest(
+        let realmRefMessage = RealmDatabase.shared.retrieveSingleObjectFromNewRalmInstance(
             ofType: Message.self,
             primaryKey: refMessageID
         )?.freeze()

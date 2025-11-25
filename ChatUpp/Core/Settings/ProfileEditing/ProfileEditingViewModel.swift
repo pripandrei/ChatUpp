@@ -95,7 +95,7 @@ extension ProfileEditingViewModel
     
     private func updateRealmUser(_ user: User)
     {
-        RealmDataBase.shared.add(object: user)
+        RealmDatabase.shared.add(object: user)
     }
     
     private func updateAuthUser(with dbUser: User)

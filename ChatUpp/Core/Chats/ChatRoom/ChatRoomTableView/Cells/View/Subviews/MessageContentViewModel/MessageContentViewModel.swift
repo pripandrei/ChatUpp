@@ -36,7 +36,7 @@ final class MessageContentViewModel
 
     lazy var messageSender: User? = {
         guard let key = message?.senderId else { return nil }
-        return RealmDataBase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+        return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
     
     /// use computed property cause name can change
@@ -44,7 +44,7 @@ final class MessageContentViewModel
     {
         guard let referencedMessageID = referencedMessage?.senderId else { return nil }
         
-        let user = RealmDataBase.shared.retrieveSingleObject(ofType: User.self,
+        let user = RealmDatabase.shared.retrieveSingleObject(ofType: User.self,
                                                              primaryKey: referencedMessageID)
         return user?.name
     }
@@ -94,7 +94,7 @@ final class MessageContentViewModel
     
     private func setReferencedMessage(usingMessageID messageID: String)
     {
-        let referencedMessage = RealmDataBase.shared.retrieveSingleObject(
+        let referencedMessage = RealmDatabase.shared.retrieveSingleObject(
             ofType: Message.self,
             primaryKey: messageID
         )
@@ -195,7 +195,7 @@ extension MessageContentViewModel
             return
         }
         
-        RealmDataBase.shared.observerObject(message)
+        RealmDatabase.shared.observerObject(message)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] objectUpdate in
                 guard let self else {return}
@@ -228,7 +228,7 @@ extension MessageContentViewModel
     private func observeReplyToMessage()
     {
         guard let replyMessage = referencedMessage else {return}
-        RealmDataBase.shared.observerObject(replyMessage)
+        RealmDatabase.shared.observerObject(replyMessage)
             .sink { [weak self] objectUpdate in
                 guard let self else { return }
                 
@@ -255,88 +255,97 @@ extension MessageContentViewModel
 
 
 
+//
+//
+///// This currently is not in use,
+///// but dont remove before implementing message seen status feature in chatRoomVC
+/////
+////MARK: - realm/firestore message update
+//
+//extension MessageContentViewModel
+//{
+//    @MainActor
+//    func updateFirestoreMessageSeenStatus(by userID: String? = nil,
+//                                          from chatID: String) async
+//    {
+//        guard let messageID = message?.id else {return}
+//        
+//        Task.detached {
+//            do {
+//                guard let userID = userID else {
+//                    try await FirebaseChatService.shared.updateMessageSeenStatus(messageID: messageID, chatID: chatID)
+//                    return
+//                }
+//                try await FirebaseChatService.shared.updateMessageSeenStatus(by: userID, messageID: messageID, chatID: chatID)
+//            } catch {
+//                print("Error updating message seen status in Firestore: ", error.localizedDescription)
+//            }
+//        }
+//    }
+//    
+//    @MainActor
+//    func updateFirestoreMessageSeenStatusTest(by userID: String? = nil,
+//                                              from chatID: String) async
+//    {
+//        guard let messageID = message?.id else {return}
+//        
+//        Task.detached {
+//            do {
+//                guard let userID = userID else {
+//                    try await FirebaseChatService.shared.updateMessageSeenStatusTest(messageID: messageID, chatID: chatID)
+//                    return
+//                }
+//                try await FirebaseChatService.shared.updateMessageSeenStatus(by: userID, messageID: messageID, chatID: chatID)
+//            } catch {
+//                print("Error updating message seen status in Firestore: ", error.localizedDescription)
+//            }
+//        }
+//    }
+//    
+//    func updateRealmMessageSeenStatus(by userID: String? = nil)
+//    {
+//        guard let messageID = message?.id else {return}
+//        
+//        Task.detached
+//        {
+//            guard let message = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: messageID) else {return}
+//            
+//            RealmDataBase.shared.updateTest(object: message) { message in
+//                if let id = userID {
+//                    message.seenBy.append(id)
+//                } else {
+//                    message.messageSeen = true
+//                }
+//            }
+//        }
+//    }
+//    
+//    func updateRealmMessageSeenStatusTest(by userID: String? = nil)
+//    {
+//        guard let messageID = message?.id else {return}
+//        
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5.1) {
+//            Task.detached
+//            {
+//                guard let message = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: messageID) else {return}
+//                
+//                RealmDataBase.shared.updateTest(object: message) { message in
+//                    if let id = userID {
+//                        message.seenBy.append(id)
+//                    } else {
+//                        message.messageSeen = false
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-
-/// This currently is not in use,
-/// but dont remove before implementing message seen status feature in chatRoomVC
-///
-//MARK: - realm/firestore message update
-
-extension MessageContentViewModel
-{
-    @MainActor
-    func updateFirestoreMessageSeenStatus(by userID: String? = nil,
-                                          from chatID: String) async
-    {
-        guard let messageID = message?.id else {return}
-        
-        Task.detached {
-            do {
-                guard let userID = userID else {
-                    try await FirebaseChatService.shared.updateMessageSeenStatus(messageID: messageID, chatID: chatID)
-                    return
-                }
-                try await FirebaseChatService.shared.updateMessageSeenStatus(by: userID, messageID: messageID, chatID: chatID)
-            } catch {
-                print("Error updating message seen status in Firestore: ", error.localizedDescription)
-            }
-        }
-    }
-    
-    @MainActor
-    func updateFirestoreMessageSeenStatusTest(by userID: String? = nil,
-                                              from chatID: String) async
-    {
-        guard let messageID = message?.id else {return}
-        
-        Task.detached {
-            do {
-                guard let userID = userID else {
-                    try await FirebaseChatService.shared.updateMessageSeenStatusTest(messageID: messageID, chatID: chatID)
-                    return
-                }
-                try await FirebaseChatService.shared.updateMessageSeenStatus(by: userID, messageID: messageID, chatID: chatID)
-            } catch {
-                print("Error updating message seen status in Firestore: ", error.localizedDescription)
-            }
-        }
-    }
-    
-    func updateRealmMessageSeenStatus(by userID: String? = nil)
-    {
-        guard let messageID = message?.id else {return}
-        
-        Task.detached
-        {
-            guard let message = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: messageID) else {return}
-            
-            RealmDataBase.shared.updateTest(object: message) { message in
-                if let id = userID {
-                    message.seenBy.append(id)
-                } else {
-                    message.messageSeen = true
-                }
-            }
-        }
-    }
-    
-    func updateRealmMessageSeenStatusTest(by userID: String? = nil)
-    {
-        guard let messageID = message?.id else {return}
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.1) {
-            Task.detached
-            {
-                guard let message = RealmDataBase.shared.retrieveSingleObjectTest(ofType: Message.self, primaryKey: messageID) else {return}
-                
-                RealmDataBase.shared.updateTest(object: message) { message in
-                    if let id = userID {
-                        message.seenBy.append(id)
-                    } else {
-                        message.messageSeen = false
-                    }
-                }
-            }
-        }
-    }
-}
+/// for background (from realm)
+//func updateTest<T: Object>(object: T, update: (T) -> Void)
+//{
+//    let realm = try! Realm()
+//    try? realm.write {
+//        update(object)
+//    }
+//}
+//}

@@ -112,9 +112,9 @@ extension GroupCreationViewModel
             
             let message = createMessage(text: GroupEventMessage.created.eventMessage)
             
-            RealmDataBase.shared.add(objects: self.selectedGroupMembers)
-            RealmDataBase.shared.add(object: group)
-            RealmDataBase.shared.update(object: group) { dbChat in
+            RealmDatabase.shared.add(objects: self.selectedGroupMembers)
+            RealmDatabase.shared.add(object: group)
+            RealmDatabase.shared.update(object: group) { dbChat in
                 dbChat.recentMessageID = message.id
                 dbChat.conversationMessages.append(message)
             }
@@ -158,7 +158,7 @@ extension GroupCreationViewModel
     }
     
     private func retrieveUsers() -> [User] {
-        return RealmDataBase.shared.retrieveObjects(ofType: User.self)?.toArray() ?? []
+        return RealmDatabase.shared.retrieveObjects(ofType: User.self)?.toArray() ?? []
     }
 }
 
