@@ -58,15 +58,18 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
 extension ChatRoomInformationEditViewModel
 {
     @MainActor
-    func saveEditedData() async throws
+    func saveEditedData() async throws -> DataUpdate
     {
         try await processImageSamples()
+        
+        var anyUpdatesMade = false
         
         if conversation.name != groupTitle
         {
             try await handleGroupChange(
                 changeDescription: "changed group name to '\(groupTitle)'"
             )
+            anyUpdatesMade = true
         }
         
         let newAvatarPath = imageSampleRepository?.imagePath(for: .original)
@@ -74,10 +77,16 @@ extension ChatRoomInformationEditViewModel
             try await handleGroupChange(
                 changeDescription: "changed group avatar"
             )
+            anyUpdatesMade = true
         }
         
-        updateRealmConversation(newAvatarPath: newAvatarPath)
-        try FirebaseChatService.shared.updateChat(conversation)
+        if anyUpdatesMade
+        {
+            updateRealmConversation(newAvatarPath: newAvatarPath)
+            try FirebaseChatService.shared.updateChat(conversation)
+            return .changed
+        }
+        return .unchanged
     }
 
     @MainActor
@@ -153,5 +162,13 @@ extension ChatRoomInformationEditViewModel: ImageRepositoryRepresentable
         try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .group(conversation.id), imagePath: path)
         CacheManager.shared.saveData(imageData, toPath: path)
     }
-    
+}
+
+extension ChatRoomInformationEditViewModel
+{
+    enum DataUpdate
+    {
+        case changed
+        case unchanged
+    }
 }

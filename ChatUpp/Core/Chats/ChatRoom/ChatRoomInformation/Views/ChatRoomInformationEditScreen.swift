@@ -197,11 +197,11 @@ extension ChatRoomInformationEditScreen
         Button {
             Task {
                 do {
-                    try await viewModel.saveEditedData()                    
+                    let editedStatus = try await viewModel.saveEditedData()
+                    editedStatus == .changed ? (refreshID = UUID()) : ()
                 } catch {
                     print("Error while saving edited data: \(error)")
                 }
-                refreshID = UUID()
                 dismiss()
             }
         } label: {
