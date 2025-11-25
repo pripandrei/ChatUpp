@@ -123,7 +123,7 @@ extension ChatRoomInformationEditScreen
         
         return ZStack
         {
-            if let imageFromRepository = viewModel.imageSampleRepository?.samples[.medium],
+            if let imageFromRepository = viewModel.imageSampleRepository?.samples[.original],
                 let image = UIImage(data: imageFromRepository)
             {
                 Image(uiImage: image)
