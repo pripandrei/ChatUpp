@@ -471,7 +471,7 @@ extension TextImageMessageContentView
         applyMessagePadding(strategy: .initial)
         messageLabel.invalidateIntrinsicContentSize()
         messageComponentsView.cleanupContent()
-        layoutIfNeeded() // to relayout message label text
+//        layoutIfNeeded() // to relayout message label text
     }
     
     private func removeSubscriers()
