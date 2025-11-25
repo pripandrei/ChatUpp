@@ -1017,6 +1017,13 @@ extension ChatRoomViewModel
                 }
             }
             .store(in: &cancellables)
+        
+        messageListenerService?.$eventMessage
+            .sink { [weak self] eventMessage in
+                guard let message = eventMessage else {return}
+                self?.createMessageClustersWith([message])
+                self?.datasourceUpdateType.send(DatasourceRowAnimation.none)
+            }.store(in: &cancellables)
     }
 }
 

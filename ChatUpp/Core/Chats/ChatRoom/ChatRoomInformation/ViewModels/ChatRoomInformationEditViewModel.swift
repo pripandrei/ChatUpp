@@ -99,6 +99,7 @@ extension ChatRoomInformationEditViewModel
             recentMessageID: message.id,
             chatID: conversation.id
         )
+        ChatManager.shared.sendNewMessage(message)
     }
 
     @MainActor

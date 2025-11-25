@@ -19,9 +19,14 @@ final class ConversationMessageListenerService
 
 //    private(set) var updatedMessage = PassthroughSubject<DatabaseChangedObject<Message>,Never>()
     @Published var updatedMessages: [DatabaseChangedObject<Message>] = []
-
+    @Published var eventMessage: Message?
+    
     init(conversation: Chat?) {
         self.conversation = conversation
+        if conversation?.isGroup == true
+        {
+            addListenerToChatGroupEventMessage()
+        }
     }
     
     func removeAllListeners()
@@ -78,5 +83,14 @@ final class ConversationMessageListenerService
                     self.updatedMessages.append(contentsOf: messagesUpdate)
                 }.store(in: &cancellables)
         }
+    }
+    
+    func addListenerToChatGroupEventMessage()
+    {
+        ChatManager.shared.$newCreatedMessage
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                self?.eventMessage = message
+            }.store(in: &cancellables)
     }
 }

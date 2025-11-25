@@ -16,6 +16,7 @@ final class ChatManager
     
     @Published private(set) var totalUnseenMessageCount: Int = 0
     @Published private(set) var newCreatedChat: Chat?
+    @Published private(set) var newCreatedMessage: Message?
     @Published private(set) var joinedGroupChat: Chat?
     private(set) var newStickerSubject = PassthroughSubject<String,Never>()
 
@@ -42,6 +43,11 @@ final class ChatManager
     func addNewSticker(_ path: String)
     {
         newStickerSubject.send(path)
+    }
+    
+    func sendNewMessage(_ message: Message)
+    {
+        newCreatedMessage = message
     }
     
     func resetTotalUnseenMessageCount()
