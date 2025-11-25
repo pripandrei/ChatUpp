@@ -143,8 +143,8 @@ final class MessageEventCell: UITableViewCell
         
         messageLabel.topAnchor.constraint(equalTo: messageEventContainer.topAnchor, constant: 3).isActive = true
         messageLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -3).isActive = true
-        messageLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 8).isActive = true
-        messageLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -8).isActive = true
+        messageLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 7).isActive = true
+        messageLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -7).isActive = true
         
         contentContainerViewBottomConstraint = messageEventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
 //        contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)

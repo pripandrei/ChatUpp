@@ -55,7 +55,7 @@ extension FooterSectionView
         {
             super.init(frame: frame)
             transform = CGAffineTransform(scaleX: 1, y: -1)
-            backgroundColor = ColorManager.messageEventBackgroundColor
+            backgroundColor = ColorManager.footerSectionBackgroundColor
             textColor = .white
             textAlignment = .center
             translatesAutoresizingMaskIntoConstraints = false

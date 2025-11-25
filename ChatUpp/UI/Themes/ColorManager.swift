@@ -38,7 +38,9 @@ struct ColorManager
     static let outgoingMessageComponentsTextColor: UIColor = #colorLiteral(red: 0.7367274165, green: 0.5783247948, blue: 0.7441712618, alpha: 1)
     static let outgoingReplyToMessageBackgroundColor: UIColor = #colorLiteral(red: 0.561234951, green: 0.2880425751, blue: 0.5783820748, alpha: 1)
     static let incomingReplyToMessageBackgroundColor: UIColor = #colorLiteral(red: 0.3370774055, green: 0.2437606049, blue: 0.363655651, alpha: 1)
-    static let messageEventBackgroundColor: UIColor = #colorLiteral(red: 0.2021965683, green: 0.2685731351, blue: 0.3312993646, alpha: 1)
+    static let messageEventBackgroundColor: UIColor = #colorLiteral(red: 0.2655975819, green: 0.1901538372, blue: 0.2760748267, alpha: 1)
+    static let footerSectionBackgroundColor: UIColor = #colorLiteral(red: 0.2021965683, green: 0.2685731351, blue: 0.3312993646, alpha: 1)
+//    static let footerSectionBackgroundColor: UIColor = #colorLiteral(red: 0.2009626627, green: 0.1438453496, blue: 0.2088443637, alpha: 1)
     static let messageSeenStatusIconColor: UIColor = outgoingMessageComponentsTextColor
     static let messageLinkColor: UIColor = #colorLiteral(red: 0, green: 0.6172372699, blue: 0.9823173881, alpha: 1)
     static let stickerViewBackgroundColor: UIColor = #colorLiteral(red: 0.1257298887, green: 0.2089383006, blue: 0.2593249977, alpha: 1)
