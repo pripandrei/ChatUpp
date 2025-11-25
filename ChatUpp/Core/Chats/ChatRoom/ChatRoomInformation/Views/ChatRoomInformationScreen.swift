@@ -12,18 +12,18 @@ struct ChatRoomInformationScreen: View
     @ObservedObject var viewModel: ChatRoomInformationViewModel
     @State private var showLeaveGroupAlert: Bool = false
     @State private var presentEditScreen: Bool = false
-    @State private var dataIsEdited: Bool = false
+    @State private var refreshID: UUID = UUID()
     
     var body: some View
     {
         VStack(spacing: 0) {
             ZStack(alignment: .bottomLeading) {
                 VStack {
-                    groupImage().id(dataIsEdited)
+                    groupImage().id(refreshID)
                 }
                 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(viewModel.groupName).id(dataIsEdited)
+                    Text(viewModel.groupName).id(refreshID)
                         .font(.system(size: 24, weight: .semibold))
                     Text("\(viewModel.membersCount) members")
                         .font(.system(size: 15))
@@ -47,7 +47,7 @@ struct ChatRoomInformationScreen: View
                         NavigationStack {
                             let chatRoomIformationEditVM = ChatRoomInformationEditViewModel(conversation: viewModel.chat)
                             ChatRoomInformationEditScreen(viewModel: chatRoomIformationEditVM,
-                                                         dataIsEdited: $dataIsEdited)
+                                                          refreshID: $refreshID)
                         }
                     }
                 }

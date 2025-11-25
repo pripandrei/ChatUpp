@@ -62,30 +62,27 @@ extension ChatRoomInformationEditViewModel
     {
         try await processImageSamples()
         
-        // Check for group title changes
-        try await handleGroupChange(
-            condition: conversation.name != groupTitle,
-            changeDescription: "changed group name to '\(groupTitle)'"
-        )
+        if conversation.name != groupTitle
+        {
+            try await handleGroupChange(
+                changeDescription: "changed group name to '\(groupTitle)'"
+            )
+        }
         
-        // Check for group avatar changes
         let newAvatarPath = imageSampleRepository?.imagePath(for: .original)
-        try await handleGroupChange(
-            condition: conversation.thumbnailURL != newAvatarPath,
-            changeDescription: "changed group avatar"
-        )
+        if newAvatarPath != nil {
+            try await handleGroupChange(
+                changeDescription: "changed group avatar"
+            )
+        }
         
-        // Update local Realm and Firestore chat data
         updateRealmConversation(newAvatarPath: newAvatarPath)
         try FirebaseChatService.shared.updateChat(conversation)
     }
 
     @MainActor
-    private func handleGroupChange(condition: Bool,
-                                   changeDescription: String) async throws
+    private func handleGroupChange(changeDescription: String) async throws
     {
-        guard condition else { return }
-        
         let message = try await createMessage(text: "\(authenticatedUser?.name ?? "-") \(changeDescription)")
         try await addMessageToDatabase(message)
         try await updateUnseenMessageCounterRemote()
@@ -110,7 +107,10 @@ extension ChatRoomInformationEditViewModel
     {
         RealmDatabase.shared.update(object: conversation) { realmChat in
             realmChat.name = groupTitle
-            realmChat.thumbnailURL = newAvatarPath
+            if let newAvatarPath
+            {
+                realmChat.thumbnailURL = newAvatarPath
+            }
         }
     }
 
@@ -155,41 +155,3 @@ extension ChatRoomInformationEditViewModel: ImageRepositoryRepresentable
     }
     
 }
-//
-//@MainActor
-//func saveEditedData() async throws
-//{
-//    try await processImageSamples()
-//    
-//    // Check for group title changes
-//    try await handleGroupChange(
-//        condition: conversation.name != groupTitle,
-//        changeDescription: "changed group name to '\(groupTitle)'"
-//    )
-//    
-//    // Check for group avatar changes
-//    let newAvatarPath = imageSampleRepository?.imagePath(for: .original)
-//    try await handleGroupChange(
-//        condition: conversation.thumbnailURL != newAvatarPath,
-//        changeDescription: "changed group avatar"
-//    )
-//    
-//    // Update local Realm and Firestore chat data
-//    updateRealmConversation(newAvatarPath: newAvatarPath)
-//    try FirebaseChatService.shared.updateChat(conversation)
-//}
-//
-//@MainActor
-//private func handleGroupChange(changeDescription: String) async throws
-//{
-//    let groupNameChanged   = conversation.name != groupTitle
-//    let groupAvatarChanged = (imageSampleRepository?.imagePath(for: .original) ?? "") != conversation.thumbnailURL
-//    
-//    let message = try await createMessage(text: "\(authenticatedUser?.name ?? "-") \(changeDescription)")
-//    try await addMessageToDatabase(message)
-//    try await updateUnseenMessageCounterRemote()
-//    try await FirebaseChatService.shared.updateChatRecentMessage(
-//        recentMessageID: message.id,
-//        chatID: conversation.id
-//    )
-//}

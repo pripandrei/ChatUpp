@@ -16,7 +16,7 @@ struct ChatRoomInformationEditScreen: View
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var imageDataContainer: IdentifiableItem<Data>?
     
-    @Binding var dataIsEdited: Bool
+    @Binding var refreshID: UUID
     
     var body: some View
     {
@@ -201,7 +201,7 @@ extension ChatRoomInformationEditScreen
                 } catch {
                     print("Error while saving edited data: \(error)")
                 }
-                dataIsEdited = true
+                refreshID = UUID()
                 dismiss()
             }
         } label: {
@@ -214,6 +214,6 @@ extension ChatRoomInformationEditScreen
 }
 
 #Preview {
-    ChatRoomInformationEditScreen(viewModel: ChatRoomInformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")), dataIsEdited: .constant(false)
+    ChatRoomInformationEditScreen(viewModel: ChatRoomInformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")), refreshID: .constant(UUID())
     )
 }
