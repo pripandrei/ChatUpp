@@ -1486,7 +1486,7 @@ extension ChatRoomViewController
     {
         self.rootView.setupInputBarHeaderView(mode: actionOption)
         self.addGestureToCloseBtn()
-//        self.rootView.messageTextView.becomeFirstResponder()
+        self.rootView.messageTextView.becomeFirstResponder()
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
         
         if case .image(_) = actionOption

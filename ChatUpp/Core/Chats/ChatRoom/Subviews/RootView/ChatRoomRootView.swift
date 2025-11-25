@@ -352,27 +352,6 @@ final class ChatRoomRootView: UIView
         tableView.setContentOffset(CGPoint(x: 0, y: newOffset), animated: false)
     }
     
-//    func updateTableViewContentAttributes(isInputBarHeaderRemoved: Bool)
-//    {
-//        let height = isInputBarHeaderRemoved ? 45.0 : -45.0
-//
-//        // Calculate current position relative to content
-//        let currentRelativeOffset = tableView.contentOffset.y + tableView.contentInset.top
-//
-//        print("tableView.contentOffset.y: ", tableView.contentOffset.y)
-//        print("tableView.contentInset.top: ", tableView.contentInset.top)
-//        print("(tableView.contentOffset.y + tableView.contentInset.top) currentRelativeOffset: ", currentRelativeOffset)
-//
-//        // Update insets
-//        tableView.contentInset.top -= height
-//        tableView.verticalScrollIndicatorInsets.top -= height
-//        print("tableView.contentInset.top : ", tableView.contentInset.top)
-//        // Restore the same relative position
-//        let newOffset = currentRelativeOffset - tableView.contentInset.top
-//        print("newOffset", newOffset)
-//        tableView.setContentOffset(CGPoint(x: 0, y: newOffset), animated: false)
-//    }
-    
     func setTextViewDelegate(to delegate: UITextViewDelegate) {
         messageTextView.delegate = delegate
     }
@@ -382,7 +361,6 @@ final class ChatRoomRootView: UIView
         joinChatRoomButton.isHidden = shouldHideJoinButton
         
         self.messageTextView.layer.opacity = 0.0
-//        self.sendMessageButton.layer.opacity = 0.0
         self.voiceRecButton.layer.opacity = 0.0
         self.addPictureButton.layer.opacity = 0.0
         self.textViewTrailingItemView.layer.opacity = 0.0
@@ -390,13 +368,11 @@ final class ChatRoomRootView: UIView
         UIView.animate(withDuration: shouldAnimate ? 0.5 : 0.0)
         {
             self.messageTextView.isHidden = !shouldHideJoinButton
-//            self.sendMessageButton.isHidden = !shouldHideJoinButton
             self.voiceRecButton.isHidden = !shouldHideJoinButton
             self.addPictureButton.isHidden = !shouldHideJoinButton
             self.textViewTrailingItemView.isHidden = !shouldHideJoinButton
             
             self.messageTextView.layer.opacity = 1.0
-//            self.sendMessageButton.layer.opacity = 1.0
             self.voiceRecButton.layer.opacity = 1.0
             self.addPictureButton.layer.opacity = 1.0
             self.textViewTrailingItemView.layer.opacity = 1.0
