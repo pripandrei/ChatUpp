@@ -28,7 +28,7 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
     func retrieveImageData() -> Data?
     {
         if let chatImageURL = conversation.thumbnailURL {
-            let url = chatImageURL.addSuffix("medium")
+            let url = chatImageURL
             return CacheManager.shared.retrieveData(from: url)
         }
         return nil
@@ -155,3 +155,41 @@ extension ChatRoomInformationEditViewModel: ImageRepositoryRepresentable
     }
     
 }
+//
+//@MainActor
+//func saveEditedData() async throws
+//{
+//    try await processImageSamples()
+//    
+//    // Check for group title changes
+//    try await handleGroupChange(
+//        condition: conversation.name != groupTitle,
+//        changeDescription: "changed group name to '\(groupTitle)'"
+//    )
+//    
+//    // Check for group avatar changes
+//    let newAvatarPath = imageSampleRepository?.imagePath(for: .original)
+//    try await handleGroupChange(
+//        condition: conversation.thumbnailURL != newAvatarPath,
+//        changeDescription: "changed group avatar"
+//    )
+//    
+//    // Update local Realm and Firestore chat data
+//    updateRealmConversation(newAvatarPath: newAvatarPath)
+//    try FirebaseChatService.shared.updateChat(conversation)
+//}
+//
+//@MainActor
+//private func handleGroupChange(changeDescription: String) async throws
+//{
+//    let groupNameChanged   = conversation.name != groupTitle
+//    let groupAvatarChanged = (imageSampleRepository?.imagePath(for: .original) ?? "") != conversation.thumbnailURL
+//    
+//    let message = try await createMessage(text: "\(authenticatedUser?.name ?? "-") \(changeDescription)")
+//    try await addMessageToDatabase(message)
+//    try await updateUnseenMessageCounterRemote()
+//    try await FirebaseChatService.shared.updateChatRecentMessage(
+//        recentMessageID: message.id,
+//        chatID: conversation.id
+//    )
+//}

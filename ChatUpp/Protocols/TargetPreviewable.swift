@@ -12,4 +12,3 @@ protocol TargetPreviewable
 {
     var cellViewModel: MessageCellViewModel! { get }
 }
-
