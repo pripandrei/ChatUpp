@@ -340,12 +340,38 @@ final class ChatRoomRootView: UIView
     
     func updateTableViewContentAttributes(isInputBarHeaderRemoved: Bool)
     {
-        //because tableview is inverted we should perform operations vice versa
         let height = isInputBarHeaderRemoved ? 45.0 : -45.0
-        tableView.setContentOffset(CGPoint(x: 0, y: height + tableView.contentOffset.y), animated: false)
+        
+        // Use adjustedContentInset (the REAL effective inset)
+        let currentRelativeOffset = tableView.contentOffset.y + tableView.adjustedContentInset.top
+        
         tableView.contentInset.top -= height
         tableView.verticalScrollIndicatorInsets.top -= height
+        
+        let newOffset = currentRelativeOffset - tableView.adjustedContentInset.top
+        tableView.setContentOffset(CGPoint(x: 0, y: newOffset), animated: false)
     }
+    
+//    func updateTableViewContentAttributes(isInputBarHeaderRemoved: Bool)
+//    {
+//        let height = isInputBarHeaderRemoved ? 45.0 : -45.0
+//
+//        // Calculate current position relative to content
+//        let currentRelativeOffset = tableView.contentOffset.y + tableView.contentInset.top
+//
+//        print("tableView.contentOffset.y: ", tableView.contentOffset.y)
+//        print("tableView.contentInset.top: ", tableView.contentInset.top)
+//        print("(tableView.contentOffset.y + tableView.contentInset.top) currentRelativeOffset: ", currentRelativeOffset)
+//
+//        // Update insets
+//        tableView.contentInset.top -= height
+//        tableView.verticalScrollIndicatorInsets.top -= height
+//        print("tableView.contentInset.top : ", tableView.contentInset.top)
+//        // Restore the same relative position
+//        let newOffset = currentRelativeOffset - tableView.contentInset.top
+//        print("newOffset", newOffset)
+//        tableView.setContentOffset(CGPoint(x: 0, y: newOffset), animated: false)
+//    }
     
     func setTextViewDelegate(to delegate: UITextViewDelegate) {
         messageTextView.delegate = delegate
