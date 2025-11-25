@@ -867,25 +867,21 @@ extension ChatRoomViewController
         let imageSampleRepo = image.map { ImageSampleRepository(image: $0, type: .message) }
         let media = imageSampleRepo.map { MessageMediaContent.image(path: $0.imagePath(for: .original)) }
         
-        // 1.Create message
         let message = viewModel.createMessageLocally(
             ofType: messageType,
             text: trimmedText,
             media: media
         )
         
-        // 2.Update UI immediately
-        updateUIOnNewMessageCreation(messageType)
-        
-        // 3.Handle image cache
-        if let repo = imageSampleRepo
-        {
-            Task { @MainActor in
+        Task { @MainActor in
+            if let repo = imageSampleRepo
+            {
                 await viewModel.saveImagesLocally(fromImageRepository: repo, for: message.id)
             }
+            updateUIOnNewMessageCreation(messageType)
         }
-
-        // 4.Start message remote sync
+        
+        // Start message remote sync
         viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: imageSampleRepo)
     }
  
