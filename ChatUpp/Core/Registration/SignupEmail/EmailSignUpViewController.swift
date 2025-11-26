@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import NVActivityIndicatorView
 
 class EmailSignUpViewController: UIViewController {
     
@@ -24,6 +25,15 @@ class EmailSignUpViewController: UIViewController {
         passwordField: passwordSignupField,
         validator: signUpViewModel
     )
+    
+    private(set) lazy var activityIndicator: NVActivityIndicatorView = {
+        let activityIndicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height: 40),
+                                                        type: .circleStrokeSpin,
+                                                        color: .link,
+                                                        padding: 2)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,6 +54,7 @@ class EmailSignUpViewController: UIViewController {
         setSignUpButton()
         setupEnvelopeImage()
         setupProvideEmailLabel()
+        setupActivityIndicatorConstraint()
     }
     
     private func setupEnvelopeImage() {
@@ -135,17 +146,44 @@ class EmailSignUpViewController: UIViewController {
         ])
     }
     
+    private func setupActivityIndicatorConstraint()
+    {
+        view.addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.topAnchor.constraint(equalTo: signUpButton.bottomAnchor, constant: 25)
+        ])
+    }
+    
 //MARK: - Validate & Signup
     
     @objc private func finishRegistration()
     {
         let isValid = textFieldValidator.validate()
-        if isValid {
+        
+        if isValid
+        {
+            activityIndicator.startAnimating()
+            resignCurrentFirstResponder()
             signUpViewModel.signUp() { [weak self] registrationStatus in
                 if registrationStatus == .success {
+                    self?.activityIndicator.stopAnimating()
                     self?.coordinator?.pushUsernameRegistration()
                 }
             }
+        }
+    }
+    
+    private func resignCurrentFirstResponder()
+    {
+        if emailSignupField.isFirstResponder
+        {
+            emailSignupField.resignFirstResponder()
+        }
+        if passwordSignupField.isFirstResponder
+        {
+            passwordSignupField.resignFirstResponder()
         }
     }
 }

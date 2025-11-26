@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import NVActivityIndicatorView
 
 final class MailSignInViewController: UIViewController {
     
@@ -22,6 +23,20 @@ final class MailSignInViewController: UIViewController {
         passwordField: passwordLogInField,
         validator: loginViewModel
     )
+    
+    deinit
+    {
+//       print("MailSignInViewController deinit")
+    }
+    
+    private(set) lazy var activityIndicator: NVActivityIndicatorView = {
+        let activityIndicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height: 40),
+                                                        type: .circleStrokeSpin,
+                                                        color: .link,
+                                                        padding: 2)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
+    }()
     
     init(viewModel: LoginViewModel) {
         super.init(nibName: nil, bundle: nil)
@@ -43,6 +58,7 @@ final class MailSignInViewController: UIViewController {
         setupLogInButton()
         setupEnvelopeImage()
         configureSignInWithEmailLabel()
+        setupActivityIndicatorConstraint()
         Utilities.setGradientBackground(forView: view)
     }
 
@@ -149,11 +165,36 @@ final class MailSignInViewController: UIViewController {
     @objc func logInButtonTap()
     {
         let isValide = textFieldValidator.validate()
-        if isValide {
+
+        if isValide
+        {
+            resignCurrentFirstResponder()
+            activityIndicator.startAnimating()
             loginViewModel.signInWithEmail()
         }
     }
-
+    
+    private func setupActivityIndicatorConstraint()
+    {
+        view.addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.topAnchor.constraint(equalTo: logInButton.bottomAnchor, constant: 25)
+        ])
+    }
+    
+    private func resignCurrentFirstResponder()
+    {
+        if mailLogInField.isFirstResponder
+        {
+            mailLogInField.resignFirstResponder()
+        }
+        if passwordLogInField.isFirstResponder
+        {
+            passwordLogInField.resignFirstResponder()
+        }
+    }
 }
 
 

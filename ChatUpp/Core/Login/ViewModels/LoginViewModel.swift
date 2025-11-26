@@ -19,7 +19,8 @@ final class LoginViewModel {
 
 extension LoginViewModel: EmailValidator
 {
-    func signInWithEmail() {
+    func signInWithEmail()
+    {
         AuthenticationManager.shared.signIn(email: email, password: password) { [weak self] authRestult in
             guard let _ = authRestult else {
                 return
