@@ -362,7 +362,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         let isGroupChat = conversation?.isGroup == true
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
-        let seenByValue = (isGroupChat && type != .title) ? [authUserID] : nil
+        let seenByValue = (isGroupChat) ? [authUserID] : nil
         let messageText = (messageText != nil) ? messageText! : ""
  
         return Message(

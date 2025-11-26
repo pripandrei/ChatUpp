@@ -86,7 +86,7 @@ final class ConversationFirestoreService
         
         let seenBy = deletedMessage.seenBy
         
-        if chat.isGroup, seenBy.count > 1
+        if chat.isGroup, seenBy.count > 0
         {
             let notSeenUserIDs: [String] = chat.participants
                 .map(\.userID)
