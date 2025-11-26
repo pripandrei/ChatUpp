@@ -79,6 +79,8 @@ class ChatCell: UITableViewCell
         }
         subscriptions.removeAll()
         cellViewModel = nil
+        onlineStatusCircleView.isHidden = true
+        onlineStatusBorderView.isHidden = true
     }
 
     
