@@ -51,7 +51,8 @@ final class AuthenticationManager
     }
     
     @discardableResult
-    func getAuthenticatedUser() throws -> AuthenticatedUserData {
+    func getAuthenticatedUser() throws -> AuthenticatedUserData
+    {
         if let user = Auth.auth().currentUser {
             return AuthenticatedUserData(firebaseAuthUser: user)
         }
@@ -188,7 +189,8 @@ extension AuthenticationManager {
 }
 
 //MARK: - Delete user
-extension AuthenticationManager {
+extension AuthenticationManager
+{
     func deleteAuthUser() async throws {
         guard let authUser = Auth.auth().currentUser else {return}
         try await authUser.delete()
