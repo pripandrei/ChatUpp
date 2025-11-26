@@ -31,7 +31,7 @@ final class StickersPackCollectionView: UIView
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = ColorManager.stickerViewBackgroundColor
+        backgroundColor = ColorScheme.stickerViewBackgroundColor
         setupCollectionView()
         startAnimationLoop()
     }

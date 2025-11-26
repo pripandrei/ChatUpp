@@ -58,7 +58,7 @@ struct MessageNotificationBannerView: View
             height: 60,
             alignment: .leading)
         .padding(.all, 10)
-        .background(Color(ColorManager.navigationBarBackgroundColor))
+        .background(Color(ColorScheme.navigationBarBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 15))
         .shadow(color: .black, radius: 1, x: 0, y: 0)
         .onTapGesture {

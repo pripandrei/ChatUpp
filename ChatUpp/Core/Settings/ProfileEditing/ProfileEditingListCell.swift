@@ -17,7 +17,7 @@ class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate
     override func updateConfiguration(using state: UICellConfigurationState)
     {
         var newConfiguration = UIBackgroundConfiguration.listGroupedCell().updated(for: state)
-        let customColor = ColorManager.listCellBackgroundColor
+        let customColor = ColorScheme.listCellBackgroundColor
         newConfiguration.backgroundColor = customColor
         backgroundConfiguration = newConfiguration
     }
@@ -58,13 +58,13 @@ class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate
     func createAttributedPlaceholder(with text: String) -> NSAttributedString
     {
         return NSAttributedString(string: text,
-                                  attributes: [.foregroundColor : ColorManager.textFieldPlaceholderColor])
+                                  attributes: [.foregroundColor : ColorScheme.textFieldPlaceholderColor])
     }
     
     
     func createAttributedText(with text: String) -> NSAttributedString
     {
         return NSAttributedString(string: text,
-                                  attributes: [.foregroundColor : ColorManager.textFieldTextColor])
+                                  attributes: [.foregroundColor : ColorScheme.textFieldTextColor])
     }
 }

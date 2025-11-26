@@ -53,7 +53,7 @@ struct Utilities
     {
         let appearance = UINavigationBarAppearance()
         
-        appearance.backgroundColor = ColorManager.tabBarBackgroundColor.withAlphaComponent(0.85)
+        appearance.backgroundColor = ColorScheme.tabBarBackgroundColor.withAlphaComponent(0.85)
         appearance.backgroundEffect = UIBlurEffect(style: .light)
         
         appearance.shadowColor = .white.withAlphaComponent(0.5)
@@ -114,15 +114,15 @@ struct Utilities
     /// Skeleton animation
     static func initiateSkeletonAnimation(for view: UIView)
     {
-        let skeletonAnimationColor = ColorManager.skeletonAnimationColor
-        let skeletonItemColor = ColorManager.skeletonItemColor
+        let skeletonAnimationColor = ColorScheme.skeletonAnimationColor
+        let skeletonItemColor = ColorScheme.skeletonItemColor
         view.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.3))
     }
     
     static func initiateSkeletonAnimation(for views: UIView...)
     {
-        let skeletonAnimationColor = ColorManager.skeletonAnimationColor
-        let skeletonItemColor = ColorManager.skeletonItemColor
+        let skeletonAnimationColor = ColorScheme.skeletonAnimationColor
+        let skeletonItemColor = ColorScheme.skeletonItemColor
         
         for view in views {
             view.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.3))

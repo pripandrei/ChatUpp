@@ -10,9 +10,7 @@ import Foundation
 final class ProfileDeletionViewModel {
     
     var verificationID: String?
-    
     let user: User
-    
     let userIsSignedOut: ObservableObject<Bool> = ObservableObject(false)
     
     init(user: User) {
@@ -28,7 +26,8 @@ final class ProfileDeletionViewModel {
         }
     }
     
-    func sendSMSCode() async throws {
+    func sendSMSCode() async throws
+    {
         guard let phoneNumber = try AuthenticationManager.shared.getAuthenticatedUser().phoneNumber else {return}
         verificationID = try await AuthenticationManager.shared.sendSMSToPhone(number: phoneNumber)
     }

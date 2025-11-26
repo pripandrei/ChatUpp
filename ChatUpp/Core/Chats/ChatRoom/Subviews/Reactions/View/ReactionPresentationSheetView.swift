@@ -18,11 +18,11 @@ struct ReactionPresentationSheetView: View
             ForEach(viewModel.message.reactions, id: \.emoji) { reaction in
                 userReactionView(reaction)
             }
-            .listRowBackground(Color(ColorManager.appBackgroundColor))
+            .listRowBackground(Color(ColorScheme.appBackgroundColor))
         }
         .listStyle(.plain)
         .padding(.top, 30)
-        .background(Color(ColorManager.appBackgroundColor))
+        .background(Color(ColorScheme.appBackgroundColor))
     }
 }
 

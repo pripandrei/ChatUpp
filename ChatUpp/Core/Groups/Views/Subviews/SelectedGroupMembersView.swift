@@ -62,8 +62,8 @@ struct SelectedGroupMembersView: View
             Image(systemName: "xmark")
                 .imageScale(.small)
                 .padding(.all, 5)
-                .background(Color(ColorManager.tabBarNormalItemsTintColor))
-                .foregroundStyle(Color(ColorManager.textFieldTextColor))
+                .background(Color(ColorScheme.tabBarNormalItemsTintColor))
+                .foregroundStyle(Color(ColorScheme.textFieldTextColor))
                 .clipShape(.circle)
         }
 

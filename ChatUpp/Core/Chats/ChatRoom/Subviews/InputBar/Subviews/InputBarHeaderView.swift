@@ -44,7 +44,7 @@ final class InputBarHeaderView: UIView {
     func setupSubviews() {
         backgroundColor = .clear
         self.blurEffectView = addBlurEffect(style: .systemThinMaterialDark,
-                                            backgroundColor: ColorManager.inputBarMessageContainerBackgroundColor,
+                                            backgroundColor: ColorScheme.inputBarMessageContainerBackgroundColor,
                                             alpha: 0.7)
         setupSelfHeightConstraint()
         setupTitleLabel()
@@ -59,7 +59,7 @@ final class InputBarHeaderView: UIView {
  
     private func setupTitleLabel() {
         titleLabel = UILabel()
-        titleLabel?.textColor = ColorManager.actionButtonsTintColor
+        titleLabel?.textColor = ColorScheme.actionButtonsTintColor
         titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
     }
     
@@ -72,7 +72,7 @@ final class InputBarHeaderView: UIView {
     
     private func setupSymbolIcon() {
         symbolIcon = UIImageView()
-        symbolIcon?.tintColor = ColorManager.actionButtonsTintColor
+        symbolIcon?.tintColor = ColorScheme.actionButtonsTintColor
         symbolIcon?.translatesAutoresizingMaskIntoConstraints = false
         addSubview(symbolIcon!)
         
@@ -107,7 +107,7 @@ final class InputBarHeaderView: UIView {
 
     private func setupSeparator() {
         separator = UILabel()
-        separator?.backgroundColor = ColorManager.actionButtonsTintColor
+        separator?.backgroundColor = ColorScheme.actionButtonsTintColor
         separator?.translatesAutoresizingMaskIntoConstraints = false
         addSubview(separator!)
         
@@ -121,7 +121,7 @@ final class InputBarHeaderView: UIView {
     
     private func setupCloseButton() {
         closeButton = UIImageView(image: UIImage(systemName: "xmark"))
-        closeButton?.tintColor = ColorManager.actionButtonsTintColor
+        closeButton?.tintColor = ColorScheme.actionButtonsTintColor
         closeButton?.isUserInteractionEnabled = true
         closeButton?.translatesAutoresizingMaskIntoConstraints = false
         addSubview(closeButton!)

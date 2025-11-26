@@ -85,8 +85,8 @@ final class ProfileEditingViewController: UIViewController,
     {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEditedData))
-        navigationItem.leftBarButtonItem?.tintColor = ColorManager.actionButtonsTintColor
-        navigationItem.rightBarButtonItem?.tintColor = ColorManager.actionButtonsTintColor
+        navigationItem.leftBarButtonItem?.tintColor = ColorScheme.actionButtonsTintColor
+        navigationItem.rightBarButtonItem?.tintColor = ColorScheme.actionButtonsTintColor
     }
     
     @objc func closeProfileVC() {
@@ -104,7 +104,7 @@ final class ProfileEditingViewController: UIViewController,
     private func makeCollectionView() -> UICollectionView
     {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
-        configuration.backgroundColor = ColorManager.appBackgroundColor
+        configuration.backgroundColor = ColorScheme.appBackgroundColor
         configuration.headerMode = .supplementary
         
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)

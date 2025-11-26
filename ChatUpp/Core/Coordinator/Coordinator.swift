@@ -153,7 +153,8 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
         tabBar.settingsNavigationController?.dismiss(animated: true)
     }
     
-    func showProfileDeletionVC(viewModel: ProfileDeletionViewModel) {
+    func showProfileDeletionVC(viewModel: ProfileDeletionViewModel)
+    {
         let profileDeletionVC = ProfileDeletionViewController(viewModel: viewModel)
         
         profileDeletionVC.coordinatorDelegate = self

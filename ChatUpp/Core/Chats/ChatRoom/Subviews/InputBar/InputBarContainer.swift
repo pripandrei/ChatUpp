@@ -29,7 +29,7 @@ final class InputBarContainer: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear  // Let blur show through
         self.blurEffectView = addBlurEffect(style: .systemThinMaterialDark,
-                                            backgroundColor: ColorManager.inputBarMessageContainerBackgroundColor,
+                                            backgroundColor: ColorScheme.inputBarMessageContainerBackgroundColor,
                                             alpha: 0.7)
     }
 }

@@ -48,7 +48,7 @@ final class ChatRoomRootView: UIView
     private(set) var unseenMessagesBadge = {
         let badge = UnseenMessagesBadge()
         
-        badge.backgroundColor = ColorManager.unseenMessagesBadgeBackgroundColor
+        badge.backgroundColor = ColorScheme.unseenMessagesBadgeBackgroundColor
         badge.font = UIFont.systemFont(ofSize: 15)
         badge.textColor = .white
         badge.textAlignment = .center
@@ -63,7 +63,7 @@ final class ChatRoomRootView: UIView
         // Bottom of table view has padding due to navigation controller
         let tableView                           = UITableView()
         tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1)
-        tableView.backgroundColor               = ColorManager.appBackgroundColor
+        tableView.backgroundColor               = ColorScheme.appBackgroundColor
         tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
         tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -20, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle                = .none
@@ -85,11 +85,11 @@ final class ChatRoomRootView: UIView
     private(set) lazy var messageTextView: MessageTextView = {
         let messageTextView = MessageTextView()
         let height                                                = inputBarContainer.bounds.height * 0.4
-        messageTextView.backgroundColor                           = ColorManager.messageTextFieldBackgroundColor
+        messageTextView.backgroundColor                           = ColorScheme.messageTextFieldBackgroundColor
         messageTextView.layer.cornerRadius                        = 15
         messageTextView.font                                      = UIFont(name: "HelveticaNeue", size: 17)
         messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 50)
-        messageTextView.textColor                                 = ColorManager.textFieldTextColor
+        messageTextView.textColor                                 = ColorScheme.textFieldTextColor
         messageTextView.isScrollEnabled                           = true
         messageTextView.textContainer.maximumNumberOfLines        = 0
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
@@ -102,7 +102,7 @@ final class ChatRoomRootView: UIView
         let sendMessageButton = UIButton()
         sendMessageButton.configuration                             = .filled()
         sendMessageButton.configuration?.image                      = UIImage(systemName: "arrow.up")
-        sendMessageButton.configuration?.baseBackgroundColor        = ColorManager.sendMessageButtonBackgroundColor
+        sendMessageButton.configuration?.baseBackgroundColor        = ColorScheme.sendMessageButtonBackgroundColor
         sendMessageButton.clipsToBounds                             = true
         sendMessageButton.isHidden                                  = true
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
@@ -144,7 +144,7 @@ final class ChatRoomRootView: UIView
         let addPictureButton = UIButton()
 
         addPictureButton.configuration                             = .plain()
-        addPictureButton.configuration?.baseForegroundColor        = ColorManager.tabBarNormalItemsTintColor
+        addPictureButton.configuration?.baseForegroundColor        = ColorScheme.tabBarNormalItemsTintColor
         addPictureButton.layer.cornerRadius                        = addPictureButton.frame.size.width / 2.0
         addPictureButton.configuration?.image                      = UIImage(systemName: "photo")
         addPictureButton.clipsToBounds                             = true
@@ -158,7 +158,7 @@ final class ChatRoomRootView: UIView
 //        sendEditMessageButton.frame.size                                = CGSize(width: 35, height: 35)
         sendEditMessageButton.configuration                             = .filled()
         sendEditMessageButton.configuration?.image                      = UIImage(systemName: "checkmark")
-        sendEditMessageButton.configuration?.baseBackgroundColor        = ColorManager.sendMessageButtonBackgroundColor
+        sendEditMessageButton.configuration?.baseBackgroundColor        = ColorScheme.sendMessageButtonBackgroundColor
 //        sendEditMessageButton.layer.cornerRadius                        = sendEditMessageButton.frame.size.width / 2.0
         sendEditMessageButton.clipsToBounds                             = true
         sendEditMessageButton.isHidden                                  = true
@@ -172,11 +172,11 @@ final class ChatRoomRootView: UIView
 
         scrollToBottomBtn.configuration                             = .plain()
         let image = UIImage(named: "angle-arrow-down")?
-            .withTintColor(ColorManager.actionButtonsTintColor)
+            .withTintColor(ColorScheme.actionButtonsTintColor)
             .resizeImage(toSize: CGSize(width: 17, height: 15))
         scrollToBottomBtn.configuration?.image = image
         
-        scrollToBottomBtn.backgroundColor                           = ColorManager.scrollToBottomButtonBackgroundColor
+        scrollToBottomBtn.backgroundColor                           = ColorScheme.scrollToBottomButtonBackgroundColor
         scrollToBottomBtn.translatesAutoresizingMaskIntoConstraints = false
         scrollToBottomBtn.layer.borderWidth = 0.25
         scrollToBottomBtn.layer.borderColor = #colorLiteral(red: 0.3582897782, green: 0.31710729, blue: 0.3442819118, alpha: 1)
@@ -189,7 +189,7 @@ final class ChatRoomRootView: UIView
         let joinButton = UIButton()
         joinButton.configuration                             = .plain()
         joinButton.configuration?.title                      = "Join"
-        joinButton.configuration?.baseForegroundColor        = ColorManager.actionButtonsTintColor
+        joinButton.configuration?.baseForegroundColor        = ColorScheme.actionButtonsTintColor
         joinButton.translatesAutoresizingMaskIntoConstraints = false
         
         var attributedTitle = AttributedString("Join")
@@ -588,7 +588,7 @@ extension ChatRoomRootView
         self.cancelRecButton = UIButton(type: .custom)
         self.cancelRecButton?.setTitle("Cancel", for: .normal)
         self.cancelRecButton?.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        self.cancelRecButton?.setTitleColor(ColorManager.actionButtonsTintColor, for: .normal)
+        self.cancelRecButton?.setTitleColor(ColorScheme.actionButtonsTintColor, for: .normal)
         self.cancelRecButton?.translatesAutoresizingMaskIntoConstraints = false
         self.cancelRecButton?.addTarget(self, action: #selector(cancelVoiceRecording), for: .touchUpInside)
         self.cancelRecButton?.alpha = 0.0

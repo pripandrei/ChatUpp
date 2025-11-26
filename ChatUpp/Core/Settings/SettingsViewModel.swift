@@ -10,7 +10,6 @@ import Combine
 
 final class SettingsViewModel
 {
-//    private(set) var isUserSignedOut: ObservableObject<Bool> = ObservableObject(false)
     @Published private(set) var isUserSignedOut: Bool = false
     @Published private(set) var profileImageData: Data?
     private(set) var user: User!
@@ -30,12 +29,17 @@ final class SettingsViewModel
     
     private func initiateSelf()
     {
+        self.retrieveDataFromDB()
+        
         Task { @MainActor in
-            self.retrieveDataFromDB()
-            try await self.fetchUserFromDB()
-            try await self.getCurrentAuthProvider()
-            self.addUserToRealmDB()
-            self.cacheProfileImage()
+            do {
+                try await self.getCurrentAuthProvider()
+                try await self.fetchUserFromFirestoreDatabase()
+                self.addUserToRealmDB()
+                self.cacheProfileImage()
+            } catch {
+                print("Error while setup settings view model: \(error)")
+            }
         }
     }
     
@@ -47,12 +51,17 @@ final class SettingsViewModel
         self.profileImageData = CacheManager.shared.retrieveData(from: pictureURL)
     }
     
-    private func fetchUserFromDB() async throws
+    @MainActor
+    private func fetchUserFromFirestoreDatabase() async throws
     {
-        self.user = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
+        let firestoreUser = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
+        defer { self.user = firestoreUser }
         
-        if let photoUrl = user.photoUrl {
-            self.profileImageData = try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: photoUrl)
+        guard self.user.photoUrl != firestoreUser.photoUrl else { return }
+        
+        if let photoUrl = firestoreUser.photoUrl
+        {
+            self.profileImageData = try await FirebaseStorageManager.shared.getImage(from: .user(firestoreUser.id), imagePath: photoUrl)
         }
     }
     
@@ -63,11 +72,13 @@ final class SettingsViewModel
     
     private func cacheProfileImage()
     {
-        guard let path = user.photoUrl, let data = profileImageData else {return}
+        guard let path = user.photoUrl,
+              let data = profileImageData else {return}
         CacheManager.shared.saveData(data, toPath: path)
     }
     
-    func getCurrentAuthProvider() async throws {
+    func getCurrentAuthProvider() async throws
+    {
         self.authProvider = try await AuthenticationManager.shared.getAuthProvider()
     }
     
@@ -102,7 +113,6 @@ final class SettingsViewModel
             RealtimeUserService.shared.updateUserActiveStatus(isActive: false)
             try await RealtimeUserService.shared.cancelOnDisconnect()
             try AuthenticationManager.shared.signOut()
-//            isUserSignedOut.value = true
             isUserSignedOut = true
         } catch {
             print("Error signing out", error.localizedDescription)

@@ -165,7 +165,7 @@
 		75C8F7772E819A79007317E0 /* ChatRoom+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */; };
 		75C8F77E2E84739E007317E0 /* DisplayLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F77D2E847396007317E0 /* DisplayLinkManager.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
-		75CC9FE62D594042002051EB /* ColorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorManager.swift */; };
+		75CC9FE62D594042002051EB /* ColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorScheme.swift */; };
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
 		75D08BAA2BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */; };
@@ -379,7 +379,7 @@
 		75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatRoom+Enums.swift"; sourceTree = "<group>"; };
 		75C8F77D2E847396007317E0 /* DisplayLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkManager.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
-		75CC9FE12D59402F002051EB /* ColorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorManager.swift; sourceTree = "<group>"; };
+		75CC9FE12D59402F002051EB /* ColorScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorScheme.swift; sourceTree = "<group>"; };
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
 		75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = "<group>"; };
 		75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationScreen.swift; sourceTree = "<group>"; };
@@ -1114,7 +1114,7 @@
 		75AD5EB52E7C42770075377B /* Themes */ = {
 			isa = PBXGroup;
 			children = (
-				75CC9FE12D59402F002051EB /* ColorManager.swift */,
+				75CC9FE12D59402F002051EB /* ColorScheme.swift */,
 			);
 			path = Themes;
 			sourceTree = "<group>";
@@ -1889,7 +1889,7 @@
 				7527065C2DAB1D6F002128DF /* ConversationUsersListinerService.swift in Sources */,
 				75B5C4BA2A49AB0A00F63A5A /* AppDelegate.swift in Sources */,
 				7533D9BB2B167ED80057EBC7 /* PhoneSigninViewModel.swift in Sources */,
-				75CC9FE62D594042002051EB /* ColorManager.swift in Sources */,
+				75CC9FE62D594042002051EB /* ColorScheme.swift in Sources */,
 				7543BE302ACC86AE003001BF /* MessageModel.swift in Sources */,
 				7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */,
 				75E8AAC02D9192ED007479E4 /* ChatRoomInformationEditViewModel.swift in Sources */,

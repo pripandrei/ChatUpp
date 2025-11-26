@@ -52,7 +52,7 @@ final class TextImageMessageContentView: ContainerView
     private var messageSenderNameColor: UIColor
     {
         let senderID = viewModel.message?.senderId
-        return ColorManager.color(for: senderID ?? "12345")
+        return ColorScheme.color(for: senderID ?? "12345")
     }
     
     init()
@@ -278,7 +278,7 @@ extension TextImageMessageContentView
     
     private func updateReplyToMessageColor()
     {
-        var backgroundColor: UIColor = ColorManager.outgoingReplyToMessageBackgroundColor
+        var backgroundColor: UIColor = ColorScheme.outgoingReplyToMessageBackgroundColor
         var barColor: UIColor = .white
         
         if viewModel.messageAlignment == .left {
@@ -427,12 +427,12 @@ extension TextImageMessageContentView
 
                 let decorator = YYTextDecoration(style: .single,
                                                  width: 1,
-                                                 color: ColorManager.messageLinkColor)
+                                                 color: ColorScheme.messageLinkColor)
                 
                 attributedText.yy_setTextUnderline(decorator,
                                                    range: match.range)
                 attributedText.yy_setTextHighlight(match.range,
-                                                   color: ColorManager.messageLinkColor,
+                                                   color: ColorScheme.messageLinkColor,
                                                    backgroundColor: #colorLiteral(red: 0.6552016139, green: 0.657288909, blue: 0.7513562441, alpha: 1))
                 { _, _, _, _ in
                     UIApplication.shared.open(url)

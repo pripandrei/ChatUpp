@@ -7,28 +7,30 @@
 
 import UIKit
 
-final class ProfileDeletionViewController: UIViewController {
+final class ProfileDeletionViewController: UIViewController
+{
     
     weak var coordinatorDelegate: Coordinator?
     var profileDeletionViewModel: ProfileDeletionViewModel!
     
     //MARK: LIFECYCLE
 
-    init(viewModel: ProfileDeletionViewModel) {
+    init(viewModel: ProfileDeletionViewModel)
+    {
         super.init(nibName: nil, bundle: nil)
         self.profileDeletionViewModel = viewModel
     }
     
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         setupUI()
         setupBinder()
     }
     
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
     
     //MARK: - Binder
     
@@ -43,51 +45,41 @@ final class ProfileDeletionViewController: UIViewController {
     }
     
     //MARK: - SETUP UI
-    
-    lazy var verificationCodeTextField: UITextField = {
-        let textField = UITextField()
-        textField.tintColor = .brown
-        textField.backgroundColor = #colorLiteral(red: 0.287940383, green: 0.5559768677, blue: 0.6724052429, alpha: 1)
-        textField.textColor = #colorLiteral(red: 0.8293038011, green: 0.8293038011, blue: 0.8293038011, alpha: 1)
-        
-        let placeholderColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
-        let placeholderText = NSAttributedString(string: "Enter code here", attributes: [NSAttributedString.Key.foregroundColor: placeholderColor])
-        textField.attributedPlaceholder = placeholderText
 
-        textField.borderStyle = .roundedRect
-        textField.font = UIFont(name: "HelveticaNeue", size: 17)
-        textField.delegate = self
-        return textField
-    }()
-    
     lazy var informationLabel: UILabel = {
         let infoLabel = UILabel()
         infoLabel.text = "In order to delete your account, we need to make sure it's you. Verification code will be sent to your phone number."
-        infoLabel.textColor = .lightText
-        infoLabel.font =  UIFont(name: "HelveticaNeue", size: 15)
+        infoLabel.textColor = .white
+        infoLabel.font =  UIFont(name: "HelveticaNeue", size: 18)
         infoLabel.numberOfLines = 0
         return infoLabel
     }()
     
-    lazy var sendCodeButton: UIButton = {
-        let button = UIButton()
-        button.configuration = .filled()
+    lazy var verificationCodeTextField: CustomizedShadowTextField = {
+        let textField = CustomizedShadowTextField()
+        
+        let placeholderText = NSAttributedString(string: "Enter code here")
+        textField.attributedPlaceholder = placeholderText
+        textField.delegate = self
+        return textField
+    }()
+    
+    lazy var sendCodeButton: CustomizedShadowButton = {
+        let button = CustomizedShadowButton()
         button.configuration?.title = "Get Code"
-        button.configuration?.background.backgroundColor = .link
-        button.layer.cornerRadius = 5
-        button.clipsToBounds = true
         button.addTarget(self, action: #selector(sendCodeButtonTapped), for: .touchUpInside)
         return button
     }()
     
-    func setupUI() {
-        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
+    func setupUI()
+    {
+        view.backgroundColor = ColorScheme.appBackgroundColor
         view.addSubview(sendCodeButton)
         view.addSubview(verificationCodeTextField)
         view.addSubview(informationLabel)
         setupInformationLabelConstraints()
+        setupVerificationCodeTextFieldConstraints()
         setupSendCodeButtonConstraints()
-        setupTextViewConstraints()
     }
     
     //MARK: - SETUP CONSTRAINTS
@@ -97,7 +89,7 @@ final class ProfileDeletionViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             informationLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            informationLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.size.height / 8),
+            informationLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.size.height / 12),
             informationLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50),
             informationLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50),
 //            informationLabel.heightAnchor.constraint(equalToConstant: 40),
@@ -105,7 +97,8 @@ final class ProfileDeletionViewController: UIViewController {
         ])
     }
     
-    func setupTextViewConstraints() {
+    func setupVerificationCodeTextFieldConstraints()
+    {
         verificationCodeTextField.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -116,14 +109,17 @@ final class ProfileDeletionViewController: UIViewController {
         ])
     }
     
-    func setupSendCodeButtonConstraints() {
+    func setupSendCodeButtonConstraints()
+    {
         sendCodeButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             sendCodeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            sendCodeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.size.height / 2.8),
-            sendCodeButton.heightAnchor.constraint(equalToConstant: 45),
-            sendCodeButton.widthAnchor.constraint(equalToConstant: 110),
+//            sendCodeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.size.height / 2.8),
+            sendCodeButton.topAnchor.constraint(equalTo: verificationCodeTextField.bottomAnchor,
+                                                constant: 50),
+            sendCodeButton.heightAnchor.constraint(equalToConstant: 40),
+            sendCodeButton.widthAnchor.constraint(equalToConstant: 220),
         ])
     }
     
@@ -159,7 +155,8 @@ final class ProfileDeletionViewController: UIViewController {
     
     //MARK: - BUTTON ACTIONS
     
-    @objc func deleteAccount() {
+    @objc func deleteAccount()
+    {
         guard let code = verificationCodeTextField.text, !code.isEmpty else {return}
         
         Task {
@@ -172,9 +169,17 @@ final class ProfileDeletionViewController: UIViewController {
         }
     }
     
-    @objc func sendCodeButtonTapped() {
-        Task {
-            try await profileDeletionViewModel.sendSMSCode()
+    @objc func sendCodeButtonTapped()
+    {
+        guard verificationCodeTextField.text?.isEmpty == false else {return}
+        
+        Task
+        {
+            do {
+                try await profileDeletionViewModel.sendSMSCode()                
+            } catch {
+                print("Could not send sms code \(error)")
+            }
         }
     }
 }
@@ -183,7 +188,8 @@ final class ProfileDeletionViewController: UIViewController {
 
 extension ProfileDeletionViewController: UITextFieldDelegate {
     
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool
+    {
         guard let code = textField.text, code.count == 5 else {return true}
         guard let text = code as NSString? else {return true}
         

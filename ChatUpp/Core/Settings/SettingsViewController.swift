@@ -70,16 +70,19 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
     
     private func handleDeletionProviderPresentation(_ provider: String)
     {
-        switch provider {
+        switch provider
+        {
         case "google.com", "password": self.createDeletionAlertController()
-        case "phone": self.coordinatorDelegate?.showProfileDeletionVC(viewModel: self.createProfileDeletionViewModel())
+        case "phone":
+            self.coordinatorDelegate?.showProfileDeletionVC(viewModel: self.createProfileDeletionViewModel())
         default: break
         }
     }
     
     // MARK: - ALERT CONTROLLER
     
-    private func createDeletionAlertController() {
+    private func createDeletionAlertController()
+    {
         Task {@MainActor in
             let alert = UIAlertController(title: "Alert", message: "Delete this account? This acction can not be undone!", preferredStyle: .alert)
             let cancel = UIAlertAction(title: "Cancel", style: .cancel)
@@ -127,7 +130,7 @@ extension SettingsViewController {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         
         configuration.headerMode = .supplementary
-        configuration.backgroundColor = ColorManager.appBackgroundColor
+        configuration.backgroundColor = ColorScheme.appBackgroundColor
 
         configuration.separatorConfiguration.color = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
@@ -152,7 +155,7 @@ extension SettingsViewController {
             configuration.imageProperties.reservedLayoutSize = CGSize(width: 22, height: 22)
             
             var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
-            backgroundConfiguration.backgroundColor = ColorManager.listCellBackgroundColor
+            backgroundConfiguration.backgroundColor = ColorScheme.listCellBackgroundColor
             
             cell.backgroundConfiguration = backgroundConfiguration
             cell.contentConfiguration = configuration
@@ -226,7 +229,9 @@ extension SettingsViewController {
 //MARK: - COLLECTIONVIEW DELEGATE
 extension SettingsViewController
 {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView,
+                        didSelectItemAt indexPath: IndexPath)
+    {
         collectionView.deselectItem(at: indexPath, animated: true)
         
         switch indexPath.item {

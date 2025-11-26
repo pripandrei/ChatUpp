@@ -34,7 +34,7 @@ class ChatCell: UITableViewCell
         contentView.isSkeletonable = true
         
         let cellBackground = UIView()
-        cellBackground.backgroundColor = ColorManager.cellSelectionBackgroundColor
+        cellBackground.backgroundColor = ColorScheme.cellSelectionBackgroundColor
         self.selectedBackgroundView = cellBackground
         self.backgroundColor = .clear
         
@@ -122,7 +122,7 @@ class ChatCell: UITableViewCell
     private func setUnreadMessageCount(_ count: Int) {
         //        guard let _ = cellViewModel.recentMessage else {return}
         
-        unreadMessagesBadgeLabel.backgroundColor = ColorManager.unseenMessagesBadgeBackgroundColor
+        unreadMessagesBadgeLabel.backgroundColor = ColorScheme.unseenMessagesBadgeBackgroundColor
         
         let shouldShowUnreadCount = count > 0
         unreadMessagesBadgeLabel.isHidden = !shouldShowUnreadCount
@@ -147,7 +147,7 @@ class ChatCell: UITableViewCell
         
         guard let seenStatusIconImage = SeenStatusIconStorage.image(named: seenStatusIcon,
                                                                   size: iconSize,
-                                                                  color: ColorManager.actionButtonsTintColor) else {return}
+                                                                  color: ColorScheme.actionButtonsTintColor) else {return}
         
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
         
@@ -363,7 +363,7 @@ extension ChatCell {
     {
         onlineStatusBorderView.addSubview(onlineStatusCircleView)
         
-        onlineStatusBorderView.backgroundColor = ColorManager.appBackgroundColor
+        onlineStatusBorderView.backgroundColor = ColorScheme.appBackgroundColor
         onlineStatusBorderView.clipsToBounds = true
         onlineStatusBorderView.isHidden = true
         onlineStatusBorderView.translatesAutoresizingMaskIntoConstraints = false
@@ -388,7 +388,7 @@ extension ChatCell {
     
     private func setupUnreadMessagesCountLabel() {
 
-        unreadMessagesBadgeLabel.textColor = ColorManager.textFieldTextColor
+        unreadMessagesBadgeLabel.textColor = ColorScheme.textFieldTextColor
         unreadMessagesBadgeLabel.font = UIFont(name: "Helvetica", size: 14)
         unreadMessagesBadgeLabel.textAlignment = .center
         unreadMessagesBadgeLabel.isSkeletonable = true

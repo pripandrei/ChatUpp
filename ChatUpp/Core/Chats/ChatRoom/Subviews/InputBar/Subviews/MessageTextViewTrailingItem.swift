@@ -46,7 +46,7 @@ struct MessageTextViewTrailingItemView: View
             .resizable()
             .renderingMode(.template)
             .frame(width: imageWidth, height: imageHeight)
-            .foregroundStyle(Color(ColorManager.textFieldPlaceholderColor))
+            .foregroundStyle(Color(ColorScheme.textFieldPlaceholderColor))
     }
 }
 

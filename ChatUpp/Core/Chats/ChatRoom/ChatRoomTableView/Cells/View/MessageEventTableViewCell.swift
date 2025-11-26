@@ -32,7 +32,7 @@ final class MessageEventCell: UITableViewCell
     let contentContainer: UIView! =
     {
         let container = UIView()
-        container.backgroundColor = ColorManager.messageEventBackgroundColor
+        container.backgroundColor = ColorScheme.messageEventBackgroundColor
         container.layer.cornerRadius = 10
         container.clipsToBounds = true
         container.translatesAutoresizingMaskIntoConstraints = false

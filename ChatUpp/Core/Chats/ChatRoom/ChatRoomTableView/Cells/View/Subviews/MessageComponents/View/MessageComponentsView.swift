@@ -135,13 +135,13 @@ final class MessageComponentsView: UIView
     
     private func getColorForMessageComponents() -> UIColor
     {
-        var color: UIColor = ColorManager.outgoingMessageComponentsTextColor
+        var color: UIColor = ColorScheme.outgoingMessageComponentsTextColor
         
         if viewModel.message.type == .image || viewModel.message.type == .sticker
         {
             color = .white
         } else {
-            color = viewModel.componentsContext == .incoming ? ColorManager.incomingMessageComponentsTextColor : ColorManager.outgoingMessageComponentsTextColor
+            color = viewModel.componentsContext == .incoming ? ColorScheme.incomingMessageComponentsTextColor : ColorScheme.outgoingMessageComponentsTextColor
         }
         return color
     }

@@ -78,7 +78,7 @@ class ChatsViewController: UIViewController {
         tableView.pin(to: view)
         tableView.rowHeight = 70
 //        createBackgroundView(for: tableView)
-        tableView.backgroundColor = ColorManager.appBackgroundColor
+        tableView.backgroundColor = ColorScheme.appBackgroundColor
         tableView.separatorColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
     }
 
@@ -167,9 +167,9 @@ class ChatsViewController: UIViewController {
         
         if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField, let searchIcon = textField.leftView
         {
-            textField.backgroundColor = ColorManager.navigationSearchFieldBackgroundColor
+            textField.backgroundColor = ColorScheme.navigationSearchFieldBackgroundColor
             textField.attributedPlaceholder = NSAttributedString(string: "Search", attributes: [.foregroundColor: #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)])
-            textField.textColor = ColorManager.textFieldTextColor
+            textField.textColor = ColorScheme.textFieldTextColor
             searchIcon.tintColor = #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)
         }
     }
@@ -422,7 +422,7 @@ extension ChatsViewController
                                               target: self,
                                               action: #selector(presentGropupOptionScreen))
         self.navigationItem.rightBarButtonItem = trailingBarItem
-        self.navigationItem.rightBarButtonItem?.tintColor = ColorManager.actionButtonsTintColor
+        self.navigationItem.rightBarButtonItem?.tintColor = ColorScheme.actionButtonsTintColor
     }
     
     private func setupBackBackBarButtonItem()

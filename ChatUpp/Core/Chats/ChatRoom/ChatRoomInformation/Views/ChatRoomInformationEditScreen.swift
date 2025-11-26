@@ -36,10 +36,10 @@ struct ChatRoomInformationEditScreen: View
                 } header: {
                     headerView()
                 }
-                .listRowBackground(Color(ColorManager.listCellBackgroundColor))
+                .listRowBackground(Color(ColorScheme.listCellBackgroundColor))
             }
             .scrollContentBackground(.hidden)
-            .background(Color(ColorManager.appBackgroundColor))
+            .background(Color(ColorScheme.appBackgroundColor))
             .toolbar {
                 toolbarContent()
             }
@@ -57,8 +57,8 @@ extension ChatRoomInformationEditScreen
     {
         return TextField("",
                          text: text,
-                         prompt: Text(verbatim: placeholder).foregroundColor(Color(ColorManager.textFieldPlaceholderColor)))
-        .foregroundStyle(Color(ColorManager.textFieldTextColor))
+                         prompt: Text(verbatim: placeholder).foregroundColor(Color(ColorScheme.textFieldPlaceholderColor)))
+        .foregroundStyle(Color(ColorScheme.textFieldTextColor))
     }
 }
 
@@ -114,7 +114,7 @@ extension ChatRoomInformationEditScreen
                     .font(.body)
                     .fontWeight(.medium)
                     .textCase(nil)
-                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                    .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
             }
         }.buttonStyle(.plain)
     }
@@ -190,7 +190,7 @@ extension ChatRoomInformationEditScreen
             Text("Cancel")
                 .font(.system(size: 16))
                 .bold()
-                .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
         }
     }
     
@@ -212,7 +212,7 @@ extension ChatRoomInformationEditScreen
             Text("Save")
                 .font(.system(size: 16))
                 .bold()
-                .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
         }
     }
 }

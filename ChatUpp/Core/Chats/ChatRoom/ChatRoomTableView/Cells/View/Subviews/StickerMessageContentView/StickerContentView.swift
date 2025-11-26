@@ -90,7 +90,7 @@ final class StickerMessageContentView: UIView
                                            imageData: image)
 
         replyToMessageStackView?.setReplyInnerStackColors(
-            background: ColorManager.stickerReplyToMessageBackgroundColor.withAlphaComponent(0.9),
+            background: ColorScheme.stickerReplyToMessageBackgroundColor.withAlphaComponent(0.9),
             barColor: .white)
     }
     

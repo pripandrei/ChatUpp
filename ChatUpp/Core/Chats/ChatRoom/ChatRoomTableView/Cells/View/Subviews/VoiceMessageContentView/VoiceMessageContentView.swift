@@ -23,7 +23,7 @@ final class VoiceMessageContentView: ContainerView
     private var messageSenderNameColor: UIColor
     {
         let senderID = viewModel.message?.senderId
-        return ColorManager.color(for: senderID ?? "12345")
+        return ColorScheme.color(for: senderID ?? "12345")
     }
 
     init(viewModel: MessageContentViewModel)
@@ -87,14 +87,14 @@ final class VoiceMessageContentView: ContainerView
     {
         switch alignment
         {
-        case .right: return .init(backgroundColor: .init(ColorManager.outgoingMessageBackgroundColor),
+        case .right: return .init(backgroundColor: .init(ColorScheme.outgoingMessageBackgroundColor),
                                   filledColor: .white,
-                                  unfilledColor: .init(ColorManager.incomingMessageComponentsTextColor),
+                                  unfilledColor: .init(ColorScheme.incomingMessageComponentsTextColor),
                                   playButtonColor: .white)
-        case .left: return .init(backgroundColor: .init(ColorManager.incomingMessageBackgroundColor),
-                                 filledColor: .init((ColorManager.sendMessageButtonBackgroundColor)),
-                                 unfilledColor: .init(ColorManager.outgoingReplyToMessageBackgroundColor),
-                                 playButtonColor: .init(ColorManager.sendMessageButtonBackgroundColor))
+        case .left: return .init(backgroundColor: .init(ColorScheme.incomingMessageBackgroundColor),
+                                 filledColor: .init((ColorScheme.sendMessageButtonBackgroundColor)),
+                                 unfilledColor: .init(ColorScheme.outgoingReplyToMessageBackgroundColor),
+                                 playButtonColor: .init(ColorScheme.sendMessageButtonBackgroundColor))
         default:
             fatalError("Unhandled alignment case: \(alignment)")
         }
@@ -122,7 +122,7 @@ final class VoiceMessageContentView: ContainerView
     
     private func updateReplyToMessageColor()
     {
-        var backgroundColor: UIColor = ColorManager.outgoingReplyToMessageBackgroundColor
+        var backgroundColor: UIColor = ColorScheme.outgoingReplyToMessageBackgroundColor
         var barColor: UIColor = .white
         
         if viewModel.messageAlignment == .left {

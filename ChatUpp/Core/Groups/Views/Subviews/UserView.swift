@@ -37,7 +37,7 @@ struct UserView<Content: View>: View
                 
                 Text(userItem.lastSeen?.formatToYearMonthDayCustomString() ?? "Last seen recently")
                     .font(.caption)
-                    .foregroundStyle(Color(ColorManager.textFieldPlaceholderColor))
+                    .foregroundStyle(Color(ColorScheme.textFieldPlaceholderColor))
             }
             trailingItems
         }

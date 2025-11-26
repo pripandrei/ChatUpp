@@ -62,7 +62,7 @@ struct VoicePlaybackControlPanelView: View
                         
                         Text(viewModel.remainingTime)
                             .font(.system(size: 12))
-                            .foregroundColor(Color(ColorManager.incomingMessageComponentsTextColor))
+                            .foregroundColor(Color(ChatUpp.ColorScheme.incomingMessageComponentsTextColor))
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)

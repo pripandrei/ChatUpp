@@ -76,15 +76,15 @@ struct ChatRoomInformationScreen: View
                     Text("Members")
                         .font(.subheadline)
                         .bold()
-                        .foregroundStyle(Color(ColorManager.tabBarNormalItemsTintColor))
+                        .foregroundStyle(Color(ColorScheme.tabBarNormalItemsTintColor))
                 }
-                .listRowBackground(Color(ColorManager.listCellBackgroundColor))
+                .listRowBackground(Color(ColorScheme.listCellBackgroundColor))
                 .listRowInsets(.init(top: 10, leading: 20, bottom: 10, trailing: 0))
             }
             .scrollContentBackground(.hidden)
         }
         .toolbarBackground(.clear, for: .navigationBar)
-        .background(Color(ColorManager.appBackgroundColor))
+        .background(Color(ColorScheme.appBackgroundColor))
         .padding(.top, -45)
         
         LeaveChatAlert(viewModel: viewModel,
@@ -160,16 +160,16 @@ extension ChatRoomInformationScreen
                 Image(systemName: option.icon)
                     .resizable()
                     .frame(width: 30, height: 30, alignment: .center)
-                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                    .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
                 
                 Text(option.rawValue)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                    .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
             }
             .frame(width: 80, height: 50)
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
-            .background(Color(ColorManager.listCellBackgroundColor).opacity(0.9))
+            .background(Color(ColorScheme.listCellBackgroundColor).opacity(0.9))
             .clipShape(.rect(cornerRadius: 12))
         }
     }

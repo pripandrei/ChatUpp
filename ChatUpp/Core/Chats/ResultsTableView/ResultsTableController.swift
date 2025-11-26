@@ -71,7 +71,7 @@ final class ResultsTableController: UITableViewController {
         tableView.register(ResultsTableCell.self, forCellReuseIdentifier: ReuseIdentifire.SearchRusultsTableCell.searchResult.identifire)
         tableView.sectionHeaderTopPadding = 0
         tableView.rowHeight = 55
-        tableView.backgroundColor = ColorManager.appBackgroundColor
+        tableView.backgroundColor = ColorScheme.appBackgroundColor
         tableView.isSkeletonable = true
         
         // Omit tableView to automatically go behind navigation bar
@@ -129,11 +129,11 @@ extension ResultsTableController
             configuration.text = "Global search".uppercased()
         }
         
-        configuration.textProperties.color = ColorManager.textFieldPlaceholderColor
+        configuration.textProperties.color = ColorScheme.textFieldPlaceholderColor
         configuration.textProperties.font = UIFont(name: "HelveticaNeue", size: 13)!
         
         tableViewHeaderFooterView.contentConfiguration = configuration
-        tableViewHeaderFooterView.contentView.backgroundColor = ColorManager.navigationBarBackgroundColor
+        tableViewHeaderFooterView.contentView.backgroundColor = ColorScheme.navigationBarBackgroundColor
         
         return tableViewHeaderFooterView
     }

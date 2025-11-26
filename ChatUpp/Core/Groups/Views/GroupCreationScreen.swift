@@ -23,23 +23,23 @@ struct GroupCreationScreen: View
                         .onTapGesture {
                             groupCreationViewModel.navigationStack.append(.addGroupMembers)
                         }
-                        .listRowBackground(Color(ColorManager.listCellBackgroundColor))
+                        .listRowBackground(Color(ColorScheme.listCellBackgroundColor))
                 }
                 Section {
                     ForEach(groupCreationViewModel.allUsers) { member in
                         UserView(userItem: member)
-                            .listRowBackground(Color(ColorManager.listCellBackgroundColor))
+                            .listRowBackground(Color(ColorScheme.listCellBackgroundColor))
                     }
                 } header: {
                     Text("Users")
                         .font(.subheadline)
                         .bold()
-                        .foregroundStyle(Color(ColorManager.tabBarNormalItemsTintColor))
+                        .foregroundStyle(Color(ColorScheme.tabBarNormalItemsTintColor))
                 }
             }
             .padding(.top, 1)
             .scrollContentBackground(.hidden)
-            .background(Color(ColorManager.appBackgroundColor))
+            .background(Color(ColorScheme.appBackgroundColor))
             .searchable(text: $searchText,
                         placement: .navigationBarDrawer(displayMode: .always),
                         prompt: "search for name")
@@ -97,9 +97,9 @@ extension GroupCreationScreen
             Image(systemName: "xmark")
                 .font(.system(size: 10))
                 .bold()
-                .foregroundStyle(Color(ColorManager.appBackgroundColor))
+                .foregroundStyle(Color(ColorScheme.appBackgroundColor))
                 .padding(7)
-                .background(Color(ColorManager.actionButtonsTintColor))
+                .background(Color(ColorScheme.actionButtonsTintColor))
                 .clipShape(.circle)
         }
     }
@@ -129,13 +129,13 @@ extension GroupCreationScreen
                 Image(systemName: item.imageName)
                     .font(.system(size: 20))
                     .frame(width: 37, height: 37)
-                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                    .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
                 //                    .background(Color(.systemGray6))
                     .clipShape(.circle)
                     .padding(.trailing, 10)
                 
                 Text(item.title)
-                    .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
+                    .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
                     .font(.system(size: 16))
             }
         }

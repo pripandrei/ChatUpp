@@ -26,7 +26,7 @@ struct NewGroupSetupScreen: View
             addedMembersSection()
         }
         .scrollContentBackground(.hidden)
-        .background(Color(ColorManager.appBackgroundColor))
+        .background(Color(ColorScheme.appBackgroundColor))
         .navigationTitle("New Group")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -55,7 +55,7 @@ struct NewGroupSetupScreen: View
                     .progressViewStyle(.circular)
                     .padding(.trailing, 8)
                     .scaleEffect(1.3)
-                    .tint(Color(ColorManager.actionButtonsTintColor))
+                    .tint(Color(ColorScheme.actionButtonsTintColor))
             } else {
                 Button {
                     dismissKeyboard()
@@ -65,7 +65,7 @@ struct NewGroupSetupScreen: View
                     }
                 } label: {
                     Text("Create")
-                        .foregroundStyle(viewModel.groupName.isEmpty ? .gray : Color(ColorManager.actionButtonsTintColor))
+                        .foregroundStyle(viewModel.groupName.isEmpty ? .gray : Color(ColorScheme.actionButtonsTintColor))
                 }
                 .disabled(viewModel.groupName.isEmpty)
             }
@@ -91,7 +91,7 @@ extension NewGroupSetupScreen
                    }
                }
            }
-           .listRowBackground(Color(ColorManager.listCellBackgroundColor))
+           .listRowBackground(Color(ColorScheme.listCellBackgroundColor))
            .sheet(item: $imageDataContainer) { container in
                CropViewControllerRepresentable(imageData: container.item, imageRepositoryRepresentable: viewModel)
            }
@@ -102,7 +102,7 @@ extension NewGroupSetupScreen
         Section {
             ForEach(viewModel.selectedGroupMembers) { user in
                 UserView(userItem: user)
-                    .listRowBackground(Color(ColorManager.listCellBackgroundColor))
+                    .listRowBackground(Color(ColorScheme.listCellBackgroundColor))
             }
         }
     }
@@ -137,8 +137,8 @@ extension NewGroupSetupScreen
                         .scaledToFit()
                         .frame(width: systemImageSize, height: systemImageSize)
                         .padding(padding)
-                        .foregroundStyle(Color(ColorManager.actionButtonsTintColor))
-                        .background(Color(ColorManager.mainAppBackgroundColorGradientTop))
+                        .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
+                        .background(Color(ColorScheme.mainAppBackgroundColorGradientTop))
                         .clipShape(Circle())
                 }
             }
@@ -149,11 +149,11 @@ extension NewGroupSetupScreen
     private func groupNameTextField() -> some View {
         TextField("",
                   text: $viewModel.groupName,
-                  prompt: Text(verbatim: "Group Name").foregroundColor(Color(ColorManager.textFieldPlaceholderColor))
+                  prompt: Text(verbatim: "Group Name").foregroundColor(Color(ColorScheme.textFieldPlaceholderColor))
         )
         .padding(.leading, 10)
         .font(Font.system(size: 19, weight: .semibold))
-        .foregroundStyle(Color(ColorManager.textFieldTextColor))
+        .foregroundStyle(Color(ColorScheme.textFieldTextColor))
     }
     
     private func removeTextButton() -> some View

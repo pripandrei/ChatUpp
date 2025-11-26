@@ -21,7 +21,7 @@ class TabBarViewController: UITabBarController
     public override func viewDidLoad()
     {
         super.viewDidLoad()
-        view.backgroundColor = ColorManager.tabBarBackgroundColor
+        view.backgroundColor = ColorScheme.tabBarBackgroundColor
         tabBar.isHidden = true
     }
     
@@ -61,15 +61,15 @@ class TabBarViewController: UITabBarController
         tabBarAppearance.backgroundColor = #colorLiteral(red: 0.4331829548, green: 0.2255868614, blue: 0.4133677185, alpha: 1).withAlphaComponent(0.3)
         tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterialDark)
 
-        tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarSelectedItemsTintColor]
-        tabBarItemAppearance.selected.iconColor = ColorManager.tabBarSelectedItemsTintColor
-        tabBarItemAppearance.normal.iconColor = ColorManager.tabBarNormalItemsTintColor
-        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorManager.tabBarNormalItemsTintColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
+        tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorScheme.tabBarSelectedItemsTintColor]
+        tabBarItemAppearance.selected.iconColor = ColorScheme.tabBarSelectedItemsTintColor
+        tabBarItemAppearance.normal.iconColor = ColorScheme.tabBarNormalItemsTintColor
+        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorScheme.tabBarNormalItemsTintColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
 
         tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
         
-        chatsNavigationController?.navigationBar.tintColor = ColorManager.actionButtonsTintColor
-        settingsNavigationController?.navigationBar.tintColor = ColorManager.actionButtonsTintColor
+        chatsNavigationController?.navigationBar.tintColor = ColorScheme.actionButtonsTintColor
+        settingsNavigationController?.navigationBar.tintColor = ColorScheme.actionButtonsTintColor
         
         tabBar.standardAppearance = tabBarAppearance
         tabBar.scrollEdgeAppearance = tabBarAppearance

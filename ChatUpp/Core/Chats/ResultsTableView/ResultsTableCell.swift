@@ -22,7 +22,7 @@ final class ResultsTableCell: UITableViewCell {
         
         self.isSkeletonable = true
         contentView.isSkeletonable = true
-        contentView.backgroundColor = ColorManager.appBackgroundColor
+        contentView.backgroundColor = ColorScheme.appBackgroundColor
         setupUserImage()
         setupUserName()
     }
@@ -93,7 +93,7 @@ final class ResultsTableCell: UITableViewCell {
         titleLabel.skeletonTextNumberOfLines = .custom(3)
         titleLabel.linesCornerRadius = 4
         titleLabel.lastLineFillPercent = 30
-        titleLabel.textColor = ColorManager.textFieldTextColor
+        titleLabel.textColor = ColorScheme.textFieldTextColor
         titleLabel.font = .systemFont(ofSize: 17, weight: .bold)
         
 //        userNameLabel.skeletonPaddingInsets

@@ -8,7 +8,7 @@
 import UIKit
 import SkeletonView
 
-struct ColorManager
+struct ColorScheme
 {
     static let appBackgroundColor: UIColor = #colorLiteral(red: 0.2099263668, green: 0.151156038, blue: 0.2217666507, alpha: 1)
     static let navigationBarBackgroundColor: UIColor = #colorLiteral(red: 0.2569749951, green: 0.1936042905, blue: 0.2717022896, alpha: 1)

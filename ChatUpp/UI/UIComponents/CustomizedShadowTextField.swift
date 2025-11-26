@@ -7,8 +7,8 @@
 
 import UIKit
 
-class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
-    
+class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable
+{
     var innerTopShadowLayer: CALayer!
     var innerBottomShadowLayer: CALayer!
     
@@ -16,8 +16,10 @@ class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
         super.init(frame: frame)
     }
     
-    override func layoutSubviews() {
+    override func layoutSubviews()
+    {
         super.layoutSubviews()
+        
         if innerTopShadowLayer == nil {
             configureLayer()
             applyShadows()
@@ -29,7 +31,8 @@ class CustomizedShadowTextField: UITextField, TextViewShadowConfigurable {
     
     private func setupPlaceholderApperance(withColor color: UIColor)
     {
-        attributedPlaceholder = NSAttributedString(string: placeholder!, attributes: [NSAttributedString.Key.foregroundColor: color])
+        attributedPlaceholder = NSAttributedString(string: placeholder!,
+                                                   attributes: [NSAttributedString.Key.foregroundColor: color])
     }
     
     required init?(coder: NSCoder) {

@@ -184,14 +184,14 @@ extension ConversationMessageCell
             view.widthAnchor.constraint(lessThanOrEqualToConstant: TextImageMessageContentView.maxWidth).isActive = true
             view.widthAnchor.constraint(greaterThanOrEqualToConstant: 80).isActive = true
             contentContainer?.backgroundColor = cellViewModel.messageAlignment == .right ?
-            ColorManager.outgoingMessageBackgroundColor : ColorManager.incomingMessageBackgroundColor
+            ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
         case .sticker:
             view.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -10).isActive = true
             contentContainer?.backgroundColor = .clear
         case .audio:
             view.widthAnchor.constraint(lessThanOrEqualToConstant: 330).isActive = true
             contentContainer?.backgroundColor = cellViewModel.messageAlignment == .right ?
-            ColorManager.outgoingMessageBackgroundColor : ColorManager.incomingMessageBackgroundColor
+            ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
         default: break
         }
     }
