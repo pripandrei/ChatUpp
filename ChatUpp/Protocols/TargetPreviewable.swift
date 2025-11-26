@@ -8,7 +8,8 @@
 import YYText
 import UIKit
 
-protocol TargetPreviewable
+protocol TargetPreviewable: UIView
 {
     var cellViewModel: MessageCellViewModel! { get }
+    var contentContainer: UIView! { get }
 }

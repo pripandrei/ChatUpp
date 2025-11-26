@@ -210,7 +210,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let totalMessagesCount = messageClusters.reduce(0) { total, cluster in
             total + cluster.items.filter { $0.message != nil }.count
         }
-        messageListenerService?.addListenerToExistingMessagesTest(
+        messageListenerService?.addListenerToExistingMessages(
             startAtMesssage: startMessage,
             ascending: false,
             limit: totalMessagesCount
@@ -423,7 +423,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let message = conversation?.getLastMessage(),
               let limit = conversation?.conversationMessages.count else { return }
 
-        messageListenerService?.addListenerToExistingMessagesTest(
+        messageListenerService?.addListenerToExistingMessages(
             startAtMesssage: message,
             ascending: true,
             limit: limit)
@@ -1461,7 +1461,7 @@ extension ChatRoomViewModel
         { 
             let startMessage = newMessages.first!
             realmService?.addMessagesToConversationInRealm(newMessages)
-            messageListenerService?.addListenerToExistingMessagesTest(
+            messageListenerService?.addListenerToExistingMessages(
                 startAtMesssage: startMessage,
                 ascending: direction == .ascending ? true : false,
                 limit: newMessages.count)

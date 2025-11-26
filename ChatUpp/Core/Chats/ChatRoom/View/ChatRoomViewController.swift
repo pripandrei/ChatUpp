@@ -1175,8 +1175,8 @@ extension ChatRoomViewController: UITableViewDelegate
                    didSelectRowAt indexPath: IndexPath)
     {
         tableView.deselectRow(at: indexPath, animated: false)
-        
-        guard let cell = tableView.cellForRow(at: indexPath) as? ConversationMessageCell else {return}
+         
+        guard let cell = tableView.cellForRow(at: indexPath) as? TargetPreviewable else {return}
         
         if let touchLocation = tableView.panGestureRecognizer.location(in: cell) as CGPoint?
         {
@@ -1184,17 +1184,18 @@ extension ChatRoomViewController: UITableViewDelegate
             
             if cell.contentContainer.frame.contains(touchLocation)
             {
-                if cell.cellViewModel.message?.imagePath != nil
-                {
-                    initiatePhotoBrowserPresentation(from: cell)
+                guard cell.cellViewModel.message?.imagePath != nil,
+                      let messageCell = cell as? ConversationMessageCell
+                else {
+                    return
                 }
+                initiatePhotoBrowserPresentation(from: messageCell)
             }
         }
     }
     
     private func initiatePhotoBrowserPresentation(from cell: ConversationMessageCell)
     {
-//        let imageView = cell.contentContainer.messageImageView
         guard let imageView = (cell.contentContainer as? TextImageMessageContentView)?.messageImageView else {return}
         let items = self.viewModel.mediaItems
         
@@ -1240,7 +1241,7 @@ extension ChatRoomViewController: UITableViewDelegate
                 
                 if let startMessage = viewModel.lastPaginatedMessage
                 {
-                    viewModel.messageListenerService?.addListenerToExistingMessagesTest(
+                    viewModel.messageListenerService?.addListenerToExistingMessages(
                         startAtMesssage: startMessage,
                         ascending: !ascending,
                         limit: ObjectsPaginationLimit.localMessages)
@@ -1445,7 +1446,7 @@ extension ChatRoomViewController
                 let message = eventCell.cellViewModel.message
         {
             let tapLocationInCell = eventCell.contentView.convert(point, from: tableView)
-            guard eventCell.messageEventContainer.frame.contains(tapLocationInCell) else { return nil }
+            guard eventCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
             
             return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
                 return menuBuilder.buildUIMenuForEvent(message: message)

@@ -43,7 +43,7 @@ final class ConversationMessageListenerService
     {
         guard let conversationID = conversation?.id else { return }
         let startMessage = conversation?.getLastMessage() 
-        let messageID = startMessage?.id ?? "fake_ID" // random fake id, to skip start of listening from message and instead use current date (timestamp) below
+        let messageID = startMessage?.id ?? "fake_ID" // random fake id, to skip listening from message and instead use current date (timestamp) below
         let messageTimestamp = startMessage?.timestamp ?? Date()
  
         Task { [weak self] in
@@ -65,7 +65,7 @@ final class ConversationMessageListenerService
         }
     }
     
-    func addListenerToExistingMessagesTest(startAtMesssage message: Message,
+    func addListenerToExistingMessages(startAtMesssage message: Message,
                                            ascending: Bool,
                                            limit: Int = ObjectsPaginationLimit.remoteMessages)
     {

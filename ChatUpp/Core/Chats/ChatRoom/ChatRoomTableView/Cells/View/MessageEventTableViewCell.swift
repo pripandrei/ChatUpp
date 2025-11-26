@@ -29,7 +29,7 @@ final class MessageEventCell: UITableViewCell
         return messageEventLabel
     }()
     
-    let messageEventContainer: UIView =
+    let contentContainer: UIView! =
     {
         let container = UIView()
         container.backgroundColor = ColorManager.messageEventBackgroundColor
@@ -97,9 +97,9 @@ final class MessageEventCell: UITableViewCell
         hostView.view.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(hostView.view)
         
-        hostView.view.centerXAnchor.constraint(equalTo: messageEventContainer.centerXAnchor).isActive = true
+        hostView.view.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor).isActive = true
         
-        hostView.view.topAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -2).isActive = true
+        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
     }
     
     private func makeAttributedMessage(username: String?, text: String?) -> NSAttributedString
@@ -131,22 +131,22 @@ final class MessageEventCell: UITableViewCell
 
     private func setupMessageEventContainerConstraints()
     {
-        contentView.addSubview(messageEventContainer)
-        messageEventContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        messageEventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
-        messageEventContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
+        contentView.addSubview(contentContainer)
+        contentContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        contentContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        contentContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
     }
     
     private func setupMessageEventLabelConstraints()
     {
-        messageEventContainer.addSubview(messageLabel)
+        contentContainer.addSubview(messageLabel)
         
-        messageLabel.topAnchor.constraint(equalTo: messageEventContainer.topAnchor, constant: 3).isActive = true
-        messageLabel.bottomAnchor.constraint(equalTo: messageEventContainer.bottomAnchor, constant: -3).isActive = true
-        messageLabel.leadingAnchor.constraint(equalTo: messageEventContainer.leadingAnchor, constant: 7).isActive = true
-        messageLabel.trailingAnchor.constraint(equalTo: messageEventContainer.trailingAnchor, constant: -7).isActive = true
+        messageLabel.topAnchor.constraint(equalTo: contentContainer.topAnchor, constant: 3).isActive = true
+        messageLabel.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -3).isActive = true
+        messageLabel.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 7).isActive = true
+        messageLabel.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -7).isActive = true
         
-        contentContainerViewBottomConstraint = messageEventContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        contentContainerViewBottomConstraint = contentContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
 //        contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
         contentContainerViewBottomConstraint.isActive = true
     }
