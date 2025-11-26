@@ -33,10 +33,13 @@ class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate
     
     private func makeTextField() -> UITextField
     {
-        let textfield = UITextField(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: self.bounds.width, height: self.bounds.height)))
+        let frame = CGRect(
+            origin: CGPoint.zero,
+            size: CGSize(width: self.bounds.width, height: self.bounds.height)
+        )
+        let textfield = UITextField(frame: frame)
         textfield.delegate = self
-//        textfield.textColor = .black
-//        textfield.attributedPlaceholder = NSAttributedString(string: "Placeholder", attributes: [.foregroundColor : ColorManager.textPlaceholderColor])
+        textfield.textColor = ColorScheme.textFieldTextColor
         textfield.layer.sublayerTransform = CATransform3DMakeTranslation(20, 0, 0)
         self.contentView.addSubview(textfield)
 
@@ -64,7 +67,6 @@ class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate
     
     func createAttributedText(with text: String) -> NSAttributedString
     {
-        return NSAttributedString(string: text,
-                                  attributes: [.foregroundColor : ColorScheme.textFieldTextColor])
+        return NSAttributedString(string: text)
     }
 }

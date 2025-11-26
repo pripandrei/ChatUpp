@@ -92,8 +92,6 @@ final class ProfileDeletionViewController: UIViewController
             informationLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.size.height / 12),
             informationLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 50),
             informationLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -50),
-//            informationLabel.heightAnchor.constraint(equalToConstant: 40),
-//            informationLabel.widthAnchor.constraint(equalToConstant: 300),
         ])
     }
     
@@ -176,7 +174,7 @@ final class ProfileDeletionViewController: UIViewController
         Task
         {
             do {
-                try await profileDeletionViewModel.sendSMSCode()                
+                try await profileDeletionViewModel.sendSMSCode()
             } catch {
                 print("Could not send sms code \(error)")
             }

@@ -12,8 +12,6 @@ final class ProfileEditingViewModel
 {
     @Published private(set) var profileDataIsEdited: Bool?
     private(set) var initialProfilePhoto: Data
-//    private var editedProfilePhoto: Data?
-//    private var profilePictureURL: String?
     private var user: User
     private var userData: (name: String?, phone: String?, nickname: String?)
     
@@ -156,26 +154,7 @@ extension ProfileEditingViewModel
                 }
             }
         }
-//        if let photoURL = authUser.photoURL
-//        {
-//            do {
-////                try await removeProfileImage(ofUser: authUser.uid,
-////                                             urlPath: photoURL)
-//                try await FirebaseStorageManager.shared.deleteImage(
-//                    from: .user(authUser.uid),
-//                    imagePath: photoURL)
-//            } catch {
-//                print("Error occure while removing previous image!: ", error)
-//            }
-//        }
     }
-    
-//    private func updateCacheProfileImageData()
-//    {
-//        guard let imageData = self.editedProfilePhoto,
-//              let pictureURL = profilePictureURL else {return}
-//        CacheManager.shared.saveImageData(imageData, toPath: pictureURL)
-//    }
     
     private func removeProfileImage(ofUser userID: String, urlPath: String) async throws
     {
@@ -184,10 +163,6 @@ extension ProfileEditingViewModel
             imagePath: urlPath
             )
     }
-    
-//    func updateProfilePhotoData(_ data: Data?) {
-//        self.editedProfilePhoto = data
-//    }
     
     func updateImageRepository(repository: ImageSampleRepository) {
         self.imageSampleRepository = repository
