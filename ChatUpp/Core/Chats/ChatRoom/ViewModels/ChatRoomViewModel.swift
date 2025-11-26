@@ -1155,6 +1155,17 @@ extension ChatRoomViewModel
                 }
             }
             
+            if messageClusters.isEmpty
+            {
+                Task { @MainActor in
+                    guard let chatID = self.conversation?.id else { return }
+                    do {
+                       try await FirebaseChatService.shared.removeRecentMessage(fromChat: chatID)
+                    } catch {
+                        print("could not delete last message: ", error)
+                    }
+                }
+            }
         }
         realmService?.removeMessagesFromRealm(messages: messages)
         

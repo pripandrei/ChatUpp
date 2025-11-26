@@ -87,7 +87,7 @@ final class ConversationMessageListenerService
     
     func addListenerToChatGroupEventMessage()
     {
-        ChatManager.shared.$newCreatedMessage
+        ChatManager.shared.newCreatedMessageSubject
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
                 self?.eventMessage = message

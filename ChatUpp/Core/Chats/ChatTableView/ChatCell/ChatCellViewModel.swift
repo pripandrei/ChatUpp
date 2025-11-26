@@ -37,7 +37,7 @@ class ChatCellViewModel
 
     @Published private(set) var recentMessage: Message? {
         didSet {
-            if oldValue != recentMessage
+            if oldValue != recentMessage && recentMessage != nil
             {
                 self.addListenersToRecentMessage()
             }
@@ -559,8 +559,13 @@ extension ChatCellViewModel
 //MARK: - Helper functions
 extension ChatCellViewModel
 {
-    private func handleRecentMessageChange(_ newValue: Any?) {
-        guard let recentMessageID = newValue as? String else { return }
+    private func handleRecentMessageChange(_ newValue: Any?)
+    {
+        guard let recentMessageID = newValue as? String else
+        {
+            self.recentMessage = nil
+            return
+        }
         self.setNewRecentMessage(messageID: recentMessageID)
     }
 

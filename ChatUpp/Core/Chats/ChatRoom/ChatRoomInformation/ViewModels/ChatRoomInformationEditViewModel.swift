@@ -105,7 +105,9 @@ extension ChatRoomInformationEditViewModel
     @MainActor
     private func addMessageToDatabase(_ message: Message) async throws
     {
-        RealmDatabase.shared.add(object: message)
+        RealmDatabase.shared.update(object: conversation) { realmChat in
+            realmChat.conversationMessages.append(message)
+        }
         try await FirebaseChatService.shared.createMessage(
             message: message,
             atChatPath: conversation.id

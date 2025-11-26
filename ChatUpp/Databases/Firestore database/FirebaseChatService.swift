@@ -195,7 +195,7 @@ extension FirebaseChatService
     @MainActor
     func getRecentMessage(from chat: Chat) async throws -> Message?
     {
-        guard let recentMessageID = chat.recentMessageID else {return nil}
+        guard let recentMessageID = chat.recentMessageID, !recentMessageID.isEmpty else {return nil}
         do {
             let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             return message
@@ -359,6 +359,15 @@ extension FirebaseChatService
     func updateChatRecentMessage(recentMessageID: String ,chatID: String) async throws {
         let data: [String: Any] = [
             Chat.CodingKeys.recentMessageID.rawValue : recentMessageID
+        ]
+        try await chatDocument(documentPath: chatID).updateData(data)
+    }
+    
+    func removeRecentMessage(fromChat chatID: String) async throws
+    {
+        let data: [String: Any] =
+        [
+            Chat.CodingKeys.recentMessageID.rawValue: FieldValue.delete()
         ]
         try await chatDocument(documentPath: chatID).updateData(data)
     }

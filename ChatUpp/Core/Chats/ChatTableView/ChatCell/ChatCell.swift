@@ -154,8 +154,10 @@ class ChatCell: UITableViewCell
     
     private func configureRecentMessage(_ message: Message?)
     {
-        if !cellViewModel.isRecentMessagePresent {
+        if !cellViewModel.isRecentMessagePresent
+        {
             Utilities.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
+            self.messageLable.attributedText = nil
             return
         }
         
@@ -180,7 +182,7 @@ class ChatCell: UITableViewCell
     {
         switch message.type
         {
-        case .text:
+        case .text, .title:
             return NSAttributedString(string: message.messageBody)
 
         case .imageText:
