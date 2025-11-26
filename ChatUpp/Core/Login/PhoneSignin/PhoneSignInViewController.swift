@@ -7,19 +7,28 @@
 
 import UIKit
 import FlagPhoneNumber
+import NVActivityIndicatorView
 
 class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     
     weak var coordinator: Coordinator!
     
+    private var phoneLogo: UIImageView = UIImageView()
+    private var phoneTextLabel: UILabel = UILabel()
+    var isPhoneNumberValid: Bool = false
     let phoneViewModel = PhoneSignInViewModel()
     let customizedFPNTextField = CustomFPNTextField()
     let receiveMessageButton = CustomizedShadowButton()
-    var isPhoneNumberValid: Bool = false
-    private var phoneLogo: UIImageView = UIImageView()
-    private var phoneTextLabel: UILabel = UILabel()
-    
     let listController: FPNCountryListViewController = FPNCountryListViewController(style: .grouped)
+    
+    private(set) lazy var activityIndicator: NVActivityIndicatorView = {
+        let activityIndicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height: 40),
+                                                        type: .circleStrokeSpin,
+                                                        color: .link,
+                                                        padding: 2)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,6 +40,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         setupReceiveMessageButton()
         setupPhoneImage()
         setupProvideEmailLabel()
+        setupActivityIndicatorConstraint()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -117,22 +127,26 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
         ])
     }
     
-    @objc func receiveMessageButtonWasTapped() {
+    @objc func receiveMessageButtonWasTapped()
+    {
         guard isPhoneNumberValid,
               let number = customizedFPNTextField.getFormattedPhoneNumber(format: .E164)
         else { presentInvalidNumberAlert() ; return}
         Task {
             do {
+                self.activityIndicator.startAnimating()
                 try await phoneViewModel.sendSmsToPhoneNumber(number)
                 coordinator.pushPhoneCodeVerificationViewController(phoneViewModel: self.phoneViewModel)
             } catch {
                 print("error sending sms to phone number: ", error.localizedDescription)
             }
+            self.activityIndicator.stopAnimating()
         }
     }
     
     // INVALID NUMBER ALERT
-    func presentInvalidNumberAlert() {
+    func presentInvalidNumberAlert()
+    {
         let alert = UIAlertController(title: "Alert", message: "Please enter a valid phone number", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .cancel)
         alert.addAction(okAction)
@@ -160,6 +174,17 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         customizedFPNTextField.resignFirstResponder()
         return true
+    }
+    
+    // loading indicator
+    private func setupActivityIndicatorConstraint()
+    {
+        view.addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 40)
+        ])
     }
 }
 

@@ -10,6 +10,7 @@ import Photos
 import PhotosUI
 import Kingfisher
 import Combine
+import NVActivityIndicatorView
 
 class UsernameRegistrationViewController: UIViewController {
     
@@ -22,6 +23,15 @@ class UsernameRegistrationViewController: UIViewController {
     private let nameAndPhotoTextLabel: UILabel = UILabel()
     private var cancellables = Set<AnyCancellable>()
     
+    private(set) lazy var activityIndicator: NVActivityIndicatorView = {
+        let activityIndicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height: 40),
+                                                        type: .circleStrokeSpin,
+                                                        color: .link,
+                                                        padding: 2)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
+    }()
+    
     
     // MARK: VC LIFE CYCLE
     override func viewDidLoad() {
@@ -33,6 +43,7 @@ class UsernameRegistrationViewController: UIViewController {
         setupProfileImage()
         setupNameAndPhotoLabel()
         configureBinding()
+        setupActivityIndicatorConstraint()
     }
     
     deinit {
@@ -41,11 +52,13 @@ class UsernameRegistrationViewController: UIViewController {
     
     // MARK: - BINDING
     
-    private func configureBinding() {
+    private func configureBinding()
+    {
         usernameRegistrationViewModel.registrationCompleted.bind { [weak self] completed in
             if completed == true
             {
                 Task { @MainActor in
+                    self?.activityIndicator.stopAnimating()
                     self?.coordinator.dismissNaviagtionController()
                 }
             }
@@ -54,10 +67,13 @@ class UsernameRegistrationViewController: UIViewController {
     
     // MARK: - UI SETUP
     
-    private func setupProfileImage() {
+    private func setupProfileImage()
+    {
         view.addSubview(profileImage)
         
         profileImage.backgroundColor = .carrot
+        profileImage.layer.cornerRadius = 10
+        profileImage.clipsToBounds = true
         profileImage.image = UIImage(named: "default_profile_photo")
         //        profileImage.contentMode = .scaleAspectFill
         
@@ -75,7 +91,8 @@ class UsernameRegistrationViewController: UIViewController {
         ])
     }
     
-    private func configureContinueButton() {
+    private func configureContinueButton()
+    {
         view.addSubview(continueButton)
         
         continueButton.configuration?.title = "Continue"
@@ -100,6 +117,7 @@ class UsernameRegistrationViewController: UIViewController {
     {
         if usernameRegistrationViewModel.validateName() == .valid
         {
+            activityIndicator.startAnimating()
             usernameRegistrationViewModel.finishRegistration()
         } else {
             usernameTextField.animateBorder()
@@ -145,10 +163,21 @@ class UsernameRegistrationViewController: UIViewController {
             nameAndPhotoTextLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
+    
+    private func setupActivityIndicatorConstraint()
+    {
+        view.addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 40)
+        ])
+    }
 }
 
 //MARK: - Photo Picker setup
-extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
+extension UsernameRegistrationViewController: PHPickerViewControllerDelegate
+{
     @objc func addProfilePhoto() {
         initiatePhotoPicker()
     }
@@ -177,7 +206,7 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
                 
                 let repository = ImageSampleRepository(image: cropedImage, type: .user)
                 
-                if let mediumImage = repository.samples[.medium]
+                if let mediumImage = repository.samples[.original]
                 {
                     self.usernameRegistrationViewModel.setImageSampleRepository(repository)
                     self.profileImage.image = UIImage(data: mediumImage)
@@ -205,7 +234,8 @@ extension UsernameRegistrationViewController: PHPickerViewControllerDelegate {
 }
 
 //MARK: - TextFieldDelegate
-extension UsernameRegistrationViewController: UITextFieldDelegate {
+extension UsernameRegistrationViewController: UITextFieldDelegate
+{
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         usernameTextField.resignFirstResponder()
     }

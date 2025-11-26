@@ -28,8 +28,12 @@ final class PhoneSignInViewModel {
         guard let verificationID = verificationID else { print("missing verificationID"); return}
         Task {
             do {
-                let resultModel = try await AuthenticationManager.shared.signinWithPhoneSMS(using: verificationID, verificationCode: code)
+                let resultModel = try await AuthenticationManager.shared.signinWithPhoneSMS(
+                    using: verificationID,
+                    verificationCode: code
+                )
                 let dbUser = User(auth: resultModel)
+                
                 if let _ = try? await FirestoreUserService.shared.getUserFromDB(userID: dbUser.id) {
                     userCreationStatus.value = .userExists
                 } else {
@@ -43,7 +47,8 @@ final class PhoneSignInViewModel {
         }
     }
     
-    func sendSmsToPhoneNumber(_ number: String) async throws {
+    func sendSmsToPhoneNumber(_ number: String) async throws
+    {
         let verificationID = try await AuthenticationManager.shared.sendSMSToPhone(number: number)
         defaults.set(verificationID, forKey: verificationIDKey)
     }

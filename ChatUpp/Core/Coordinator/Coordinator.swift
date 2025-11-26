@@ -116,7 +116,8 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
         }
     }
     
-    func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel) {
+    func pushPhoneCodeVerificationViewController(phoneViewModel: PhoneSignInViewModel)
+    {
         let phoneCodeVerificationVC = PhoneCodeVerificationViewController(viewModel: phoneViewModel)
         phoneCodeVerificationVC.coordinator = self
         loginNavigationController.pushViewController(phoneCodeVerificationVC, animated: true)

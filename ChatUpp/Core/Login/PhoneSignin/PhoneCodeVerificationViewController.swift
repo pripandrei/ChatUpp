@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import NVActivityIndicatorView
 
 final class PhoneCodeVerificationViewController: UIViewController , UITextFieldDelegate {
     
@@ -18,12 +19,22 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     private let messageCodeLogo = UIImageView()
     private let codeTextLabel = UILabel()
     
+    private(set) lazy var activityIndicator: NVActivityIndicatorView = {
+        let activityIndicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height: 40),
+                                                        type: .circleStrokeSpin,
+                                                        color: .link,
+                                                        padding: 2)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
+    }()
+    
     convenience init(viewModel: PhoneSignInViewModel) {
         self.init()
         self.phoneViewModel = viewModel
     }
 
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         view.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         setupSmsTextField()
         setupVerifySMSButton()
@@ -31,11 +42,13 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         setupPhoneImage()
         configureCodeTextLabel()
         Utilities.setGradientBackground(forView: view)
+        setupActivityIndicatorConstraint()
     }
     
     //MARK: - Binding
 
-    private func setupBinder() {
+    private func setupBinder()
+    {
         phoneViewModel.userCreationStatus.bind { [weak self] creationStatus in
             guard let status = creationStatus else {return}
             Task { @MainActor in
@@ -44,8 +57,20 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
                 } else {
                     self?.coordinator.pushUsernameRegistration()
                 }
+                self?.activityIndicator.stopAnimating()
             }
         }
+    }
+    
+    // loading indicator
+    private func setupActivityIndicatorConstraint()
+    {
+        view.addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 10)
+        ])
     }
     
     private func setupPhoneImage() {
@@ -97,7 +122,8 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         ])
     }
     
-    func setupVerifySMSButton() {
+    func setupVerifySMSButton()
+    {
         view.addSubview(verifyMessageButton)
        
         verifyMessageButton.configuration?.title = "Verify code"
@@ -114,9 +140,11 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
         ])
     }
     
-    @objc func verifySMSButtonWasTapped() {
+    @objc func verifySMSButtonWasTapped()
+    {
         guard let code = smsTextField.text, !code.isEmpty else {return}
         phoneViewModel.signInViaPhone(usingVerificationCode: code)
+        activityIndicator.startAnimating()
     }
 }
 

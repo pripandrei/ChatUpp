@@ -185,16 +185,6 @@ extension NewGroupSetupScreen
         return try? await self.profilePhotoItem?.loadTransferable(type: Data.self)
     }
     
-    private func finishGroupCreation() async
-    {
-        do {
-            try await viewModel.finishGroupCreation()
-            
-        } catch {
-            print("Could not create group: \(error)")
-        }
-    }
-    
     private func openChatGroup(with group: Chat) async throws
     {
         let chatRoomVM = ChatRoomViewModel(conversation: group)
