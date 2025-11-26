@@ -10,10 +10,13 @@ import Photos
 import PhotosUI
 import Combine
 import CropViewController
+import NVActivityIndicatorView
 
-final class ProfileEditingViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout
+final class ProfileEditingViewController: UIViewController,
+                                          UICollectionViewDelegate,
+                                          UICollectionViewDataSource,
+                                          UICollectionViewDelegateFlowLayout
 {
-    
     weak var coordinatorDelegate: Coordinator!
     
     private lazy var collectionView = makeCollectionView()
@@ -21,21 +24,30 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     private var headerCell: ProfileEditingListHeaderCell!
     private var cancellables: Set<AnyCancellable> = Set<AnyCancellable>()
     
+    private(set) lazy var activityIndicator: NVActivityIndicatorView = {
+        let activityIndicator = NVActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: 40, height: 40),
+                                                        type: .circleStrokeSpin,
+                                                        color: .link,
+                                                        padding: 2)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
+    }()
+    
     convenience init(viewModel: ProfileEditingViewModel) {
         self.init()
         self.profileEditingViewModel = viewModel
         self.setupBinding()
     }
 
-    override func viewDidLoad() {
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
         
-//        view.backgroundColor = #colorLiteral(red: 0.1411764771, green: 0.3960784376, blue: 0.5647059083, alpha: 1)
 //        navigationController?.setNavigationBarHidden(true, animated: false)
-        
         configureCollectionViewLayout()
         registerCells()
         setupNavigationBar()
+        setupActivityIndicatorConstraint()
     }
     
     deinit {
@@ -58,13 +70,17 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
     {
         profileEditingViewModel.$profileDataIsEdited
             .sink { [weak self] isEdited in
-                if isEdited == true {
+                if isEdited == true
+                {
+                    self?.activityIndicator.stopAnimating()
                     self?.coordinatorDelegate.dismissEditProfileVC()
                 }
             }.store(in: &cancellables)
         
     }
 
+    /// Navigation setup
+    ///
     private func setupNavigationBarItems()
     {
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
@@ -77,11 +93,16 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
         coordinatorDelegate.dismissEditProfileVC()
     }
     
-    @objc func saveEditedData() {
+    @objc func saveEditedData()
+    {
+        activityIndicator.startAnimating()
         profileEditingViewModel.handleProfileDataUpdate()
     }
     
-    private func makeCollectionView() -> UICollectionView {
+    /// collection view setup
+    ///
+    private func makeCollectionView() -> UICollectionView
+    {
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         configuration.backgroundColor = ColorManager.appBackgroundColor
         configuration.headerMode = .supplementary
@@ -111,11 +132,23 @@ final class ProfileEditingViewController: UIViewController, UICollectionViewDele
         collectionView.register(ProfileEditingListCell.self, forCellWithReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.list.identifire)
         collectionView.register(ProfileEditingListHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.header.identifire)
     }
+    
+    // Loading indicator setup
+    
+    private func setupActivityIndicatorConstraint()
+    {
+        view.addSubview(activityIndicator)
+        
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
 }
 
 //MARK: - COLLECTION VIEW DELEGATE
-extension ProfileEditingViewController {
-    
+extension ProfileEditingViewController
+{
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
@@ -209,18 +242,6 @@ extension ProfileEditingViewController: PHPickerViewControllerDelegate {
         
         present(cropVC, animated: true)
     }
-//    
-//    private func updateImage(_ image: UIImage)
-//    {
-//        self.profileEditingViewModel.updateProfilePhotoData(image.getJpegData())
-//        self.headerCell.imageView.image = image
-//    }
-    
-//    private func downsampleImage(_ image: UIImage) -> UIImage
-//    {
-//        let newSize = ImageSample.user.sizeMapping[.original]!
-//        return image.downsample(toSize: newSize, withCompressionQuality: 0.6)
-//    }
 }
 
 extension ProfileEditingViewController: CropViewControllerDelegate
@@ -232,7 +253,7 @@ extension ProfileEditingViewController: CropViewControllerDelegate
     {
 //        let downsampledImage = downsampleImage(image)
         let imageSampleRepo = ImageSampleRepository(image: image, type: .user)
-        if let mediumSampleImageData = imageSampleRepo.samples[.medium] {
+        if let mediumSampleImageData = imageSampleRepo.samples[.original] {
             self.headerCell.imageView.image = UIImage(data: mediumSampleImageData)
         }
         self.profileEditingViewModel.updateImageRepository(repository: imageSampleRepo)
