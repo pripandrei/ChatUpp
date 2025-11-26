@@ -194,7 +194,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         observeParticipantChanges()
          
         guard let startMessage = messageClusters.first?.items.first?.message
-        else {return}
+        else {
+            // chat is empty, safe to attache to upcoming messages
+            messageListenerService?.addListenerToUpcomingMessages()
+            return
+        }
 
         // Attach listener to upcoming messages only if all unseen messages
         // (if any) have been fetched locally

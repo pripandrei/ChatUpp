@@ -38,24 +38,30 @@ final class ConversationMessageListenerService
         }
         cancellables.removeAll()
     }
-    
+
     func addListenerToUpcomingMessages()
     {
-        guard let conversationID = conversation?.id,
-              let startMessage = conversation?.getLastMessage() else { return }
-        let messageID = startMessage.id
-        let messageTimestamp = startMessage.timestamp
+        guard let conversationID = conversation?.id else { return }
+        let startMessage = conversation?.getLastMessage() 
+        let messageID = startMessage?.id ?? "fake_ID" // random fake id, to skip start of listening from message and instead use current date (timestamp) below
+        let messageTimestamp = startMessage?.timestamp ?? Date()
  
-        Task
-        {
-            let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
-                inChat: conversationID,
-                startingAfterMessage: messageID,
-                messageTimestamp: messageTimestamp) { [weak self] messageUpdate in
-                    guard let self = self else {return}
-                    self.updatedMessages.append(messageUpdate)
-                }
-            self.listeners.append(listener)
+        Task { [weak self] in
+            guard let self else { return }
+            
+            do {
+                let listener = try await FirebaseChatService.shared.addListenerForUpcomingMessages(
+                    inChat: conversationID,
+                    startingAfterMessage: messageID,
+                    messageTimestamp: messageTimestamp) { [weak self] messageUpdate in
+                        guard let self = self else {return}
+                        self.updatedMessages.append(messageUpdate)
+                    }
+                self.listeners.append(listener)
+            }
+            catch {
+                print(" Failed to attach listener to upcoming messages: ", error)
+            }
         }
     }
     
