@@ -176,6 +176,8 @@ final class ChatRoomViewController: UIViewController
         if viewModel.authParticipantUnreadMessagesCount > 0 {
             updateMessageSeenStatusIfNeeded()
         }
+        
+        toggleSectionHeaderVisibility(isScrollActive: false, withAnimation: false)
     }
     
     //MARK: - Bindings
@@ -1368,7 +1370,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
     {
         self.lastSeenStatusCheckUpdate = Date()
         if viewModel.shouldHideJoinGroupOption { updateMessageSeenStatusIfNeeded() }
-//
+
         toggleSectionHeaderVisibility(isScrollActive: decelerate)
     }
 }
@@ -1394,17 +1396,25 @@ extension ChatRoomViewController
         }
     }
     
-    private func toggleSectionHeaderVisibility(isScrollActive: Bool)
+    private func toggleSectionHeaderVisibility(isScrollActive: Bool, withAnimation: Bool = true)
     {
-        guard let lastVisibleCellIndex = rootView.tableView.indexPathsForVisibleRows?.last,
-              let footerView = rootView.tableView.footerView(forSection: lastVisibleCellIndex.section)
-        else {return}
+        guard let lastVisibleIndex = rootView.tableView.indexPathsForVisibleRows?.last,
+              let footerView = rootView.tableView.footerView(forSection: lastVisibleIndex.section)
+        else { return }
         
-        let isLastSectionDisplayed = (rootView.tableView.numberOfSections - 1) == lastVisibleCellIndex.section
-        let animationDelay = isScrollActive ? 0.0 : 0.4
+        let lastSection = rootView.tableView.numberOfSections - 1
+        let lastItemInSection = viewModel.messageClusters[lastSection].items.count - 1
+        let isLastCellVisible = lastVisibleIndex.row == lastItemInSection
         
-        UIView.animate(withDuration: 0.4, delay: animationDelay) {
-            footerView.layer.opacity = (isScrollActive || isLastSectionDisplayed) ? 1.0 : 0.0
+        let targetOpacity: Float = (isScrollActive || isLastCellVisible) ? 1.0 : 0.0
+        
+        if withAnimation {
+            let delay = isScrollActive ? 0.0 : 0.4
+            UIView.animate(withDuration: 0.4, delay: delay) {
+                footerView.layer.opacity = targetOpacity
+            }
+        } else {
+            footerView.layer.opacity = targetOpacity
         }
     }
 }
