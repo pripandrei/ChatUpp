@@ -34,8 +34,8 @@ struct ChatRoomInformationScreen: View
                 .padding(.leading, 20)
                 .padding(.bottom, 20)
                 
-//                if viewModel.isAuthUserGroupMember
-//                {
+                if viewModel.isAuthUserGroupMember
+                {
                     HStack {
                         Spacer()
                         ForEach(ButtonOption.allCases) { option in
@@ -46,11 +46,6 @@ struct ChatRoomInformationScreen: View
                     }
                     .padding(.trailing, 30)
                     .padding(.bottom, 10)
-//                    .fullScreenCover(isPresented: $presentEditScreen) {
-//                        let chatRoomIformationEditVM = ChatRoomInformationEditViewModel(conversation: viewModel.chat)
-//                        ChatRoomInformationEditScreen(viewModel: chatRoomIformationEditVM,
-//                                                      refreshID: $refreshID)
-//                    }
                     .fullScreenCover(isPresented: $presentEditScreen) {
                         NavigationStack {
                             let chatRoomIformationEditVM = ChatRoomInformationEditViewModel(conversation: viewModel.chat)
@@ -58,10 +53,9 @@ struct ChatRoomInformationScreen: View
                                                           refreshID: $refreshID)
                         }
                     }
-//                }
+                }
             }
             .frame(width: UIScreen.main.bounds.width, height: 400)
-//            .ignoresSafeArea(.all)
             
             List {
                 Section {
@@ -90,7 +84,6 @@ struct ChatRoomInformationScreen: View
         .ignoresSafeArea(.all)
         .toolbarBackground(.clear, for: .navigationBar)
         .background(Color(ColorScheme.appBackgroundColor))
-//        .padding(.top, -45)
         
         LeaveChatAlert(viewModel: viewModel,
                        isPresented: $showLeaveGroupAlert)
