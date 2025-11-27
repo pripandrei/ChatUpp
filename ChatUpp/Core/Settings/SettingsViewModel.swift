@@ -12,7 +12,7 @@ final class SettingsViewModel
 {
     @Published private(set) var isUserSignedOut: Bool = false
     @Published private(set) var profileImageData: Data?
-    private(set) var user: User!
+    private(set) var user: User? // user will be nil only on first app run, while not fetched
     private(set) var authProvider: String!
  
     private var authUser : AuthenticatedUserData
@@ -32,6 +32,12 @@ final class SettingsViewModel
         self.retrieveDataFromDB()
         
         Task { @MainActor in
+            
+            while NetworkMonitor.shared.isReachable == false
+            {
+                try await Task.sleep(for: .seconds(5))
+            }
+            
             do {
                 try await self.getCurrentAuthProvider()
                 try await self.fetchUserFromFirestoreDatabase()
@@ -45,9 +51,10 @@ final class SettingsViewModel
     
     func retrieveDataFromDB()
     {
-        guard let realmUser = RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: authUser.uid) else {return}
+        guard let realmUser = RealmDatabase.shared.retrieveSingleObject(ofType: User.self,
+                                                                        primaryKey: authUser.uid) else {return}
         self.user = realmUser
-        guard let pictureURL = user.photoUrl else {return}
+        guard let pictureURL = user?.photoUrl else {return}
         self.profileImageData = CacheManager.shared.retrieveData(from: pictureURL)
     }
     
@@ -57,7 +64,7 @@ final class SettingsViewModel
         let firestoreUser = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
         defer { self.user = firestoreUser }
         
-        guard self.user.photoUrl != firestoreUser.photoUrl else { return }
+        guard self.user?.photoUrl != firestoreUser.photoUrl else { return }
         
         if let photoUrl = firestoreUser.photoUrl
         {
@@ -67,12 +74,13 @@ final class SettingsViewModel
     
     private func addUserToRealmDB()
     {
-        RealmDatabase.shared.add(object: self.user)
+        guard let user = self.user else {return}
+        RealmDatabase.shared.add(object: user)
     }
     
     private func cacheProfileImage()
     {
-        guard let path = user.photoUrl,
+        guard let path = user?.photoUrl,
               let data = profileImageData else {return}
         CacheManager.shared.saveData(data, toPath: path)
     }
@@ -92,6 +100,7 @@ final class SettingsViewModel
     @MainActor
     func deleteUser() async throws
     {
+        guard let user = self.user else {return}
         let deletedUserID = FirestoreUserService.mainDeletedUserID
 
         if authProvider == "google" {

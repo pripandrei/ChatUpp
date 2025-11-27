@@ -143,6 +143,7 @@ extension SettingsViewController {
     private func makeDataSource() -> DataSource {
         
         // Cell registration & configuration
+        //
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, SettingsItem> { cell, indexPath, settingsItem in
             
             let settingItem = SettingsItem.itemsData[indexPath.item]
@@ -162,14 +163,13 @@ extension SettingsViewController {
         }
         
         // Custom Header registration
+        //
         let headerRegistration = UICollectionView.SupplementaryRegistration<ProfileEditingListHeaderCell>(elementKind: UICollectionView.elementKindSectionHeader) { [weak self] supplementaryView, _, indexPath in
             
             guard let self = self else {return}
             
             supplementaryView.setupAdditionalCredentialsConstraints()
             self.collectionViewListHeader = supplementaryView
-            
-            self.toggleSkeletonAnimation(isActive: true)
             
             self.fillSupplementaryViewWithData()
         }
@@ -190,19 +190,26 @@ extension SettingsViewController {
     
     private func fillSupplementaryViewWithData()
     {
-        guard let user = self.settingsViewModel.user else {return}
+        var shouldActivateSkeleton = false
+        
+        defer { toggleSkeletonAnimation(isActive: shouldActivateSkeleton) }
+        
+        guard let user = self.settingsViewModel.user else { shouldActivateSkeleton = true; return }
         
         collectionViewListHeader?.nameLabel.text = user.name
         collectionViewListHeader?.additionalCredentials.text = "\(user.phoneNumber ?? "") \u{25CF} \(user.nickname ?? "")"
         
-        if let image = self.settingsViewModel.profileImageData
+        if self.settingsViewModel.user?.photoUrl == nil
+        {
+            collectionViewListHeader?.imageView.image = UIImage(named: "default_profile_photo")
+        }
+        else if let image = self.settingsViewModel.profileImageData
         {
             collectionViewListHeader?.imageView.image = UIImage(data: image)
         }
         else {
-            collectionViewListHeader?.imageView.image = UIImage(named: "default_profile_photo")
+            shouldActivateSkeleton = true
         }
-        toggleSkeletonAnimation(isActive: false)
     }
     
     private func createSnapshot() {

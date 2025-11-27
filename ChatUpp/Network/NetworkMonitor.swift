@@ -16,7 +16,7 @@ final class NetworkMonitor
     private let monitor = NWPathMonitor()
     private let networkQueue = DispatchQueue(label: "NetworkMonitorQueue")
     
-    @Published private(set) var isReachable: Bool = false
+    @Published  var isReachable: Bool = false
     
     private init()
     {
