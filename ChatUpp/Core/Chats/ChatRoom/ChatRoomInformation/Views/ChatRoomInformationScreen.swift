@@ -24,9 +24,12 @@ struct ChatRoomInformationScreen: View
                     groupImage().id(refreshID)
                 }
                 
-                VStack(alignment: .leading, spacing: 1) {
+                VStack(alignment: .leading, spacing: 1)
+                {
                     Text(viewModel.groupName).id(refreshID)
                         .font(.system(size: 24, weight: .semibold))
+                        .lineLimit(1)
+                        .padding(.trailing, 25)
                     Text("\(viewModel.membersCount) members")
                         .font(.system(size: 15))
                 }
@@ -45,7 +48,7 @@ struct ChatRoomInformationScreen: View
                         }
                     }
                     .padding(.trailing, 30)
-                    .padding(.bottom, 10)
+                    .padding(.bottom, -30)
                     .fullScreenCover(isPresented: $presentEditScreen) {
                         NavigationStack {
                             let chatRoomIformationEditVM = ChatRoomInformationEditViewModel(conversation: viewModel.chat)
@@ -71,15 +74,18 @@ struct ChatRoomInformationScreen: View
                     }
                 } header: {
                     Text("Members")
+                        .textCase(.uppercase)
                         .font(.subheadline)
                         .bold()
                         .foregroundStyle(Color(ColorScheme.tabBarNormalItemsTintColor))
                 }
                 .listRowBackground(Color(ColorScheme.listCellBackgroundColor))
-                .listRowInsets(.init(top: 10, leading: 20, bottom: 10, trailing: 0))
+                .headerProminence(.increased)
+//                .listRowInsets(.init(top: 10, leading: 20, bottom: 10, trailing: 0))
             }
             .scrollContentBackground(.hidden)
-            .padding(.top, 20)
+            .padding(.top, 38)
+            
         }
         .ignoresSafeArea(.all)
         .toolbarBackground(.clear, for: .navigationBar)
@@ -161,7 +167,7 @@ extension ChatRoomInformationScreen
                     .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
 
                 Text(option.rawValue)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
             }
             .frame(width: 70, height: 40)

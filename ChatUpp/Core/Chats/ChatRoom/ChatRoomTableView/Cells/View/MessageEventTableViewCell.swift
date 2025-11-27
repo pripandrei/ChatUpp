@@ -75,7 +75,7 @@ final class MessageEventCell: UITableViewCell
         let textMessage = viewModel.message?.messageBody
         
         messageLabel.attributedText = makeAttributedMessage(username: username,
-                                                                 text: textMessage)
+                                                            text: textMessage)
         setupReactionView(for: viewModel.message!)
         setContentContainerViewBottomConstraint()
     }

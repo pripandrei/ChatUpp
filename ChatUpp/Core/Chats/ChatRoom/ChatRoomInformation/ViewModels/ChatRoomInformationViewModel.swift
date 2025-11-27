@@ -26,7 +26,7 @@ final class ChatRoomInformationViewModel: SwiftUI.ObservableObject
     }
     
     var groupName: String {
-        chat.name ?? "unknown"
+        chat.name ?? "Test group name here to see the limit of the line where name is displayed so yes"
     }
     
     var imageThumbnailPath: String?
