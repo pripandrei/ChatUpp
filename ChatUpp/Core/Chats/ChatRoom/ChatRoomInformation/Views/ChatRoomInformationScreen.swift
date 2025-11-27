@@ -16,8 +16,10 @@ struct ChatRoomInformationScreen: View
     
     var body: some View
     {
-        VStack(spacing: 0) {
-            ZStack(alignment: .bottomLeading) {
+        VStack(spacing: 0)
+        {
+            ZStack(alignment: .bottomLeading)
+            {
                 VStack {
                     groupImage().id(refreshID)
                 }
@@ -32,7 +34,8 @@ struct ChatRoomInformationScreen: View
                 .padding(.leading, 20)
                 .padding(.bottom, 20)
                 
-                if viewModel.isAuthUserGroupMember {
+//                if viewModel.isAuthUserGroupMember
+//                {
                     HStack {
                         Spacer()
                         ForEach(ButtonOption.allCases) { option in
@@ -42,7 +45,7 @@ struct ChatRoomInformationScreen: View
                         }
                     }
                     .padding(.trailing, 30)
-                    .padding(.bottom, -45)
+                    .padding(.bottom, 10)
 //                    .fullScreenCover(isPresented: $presentEditScreen) {
 //                        let chatRoomIformationEditVM = ChatRoomInformationEditViewModel(conversation: viewModel.chat)
 //                        ChatRoomInformationEditScreen(viewModel: chatRoomIformationEditVM,
@@ -55,10 +58,10 @@ struct ChatRoomInformationScreen: View
                                                           refreshID: $refreshID)
                         }
                     }
-                }
+//                }
             }
             .frame(width: UIScreen.main.bounds.width, height: 400)
-            .ignoresSafeArea(.all)
+//            .ignoresSafeArea(.all)
             
             List {
                 Section {
@@ -82,10 +85,12 @@ struct ChatRoomInformationScreen: View
                 .listRowInsets(.init(top: 10, leading: 20, bottom: 10, trailing: 0))
             }
             .scrollContentBackground(.hidden)
+            .padding(.top, 20)
         }
+        .ignoresSafeArea(.all)
         .toolbarBackground(.clear, for: .navigationBar)
         .background(Color(ColorScheme.appBackgroundColor))
-        .padding(.top, -45)
+//        .padding(.top, -45)
         
         LeaveChatAlert(viewModel: viewModel,
                        isPresented: $showLeaveGroupAlert)
@@ -159,18 +164,22 @@ extension ChatRoomInformationScreen
             VStack {
                 Image(systemName: option.icon)
                     .resizable()
-                    .frame(width: 30, height: 30, alignment: .center)
+                    .frame(width: 25, height: 25)
                     .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
-                
+
                 Text(option.rawValue)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
             }
-            .frame(width: 80, height: 50)
+            .frame(width: 70, height: 40)
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
             .background(Color(ColorScheme.listCellBackgroundColor).opacity(0.9))
             .clipShape(.rect(cornerRadius: 12))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color(#colorLiteral(red: 0.4868350625, green: 0.345061183, blue: 0.5088059902, alpha: 1)), lineWidth: 1)
+            }
         }
     }
     
