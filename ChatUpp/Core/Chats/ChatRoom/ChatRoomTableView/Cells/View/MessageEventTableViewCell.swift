@@ -68,6 +68,7 @@ final class MessageEventCell: UITableViewCell
     
     func configureCell(with viewModel: MessageCellViewModel)
     {
+        performCellCleanup()
         self.cellViewModel = viewModel
         
         let username = viewModel.messageSender?.name
@@ -79,10 +80,16 @@ final class MessageEventCell: UITableViewCell
         setContentContainerViewBottomConstraint()
     }
     
+    func performCellCleanup()
+    {
+        reactionBadgeHostingView?.removeFromSuperview()
+        reactionBadgeHostingView = nil
+    }
+    
     private func setContentContainerViewBottomConstraint()
     {
         let isReactionsEmpty = cellViewModel.message?.reactions.isEmpty
-        self.contentContainerViewBottomConstraint.constant = isReactionsEmpty ?? true ? -7 : -27
+        self.contentContainerViewBottomConstraint.constant = isReactionsEmpty ?? true ? -4 : -27
     }
     
     func setupReactionView(for message: Message)
@@ -133,7 +140,7 @@ final class MessageEventCell: UITableViewCell
     private func setupMessageEventContainerConstraints()
     {
         contentView.addSubview(contentContainer)
-        contentContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
+        contentContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4).isActive = true
         contentContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
         contentContainerViewBottomConstraint = contentContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
 //        contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
