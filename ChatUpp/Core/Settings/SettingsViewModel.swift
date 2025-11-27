@@ -35,7 +35,7 @@ final class SettingsViewModel
             
             while NetworkMonitor.shared.isReachable == false
             {
-                try await Task.sleep(for: .seconds(5))
+                try await Task.sleep(for: .seconds(8))
             }
             
             do {

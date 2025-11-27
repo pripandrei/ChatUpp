@@ -29,7 +29,8 @@ final class MessageEventCell: UITableViewCell
         return messageEventLabel
     }()
     
-    let contentContainer: UIView! =
+    let contentContainer: UIView!
+    =
     {
         let container = UIView()
         container.backgroundColor = ColorScheme.messageEventBackgroundColor
@@ -133,8 +134,10 @@ final class MessageEventCell: UITableViewCell
     {
         contentView.addSubview(contentContainer)
         contentContainer.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        contentContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
         contentContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
+        contentContainerViewBottomConstraint = contentContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+//        contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
+        contentContainerViewBottomConstraint.isActive = true
     }
     
     private func setupMessageEventLabelConstraints()
@@ -145,10 +148,6 @@ final class MessageEventCell: UITableViewCell
         messageLabel.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -3).isActive = true
         messageLabel.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 7).isActive = true
         messageLabel.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -7).isActive = true
-        
-        contentContainerViewBottomConstraint = contentContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
-//        contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
-        contentContainerViewBottomConstraint.isActive = true
     }
 }
 
