@@ -66,11 +66,42 @@ struct Utilities
     }
     
     // Adjust Navigation Bar color to be clear
-    static public func clearNavigationBarAppearance() {
-        UINavigationBar.appearance().standardAppearance.backgroundColor = .clear
-        UINavigationBar.appearance().compactAppearance = nil
+//    static public func clearNavigationBarAppearance() {
+//        UINavigationBar.appearance().standardAppearance.backgroundColor = .clear
+//        UINavigationBar.appearance().compactAppearance = nil
+//        UINavigationBar.appearance().scrollEdgeAppearance = nil
+//        UINavigationBar.appearance().backgroundColor = .clear
+//    }
+    
+    /// completely clears navigation bar appearance, leaving only buttons to be visible
+    ///
+    static public func clearNavigationBarAppearance()
+    {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = .clear
+        appearance.shadowColor = .clear
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().isTranslucent = true
+    }
+
+    /// clears bar initialy, shows it when content enters nav bar border
+    /// 
+    static public func clearNavigationBarScrollEdgeAppearance()
+    {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = ColorScheme.navigationBarBackgroundColor.withAlphaComponent(85)
+        appearance.shadowColor = .white.withAlphaComponent(0.5)
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = nil
-        UINavigationBar.appearance().backgroundColor = .clear
+
+//        UINavigationBar.appearance().isTranslucent = true
     }
     
     static public func configureTransparentNavigationBarAppearance(for controller: UIViewController)
