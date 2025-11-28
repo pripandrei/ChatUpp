@@ -84,11 +84,17 @@ final class ChatRoomRootView: UIView
 
     private(set) lazy var messageTextView: MessageTextView = {
         let messageTextView = MessageTextView()
-        let height                                                = inputBarContainer.bounds.height * 0.4
+        
         messageTextView.backgroundColor                           = ColorScheme.messageTextFieldBackgroundColor
         messageTextView.layer.cornerRadius                        = 15
         messageTextView.font                                      = UIFont(name: "HelveticaNeue", size: 17)
-        messageTextView.textContainerInset                        = UIEdgeInsets(top: height / 6, left: 5, bottom: height / 6, right: 50)
+        
+        let topInset = messageTextView.textContainerInset.top
+        let bottomInset = messageTextView.textContainerInset.bottom
+        messageTextView.textContainerInset                        = .init(top: topInset,
+                                                                          left: 7,
+                                                                          bottom: bottomInset,
+                                                                          right: 50)
         messageTextView.textColor                                 = ColorScheme.textFieldTextColor
         messageTextView.isScrollEnabled                           = true
         messageTextView.textContainer.maximumNumberOfLines        = 0
