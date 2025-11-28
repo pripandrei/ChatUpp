@@ -110,8 +110,6 @@ final class ChatRoomRootView: UIView
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         return sendMessageButton
     }()
- 
-//    setupAudioRecordButtonConstraints
     
     lazy private(set) var voiceRecButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -132,7 +130,7 @@ final class ChatRoomRootView: UIView
         config.background.strokeWidth = 0.5
         config.background.cornerRadius = inputBarButtonsSize / 2
         
-        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
+//        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
         button.configuration = config
 
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
@@ -153,12 +151,9 @@ final class ChatRoomRootView: UIView
         config.background.strokeWidth = 0.5
         config.background.cornerRadius = inputBarButtonsSize / 2
         
-        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
+//        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
         button.configuration = config
-        
-//        button.configuration                             = .plain()
-//        config.baseForegroundColor        = ColorScheme.tabBarNormalItemsTintColor
-        //        button.layer.cornerRadius                        = inputBarButtonsSize / 2
+
         config.baseForegroundColor = .systemGray
         config.baseBackgroundColor = ColorScheme.messageTextFieldBackgroundColor
         
@@ -171,7 +166,6 @@ final class ChatRoomRootView: UIView
     
     private(set) var sendEditMessageButton: UIButton = {
         let sendEditMessageButton = UIButton()
-//        sendEditMessageButton.frame.size                                = CGSize(width: 35, height: 35)
         sendEditMessageButton.configuration                             = .filled()
         sendEditMessageButton.configuration?.image                      = UIImage(systemName: "checkmark")
         sendEditMessageButton.configuration?.baseBackgroundColor        = ColorScheme.sendMessageButtonBackgroundColor
@@ -179,24 +173,33 @@ final class ChatRoomRootView: UIView
         sendEditMessageButton.clipsToBounds                             = true
         sendEditMessageButton.isHidden                                  = true
         sendEditMessageButton.translatesAutoresizingMaskIntoConstraints = false
+        sendEditMessageButton.adjustsImageSizeForAccessibilityContentSizeCategory = false 
         
         return sendEditMessageButton
     }()
     
     lazy private(set) var scrollBadgeButton: UIButton = {
-        let scrollToBottomBtn                                       = UIButton()
+        let scrollToBottomBtn = UIButton(type: .custom)
+        scrollToBottomBtn.configuration  = .bordered()
 
-        scrollToBottomBtn.configuration                             = .plain()
-        let image = UIImage(named: "angle-arrow-down")?
-            .withTintColor(ColorScheme.actionButtonsTintColor)
-            .resizeImage(toSize: CGSize(width: 17, height: 15))
-        scrollToBottomBtn.configuration?.image = image
+        let image = UIImage(named: "angle-arrow-down")
+        let imageSize = inputBarButtonsSize - 20
+        let targetSize = CGSize(width: imageSize, height: imageSize)
+        let resizedImage = image?.resize(to: targetSize)
+
+        scrollToBottomBtn.configuration?.image = resizedImage?.withRenderingMode(.alwaysTemplate)
         
-        scrollToBottomBtn.backgroundColor                           = ColorScheme.scrollToBottomButtonBackgroundColor
+        scrollToBottomBtn.configuration?.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
+        scrollToBottomBtn.configuration?.background.strokeWidth = 0.5
+        scrollToBottomBtn.configuration?.background.cornerRadius = inputBarButtonsSize / 2
+        
+        scrollToBottomBtn.configuration?.baseForegroundColor = .systemGray
+        scrollToBottomBtn.configuration?.baseBackgroundColor = ColorScheme.messageTextFieldBackgroundColor
         scrollToBottomBtn.translatesAutoresizingMaskIntoConstraints = false
-        scrollToBottomBtn.layer.borderWidth = 0.25
-        scrollToBottomBtn.layer.borderColor = #colorLiteral(red: 0.3582897782, green: 0.31710729, blue: 0.3442819118, alpha: 1)
+
+//        scrollToBottomBtn.configuration?.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
         scrollToBottomBtn.layer.opacity = 0.0
+        scrollToBottomBtn.adjustsImageSizeForAccessibilityContentSizeCategory = false
 
         return scrollToBottomBtn
     }()
@@ -228,8 +231,8 @@ final class ChatRoomRootView: UIView
         scrollToBottomBtnBottomConstraint.isActive = true
         
         scrollBadgeButton.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -10).isActive = true
-        scrollBadgeButton.heightAnchor.constraint(equalToConstant: 35).isActive                                        = true
-        scrollBadgeButton.widthAnchor.constraint(equalToConstant: 35).isActive                                         = true
+        scrollBadgeButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize).isActive                                        = true
+        scrollBadgeButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize).isActive                                         = true
     }
     var scrollToBottomBtnBottomConstraint: NSLayoutConstraint!
 

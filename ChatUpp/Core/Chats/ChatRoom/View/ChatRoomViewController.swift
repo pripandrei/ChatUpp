@@ -514,7 +514,7 @@ final class ChatRoomViewController: UIViewController
     private func toggleScrollBadgeButtonVisibility(shouldBeHidden: Bool)
     {
         UIView.animate(withDuration: 0.3) {
-            self.rootView.scrollBadgeButton.layer.opacity = shouldBeHidden ? 0.0 : 1.0
+            self.rootView.scrollBadgeButton.layer.opacity = shouldBeHidden ? 0.0 : 0.9
         }
     }
     
