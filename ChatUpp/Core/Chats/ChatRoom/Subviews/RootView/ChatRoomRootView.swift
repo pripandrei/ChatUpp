@@ -683,9 +683,9 @@ extension ChatRoomRootView
         
         NSLayoutConstraint.activate([
             stickerCollectionViewTopConstraint!,
-            stickerCollectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            stickerCollectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            stickerCollectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 3),
+            stickerCollectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 1),
+            stickerCollectionView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: -1),
         ])
         self.layoutIfNeeded()
     }

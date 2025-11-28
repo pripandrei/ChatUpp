@@ -29,9 +29,15 @@ final class StickersPackCollectionView: UIView
     private var displayLink: CADisplayLink?
     private var frameSkipCounter = 0
 
-    override init(frame: CGRect) {
+    override init(frame: CGRect)
+    {
         super.init(frame: frame)
-        backgroundColor = ColorScheme.stickerViewBackgroundColor
+        backgroundColor = #colorLiteral(red: 0.1839679778, green: 0.1356598437, blue: 0.1883102357, alpha: 1)
+        layer.borderWidth = 1.0
+//        layer.borderColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
+        layer.borderColor = #colorLiteral(red: 0.4230892658, green: 0.2921444178, blue: 0.4381959736, alpha: 1)
+        layer.cornerRadius = 20
+        clipsToBounds = true
         setupCollectionView()
         startAnimationLoop()
     }
@@ -77,6 +83,7 @@ final class StickersPackCollectionView: UIView
         let layout = UICollectionViewFlowLayout()
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
+        collectionView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(StickerRLottieCell.self, forCellWithReuseIdentifier: StickerRLottieCell.identifier)
