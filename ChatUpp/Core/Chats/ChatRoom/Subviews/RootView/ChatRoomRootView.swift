@@ -21,7 +21,7 @@ final class ChatRoomRootView: UIView
     private var sendMessageButtonPropertyAnimator: UIViewPropertyAnimator?
     
     private let inputBarViewsTopConstraintConstant: CGFloat = 7.0
-    private let inputBarButtonsSize: CGFloat = 31
+    private let inputBarButtonsSize: CGFloat = 36
     
     private(set) var inputBarHeader          : InputBarHeaderView?
     private(set) var inputBarBottomConstraint: NSLayoutConstraint!
@@ -94,6 +94,8 @@ final class ChatRoomRootView: UIView
         messageTextView.textContainer.maximumNumberOfLines        = 0
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
         messageTextView.keyboardAppearance = .dark
+        messageTextView.layer.borderWidth = 0.4
+        messageTextView.layer.borderColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1).cgColor
         
         return messageTextView
     }()
@@ -108,49 +110,63 @@ final class ChatRoomRootView: UIView
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         return sendMessageButton
     }()
+ 
+//    setupAudioRecordButtonConstraints
     
-//    lazy private(set) var voiceRecButton: UIImageView = {
-//        let imageView = UIImageView(image: UIImage(systemName: "mic"))
-//        imageView.tintColor = .systemGray
-//        imageView.contentMode = .scaleAspectFit
-//        imageView.isUserInteractionEnabled = true // must be true for taps
-//
-//        // Add tap gesture
-//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(beginVoiceRecording))
-//        imageView.addGestureRecognizer(tapGesture)
-//
-//        imageView.translatesAutoresizingMaskIntoConstraints = false
-//        return imageView
-//    }()
-//    
     lazy private(set) var voiceRecButton: UIButton = {
         let button = UIButton(type: .custom)
         
         var config = UIButton.Configuration.bordered()
        
-        config.image = UIImage(systemName: "mic")
+        // Resize custom image
+        let originalImage = UIImage(named: "microphone_for_inputbar")
+        let imageSize = inputBarButtonsSize - 12
+        let targetSize = CGSize(width: imageSize, height: imageSize)
+        let resizedImage = originalImage?.resize(to: targetSize)
+
+        config.image = resizedImage?.withRenderingMode(.alwaysTemplate)
         config.baseForegroundColor = .systemGray
-        config.baseBackgroundColor = .clear
+        config.baseBackgroundColor = ColorScheme.messageTextFieldBackgroundColor
         
+        config.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
+        config.background.strokeWidth = 0.5
+        config.background.cornerRadius = inputBarButtonsSize / 2
+        
+        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
         button.configuration = config
 
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.translatesAutoresizingMaskIntoConstraints = false
-//        button.addTarget(self, action: #selector(beginVoiceRecording), for: .touchUpInside)
         return button
     }()
     
-    private(set) var addPictureButton: UIButton = {
-        let addPictureButton = UIButton()
+    lazy private(set) var addPictureButton: UIButton = {
+        let button = UIButton(type: .custom)
 
-        addPictureButton.configuration                             = .plain()
-        addPictureButton.configuration?.baseForegroundColor        = ColorScheme.tabBarNormalItemsTintColor
-        addPictureButton.layer.cornerRadius                        = addPictureButton.frame.size.width / 2.0
-        addPictureButton.configuration?.image                      = UIImage(systemName: "photo")
-        addPictureButton.clipsToBounds                             = true
-        addPictureButton.translatesAutoresizingMaskIntoConstraints = false
+        var config = UIButton.Configuration.bordered()
         
-        return addPictureButton
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        config.image                      = UIImage(systemName: "plus")?.withConfiguration(symbolConfig)
+        button.clipsToBounds                             = true
+        
+        config.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
+        config.background.strokeWidth = 0.5
+        config.background.cornerRadius = inputBarButtonsSize / 2
+        
+        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
+        button.configuration = config
+        
+//        button.configuration                             = .plain()
+//        config.baseForegroundColor        = ColorScheme.tabBarNormalItemsTintColor
+        //        button.layer.cornerRadius                        = inputBarButtonsSize / 2
+        config.baseForegroundColor = .systemGray
+        config.baseBackgroundColor = ColorScheme.messageTextFieldBackgroundColor
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.adjustsImageSizeForAccessibilityContentSizeCategory = false
+        button.configuration                             = config
+        
+        return button
     }()
     
     private(set) var sendEditMessageButton: UIButton = {
@@ -784,12 +800,15 @@ extension ChatRoomRootView
         inputBarHeader!.bottomAnchor.constraint(equalTo: inputBarContainer.topAnchor).isActive = true
     }
     
-    private func setupAddPictureButtonConstrains() {
+    private func setupAddPictureButtonConstrains()
+    {
         self.addSubviews(addPictureButton)
         
         NSLayoutConstraint.activate([
-            addPictureButton.trailingAnchor.constraint(equalTo: messageTextView.leadingAnchor, constant: -6),
-            addPictureButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
+            addPictureButton.trailingAnchor.constraint(equalTo: messageTextView.leadingAnchor,
+                                                       constant: -6),
+            addPictureButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor,
+                                                  constant: inputBarViewsTopConstraintConstant),
             addPictureButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
             addPictureButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
         ])
@@ -811,7 +830,7 @@ extension ChatRoomRootView
     {
         inputBarContainer.addSubview(messageTextView)
         
-        textViewHeightConstraint           = messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize)
+        textViewHeightConstraint           = messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize )
         textViewHeightConstraint.isActive  = true
         textViewHeightConstraint.priority  = .required
         textViewLeadingConstraint          = messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 48)
@@ -819,6 +838,8 @@ extension ChatRoomRootView
         
         NSLayoutConstraint.activate([
             messageTextView.bottomAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -inputBarContainer.bounds.height * 0.52),
+//            messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
+//            messageTextView.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
             messageTextView.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -48),
 //            messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 48),
             messageTextView.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
