@@ -461,6 +461,7 @@ extension ChatRoomRootView
         animateCancelButtonAppearnace(animationState: .destruction)
         animateRecLabelsStackViewAppearance(animationState: .destruction)
         animateTextViewResize(animationState: .destruction)
+        animateStickerIconVisibility(animationState: .creation)
         
         executeAfter(seconds: 0.4) { [weak self] in
             self?.recLabelsStackView?.arrangedSubviews.forEach { view in
@@ -516,13 +517,13 @@ extension ChatRoomRootView
             {
                 self.voiceRecButton.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
                 self.sendMessageButton.isHidden = false
-                self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
+                self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
             } completion: { _ in
                 UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseIn]) {
                     self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
                 } completion: { _ in
                     UIView.animate(withDuration: 0.1, delay: 0.0, options: [.curveEaseOut]) {
-                        self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
+                        self.sendMessageButton.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
                     }
                 }
                 self.voiceRecButton.isHidden = true
@@ -554,8 +555,10 @@ extension ChatRoomRootView
     
     private func animateTextViewResize(animationState: AnimationState)
     {
-        UIView.animate(withDuration: 0.3, delay: 0.0, options: [.curveEaseOut]) {
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: [.curveEaseOut])
+        {
             self.textViewLeadingConstraint.constant = animationState == .creation ? 8 : 48
+            self.addPictureButton.transform = animationState == .creation ? .init(translationX: -30, y: 0.0) : .identity
             self.layoutIfNeeded()
         }
     }
@@ -849,7 +852,7 @@ extension ChatRoomRootView
             messageTextView.bottomAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -inputBarContainer.bounds.height * 0.52),
 //            messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
 //            messageTextView.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
-            messageTextView.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -48),
+            messageTextView.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -50),
 //            messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 48),
             messageTextView.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
         ])
