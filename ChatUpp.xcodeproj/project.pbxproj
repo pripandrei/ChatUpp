@@ -169,6 +169,7 @@
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
 		75D08BAA2BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */; };
+		75D31DCE2EDA2AD900AF6102 /* ThemeSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DCD2EDA2ACD00AF6102 /* ThemeSelectionScreen.swift */; };
 		75D38DA12EB90A5A0096B926 /* notification_sound.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA02EB90A5A0096B926 /* notification_sound.m4a */; };
 		75D38DCD2EC51F860096B926 /* VoicePlaybackControlPanelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D38DCC2EC51F770096B926 /* VoicePlaybackControlPanelViewModel.swift */; };
 		75D38DD32EC543500096B926 /* MessageTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D38DD22EC543490096B926 /* MessageTextView.swift */; };
@@ -383,6 +384,7 @@
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
 		75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = "<group>"; };
 		75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationScreen.swift; sourceTree = "<group>"; };
+		75D31DCD2EDA2ACD00AF6102 /* ThemeSelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeSelectionScreen.swift; sourceTree = "<group>"; };
 		75D38DA02EB90A5A0096B926 /* notification_sound.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = notification_sound.m4a; sourceTree = "<group>"; };
 		75D38DCC2EC51F770096B926 /* VoicePlaybackControlPanelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePlaybackControlPanelViewModel.swift; sourceTree = "<group>"; };
 		75D38DD22EC543490096B926 /* MessageTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTextView.swift; sourceTree = "<group>"; };
@@ -1439,6 +1441,14 @@
 			path = Groups;
 			sourceTree = "<group>";
 		};
+		75D31DCC2EDA2A6700AF6102 /* ThemeSelection */ = {
+			isa = PBXGroup;
+			children = (
+				75D31DCD2EDA2ACD00AF6102 /* ThemeSelectionScreen.swift */,
+			);
+			path = ThemeSelection;
+			sourceTree = "<group>";
+		};
 		75D38DCB2EC51F3F0096B926 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -1557,6 +1567,7 @@
 		75FB78FD2AC3165F00C2743A /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				75D31DCC2EDA2A6700AF6102 /* ThemeSelection */,
 				7573E5C12B5BD41A0096B4E6 /* ProfileDeletion */,
 				754439512B3FCFA80044A84B /* ProfileEditing */,
 				756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */,
@@ -1914,6 +1925,7 @@
 				755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */,
 				75C8F76B2E819089007317E0 /* OpaquePointer+Extensions.swift in Sources */,
 				75DD0AF02B22175D005DBADE /* MailSignInViewController.swift in Sources */,
+				75D31DCE2EDA2AD900AF6102 /* ThemeSelectionScreen.swift in Sources */,
 				75BC06722DFB6053002ED4AA /* NetworkError.swift in Sources */,
 				75855AF52CF0393A00FF8E9E /* UnseenMessagesTitleTableViewCell.swift in Sources */,
 				75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */,
