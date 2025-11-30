@@ -12,6 +12,30 @@ import FirebaseStorage
 // MARK: - StoragePathType
 enum StoragePathType
 {
+    case user(String)
+    case message(MessagePathType)
+    case group(String)
+    case themes
+    
+    static var storage = Storage.storage()
+    
+    var reference: StorageReference
+    {
+        let storage = Storage.storage().reference()
+        
+        switch self
+        {
+        case .user(let id):
+            return storage.child("users").child(id)
+        case .message(let type):
+            return storage.child("messages").child(type.path)
+        case .group(let id):
+            return storage.child("groups").child(id)
+        case .themes:
+            return storage.child("themes")
+        }
+    }
+    
     enum MessagePathType
     {
         case image(String)
@@ -34,26 +58,6 @@ enum StoragePathType
             }
         }
     }
-    
-    case user(String)
-    case message(MessagePathType)
-    case group(String)
-    
-    static var storage = Storage.storage()
-    
-    var reference: StorageReference
-    {
-        let storage = Storage.storage().reference()
-        
-        switch self {
-        case .user(let id):
-            return storage.child("users").child(id)
-        case .message(let type):
-            return storage.child("messages").child(type.path)
-        case .group(let id):
-            return storage.child("groups").child(id)
-        }
-    }
 }
 
 // MARK: - ImageMetadata
@@ -70,6 +74,15 @@ final class FirebaseStorageManager
     private let maxVoiceSize: Int64 = 20 * 1024 * 1024  // 20MB
     
     private init() {}
+}
+
+//MARK: - themes fetch
+extension FirebaseStorageManager
+{
+    func getTheme(from path: StoragePathType, themePath: String) async throws -> Data
+    {
+        try await path.reference.child(themePath).data(maxSize: maxImageSize)
+    }
 }
 
 //MARK: - message image save/get

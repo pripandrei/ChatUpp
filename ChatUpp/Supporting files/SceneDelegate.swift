@@ -25,7 +25,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = TabBarViewController()
         coordinator = MainCoordinator(tabBar: tabBarController)
 
-        window?.rootViewController = tabBarController
+        let themesScreen = ThemesPackScreen()
+        
+//        window?.rootViewController = tabBarController
+        window?.rootViewController = UIHostingController(rootView: themesScreen)
         window?.makeKeyAndVisible()
         
         coordinator?.start()
