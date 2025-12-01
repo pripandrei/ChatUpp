@@ -27,16 +27,11 @@ struct ThemesPackScreen: View
             LazyVGrid(columns: columns, spacing: 10)
             {
                 ForEach(viewModel.themes, id: \.self) { theme in
-//                    GridImageItem(theme)
-//                    ThemeGridItemView(viewModel: .init(themeName: theme),
-                    //                                      showThemeSelectionScreenSheet: $showThemeSelectionScreenSheet)
-                    ThemeGridItemView(
-                        name: theme
-                    )
+                    ThemeGridItemView(viewModel: .init(themeName: theme))
                     .overlay(content: {
                         if viewModel.selectedTheme == theme
                         {
-                            selectionView()                            
+                            selectionView()
                         }
                     })
                     .onTapGesture {
@@ -70,17 +65,8 @@ struct ThemesPackScreen: View
 
 struct ThemeGridItemView: View
 {
-    @StateObject private var viewModel: ThemeGridItemViewModel
-       let name: String
-//       let isSelected: Bool
-//       let onTap: () -> Void
+    @StateObject var viewModel: ThemeGridItemViewModel
 
-       init(name: String) {
-           self.name = name
-//           self.isSelected = isSelected
-//           self.onTap = onTap
-           _viewModel = StateObject(wrappedValue: ThemeGridItemViewModel(themeName: name))
-       }
     var body: some View
     {
         if let imageData = viewModel.themeImage,
@@ -91,16 +77,6 @@ struct ThemeGridItemView: View
             //                        .scaledToFit()
                 .frame(width: 110, height: 170)
                 .clipShape(.rect(cornerRadius: 10))
-//                .overlay {
-////                    if isSelected
-////                    {
-////                        selectionView()
-////                    }
-//                }
-//                .onTapGesture {
-//                    onTap()
-////                    showThemeSelectionScreenSheet = true
-//                }
         }
         else {
             PlaceholderView()
@@ -141,94 +117,54 @@ final class ThemeGridItemViewModel: SwiftUI.ObservableObject
     {
         self.themeName = themeName
         
-        Task {
-            try await Task.sleep(for: .seconds(10))
-            await loadThemeImage()
+        Task.detached(priority: .background)
+        { [weak self] in
+            let resolution = ["thumbnails", "originals"]
+            for res in resolution {
+                await self?.loadThemeImage(withResolution: res)
+            }
         }
     }
     
-    private func loadThemeImage() async
+    private func loadThemeImage(withResolution resolution: String) async
     {
-        let path = "/Themes/\(themeName)"
+        let name = resolution == "originals" ? themeName : themeName.addSuffix("thumbnail")
+        let path = "/Themes/\(name)"
         
         if let imageData = CacheManager.shared.retrieveData(from: path)
         {
-            await MainActor.run {
-                self.themeImage = imageData
+            if resolution == "thumbnails"
+            {
+                await MainActor.run {
+                    self.themeImage = imageData
+                }
             }
             return
         }
         
         do
         {
-            let imageData = try await FirebaseStorageManager.shared.getTheme(from: .themes, themePath: themeName)
+            let imageData = try await FirebaseStorageManager.shared.getTheme(from: .themes(resolution),
+                                                                             themePath: name)
             CacheManager.shared.saveData(imageData, toPath: path)
-            await MainActor.run {
-                print("saved image: ", themeName)
-                self.themeImage = imageData
+            
+            if resolution == "thumbnails"
+            {
+
+                await MainActor.run {
+                    print("saved image: ", name)
+                    self.themeImage = imageData
+                }
             }
         } catch
         {
             print("Unable to retreive image data", error)
         }
     }
-    
-//    func retrieveImageData(_ name: String) -> Data?
-//    {
-//        let path = "/Themes/\(name)"
-//        if let imageData = CacheManager.shared.retrieveData(from: path)
-//        {
-//            return imageData
-//        }
-//        return nil
-//    }
 }
 
 extension ThemesPackScreen
 {
-//    @ViewBuilder
-//    private func GridImageItem(_ name: String) -> some View
-//    {
-//        if let imageData = viewModel.retrieveImageData(name),
-//           let image = UIImage(data: imageData)
-//        {
-//            Image(uiImage: image)
-//                .resizable()
-//            //                        .scaledToFit()
-//                .frame(width: 110, height: 170)
-//                .clipShape(.rect(cornerRadius: 10))
-//                .overlay {
-//                    if name == viewModel.selectedTheme
-//                    {
-//                        selectionView()
-//                    }
-//                }
-//                .onTapGesture {
-//                    viewModel.selectedTheme = name
-//                    showThemeSelectionScreenSheet = true
-//                }
-//        }
-//        else {
-//            PlaceholderView()
-//                .onAppear {
-//                    Task {
-//                        try await Task.sleep(for: .seconds(10))
-//                        await viewModel.fetchImageData(name)
-//                    }
-//                }
-//        }
-//    }
-//    
-//    private func PlaceholderView() -> some View
-//    {
-//        RoundedRectangle(cornerRadius: 10)
-//            .fill(.gray)
-//            .frame(width: 110, height: 170)
-//            .overlay {
-//                ProgressView()
-//            }
-//    }
-    
     private func GridHeader() -> some View
     {
         Text("Themes")
@@ -236,11 +172,7 @@ extension ThemesPackScreen
             .padding([.bottom, .top], 10)
             .foregroundStyle(.white)
     }
-}
-
-
-extension ThemesPackScreen
-{
+    
     private func selectionView() -> some View
     {
         Circle()
@@ -272,3 +204,4 @@ extension ThemesPackScreen
 //    
 //    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
 //}
+

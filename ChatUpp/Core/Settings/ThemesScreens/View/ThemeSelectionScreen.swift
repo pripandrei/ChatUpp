@@ -11,31 +11,18 @@ struct ThemeSelectionScreen: View
 {
     @Environment(\.dismiss) private var dismiss
     @State var selectedImage: UIImage
-//    @ObservedObject var viewModel: ThemesPackViewModel
 
-    var body: some View {
-        ZStack {
-            let screen = UIScreen.main.bounds
-
-            GeometryReader { geo in
-//                Image(viewModel.selectedTheme)
-                Image(uiImage: selectedImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: screen.width, height: screen.height)
-                    .clipped()
-                    .ignoresSafeArea(.all, edges: .all)
-            }
-
-            VStack {
-                HStack {
-                    cancelButton()
-                        .padding(.leading, 20)
-                        .padding(.top, 30)
-                    Spacer()
-                }
+    var body: some View
+    {
+        VStack {
+            HStack
+            {
+                cancelButton()
+                    .padding(.leading, 20)
+                    .padding(.top, 30)
                 Spacer()
             }
+            Spacer()
 
             VStack {
                 Spacer()
@@ -52,6 +39,15 @@ struct ThemeSelectionScreen: View
                     .padding(.top, 40)
             }
             .padding(.bottom, 25)
+        }
+        .background {
+            let screen = UIScreen.main.bounds
+            Image(uiImage: selectedImage)
+                .resizable()
+                .scaledToFill()
+                .frame(width: screen.width, height: screen.height)
+                .clipped()
+                .ignoresSafeArea(.all, edges: .all)
         }
     }
 }
@@ -74,7 +70,7 @@ extension ThemeSelectionScreen
             }
             .frame(width: 65, height: 25)
         }
-        .buttonStyle(.bordered)
+        .buttonStyle(.plain)
     }
     
     private func ApplyButton() -> some View
@@ -147,7 +143,8 @@ extension ThemeSelectionScreen
     }
 }
 
-struct BlurView: UIViewRepresentable {
+struct BlurView: UIViewRepresentable
+{
     let style: UIBlurEffect.Style
     
     func makeUIView(context: Context) -> UIVisualEffectView {
@@ -155,4 +152,10 @@ struct BlurView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
+}
+
+
+#Preview {
+    let image = UIImage(named: "chat_background_theme_24")!
+    ThemeSelectionScreen(selectedImage: image)
 }

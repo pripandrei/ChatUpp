@@ -15,7 +15,7 @@ enum StoragePathType
     case user(String)
     case message(MessagePathType)
     case group(String)
-    case themes
+    case themes(String)
     
     static var storage = Storage.storage()
     
@@ -31,8 +31,8 @@ enum StoragePathType
             return storage.child("messages").child(type.path)
         case .group(let id):
             return storage.child("groups").child(id)
-        case .themes:
-            return storage.child("themes")
+        case .themes(let resolution):
+            return storage.child("themes").child(resolution)
         }
     }
     
