@@ -14,6 +14,12 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
     }
     
     @Published var selectedTheme = ""
+    
+    init()
+    {
+        CacheManager.shared.clearCacheDirectory(name: "Themes")
+//        startTimer()
+    }
      
     func retrieveImageData(_ name: String) -> Data?
     {
@@ -24,6 +30,7 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
         }
         return nil
     }
+
 }
 
 

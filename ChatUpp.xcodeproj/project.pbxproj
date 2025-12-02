@@ -172,6 +172,8 @@
 		75D31DCE2EDA2AD900AF6102 /* ThemesPackScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */; };
 		75D31DD02EDAB3D100AF6102 /* ThemeSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DCF2EDAB3C100AF6102 /* ThemeSelectionScreen.swift */; };
 		75D31DD32EDAB41800AF6102 /* ThemesPackViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DD22EDAB3FF00AF6102 /* ThemesPackViewModel.swift */; };
+		75D31DE02EDE8DF300AF6102 /* ThemeGridItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DDF2EDE8DE900AF6102 /* ThemeGridItemView.swift */; };
+		75D31DE22EDE8E1100AF6102 /* ThemeGridItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DE12EDE8E0900AF6102 /* ThemeGridItemViewModel.swift */; };
 		75D38DA12EB90A5A0096B926 /* notification_sound.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 75D38DA02EB90A5A0096B926 /* notification_sound.m4a */; };
 		75D38DCD2EC51F860096B926 /* VoicePlaybackControlPanelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D38DCC2EC51F770096B926 /* VoicePlaybackControlPanelViewModel.swift */; };
 		75D38DD32EC543500096B926 /* MessageTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D38DD22EC543490096B926 /* MessageTextView.swift */; };
@@ -389,6 +391,8 @@
 		75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesPackScreen.swift; sourceTree = "<group>"; };
 		75D31DCF2EDAB3C100AF6102 /* ThemeSelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeSelectionScreen.swift; sourceTree = "<group>"; };
 		75D31DD22EDAB3FF00AF6102 /* ThemesPackViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesPackViewModel.swift; sourceTree = "<group>"; };
+		75D31DDF2EDE8DE900AF6102 /* ThemeGridItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeGridItemView.swift; sourceTree = "<group>"; };
+		75D31DE12EDE8E0900AF6102 /* ThemeGridItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeGridItemViewModel.swift; sourceTree = "<group>"; };
 		75D38DA02EB90A5A0096B926 /* notification_sound.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = notification_sound.m4a; sourceTree = "<group>"; };
 		75D38DCC2EC51F770096B926 /* VoicePlaybackControlPanelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePlaybackControlPanelViewModel.swift; sourceTree = "<group>"; };
 		75D38DD22EC543490096B926 /* MessageTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageTextView.swift; sourceTree = "<group>"; };
@@ -1465,10 +1469,36 @@
 		75D31DD42EDAB47300AF6102 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */,
-				75D31DCF2EDAB3C100AF6102 /* ThemeSelectionScreen.swift */,
+				75D31DE32EDE919500AF6102 /* ThemesPackScreen */,
+				75D31DE42EDE91AA00AF6102 /* ThemeSelectionScreen */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		75D31DDE2EDE8DE100AF6102 /* Subviews */ = {
+			isa = PBXGroup;
+			children = (
+				75D31DE12EDE8E0900AF6102 /* ThemeGridItemViewModel.swift */,
+				75D31DDF2EDE8DE900AF6102 /* ThemeGridItemView.swift */,
+			);
+			path = Subviews;
+			sourceTree = "<group>";
+		};
+		75D31DE32EDE919500AF6102 /* ThemesPackScreen */ = {
+			isa = PBXGroup;
+			children = (
+				75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */,
+				75D31DDE2EDE8DE100AF6102 /* Subviews */,
+			);
+			path = ThemesPackScreen;
+			sourceTree = "<group>";
+		};
+		75D31DE42EDE91AA00AF6102 /* ThemeSelectionScreen */ = {
+			isa = PBXGroup;
+			children = (
+				75D31DCF2EDAB3C100AF6102 /* ThemeSelectionScreen.swift */,
+			);
+			path = ThemeSelectionScreen;
 			sourceTree = "<group>";
 		};
 		75D38DCB2EC51F3F0096B926 /* ViewModel */ = {
@@ -1892,6 +1922,7 @@
 				757900762BF1768D00DE5A2F /* ConversationTableViewFooter.swift in Sources */,
 				7587CE1B2C77DA7D002D60CE /* Query+Extensions.swift in Sources */,
 				75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */,
+				75D31DE22EDE8E1100AF6102 /* ThemeGridItemViewModel.swift in Sources */,
 				75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */,
 				75E480822E49039F00E8C005 /* MessageLayoutConfiguration.swift in Sources */,
 				75C8F7652E818E6A007317E0 /* DisplayLinkProxy.swift in Sources */,
@@ -1936,6 +1967,7 @@
 				75855B3F2CF14B5300FF8E9E /* ReuseIdentifire.swift in Sources */,
 				754439532B3FCFF30044A84B /* ProfileEditingViewController.swift in Sources */,
 				75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */,
+				75D31DE02EDE8DF300AF6102 /* ThemeGridItemView.swift in Sources */,
 				757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */,
 				756BDFA82EA84559003D5EE2 /* AudioSessionManager.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
