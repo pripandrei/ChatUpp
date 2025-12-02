@@ -1452,8 +1452,8 @@
 		75D31DCC2EDA2A6700AF6102 /* ThemesScreens */ = {
 			isa = PBXGroup;
 			children = (
-				75D31DD42EDAB47300AF6102 /* View */,
-				75D31DD12EDAB3F900AF6102 /* ViewModel */,
+				75D31DE32EDE919500AF6102 /* ThemesPackScreen */,
+				75D31DE42EDE91AA00AF6102 /* ThemeSelectionScreen */,
 			);
 			path = ThemesScreens;
 			sourceTree = "<group>";
@@ -1466,20 +1466,11 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		75D31DD42EDAB47300AF6102 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				75D31DE32EDE919500AF6102 /* ThemesPackScreen */,
-				75D31DE42EDE91AA00AF6102 /* ThemeSelectionScreen */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
 		75D31DDE2EDE8DE100AF6102 /* Subviews */ = {
 			isa = PBXGroup;
 			children = (
-				75D31DE12EDE8E0900AF6102 /* ThemeGridItemViewModel.swift */,
 				75D31DDF2EDE8DE900AF6102 /* ThemeGridItemView.swift */,
+				75D31DE12EDE8E0900AF6102 /* ThemeGridItemViewModel.swift */,
 			);
 			path = Subviews;
 			sourceTree = "<group>";
@@ -1487,7 +1478,8 @@
 		75D31DE32EDE919500AF6102 /* ThemesPackScreen */ = {
 			isa = PBXGroup;
 			children = (
-				75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */,
+				75D31DE52EDE936A00AF6102 /* View */,
+				75D31DD12EDAB3F900AF6102 /* ViewModel */,
 				75D31DDE2EDE8DE100AF6102 /* Subviews */,
 			);
 			path = ThemesPackScreen;
@@ -1499,6 +1491,14 @@
 				75D31DCF2EDAB3C100AF6102 /* ThemeSelectionScreen.swift */,
 			);
 			path = ThemeSelectionScreen;
+			sourceTree = "<group>";
+		};
+		75D31DE52EDE936A00AF6102 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		75D38DCB2EC51F3F0096B926 /* ViewModel */ = {

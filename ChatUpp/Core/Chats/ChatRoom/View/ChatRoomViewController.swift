@@ -36,7 +36,7 @@ final class ChatRoomViewController: UIViewController
     
     private var dataSourceManager : ConversationDataSourceManager!
     private var customNavigationBar :ChatRoomNavigationBar!
-    private var rootView = ChatRoomRootView()
+    private var rootView: ChatRoomRootView!
     private var viewModel: ChatRoomViewModel!
     private var inputMessageTextViewDelegate: InputBarTextViewDelegate!
     private var subscriptions = Set<AnyCancellable>()
@@ -59,8 +59,28 @@ final class ChatRoomViewController: UIViewController
         self.viewModel = conversationViewModel
     }
     
-    override func loadView() {
-        view = rootView
+    private func retrieveBackgroundKey() -> String?
+    {
+        let key = ChatManager.currentlySelectedChatThemeKey
+        return UserDefaults.standard.string(forKey: key)
+    }
+    
+    private func getBackgrounImage() -> UIImage
+    {
+        if let backgroundKey = retrieveBackgroundKey(),
+           let data = CacheManager.shared.retrieveData(from: backgroundKey),
+           let image = UIImage(data: data)
+        {
+             return image
+        }
+        return UIImage(named: "chat_background_theme_1") ?? .actions
+    }
+    
+    override func loadView()
+    {
+        let backgroundImage = getBackgrounImage()
+        self.rootView = ChatRoomRootView(backgroundImage: backgroundImage)
+        view = self.rootView
         inputMessageTextViewDelegate = InputBarTextViewDelegate(view: rootView)
     }
 

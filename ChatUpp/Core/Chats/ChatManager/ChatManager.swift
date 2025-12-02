@@ -11,6 +11,7 @@ import Combine
 final class ChatManager
 {
     static let shared = ChatManager()
+    static var currentlySelectedChatThemeKey: String = "main_theme_key_0001"
     
     private init() {}
     

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ThemeSelectionScreen: View
 {
+    @ObservedObject var viewModel: ThemesPackViewModel
     @Environment(\.dismiss) private var dismiss
     @State var selectedImage: UIImage
 
@@ -76,7 +77,7 @@ extension ThemeSelectionScreen
     private func ApplyButton() -> some View
     {
         Button {
-            
+            viewModel.applySelectedTheme()
         } label: {
             ZStack {
                 BlurView(style: .systemThinMaterialDark)
@@ -157,5 +158,5 @@ struct BlurView: UIViewRepresentable
 
 #Preview {
     let image = UIImage(named: "chat_background_theme_24")!
-    ThemeSelectionScreen(selectedImage: image)
+    ThemeSelectionScreen(viewModel: .init(), selectedImage: image)
 }

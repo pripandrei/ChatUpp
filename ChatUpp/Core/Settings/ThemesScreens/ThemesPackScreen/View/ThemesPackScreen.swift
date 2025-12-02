@@ -51,7 +51,7 @@ struct ThemesPackScreen: View
                     if let selectedImage = viewModel.retrieveImageData(viewModel.selectedTheme),
                        let image = UIImage(data: selectedImage)
                     {
-                        ThemeSelectionScreen(selectedImage: image)
+                        ThemeSelectionScreen(viewModel: viewModel, selectedImage: image)
                             .presentationDetents([.large])
                             .presentationDragIndicator(.hidden)
                     } else {

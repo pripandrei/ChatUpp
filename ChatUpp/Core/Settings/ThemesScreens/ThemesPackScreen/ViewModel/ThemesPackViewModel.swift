@@ -17,8 +17,7 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
     
     init()
     {
-        CacheManager.shared.clearCacheDirectory(name: "Themes")
-//        startTimer()
+//        CacheManager.shared.clearCacheDirectory(name: "Themes")
     }
      
     func retrieveImageData(_ name: String) -> Data?
@@ -31,6 +30,11 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
         return nil
     }
 
+    func applySelectedTheme()
+    {
+        let key = ChatManager.currentlySelectedChatThemeKey
+        UserDefaults.standard.set(selectedTheme, forKey: key)
+    }
 }
 
 
