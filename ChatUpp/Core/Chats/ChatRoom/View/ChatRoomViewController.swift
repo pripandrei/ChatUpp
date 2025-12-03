@@ -469,6 +469,7 @@ final class ChatRoomViewController: UIViewController
         self.rootView.destroyInputBarHeaderView()
         self.rootView.sendEditMessageButton.isHidden = true
         self.rootView.sendEditMessageButton.layer.opacity = 1.0
+        self.rootView.inputBarContainer.pinBlurTopConstraint(to: self.rootView.inputBarContainer)
     }
     
     /// - Navigation bar items setup

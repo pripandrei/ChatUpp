@@ -730,11 +730,12 @@ extension ChatRoomRootView
         {
             inputBarHeader = InputBarHeaderView(mode: mode) 
             setupInputBarHeaderConstraints()
-            self.inputBarHeader?.transform = CGAffineTransform(translationX: 0, y: 80)
+            inputBarHeader?.transform = CGAffineTransform(translationX: 0, y: 80)
             self.layoutIfNeeded()
             
             UIView.animate(withDuration: 0.3)
             {
+                self.inputBarContainer.pinBlurTopConstraint(to: self.inputBarHeader!)
                 self.inputBarHeader?.transform = .identity
                 self.updateTableViewContentAttributes(isInputBarHeaderRemoved: false)
                 self.scrollToBottomBtnBottomConstraint.constant -= 45
@@ -813,7 +814,8 @@ extension ChatRoomRootView
     private func setupInputBarHeaderConstraints()
     {
         inputBarContainer.addSubview(inputBarHeader!)
-        inputBarContainer.sendSubviewToBack(inputBarHeader!)
+//        inputBarContainer.sendSubviewToBack(inputBarHeader!)
+        inputBarContainer.bringSubviewToFront(inputBarHeader!)
         
         inputBarHeader!.translatesAutoresizingMaskIntoConstraints                              = false
         inputBarHeader!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive         = true

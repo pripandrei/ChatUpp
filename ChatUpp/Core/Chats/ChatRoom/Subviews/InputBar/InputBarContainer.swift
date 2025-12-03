@@ -11,6 +11,7 @@ final class InputBarContainer: UIView {
 
     // MARK: - Properties
     private var blurEffectView: UIVisualEffectView!
+    private var blurEffectViewTopConstraint: NSLayoutConstraint?
 
     // MARK: - Init
     override init(frame: CGRect) {
@@ -28,11 +29,36 @@ final class InputBarContainer: UIView {
         bounds.size.height                        = 80
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear  // Let blur show through
-//        backgroundColor = ColorScheme.inputBarMessageContainerBackgroundColor.withAlphaComponent(0.3)
         
         self.blurEffectView = addBlurEffect(style: .systemThinMaterialDark,
                                             backgroundColor: ColorScheme.inputBarMessageContainerBackgroundColor,
                                             alpha: 0.2)
+        
+        setupBlurEffectViewTopConstraint()
+    }
+    
+    private func setupBlurEffectViewTopConstraint()
+    {
+        if let topConstraint = self.blurEffectView.constraints.first(where: { constraint in
+            constraint.firstAnchor == self.blurEffectView.topAnchor &&
+            constraint.secondAnchor == self.topAnchor
+        }) {
+            self.blurEffectViewTopConstraint = topConstraint
+        }
+        
+        self.blurEffectViewTopConstraint = blurEffectView.superview?.constraints.first {
+            ($0.firstItem as? UIView) == blurEffectView && $0.firstAttribute == .top
+        }
+    }
+    
+    func pinBlurTopConstraint(to view: UIView)
+    {
+        self.blurEffectViewTopConstraint?.isActive = false
+        
+        let topConstraint = blurEffectView.topAnchor.constraint(equalTo: view.topAnchor)
+        topConstraint.isActive = true
+        
+        self.blurEffectViewTopConstraint = topConstraint
     }
 }
 

@@ -43,9 +43,9 @@ final class InputBarHeaderView: UIView {
     // MARK: - Setup
     func setupSubviews() {
         backgroundColor = .clear
-        self.blurEffectView = addBlurEffect(style: .systemThinMaterialDark,
-                                            backgroundColor: ColorScheme.inputBarMessageContainerBackgroundColor,
-                                            alpha: 0.7)
+//        self.blurEffectView = addBlurEffect(style: .systemThinMaterialDark,
+//                                            backgroundColor: ColorScheme.inputBarMessageContainerBackgroundColor,
+//                                            alpha: 0.7)
         setupSelfHeightConstraint()
         setupTitleLabel()
         setupSubtitleLabel()
@@ -92,6 +92,7 @@ final class InputBarHeaderView: UIView {
         imageThumbnail?.transform = .init(scaleX: 0.01, y: 0.01)
         subtitleLabel?.alpha = 0.0
         titleLabel?.alpha = 0.0
+        separator?.alpha = 0.0
         
         executeAfter(seconds: 0.2)
         {
@@ -101,6 +102,7 @@ final class InputBarHeaderView: UIView {
                 self.imageThumbnail?.transform = .identity
                 self.subtitleLabel?.alpha = 1.0
                 self.titleLabel?.alpha = 1.0
+                self.separator?.alpha = 1.0
             }
         }
     }

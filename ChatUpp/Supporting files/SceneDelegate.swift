@@ -24,19 +24,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarController = TabBarViewController()
         coordinator = MainCoordinator(tabBar: tabBarController)
-
-//        let themesScreen = ThemesPackScreen()
         
         window?.rootViewController = tabBarController
-//        window?.rootViewController = UIHostingController(rootView: themesScreen)
         window?.makeKeyAndVisible()
         
         coordinator?.start()
         
         _ = KeyboardService.shared
-        
-//        let key = ChatManager.currentlySelectedChatThemeKey
-//        UserDefaults.standard.set("chat_background_theme_4.jpg", forKey: key)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
