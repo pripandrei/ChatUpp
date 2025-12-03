@@ -16,7 +16,7 @@ struct SettingsItem: Hashable
     
     static var itemsData = [
         SettingsItem(name: "Edit profile", iconName: "edit_profile_icon", showDisclosure: true),
-        SettingsItem(name: "Switch theme", iconName: "appearance_icon", showDisclosure: true),
+        SettingsItem(name: "Appearance", iconName: "appearance_icon", showDisclosure: true),
         SettingsItem(name: "Delete profile", iconName: "delete_profile_icon", showDisclosure: false),
         SettingsItem(name: "Log out", iconName: "log_out_icon", showDisclosure: false)
     ]

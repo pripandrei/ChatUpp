@@ -22,8 +22,6 @@ struct ThemesPackScreen: View
     {
         ScrollView()
         {
-            GridHeader()
-            
             LazyVGrid(columns: columns, spacing: 10)
             {
                 ForEach(viewModel.themes, id: \.self) { theme in
@@ -60,6 +58,11 @@ struct ThemesPackScreen: View
                 }
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                ToolbarTitle()
+            }
+        }
         .onDisappear {
             Utilities.setupNavigationBarAppearance()
         }
@@ -68,9 +71,9 @@ struct ThemesPackScreen: View
 
 extension ThemesPackScreen
 {
-    private func GridHeader() -> some View
+    private func ToolbarTitle() -> some View
     {
-        Text("Themes")
+        Text("Chat Wallpaper")
             .font(Font.system(size: 18, weight: .semibold))
             .padding([.bottom, .top], 10)
             .foregroundStyle(.white)
