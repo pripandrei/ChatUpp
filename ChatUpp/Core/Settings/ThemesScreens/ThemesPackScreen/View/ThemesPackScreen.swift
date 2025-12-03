@@ -60,6 +60,9 @@ struct ThemesPackScreen: View
                 }
             }
         }
+        .onDisappear {
+            Utilities.setupNavigationBarAppearance()
+        }
     }
 }
 
