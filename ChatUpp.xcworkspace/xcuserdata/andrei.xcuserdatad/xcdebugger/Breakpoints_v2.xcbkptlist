@@ -7,32 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "317113B1-019D-4C84-AE1A-652AE445BBC0"
-            shouldBeEnabled = "Yes"
+            uuid = "6412363F-A501-4690-9746-F3B9B74163E3"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/InputBar/InputBarContainer.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/RootView/ChatRoomRootView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "42"
-            endingLineNumber = "42"
-            landmarkName = "setupBlurEffectViewTopConstraint()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "0308303C-8F1C-4608-9E16-DBF562CA071E"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/InputBar/InputBarContainer.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "56"
-            endingLineNumber = "56"
-            landmarkName = "pinBlurTopConstraint(to:)"
+            startingLineNumber = "749"
+            endingLineNumber = "749"
+            landmarkName = "setupInputBarHeaderView(mode:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

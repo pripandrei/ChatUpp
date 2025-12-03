@@ -744,7 +744,7 @@ extension ChatRoomRootView
         } else {
             self.inputBarHeader?.applyMode(mode)
             self.inputBarHeader?.animateComponents(isUpdating: true)
-            if !mode.isImage && messageTextView.text.isEmpty
+            if !mode.isImage && messageTextView.text.isEmpty && voiceRecButton.isHidden
             {
                 toggleVoiceRecButtonVisibility(true)
             }

@@ -1511,7 +1511,8 @@ extension ChatRoomViewController
         self.rootView.messageTextView.becomeFirstResponder()
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
         
-        if case .image(_) = actionOption
+        if case .image(_) = actionOption,
+           self.rootView.sendMessageButton.isHidden
         {
             self.rootView.toggleVoiceRecButtonVisibility(false)
         }
