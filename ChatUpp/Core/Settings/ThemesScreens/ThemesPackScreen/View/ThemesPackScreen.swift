@@ -38,6 +38,7 @@ struct ThemesPackScreen: View
                     }
                 }
             }
+            .padding(.top, 10)
         }
         .background(Color(ColorScheme.appBackgroundColor))
         .sheet(isPresented: $showThemeSelectionScreenSheet) {

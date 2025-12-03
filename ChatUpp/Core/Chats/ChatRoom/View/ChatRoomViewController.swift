@@ -59,20 +59,9 @@ final class ChatRoomViewController: UIViewController
         self.viewModel = conversationViewModel
     }
     
-    private func getBackgrounImage() -> UIImage
-    {
-        if let backgroundKey = Utilities.retrieveSelectedThemeKey(),
-           let data = CacheManager.shared.retrieveData(from: "Themes/\(backgroundKey)"),
-           let image = UIImage(data: data)
-        {
-             return image
-        }
-        return UIImage(named: "chat_background_theme_2") ?? .actions
-    }
-    
     override func loadView()
     {
-        let backgroundImage = getBackgrounImage()
+        let backgroundImage = getBackgroundImage()
         self.rootView = ChatRoomRootView(backgroundImage: backgroundImage)
         view = self.rootView
         inputMessageTextViewDelegate = InputBarTextViewDelegate(view: rootView)
@@ -126,7 +115,7 @@ final class ChatRoomViewController: UIViewController
     
     private func performAdditionalSetupForRootView()
     {
-        if viewModel.conversation == nil
+        if viewModel.conversation == nil || viewModel.conversation?.recentMessageID == nil
         {
             self.rootView.setupGreetingView()
         }
@@ -192,6 +181,17 @@ final class ChatRoomViewController: UIViewController
         }
         
         toggleSectionHeaderVisibility(isScrollActive: false, withAnimation: false)
+    }
+    
+    private func getBackgroundImage() -> UIImage
+    {
+        if let backgroundKey = Utilities.retrieveSelectedThemeKey(),
+           let data = CacheManager.shared.retrieveData(from: "Themes/\(backgroundKey)"),
+           let image = UIImage(data: data)
+        {
+             return image
+        }
+        return UIImage(named: "chat_background_default_theme") ?? .actions
     }
     
     //MARK: - Bindings

@@ -9,7 +9,7 @@ import SwiftUI
 
 final class ThemesPackViewModel: SwiftUI.ObservableObject
 {
-    @Published var themes = (1...30).map { index in
+    @Published var themes = (1...27).map { index in
         "chat_background_theme_\(index).jpg"
     }
     
@@ -21,7 +21,6 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
            return
         }
         selectedTheme = key
-//        CacheManager.shared.clearCacheDirectory(name: "Themes")
     }
      
     func retrieveImageData(_ name: String) -> Data?

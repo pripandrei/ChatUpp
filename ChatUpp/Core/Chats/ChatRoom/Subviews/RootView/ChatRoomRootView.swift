@@ -908,7 +908,7 @@ extension ChatRoomRootView
     private func createBackgroundView() -> UIView
     {
         let view = UIView()
-//        let backgroundImageView = UIImageView(image: UIImage(named: "chat_background_theme_3"))
+//        let backgroundImageView = UIImageView(image: UIImage(named: "chat_background_theme_1"))
         let backgroundImageView = UIImageView(image: backgroungImage)
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.frame = view.bounds

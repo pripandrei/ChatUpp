@@ -238,14 +238,15 @@ extension SettingsViewController
     
     private func toggleSkeletonAnimation(isActive: Bool)
     {
-        collectionViewListHeader?.imageView.isSkeletonable = isActive
+        guard let imageView = collectionViewListHeader?.imageView else {return}
+        imageView.isSkeletonable = isActive
         collectionViewListHeader?.isSkeletonable = isActive
         
         if isActive {
-            collectionViewListHeader?.imageView.showAnimatedGradientSkeleton()
+            Utilities.initiateSkeletonAnimation(for: imageView)
+//            collectionViewListHeader?.imageView.showAnimatedGradientSkeleton()
         } else {
-            collectionViewListHeader?.imageView.stopAnimating();
-            collectionViewListHeader?.imageView.hideSkeleton()
+            Utilities.stopSkeletonAnimation(for: imageView)
         }
     }
 }
