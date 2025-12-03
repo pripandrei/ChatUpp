@@ -60,13 +60,13 @@ final class InputBarHeaderView: UIView {
     private func setupTitleLabel() {
         titleLabel = UILabel()
         titleLabel?.textColor = ColorScheme.actionButtonsTintColor
-        titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        titleLabel?.font = UIFont.boldSystemFont(ofSize: 15)
     }
     
     private func setupSubtitleLabel() {
         subtitleLabel = UILabel()
         subtitleLabel?.textColor = .white
-        subtitleLabel?.font = UIFont(name: "Helvetica", size: 16)
+        subtitleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
         subtitleLabel?.lineBreakMode = .byTruncatingTail
     }
     
@@ -115,7 +115,7 @@ final class InputBarHeaderView: UIView {
         
         NSLayoutConstraint.activate([
             separator!.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            separator!.widthAnchor.constraint(equalToConstant: 2),
+            separator!.widthAnchor.constraint(equalToConstant: 1.5),
             separator!.heightAnchor.constraint(equalToConstant: 35),
             separator!.leadingAnchor.constraint(equalTo: symbolIcon!.trailingAnchor, constant: 20)
         ])
