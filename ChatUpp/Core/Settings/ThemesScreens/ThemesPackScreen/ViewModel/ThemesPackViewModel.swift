@@ -17,6 +17,10 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
     
     init()
     {
+        guard let key = Utilities.retrieveSelectedThemeKey() else {
+           return
+        }
+        selectedTheme = key
 //        CacheManager.shared.clearCacheDirectory(name: "Themes")
     }
      

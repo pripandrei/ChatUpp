@@ -15,10 +15,14 @@ final class ThemeGridItemViewModel: SwiftUI.ObservableObject
 
     init(themeName: String) {
         self.themeName = themeName
-        setupImage()
+//        executeAfter(seconds: 5.0) {
+            self.setupImage()
+//        }
     }
 }
 
+
+//MARK: - Image setup
 private extension ThemeGridItemViewModel
 {
     func setupImage()
@@ -74,7 +78,8 @@ private extension ThemeGridItemViewModel
     }
 }
 
-private enum ImageFolder: String {
+private enum ImageFolder: String
+{
     case thumbnails
     case originals
 }

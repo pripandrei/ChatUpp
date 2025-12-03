@@ -61,7 +61,6 @@ final class ProfileEditingViewController: UIViewController,
     
     private func setupNavigationBar()
     {
-//        Utilities.clearNavigationBarAppearance()
         Utilities.clearNavigationBarScrollEdgeAppearance()
         setupNavigationBarItems()
     }

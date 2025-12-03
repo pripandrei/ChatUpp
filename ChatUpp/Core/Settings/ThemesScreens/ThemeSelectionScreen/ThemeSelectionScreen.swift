@@ -78,6 +78,7 @@ extension ThemeSelectionScreen
     {
         Button {
             viewModel.applySelectedTheme()
+            dismiss()
         } label: {
             ZStack {
                 BlurView(style: .systemThinMaterialDark)

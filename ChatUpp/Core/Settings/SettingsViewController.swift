@@ -149,7 +149,7 @@ extension SettingsViewController {
             let settingItem = SettingsItem.itemsData[indexPath.item]
             
             var configuration = UIListContentConfiguration.cell()
-            configuration.text = settingItem.name
+            configuration.text = settingItem.name 
             configuration.image = UIImage(named: settingItem.iconName)
             configuration.textProperties.color = .white
             configuration.imageProperties.cornerRadius = 7
@@ -244,7 +244,10 @@ extension SettingsViewController
         switch indexPath.item {
         case 0:
             coordinatorDelegate?.pushProfileEditingVC(viewModel: createprofileEditingViewModel())
-        case 1: print("item 2")
+        case 1:
+            coordinatorDelegate?.openThemeScreen()
+            Utilities.clearNavigationBarScrollEdgeAppearance()
+            navigationController?.setNavigationBarHidden(false, animated: false)
         case 2:
             handleDeletionProviderPresentation(settingsViewModel.authProvider)
         case 3: Task { await settingsViewModel.signOut() }

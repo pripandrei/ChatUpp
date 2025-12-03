@@ -59,21 +59,15 @@ final class ChatRoomViewController: UIViewController
         self.viewModel = conversationViewModel
     }
     
-    private func retrieveBackgroundKey() -> String?
-    {
-        let key = ChatManager.currentlySelectedChatThemeKey
-        return UserDefaults.standard.string(forKey: key)
-    }
-    
     private func getBackgrounImage() -> UIImage
     {
-        if let backgroundKey = retrieveBackgroundKey(),
-           let data = CacheManager.shared.retrieveData(from: backgroundKey),
+        if let backgroundKey = Utilities.retrieveSelectedThemeKey(),
+           let data = CacheManager.shared.retrieveData(from: "Themes/\(backgroundKey)"),
            let image = UIImage(data: data)
         {
              return image
         }
-        return UIImage(named: "chat_background_theme_1") ?? .actions
+        return UIImage(named: "chat_background_theme_2") ?? .actions
     }
     
     override func loadView()

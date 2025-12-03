@@ -172,6 +172,12 @@ struct Utilities
             view.hideSkeleton(transition: .none)
         }
     }
+    
+    static func retrieveSelectedThemeKey() -> String?
+    {
+        let key = ChatManager.currentlySelectedChatThemeKey
+        return UserDefaults.standard.string(forKey: key)
+    }
 }
 
 

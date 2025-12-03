@@ -10,7 +10,8 @@ import UIKit
 import SwiftUI
 import Combine
 
-protocol Coordinator: AnyObject {
+protocol Coordinator: AnyObject
+{
     func start()
     func presentLogInForm()
     func handleSignOut()
@@ -27,6 +28,7 @@ protocol Coordinator: AnyObject {
     func dismissEditProfileVC()
     func showGroupCreationScreen()
     func showChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel)
+    func openThemeScreen()
 }
 
 class MainCoordinator: Coordinator, SwiftUI.ObservableObject
@@ -180,5 +182,14 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
         Utilities.configureTransparentNavigationBarAppearance(for: hostingController)
 
         tabBar.chatsNavigationController?.pushViewController(hostingController, animated: true)
+    }
+    
+    func openThemeScreen()
+    {
+        let themePackScreen = ThemesPackScreen()
+        let hostingController = UIHostingController(rootView: themePackScreen)
+        hostingController.hidesBottomBarWhenPushed = true
+        
+        tabBar.settingsNavigationController?.pushViewController(hostingController, animated: true)
     }
 }
