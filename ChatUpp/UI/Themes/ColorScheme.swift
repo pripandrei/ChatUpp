@@ -18,6 +18,7 @@ struct ColorScheme
     static let tabBarNormalItemsTintColor: UIColor = #colorLiteral(red: 0.5957366228, green: 0.5428973436, blue: 0.6221753955, alpha: 1)
     static let cellSelectionBackgroundColor: UIColor = #colorLiteral(red: 0.1026760712, green: 0.07338444144, blue: 0.1081472859, alpha: 1)
     static let listCellBackgroundColor: UIColor = #colorLiteral(red: 0.2667922974, green: 0.1890299022, blue: 0.2787306905, alpha: 1)
+    static let listCellSelectedBackgroundColor: UIColor = #colorLiteral(red: 0.1288026308, green: 0.0908008082, blue: 0.1336611422, alpha: 1)
     static let actionButtonsTintColor: UIColor = #colorLiteral(red: 0.9384357333, green: 0.4451841116, blue: 0.9656612277, alpha: 1)
     static let mainAppBackgroundColorGradientTop: UIColor = #colorLiteral(red: 0.468229115, green: 0.2259758115, blue: 0.5086464882, alpha: 1)
     static let mainAppBackgroundColorGradientBottom: UIColor = #colorLiteral(red: 0.468229115, green: 0.2259758115, blue: 0.5086464882, alpha: 1)

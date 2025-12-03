@@ -83,7 +83,7 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
     
     private func createDeletionAlertController()
     {
-        Task {@MainActor in
+        Task { @MainActor in
             let alert = UIAlertController(title: "Alert", message: "Delete this account? This acction can not be undone!", preferredStyle: .alert)
             let cancel = UIAlertAction(title: "Cancel", style: .cancel)
             let delete = UIAlertAction(title: "Delete", style: .destructive) { _ in
@@ -121,8 +121,8 @@ extension SettingsViewController
 }
 
 //MARK: - SETTINGS COLLECTION VIEW
-extension SettingsViewController {
-    
+extension SettingsViewController
+{
     typealias DataSource = UICollectionViewDiffableDataSource<Int, SettingsItem>
     typealias SnapShot = NSDiffableDataSourceSnapshot<Int, SettingsItem>
     
@@ -155,11 +155,28 @@ extension SettingsViewController {
             configuration.imageProperties.cornerRadius = 7
             configuration.imageProperties.reservedLayoutSize = CGSize(width: 22, height: 22)
             
-            var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
-            backgroundConfiguration.backgroundColor = ColorScheme.listCellBackgroundColor
+            cell.configurationUpdateHandler = { cell, state in
+                var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()
+                backgroundConfiguration.backgroundColor = ColorScheme.listCellBackgroundColor
+                
+                if state.isHighlighted || state.isSelected
+                {
+                    backgroundConfiguration.backgroundColor = ColorScheme.listCellSelectedBackgroundColor
+                }
+                
+                cell.backgroundConfiguration = backgroundConfiguration
+            }
             
-            cell.backgroundConfiguration = backgroundConfiguration
             cell.contentConfiguration = configuration
+            
+            if settingItem.showDisclosure
+            {
+                cell.accessories = [
+                    .disclosureIndicator(displayed: .always, options: .init(isHidden: false,
+                                                                            reservedLayoutWidth: .custom(30),
+                                                                            tintColor: .systemGray))
+                ]
+            }
         }
         
         // Custom Header registration
