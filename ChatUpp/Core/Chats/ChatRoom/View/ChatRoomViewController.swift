@@ -22,6 +22,7 @@ final class ChatRoomViewController: UIViewController
     weak var coordinatorDelegate :Coordinator?
     
     private var animatedPreviewView: UIView?
+    private var shouldCleanupOnContextMenuInteractionEnd: Bool = true
     
     private var pendingIndexPathForSeenStatusCheck: IndexPath?
     private var isNetworkPaginationRunning: Bool = false
@@ -1634,7 +1635,7 @@ extension ChatRoomViewController
               let message: Message = getMessageFromCell(cell) else {
             return nil
         }
-        
+        self.shouldCleanupOnContextMenuInteractionEnd = false
         // Keep the original cell visible but make it transparent during preview
         // This keeps animations running in the background
         cell.alpha = 0.01 // Almost invisible but still rendering
@@ -1650,14 +1651,14 @@ extension ChatRoomViewController
         let mirrorLayer = CAReplicatorLayer()
         mirrorLayer.frame = liveView.bounds
         mirrorLayer.instanceCount = 1
-        
+       
         // Create a container that references the cell
         let cellReference = TargetedPreviewContentView(contentView: cell.contentView)
         cellReference.frame = cell.contentView.bounds
         cellReference.layer.cornerRadius = 10
         cellReference.layer.masksToBounds = true
         animatedPreviewView = cellReference
-
+        
         // Create reaction panel
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
@@ -1727,6 +1728,7 @@ extension ChatRoomViewController
               let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return nil
         }
+        self.shouldCleanupOnContextMenuInteractionEnd = true
         
         let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
  
@@ -1764,20 +1766,25 @@ extension ChatRoomViewController
         return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
     }
     
-    func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?)
+    func tableView(_ tableView: UITableView,
+                   willEndContextMenuInteraction configuration: UIContextMenuConfiguration,
+                   animator: UIContextMenuInteractionAnimating?
+    )
     {
         animator?.addCompletion { [weak self] in
-            guard let _ = self,
+            guard let self,
+                  shouldCleanupOnContextMenuInteractionEnd,
                   let indexPath = configuration.identifier as? IndexPath,
-                  let cell = tableView.cellForRow(at: indexPath) else {
+                  let cell = tableView.cellForRow(at: indexPath) else
+            {
                 return
             }
             
             // Restore cell visibility after animation completes
             cell.alpha = 1
-            if let view = self?.animatedPreviewView as? TargetedPreviewContentView {
+            if let view = self.animatedPreviewView as? TargetedPreviewContentView {
                 view.cleanup()
-                self?.animatedPreviewView = nil
+                self.animatedPreviewView = nil
             }
         }
     }

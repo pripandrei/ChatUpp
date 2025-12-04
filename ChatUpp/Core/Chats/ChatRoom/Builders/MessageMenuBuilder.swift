@@ -63,14 +63,13 @@ final class MessageMenuBuilder
     {
         UIAction(title: "Reply", image: UIImage(systemName: "arrowshape.turn.up.left")) { _ in
             DispatchQueue.main.async { [weak self] in
-                self?.rootView.messageTextView.text = nil
                 guard let sender = self?.viewModel.getMessageSender(message.senderId) else {return}
                 self?.viewModel.currentlyReplyToMessageID = message.id
  
                 let image: UIImage? = (self?.cell as? ConversationMessageCell)?.messageImage
 
                 let text = (self?.cell as? ConversationMessageCell)?.messageText
-                // TODO: - remove text
+                
                 self?.contextMenuSelectedActionHandler?(.reply(
                     senderName: sender.name,
                     text: text,
