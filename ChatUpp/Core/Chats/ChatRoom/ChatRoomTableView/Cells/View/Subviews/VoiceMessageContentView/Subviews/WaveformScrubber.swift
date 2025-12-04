@@ -57,6 +57,7 @@ struct WaveformScrubber: View
                         self.shouldUpdateProgress = true
                         onSeek?(newProgress)
                     }
+                
             )
         }
     }

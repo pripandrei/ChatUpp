@@ -22,7 +22,7 @@ final class ChatRoomViewController: UIViewController
     weak var coordinatorDelegate :Coordinator?
     
     private var animatedPreviewView: UIView?
-    private var shouldCleanupOnContextMenuInteractionEnd: Bool = true
+    private var contextMenuInteractionDidEnd: Bool = true
     
     private var pendingIndexPathForSeenStatusCheck: IndexPath?
     private var isNetworkPaginationRunning: Bool = false
@@ -1104,7 +1104,7 @@ extension ChatRoomViewController
         tapGesture.delegate = self
         tapGesture.cancelsTouchesInView = false
         
-        rootView.tableView.addGestureRecognizer(panGesture)
+//        rootView.tableView.addGestureRecognizer(panGesture)
         rootView.tableView.backgroundView?.addGestureRecognizer(tapGesture)
     }
 
@@ -1583,48 +1583,6 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
     }
 }
 
-//MARK: - Gesture delegate
-extension ChatRoomViewController
-{
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool
-    {
-        guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {
-            return true
-        }
-        
-        let translation = panGesture.translation(in: rootView.tableView)
-        
-        // Only allow if horizontal drag is dominant (to avoid interfering with vertical scroll)
-        if abs(translation.x) <= abs(translation.y) {
-            return false
-        }
-        
-        // Also, check if gesture started on a valid cell
-        let location = panGesture.location(in: rootView.tableView)
-        guard let indexPath = rootView.tableView.indexPathForRow(at: location),
-              let _ = rootView.tableView.cellForRow(at: indexPath) as? MessageCellDragable else {
-            return false
-        }
-        
-        return true
-    }
-    //    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-    //                           shouldReceive touch: UITouch) -> Bool
-    //    {
-    //        guard let stickerCollection = rootView.stickerCollectionView else {return true}
-    //
-    //        let tapLocation = touch.location(in: rootView)
-    //
-    //        if stickerCollection.frame.contains(tapLocation) || rootView.inputBarContainer.frame.contains(tapLocation)
-    ////            || rootView.inputBarHeader?.frame.contains(tapLocation)
-    //        {
-    //            return false
-    //        }
-    //        return true
-    //    }
-}
-
-
 //MARK: - Targeted Preview creation
 extension ChatRoomViewController
 {
@@ -1635,7 +1593,7 @@ extension ChatRoomViewController
               let message: Message = getMessageFromCell(cell) else {
             return nil
         }
-        self.shouldCleanupOnContextMenuInteractionEnd = false
+        self.contextMenuInteractionDidEnd = false
         // Keep the original cell visible but make it transparent during preview
         // This keeps animations running in the background
         cell.alpha = 0.01 // Almost invisible but still rendering
@@ -1666,7 +1624,7 @@ extension ChatRoomViewController
             let delayInterval = 0.7 // do not modify to lower than 0.7 value (result in animation glitch on reload)
             self?.dismiss(animated: true)
             
-            executeAfter(seconds: delayInterval) { 
+            executeAfter(seconds: delayInterval) {
                 guard let cellVM = (cell as? TargetPreviewable)?.cellViewModel else {return}
                 self?.dataSourceManager.reloadItems([cellVM])
             }
@@ -1728,7 +1686,6 @@ extension ChatRoomViewController
               let cell = rootView.tableView.cellForRow(at: indexPath) else {
             return nil
         }
-        self.shouldCleanupOnContextMenuInteractionEnd = true
         
         let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
  
@@ -1771,9 +1728,10 @@ extension ChatRoomViewController
                    animator: UIContextMenuInteractionAnimating?
     )
     {
+        self.contextMenuInteractionDidEnd = true
         animator?.addCompletion { [weak self] in
             guard let self,
-                  shouldCleanupOnContextMenuInteractionEnd,
+                  contextMenuInteractionDidEnd,
                   let indexPath = configuration.identifier as? IndexPath,
                   let cell = tableView.cellForRow(at: indexPath) else
             {
@@ -1801,6 +1759,34 @@ extension ChatRoomViewController
         } else {
             return nil
         }
+    }
+}
+
+
+//MARK: - Gesture delegate
+extension ChatRoomViewController
+{
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool
+    {
+        guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else {
+            return true
+        }
+        
+        let translation = panGesture.translation(in: rootView.tableView)
+        
+        // Only allow if horizontal drag is dominant (to avoid interfering with vertical scroll)
+        if abs(translation.x) <= abs(translation.y) {
+            return false
+        }
+        
+        // Also, check if gesture started on a valid cell
+        let location = panGesture.location(in: rootView.tableView)
+        guard let indexPath = rootView.tableView.indexPathForRow(at: location),
+              let _ = rootView.tableView.cellForRow(at: indexPath) as? MessageCellDragable else {
+            return false
+        }
+        
+        return true
     }
 }
 
