@@ -122,9 +122,17 @@
 // so we set it to work, and disable after,
 // to prevent other glitch related to rows when adding reaction
 
-//MARK: - [17]
+//MARK: - [18]
 //
 ///  In a scenario where user scrolls fast through table view of messages,
 ///  debouncing for a period of time will save us from firing of sink block 
 ///  each time the "updatedMessages" array is changed. That way, minimizing the initiation of message update processing
 ///
+
+//MARK: - [19]
+//
+/// Targeted Preview and cell dragging can both be initiated from tapping
+/// and simultaneously dragging the cell, this will result in two cells appear on screen for a fraction of a second, the one that is being dragged and the one that is presented
+/// by the targeted preview (snapshot). So we should hold Targeted Preview reference
+/// and then, if the drag was simultaniosly initiated, remove the Preview so that only one cell is always displayed
+

@@ -23,6 +23,8 @@ final class ChatRoomViewController: UIViewController
     
     private var animatedPreviewView: UIView?
     private var contextMenuInteractionDidEnd: Bool = true
+    private var shouldBlockCellDragging: Bool = false
+    private var targetedPreview: UITargetedPreview?
     
     private var pendingIndexPathForSeenStatusCheck: IndexPath?
     private var isNetworkPaginationRunning: Bool = false
@@ -1104,7 +1106,7 @@ extension ChatRoomViewController
         tapGesture.delegate = self
         tapGesture.cancelsTouchesInView = false
         
-//        rootView.tableView.addGestureRecognizer(panGesture)
+        rootView.tableView.addGestureRecognizer(panGesture)
         rootView.tableView.backgroundView?.addGestureRecognizer(tapGesture)
     }
 
@@ -1526,6 +1528,9 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
 {
     @objc private func handleTablePan(_ gesture: UIPanGestureRecognizer)
     {
+        self.targetedPreview?.view.removeFromSuperview() //  See FootNote.swift [19]
+        self.targetedPreview = nil
+        
         let table = self.rootView.tableView
         let location = gesture.location(in: table)
         let translation = gesture.translation(in: table)
@@ -1593,6 +1598,7 @@ extension ChatRoomViewController
               let message: Message = getMessageFromCell(cell) else {
             return nil
         }
+
         self.contextMenuInteractionDidEnd = false
         // Keep the original cell visible but make it transparent during preview
         // This keeps animations running in the background
@@ -1675,9 +1681,11 @@ extension ChatRoomViewController
         parameters.backgroundColor = .clear
         parameters.shadowPath = UIBezierPath()
         
-        return UITargetedPreview(view: container,
+        let targetedPreview = UITargetedPreview(view: container,
                                parameters: parameters,
                                target: previewTarget)
+        self.targetedPreview = targetedPreview // See FootNote.swift [19]
+        return targetedPreview
     }
 
     func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
@@ -1743,6 +1751,7 @@ extension ChatRoomViewController
             if let view = self.animatedPreviewView as? TargetedPreviewContentView {
                 view.cleanup()
                 self.animatedPreviewView = nil
+                
             }
         }
     }
