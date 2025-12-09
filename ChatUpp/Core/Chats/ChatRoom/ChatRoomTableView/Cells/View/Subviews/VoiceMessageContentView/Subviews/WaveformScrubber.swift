@@ -6,12 +6,13 @@
 //
 
 import SwiftUI
+import SwiftUI
+import UIKit
 
 struct WaveformScrubber: View
 {
     @Binding var progress: CGFloat
     @Binding var shouldUpdateProgress: Bool
-    @GestureState private var isDragging = false
     
     var samples: [Float]
     var filledColor: Color
@@ -39,26 +40,98 @@ struct WaveformScrubber: View
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .updating($isDragging) { _, state, _ in
-                        state = true
-                    }
-                    .onChanged { value in
-                        let x = max(0, min(value.location.x, width))
-                        let newProgress = x / width
-                        self.progress = newProgress
-                        self.shouldUpdateProgress = false
-                    }
-                    .onEnded { value in
-                        let x = max(0, min(value.location.x, width))
-                        let newProgress = x / width
-                        self.shouldUpdateProgress = true
-                        onSeek?(newProgress)
-                    }
-                
+            .overlay(
+                HorizontalDragView { location in
+                    let x = max(0, min(location.x, width))
+                    let newProgress = x / width
+                    self.progress = newProgress
+                    self.shouldUpdateProgress = false
+                } onDragEnded: { location in
+                    let x = max(0, min(location.x, width))
+                    let newProgress = x / width
+                    self.shouldUpdateProgress = true
+                    onSeek?(newProgress)
+                }
             )
+        }
+    }
+}
+
+// MARK: - Horizontal Drag View
+struct HorizontalDragView: UIViewRepresentable
+{
+    let onHorizontalDrag: (CGPoint) -> Void
+    let onDragEnded: (CGPoint) -> Void
+    
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = true
+        
+        let panGesture = UIPanGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handlePan(_:))
+        )
+        panGesture.delegate = context.coordinator
+        view.addGestureRecognizer(panGesture)
+        
+        return view
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context)
+    {
+        context.coordinator.onHorizontalDrag = onHorizontalDrag
+        context.coordinator.onDragEnded = onDragEnded
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onHorizontalDrag: onHorizontalDrag, onDragEnded: onDragEnded)
+    }
+    
+    class Coordinator: NSObject, UIGestureRecognizerDelegate
+    {
+        var onHorizontalDrag: (CGPoint) -> Void
+        var onDragEnded: (CGPoint) -> Void
+        
+        init(onHorizontalDrag: @escaping (CGPoint) -> Void, onDragEnded: @escaping (CGPoint) -> Void) {
+            self.onHorizontalDrag = onHorizontalDrag
+            self.onDragEnded = onDragEnded
+        }
+        
+        @objc func handlePan(_ gesture: UIPanGestureRecognizer)
+        {
+            guard let view = gesture.view else { return }
+            let location = gesture.location(in: view)
+            
+            switch gesture.state
+            {
+            case .began, .changed:
+                onHorizontalDrag(location)
+            case .ended, .cancelled:
+                onDragEnded(location)
+            default:
+                break
+            }
+        }
+        
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool
+        {
+            guard let pan = gestureRecognizer as? UIPanGestureRecognizer,
+                  let view = pan.view else { return true }
+            
+            let velocity = pan.velocity(in: view)
+            
+            // Only begin if horizontal velocity is greater than vertical
+            return abs(velocity.x) > abs(velocity.y)
+        }
+        
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+        ) -> Bool
+        {
+            // Don't recognize simultaneously - exclusive horizontal control
+            return false
         }
     }
 }
