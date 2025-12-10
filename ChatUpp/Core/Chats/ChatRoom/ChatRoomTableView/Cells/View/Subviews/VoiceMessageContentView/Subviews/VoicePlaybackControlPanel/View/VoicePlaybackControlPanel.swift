@@ -67,6 +67,10 @@ struct VoicePlaybackControlPanelView: View
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 10)
+                    .onTapGesture {
+                        viewModel.togglePlayPause()
+                    }
+                    
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
             }

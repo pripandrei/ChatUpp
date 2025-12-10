@@ -65,13 +65,11 @@ final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
                 
                 if self.audioFileURL == self.audioManager.currentlyLoadedAudioURL
                 {
-                    print("PlayBack time:  ", playbackTime)
                     self.currentPlaybackTime = playbackTime
                     
                     if shouldUpdateProgress
                     {
                         self.playbackProgress = CGFloat(playbackTime / self.audioTotalDuration)
-                        print("PlayBack progress:  ", self.playbackProgress)
                     }
                 }
             }.store(in: &cancellables)
