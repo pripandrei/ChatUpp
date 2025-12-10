@@ -55,8 +55,11 @@ class ChatsViewController: UIViewController {
         RealtimeUserService.shared.updateUserActiveStatus(isActive: true)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool)
+    {
         super.viewWillAppear(animated)
+        NavigationBarAppearance.setScrollEdgeAppearance()
+        
         if resultsTableController.shouldHideTabBar {
             resultsTableController.tabBarVisibilityProtocol?.hideTabBar()
             resultsTableController.shouldHideTabBar = false

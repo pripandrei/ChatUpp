@@ -26,7 +26,7 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate {
         super.viewDidLoad()
         navigationController?.delegate = self
         controllerMainSetup()
-        Utilities.clearNavigationBarAppearance()
+        NavigationBarAppearance.configureTransparentNavigationBarAppearance(for: self)
         Utilities.setGradientBackground(forView: view)
     }
   

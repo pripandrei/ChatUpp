@@ -103,10 +103,10 @@ class ChatCell: UITableViewCell
         
         if let title = title {
             self.nameLabel.text = title
-            Utilities.stopSkeletonAnimation(for: self.nameLabel)
+            SkeletonAnimationAppearance.stopSkeletonAnimation(for: self.nameLabel)
         }
         else {
-            Utilities.initiateSkeletonAnimation(for: self.nameLabel)
+            SkeletonAnimationAppearance.initiateSkeletonAnimation(for: self.nameLabel)
         }
     }
     
@@ -158,14 +158,14 @@ class ChatCell: UITableViewCell
     {
         if !cellViewModel.isRecentMessagePresent
         {
-            Utilities.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
+            SkeletonAnimationAppearance.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
             self.messageLable.attributedText = nil
             return
         }
         
         if let message = message
         {
-            Utilities.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
+            SkeletonAnimationAppearance.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
             self.messageLable.attributedText = setAttributedText(for: message)
             self.dateLable.text = message.timestamp.formattedAsCompactDate()
             
@@ -174,7 +174,7 @@ class ChatCell: UITableViewCell
                 configureMessageSeenStatus()
             }
         } else {
-            Utilities.initiateSkeletonAnimation(
+            SkeletonAnimationAppearance.initiateSkeletonAnimation(
                 for: self.messageLable, self.dateLable
             )
         }
@@ -241,7 +241,7 @@ class ChatCell: UITableViewCell
                 guard let self = self else {return}
                 if let image = imageData {
                     self.profileImage.image = UIImage(data: image)
-                    Utilities.stopSkeletonAnimation(for: self.profileImage)
+                    SkeletonAnimationAppearance.stopSkeletonAnimation(for: self.profileImage)
                 } else {
                     self.setImage()
                 }
@@ -252,7 +252,7 @@ class ChatCell: UITableViewCell
             .sink { [weak self] member in
                 guard let self else {return}
                 if let member = member {
-                    Utilities.stopSkeletonAnimation(for: self.nameLabel)
+                    SkeletonAnimationAppearance.stopSkeletonAnimation(for: self.nameLabel)
                     
                     if self.nameLabel.text != member.name {
                         self.nameLabel.text = member.name
@@ -279,7 +279,7 @@ class ChatCell: UITableViewCell
             .sink { [weak self] chat in
                 guard let self else {return}
                 if chat.isGroup {
-                    Utilities.stopSkeletonAnimation(for: self.nameLabel)
+                    SkeletonAnimationAppearance.stopSkeletonAnimation(for: self.nameLabel)
                     self.nameLabel.text = chat.name
                 }
             }.store(in: &subscriptions)
@@ -297,7 +297,7 @@ class ChatCell: UITableViewCell
                 guard let self = self else {return}
                 guard let count = count else {return}
                 
-                Utilities.stopSkeletonAnimation(for: unreadMessagesBadgeLabel)
+                SkeletonAnimationAppearance.stopSkeletonAnimation(for: unreadMessagesBadgeLabel)
                 setUnreadMessageCount(count)
             }.store(in: &subscriptions)
     }
@@ -310,7 +310,7 @@ class ChatCell: UITableViewCell
         
         // Case 1: Non-group chat with no user
         guard chat.isGroup || cellViewModel.chatUser != nil else {
-            Utilities.initiateSkeletonAnimation(for: profileImage)
+            SkeletonAnimationAppearance.initiateSkeletonAnimation(for: profileImage)
             return
         }
         
@@ -319,16 +319,16 @@ class ChatCell: UITableViewCell
             profileImage.image = UIImage(
                 named: chat.isGroup ? "default_group_photo" : "default_profile_photo"
             )
-            Utilities.stopSkeletonAnimation(for: profileImage)
+            SkeletonAnimationAppearance.stopSkeletonAnimation(for: profileImage)
             return
         }
         
         // Case 3: Try cache → set image if found, otherwise skeleton
         if let imageData = cellViewModel.retrieveChatAvatarFromCache() {
             profileImage.image = UIImage(data: imageData)
-            Utilities.stopSkeletonAnimation(for: profileImage)
+            SkeletonAnimationAppearance.stopSkeletonAnimation(for: profileImage)
         } else {
-            Utilities.initiateSkeletonAnimation(for: profileImage)
+            SkeletonAnimationAppearance.initiateSkeletonAnimation(for: profileImage)
         }
     }
 }

@@ -45,6 +45,7 @@ class TabBarViewController: UITabBarController
     
     func setupTabBarController()
     {
+        NavigationBarAppearance.setupNavigationBarGlobalAppearance()
         setupTabBarViewControllers()
         tabBar.isHidden = false
         setupTabarAppearance()
@@ -53,8 +54,6 @@ class TabBarViewController: UITabBarController
 
     func setupTabarAppearance()
     {
-        Utilities.setupNavigationBarAppearance()
-        
         let tabBarAppearance = UITabBarAppearance()
         let tabBarItemAppearance = UITabBarItemAppearance()
 

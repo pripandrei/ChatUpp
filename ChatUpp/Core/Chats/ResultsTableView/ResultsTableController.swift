@@ -57,10 +57,10 @@ final class ResultsTableController: UITableViewController {
     
     func toggleSkeletonAnimation(_ value: SkeletonAnimationState) {
         if value == .initiated {
-            Utilities.initiateSkeletonAnimation(for: tableView)
+            SkeletonAnimationAppearance.initiateSkeletonAnimation(for: tableView)
             noUserWasFoundLabel.isHidden = true
         } else {
-            Utilities.terminateSkeletonAnimation(for: tableView)
+            SkeletonAnimationAppearance.terminateSkeletonAnimation(for: tableView)
             noUserWasFoundLabel.isHidden = false
         }
     }

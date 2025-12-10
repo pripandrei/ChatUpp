@@ -1,4 +1,4 @@
-//
+
 //  ProfileEditingViewController.swift
 //  ChatUpp
 //
@@ -56,12 +56,10 @@ final class ProfileEditingViewController: UIViewController,
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        Utilities.setupNavigationBarAppearance()
     }
     
     private func setupNavigationBar()
     {
-        Utilities.clearNavigationBarScrollEdgeAppearance()
         setupNavigationBarItems()
     }
     

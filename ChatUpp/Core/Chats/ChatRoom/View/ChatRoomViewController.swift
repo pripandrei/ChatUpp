@@ -1808,10 +1808,10 @@ extension ChatRoomViewController
         switch state {
         case .initiated:
             rootView.tableView.estimatedRowHeight = 50 /// See FootNote.swift [17]
-            Utilities.initiateSkeletonAnimation(for: rootView.tableView)
+            SkeletonAnimationAppearance.initiateSkeletonAnimation(for: rootView.tableView)
         case .terminated:
             rootView.tableView.estimatedRowHeight = UITableView.automaticDimension /// See FootNote.swift [17]
-            Utilities.stopSkeletonAnimation(for: rootView.tableView)
+            SkeletonAnimationAppearance.stopSkeletonAnimation(for: rootView.tableView)
         default: break
         }
     }

@@ -15,7 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate
     {
         _ = NetworkMonitor.shared
         FirebaseApp.configure()
-        Utilities.setupNavigationBarAppearance()
         return true
     }
 

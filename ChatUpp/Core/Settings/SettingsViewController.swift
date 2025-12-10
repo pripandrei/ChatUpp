@@ -1,3 +1,4 @@
+
 //
 //  SettingsViewController.swift
 //  ChatUpp
@@ -35,9 +36,12 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
         self.setupBinder()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewWillAppear(_ animated: Bool)
+    {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: false)
+
+        NavigationBarAppearance.resetScrollEdgeAppearance()
+        navigationController?.navigationBar.scrollEdgeAppearance = nil
     }
 
     deinit {
@@ -149,7 +153,7 @@ extension SettingsViewController
             let settingItem = SettingsItem.itemsData[indexPath.item]
             
             var configuration = UIListContentConfiguration.cell()
-            configuration.text = settingItem.name 
+            configuration.text = settingItem.name
             configuration.image = UIImage(named: settingItem.iconName)
             configuration.textProperties.color = .white
             configuration.imageProperties.cornerRadius = 7
@@ -243,10 +247,10 @@ extension SettingsViewController
         collectionViewListHeader?.isSkeletonable = isActive
         
         if isActive {
-            Utilities.initiateSkeletonAnimation(for: imageView)
+            SkeletonAnimationAppearance.initiateSkeletonAnimation(for: imageView)
 //            collectionViewListHeader?.imageView.showAnimatedGradientSkeleton()
         } else {
-            Utilities.stopSkeletonAnimation(for: imageView)
+            SkeletonAnimationAppearance.stopSkeletonAnimation(for: imageView)
         }
     }
 }
@@ -264,8 +268,6 @@ extension SettingsViewController
             coordinatorDelegate?.pushProfileEditingVC(viewModel: createprofileEditingViewModel())
         case 1:
             coordinatorDelegate?.openThemeScreen()
-            Utilities.clearNavigationBarScrollEdgeAppearance()
-            navigationController?.setNavigationBarHidden(false, animated: false)
         case 2:
             handleDeletionProviderPresentation(settingsViewModel.authProvider)
         case 3: Task { await settingsViewModel.signOut() }

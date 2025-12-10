@@ -1,3 +1,4 @@
+
 //
 //  Utilities.swift
 //  ChatUpp
@@ -47,73 +48,6 @@ struct Utilities
         }
         return nil
     }
-    
-    // Set color to Navigation Bar
-    static public func setupNavigationBarAppearance()
-    {
-        let appearance = UINavigationBarAppearance()
-        
-        appearance.backgroundColor = ColorScheme.tabBarBackgroundColor.withAlphaComponent(0.85)
-        appearance.backgroundEffect = UIBlurEffect(style: .light)
-        
-        appearance.shadowColor = .white.withAlphaComponent(0.5)
-        
-        appearance.titleTextAttributes = [.foregroundColor: #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), .font: UIFont(name: "HelveticaNeue-bold", size: 17)!]
-        
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().compactAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-    }
-    
-    // Adjust Navigation Bar color to be clear
-//    static public func clearNavigationBarAppearance() {
-//        UINavigationBar.appearance().standardAppearance.backgroundColor = .clear
-//        UINavigationBar.appearance().compactAppearance = nil
-//        UINavigationBar.appearance().scrollEdgeAppearance = nil
-//        UINavigationBar.appearance().backgroundColor = .clear
-//    }
-    
-    /// completely clears navigation bar appearance, leaving only buttons to be visible
-    ///
-    static public func clearNavigationBarAppearance()
-    {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        appearance.backgroundColor = .clear
-        appearance.shadowColor = .clear
-        
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().compactAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        UINavigationBar.appearance().isTranslucent = true
-    }
-
-    /// clears bar initialy, shows it when content enters nav bar border
-    /// 
-    static public func clearNavigationBarScrollEdgeAppearance()
-    {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        appearance.backgroundColor = ColorScheme.navigationBarBackgroundColor.withAlphaComponent(85)
-        appearance.shadowColor = .white.withAlphaComponent(0.5)
-        
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().compactAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = nil
-
-//        UINavigationBar.appearance().isTranslucent = true
-    }
-    
-    static public func configureTransparentNavigationBarAppearance(for controller: UIViewController)
-    {
-        let transparentAppearance = UINavigationBarAppearance()
-        transparentAppearance.configureWithTransparentBackground()
-        
-        // Set this appearance specifically for this view controller
-        controller.navigationItem.standardAppearance = transparentAppearance
-        controller.navigationItem.scrollEdgeAppearance = transparentAppearance
-        controller.navigationItem.compactAppearance = transparentAppearance
-    }
 
     static var windowRoot: TabBarViewController? {
         get {
@@ -125,13 +59,14 @@ struct Utilities
         }
     }
     
-    static var defaultProfileImage: UIImage {
+    static var defaultProfileImage: UIImage
+    {
         return UIImage(named: "default_profile_photo") ?? UIImage()
     }
     
     static func setGradientBackground(forView view: UIView) {
-        let colorTop = #colorLiteral(red: 0.7123333812, green: 0.5818203092, blue: 0.5612760186, alpha: 1).cgColor
-        let colorBottom = #colorLiteral(red: 0.1738350689, green: 0.125146687, blue: 0.1836120486, alpha: 1).cgColor
+        let colorTop =  #colorLiteral(red: 0.7123333812, green: 0.5818203092, blue: 0.5612760186, alpha: 1).cgColor
+        let colorBottom =  #colorLiteral(red: 0.1738350689, green: 0.125146687, blue: 0.1836120486, alpha: 1).cgColor
         
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [colorTop, colorBottom]
@@ -139,38 +74,6 @@ struct Utilities
         gradientLayer.frame = view.bounds
         
         view.layer.insertSublayer(gradientLayer, at: 0)
-    }
-    
-    ///
-    /// Skeleton animation
-    static func initiateSkeletonAnimation(for view: UIView)
-    {
-        let skeletonAnimationColor = ColorScheme.skeletonAnimationColor
-        let skeletonItemColor = ColorScheme.skeletonItemColor
-        view.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.3))
-    }
-    
-    static func initiateSkeletonAnimation(for views: UIView...)
-    {
-        let skeletonAnimationColor = ColorScheme.skeletonAnimationColor
-        let skeletonItemColor = ColorScheme.skeletonItemColor
-        
-        for view in views {
-            view.showGradientSkeleton(usingGradient: .init(baseColor: skeletonItemColor, secondaryColor: skeletonAnimationColor), delay: TimeInterval(0), transition: SkeletonTransitionStyle.crossDissolve(0.3))
-        }
-    }
-
-    static func terminateSkeletonAnimation(for view: UIView) {
-        view.stopSkeletonAnimation()
-        view.hideSkeleton(transition: .crossDissolve(0.25))
-    }
-    
-    static func stopSkeletonAnimation(for views: UIView...)
-    {
-        for view in views {
-            view.stopSkeletonAnimation()
-            view.hideSkeleton(transition: .none)
-        }
     }
     
     static func retrieveSelectedThemeKey() -> String?
@@ -211,8 +114,6 @@ extension Utilities
         imageView.frame = view.bounds
         return imageView
     }
-
-    
 }
 
 // Async

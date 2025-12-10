@@ -178,8 +178,8 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
     {
         let chatRoomInfoScreen = ChatRoomInformationScreen(viewModel: viewModel)
         let hostingController = UIHostingController(rootView: chatRoomInfoScreen)
-        
-        Utilities.configureTransparentNavigationBarAppearance(for: hostingController)
+        hostingController.view.backgroundColor = .clear
+        NavigationBarAppearance.configureTransparentNavigationBarAppearance(for: hostingController)
 
         tabBar.chatsNavigationController?.pushViewController(hostingController, animated: true)
     }
@@ -188,6 +188,8 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
     {
         let themePackScreen = ThemesPackScreen()
         let hostingController = UIHostingController(rootView: themePackScreen)
+        hostingController.title = "Chat wallpaper"
+        hostingController.view.backgroundColor = .clear
         hostingController.hidesBottomBarWhenPushed = true
         
         tabBar.settingsNavigationController?.pushViewController(hostingController, animated: true)

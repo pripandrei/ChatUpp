@@ -59,14 +59,6 @@ struct ThemesPackScreen: View
                 }
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                ToolbarTitle()
-            }
-        }
-        .onDisappear {
-            Utilities.setupNavigationBarAppearance()
-        }
     }
 }
 
