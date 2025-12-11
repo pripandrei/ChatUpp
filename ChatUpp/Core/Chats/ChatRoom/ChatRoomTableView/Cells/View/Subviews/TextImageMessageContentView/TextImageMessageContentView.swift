@@ -446,7 +446,7 @@ extension TextImageMessageContentView
     {
         let attributes: [NSAttributedString.Key : Any] =
         [
-            .font: UIFont(name: "Helvetica", size: 17)!,
+            .font: UIFont(name: "Helvetica", size: 16)!,
             .foregroundColor: UIColor.white,
             .paragraphStyle: {
                 let paragraphStyle = NSMutableParagraphStyle()

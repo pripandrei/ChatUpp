@@ -34,12 +34,11 @@ class TabBarViewController: UITabBarController
         let settingsNavigationController = UINavigationController(rootViewController: settingsVC)
         
         chatsNavigationController.tabBarItem = UITabBarItem(title: "Chats",
-                                                            image: UIImage(named: "chats_icon"),
+                                                            image: UIImage(named: "chat_bubble_icon_5"),
                                                             tag: 1)
         settingsNavigationController.tabBarItem = UITabBarItem(title: "Settings",
                                                                image: UIImage(named: "profile_icon"),
                                                                tag: 2)
-        
         viewControllers = [chatsNavigationController, settingsNavigationController]
     }
     
@@ -63,7 +62,7 @@ class TabBarViewController: UITabBarController
         tabBarItemAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorScheme.tabBarSelectedItemsTintColor]
         tabBarItemAppearance.selected.iconColor = ColorScheme.tabBarSelectedItemsTintColor
         tabBarItemAppearance.normal.iconColor = ColorScheme.tabBarNormalItemsTintColor
-        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorScheme.tabBarNormalItemsTintColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .medium)]
+        tabBarItemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: ColorScheme.tabBarNormalItemsTintColor, NSAttributedString.Key.font: UIFont.systemFont(ofSize: 10, weight: .semibold)]
 
         tabBarAppearance.stackedLayoutAppearance = tabBarItemAppearance
         
