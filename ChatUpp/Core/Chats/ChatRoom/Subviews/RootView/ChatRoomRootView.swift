@@ -65,7 +65,7 @@ final class ChatRoomRootView: UIView
         tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1)
         tableView.backgroundColor               = ColorScheme.appBackgroundColor
         tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
-        tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: -20, left: 0, bottom: 70, right: 0)
+        tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 70, right: 0)
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
         
@@ -73,6 +73,7 @@ final class ChatRoomRootView: UIView
         tableView.estimatedRowHeight            = UITableView.automaticDimension
         tableView.rowHeight                     = UITableView.automaticDimension
         tableView.isSkeletonable                = true
+        tableView.indicatorStyle                = .white
         
         tableView.backgroundView = createBackgroundView()
         createBackgroundBlurEffect(for: tableView.backgroundView!)

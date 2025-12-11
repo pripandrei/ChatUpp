@@ -70,7 +70,8 @@ class ChatsViewController: UIViewController {
         print("ChatsVC was DEINITED!==")
     }
     
-    private func configureTableView() {
+    private func configureTableView()
+    {
         tableView = UITableView()
         tableView.register(ChatCell.self, forCellReuseIdentifier: ReuseIdentifire.ChatTableCell.chat.identifire)
         view.addSubview(tableView)
@@ -83,6 +84,7 @@ class ChatsViewController: UIViewController {
 //        createBackgroundView(for: tableView)
         tableView.backgroundColor = ColorScheme.appBackgroundColor
         tableView.separatorColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
+        tableView.indicatorStyle = .white
     }
 
     
