@@ -481,8 +481,9 @@ extension ChatCell {
         NSLayoutConstraint.activate([
             profileImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             profileImage.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            profileImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 7),
-            profileImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant:  -7),
+//            profileImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 7),
+//            profileImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant:  -7),
+            profileImage.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.79),
             profileImage.widthAnchor.constraint(equalTo: profileImage.heightAnchor)
         ])
     }

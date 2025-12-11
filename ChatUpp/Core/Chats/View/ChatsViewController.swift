@@ -80,11 +80,12 @@ class ChatsViewController: UIViewController {
         tableView.dataSource = tableViewDataSource
         tableView.isSkeletonable = true
         tableView.pin(to: view)
-        tableView.rowHeight = 70
-//        createBackgroundView(for: tableView)
+        tableView.rowHeight = 75
         tableView.backgroundColor = ColorScheme.appBackgroundColor
-        tableView.separatorColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
+//        tableView.separatorColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.4)
+        tableView.separatorColor = ColorScheme.separatorIndicatorColor.withAlphaComponent(0.4)
         tableView.indicatorStyle = .white
+        tableView.separatorInset = .init(top: 0, left: 81, bottom: 0, right: 0)
     }
 
     

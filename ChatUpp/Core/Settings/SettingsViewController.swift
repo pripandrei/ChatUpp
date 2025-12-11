@@ -136,7 +136,8 @@ extension SettingsViewController
         configuration.headerMode = .supplementary
         configuration.backgroundColor = ColorScheme.appBackgroundColor
 
-        configuration.separatorConfiguration.color = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
+//        configuration.separatorConfiguration.color = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.6)
+        configuration.separatorConfiguration.color = ColorScheme.separatorIndicatorColor.withAlphaComponent(0.5)
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
@@ -151,13 +152,17 @@ extension SettingsViewController
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, SettingsItem> { cell, indexPath, settingsItem in
             
             let settingItem = SettingsItem.itemsData[indexPath.item]
-            
+
             var configuration = UIListContentConfiguration.cell()
             configuration.text = settingItem.name
             configuration.image = UIImage(named: settingItem.iconName)
             configuration.textProperties.color = .white
             configuration.imageProperties.cornerRadius = 7
             configuration.imageProperties.reservedLayoutSize = CGSize(width: 22, height: 22)
+            configuration.directionalLayoutMargins = .init(top: 12,
+                                                           leading: 0,
+                                                           bottom: 12,
+                                                           trailing: 0)
             
             cell.configurationUpdateHandler = { cell, state in
                 var backgroundConfiguration = UIBackgroundConfiguration.listGroupedCell()

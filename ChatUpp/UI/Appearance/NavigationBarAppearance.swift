@@ -15,7 +15,8 @@ struct NavigationBarAppearance
         appearance.backgroundColor = ColorScheme.navigationBarBackgroundColor.withAlphaComponent(0.85)
         appearance.backgroundEffect = UIBlurEffect(style: .systemMaterialDark)
         
-        appearance.shadowColor = .white.withAlphaComponent(0.5)
+//        appearance.shadowColor = .white.withAlphaComponent(0.2)
+        appearance.shadowColor = ColorScheme.separatorIndicatorColor.withAlphaComponent(0.4)
         
         appearance.titleTextAttributes = [
             .foregroundColor:  #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1),
