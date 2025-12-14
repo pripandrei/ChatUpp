@@ -12,11 +12,19 @@ struct ChatRoomInformationEditScreen: View
 {
     @Environment(\.dismiss) private var dismiss
     
-    @ObservedObject var viewModel: ChatRoomInformationEditViewModel
+//    @ObservedObject var viewModel: ChatRoomInformationEditViewModel
+    @StateObject private var viewModel: ChatRoomInformationEditViewModel
     @State private var photoPickerItem: PhotosPickerItem?
     @State private var imageDataContainer: IdentifiableItem<Data>?
-    @Binding var refreshID: UUID
-    @State var isLoading: Bool = false
+    @State private var isLoading: Bool = false
+    @Binding private var refreshID: UUID
+    
+    init(chat: Chat, refreshID: Binding<UUID>)
+    {
+        let viewModel = ChatRoomInformationEditViewModel(conversation: chat)
+        self._viewModel = .init(wrappedValue: viewModel)
+        self._refreshID = refreshID
+    }
     
     var body: some View
     {
@@ -217,7 +225,9 @@ extension ChatRoomInformationEditScreen
     }
 }
 
-#Preview {
-    ChatRoomInformationEditScreen(viewModel: ChatRoomInformationEditViewModel(conversation: Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")), refreshID: .constant(UUID())
-    )
+#Preview
+{
+    let chat = Chat(id: "CB3C83A8-2638-46EA-BE6B-A7274C08ED4E", participants: [ChatParticipant(userID: "DESg2qjjJPP20KQDWfKpJJnozv53", unseenMessageCount: 0)], recentMessageID: "Group created")
+    
+    ChatRoomInformationEditScreen(chat: chat, refreshID: .constant(UUID()))
 }

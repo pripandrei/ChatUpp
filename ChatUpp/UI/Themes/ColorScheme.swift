@@ -29,7 +29,6 @@ struct ColorScheme
     static let messageTextFieldBackgroundColor: UIColor =  #colorLiteral(red: 0.1462480128, green: 0.1083115265, blue: 0.1505401731, alpha: 1)
     static let scrollToBottomButtonBackgroundColor: UIColor = #colorLiteral(red: 0.2306482196, green: 0.1865905523, blue: 0.2809014618, alpha: 1)
     static let inputBarMessageContainerBackgroundColor: UIColor = #colorLiteral(red: 0.4341781139, green: 0.1795937121, blue: 0.3866679668, alpha: 1)
-//    static let sendMessageButtonBackgroundColor: UIColor = #colorLiteral(red: 0.8080032468, green: 0.4144457579, blue: 0.9248802066, alpha: 1)
     static let sendMessageButtonBackgroundColor: UIColor = #colorLiteral(red: 0.976365149, green: 0.4590291381, blue: 0.9979678988, alpha: 1)
     
     static let unseenMessagesBadgeBackgroundColor: UIColor = #colorLiteral(red: 0.8423270583, green: 0.4228419662, blue: 0.9524703622, alpha: 1)
@@ -43,7 +42,6 @@ struct ColorScheme
     static let incomingReplyToMessageBackgroundColor: UIColor = #colorLiteral(red: 0.3370774055, green: 0.2437606049, blue: 0.363655651, alpha: 1)
     static let messageEventBackgroundColor: UIColor = #colorLiteral(red: 0.2655975819, green: 0.1901538372, blue: 0.2760748267, alpha: 1)
     static let footerSectionBackgroundColor: UIColor = #colorLiteral(red: 0.2021965683, green: 0.2685731351, blue: 0.3312993646, alpha: 1)
-//    static let footerSectionBackgroundColor: UIColor = #colorLiteral(red: 0.2009626627, green: 0.1438453496, blue: 0.2088443637, alpha: 1)
     static let messageSeenStatusIconColor: UIColor = outgoingMessageComponentsTextColor
     static let messageLinkColor: UIColor = #colorLiteral(red: 0, green: 0.6172372699, blue: 0.9823173881, alpha: 1)
     static let stickerViewBackgroundColor: UIColor = #colorLiteral(red: 0.1257298887, green: 0.2089383006, blue: 0.2593249977, alpha: 1)

@@ -71,6 +71,7 @@ class TabBarViewController: UITabBarController
         
         tabBar.standardAppearance = tabBarAppearance
         tabBar.scrollEdgeAppearance = tabBarAppearance
+        overrideUserInterfaceStyle = .dark
     }
     
     func destroyItems() {

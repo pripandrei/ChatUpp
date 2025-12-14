@@ -51,8 +51,7 @@ struct ChatRoomInformationScreen: View
                     .padding(.bottom, -30)
                     .fullScreenCover(isPresented: $presentEditScreen) {
                         NavigationStack {
-                            let chatRoomIformationEditVM = ChatRoomInformationEditViewModel(conversation: viewModel.chat)
-                            ChatRoomInformationEditScreen(viewModel: chatRoomIformationEditVM,
+                            ChatRoomInformationEditScreen(chat: viewModel.chat,
                                                           refreshID: $refreshID)
                         }
                     }

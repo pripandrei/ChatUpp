@@ -11,11 +11,8 @@ struct NavigationBarAppearance
     static let appearance: UINavigationBarAppearance =
     {
         let appearance = UINavigationBarAppearance()
-        
         appearance.backgroundColor = ColorScheme.navigationBarBackgroundColor.withAlphaComponent(0.85)
         appearance.backgroundEffect = UIBlurEffect(style: .systemMaterialDark)
-        
-//        appearance.shadowColor = .white.withAlphaComponent(0.2)
         appearance.shadowColor = ColorScheme.separatorIndicatorColor.withAlphaComponent(0.4)
         
         appearance.titleTextAttributes = [
