@@ -32,7 +32,7 @@ final class VoiceMessageContentView: ContainerView
         super.init(spacing: 2.0,
                    margin: .init(top: 6,
                                  left: 10,
-                                 bottom: 12,
+                                 bottom: 10,
                                  right: 10))
         layer.cornerRadius = 15
         clipsToBounds = true
@@ -68,7 +68,7 @@ final class VoiceMessageContentView: ContainerView
         
         view.translatesAutoresizingMaskIntoConstraints = false
         
-        view.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        view.heightAnchor.constraint(equalToConstant: 55).isActive = true
         view.widthAnchor.constraint(equalToConstant: 250).isActive = true
     }
     

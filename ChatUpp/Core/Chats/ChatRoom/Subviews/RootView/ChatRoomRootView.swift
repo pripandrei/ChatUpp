@@ -64,8 +64,8 @@ final class ChatRoomRootView: UIView
         let tableView                           = UITableView()
         tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1)
         tableView.backgroundColor               = ColorScheme.appBackgroundColor
-        tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 60, right: 0)
-        tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 70, right: 0)
+        tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 75, right: 0)
+        tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 85, right: 0)
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
         
@@ -846,7 +846,7 @@ extension ChatRoomRootView
             tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             tableView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            tableView.topAnchor.constraint(equalTo:   self.topAnchor),
+            tableView.topAnchor.constraint(equalTo: self.topAnchor),
         ])
     }
     
