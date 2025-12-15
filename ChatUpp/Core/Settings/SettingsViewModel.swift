@@ -64,7 +64,7 @@ final class SettingsViewModel
         let firestoreUser = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
         defer { self.user = firestoreUser }
         
-        guard self.user?.photoUrl != firestoreUser.photoUrl else { return }
+        guard self.user?.photoUrl != firestoreUser.photoUrl || !CacheManager.shared.doesFileExist(at: self.user?.photoUrl ?? "") else { return }
         
         if let photoUrl = firestoreUser.photoUrl
         {

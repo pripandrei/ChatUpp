@@ -174,10 +174,12 @@ class ChatsViewController: UIViewController {
         if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField, let searchIcon = textField.leftView
         {
             textField.backgroundColor = ColorScheme.navigationSearchFieldBackgroundColor
-            textField.attributedPlaceholder = NSAttributedString(string: "Search", attributes: [.foregroundColor: #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)])
+            textField.attributedPlaceholder = NSAttributedString(string: "Search",
+                                                                 attributes: [.foregroundColor: #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)])
             textField.textColor = ColorScheme.textFieldTextColor
             searchIcon.tintColor = #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)
         }
+        
     }
     
     func filterContentForSearchText(_ searchText: String) -> [ResultsCellViewModel]

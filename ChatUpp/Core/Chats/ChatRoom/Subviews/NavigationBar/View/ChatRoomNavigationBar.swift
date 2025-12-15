@@ -60,6 +60,11 @@ final class ChatRoomNavigationBar
         let barButtonItem = UIBarButtonItem(customView: imageView)
         
         viewController.navigationItem.rightBarButtonItem = barButtonItem
+        if #available(iOS 26.0, *) {
+//            viewController.navigationItem.rightBarButtonItem?.hidesSharedBackground = true
+        } else {
+            // Fallback on earlier versions
+        }
         
         self.navImage = imageView
     }
