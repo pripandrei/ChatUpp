@@ -203,14 +203,19 @@ extension ChatCellViewModel
                     try await Task.sleep(for: .seconds(1))
                 }
                  
+                nonisolated(unsafe) let message = recentMessage
                 await MainActor.run
                 {
-                    addMessageToRealm(recentMessage)
-                    self.recentMessage = recentMessage
+                    addMessageToRealm(message)
+                    self.recentMessage = message
                     if chatID != ChatRoomSessionManager.activeChatID,
-                       recentMessage.senderId != authUser.uid
+                       message.senderId != authUser.uid
                     {
                         self.showRecentMessageBanner()
+                        if let url = Bundle.main.url(forResource: "notification_sound", withExtension: "m4a")
+                        {
+                            AudioSessionManager.shared.play(audioURL: url)                            
+                        }
                     }
                 }
             }

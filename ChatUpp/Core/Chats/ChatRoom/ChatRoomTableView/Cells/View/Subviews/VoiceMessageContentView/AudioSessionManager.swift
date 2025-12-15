@@ -29,6 +29,14 @@ extension AudioSessionManager: AVAudioRecorderDelegate
 }
 
 
+extension AudioSessionManager: AVAudioPlayerDelegate
+{
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool)
+    {
+        if notificationPlayer === player { notificationPlayer = nil }
+    }
+}
+
 // MARK: - Audio Session Manager
 class AudioSessionManager: NSObject, SwiftUI.ObservableObject
 {
@@ -40,7 +48,8 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     @Published private(set) var currentPlaybackTime: TimeInterval = 0.0
     @Published private(set) var currentRecordingTime: TimeInterval = 0.0
     @Published private(set) var currentlyLoadedAudioURL: URL?
-
+    
+    private var notificationPlayer: AVAudioPlayer?
     private var audioPlayer: AVAudioPlayer?
     private var audioRecorder: AVAudioRecorder?
     private var audioSession: AVAudioSession?
@@ -211,7 +220,7 @@ extension AudioSessionManager
         }
     }
     
-    func play(audioURL: URL, startingAtTime time: TimeInterval = 0.0)
+    func prepareAudioForPlayback(audioURL: URL, startingAtTime time: TimeInterval = 0.0)
     {
         if audioURL != self.currentlyLoadedAudioURL
         {
@@ -221,6 +230,21 @@ extension AudioSessionManager
         }
         updateCurrentPlaybackTime(time: time)
         togglePlayPause()
+    }
+    
+   
+    func play(audioURL: URL)
+    {
+        do
+        {
+            self.notificationPlayer = try AVAudioPlayer(contentsOf: audioURL)
+            notificationPlayer?.prepareToPlay()
+            notificationPlayer?.volume = 1.0
+            notificationPlayer?.play()
+        }
+        catch {
+            print("Failed to load audio: \(error)")
+        }
     }
     
     func togglePlayPause()

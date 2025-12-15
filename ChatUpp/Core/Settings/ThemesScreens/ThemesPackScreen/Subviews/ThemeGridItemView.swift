@@ -18,7 +18,7 @@ struct ThemeGridItemView: View
             Image(uiImage: image)
                 .resizable()
             //                        .scaledToFit()
-                .frame(width: 110, height: 170)
+                
                 .clipShape(.rect(cornerRadius: 10))
         }
         else {

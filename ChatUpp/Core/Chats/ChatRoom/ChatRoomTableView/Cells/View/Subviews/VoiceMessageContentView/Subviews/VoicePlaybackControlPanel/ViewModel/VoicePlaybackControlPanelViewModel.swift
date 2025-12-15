@@ -82,8 +82,8 @@ final class VoicePlaybackControlPanelViewModel: SwiftUI.ObservableObject
             audioManager.recordCancellationSubject.send()
         }
         
-        audioManager.play(audioURL: audioFileURL,
-                          startingAtTime: currentPlaybackTime)
+        audioManager.prepareAudioForPlayback(audioURL: audioFileURL,
+                                             startingAtTime: currentPlaybackTime)
     }
     
     func seek(to progress: CGFloat)
