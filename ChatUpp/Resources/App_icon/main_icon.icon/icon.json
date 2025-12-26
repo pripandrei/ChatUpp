@@ -1,0 +1,72 @@
+{
+  "color-space-for-untagged-svg-colors" : "display-p3",
+  "fill" : {
+    "automatic-gradient" : "extended-srgb:0.00000,0.47843,1.00000,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "blend-mode-specializations" : [
+            {
+              "value" : "lighten"
+            },
+            {
+              "idiom" : "square",
+              "value" : "normal"
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "1024.jpeg",
+          "name" : "1024",
+          "position-specializations" : [
+            {
+              "value" : {
+                "scale" : 1.2,
+                "translation-in-points" : [
+                  -9,
+                  -7
+                ]
+              }
+            },
+            {
+              "idiom" : "square",
+              "value" : {
+                "scale" : 1.2,
+                "translation-in-points" : [
+                  -9,
+                  25
+                ]
+              }
+            },
+            {
+              "idiom" : "watchOS",
+              "value" : {
+                "scale" : 1.2,
+                "translation-in-points" : [
+                  -10,
+                  20
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
