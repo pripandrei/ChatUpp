@@ -329,7 +329,7 @@ extension FirebaseChatService
             print("updatede messages count firesbase: ", snapshot.documents.count)
             // add last doc to start from it next loop cycle
             lastDoc = snapshot.documents.last
-            let firstDoc = snapshot.documents.first
+//            let firstDoc = snapshot.documents.first
             
             if snapshot.documents.count < 500
             {

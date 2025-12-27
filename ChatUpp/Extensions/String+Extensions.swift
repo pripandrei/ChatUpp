@@ -33,4 +33,15 @@ extension String
         }
         return self
     }
+    
+    func removeSuffix(_ sufix: String) -> Self
+    {
+        if self.hasSuffix(".jpeg") {
+            return self.replacingOccurrences(of: "_\(sufix).jpeg", with: ".jpeg")
+        }
+        if self.hasSuffix(".jpg") {
+            return self.replacingOccurrences(of: "_\(sufix).jpg", with: ".jpg")
+        }
+        return self
+    }
 }

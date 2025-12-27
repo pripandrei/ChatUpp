@@ -54,11 +54,6 @@ final class MessageCellViewModel
         return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
     }()
     
-    var resizedMessageImagePath: String? {
-        guard let path = message?.imagePath else {return nil}
-        return path.replacingOccurrences(of: ".jpg", with: "_resized_test_2.jpg")
-    }
-    
     var messageAlignment: MessageAlignment
     {
         if message?.type == .title {

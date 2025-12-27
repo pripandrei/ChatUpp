@@ -390,17 +390,31 @@ extension ChatCellViewModel
     
     private func performMessageImageUpdate(_ messageID: String) async
     {
-        guard let path = await recentMessageImageThumbnailPath else { return }
-        let paths = [path, path.addSuffix("small")]
-        do {
-            for path in paths {
-                let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(.image(messageID)), imagePath: path)
-                CacheManager.shared.saveData(imageData, toPath: path)
-                
+        guard let thumbnailPath = await recentMessageImageThumbnailPath else { return }
+        let originalPath = thumbnailPath.removeSuffix("small")
+        
+        let paths = [thumbnailPath, originalPath]
+        
+        do
+        {
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for path in paths
+                {
+                    group.addTask {
+                        let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(.image(messageID)), imagePath: path)
+                        CacheManager.shared.saveData(imageData, toPath: path)
+
+                        // trigger message update after thumbnail downloaded
+                        if path == thumbnailPath
+                        {
+                            await MainActor.run { self.recentMessage = self.recentMessage }
+                        }
+                    }
+                }
+                for try await _ in group {}
             }
-            self.recentMessage = self.recentMessage // trigger message image update
-            
-        } catch {
+        }
+        catch {
             print("Could not fetch message image data: ", error)
         }
     }
