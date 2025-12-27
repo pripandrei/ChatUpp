@@ -691,20 +691,27 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let path = message.imagePath else { return }
         let smallPath = path.addSuffix("small")
         let paths = [path, smallPath]
-
+        
         let imagesExistLocally = paths.allSatisfy { path in
             return CacheManager.shared.doesFileExist(at: path)
         }
         
         if imagesExistLocally { return }
-    
-        do {
-            for path in paths {
-                let imageData = try await FirebaseStorageManager.shared.getImage(
-                    from: .message(.image(message.id)),
-                    imagePath: path
-                )
-                CacheManager.shared.saveData(imageData, toPath: path)
+        
+        do
+        {
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for path in paths
+                {
+                    group.addTask {
+                        let imageData = try await FirebaseStorageManager.shared.getImage(
+                            from: .message(.image(message.id)),
+                            imagePath: path
+                        )
+                        CacheManager.shared.saveData(imageData, toPath: path)
+                    }
+                }
+                for try await _ in group {}
             }
         } catch {
             print("Could not fetch message image data: ", error)

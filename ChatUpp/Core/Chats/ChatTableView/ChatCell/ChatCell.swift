@@ -156,9 +156,6 @@ class ChatCell: UITableViewCell
     
     private func configureRecentMessage(_ message: Message?)
     {
-        if cellViewModel.chatUser?.name == "Grok" {
-            print("stop")
-        }
         if !cellViewModel.isRecentMessagePresent
         {
             SkeletonAnimationAppearance.stopSkeletonAnimation(for: self.messageLable, self.dateLable)
@@ -257,9 +254,6 @@ class ChatCell: UITableViewCell
                 
                 if let member = member
                 {
-//                    if member.name == "Grok" {
-//                        print("stop")
-//                    }
                     SkeletonAnimationAppearance.stopSkeletonAnimation(for: self.nameLabel)
                     
                     if self.nameLabel.text != member.name {
@@ -296,10 +290,6 @@ class ChatCell: UITableViewCell
             .receive(on: DispatchQueue.main)
             .sink { [weak self] message in
                 guard let self = self else {return}
-//                if self.cellViewModel.chatUser?.name == "Grok"
-//                {
-//                   print("stop")
-//                }
                 self.configureRecentMessage(message)
             }.store(in: &subscriptions)
         
