@@ -177,7 +177,9 @@ extension ProfileEditingViewController
         return cell
     }
 
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView
+    func collectionView(_ collectionView: UICollectionView,
+                        viewForSupplementaryElementOfKind kind: String,
+                        at indexPath: IndexPath) -> UICollectionReusableView
     {
         guard let headerCell = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
@@ -189,7 +191,7 @@ extension ProfileEditingViewController
         self.headerCell = headerCell
         headerCell.imageView.image = UIImage(data: profileEditingViewModel.initialProfilePhoto)
         headerCell.setupNewPhotoConstraints()
-        addGestureToNewPhotoLabel()
+        addGestureToNewPhotoLabelAndImageView()
         return headerCell
     }
 }
@@ -199,10 +201,12 @@ extension ProfileEditingViewController
 
 extension ProfileEditingViewController: PHPickerViewControllerDelegate {
     
-    func addGestureToNewPhotoLabel() {
-        headerCell.newPhotoLabel.isUserInteractionEnabled = true
-        let tap = UITapGestureRecognizer(target: self, action: #selector(initiatePhotoPicker))
-        headerCell.newPhotoLabel.addGestureRecognizer(tap)
+    func addGestureToNewPhotoLabelAndImageView()
+    {
+        let labeTap = UITapGestureRecognizer(target: self, action: #selector(initiatePhotoPicker))
+        let imageTap = UITapGestureRecognizer(target: self, action: #selector(initiatePhotoPicker))
+        headerCell.newPhotoLabel.addGestureRecognizer(labeTap)
+        headerCell.imageView.addGestureRecognizer(imageTap)
     }
     
     @objc func initiatePhotoPicker() {

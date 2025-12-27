@@ -30,6 +30,7 @@ class ProfileEditingListHeaderCell: UICollectionViewListCell {
         let imageView = UIImageView()
         imageView.layer.cornerRadius = 10
         imageView.clipsToBounds = true
+        imageView.isUserInteractionEnabled = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -59,6 +60,7 @@ class ProfileEditingListHeaderCell: UICollectionViewListCell {
         name.textAlignment = .center
         name.textColor = #colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)
         name.font = UIFont(name: "Helvetica", size: 18)
+        name.isUserInteractionEnabled = true
         name.translatesAutoresizingMaskIntoConstraints = false
         return name
     }()
