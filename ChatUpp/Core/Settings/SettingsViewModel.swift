@@ -41,8 +41,6 @@ final class SettingsViewModel
             do {
                 try await self.getCurrentAuthProvider()
                 try await self.fetchUserFromFirestoreDatabase()
-                self.addUserToRealmDB()
-                self.cacheProfileImage()
             } catch {
                 print("Error while setup settings view model: \(error)")
             }
@@ -62,13 +60,17 @@ final class SettingsViewModel
     private func fetchUserFromFirestoreDatabase() async throws
     {
         let firestoreUser = try await FirestoreUserService.shared.getUserFromDB(userID: authUser.uid)
-        defer { self.user = firestoreUser }
+        defer {
+            self.user = firestoreUser
+            self.addUserToRealmDB()
+        }
         
         guard self.user?.photoUrl != firestoreUser.photoUrl || !CacheManager.shared.doesFileExist(at: self.user?.photoUrl ?? "") else { return }
         
         if let photoUrl = firestoreUser.photoUrl
         {
             self.profileImageData = try await FirebaseStorageManager.shared.getImage(from: .user(firestoreUser.id), imagePath: photoUrl)
+            self.cacheProfileImage()
         }
     }
     
