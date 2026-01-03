@@ -287,54 +287,58 @@ extension FirebaseChatService
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
-    func updateMessagesSeenStatus(startFromTimestamp timestamp: Date,
-                                  seenByUser userID: String? = nil,
-                                  chatID: String) async throws
-    {
-        var shouldContinue: Bool = true
+    func updateMessagesSeenStatus(
+        startFromMessageID messageID: String,
+        seenByUser userID: String? = nil,
+        chatID: String
+    ) async throws {
+
+        var shouldContinue = true
         var lastDoc: QueryDocumentSnapshot?
 
-        let messageRef = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
-    
-        
-        while shouldContinue
-        {
+        let messageRef = chatDocument(documentPath: chatID)
+            .collection(FirestoreCollection.messages.rawValue)
+
+        //  Fetch starting message snapshot
+        let startSnapshot = try await messageRef.document(messageID).getDocument()
+        guard startSnapshot.exists else { return }
+
+        while shouldContinue {
+
             var query: Query = messageRef
-                .whereField("timestamp", isLessThanOrEqualTo: timestamp)
                 .whereField("message_seen", isEqualTo: false)
                 .order(by: "timestamp", descending: true)
                 .limit(to: 500)
-            
-            /// add pagination cursor
+
             if let lastDoc {
                 query = query.start(afterDocument: lastDoc)
+            } else {
+                // first page starts from provided message
+                query = query.start(atDocument: startSnapshot)
             }
-            
+
             let snapshot = try await query.getDocuments()
-            
-            if snapshot.documents.isEmpty { shouldContinue = false; break }
-            
+            if snapshot.documents.isEmpty { break }
+
             let batch = db.batch()
-            for doc in snapshot.documents
-            {
-                /// if chat is group, append user that saw the message
+            for doc in snapshot.documents {
                 if let userID {
-                    batch.updateData(["seenBy": FieldValue.arrayUnion([userID])], forDocument: doc.reference)
+                    batch.updateData(
+                        ["seenBy": FieldValue.arrayUnion([userID])],
+                        forDocument: doc.reference
+                    )
                 } else {
-                    batch.updateData(["message_seen": true], forDocument: doc.reference)
+                    batch.updateData(
+                        ["message_seen": true],
+                        forDocument: doc.reference
+                    )
                 }
             }
-            
+
             try await batch.commit()
-            print("updatede messages count firesbase: ", snapshot.documents.count)
-            // add last doc to start from it next loop cycle
+
             lastDoc = snapshot.documents.last
-//            let firstDoc = snapshot.documents.first
-            
-            if snapshot.documents.count < 500
-            {
-                shouldContinue = false
-            }
+            shouldContinue = snapshot.documents.count == 500
         }
     }
     

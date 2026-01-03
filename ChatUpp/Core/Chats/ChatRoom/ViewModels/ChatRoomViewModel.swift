@@ -495,14 +495,14 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let chatID = conversation?.id else { return }
         let authUserID = authUser.uid
         let isGroup = conversation?.isGroup ?? false
-        let startMessageTimestamp = startMessage.timestamp
+        let startMessageID = startMessage.id
         
         Task.detached
         {
             do {
                 try await FirebaseChatService
                     .shared
-                    .updateMessagesSeenStatus(startFromTimestamp: startMessageTimestamp,
+                    .updateMessagesSeenStatus(startFromMessageID: startMessageID,
                                               seenByUser: isGroup ? authUserID : nil,
                                               chatID: chatID)
             } catch {

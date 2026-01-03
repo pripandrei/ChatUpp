@@ -1353,8 +1353,8 @@ extension ChatRoomViewController: UIScrollViewDelegate
         /// find min index path, to update all descending messages from it
         findMinimalVisibleIndexPath()
         
-        /// fire updates every > 0.1 time
-        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.1
+        /// fire updates every > 0.3 time
+        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.3
         {
             self.lastSeenStatusCheckUpdate = Date()
 

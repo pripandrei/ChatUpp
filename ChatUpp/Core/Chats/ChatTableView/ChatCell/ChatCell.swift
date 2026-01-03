@@ -133,10 +133,10 @@ class ChatCell: UITableViewCell
         }
     }
     
-    private func configureMessageSeenStatus()
+    private func getMessageSeenStatusAttribute() -> NSAttributedString?
     {
-        guard let message = cellViewModel.recentMessage else {return}
-        if (message.type == .text && message.messageBody.isEmpty) {return} // no message
+        guard let message = cellViewModel.recentMessage else {return nil}
+        if (message.type == .text && message.messageBody.isEmpty) {return nil} // no message
         
         let isSeen = message.messageSeen ?? (message.seenBy.count > 1)
 
@@ -147,11 +147,11 @@ class ChatCell: UITableViewCell
         
         guard let seenStatusIconImage = SeenStatusIconStorage.image(named: seenStatusIcon,
                                                                   size: iconSize,
-                                                                  color: ColorScheme.actionButtonsTintColor) else {return}
+                                                                  color: ColorScheme.actionButtonsTintColor) else {return nil}
         
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(withContent: seenStatusIconImage, contentMode: .center, attachmentSize: seenStatusIconImage.size, alignTo: UIFont(name: "Helvetica", size: 4)!, alignment: .center)
         
-        seenStatusMark.attributedText = imageAttributedString
+        return imageAttributedString
     }
     
     private func configureRecentMessage(_ message: Message?)
@@ -169,14 +169,21 @@ class ChatCell: UITableViewCell
             self.messageLable.attributedText = setAttributedText(for: message)
             self.dateLable.text = message.timestamp.formattedAsCompactDate()
             
-            if cellViewModel.isAuthUserSenderOfRecentMessage
-            {
-                configureMessageSeenStatus()
-            }
+            setSeenStatusAttribute()
         } else {
             SkeletonAnimationAppearance.initiateSkeletonAnimation(
                 for: self.messageLable, self.dateLable
             )
+        }
+    }
+    
+    private func setSeenStatusAttribute()
+    {
+        if cellViewModel.isAuthUserSenderOfRecentMessage
+        {
+            seenStatusMark.attributedText = getMessageSeenStatusAttribute()
+        } else {
+            seenStatusMark.attributedText = nil
         }
     }
     
