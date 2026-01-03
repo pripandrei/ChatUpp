@@ -68,6 +68,15 @@ class SettingsViewController: UIViewController, UICollectionViewDelegate
             .sink { [weak self] imageData in
                 self?.fillSupplementaryViewWithData()
             }.store(in: &subscribers)
+        
+        settingsViewModel.$user
+            .receive(on: DispatchQueue.main)
+            .dropFirst()
+            .compactMap { $0 }
+            .sink { [weak self] user in
+                self?.collectionViewListHeader?.nameLabel.text = user.name
+                self?.collectionViewListHeader?.additionalCredentials.text = "\(user.phoneNumber ?? "") \u{25CF} \(user.nickname ?? "")"
+            }.store(in: &subscribers)
     }
     
     // MARK: - DELETION PROVIDER HANDLER

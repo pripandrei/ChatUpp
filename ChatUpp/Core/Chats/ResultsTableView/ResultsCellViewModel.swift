@@ -55,9 +55,9 @@ final class ResultsCellViewModel
         guard let data = retrieveImageData() else {
             Task { @MainActor in
                 if let imageData = await fetchImageData() {
-                    self.imageData = imageData
+                    self.imageData = imageData 
                     cacheImageData(imageData, path: imageURL!)
-                }
+                } 
             }
             return
         }

@@ -12,7 +12,7 @@ final class SettingsViewModel
 {
     @Published private(set) var isUserSignedOut: Bool = false
     @Published private(set) var profileImageData: Data?
-    private(set) var user: User? // user will be nil only on first app run, while not fetched
+    @Published private(set) var user: User? // user will be nil only on first app run, while not fetched
     private(set) var authProvider: String!
  
     private var authUser : AuthenticatedUserData
@@ -105,7 +105,7 @@ final class SettingsViewModel
         guard let user = self.user else {return}
         let deletedUserID = FirestoreUserService.mainDeletedUserID
 
-        if authProvider == "google" {
+        if authProvider == "google.com" {
             try await AuthenticationManager.shared.googleAuthReauthenticate()
         }
         

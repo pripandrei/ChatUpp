@@ -40,10 +40,10 @@ class User: Object, Codable, Identifiable
         self.id = auth.uid
         self.name = auth.name
         self.email = auth.email
-        self.photoUrl = auth.photoURL
         self.phoneNumber = auth.phoneNumber
         self.dateCreated = Date()
         self.lastSeen = Date()
+        self.photoUrl = nil
         self.isActive = nil
     }
     

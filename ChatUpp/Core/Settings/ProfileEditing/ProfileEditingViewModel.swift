@@ -140,18 +140,18 @@ extension ProfileEditingViewModel
     
     private func removePreviousImage() async
     {
-        if let photoURL = authUser.photoURL
-        {
-            for sizeCase in ImageSample.SizeKey.allCases {
-                do {
-                    let imagePath = sizeCase == .original ? photoURL : photoURL.addSuffix(sizeCase.rawValue)
-                    
-                    try await FirebaseStorageManager.shared.deleteImage(
-                        from: .user(authUser.uid),
-                        imagePath: imagePath)
-                } catch {
-                    print("Error occure while removing previous image!: ", error)
-                }
+        guard imageSampleRepository != nil,
+        let photoURL = authUser.photoURL else {return}
+        
+        for sizeCase in ImageSample.SizeKey.allCases {
+            do {
+                let imagePath = sizeCase == .original ? photoURL : photoURL.addSuffix(sizeCase.rawValue)
+                
+                try await FirebaseStorageManager.shared.deleteImage(
+                    from: .user(authUser.uid),
+                    imagePath: imagePath)
+            } catch {
+                print("Error occure while removing previous image!: ", error)
             }
         }
     }

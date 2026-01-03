@@ -240,7 +240,8 @@ extension MessageContentViewModel
                             self.referencedMessage = object as? Message
                         }
                     }
-                case .deleted: self.referencedMessage = nil
+                case .deleted:
+                    self.referencedMessage = nil
                 }
             }.store(in: &cancellables)
     }
