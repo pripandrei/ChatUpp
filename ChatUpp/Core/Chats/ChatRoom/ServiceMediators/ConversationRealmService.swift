@@ -96,7 +96,10 @@ final class ConversationRealmService
         else { return 0 }
         
         let filter = conversation.isGroup ?
-        NSPredicate(format: "NONE seenBy == %@ AND senderId != %@", userID, userID) : NSPredicate(format: "messageSeen == false AND senderId != %@", authenticatedUserID ?? "")
+//        NSPredicate(format: "NONE seenBy == %@ AND senderId != %@", userID, userID)
+        NSPredicate(format: "NONE seenBy CONTAINS %@ AND senderId != %@", userID, userID)
+        :
+        NSPredicate(format: "messageSeen == false AND senderId != %@", authenticatedUserID ?? "")
 
         let count = conversation.conversationMessages.filter(filter).count
         return count

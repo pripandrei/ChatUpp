@@ -457,6 +457,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard let conversation = self.conversation else { return }
         RealmDatabase.shared.refresh()
+        
         let authUserID = self.authUser.uid
         let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
         
@@ -527,9 +528,19 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 return
             }
             
-            let filter = NSPredicate(format: "timestamp <= %@ AND messageSeen == false", timestamp as NSDate)
+            var predicate: NSPredicate
+            
+            if isGroup
+            {
+                predicate = NSPredicate(format: "NONE seenBy CONTAINS %@ AND timestamp <= %@",
+                                        authUserID, timestamp as NSDate)
+            } else {
+                predicate = NSPredicate(format: "timestamp <= %@ AND messageSeen == false",
+                                        timestamp as NSDate)
+            }
+
             let messages = chat.conversationMessages
-                .filter(filter)
+                .filter(predicate)
                 .sorted(byKeyPath: "timestamp", ascending: false)
 
             RealmDatabase.shared.update

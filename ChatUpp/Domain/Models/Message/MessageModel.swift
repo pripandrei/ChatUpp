@@ -8,6 +8,8 @@
 import Foundation
 import RealmSwift
 
+//extension Message: @unchecked Sendable {}
+
 class Message: Object, Codable
 {
     @Persisted(primaryKey: true) var id: String
