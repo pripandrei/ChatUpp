@@ -196,6 +196,9 @@
 		75E90BF92EE90DCF00E2DC43 /* SkeletonAnimationAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E90BF82EE90DC500E2DC43 /* SkeletonAnimationAppearance.swift */; };
 		75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */; };
 		75EE27612EFF1EC5008548AC /* main_icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 75EE27602EFF1EC5008548AC /* main_icon.icon */; };
+		75EE38F12F09E224008548AC /* paperPlane_flight_1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 75EE38F02F09E224008548AC /* paperPlane_flight_1.mp4 */; };
+		75EE38F32F09E348008548AC /* background_video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 75EE38F22F09E348008548AC /* background_video.mp4 */; };
+		75EE38F52F09E3F0008548AC /* background_video_2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 75EE38F42F09E3F0008548AC /* background_video_2.mp4 */; };
 		75F608842BEC2F560065DA83 /* InputBarTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* InputBarTextViewDelegate.swift */; };
 		75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* InputBarHeaderView.swift */; };
 		75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -418,6 +421,9 @@
 		75E90BF82EE90DC500E2DC43 /* SkeletonAnimationAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonAnimationAppearance.swift; sourceTree = "<group>"; };
 		75EAD9932D457376008BBD4B /* ObservableRealmObjectProcotol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableRealmObjectProcotol.swift; sourceTree = "<group>"; };
 		75EE27602EFF1EC5008548AC /* main_icon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = main_icon.icon; sourceTree = "<group>"; };
+		75EE38F02F09E224008548AC /* paperPlane_flight_1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = paperPlane_flight_1.mp4; sourceTree = "<group>"; };
+		75EE38F22F09E348008548AC /* background_video.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = background_video.mp4; sourceTree = "<group>"; };
+		75EE38F42F09E3F0008548AC /* background_video_2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = background_video_2.mp4; sourceTree = "<group>"; };
 		75F608832BEC2F560065DA83 /* InputBarTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarTextViewDelegate.swift; sourceTree = "<group>"; };
 		75F608852BEC33400065DA83 /* InputBarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputBarHeaderView.swift; sourceTree = "<group>"; };
 		75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInGoogleHelper.swift; sourceTree = "<group>"; };
@@ -838,6 +844,7 @@
 		7587D3A32E6392D500DEE900 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				75EE38ED2F09E20F008548AC /* Login_Background_video */,
 				75EE275D2EFF1E9C008548AC /* App_icon */,
 				7587D3A42E6392F100DEE900 /* Stikers */,
 			);
@@ -1633,6 +1640,16 @@
 			path = App_icon;
 			sourceTree = "<group>";
 		};
+		75EE38ED2F09E20F008548AC /* Login_Background_video */ = {
+			isa = PBXGroup;
+			children = (
+				75EE38F42F09E3F0008548AC /* background_video_2.mp4 */,
+				75EE38F22F09E348008548AC /* background_video.mp4 */,
+				75EE38F02F09E224008548AC /* paperPlane_flight_1.mp4 */,
+			);
+			path = Login_Background_video;
+			sourceTree = "<group>";
+		};
 		75FB78F92AC315D200C2743A /* Tabbar */ = {
 			isa = PBXGroup;
 			children = (
@@ -1866,6 +1883,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				75D38DA12EB90A5A0096B926 /* notification_sound.m4a in Resources */,
+				75EE38F12F09E224008548AC /* paperPlane_flight_1.mp4 in Resources */,
+				75EE38F32F09E348008548AC /* background_video.mp4 in Resources */,
+				75EE38F52F09E3F0008548AC /* background_video_2.mp4 in Resources */,
 				75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */,
 				755BF3F82E98338D0017577E /* APIKeys.plist in Resources */,
 				75B5C4C32A49AB0B00F63A5A /* Assets.xcassets in Resources */,
