@@ -118,19 +118,20 @@ extension ChatRoomInformationViewModel
             realmChat.participants.remove(at: authParticipantIndex)
         }
     }
-
     
     @MainActor
     private func createMessage(messageText text: String) async throws -> Message
     {
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        let seenByValue = chat.isGroup ? [authUserID : true] : nil
+        
         let message = Message(
             id: UUID().uuidString,
             messageBody: text,
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: nil,
-            seenBy: nil,
+            seenBy: seenByValue,
             isEdited: false,
             imagePath: nil,
             imageSize: nil,

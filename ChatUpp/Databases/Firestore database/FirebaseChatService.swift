@@ -200,6 +200,7 @@ extension FirebaseChatService
             let message = try await getMessageDocument(messagePath: recentMessageID, fromChatDocumentPath: chat.id).getDocument(as: Message.self)
             return message
         } catch {
+            print("chatid: ", chat.id, "recent messageid: ", recentMessageID)
             print("Error fetching recent message: ", error.localizedDescription)
             return nil
         }
@@ -214,6 +215,7 @@ extension FirebaseChatService
             .getDocuments(as: Message.self)
     }
 }
+
 //MARK: update chat with batch
 extension FirebaseChatService
 {
@@ -308,11 +310,13 @@ extension FirebaseChatService
                 .order(by: "timestamp", descending: true)
                 .limit(to: 500)
 
-            // For non-group chats, we can filter at query level
-            if userID == nil {
+            // Apply conditional filtering
+            if let userId = userID {
+                // Query for messages where user hasn't seen it (field doesn't exist in map)
+                query = query.whereField("seen_by.\(userId)", isEqualTo: NSNull())
+            } else {
                 query = query.whereField("message_seen", isEqualTo: false)
             }
-            // For group chats, we'll filter client-side (see below)
 
             // Apply pagination
             if let lastDoc = lastDoc {
@@ -325,41 +329,102 @@ extension FirebaseChatService
             if snapshot.documents.isEmpty { break }
 
             let batch = db.batch()
-            var documentsProcessed = 0
             
             for doc in snapshot.documents
             {
-                if let userID = userID
-                {
-                    // Filter client-side. This is bad, but i dont have time to refactor
-                    //
-                    let seenBy = doc.data()["seen_by"] as? [String] ?? []
-                    
-                    if !seenBy.contains(userID) {
-                        batch.updateData(
-                            ["seen_by": FieldValue.arrayUnion([userID])],
-                            forDocument: doc.reference
-                        )
-                        documentsProcessed += 1
-                    }
+                if let userID = userID {
+                    batch.updateData(
+                        ["seen_by.\(userID)": true],  // or use Timestamp for when they saw it
+                        forDocument: doc.reference
+                    )
                 } else {
                     batch.updateData(
                         ["message_seen": true],
                         forDocument: doc.reference
                     )
-                    documentsProcessed += 1
                 }
             }
 
-            // Only commit if there are actual updates
-            if documentsProcessed > 0 {
-                try await batch.commit()
-            }
+            try await batch.commit()
 
             lastDoc = snapshot.documents.last
             shouldContinue = snapshot.documents.count == 500
         }
     }
+    
+//    func updateMessagesSeenStatus(startFromMessageID messageID: String,
+//                                  seenByUser userID: String? = nil,
+//                                  chatID: String
+//    ) async throws
+//    {
+//        var shouldContinue = true
+//        var lastDoc: QueryDocumentSnapshot?
+//        
+//        let messageRef = chatDocument(documentPath: chatID)
+//            .collection(FirestoreCollection.messages.rawValue)
+//        
+//        //  Fetch starting message snapshot
+//        let startSnapshot = try await messageRef.document(messageID).getDocument()
+//        guard startSnapshot.exists else { return }
+//        
+//        while shouldContinue
+//        {
+//            var query = messageRef
+//                .order(by: "timestamp", descending: true)
+//                .limit(to: 500)
+//
+//            // For non-group chats, we can filter at query level
+//            if userID == nil {
+//                query = query.whereField("message_seen", isEqualTo: false)
+//            }
+//            // For group chats, we'll filter client-side (see below)
+//
+//            // Apply pagination
+//            if let lastDoc = lastDoc {
+//                query = query.start(afterDocument: lastDoc)
+//            } else {
+//                query = query.start(atDocument: startSnapshot)
+//            }
+//
+//            let snapshot = try await query.getDocuments()
+//            if snapshot.documents.isEmpty { break }
+//
+//            let batch = db.batch()
+//            var documentsProcessed = 0
+//            
+//            for doc in snapshot.documents
+//            {
+//                if let userID = userID
+//                {
+//                    // Filter client-side. This is bad, but i dont have time to refactor
+//                    //
+//                    let seenBy = doc.data()["seen_by"] as? [String] ?? []
+//                    
+//                    if !seenBy.contains(userID) {
+//                        batch.updateData(
+//                            ["seen_by": FieldValue.arrayUnion([userID])],
+//                            forDocument: doc.reference
+//                        )
+//                        documentsProcessed += 1
+//                    }
+//                } else {
+//                    batch.updateData(
+//                        ["message_seen": true],
+//                        forDocument: doc.reference
+//                    )
+//                    documentsProcessed += 1
+//                }
+//            }
+//
+//            // Only commit if there are actual updates
+//            if documentsProcessed > 0 {
+//                try await batch.commit()
+//            }
+//
+//            lastDoc = snapshot.documents.last
+//            shouldContinue = snapshot.documents.count == 500
+//        }
+//    }
     
 //    func updateMessagesSeenStatus(startFromMessageID messageID: String,
 //                                  seenByUser userID: String? = nil,
@@ -1337,6 +1402,155 @@ extension FirebaseChatService
 //                break
             }
         }
+    }
+    
+    
+    func removeSeenByFromPrivateChats() async throws {
+        print("Starting removal of seen_by field from private chats...")
+        
+        let chatsRef = db.collection("chats")
+        
+        // Get all chats first
+        let allChatsSnapshot = try await chatsRef.getDocuments()
+        
+        var privateChatCount = 0
+        var totalMessagesProcessed = 0
+        
+        for chatDoc in allChatsSnapshot.documents {
+            let chatData = chatDoc.data()
+            
+            // Check if this is a private chat (does NOT have "name" field)
+            if chatData["name"] != nil {
+                continue // Skip group chats
+            }
+            
+            let chatID = chatDoc.documentID
+            privateChatCount += 1
+            print("Processing private chat: \(chatID)")
+            
+            let messagesRef = chatsRef.document(chatID).collection("messages")
+            
+            // Query messages that have seen_by field
+            let messagesQuery = messagesRef.whereField("seen_by", isNotEqualTo: NSNull())
+            let messagesSnapshot = try await messagesQuery.getDocuments()
+            
+            print("  Found \(messagesSnapshot.documents.count) messages with seen_by in chat \(chatID)")
+            
+            // Process in batches of 500 (Firestore batch limit)
+            let batchSize = 500
+            var currentBatch = db.batch()
+            var batchCount = 0
+            
+            for messageDoc in messagesSnapshot.documents {
+                // Remove the seen_by field
+//                guard messageDoc.data()["seen_by"] is [String] else {return}
+                
+                currentBatch.updateData(
+                    ["seen_by": FieldValue.delete()],
+                    forDocument: messageDoc.reference
+                )
+                
+                batchCount += 1
+                totalMessagesProcessed += 1
+                
+                // Commit batch if we hit the limit
+                if batchCount >= batchSize {
+                    try await currentBatch.commit()
+                    print("  Committed batch of \(batchCount) messages")
+                    currentBatch = db.batch()
+                    batchCount = 0
+                }
+            }
+            
+            // Commit any remaining updates in the batch
+            if batchCount > 0 {
+                try await currentBatch.commit()
+                print("  Committed final batch of \(batchCount) messages")
+            }
+            
+            print("Completed private chat: \(chatID)")
+        }
+        
+        print("Cleanup complete! Processed \(totalMessagesProcessed) messages across \(privateChatCount) private chats")
+    }
+    
+    func migrateSeenByArrayToMap() async throws
+    {
+        print("Starting migration of seen_by arrays to maps...")
+        
+        let chatsRef = db.collection("chats")
+        
+        // Query only chats that have a "name" field with a value
+        let chatsQuery = chatsRef.whereField("name", isNotEqualTo: "")
+        let chatsSnapshot = try await chatsQuery.getDocuments()
+        
+        print("Found \(chatsSnapshot.documents.count) group chats to process")
+        
+        var totalMessagesProcessed = 0
+        
+        for chatDoc in chatsSnapshot.documents {
+            let chatID = chatDoc.documentID
+            print("Processing chat: \(chatID)")
+            
+            let messagesRef = chatsRef.document(chatID).collection("messages")
+            
+            // Query messages that have seen_by field
+            let messagesQuery = messagesRef.whereField("seen_by", isNotEqualTo: NSNull())
+            let messagesSnapshot = try await messagesQuery.getDocuments()
+            
+            print("  Found \(messagesSnapshot.documents.count) messages with seen_by in chat \(chatID)")
+            
+            // Process in batches of 500 (Firestore batch limit)
+            let batchSize = 500
+            var currentBatch = db.batch()
+            var batchCount = 0
+            
+            for messageDoc in messagesSnapshot.documents {
+                // Get the current seen_by array
+                guard let seenByArray = messageDoc.data()["seen_by"] as? [String] else {
+                    continue
+                }
+                
+                // Skip if already a map
+                if messageDoc.data()["seen_by"] is [String: Any] {
+                    print("  Message \(messageDoc.documentID) already migrated, skipping")
+                    continue
+                }
+                
+                // Convert array to map with all values set to true
+                var seenByMap: [String: Bool] = [:]
+                for userId in seenByArray {
+                    seenByMap[userId] = true
+                }
+                
+                // Update the document
+                currentBatch.updateData(
+                    ["seen_by": seenByMap],
+                    forDocument: messageDoc.reference
+                )
+                
+                batchCount += 1
+                totalMessagesProcessed += 1
+                
+                // Commit batch if we hit the limit
+                if batchCount >= batchSize {
+                    try await currentBatch.commit()
+                    print("  Committed batch of \(batchCount) messages")
+                    currentBatch = db.batch()
+                    batchCount = 0
+                }
+            }
+            
+            // Commit any remaining updates in the batch
+            if batchCount > 0 {
+                try await currentBatch.commit()
+                print("  Committed final batch of \(batchCount) messages")
+            }
+            
+            print("Completed chat: \(chatID)")
+        }
+        
+        print("Migration complete! Processed \(totalMessagesProcessed) messages across \(chatsSnapshot.documents.count) chats")
     }
 
 }

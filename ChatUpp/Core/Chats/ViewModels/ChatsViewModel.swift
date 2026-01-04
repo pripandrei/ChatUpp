@@ -49,7 +49,7 @@ final class ChatsViewModel
     deinit {
         print("deinit chats view model")
     }
-
+    
     func activateOnDisconnect() {
         Task {
             try await RealtimeUserService.shared.setupOnDisconnect()

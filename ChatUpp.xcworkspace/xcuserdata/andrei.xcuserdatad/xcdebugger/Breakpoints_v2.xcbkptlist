@@ -46,8 +46,8 @@
             filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "402"
-            endingLineNumber = "402"
+            startingLineNumber = "467"
+            endingLineNumber = "467"
             landmarkName = "FirebaseChatService"
             landmarkType = "21">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "400"
-            endingLineNumber = "400"
+            startingLineNumber = "465"
+            endingLineNumber = "465"
             landmarkName = "FirebaseChatService"
             landmarkType = "21">
          </BreakpointContent>
@@ -78,8 +78,8 @@
             filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "399"
-            endingLineNumber = "399"
+            startingLineNumber = "464"
+            endingLineNumber = "464"
             landmarkName = "FirebaseChatService"
             landmarkType = "21">
          </BreakpointContent>
