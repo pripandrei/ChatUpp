@@ -717,10 +717,11 @@ extension ChatRoomViewController
         if let unseenMessage
         {
             Task {
-                await viewModel.updateRealmMessagesSeenStatus(startingFromMessage: unseenMessage)
-                viewModel.updateUnseenMessageCounterForAuthUserLocally()
-                viewModel.updateFirebaseMessagesSeenStatus(startingFrom: unseenMessage)
-                viewModel.updateUnseenMessageCounterForAuthUserRemote()
+                await viewModel.handleMessageSeenStatusUpdate(starFrom: unseenMessage)
+//                await viewModel.updateRealmMessagesSeenStatus(startingFromMessage: unseenMessage)
+//                viewModel.updateUnseenMessageCounterForAuthUserLocally()
+//                viewModel.updateFirebaseMessagesSeenStatus(startingFrom: unseenMessage)
+//                viewModel.updateUnseenMessageCounterForAuthUserRemote()
                 
                 await MainActor.run {
                     if indexToProcess == self.pendingIndexPathForSeenStatusCheck

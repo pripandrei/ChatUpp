@@ -252,8 +252,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         try await FirebaseChatService.shared.createMessage(message: newMessage,
                                                            atChatPath: conversation.id)
         await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: newMessage.id)
-        updateUnseenMessageCounterForAuthUserLocally()
-        updateUnseenMessageCounterForAuthUserRemote()
+        updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: 1, increment: true)
+        updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: 1, increment: true)
         
         var messages = getCurrentMessagesFromCluster()
         messages.insert(newMessage, at: 0)
@@ -355,7 +355,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                                        mediaParameters: media)
         
         realmService?.addMessagesToRealmChat([message])
-        updateUnseenMessageCounterForAuthUserLocally()
+        updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: 1, increment: true)
         createMessageClustersWith([message])
         return message
     }
@@ -453,35 +453,43 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     @MainActor
-    func updateUnseenMessageCounterForAuthUserLocally()
+    func updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: Int, increment: Bool)
     {
         guard let conversation = self.conversation else { return }
         RealmDatabase.shared.refresh()
         
         let authUserID = self.authUser.uid
-        let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
-        
+//        let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
+//        
+//        print("updateUnseenMessageCounterForAuthUserLocally: ", count)
         RealmDatabase.shared.update(object: conversation) { dbChat in
             if let participant = dbChat.getParticipant(byID: authUserID)
             {
-                participant.unseenMessagesCount = count
+                let updatedCount = increment ?
+                participant.unseenMessagesCount + numberOfUpdatedMessages
+                :
+                participant.unseenMessagesCount - numberOfUpdatedMessages
+                
+                participant.unseenMessagesCount = max(0, updatedCount)
             }
         }
     }
     
-    //    @MainActor
-    func updateUnseenMessageCounterForAuthUserRemote()
+    @MainActor
+    func updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: Int, increment: Bool)
     {
         guard let conversationID = self.conversation?.id else { return }
         let authUserID = self.authUser.uid
-        let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
-        
+//        let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
+//        print("updateUnseenMessageCounterForAuthUserRemote: ", count)
         Task.detached {
             do {
                 try await FirebaseChatService.shared.updateUnseenMessagesCount(
                     for: [authUserID],
                     inChatWithID: conversationID,
-                    counter: count
+//                    counter: count
+                    counter: numberOfUpdatedMessages,
+                    shouldIncrement: increment
                 )
             } catch {
                 print("Error updating unseen messages counter remote: ", error)
@@ -491,7 +499,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     /// Message seen status update
     ///
-    func updateFirebaseMessagesSeenStatus(startingFrom startMessage: Message)
+    @MainActor
+    func updateFirebaseMessagesSeenStatus(startingFrom startMessage: Message, limit: Int)
     {
         guard let chatID = conversation?.id else { return }
         let authUserID = authUser.uid
@@ -505,7 +514,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                     .shared
                     .updateMessagesSeenStatus(startFromMessageID: startMessageID,
                                               seenByUser: isGroup ? authUserID : nil,
-                                              chatID: chatID)
+                                              chatID: chatID,
+                                              limit: limit)
             } catch {
                 print("Could not update messages seen status in firebase: ", error)
             }
@@ -513,19 +523,19 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     @MainActor
-    func updateRealmMessagesSeenStatus(startingFromMessage message: Message) async
+    func updateRealmMessagesSeenStatus(startingFromMessage message: Message) async -> Int
     {
-        guard let chatID = conversation?.id else {return}
+        guard let chatID = conversation?.id else {return 0}
         let authUserID = authUser.uid
         let isGroup = conversation?.isGroup ?? false
         let timestamp = message.timestamp
         
-        await Task.detached
+        return await Task.detached
         {
             guard let chat = RealmDatabase.shared.retrieveSingleObjectFromNewRalmInstance(
                 ofType: Chat.self,
                 primaryKey: chatID) else {
-                return
+                return 0
             }
             
             var predicate: NSPredicate
@@ -543,6 +553,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 .filter(predicate)
                 .sorted(byKeyPath: "timestamp", ascending: false)
 
+            var updateCount: Int = 0
+            
             RealmDatabase.shared.update
             {
                 for message in messages
@@ -551,12 +563,24 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                     
                     if isGroup {
                         message.seenBy.append(authUserID)
-                        continue
+                    } else {
+                        message.messageSeen = true
                     }
-                    message.messageSeen = true
+                    updateCount += 1
                 }
             }
+            return updateCount
         }.value
+    }
+    
+    func handleMessageSeenStatusUpdate(starFrom message: Message) async
+    {
+        let updatedMessagesCount = await updateRealmMessagesSeenStatus(startingFromMessage: message)
+        await updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: updatedMessagesCount,
+                                                           increment: false)
+        await updateFirebaseMessagesSeenStatus(startingFrom: message, limit: updatedMessagesCount)
+        await updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: updatedMessagesCount,
+                                                    increment: false)
     }
     
     /// - unseen message manage
