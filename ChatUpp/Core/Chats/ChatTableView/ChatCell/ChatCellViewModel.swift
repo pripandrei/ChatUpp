@@ -328,16 +328,16 @@ extension ChatCellViewModel
         self.profileImageDataSubject.send(retrieveChatAvatarFromCache())
     }
     
-    private func updateNewUser(_ user: User)
-    {
-        RealmDatabase.shared.add(object: user)
-        
-        if user.photoUrl != self.chatUser?.photoUrl
-        {
-            
-        }
-        self.chatUser = user
-    }
+//    private func updateNewUser(_ user: User)
+//    {
+//        RealmDatabase.shared.add(object: user)
+//        
+//        if user.photoUrl != self.chatUser?.photoUrl
+//        {
+//            
+//        }
+//        self.chatUser = user
+//    }
     
     private func performProfileImageDataUpdate() async
     {
