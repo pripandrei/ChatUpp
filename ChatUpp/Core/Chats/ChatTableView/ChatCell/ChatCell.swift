@@ -413,7 +413,8 @@ extension ChatCell {
         ])
     }
     
-    private func setMessageLable() {
+    private func setMessageLable()
+    {
         messageLable.font = UIFont(descriptor: .preferredFontDescriptor(withTextStyle: .title2), size: 14)
         messageLable.textColor = #colorLiteral(red: 0.5970802903, green: 0.5856198668, blue: 0.6014393568, alpha: 1)
         messageLable.backgroundColor = .clear
@@ -438,9 +439,9 @@ extension ChatCell {
         
         messageLable.setContentHuggingPriority(.defaultLow, for: .horizontal)
         messageLable.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        
+         
         NSLayoutConstraint.activate([
-            messageLable.topAnchor.constraint(equalTo: self.topAnchor, constant: self.bounds.height * 0.60),
+            messageLable.topAnchor.constraint(equalTo: self.topAnchor, constant: self.bounds.height * 0.65),
             messageLable.leadingAnchor.constraint(equalTo: self.profileImage.trailingAnchor, constant: 10),
             messageLableTrailingToParent,
             messageLableTrailingToBadgeCounter,

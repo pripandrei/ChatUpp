@@ -188,22 +188,21 @@ extension ChatCellViewModel
 
 extension ChatCellViewModel
 {
-    private func setNewRecentMessage(messageID: String)
+    private func processNewRecentMessage(messageID: String)
     {
         let chatID = chat.id
         guard let newMessage = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self,
                                                                          primaryKey: messageID) else
         {
             Task {
-                guard let recentMessage = await loadRecentMessage() else {return}
+                guard let recentMessage = await fetchRecentMessage() else {return}
                 await performMessageImageUpdate(messageID)
                 
                 if chatID == ChatRoomSessionManager.activeChatID
-                {
-                    try await Task.sleep(for: .seconds(1))
-                }
+                { try await Task.sleep(for: .seconds(1)) }
                  
                 nonisolated(unsafe) let message = recentMessage
+                
                 await MainActor.run
                 {
                     addMessageToRealm(message)
@@ -212,7 +211,8 @@ extension ChatCellViewModel
                        message.senderId != authUser.uid
                     {
                         self.showRecentMessageBanner()
-                        if let url = Bundle.main.url(forResource: "notification_sound", withExtension: "m4a")
+                        if let url = Bundle.main.url(forResource: "notification_sound",
+                                                     withExtension: "m4a")
                         {
                             AudioSessionManager.shared.play(audioURL: url)                            
                         }
@@ -299,7 +299,7 @@ extension ChatCellViewModel
     {
         try Task.checkCancellation()
         
-        if let message = await loadRecentMessage() {
+        if let message = await fetchRecentMessage() {
             addMessageToRealm(message)
             self.recentMessage = message
         }
@@ -364,7 +364,7 @@ extension ChatCellViewModel
     }
     
     @MainActor
-    private func loadRecentMessage() async -> Message?
+    private func fetchRecentMessage() async -> Message?
     {
         do {
             return try await FirebaseChatService.shared.getRecentMessage(from: chat)
@@ -585,7 +585,7 @@ extension ChatCellViewModel
             self.recentMessage = nil
             return
         }
-        self.setNewRecentMessage(messageID: recentMessageID)
+        self.processNewRecentMessage(messageID: recentMessageID)
     }
 
     private func handleParticipantsChange() {
@@ -618,9 +618,10 @@ extension ChatCellViewModel
             
             let name = chat.isGroup ? chat.name : chatUser?.name
             guard let message = recentMessage,
-                  let avatarData = retrieveChatAvatarFromCache(),
                   let name else { return }
+            let avatarData = retrieveChatAvatarFromCache()
             
+                
             let imageData: Data?
             if let imagePath = self.recentMessageImageThumbnailPath {
                 imageData = retrieveMessageImageData(imagePath)
