@@ -194,41 +194,37 @@ extension ChatCellViewModel
         guard let newMessage = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self,
                                                                          primaryKey: messageID) else
         {
-//            self.dispatchGroup.enter()
-//            serialQueue.async
-//            {
-                print("enter recent message process")
-                Task {
-                    guard let recentMessage = await self.fetchRecentMessage() else {
-                        self.dispatchGroup.leave()
-                        return
-                    }
-                    await self.performMessageImageUpdate(recentMessage)
-                    
-                    if chatID == ChatRoomSessionManager.activeChatID
-                    { try await Task.sleep(for: .seconds(1)) }
-                    
-                    nonisolated(unsafe) let message = recentMessage
-                    
-                    await MainActor.run
-                    {
-                        self.addMessageToRealm(message)
-                        self.recentMessage = message
-                        if chatID != ChatRoomSessionManager.activeChatID,
-                           message.senderId != self.authUser.uid
-                        {
-                            self.showRecentMessageBanner()
-                            if let url = Bundle.main.url(forResource: "notification_sound",
-                                                         withExtension: "m4a")
-                            {
-                                AudioSessionManager.shared.play(audioURL: url)
-                            }
-                        }
-//                    self.dispatchGroup.leave()
-//                    print("leave recent message process")
-                    }
+            self.dispatchGroup.enter() // See FootNote.swift [20]
+            
+            Task {
+                guard let recentMessage = await self.fetchRecentMessage() else {
+                    self.dispatchGroup.leave()
+                    return
                 }
-//            }
+                await self.performMessageImageUpdate(recentMessage)
+                
+                if chatID == ChatRoomSessionManager.activeChatID
+                { try await Task.sleep(for: .seconds(1)) }
+                
+                nonisolated(unsafe) let message = recentMessage
+                
+                await MainActor.run
+                {
+                    self.addMessageToRealm(message)
+                    self.recentMessage = message
+                    if chatID != ChatRoomSessionManager.activeChatID,
+                       message.senderId != self.authUser.uid
+                    {
+                        self.showRecentMessageBanner()
+                        if let url = Bundle.main.url(forResource: "notification_sound",
+                                                     withExtension: "m4a")
+                        {
+                            AudioSessionManager.shared.play(audioURL: url)
+                        }
+                    }
+                    self.dispatchGroup.leave()
+                }
+            }
             return
         }
         self.recentMessage = newMessage
@@ -492,14 +488,15 @@ extension ChatCellViewModel
             .receive(on: DispatchQueue.main)
             .sink { [weak self] change in
                 guard let self = self, change.0.name == "unseenMessagesCount" else { return }
-//                serialQueue.asyncAfter(deadline: .now() + 0.1)
-//                executeAfter(seconds: 0.1, block: {
-//                    print("emtered observeAuthParticipantChanges")
-//                    self.dispatchGroup.notify(queue: self.serialQueue) {
-//                        print("set count")
+                
+                // See FootNote.swift [20]
+                executeAfter(seconds: 0.1)
+                {
+                    self.dispatchGroup.notify(queue: self.serialQueue)
+                    {
                         self.unreadMessageCount = change.0.newValue as? Int ?? self.unreadMessageCount
-//                    }
-//                })
+                    }
+                }
             }.store(in: &cancellables)
     }
     

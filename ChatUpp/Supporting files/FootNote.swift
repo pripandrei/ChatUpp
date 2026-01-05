@@ -136,3 +136,8 @@
 /// by the targeted preview (snapshot). So we should hold Targeted Preview reference
 /// and then, if the drag was simultaniosly initiated, remove the Preview so that only one cell is always displayed
 
+//MARK: - [20]
+//
+/// The unseen counter should not update before message is fully ready to be displayed,
+/// so we delay counter setup and use dispatchGroup in case recent message is still in process.
+/// That way counter and message (text,image) will be set in sync, without delays
