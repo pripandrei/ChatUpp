@@ -19,13 +19,13 @@ class ChatCellViewModel
     
     private var cancellables = Set<AnyCancellable>()
     private var recentMessagesCancellables = Set<AnyCancellable>()
-    
     private(set) var profileImageDataSubject = PassthroughSubject<Data?,Never>()
-    private(set) var messageImageDataSubject = PassthroughSubject<Data?,Never>()
+    
+    private let serialQueue: DispatchQueue = .init(label: "recentMessageUpdateQueue")
+    private let dispatchGroup: DispatchGroup = .init()
     
     @Published private(set) var chat: Chat
     @Published private(set) var chatUser: User?
-//    @Published private(set) var titleName: String?
     @Published private(set) var isParticipantActive: Bool?
     @Published private(set) var unreadMessageCount: Int?
     {
@@ -194,31 +194,41 @@ extension ChatCellViewModel
         guard let newMessage = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self,
                                                                          primaryKey: messageID) else
         {
-            Task {
-                guard let recentMessage = await fetchRecentMessage() else {return}
-                await performMessageImageUpdate(messageID)
-                
-                if chatID == ChatRoomSessionManager.activeChatID
-                { try await Task.sleep(for: .seconds(1)) }
-                 
-                nonisolated(unsafe) let message = recentMessage
-                
-                await MainActor.run
-                {
-                    addMessageToRealm(message)
-                    self.recentMessage = message
-                    if chatID != ChatRoomSessionManager.activeChatID,
-                       message.senderId != authUser.uid
+//            self.dispatchGroup.enter()
+//            serialQueue.async
+//            {
+                print("enter recent message process")
+                Task {
+                    guard let recentMessage = await self.fetchRecentMessage() else {
+                        self.dispatchGroup.leave()
+                        return
+                    }
+                    await self.performMessageImageUpdate(recentMessage)
+                    
+                    if chatID == ChatRoomSessionManager.activeChatID
+                    { try await Task.sleep(for: .seconds(1)) }
+                    
+                    nonisolated(unsafe) let message = recentMessage
+                    
+                    await MainActor.run
                     {
-                        self.showRecentMessageBanner()
-                        if let url = Bundle.main.url(forResource: "notification_sound",
-                                                     withExtension: "m4a")
+                        self.addMessageToRealm(message)
+                        self.recentMessage = message
+                        if chatID != ChatRoomSessionManager.activeChatID,
+                           message.senderId != self.authUser.uid
                         {
-                            AudioSessionManager.shared.play(audioURL: url)                            
+                            self.showRecentMessageBanner()
+                            if let url = Bundle.main.url(forResource: "notification_sound",
+                                                         withExtension: "m4a")
+                            {
+                                AudioSessionManager.shared.play(audioURL: url)
+                            }
                         }
+//                    self.dispatchGroup.leave()
+//                    print("leave recent message process")
                     }
                 }
-            }
+//            }
             return
         }
         self.recentMessage = newMessage
@@ -322,7 +332,7 @@ extension ChatCellViewModel
         
         if shouldFetchMessageImage
         {
-            await performMessageImageUpdate(recentMessage!.id)
+            await performMessageImageUpdate(recentMessage!)
         }
         
         self.profileImageDataSubject.send(retrieveChatAvatarFromCache())
@@ -387,12 +397,16 @@ extension ChatCellViewModel
         return photoData
     }
     
-    
-    private func performMessageImageUpdate(_ messageID: String) async
+    @MainActor
+    private func performMessageImageUpdate(_ recentMessage: Message) async
     {
-        guard let thumbnailPath = await recentMessageImageThumbnailPath else { return }
-        let originalPath = thumbnailPath.removeSuffix("small")
         
+        guard let originalPath = recentMessage.imagePath else { return }
+        let thumbnailPath = originalPath.addSuffix("small")
+        let messageID = recentMessage.id
+//        guard let thumbnailPath = await recentMessageImageThumbnailPath else { return }
+//        let originalPath = thumbnailPath.removeSuffix("small")
+//        
         let paths = [thumbnailPath, originalPath]
         
         do
@@ -478,7 +492,14 @@ extension ChatCellViewModel
             .receive(on: DispatchQueue.main)
             .sink { [weak self] change in
                 guard let self = self, change.0.name == "unseenMessagesCount" else { return }
-                self.unreadMessageCount = change.0.newValue as? Int ?? self.unreadMessageCount
+//                serialQueue.asyncAfter(deadline: .now() + 0.1)
+//                executeAfter(seconds: 0.1, block: {
+//                    print("emtered observeAuthParticipantChanges")
+//                    self.dispatchGroup.notify(queue: self.serialQueue) {
+//                        print("set count")
+                        self.unreadMessageCount = change.0.newValue as? Int ?? self.unreadMessageCount
+//                    }
+//                })
             }.store(in: &cancellables)
     }
     
@@ -535,7 +556,7 @@ extension ChatCellViewModel
                 
                 if changeObject.data.imagePath != nil {
                     Task {
-                        await self?.performMessageImageUpdate(changeObject.data.id)
+                        await self?.performMessageImageUpdate(changeObject.data)
                     }
                 } else {
                     self?.recentMessage = changeObject.data
@@ -559,13 +580,13 @@ extension ChatCellViewModel
             .sink { [weak self] propertyChange in
                 guard let self = self else { return }
                 guard let property = MessageObservedProperty(from: propertyChange.0.name) else { return }
-                guard let messageID = self.recentMessage?.id else { return }
+                guard let message = self.recentMessage else { return }
                 
                 switch property
                 {
                 case .imagePath:
                     guard let _ = propertyChange.0.newValue as? String else { return }
-                    Task { await self.performMessageImageUpdate(messageID) }
+                    Task { await self.performMessageImageUpdate(message) }
                 case .messageSeen:
                     self.recentMessage = propertyChange.1 as? Message
                 default: break
