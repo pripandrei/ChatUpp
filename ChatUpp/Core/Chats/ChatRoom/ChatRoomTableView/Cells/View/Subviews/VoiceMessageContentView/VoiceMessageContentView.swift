@@ -7,12 +7,14 @@
 
 import UIKit
 import SwiftUI
+import Combine
 
 final class VoiceMessageContentView: ContainerView
 {
     private let messageComponentsView: MessageComponentsView = .init()
     private var playbackControlPanel: VoicePlaybackControlPanelView!
     private let viewModel: MessageContentViewModel
+    private var cancellables = Set<AnyCancellable>()
     
     lazy var replyToMessageStack: ReplyToMessageStackView = {
         let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
@@ -46,10 +48,32 @@ final class VoiceMessageContentView: ContainerView
         setupMessageComponentsView()
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
         setupMessageToReplyView()
+        setupBings()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit
+    {
+        print("deinit voice message content view")
+        cancellables.forEach { cancelable in
+            cancelable.cancel()
+        }
+        cancellables.removeAll()
+        messageComponentsView.cleanupContent()
+    }
+    
+    // Bindings
+    
+    private func setupBings()
+    {
+        viewModel.messageSeenStatusChangedSubject
+            .sink { [weak self] statusChanged in
+                guard statusChanged else { return }
+                self?.updateMessageSeenStatus()
+            }.store(in: &cancellables)
     }
     
     private func setupPlaybackControlPanel(withUrl URL: URL,
@@ -132,4 +156,17 @@ final class VoiceMessageContentView: ContainerView
         replyToMessageStack.setReplyInnerStackColors(background: backgroundColor,
                                                      barColor: barColor)
     }
+    
+    private func updateMessageSeenStatus()
+    {
+        executeAfter(seconds: 0.2, block: {
+            self.messageComponentsView.messageComponentsStackView.setNeedsLayout()
+            self.messageComponentsView.configureMessageSeenStatus()
+            
+            UIView.animate(withDuration: 0.3) {
+                self.superview?.layoutIfNeeded()
+            }
+        })
+    }
 }
+

@@ -132,7 +132,7 @@ extension StickerMessageContentView
 {
     private func updateMessageSeenStatus()
     {
-        executeAfter(seconds: 3.0, block: {
+        executeAfter(seconds: 0.2, block: {
             self.stickerComponentsView.messageComponentsStackView.setNeedsLayout()
             self.stickerComponentsView.configureMessageSeenStatus()
             
