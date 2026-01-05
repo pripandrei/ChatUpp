@@ -44,7 +44,7 @@ struct VoicePlaybackControlPanelView: View
                             .rotationEffect(.degrees(viewModel.isPlaying ? 180 : 0))
                             .animation(.bouncy(duration: 0.3), value: viewModel.isPlaying)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(NoHighlightButtonStyle())
 
                     VStack(spacing: 4)
                     {
@@ -89,6 +89,15 @@ extension VoicePlaybackControlPanelView
         let filledColor: Color
         let unfilledColor: Color
         let playButtonColor: Color
+    }
+}
+
+struct NoHighlightButtonStyle: ButtonStyle
+{
+    func makeBody(configuration: Configuration) -> some View
+    {
+        configuration.label
+            .opacity(1)
     }
 }
 
