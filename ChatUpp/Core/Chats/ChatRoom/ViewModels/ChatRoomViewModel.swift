@@ -459,9 +459,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         RealmDatabase.shared.refresh()
         
         let authUserID = self.authUser.uid
-//        let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
-//        
-//        print("updateUnseenMessageCounterForAuthUserLocally: ", count)
+
         RealmDatabase.shared.update(object: conversation) { dbChat in
             if let participant = dbChat.getParticipant(byID: authUserID)
             {
@@ -480,14 +478,12 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         guard let conversationID = self.conversation?.id else { return }
         let authUserID = self.authUser.uid
-//        let count = realmService?.getUnreadMessagesCountFromRealm() ?? 0
-//        print("updateUnseenMessageCounterForAuthUserRemote: ", count)
+        
         Task.detached {
             do {
                 try await FirebaseChatService.shared.updateUnseenMessagesCount(
                     for: [authUserID],
                     inChatWithID: conversationID,
-//                    counter: count
                     counter: numberOfUpdatedMessages,
                     shouldIncrement: increment
                 )
@@ -573,13 +569,14 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }.value
     }
     
-    func handleMessageSeenStatusUpdate(starFrom message: Message) async
+    @MainActor
+    func syncMessagesSeenStatus(startFrom message: Message) async
     {
         let updatedMessagesCount = await updateRealmMessagesSeenStatus(startingFromMessage: message)
-        await updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: updatedMessagesCount,
+        updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: updatedMessagesCount,
                                                            increment: false)
-        await updateFirebaseMessagesSeenStatus(startingFrom: message, limit: updatedMessagesCount)
-        await updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: updatedMessagesCount,
+        updateFirebaseMessagesSeenStatus(startingFrom: message, limit: updatedMessagesCount)
+        updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: updatedMessagesCount,
                                                     increment: false)
     }
     

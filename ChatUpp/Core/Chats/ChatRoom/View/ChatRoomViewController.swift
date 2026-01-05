@@ -703,10 +703,6 @@ extension ChatRoomViewController
 {
     private func updateMessageSeenStatusIfNeeded(startingAt indexToProcess: IndexPath)
     {
-//        guard let indexToProcess = self.pendingIndexPathForSeenStatusCheck
-//        else { return }
-//        self.pendingIndexPathForSeenStatusCheck = nil
-        
         guard indexToProcess.row < rootView.tableView.numberOfRows(inSection: indexToProcess.section),
               indexToProcess.row < self.viewModel.messageClusters[indexToProcess.section].items.count,
               !checkIfMessageWasSeen(at: indexToProcess)
@@ -717,11 +713,7 @@ extension ChatRoomViewController
         if let unseenMessage
         {
             Task {
-                await viewModel.handleMessageSeenStatusUpdate(starFrom: unseenMessage)
-//                await viewModel.updateRealmMessagesSeenStatus(startingFromMessage: unseenMessage)
-//                viewModel.updateUnseenMessageCounterForAuthUserLocally()
-//                viewModel.updateFirebaseMessagesSeenStatus(startingFrom: unseenMessage)
-//                viewModel.updateUnseenMessageCounterForAuthUserRemote()
+                await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
                 
                 await MainActor.run {
                     if indexToProcess == self.pendingIndexPathForSeenStatusCheck
