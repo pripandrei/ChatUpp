@@ -685,7 +685,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 let path = imageRepository.imagePath(for: key)
                 group.addTask(priority: .utility) {
                     CacheManager.shared.saveData(imageData, toPath: path)
-                    print("Cached image: \(imageData) \(path)")
+//                    print("Cached image: \(imageData) \(path)")
                 }
             }
         }
@@ -705,7 +705,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                             .saveImage(data: imageData,
                                        to: .message(.image(messageID)),
                                        imagePath: path)
-                        print("Saved Image with path: \(path)")
+//                        print("Saved Image with path: \(path)")
                     } catch {
                         print("Error in uploading images: \(error)")
                     }

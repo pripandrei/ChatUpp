@@ -69,10 +69,11 @@ final class VoiceMessageContentView: ContainerView
     
     private func setupBings()
     {
-        viewModel.messageSeenStatusChangedSubject
-            .sink { [weak self] statusChanged in
-                guard statusChanged else { return }
-                self?.updateMessageSeenStatus()
+        viewModel.messagePropertyUpdateSubject
+            .sink { [weak self] property in
+                if case .messageSeen = property {
+                    self?.updateMessageSeenStatus()
+                }
             }.store(in: &cancellables)
     }
     

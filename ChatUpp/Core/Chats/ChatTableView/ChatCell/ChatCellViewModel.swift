@@ -715,13 +715,33 @@ enum ChatObservedProperty: String
     }
 }
 
-enum MessageObservedProperty: String
+enum MessageObservedProperty
 {
     case imagePath
     case messageSeen
-    case messageBody
+    case seenBy
+    case messageBody(String)
+    case isEdited
 
-    init?(from name: String) {
-        self.init(rawValue: name)
+    init?(from propertyName: String, newValue: Any? = nil)
+    {
+        switch propertyName
+        {
+        case "imagePath": self = .imagePath
+        case "messageSeen": self = .messageSeen
+        case "isEdited": self = .isEdited
+        case "seenBy": self = .seenBy
+        case "messageBody":
+            guard let value = newValue as? String else {return nil}
+            self = .messageBody(value)
+        default:
+            return nil
+        }
     }
+    
+    //    init?(from name: String)
+    //    {
+    //        self.init(rawValue: name)
+    //    }
+        
 }

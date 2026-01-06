@@ -117,10 +117,10 @@ final class MessageComponentsView: UIView
         
         let seenIconColor: UIColor = getColorForMessageComponents()
         let seenStatusIcon = isSeen ? SeenStatusIcon.double.rawValue : SeenStatusIcon.single.rawValue
-
+        
         guard let seenStatusIconImage = SeenStatusIconStorage.image(named: seenStatusIcon,
-                                                                  size: iconSize,
-                                                                  color: seenIconColor)
+                                                                    size: iconSize,
+                                                                    color: seenIconColor)
         else {return}
         
         let imageAttributedString = NSMutableAttributedString.yy_attachmentString(

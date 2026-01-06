@@ -96,10 +96,14 @@ final class StickerMessageContentView: UIView
     
     // MARK: - binding
     
-    func setupBinding(publisher: AnyPublisher<Bool, Never>)
+    func setupBinding(publisher: AnyPublisher<MessageObservedProperty, Never>)
     {
-        publisher.sink { [weak self] isSeen in
-            if isSeen { self?.updateMessageSeenStatus() }
+        publisher.sink { [weak self] property in
+            switch property
+            {
+            case .messageSeen, .seenBy: self?.updateMessageSeenStatus()
+            default: break
+            }
         }.store(in: &cancellables)
     }
     
@@ -109,7 +113,7 @@ final class StickerMessageContentView: UIView
     {
         guard let message = viewModel.message else { return }
         
-        setupBinding(publisher: viewModel.messageSeenStatusChangedSubject.eraseToAnyPublisher())
+        setupBinding(publisher: viewModel.messagePropertyUpdateSubject.eraseToAnyPublisher())
         
         stickerRLottieView.loadAnimation(named: message.sticker!)
         stickerRLottieView.setVisible(true)

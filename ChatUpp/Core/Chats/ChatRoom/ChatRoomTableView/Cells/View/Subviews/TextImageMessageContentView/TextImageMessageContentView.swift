@@ -98,13 +98,20 @@ extension TextImageMessageContentView
                 self?.configureMessageImage(image)
             }).store(in: &subscribers)
 
-        viewModel.$message
-            .dropFirst()
+//        viewModel.$message
+//            .dropFirst()
+//            .receive(on: DispatchQueue.main)
+//            .compactMap({ $0 })
+//            .sink { [weak self] message in
+//                if message.isInvalidated { return }
+//                self?.updateMessage(message)
+//            }.store(in: &subscribers)
+//        
+        viewModel.messagePropertyUpdateSubject
             .receive(on: DispatchQueue.main)
-            .compactMap({ $0 })
-            .sink { [weak self] message in
-                if message.isInvalidated { return }
-                self?.updateMessage(message)
+            .sink { [weak self] propery in
+//                if message.isInvalidated { return }
+                self?.updateMessage(fieldValue: propery)
             }.store(in: &subscribers)
     }
 }
@@ -511,20 +518,54 @@ extension TextImageMessageContentView
 // MARK: Message edit animation
 extension TextImageMessageContentView
 {
-    private func updateMessage(_ message: Message)
+    private func updateMessage(fieldValue: MessageObservedProperty)
     {
-        executeAfter(seconds: 0.2, block: {
+        executeAfter(seconds: 0.2)
+        {
             self.messageLabel.messageUpdateType = .edited
-            self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: message.messageBody)
-            self.messageComponentsView.updateEditedLabel()
-            self.messageComponentsView.messageComponentsStackView.setNeedsLayout()
-            self.messageComponentsView.configureMessageSeenStatus()
             
-            self.handleMessageLayout()
+            switch fieldValue
+            {
+            case .messageBody(let text):
+                self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: text)
+                self.handleMessageLayout()
+            case .isEdited:
+                self.messageComponentsView.updateEditedLabel()
+                self.handleMessageLayout()
+            case .messageSeen:
+                self.messageComponentsView.messageComponentsStackView.setNeedsLayout()
+                self.messageComponentsView.configureMessageSeenStatus()
+                
+                if self.viewModel.message?.type != .image
+                {
+                    self.handleMessageLayout()
+                }
+            default: break
+            }
+
             UIView.animate(withDuration: 0.3) {
                 self.superview?.layoutIfNeeded()
             }
             self.handleContentRelayout?()
-        })
+        }
     }
+    
+    
+//    private func updateMessage(_ message: Message)
+//    {
+//        executeAfter(seconds: 0.2)
+//        {
+//            self.messageLabel.messageUpdateType = .edited
+////            self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: message.messageBody)
+//            self.messageComponentsView.updateEditedLabel()
+//            self.messageComponentsView.messageComponentsStackView.setNeedsLayout()
+//            self.messageComponentsView.configureMessageSeenStatus()
+//            
+////            self.handleMessageLayout()
+//            UIView.animate(withDuration: 0.3) {
+//                self.superview?.layoutIfNeeded()
+//            }
+//            self.handleContentRelayout?()
+//        }
+//    }
 }
