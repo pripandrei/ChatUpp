@@ -882,8 +882,15 @@ extension ChatRoomViewModel
     
     private func getFirstUnseenMessage() -> Message?
     {
-        let unseenMessage = conversation?.conversationMessages
-            .filter("messageSeen == false AND senderId != %@", authUser.uid)
+        guard let conversation = conversation else { return nil }
+        
+        let filter = conversation.isGroup ?
+        NSPredicate(format: "NONE seenBy CONTAINS %@ AND senderId != %@", authUser.uid, authUser.uid)
+        :
+        NSPredicate(format: "messageSeen == false AND senderId != %@", authUser.uid )
+        
+        let unseenMessage = conversation.conversationMessages
+            .filter(filter)
             .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
             .first
         
