@@ -235,7 +235,7 @@ extension FirestoreUserService {
 
 struct ObjectsPaginationLimit
 {
-    static let remoteMessages: Int = 23
+    static let remoteMessages: Int = 50
     static let users: Int = 100
     static let chats: Int = 100
     static let localMessages: Int = 40

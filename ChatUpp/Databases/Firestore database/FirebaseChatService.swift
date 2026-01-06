@@ -458,7 +458,8 @@ extension FirebaseChatService
                                    shouldIncrement: Bool) async throws
     {
         var data: [String: Any] = [:]
-        let counter = shouldIncrement ? counter : -counter
+        var counter = shouldIncrement ? counter : -counter
+        counter = max(0, counter)
         
         for id in participantsID
         {

@@ -64,7 +64,7 @@
 //MARK: - [8].
 /// When we don't posses the range of messages from the last paginated one, till the chat recent message,
 ///  then there is a gap of messages in our local db that needs to be fetched from remote db.
-/// So we need to dropLast (chat recent message) to not display it in caht and
+/// So we need to dropLast (chat recent message) to not display it in chat and
 /// fetch/paginate from remote db until we hit recent message to display
 
 //MARK: - [9].

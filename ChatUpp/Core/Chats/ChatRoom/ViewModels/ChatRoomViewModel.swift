@@ -829,7 +829,7 @@ extension ChatRoomViewModel
     func paginateAdditionalLocalMessages(ascending: Bool) -> Bool
     {
         guard conversation?.realm != nil else {return false} // if group chat that we are not member of is opened
-        
+        guard !shouldFetchNewMessages else {return false}
         var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
         let recentMessageIsPresent = paginatedMessages.contains(where: { $0.id == conversation?.recentMessageID })
         
