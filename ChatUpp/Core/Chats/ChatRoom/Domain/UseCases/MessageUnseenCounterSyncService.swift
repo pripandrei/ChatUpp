@@ -77,4 +77,25 @@ actor MessageUnseenCounterSyncService
             }
 //        }
     }
+    
+    func updateParticipantsUnseenCounterRemote(chat: ThreadSafe<Chat>) async
+    {
+        guard let chat = RealmDatabase.shared.resolveThreadSafeObject(threadSafeObject: chat) else {return}
+        
+        let currentUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        let otherUserIDs = Array(chat.participants
+            .map(\.userID)
+            .filter { $0 != currentUserID })
+
+        do {
+            try await FirebaseChatService.shared.updateUnreadMessageCount(
+                for: otherUserIDs,
+                inChatWithID: chat.id,
+                increment: true
+            )
+        } catch {
+            print("error on updating unseen message count for particiapnts: " , error)
+        }
+    }
+    
 }

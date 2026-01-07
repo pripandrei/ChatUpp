@@ -191,9 +191,13 @@ class ChatCell: UITableViewCell
     {
         switch message.type
         {
-        case .text, .title:
+        case .text:
             return NSAttributedString(string: message.messageBody)
 
+        case .title:
+            let name = "\(cellViewModel.authenticatedUser?.name ?? "")"
+            return NSAttributedString(string: "\(name) " + message.messageBody)
+            
         case .imageText:
             return attributedImageMessage(path: message.imagePath, text: message.messageBody)
 

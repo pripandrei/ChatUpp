@@ -252,21 +252,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         let text = GroupEventMessage.userJoined.eventMessage
         let newMessage = createNewMessage(ofType: .title, messageText: text)
-        
+         
         try await FirebaseChatService.shared.createMessage(message: newMessage,
                                                            atChatPath: conversation.id)
         await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: newMessage.id)
         
         let threadSafeChat = RealmDatabase.shared.makeThreadSafeObject(object: conversation)
-        await unseenMessageCounterUpdater.updateLocal(chat: threadSafeChat,
-                                                      authUserID: self.authUser.uid,
-                                                      numberOfUpdatedMessages: 1,
-                                                      increment: true)
-        
-        await unseenMessageCounterUpdater.updateRemote(chatID: conversation.id,
-                                                       authUserID: self.authUser.uid,
-                                                       numberOfUpdatedMessages: 1,
-                                                       increment: true)
+        await self.unseenMessageCounterUpdater.updateParticipantsUnseenCounterRemote(chat: threadSafeChat)
         
         var messages = getCurrentMessagesFromCluster()
         messages.insert(newMessage, at: 0)
@@ -278,6 +270,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         //Add new chat row
         ChatManager.shared.broadcastJoinedGroupChat(conversation)
+        await syncMessagesSeenStatus(startFrom: newMessage)
         addListeners()
     }
     
@@ -416,10 +409,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     func syncMessageWithFirestore(_ message: Message,
                                   imageRepository: ImageSampleRepository?)
     {
+        guard let chat = self.conversation else {return}
+        let threadSafeChat = RealmDatabase.shared.makeThreadSafeObject(object: chat)
+        
         Task.detached { [weak self] in
             
             guard let self else { return }
-            
+           
             await self.setupConversationTask?.value
             
             if let repo = imageRepository
@@ -434,8 +430,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             }
             
             await self.firestoreService?.addMessageToFirestoreDataBase(message)
-            await self.updateParticipantsUnseenMessageCounterRemote()
             await self.firestoreService?.updateRecentMessageFromFirestoreChat(messageID: message.id)
+            await self.unseenMessageCounterUpdater.updateParticipantsUnseenCounterRemote(chat: threadSafeChat)
         }
     }
 
@@ -453,26 +449,26 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     /// unseen messages counter update
     ///
     
-    @MainActor
-    private func updateParticipantsUnseenMessageCounterRemote() async
-    {
-        guard let chat = conversation else {return}
-        let currentUserID = AuthenticationManager.shared.authenticatedUser!.uid
-        let otherUserIDs = Array(chat.participants
-            .map(\.userID)
-            .filter { $0 != currentUserID })
-
-        do {
-            try await FirebaseChatService.shared.updateUnreadMessageCount(
-                for: otherUserIDs,
-                inChatWithID: chat.id,
-                increment: true
-            )
-        } catch {
-            print("error on updating unseen message count for particiapnts: " , error)
-        }
-    }
-    
+//    @MainActor
+//    private func updateParticipantsUnseenMessageCounterRemote() async
+//    {
+//        guard let chat = conversation else {return}
+//        let currentUserID = AuthenticationManager.shared.authenticatedUser!.uid
+//        let otherUserIDs = Array(chat.participants
+//            .map(\.userID)
+//            .filter { $0 != currentUserID })
+//
+//        do {
+//            try await FirebaseChatService.shared.updateUnreadMessageCount(
+//                for: otherUserIDs,
+//                inChatWithID: chat.id,
+//                increment: true
+//            )
+//        } catch {
+//            print("error on updating unseen message count for particiapnts: " , error)
+//        }
+//    }
+//    
     @MainActor
     func syncMessagesSeenStatus(startFrom message: Message) async
     {

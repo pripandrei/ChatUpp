@@ -43,7 +43,12 @@ class ChatCellViewModel
             }
         }
     }
-                 
+         
+    lazy var authenticatedUser: User? = {
+        guard let key = AuthenticationManager.shared.authenticatedUser?.uid else { return nil }
+        return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: key)
+    }()
+    
     private func addListenersToRecentMessage()
     {
         recentMessagesCancellables.forEach { cancellable in

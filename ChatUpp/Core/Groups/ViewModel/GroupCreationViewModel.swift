@@ -64,13 +64,14 @@ extension GroupCreationViewModel
     private func createMessage(text: String) -> Message
     {
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
+        
         return Message(
             id: UUID().uuidString,
             messageBody: text,
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: nil,
-            seenBy: nil,
+            seenBy: [authUserID : true],
             isEdited: false,
             imagePath: nil,
             imageSize: nil,
@@ -109,7 +110,7 @@ extension GroupCreationViewModel
         {
             let group = createGroup()
             self.groupID = group.id
-            
+             
             let message = createMessage(text: GroupEventMessage.created.eventMessage)
             
             RealmDatabase.shared.add(objects: self.selectedGroupMembers)

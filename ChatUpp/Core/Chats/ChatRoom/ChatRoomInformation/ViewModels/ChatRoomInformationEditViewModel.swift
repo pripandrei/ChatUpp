@@ -95,7 +95,7 @@ extension ChatRoomInformationEditViewModel
     @MainActor
     private func handleGroupChange(changeDescription: String) async throws
     {
-        let message = try await createMessage(text: "\(authenticatedUser?.name ?? "-") \(changeDescription)")
+        let message = try await createMessage(text: changeDescription)
         try await addMessageToDatabase(message)
         try await updateUnseenMessageCounterRemote()
         try await FirebaseChatService.shared.updateChatRecentMessage(
