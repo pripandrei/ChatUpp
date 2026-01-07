@@ -218,7 +218,7 @@ extension FirebaseChatService
 
 //MARK: update chat with batch
 extension FirebaseChatService
-{
+{ 
     func leaveChatGroup(withID groupID: String,
                         leavingParticipantID: String,
                         leavingMessage: Message,
@@ -254,7 +254,8 @@ extension FirebaseChatService
             let fieldPath = "participants.\(id).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
             unseenMessageCountData[fieldPath] = FieldValue.increment(Int64(1))
         }
-        batch.setData(unseenMessageCountData, forDocument: chatRef, merge: true)
+//        batch.setData(unseenMessageCountData, forDocument: chatRef, merge: true)
+        batch.updateData(unseenMessageCountData, forDocument: chatRef)
         
         /// update group recent message id
         ///
@@ -505,7 +506,7 @@ extension FirebaseChatService
     {
         let participant = "participants.\(participantID)"
 //        try await chatsCollection.document(chatID).updateData( [isDeletedField: true] )
-        try await chatDocument(documentPath: chatID).updateData( [participant: FieldValue.delete()] )
+        try await chatDocument(documentPath: chatID).updateData( [participant: FieldValue.delete()])
     }
     
     @MainActor   

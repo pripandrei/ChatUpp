@@ -86,7 +86,7 @@ extension GroupCreationViewModel
         let authenticatedUserID = try! AuthenticationManager.shared.getAuthenticatedUser().uid
         
         let selfParticipant = ChatParticipant(userID: authenticatedUserID, unseenMessageCount: 0)
-        var participants = self.selectedGroupMembers.map { ChatParticipant(userID: $0.id , unseenMessageCount: 0) }
+        var participants = self.selectedGroupMembers.map { ChatParticipant(userID: $0.id , unseenMessageCount: 1) }
         participants.append(selfParticipant)
         
         let group = Chat(id: UUID().uuidString,

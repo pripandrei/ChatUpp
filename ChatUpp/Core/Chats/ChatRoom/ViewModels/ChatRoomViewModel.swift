@@ -484,6 +484,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                                                                                  authUserID: authUserID,
                                                                                  isGroup: isGroup,
                                                                                  timestamp: timestamp)
+        guard updatedMessagesCount > 0 else {return}
         await unseenMessageCounterUpdater.updateLocal(chat: threadSafeChat2,
                                                       authUserID: authUserID,
                                                       numberOfUpdatedMessages: updatedMessagesCount,
