@@ -20,6 +20,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private(set) var messageListenerService: ConversationMessageListenerService?
     private(set) var remoteMessagePaginator: RemoteMessagePaginator?
     private(set) var datasourceUpdateType = PassthroughSubject<DatasourceRowAnimation, Never>()
+    private let messagesSeenStatusUpdater: MessagesSeenStatusUpdater = .init()
+    private let unseenMessageCounterUpdater: UserUnseenMessageCounterUpdater = .init()
     
     private(set) var conversation        : Chat?
     private(set) var participant         : User?
@@ -252,8 +254,17 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         try await FirebaseChatService.shared.createMessage(message: newMessage,
                                                            atChatPath: conversation.id)
         await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: newMessage.id)
+        
         updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: 1, increment: true)
-        updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: 1, increment: true)
+        await unseenMessageCounterUpdater.updateLocal(chatID: conversation.id,
+                                                      authUserID: self.authUser.uid,
+                                                      numberOfUpdatedMessages: 1,
+                                                      increment: true)
+        
+        await unseenMessageCounterUpdater.updateRemote(chatID: conversation.id,
+                                                       authUserID: self.authUser.uid,
+                                                       numberOfUpdatedMessages: 1,
+                                                       increment: true)
         
         var messages = getCurrentMessagesFromCluster()
         messages.insert(newMessage, at: 0)
@@ -473,112 +484,151 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         }
     }
     
-    @MainActor
-    func updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: Int, increment: Bool)
-    {
-        guard let conversationID = self.conversation?.id else { return }
-        let authUserID = self.authUser.uid
-        
-        Task.detached {
-            do {
-                try await FirebaseChatService.shared.updateUnseenMessagesCount(
-                    for: [authUserID],
-                    inChatWithID: conversationID,
-                    counter: numberOfUpdatedMessages,
-                    shouldIncrement: increment
-                )
-            } catch {
-                print("Error updating unseen messages counter remote: ", error)
-            }
-        }
-    }
-    
+//    @MainActor
+//    func updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: Int, increment: Bool)
+//    {
+//        guard let conversationID = self.conversation?.id else { return }
+//        let authUserID = self.authUser.uid
+//        
+//        Task.detached {
+//            do {
+//                try await FirebaseChatService.shared.updateUnseenMessagesCount(
+//                    for: [authUserID],
+//                    inChatWithID: conversationID,
+//                    counter: numberOfUpdatedMessages,
+//                    shouldIncrement: increment
+//                )
+//            } catch {
+//                print("Error updating unseen messages counter remote: ", error)
+//            }
+//        }
+//    }
+//    
     /// Message seen status update
     ///
-    @MainActor
-    func updateFirebaseMessagesSeenStatus(startingFrom startMessage: Message, limit: Int)
-    {
-        guard let chatID = conversation?.id else { return }
-        let authUserID = authUser.uid
-        let isGroup = conversation?.isGroup ?? false
-        let startMessageID = startMessage.id
-        
-        Task.detached
-        {
-            do {
-                try await FirebaseChatService
-                    .shared
-                    .updateMessagesSeenStatus(startFromMessageID: startMessageID,
-                                              seenByUser: isGroup ? authUserID : nil,
-                                              chatID: chatID,
-                                              limit: limit)
-            } catch {
-                print("Could not update messages seen status in firebase: ", error)
-            }
-        }
-    }
+//    @MainActor
+//    func updateFirebaseMessagesSeenStatus(startingFrom startMessage: Message, limit: Int)
+//    {
+//        guard let chatID = conversation?.id else { return }
+//        let authUserID = authUser.uid
+//        let isGroup = conversation?.isGroup ?? false
+//        let startMessageID = startMessage.id
+//        
+//        Task.detached
+//        {
+//            do {
+//                try await FirebaseChatService
+//                    .shared
+//                    .updateMessagesSeenStatus(startFromMessageID: startMessageID,
+//                                              seenByUser: isGroup ? authUserID : nil,
+//                                              chatID: chatID,
+//                                              limit: limit)
+//            } catch {
+//                print("Could not update messages seen status in firebase: ", error)
+//            }
+//        }
+//    }
     
-    @MainActor
-    func updateRealmMessagesSeenStatus(startingFromMessage message: Message) async -> Int
-    {
-        guard let chatID = conversation?.id else {return 0}
-        let authUserID = authUser.uid
-        let isGroup = conversation?.isGroup ?? false
-        let timestamp = message.timestamp
-        
-        return await Task.detached
-        {
-            guard let chat = RealmDatabase.shared.retrieveSingleObjectFromNewRalmInstance(
-                ofType: Chat.self,
-                primaryKey: chatID) else {
-                return 0
-            }
-            
-            var predicate: NSPredicate
-            
-            if isGroup
-            {
-                predicate = NSPredicate(format: "NONE seenBy CONTAINS %@ AND timestamp <= %@",
-                                        authUserID, timestamp as NSDate)
-            } else {
-                predicate = NSPredicate(format: "timestamp <= %@ AND messageSeen == false",
-                                        timestamp as NSDate)
-            }
-
-            let messages = chat.conversationMessages
-                .filter(predicate)
-                .sorted(byKeyPath: "timestamp", ascending: false)
-
-            var updateCount: Int = 0
-            
-            RealmDatabase.shared.update
-            {
-                for message in messages
-                {
-                    if message.messageSeen == true || message.seenBy.contains(authUserID) { break }
-                    
-                    if isGroup {
-                        message.seenBy.append(authUserID)
-                    } else {
-                        message.messageSeen = true
-                    }
-                    updateCount += 1
-                }
-            }
-            return updateCount
-        }.value
-    }
+//    @MainActor
+//    func updateRealmMessagesSeenStatus(startingFromMessage message: Message) async -> Int
+//    {
+//        guard let chatID = conversation?.id else {return 0}
+//        let authUserID = authUser.uid
+//        let isGroup = conversation?.isGroup ?? false
+//        let timestamp = message.timestamp
+//        
+//        return await messagesSeenStatusUpdater.updateLocally(chatID: chatID,
+//                                                             authUserID: authUserID,
+//                                                             isGroup: isGroup,
+//                                                             timestamp: timestamp)
+//    }
+    
+//    @MainActor
+//    func updateRealmMessagesSeenStatus(startingFromMessage message: Message) async -> Int
+//    {
+//        guard let chatID = conversation?.id else {return 0}
+//        let authUserID = authUser.uid
+//        let isGroup = conversation?.isGroup ?? false
+//        let timestamp = message.timestamp
+//        
+//        return await Task.detached
+//        {
+//            guard let chat = RealmDatabase.shared.retrieveSingleObjectFromNewRalmInstance(
+//                ofType: Chat.self,
+//                primaryKey: chatID) else {
+//                return 0
+//            }
+//            
+//            var predicate: NSPredicate
+//            
+//            if isGroup
+//            {
+//                predicate = NSPredicate(format: "NONE seenBy CONTAINS %@ AND timestamp <= %@",
+//                                        authUserID, timestamp as NSDate)
+//            } else {
+//                predicate = NSPredicate(format: "timestamp <= %@ AND messageSeen == false",
+//                                        timestamp as NSDate)
+//            }
+//
+//            let messages = chat.conversationMessages
+//                .filter(predicate)
+//                .sorted(byKeyPath: "timestamp", ascending: false)
+//
+//            var updateCount: Int = 0
+//            
+//            RealmDatabase.shared.update
+//            {
+//                for message in messages
+//                {
+//                    if message.messageSeen == true || message.seenBy.contains(authUserID) { break }
+//                    
+//                    if isGroup {
+//                        message.seenBy.append(authUserID)
+//                    } else {
+//                        message.messageSeen = true
+//                    }
+//                    updateCount += 1
+//                }
+//            }
+//            return updateCount
+//        }.value
+//    }
     
     @MainActor
     func syncMessagesSeenStatus(startFrom message: Message) async
     {
-        let updatedMessagesCount = await updateRealmMessagesSeenStatus(startingFromMessage: message)
-        updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: updatedMessagesCount,
-                                                           increment: false)
-        updateFirebaseMessagesSeenStatus(startingFrom: message, limit: updatedMessagesCount)
-        updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: updatedMessagesCount,
-                                                    increment: false)
+        guard let chatID = conversation?.id else {return}
+        let authUserID = authUser.uid
+        let isGroup = conversation?.isGroup ?? false
+        let timestamp = message.timestamp
+        
+        let updatedMessagesCount = await messagesSeenStatusUpdater.updateLocally(chatID: chatID,
+                                                                                  authUserID: authUserID,
+                                                                                  isGroup: isGroup,
+                                                                                 timestamp: timestamp)
+        await unseenMessageCounterUpdater.updateLocal(chatID: chatID,
+                                                      authUserID: authUserID,
+                                                      numberOfUpdatedMessages: updatedMessagesCount,
+                                                      increment: false)
+        await messagesSeenStatusUpdater.updateRemote(startingFrom: message.id,
+                                                     chatID: chatID,
+                                                     seenByUser: isGroup ? authUserID : nil,
+                                                     limit: updatedMessagesCount)
+        await unseenMessageCounterUpdater.updateRemote(chatID: chatID,
+                                                       authUserID: authUserID,
+                                                       numberOfUpdatedMessages: updatedMessagesCount,
+                                                       increment: false)
     }
+    
+//    func syncMessagesSeenStatus(startFrom message: Message) async
+//    {
+//        let updatedMessagesCount = await updateRealmMessagesSeenStatus(startingFromMessage: message)
+//        await updateUnseenMessageCounterForAuthUserLocally(numberOfUpdatedMessages: updatedMessagesCount,
+//                                                           increment: false)
+//        await updateFirebaseMessagesSeenStatus(startingFrom: message, limit: updatedMessagesCount)
+//        await updateUnseenMessageCounterForAuthUserRemote(numberOfUpdatedMessages: updatedMessagesCount,
+//                                                          increment: false)
+//    }
     
     /// - unseen message manage
     ///
