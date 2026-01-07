@@ -241,6 +241,7 @@ final class ChatRoomViewController: UIViewController
             }.store(in: &subscriptions)
         
         viewModel.$unseenMessagesCount
+//            .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] unseenCount in
                 self?.rootView.unseenMessagesBadge.unseenCount = unseenCount
@@ -1361,7 +1362,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
         }
 
         /// fire updates every > 0.3 time
-        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.3
+        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.1
         {
             self.lastSeenStatusCheckUpdate = Date()
             

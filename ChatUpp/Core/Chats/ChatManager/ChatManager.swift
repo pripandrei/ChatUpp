@@ -16,6 +16,11 @@ final class ChatManager
     private init() {}
     
     @Published private(set) var totalUnseenMessageCount: Int = 0
+    {
+        didSet {
+            print("ChatManager total count: \(totalUnseenMessageCount)")
+        }
+    }
     @Published private(set) var newCreatedChat: Chat?
 //    @Published private(set) var newCreatedMessage: Message?
     @Published private(set) var joinedGroupChat: Chat?

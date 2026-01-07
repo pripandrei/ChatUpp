@@ -117,6 +117,7 @@ class ChatsViewController: UIViewController {
             }.store(in: &subscriptions)
         
         ChatManager.shared.$totalUnseenMessageCount
+//            .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] count in
                 self?.navigationItem.backBarButtonItem?.title = count > 0 ? "\(count)" : nil

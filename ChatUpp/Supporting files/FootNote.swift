@@ -50,6 +50,7 @@
 /// We can't rely on this behavior so we introduce our own removed messages checker,
 /// which will compare messages from local db with those from remote db,
 /// and remove those that are not present in remote but are in local.
+/// FIREBASE YOU CAN DO BETTER !!!!
 
 //MARK: - [7].
 /// If unseen messages count from realm are equal to that from firebase,

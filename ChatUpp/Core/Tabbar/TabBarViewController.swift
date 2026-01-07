@@ -122,6 +122,7 @@ extension TabBarViewController
     private func setBindings()
     {
         ChatManager.shared.$totalUnseenMessageCount
+//            .debounce(for: 0.3, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] count in
                 guard let tabItem = self?.tabBar.items?.first else { return }

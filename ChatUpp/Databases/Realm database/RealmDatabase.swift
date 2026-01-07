@@ -10,6 +10,7 @@ import RealmSwift
 import Realm
 import Combine
 
+typealias ThreadSafe = ThreadSafeReference
 
 final class RealmDatabase
 {
