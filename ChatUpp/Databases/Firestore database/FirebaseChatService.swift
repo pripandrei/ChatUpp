@@ -296,6 +296,8 @@ extension FirebaseChatService
                                   limit: Int
     ) async throws
     {
+        guard limit > 0 else { return }
+        
         var shouldContinue = true
         var lastDoc: QueryDocumentSnapshot?
         
@@ -1438,4 +1440,9 @@ extension FirebaseChatService
 enum MessageFetchError: Error
 {
     case notFound
+}
+
+enum ChatUnwrappingError: Error
+{
+    case chatIsNil
 }

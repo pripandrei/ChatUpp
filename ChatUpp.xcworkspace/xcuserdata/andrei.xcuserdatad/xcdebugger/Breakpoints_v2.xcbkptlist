@@ -7,129 +7,7 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "3F429C8E-6329-4BB4-8332-795AD62D5D80"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "150"
-            endingLineNumber = "150"
-            landmarkName = "init(conversation:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "DDC07999-7F34-42D2-950A-B19358FEC4C5"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "273"
-            endingLineNumber = "273"
-            landmarkName = "joinGroup()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "DDC07999-7F34-42D2-950A-B19358FEC4C5 - a08cbac285a6955"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(9) suspend resume partial function for ChatUpp.ChatRoomViewModel.joinGroup() async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "273"
-                  endingLineNumber = "273">
-               </Location>
-               <Location
-                  uuid = "DDC07999-7F34-42D2-950A-B19358FEC4C5 - bc2d6fb07e8733ce"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(10) await resume partial function for ChatUpp.ChatRoomViewModel.joinGroup() async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "273"
-                  endingLineNumber = "273">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "2E2BB5FC-0B41-4412-B407-69039EE585BE"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "256"
-            endingLineNumber = "256"
-            landmarkName = "joinGroup()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "2E2BB5FC-0B41-4412-B407-69039EE585BE - 38f2d2c0cd72ccf2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for ChatUpp.ChatRoomViewModel.joinGroup() async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "256"
-                  endingLineNumber = "256">
-               </Location>
-               <Location
-                  uuid = "2E2BB5FC-0B41-4412-B407-69039EE585BE - f6e21104dd83786b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) await resume partial function for ChatUpp.ChatRoomViewModel.joinGroup() async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "256"
-                  endingLineNumber = "256">
-               </Location>
-               <Location
-                  uuid = "2E2BB5FC-0B41-4412-B407-69039EE585BE - 6c16d1d2be1503f3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(13) suspend resume partial function for ChatUpp.ChatRoomViewModel.joinGroup() async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "256"
-                  endingLineNumber = "256">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "0FD0FBA2-85F8-4945-978E-3028EB1814C2"
+            uuid = "A0E11B80-4385-4521-B48C-79C69917DA47"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
@@ -140,96 +18,36 @@
             endingLineNumber = "483"
             landmarkName = "syncMessagesSeenStatus(startFrom:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "0FD0FBA2-85F8-4945-978E-3028EB1814C2 - e9f55bb76686d4cd"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for ChatUpp.ChatRoomViewModel.syncMessagesSeenStatus(startFrom: ChatUpp.Message) async -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "483"
-                  endingLineNumber = "483">
-               </Location>
-               <Location
-                  uuid = "0FD0FBA2-85F8-4945-978E-3028EB1814C2 - 14d130c293a045f7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(2) await resume partial function for ChatUpp.ChatRoomViewModel.syncMessagesSeenStatus(startFrom: ChatUpp.Message) async -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "483"
-                  endingLineNumber = "483">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "43770FE8-C70F-4AD0-9B26-C92F3D457F28"
+            uuid = "401B4E13-248A-465A-8BF2-D0683BDA7948"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "488"
-            endingLineNumber = "488"
+            startingLineNumber = "491"
+            endingLineNumber = "491"
             landmarkName = "syncMessagesSeenStatus(startFrom:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "43770FE8-C70F-4AD0-9B26-C92F3D457F28 - 5a6743f02af55c0c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for ChatUpp.ChatRoomViewModel.syncMessagesSeenStatus(startFrom: ChatUpp.Message) async -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "488"
-                  endingLineNumber = "488">
-               </Location>
-               <Location
-                  uuid = "43770FE8-C70F-4AD0-9B26-C92F3D457F28 - 6b0c6bfebdc98928"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) await resume partial function for ChatUpp.ChatRoomViewModel.syncMessagesSeenStatus(startFrom: ChatUpp.Message) async -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "488"
-                  endingLineNumber = "488">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "DC641562-B617-4F61-BD79-C56930CC5138"
+            uuid = "9B3EF2E1-0127-4E3A-B59A-A72BFA771EF1"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/View/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "718"
-            endingLineNumber = "718"
+            startingLineNumber = "716"
+            endingLineNumber = "716"
             landmarkName = "updateMessageSeenStatusIfNeeded()"
             landmarkType = "7">
          </BreakpointContent>
@@ -237,200 +55,112 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9AAF467D-45F4-431D-88CB-B8D55BCEA887"
+            uuid = "A0C38F86-884F-4C61-96EC-59BCA196B171"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/View/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "302"
-            endingLineNumber = "302"
-            landmarkName = "updateMessagesSeenStatus(startFromMessageID:seenByUser:chatID:limit:)"
+            startingLineNumber = "707"
+            endingLineNumber = "707"
+            landmarkName = "updateMessageSeenStatusIfNeeded()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "346B8D5B-1E38-4CDA-88B1-365A9D5B78D3"
+            uuid = "F9C26F02-AF31-4A46-9901-B1B8C67CAECB"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/View/ChatRoomViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "334"
-            endingLineNumber = "334"
-            landmarkName = "updateMessagesSeenStatus(startFromMessageID:seenByUser:chatID:limit:)"
+            startingLineNumber = "752"
+            endingLineNumber = "752"
+            landmarkName = "checkIfMessageWasSeen(at:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "934FBB23-8D39-4CDB-8510-F17E1DEC379A"
+            uuid = "B3858146-62FF-45DD-8C2A-245B37F728E3"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "328"
-            endingLineNumber = "328"
-            landmarkName = "updateMessagesSeenStatus(startFromMessageID:seenByUser:chatID:limit:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "934FBB23-8D39-4CDB-8510-F17E1DEC379A - e749c10294aa40e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(3) suspend resume partial function for ChatUpp.FirebaseChatService.updateMessagesSeenStatus(startFromMessageID: Swift.String, seenByUser: Swift.Optional&lt;Swift.String&gt;, chatID: Swift.String, limit: Swift.Int) async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Databases/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "328"
-                  endingLineNumber = "328">
-               </Location>
-               <Location
-                  uuid = "934FBB23-8D39-4CDB-8510-F17E1DEC379A - d6264ba6fdd8e108"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) await resume partial function for ChatUpp.FirebaseChatService.updateMessagesSeenStatus(startFromMessageID: Swift.String, seenByUser: Swift.Optional&lt;Swift.String&gt;, chatID: Swift.String, limit: Swift.Int) async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Databases/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "328"
-                  endingLineNumber = "328">
-               </Location>
-               <Location
-                  uuid = "934FBB23-8D39-4CDB-8510-F17E1DEC379A - b49bffce1c160010"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(5) suspend resume partial function for ChatUpp.FirebaseChatService.updateMessagesSeenStatus(startFromMessageID: Swift.String, seenByUser: Swift.Optional&lt;Swift.String&gt;, chatID: Swift.String, limit: Swift.Int) async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Databases/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "328"
-                  endingLineNumber = "328">
-               </Location>
-               <Location
-                  uuid = "934FBB23-8D39-4CDB-8510-F17E1DEC379A - 232ac28c70f5ede2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(7) suspend resume partial function for ChatUpp.FirebaseChatService.updateMessagesSeenStatus(startFromMessageID: Swift.String, seenByUser: Swift.Optional&lt;Swift.String&gt;, chatID: Swift.String, limit: Swift.Int) async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Databases/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "328"
-                  endingLineNumber = "328">
-               </Location>
-               <Location
-                  uuid = "934FBB23-8D39-4CDB-8510-F17E1DEC379A - 49ba244aa75149f4"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(9) suspend resume partial function for ChatUpp.FirebaseChatService.updateMessagesSeenStatus(startFromMessageID: Swift.String, seenByUser: Swift.Optional&lt;Swift.String&gt;, chatID: Swift.String, limit: Swift.Int) async throws -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Databases/Firestore%20database/FirebaseChatService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "328"
-                  endingLineNumber = "328">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "0E0D818D-AA35-4688-8C15-4435F0792E19"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "329"
-            endingLineNumber = "329"
-            landmarkName = "updateMessagesSeenStatus(startFromMessageID:seenByUser:chatID:limit:)"
+            startingLineNumber = "505"
+            endingLineNumber = "505"
+            landmarkName = "updateMessagesUnseenCounter(numberOfUpdatedMessages:increment:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "E5B85611-F074-467D-9242-8974524F4808"
+            uuid = "2766B857-7A65-4BD3-AE3F-F3BDB5703A06"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "343"
-            endingLineNumber = "343"
-            landmarkName = "updateMessagesSeenStatus(startFromMessageID:seenByUser:chatID:limit:)"
+            startingLineNumber = "509"
+            endingLineNumber = "509"
+            landmarkName = "updateMessagesUnseenCounter(numberOfUpdatedMessages:increment:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "78DCD474-688E-4A4E-ACF4-5C332A6EBACD"
+            uuid = "33E0B2A3-9F7F-468D-BD96-1754B54179CF"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/ViewModels/ChatRoomViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "349"
-            endingLineNumber = "349"
-            landmarkName = "updateMessagesSeenStatus(startFromMessageID:seenByUser:chatID:limit:)"
+            startingLineNumber = "513"
+            endingLineNumber = "513"
+            landmarkName = "updateMessagesUnseenCounter(numberOfUpdatedMessages:increment:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C19BBBA4-BC7E-403C-AC57-EF6F75C3001E"
+            uuid = "7B0CEDA5-FECA-4616-9A1E-A7DD532690EA"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Domain/UseCases/MessageUnseenCounterSyncService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "364"
-            endingLineNumber = "364"
-            landmarkName = "updateMessagesSeenStatus(startFromMessageID:seenByUser:chatID:limit:)"
+            startingLineNumber = "36"
+            endingLineNumber = "36"
+            landmarkName = "updateLocal(chat:userID:numberOfUpdatedMessages:increment:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "60BBCA1B-F6C4-41B6-850B-E5690FC164C6"
+            uuid = "D9903A26-38C1-4940-850E-48C3938A2DA1"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Databases/Firestore database/FirebaseChatService.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Domain/UseCases/MessageUnseenCounterSyncService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "262"
-            endingLineNumber = "262"
-            landmarkName = "leaveChatGroup(withID:leavingParticipantID:leavingMessage:participantsToUpdate:)"
+            startingLineNumber = "19"
+            endingLineNumber = "19"
+            landmarkName = "updateLocal(chat:userID:numberOfUpdatedMessages:increment:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

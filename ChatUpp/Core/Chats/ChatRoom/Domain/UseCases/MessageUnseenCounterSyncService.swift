@@ -12,12 +12,13 @@ actor MessageUnseenCounterSyncService
     private var remoteUpdateTask: Task<Void, Never>?
     
     func updateLocal(chat: ThreadSafe<Chat>,
-                     authUserID: String,
+                     userID: String,
                      numberOfUpdatedMessages: Int,
                      increment: Bool) async
     {
-        let delta = increment ? numberOfUpdatedMessages : -numberOfUpdatedMessages
-        self.unseenMessagesCount = max(0, unseenMessagesCount + delta)
+//        let delta = increment ? numberOfUpdatedMessages : -numberOfUpdatedMessages
+//        self.unseenMessagesCount = max(0, unseenMessagesCount + delta)
+        self.unseenMessagesCount += numberOfUpdatedMessages
         
         await MainActor.run
         {
@@ -25,7 +26,7 @@ actor MessageUnseenCounterSyncService
 
             RealmDatabase.shared.update(object: chat)
             { dbChat in
-                if let participant = dbChat.getParticipant(byID: authUserID)
+                if let participant = dbChat.getParticipant(byID: userID)
                 {
                     let updatedCount = increment ?
                     participant.unseenMessagesCount + numberOfUpdatedMessages
@@ -39,7 +40,7 @@ actor MessageUnseenCounterSyncService
     }
   
     func scheduleRemoteUpdate(chatID: String,
-                              authUserID: String,
+                              userID: String,
                               increment: Bool) async
     {
         remoteUpdateTask?.cancel()
@@ -51,15 +52,15 @@ actor MessageUnseenCounterSyncService
             guard !Task.isCancelled else { return }
             
             await self.updateRemote(chatID: chatID,
-                              authUserID: authUserID,
-                              numberOfUpdatedMessages: self.unseenMessagesCount,
-                              increment: increment)
+                                    userID: userID,
+                                    numberOfUpdatedMessages: self.unseenMessagesCount,
+                                    increment: increment)
             self.unseenMessagesCount = 0
         }
     }
     
     func updateRemote(chatID: String,
-                      authUserID: String,
+                      userID: String,
                       numberOfUpdatedMessages: Int,
                       increment: Bool) async
     {
@@ -67,7 +68,7 @@ actor MessageUnseenCounterSyncService
 //        {
             do {
                 try await FirebaseChatService.shared.updateUnseenMessagesCount(
-                    for: [authUserID],
+                    for: [userID],
                     inChatWithID: chatID,
                     counter: numberOfUpdatedMessages,
                     shouldIncrement: increment

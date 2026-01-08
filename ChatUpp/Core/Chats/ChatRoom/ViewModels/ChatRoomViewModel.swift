@@ -363,13 +363,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         realmService?.addMessagesToRealmChat([message])
         let threadSafeChat = RealmDatabase.shared.makeThreadSafeObject(object: chat)
-        Task
-        {
-            await unseenMessageCounterUpdater.updateLocal(chat: threadSafeChat,
-                                                          authUserID: self.authUser.uid,
-                                                          numberOfUpdatedMessages: 1,
-                                                          increment: true)
-        }
         createMessageClustersWith([message])
         return message
     }
@@ -468,33 +461,57 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 //            print("error on updating unseen message count for particiapnts: " , error)
 //        }
 //    }
-//    
+//
+    
     @MainActor
-    func syncMessagesSeenStatus(startFrom message: Message) async
+    func performMessagesSeenStatusProcess(startFrom message: Message,
+                                          includingUnseenCounterUpdate: Bool) async
     {
-        guard let chat = conversation else { return }
         
-        let authUserID = authUser.uid
+    }
+    
+    @MainActor
+    @discardableResult
+    func syncMessagesSeenStatus(startFrom message: Message) async -> Result<Int, Error>
+    {
+        guard let chat = conversation else { return .failure(ChatUnwrappingError.chatIsNil) }
+        
         let isGroup = conversation?.isGroup ?? false
-        let timestamp = message.timestamp
         let threadSafeChat = RealmDatabase.shared.makeThreadSafeObject(object: chat)
-        let threadSafeChat2 = RealmDatabase.shared.makeThreadSafeObject(object: chat)
-        
+//        let threadSafeChat2 = RealmDatabase.shared.makeThreadSafeObject(object: chat)
+          
         let updatedMessagesCount = await messagesSeenStatusUpdater.updateLocally(chat: threadSafeChat,
-                                                                                 authUserID: authUserID,
+                                                                                 authUserID: authUser.uid,
                                                                                  isGroup: isGroup,
-                                                                                 timestamp: timestamp)
-        guard updatedMessagesCount > 0 else {return}
-        await unseenMessageCounterUpdater.updateLocal(chat: threadSafeChat2,
-                                                      authUserID: authUserID,
-                                                      numberOfUpdatedMessages: updatedMessagesCount,
-                                                      increment: false)
+                                                                                 timestamp: message.timestamp)
+//        await unseenMessageCounterUpdater.updateLocal(chat: threadSafeChat2,
+//                                                      userID: authUser.uid,
+//                                                      numberOfUpdatedMessages: updatedMessagesCount,
+//                                                      increment: false)
         await messagesSeenStatusUpdater.updateRemote(startingFrom: message.id,
                                                      chatID: chat.id,
-                                                     seenByUser: isGroup ? authUserID : nil,
+                                                     seenByUser: isGroup ? authUser.uid : nil,
                                                      limit: updatedMessagesCount)
+//        await unseenMessageCounterUpdater.scheduleRemoteUpdate(chatID: chat.id,
+//                                                               authUserID: authUser.uid,
+//                                                               increment: false)
+        return .success(updatedMessagesCount)
+    }
+    
+    @MainActor
+    func updateMessagesUnseenCounter(numberOfUpdatedMessages: Int,
+                                     increment: Bool) async
+    {
+        guard let chat = conversation,
+              numberOfUpdatedMessages > 0 else { return }
+        let threadSafeChat = RealmDatabase.shared.makeThreadSafeObject(object: chat)
+        
+        await unseenMessageCounterUpdater.updateLocal(chat: threadSafeChat,
+                                                      userID: authUser.uid,
+                                                      numberOfUpdatedMessages: numberOfUpdatedMessages,
+                                                      increment: false)
         await unseenMessageCounterUpdater.scheduleRemoteUpdate(chatID: chat.id,
-                                                               authUserID: authUserID,
+                                                               userID: authUser.uid,
                                                                increment: false)
     }
     

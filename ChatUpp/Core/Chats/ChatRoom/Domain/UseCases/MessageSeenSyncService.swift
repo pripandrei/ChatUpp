@@ -57,6 +57,7 @@ actor MessageSeenSyncService
                       seenByUser: String?,
                       limit: Int)
     {
+        guard limit > 0 else {return}
         Task
         {
             do {

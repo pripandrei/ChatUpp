@@ -718,7 +718,15 @@ extension ChatRoomViewController
         if let unseenMessage
         {
             Task {
-                await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
+                let updateResult = await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
+                
+                switch updateResult
+                {
+                case .success(let updatedMessagesCount):
+                    await viewModel.updateMessagesUnseenCounter(numberOfUpdatedMessages: updatedMessagesCount,
+                                                                increment: false)
+                default: break
+                }
                 
                 await MainActor.run {
                     if indexToProcess == self.pendingIndexPathForSeenStatusCheck
