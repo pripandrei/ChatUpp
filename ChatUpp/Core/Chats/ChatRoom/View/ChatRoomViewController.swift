@@ -706,12 +706,9 @@ extension ChatRoomViewController
 {
     private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
     {
-        if messageIndexPath == pendingIndexPathForSeenStatusCheck
-        {
-            return
-        }
+        if messageIndexPath == pendingIndexPathForSeenStatusCheck { return }
         pendingIndexPathForSeenStatusCheck = messageIndexPath
-//        guard let indexToProcess = pendingIndexPathForSeenStatusCheck else { return }
+        
         guard messageIndexPath.row < rootView.tableView.numberOfRows(inSection: messageIndexPath.section),
               messageIndexPath.row < self.viewModel.messageClusters[messageIndexPath.section].items.count,
               !checkIfMessageWasSeen(at: messageIndexPath)
@@ -1442,12 +1439,10 @@ extension ChatRoomViewController
             {
                 // Pick the first smaller fully visible index if it exists
                 if firstVisible < pending {
-//                    pendingIndexPathForSeenStatusCheck = firstVisible
                     return pending
                 }
             } else {
                 // No pending → just take the first fully visible
-//                pendingIndexPathForSeenStatusCheck = firstVisible
                 return firstVisible
             }
         }

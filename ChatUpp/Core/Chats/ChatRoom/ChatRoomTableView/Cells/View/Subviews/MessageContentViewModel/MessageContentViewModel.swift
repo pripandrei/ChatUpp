@@ -205,9 +205,9 @@ extension MessageContentViewModel
                 case .changed(object: let object, property: let properties):
                     properties.forEach { property in
                         
-                        guard let property = MessageObservedProperty(from: property.name,
+                        guard let messageProperty = MessageObservedProperty(from: property.name,
                                                                      newValue: property.newValue) else {return}
-                        self.messagePropertyUpdateSubject.send(property)
+                        self.messagePropertyUpdateSubject.send(messageProperty)
                     }
                 default: break
                 }

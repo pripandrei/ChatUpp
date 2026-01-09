@@ -164,9 +164,11 @@ extension ChatsViewModel
     private func updateRealmChat(_ realmChat: Chat, with firestoreChat: Chat)
     {
         RealmDatabase.shared.update(object: realmChat) { realmDB in
-            realmDB.recentMessageID = firestoreChat.recentMessageID
-            realmDB.name = firestoreChat.name
-            realmDB.thumbnailURL = firestoreChat.thumbnailURL
+            
+            if realmDB.recentMessageID != firestoreChat.recentMessageID { realmDB.recentMessageID = firestoreChat.recentMessageID }
+            if realmDB.name != firestoreChat.name { realmDB.name = firestoreChat.name }
+            if realmDB.thumbnailURL != firestoreChat.thumbnailURL { realmDB.thumbnailURL = firestoreChat.thumbnailURL }
+            
             realmDB.admins = firestoreChat.admins
             
             for incoming in firestoreChat.participants {

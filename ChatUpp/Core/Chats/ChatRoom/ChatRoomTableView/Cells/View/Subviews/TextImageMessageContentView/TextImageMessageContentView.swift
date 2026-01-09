@@ -98,15 +98,6 @@ extension TextImageMessageContentView
                 self?.configureMessageImage(image)
             }).store(in: &subscribers)
 
-//        viewModel.$message
-//            .dropFirst()
-//            .receive(on: DispatchQueue.main)
-//            .compactMap({ $0 })
-//            .sink { [weak self] message in
-//                if message.isInvalidated { return }
-//                self?.updateMessage(message)
-//            }.store(in: &subscribers)
-//        
         viewModel.messagePropertyUpdateSubject
             .receive(on: DispatchQueue.main)
             .sink { [weak self] propery in
@@ -532,7 +523,7 @@ extension TextImageMessageContentView
             case .isEdited:
                 self.messageComponentsView.updateEditedLabel()
                 self.handleMessageLayout()
-            case .messageSeen:
+            case .messageSeen, .seenBy:
                 self.messageComponentsView.messageComponentsStackView.setNeedsLayout()
                 self.messageComponentsView.configureMessageSeenStatus()
                 

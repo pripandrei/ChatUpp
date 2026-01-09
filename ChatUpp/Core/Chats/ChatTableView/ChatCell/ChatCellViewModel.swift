@@ -543,7 +543,7 @@ extension ChatCellViewModel
             startAtMessageWithID: recentMessage.id,
             messageTimestamp: recentMessage.timestamp,
             ascending: true,
-            limit: 1)
+            limit: 1) 
         .receive(on: DispatchQueue.main)
         .sink { [weak self] changeObjects in
             
