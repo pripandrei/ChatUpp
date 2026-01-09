@@ -18,7 +18,7 @@ final class ChatManager
     @Published private(set) var totalUnseenMessageCount: Int = 0
     {
         didSet {
-            print("ChatManager total count: \(totalUnseenMessageCount)")
+//            print("ChatManager total count: \(totalUnseenMessageCount)")
         }
     }
     @Published private(set) var newCreatedChat: Chat?

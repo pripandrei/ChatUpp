@@ -740,21 +740,21 @@ extension ChatRoomViewController
         Task {
             let updateResult = await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
 
-            if case .success(let updatedMessagesCount) = updateResult {
-                await viewModel.updateMessagesUnseenCounter(
-                    numberOfUpdatedMessages: updatedMessagesCount,
-                    increment: false
-                )
+//            if case .success(let updatedMessagesCount) = updateResult {
+//                await viewModel.updateMessagesUnseenCounter(
+//                    numberOfUpdatedMessages: updatedMessagesCount,
+//                    increment: false
+//                )
                 await MainActor.run {
                     if messageIndexPath == self.pendingIndexPathForSeenStatusCheck
                     {
                         self.pendingIndexPathForSeenStatusCheck = nil
-                        print("Did set pendingIndexPathForSeenStatusCheck to nil")
+//                        print("Did set pendingIndexPathForSeenStatusCheck to nil")
                     } else {
                         print("did not update index, current pendingIndexPathForSeenStatusCheck: ", pendingIndexPathForSeenStatusCheck, "was: ", messageIndexPath)
                     }
                 }
-            }
+//            }
         }
     }
 

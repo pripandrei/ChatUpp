@@ -13,7 +13,7 @@ actor MessageSeenSyncService
     func updateLocally(chat: ThreadSafe<Chat>,
                        authUserID: String,
                        isGroup: Bool,
-                       timestamp: Date) async -> Int
+                       timestamp: Date)  -> Int
     {
         guard let chat = RealmDatabase.shared.resolveThreadSafeObject(threadSafeObject: chat) else
         { return 0 }

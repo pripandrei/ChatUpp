@@ -336,7 +336,7 @@ extension FirebaseChatService
             
             for (index, doc) in snapshot.documents.enumerated()
             {
-                print("doc index: ", index)
+//                print("doc index: ", index)
                 if let userID = userID      // for group update
                 {
                     // Filter client-side. This is bad, but i dont have time to refactor
