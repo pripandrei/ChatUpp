@@ -51,9 +51,10 @@ class ChatCellViewModel
     
     private func addListenersToRecentMessage()
     {
-        recentMessagesCancellables.forEach { cancellable in
-            cancellable.cancel()
-        }
+//        recentMessagesCancellables.forEach { cancellable in
+//            cancellable.cancel()
+//        }
+        recentMessagesCancellables.removeAll()
         self.observeRealmRecentMessage()
         Task {
             do {
@@ -564,10 +565,12 @@ extension ChatCellViewModel
                     self?.recentMessage = changeObject.data
                 }
             }
-            if changeObject.changeType == .removed {
+            if changeObject.changeType == .removed
+            {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    guard let message = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self, primaryKey: changeObject.data.id) else {return}
-                    RealmDatabase.shared.delete(objects: [message])                    
+                    guard let message = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self,
+                                                                                  primaryKey: changeObject.data.id) else {return}
+                    RealmDatabase.shared.delete(objects: [message])
                 }
             }
         }.store(in: &recentMessagesCancellables)
@@ -581,7 +584,8 @@ extension ChatCellViewModel
             .receive(on: DispatchQueue.main)
             .sink { [weak self] propertyChange in
                 guard let self = self else { return }
-                guard let property = MessageObservedProperty(from: propertyChange.0.name) else { return }
+                guard let property = MessageObservedProperty(from: propertyChange.0.name,
+                                                             newValue: propertyChange.0.newValue) else { return }
                 guard let message = self.recentMessage else { return }
                 
                 switch property
@@ -589,9 +593,8 @@ extension ChatCellViewModel
                 case .imagePath:
                     guard let _ = propertyChange.0.newValue as? String else { return }
                     Task { await self.performMessageImageUpdate(message) }
-                case .messageSeen:
+                case .messageSeen, .seenBy, .messageBody(_), .isEdited:
                     self.recentMessage = propertyChange.1 as? Message
-                default: break
                 }
                 
             }.store(in: &recentMessagesCancellables)

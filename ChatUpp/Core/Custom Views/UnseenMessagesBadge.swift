@@ -13,7 +13,7 @@ class UnseenMessagesBadge: UILabel
     
     var unseenCount: Int = 0 {
         didSet {
-            updateBadge()
+//            updateBadge()
         }
     }
     
@@ -36,15 +36,23 @@ class UnseenMessagesBadge: UILabel
         invalidateIntrinsicContentSize()
     }
 
-    private func updateBadge()
+//    private func updateBadge()
+//    {
+//        guard unseenCount != 0 else {
+//            UIView.animate(withDuration: 0.3, delay: 0.0) { self.layer.opacity = 0.0 }
+//            return
+//        }
+//        
+//        UIView.animate(withDuration: 0.3, delay: 0.0) { self.layer.opacity = 1.0 }
+//        
+//        self.text = "\(self.unseenCount)"
+//        self.layoutIfNeeded()
+//    }
+    
+    func updateBadge(_ value: Int)
     {
-        guard unseenCount != 0 else {
-            UIView.animate(withDuration: 0.3, delay: 0.0) { self.layer.opacity = 0.0 }
-            return
-        }
-        
-        UIView.animate(withDuration: 0.3, delay: 0.0) { self.layer.opacity = 1.0 }
-        
+        print("counter now",unseenCount + value)
+        self.unseenCount = max(0, unseenCount + value)
         self.text = "\(self.unseenCount)"
         self.layoutIfNeeded()
     }

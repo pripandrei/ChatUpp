@@ -359,7 +359,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                               text: String?,
                               media: MessageMediaContent?) -> Message
     {
-        guard let chat = conversation else { return .init() }
+        guard let _ = conversation else { return .init() }
         let message = createNewMessage(ofType: type,
                                        messageText: text,
                                        mediaParameters: media)
@@ -451,14 +451,20 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         guard let chat = conversation,
               numberOfUpdatedMessages > 0 else { return }
         let threadSafeChat = RealmDatabase.shared.makeThreadSafeObject(object: chat)
+
+        /// 1. local unread decrement (Realm)
+        await unseenMessageCounterUpdater.updateLocal(
+            chat: threadSafeChat,
+            userID: authUser.uid,
+            delta: -numberOfUpdatedMessages
+        )
         
-//        await unseenMessageCounterUpdater.updateLocal(chat: threadSafeChat,
-//                                                      userID: authUser.uid,
-//                                                      numberOfUpdatedMessages: numberOfUpdatedMessages,
-//                                                      increment: false)
-//        await unseenMessageCounterUpdater.scheduleRemoteUpdate(chatID: chat.id,
-//                                                               userID: authUser.uid,
-//                                                               increment: false)
+        // 2. remote unread update
+        await unseenMessageCounterUpdater.scheduleRemoteUpdate(
+            chatID: chat.id,
+            userID: authUser.uid,
+            delta: -numberOfUpdatedMessages
+        )
     }
     
     /// update unseen messages
@@ -474,9 +480,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let isGroup = chat.isGroup
 
         let threadSafeChat1 = RealmDatabase.shared.makeThreadSafeObject(object: chat)
-        let threadSafeChat2 = RealmDatabase.shared.makeThreadSafeObject(object: chat)
+//        let threadSafeChat2 = RealmDatabase.shared.makeThreadSafeObject(object: chat)
 
-        // 1️⃣ LOCAL seen update
+        // 2. LOCAL seen update
         let updatedMessagesCount = await messagesSeenStatusUpdater.updateLocally(
             chat: threadSafeChat1,
             authUserID: authUser.uid,
@@ -488,31 +494,16 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             return .success(0)
         }
 
-        // 2️⃣ LOCAL unread decrement (Realm)
-        await unseenMessageCounterUpdater.updateLocal(
-            chat: threadSafeChat2,
-            userID: authUser.uid,
-            delta: -updatedMessagesCount
-        )
-
-        // 3️⃣ REMOTE seen update (Firebase)
+        // 2. REMOTE seen update (Firebase)
         await messagesSeenStatusUpdater.updateRemote(
             startingFrom: message.id,
             chatID: chat.id,
             seenByUser: isGroup ? authUser.uid : nil,
             limit: updatedMessagesCount
         )
-
-        // 4️⃣ REMOTE unread update (DELAYED, DELTA-BASED)
-        await unseenMessageCounterUpdater.scheduleRemoteUpdate(
-            chatID: chat.id,
-            userID: authUser.uid,
-            delta: -updatedMessagesCount
-        )
-
+        
         return .success(updatedMessagesCount)
     }
-    
     
     func findLastUnseenMessageIndexPath() -> IndexPath?
     {

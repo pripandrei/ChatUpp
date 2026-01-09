@@ -712,9 +712,8 @@ extension ChatRoomViewController
     }
 
     
-    private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath) {
-
-        // 🔒 NEW: index path ordering guard
+    private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
+    {
         if let lastIndexPath = pendingIndexPathForSeenStatusCheck,
            !isLower(messageIndexPath, than: lastIndexPath) {
             return
@@ -734,17 +733,17 @@ extension ChatRoomViewController
 
         guard let unseenMessage else { return }
 
-        // ✅ Update last processed index path
+        // Update last processed index path
         pendingIndexPathForSeenStatusCheck = messageIndexPath
 
         Task {
             let updateResult = await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
 
-//            if case .success(let updatedMessagesCount) = updateResult {
-//                await viewModel.updateMessagesUnseenCounter(
-//                    numberOfUpdatedMessages: updatedMessagesCount,
-//                    increment: false
-//                )
+            if case .success(let updatedMessagesCount) = updateResult {
+                await viewModel.updateMessagesUnseenCounter(
+                    numberOfUpdatedMessages: updatedMessagesCount,
+                    increment: false
+                )
                 await MainActor.run {
                     if messageIndexPath == self.pendingIndexPathForSeenStatusCheck
                     {
@@ -754,7 +753,7 @@ extension ChatRoomViewController
                         print("did not update index, current pendingIndexPathForSeenStatusCheck: ", pendingIndexPathForSeenStatusCheck, "was: ", messageIndexPath)
                     }
                 }
-//            }
+            }
         }
     }
 
@@ -968,7 +967,7 @@ extension ChatRoomViewController
             ofType: messageType,
             text: trimmedText,
             media: media
-        )
+        ) 
         
         Task { @MainActor in
             if let repo = imageSampleRepo

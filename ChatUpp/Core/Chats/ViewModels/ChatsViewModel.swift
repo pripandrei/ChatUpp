@@ -159,14 +159,23 @@ extension ChatsViewModel
             
             realmDB.admins = firestoreChat.admins
             
+            let incomingParticipants = firestoreChat.participants
+            let incomingIDs = Set(incomingParticipants.map { $0.userID })
+            
+            //  Update / Insert participants
             for incoming in firestoreChat.participants {
-                if let existing = realmDB.participants.first(where: { $0.userID == incoming.userID })
-                {
-                    existing.userID = incoming.userID
+                if let existing = realmDB.participants.first(where: { $0.userID == incoming.userID }) {
                     existing.isDeleted = incoming.isDeleted
                     existing.unseenMessagesCount = incoming.unseenMessagesCount
                 } else {
                     realmDB.participants.append(incoming)
+                }
+            }
+            
+            // Remove missing
+            for index in realmDB.participants.indices.reversed() {
+                if !incomingIDs.contains(realmDB.participants[index].userID) {
+                    realmDB.participants.remove(at: index)
                 }
             }
         }
