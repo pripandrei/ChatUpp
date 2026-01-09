@@ -159,7 +159,9 @@ final class ChatRoomViewController: UIViewController
     {
         viewModel.resetInitializationStatus()
         
-        let indexPath = self.viewModel.findLastUnseenMessageIndexPath()
+        let indexPath = viewModel.shouldHideJoinGroupOption == true
+        ?
+        self.viewModel.findLastUnseenMessageIndexPath() : nil
         
         if let indexPath {
             viewModel.insertUnseenMessagesTitle(afterIndexPath: indexPath)
