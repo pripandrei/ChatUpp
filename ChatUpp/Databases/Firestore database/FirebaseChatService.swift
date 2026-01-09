@@ -560,9 +560,12 @@ extension FirebaseChatService
                 
                 snapshot?.documentChanges.forEach { change in
 
-                    if let chat = try? change.document.data(as: Chat.self) {
+                    do {
+                        let chat = try change.document.data(as: Chat.self)
                         let update = DatabaseChangedObject(data: chat, changeType: change.type)
                         subject.send(update)
+                    } catch {
+                        print("could not decode chat: \(error)")
                     }
                 }
             }

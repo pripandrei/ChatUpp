@@ -55,11 +55,11 @@ actor MessageSeenSyncService
     func updateRemote(startingFrom startMessageID: String,
                       chatID: String,
                       seenByUser: String?,
-                      limit: Int)
+                      limit: Int) async
     {
         guard limit > 0 else {return}
-        Task
-        {
+//        Task
+//        {
             do {
                 try await FirebaseChatService
                     .shared
@@ -70,7 +70,7 @@ actor MessageSeenSyncService
             } catch {
                 print("Could not update messages seen status in firebase: ", error)
             }
-        }
+//        }
     }
 }
 

@@ -704,44 +704,99 @@ extension ChatRoomViewController
 //MARK: - Message seen status handler
 extension ChatRoomViewController
 {
-    private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
-    {
-        if messageIndexPath == pendingIndexPathForSeenStatusCheck { return }
-        pendingIndexPathForSeenStatusCheck = messageIndexPath
-        
-        guard messageIndexPath.row < rootView.tableView.numberOfRows(inSection: messageIndexPath.section),
-              messageIndexPath.row < self.viewModel.messageClusters[messageIndexPath.section].items.count,
-              !checkIfMessageWasSeen(at: messageIndexPath)
-        else {
-            self.pendingIndexPathForSeenStatusCheck = nil
+    private func isLower(_ lhs: IndexPath, than rhs: IndexPath) -> Bool {
+        if lhs.section != rhs.section {
+            return lhs.section < rhs.section
+        }
+        return lhs.row < rhs.row
+    }
+
+    
+    private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath) {
+
+        // 🔒 NEW: index path ordering guard
+        if let lastIndexPath = pendingIndexPathForSeenStatusCheck,
+           !isLower(messageIndexPath, than: lastIndexPath) {
             return
         }
-        
-        let unseenMessage = self.viewModel.messageClusters[messageIndexPath.section].items[messageIndexPath.row].message
 
-        if let unseenMessage
-        {
-            Task {
-                let updateResult = await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
-                
-                switch updateResult
-                {
-                case .success(let updatedMessagesCount):
-                    await viewModel.updateMessagesUnseenCounter(numberOfUpdatedMessages: updatedMessagesCount,
-                                                                increment: false)
-                default: break
-                }
-                
+        guard messageIndexPath.row < rootView.tableView.numberOfRows(inSection: messageIndexPath.section),
+              messageIndexPath.row < viewModel.messageClusters[messageIndexPath.section].items.count,
+              !checkIfMessageWasSeen(at: messageIndexPath)
+        else {
+            return
+        }
+
+        let unseenMessage =
+            viewModel.messageClusters[messageIndexPath.section]
+                .items[messageIndexPath.row]
+                .message
+
+        guard let unseenMessage else { return }
+
+        // ✅ Update last processed index path
+        pendingIndexPathForSeenStatusCheck = messageIndexPath
+
+        Task {
+            let updateResult = await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
+
+            if case .success(let updatedMessagesCount) = updateResult {
+                await viewModel.updateMessagesUnseenCounter(
+                    numberOfUpdatedMessages: updatedMessagesCount,
+                    increment: false
+                )
                 await MainActor.run {
                     if messageIndexPath == self.pendingIndexPathForSeenStatusCheck
                     {
                         self.pendingIndexPathForSeenStatusCheck = nil
                         print("Did set pendingIndexPathForSeenStatusCheck to nil")
+                    } else {
+                        print("did not update index, current pendingIndexPathForSeenStatusCheck: ", pendingIndexPathForSeenStatusCheck, "was: ", messageIndexPath)
                     }
                 }
             }
         }
     }
+
+//    private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
+//    {
+//        if let currentPendingIndex = pendingIndexPathForSeenStatusCheck,
+//           messageIndexPath >= currentPendingIndex { return }
+//        pendingIndexPathForSeenStatusCheck = messageIndexPath
+//        
+//        guard messageIndexPath.row < rootView.tableView.numberOfRows(inSection: messageIndexPath.section),
+//              messageIndexPath.row < self.viewModel.messageClusters[messageIndexPath.section].items.count,
+//              !checkIfMessageWasSeen(at: messageIndexPath)
+//        else {
+//            self.pendingIndexPathForSeenStatusCheck = nil
+//            return
+//        }
+//        
+//        let unseenMessage = self.viewModel.messageClusters[messageIndexPath.section].items[messageIndexPath.row].message
+//
+//        if let unseenMessage
+//        {
+//            Task {
+//                let updateResult = await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
+//                
+//                switch updateResult
+//                {
+//                case .success(let updatedMessagesCount):
+//                    await viewModel.updateMessagesUnseenCounter(numberOfUpdatedMessages: updatedMessagesCount,
+//                                                                increment: false)
+//                default: break
+//                }
+//                
+//                await MainActor.run {
+//                    if messageIndexPath == self.pendingIndexPathForSeenStatusCheck
+//                    {
+//                        self.pendingIndexPathForSeenStatusCheck = nil
+//                        print("Did set pendingIndexPathForSeenStatusCheck to nil")
+//                    }
+//                }
+//            }
+//        }
+//    }
     
     private func checkIfMessageWasSeen(at indexPath: IndexPath) -> Bool
     {
@@ -837,7 +892,7 @@ extension ChatRoomViewController
 
     @objc func scrollToBottomBtnWasTapped()
     {
-        self.pendingIndexPathForSeenStatusCheck = IndexPath(row: 0, section: 0)
+//        self.pendingIndexPathForSeenStatusCheck = IndexPath(row: 0, section: 0)
         rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
     
@@ -1430,24 +1485,36 @@ extension ChatRoomViewController: UIScrollViewDelegate
 //MARK: - ScrollView helper functions
 extension ChatRoomViewController
 {
+    
     private func findMinimalVisibleIndexPath() -> IndexPath?
     {
         if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(),
            let firstVisible = visibleIndices.first(where: { checkIfCellIsFullyVisible(at: $0) })
         {
-            if let pending = pendingIndexPathForSeenStatusCheck
-            {
-                // Pick the first smaller fully visible index if it exists
-                if firstVisible < pending {
-                    return pending
-                }
-            } else {
-                // No pending → just take the first fully visible
-                return firstVisible
-            }
+            return firstVisible
         }
         return nil
     }
+    
+//    private func findMinimalVisibleIndexPath() -> IndexPath?
+//    {
+//        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(),
+//           let firstVisible = visibleIndices.first(where: { checkIfCellIsFullyVisible(at: $0) })
+//        {
+//            if let pending = pendingIndexPathForSeenStatusCheck
+//            {
+//                // Pick the first smaller fully visible index if it exists
+//                if firstVisible < pending {
+//                    return firstVisible
+//                }
+//                return pending
+//            } else {
+//                // No pending → just take the first fully visible
+//                return firstVisible
+//            }
+//        }
+//        return nil
+//    }
     
     private func toggleSectionHeaderVisibility(isScrollActive: Bool, withAnimation: Bool = true)
     {

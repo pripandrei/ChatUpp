@@ -44,18 +44,6 @@ final class ChatsViewModel
         setupCellViewModels()
         observeChats()
         updateUserTimestamp() // while firestore functions is deactivated
-        Task
-        {
-            do {
-                try await FirebaseChatService.shared.updateUnseenMessagesCount(
-                    for: ["ArzzEyzTb7QRD5LhxIX3B5xqsql1"],
-                    inChatWithID: "049EDFBC-1F46-465E-B0B6-FEFD8A3C3E16",
-                    counter: 5,
-                    shouldIncrement: false)
-            } catch {
-                print("erro update counter !!: ", error)
-            }
-        }
     }
     
     deinit {
