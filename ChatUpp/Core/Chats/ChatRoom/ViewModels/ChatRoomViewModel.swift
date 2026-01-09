@@ -270,7 +270,10 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         //Add new chat row
         ChatManager.shared.broadcastJoinedGroupChat(conversation)
-        await syncMessagesSeenStatus(startFrom: newMessage)
+        if let unseenMessage = getUnseenMessage(sortedAscending: false)
+        {
+            await syncMessagesSeenStatus(startFrom: unseenMessage)            
+        }
         addListeners()
     }
     
@@ -742,7 +745,7 @@ extension ChatRoomViewModel
     private func prepareMessagesForConversationInitialization() -> [Message]
     {
         guard let conversation = conversation else { return [] }
-        if let message = getFirstUnseenMessage()
+        if let message = getUnseenMessage(sortedAscending: true)
         {
             let messagesAscending = conversation.getMessages(
                 startingFrom: message.id,
@@ -815,7 +818,7 @@ extension ChatRoomViewModel
         return messages
     }
     
-    private func getFirstUnseenMessage() -> Message?
+    private func getUnseenMessage(sortedAscending: Bool) -> Message?
     {
         guard let conversation = conversation else { return nil }
         
@@ -826,7 +829,7 @@ extension ChatRoomViewModel
         
         let unseenMessage = conversation.conversationMessages
             .filter(filter)
-            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true)
+            .sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: sortedAscending)
             .first
         
         return unseenMessage

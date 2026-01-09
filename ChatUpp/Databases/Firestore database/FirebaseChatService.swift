@@ -314,11 +314,12 @@ extension FirebaseChatService
                 .order(by: "timestamp", descending: true)
             
             
-            if userID == nil {
+            if let _ = userID
+            {
+                query = query.limit(to: limit)
+            } else {
                 query = query.whereField("message_seen", isEqualTo: false)
                     .limit(to: 500)
-            } else {
-                query = query.limit(to: limit)
             }
             
             if let lastDoc = lastDoc {
@@ -336,7 +337,7 @@ extension FirebaseChatService
             for (index, doc) in snapshot.documents.enumerated()
             {
                 print("doc index: ", index)
-                if let userID = userID
+                if let userID = userID      // for group update
                 {
                     // Filter client-side. This is bad, but i dont have time to refactor
                     //
@@ -353,7 +354,7 @@ extension FirebaseChatService
                         forDocument: doc.reference
                     )
                     documentsProcessed += 1
-                } else {
+                } else {                    // for private (1on1) chat update
                     batch.updateData(
                         ["message_seen": true],
                         forDocument: doc.reference

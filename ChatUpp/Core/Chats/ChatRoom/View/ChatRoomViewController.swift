@@ -181,8 +181,10 @@ final class ChatRoomViewController: UIViewController
         
         if viewModel.authParticipantUnreadMessagesCount > 0
         {
-            findMinimalVisibleIndexPath()
-            updateMessageSeenStatusIfNeeded()
+            if let indexPath = findMinimalVisibleIndexPath()
+            {
+                updateMessageSeenStatusIfNeeded(indexPath)
+            }
         }
         
         toggleSectionHeaderVisibility(isScrollActive: false, withAnimation: false)
@@ -702,18 +704,23 @@ extension ChatRoomViewController
 //MARK: - Message seen status handler
 extension ChatRoomViewController
 {
-    private func updateMessageSeenStatusIfNeeded()
+    private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
     {
-        guard let indexToProcess = pendingIndexPathForSeenStatusCheck else { return }
-        guard indexToProcess.row < rootView.tableView.numberOfRows(inSection: indexToProcess.section),
-              indexToProcess.row < self.viewModel.messageClusters[indexToProcess.section].items.count,
-              !checkIfMessageWasSeen(at: indexToProcess)
+        if messageIndexPath == pendingIndexPathForSeenStatusCheck
+        {
+            return
+        }
+        pendingIndexPathForSeenStatusCheck = messageIndexPath
+//        guard let indexToProcess = pendingIndexPathForSeenStatusCheck else { return }
+        guard messageIndexPath.row < rootView.tableView.numberOfRows(inSection: messageIndexPath.section),
+              messageIndexPath.row < self.viewModel.messageClusters[messageIndexPath.section].items.count,
+              !checkIfMessageWasSeen(at: messageIndexPath)
         else {
             self.pendingIndexPathForSeenStatusCheck = nil
             return
         }
         
-        let unseenMessage = self.viewModel.messageClusters[indexToProcess.section].items[indexToProcess.row].message
+        let unseenMessage = self.viewModel.messageClusters[messageIndexPath.section].items[messageIndexPath.row].message
 
         if let unseenMessage
         {
@@ -729,7 +736,7 @@ extension ChatRoomViewController
                 }
                 
                 await MainActor.run {
-                    if indexToProcess == self.pendingIndexPathForSeenStatusCheck
+                    if messageIndexPath == self.pendingIndexPathForSeenStatusCheck
                     {
                         self.pendingIndexPathForSeenStatusCheck = nil
                         print("Did set pendingIndexPathForSeenStatusCheck to nil")
@@ -1377,8 +1384,10 @@ extension ChatRoomViewController: UIScrollViewDelegate
             /// find min index path, to update all descending messages from it
             if viewModel.shouldHideJoinGroupOption
             {
-                findMinimalVisibleIndexPath()
-                updateMessageSeenStatusIfNeeded()
+                if let indexPath = findMinimalVisibleIndexPath()
+                {
+                    updateMessageSeenStatusIfNeeded(indexPath)
+                }
             }
         }
 
@@ -1411,8 +1420,10 @@ extension ChatRoomViewController: UIScrollViewDelegate
         
         if viewModel.shouldHideJoinGroupOption
         {
-            findMinimalVisibleIndexPath()
-            updateMessageSeenStatusIfNeeded()
+            if let index = findMinimalVisibleIndexPath()
+            {
+                updateMessageSeenStatusIfNeeded(index)
+            }
         }
 
         toggleSectionHeaderVisibility(isScrollActive: decelerate)
@@ -1422,7 +1433,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
 //MARK: - ScrollView helper functions
 extension ChatRoomViewController
 {
-    private func findMinimalVisibleIndexPath()
+    private func findMinimalVisibleIndexPath() -> IndexPath?
     {
         if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(),
            let firstVisible = visibleIndices.first(where: { checkIfCellIsFullyVisible(at: $0) })
@@ -1431,13 +1442,16 @@ extension ChatRoomViewController
             {
                 // Pick the first smaller fully visible index if it exists
                 if firstVisible < pending {
-                    pendingIndexPathForSeenStatusCheck = firstVisible
+//                    pendingIndexPathForSeenStatusCheck = firstVisible
+                    return pending
                 }
             } else {
                 // No pending → just take the first fully visible
-                pendingIndexPathForSeenStatusCheck = firstVisible
+//                pendingIndexPathForSeenStatusCheck = firstVisible
+                return firstVisible
             }
         }
+        return nil
     }
     
     private func toggleSectionHeaderVisibility(isScrollActive: Bool, withAnimation: Bool = true)
