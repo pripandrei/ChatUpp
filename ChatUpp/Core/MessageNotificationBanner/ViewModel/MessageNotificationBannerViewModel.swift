@@ -36,5 +36,14 @@ final class MessageNotificationBannerViewModel: SwiftUI.ObservableObject
         }
     }
     
+    var defaultImageName: String
+    {
+        switch messageBannerData.chat.isGroup
+        {
+        case true: "default_group_photo"
+        case false: "default_profile_photo"
+        }
+    }
+    
     var onTap: (() -> Void)?
 }

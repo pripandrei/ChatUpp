@@ -16,7 +16,7 @@ struct MessageNotificationBannerView: View
         HStack(spacing: 0)
         {
             let avatarImage = viewModel.messageBannerData.avatar
-                .flatMap { UIImage(data: $0) } ?? UIImage(named: "default_profile_photo")!
+                .flatMap { UIImage(data: $0) } ?? UIImage(named: viewModel.defaultImageName)!
             
             Image(uiImage: avatarImage)
                 .resizable()

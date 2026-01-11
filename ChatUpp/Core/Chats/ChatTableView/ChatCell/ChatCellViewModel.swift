@@ -647,7 +647,6 @@ extension ChatCellViewModel
                   let name else { return }
             let avatarData = retrieveChatAvatarFromCache()
             
-                
             let imageData: Data?
             if let imagePath = self.recentMessageImageThumbnailPath {
                 imageData = retrieveMessageImageData(imagePath)
@@ -661,7 +660,7 @@ extension ChatCellViewModel
                                                titleName: name,
                                                contentThumbnail: imageData
             )
-            
+             
             MessageBannerPresenter.shared.presentBanner(usingBannerData: bannerData)
         }
     }
