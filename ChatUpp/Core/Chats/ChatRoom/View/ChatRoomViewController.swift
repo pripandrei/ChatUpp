@@ -183,10 +183,7 @@ final class ChatRoomViewController: UIViewController
         
         if viewModel.authParticipantUnreadMessagesCount > 0
         {
-            if let indexPath = findMinimalVisibleIndexPath()
-            {
-                updateMessageSeenStatusIfNeeded(indexPath)
-            }
+            triggerUpdateUnseenMessagesCheck()
         }
         
         toggleSectionHeaderVisibility(isScrollActive: false, withAnimation: false)
@@ -759,46 +756,6 @@ extension ChatRoomViewController
         }
     }
 
-//    private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
-//    {
-//        if let currentPendingIndex = pendingIndexPathForSeenStatusCheck,
-//           messageIndexPath >= currentPendingIndex { return }
-//        pendingIndexPathForSeenStatusCheck = messageIndexPath
-//        
-//        guard messageIndexPath.row < rootView.tableView.numberOfRows(inSection: messageIndexPath.section),
-//              messageIndexPath.row < self.viewModel.messageClusters[messageIndexPath.section].items.count,
-//              !checkIfMessageWasSeen(at: messageIndexPath)
-//        else {
-//            self.pendingIndexPathForSeenStatusCheck = nil
-//            return
-//        }
-//        
-//        let unseenMessage = self.viewModel.messageClusters[messageIndexPath.section].items[messageIndexPath.row].message
-//
-//        if let unseenMessage
-//        {
-//            Task {
-//                let updateResult = await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
-//                
-//                switch updateResult
-//                {
-//                case .success(let updatedMessagesCount):
-//                    await viewModel.updateMessagesUnseenCounter(numberOfUpdatedMessages: updatedMessagesCount,
-//                                                                increment: false)
-//                default: break
-//                }
-//                
-//                await MainActor.run {
-//                    if messageIndexPath == self.pendingIndexPathForSeenStatusCheck
-//                    {
-//                        self.pendingIndexPathForSeenStatusCheck = nil
-//                        print("Did set pendingIndexPathForSeenStatusCheck to nil")
-//                    }
-//                }
-//            }
-//        }
-//    }
-    
     private func checkIfMessageWasSeen(at indexPath: IndexPath) -> Bool
     {
         let authUserID = viewModel.authUser.uid
@@ -893,7 +850,6 @@ extension ChatRoomViewController
 
     @objc func scrollToBottomBtnWasTapped()
     {
-//        self.pendingIndexPathForSeenStatusCheck = IndexPath(row: 0, section: 0)
         rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
     }
     
@@ -1430,18 +1386,11 @@ extension ChatRoomViewController: UIScrollViewDelegate
         }
 
         /// fire updates every > 0.3 time
-        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.1
+        if Date().timeIntervalSince(lastSeenStatusCheckUpdate) > 0.2
         {
             self.lastSeenStatusCheckUpdate = Date()
             
-            /// find min index path, to update all descending messages from it
-            if viewModel.shouldHideJoinGroupOption
-            {
-                if let indexPath = findMinimalVisibleIndexPath()
-                {
-                    updateMessageSeenStatusIfNeeded(indexPath)
-                }
-            }
+            triggerUpdateUnseenMessagesCheck()
         }
 
         /// Toggle scrollToBottom badge
@@ -1449,10 +1398,6 @@ extension ChatRoomViewController: UIScrollViewDelegate
         toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
         :
         toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-    }
-    
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        toggleSectionHeaderVisibility(isScrollActive: true)
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
@@ -1464,6 +1409,8 @@ extension ChatRoomViewController: UIScrollViewDelegate
             self.rootView.tableView.contentOffset.y += 0.2
         }
         
+        triggerUpdateUnseenMessagesCheck()
+        
         toggleSectionHeaderVisibility(isScrollActive: false)
     }
     
@@ -1471,6 +1418,27 @@ extension ChatRoomViewController: UIScrollViewDelegate
     {
         self.lastSeenStatusCheckUpdate = Date()
         
+        triggerUpdateUnseenMessagesCheck()
+
+        toggleSectionHeaderVisibility(isScrollActive: decelerate)
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        toggleSectionHeaderVisibility(isScrollActive: true)
+    }
+    
+    func scrollViewDidScrollToTop(_ scrollView: UIScrollView)
+    {
+        triggerUpdateUnseenMessagesCheck()
+    }
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView)
+    {
+        triggerUpdateUnseenMessagesCheck()
+    }
+    
+    
+    private func triggerUpdateUnseenMessagesCheck()
+    {
         if viewModel.shouldHideJoinGroupOption
         {
             if let index = findMinimalVisibleIndexPath()
@@ -1478,15 +1446,14 @@ extension ChatRoomViewController: UIScrollViewDelegate
                 updateMessageSeenStatusIfNeeded(index)
             }
         }
-
-        toggleSectionHeaderVisibility(isScrollActive: decelerate)
     }
 }
 
 //MARK: - ScrollView helper functions
 extension ChatRoomViewController
 {
-    
+    /// find min index path, to update all descending messages from it
+    ///
     private func findMinimalVisibleIndexPath() -> IndexPath?
     {
         if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(),
@@ -1496,27 +1463,7 @@ extension ChatRoomViewController
         }
         return nil
     }
-    
-//    private func findMinimalVisibleIndexPath() -> IndexPath?
-//    {
-//        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(),
-//           let firstVisible = visibleIndices.first(where: { checkIfCellIsFullyVisible(at: $0) })
-//        {
-//            if let pending = pendingIndexPathForSeenStatusCheck
-//            {
-//                // Pick the first smaller fully visible index if it exists
-//                if firstVisible < pending {
-//                    return firstVisible
-//                }
-//                return pending
-//            } else {
-//                // No pending → just take the first fully visible
-//                return firstVisible
-//            }
-//        }
-//        return nil
-//    }
-    
+
     private func toggleSectionHeaderVisibility(isScrollActive: Bool, withAnimation: Bool = true)
     {
         guard let lastVisibleIndex = rootView.tableView.indexPathsForVisibleRows?.last,
