@@ -32,6 +32,8 @@ final class MessageCellViewModel
     private(set) var senderImageDataSubject = PassthroughSubject<Data, Never>()
     private var cancellables: Set<AnyCancellable> = []
     
+    private(set) var visibilitySenderAvatarSubject = PassthroughSubject<Bool, Never>()
+    
     convenience init(message: Message) {
         self.init()
         self.message = message
@@ -82,6 +84,10 @@ final class MessageCellViewModel
         self.message = message
     }
     
+    func toggleVisibilityOfSenderAvatar(_ value: Bool)
+    {
+        visibilitySenderAvatarSubject.send(value)
+    }
 }
 
 //MARK: - Image cache

@@ -1126,6 +1126,11 @@ extension ChatRoomViewModel
                 Task {
                     await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: recentMessageID)
                 }
+                
+                if !messageClusters[clusterIndex].items.isEmpty
+                {
+                    messageClusters[clusterIndex].items[0].toggleVisibilityOfSenderAvatar(true)
+                }
             }
             
             if messageClusters.isEmpty

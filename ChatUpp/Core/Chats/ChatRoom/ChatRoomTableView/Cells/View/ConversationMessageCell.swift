@@ -31,6 +31,22 @@ final class ConversationMessageCell: UITableViewCell
         senderAvatar.translatesAutoresizingMaskIntoConstraints = false
         return senderAvatar
     }()
+    
+    func toggleMessageSenderAvatarVisibility(shouldShow: Bool)
+    {
+        UIView.animate(withDuration: 0.3) {
+            if shouldShow
+            {
+                self.messageSenderAvatar.isHidden = false
+            }
+            self.messageSenderAvatar.alpha = shouldShow ? 1.0 : 0.0
+        } completion: { _ in
+            if !shouldShow
+            {
+                self.messageSenderAvatar.isHidden = true
+            }
+        }
+    }
 
     /// - lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -68,6 +84,15 @@ final class ConversationMessageCell: UITableViewCell
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] imageData in
                 self?.messageSenderAvatar.image = UIImage(data: imageData)
+            }).store(in: &subscribers)
+        
+        cellViewModel.visibilitySenderAvatarSubject
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] shouldShow in
+//                if shouldHide
+//                {
+                self?.toggleMessageSenderAvatarVisibility(shouldShow: shouldShow)
+//                }
             }).store(in: &subscribers)
     }
     
