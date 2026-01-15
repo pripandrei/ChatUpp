@@ -1211,19 +1211,12 @@ extension ChatRoomViewController: UITableViewDelegate
         if indexPath == IndexPath(row: 0, section: 0),
            viewModel.messageClusters[0].items.count > 1
         {
-//            guard let conversationCell = cell as? ConversationMessageCell,
-//                  conversationCell.messageLayoutConfiguration. else {return }
             let firstMessageSenderId = viewModel.messageClusters[0].items[0].message?.senderId
             let secondMessageSenderId = viewModel.messageClusters[0].items[1].message?.senderId
             
             if firstMessageSenderId == secondMessageSenderId
             {
                 viewModel.messageClusters[0].items[1].toggleVisibilityOfSenderAvatar(false)
-//                if !tableView.visibleCells.contains(cell)
-//                {
-//                    guard let conversationCell = tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? ConversationMessageCell else {return}
-//                    conversationCell.hideMessageSenderAvatar()
-//                }
             }
         }
         

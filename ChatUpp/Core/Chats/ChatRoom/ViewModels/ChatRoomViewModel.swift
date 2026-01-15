@@ -878,7 +878,7 @@ extension ChatRoomViewModel
     
     private var isPaginationInactiveStream: AsyncStream<Void>
     {
-        AsyncStream { continuation in
+        return AsyncStream { continuation in
             let cancelable = $isLocalPaginationActive
                 .filter { !$0 }
                 .sink { _ in
@@ -1193,7 +1193,7 @@ extension ChatRoomViewModel
         {
             tasks.append {
                 do {
-                    try await self.fetchRreferencedMessageData(messageToReplyID)
+                    try await self.fetchReferencedMessageData(messageToReplyID)
                 } catch MessageFetchError.notFound {
                     await self.updateMessageReplyToID(message.id)
                 } catch {
@@ -1229,7 +1229,7 @@ extension ChatRoomViewModel
         }
     }
     
-    private func fetchRreferencedMessageData(_ refMessageID: String) async throws
+    private func fetchReferencedMessageData(_ refMessageID: String) async throws
     {
         let realmRefMessage = RealmDatabase.shared.retrieveSingleObjectFromNewRalmInstance(
             ofType: Message.self,
@@ -1246,9 +1246,16 @@ extension ChatRoomViewModel
         
         await syncGroupUsers(for: [referencedMessage])
         
-        await MainActor.run {
-            realmRefMessage == nil ?  self.realmService?.addMessagesToConversationInRealm([referencedMessage]) : ()
+        nonisolated(unsafe) let unsafeReferencedMessage = referencedMessage
+        if realmRefMessage == nil
+        {
+            await MainActor.run {
+                self.realmService?.addMessagesToConversationInRealm([unsafeReferencedMessage])
+            }
         }
+//        await MainActor.run {
+//            realmRefMessage == nil ?  self.realmService?.addMessagesToConversationInRealm([referencedMessage]) : ()
+//        }
     }
 
     @MainActor
