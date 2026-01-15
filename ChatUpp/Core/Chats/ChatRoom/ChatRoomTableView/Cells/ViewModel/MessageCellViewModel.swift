@@ -86,6 +86,8 @@ final class MessageCellViewModel
     
     func toggleVisibilityOfSenderAvatar(_ value: Bool)
     {
+        let authUserID = try? AuthenticationManager.shared.getAuthenticatedUser().uid
+        guard self.message?.senderId != authUserID else { return }
         visibilitySenderAvatarSubject.send(value)
     }
 }
