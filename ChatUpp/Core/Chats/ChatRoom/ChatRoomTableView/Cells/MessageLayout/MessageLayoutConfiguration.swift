@@ -18,6 +18,17 @@ struct MessageLayoutConfiguration
 
 extension MessageLayoutConfiguration
 {
+    func updateShowAvatar(_ shouldShow: Bool) -> Self
+    {
+        return MessageLayoutConfiguration(shouldShowSenderName: self.shouldShowSenderName,
+                                          shouldShowAvatar: shouldShow,
+                                          avatarSize: self.avatarSize,
+                                          leadingConstraintConstant: self.leadingConstraintConstant)
+    }
+}
+
+extension MessageLayoutConfiguration
+{
     static func getLayoutConfiguration(for chatType: ChatType,
                                        showSenderName: Bool,
                                        showAvatar: Bool) -> MessageLayoutConfiguration

@@ -17,7 +17,7 @@ final class ConversationMessageCell: UITableViewCell
     private var contentContainerViewBottomConstraint: NSLayoutConstraint!
     private var contentContainerViewLeadingConstraint: NSLayoutConstraint!
     private var contentContainerViewTrailingConstraint: NSLayoutConstraint!
-    private var messageLayoutConfiguration: MessageLayoutConfiguration!
+    private(set) var messageLayoutConfiguration: MessageLayoutConfiguration!
     
     private(set) var contentContainer: UIView!
     private(set) var reactionBadgeHostingView: UIView?
@@ -25,7 +25,7 @@ final class ConversationMessageCell: UITableViewCell
     
     private var subscribers = Set<AnyCancellable>()
     
-    lazy private var messageSenderAvatar: UIImageView = {
+    lazy var messageSenderAvatar: UIImageView = {
         let senderAvatar = UIImageView()
         senderAvatar.clipsToBounds = true
         senderAvatar.translatesAutoresizingMaskIntoConstraints = false
@@ -34,18 +34,30 @@ final class ConversationMessageCell: UITableViewCell
     
     func toggleMessageSenderAvatarVisibility(shouldShow: Bool)
     {
-        UIView.animate(withDuration: 0.3) {
-            if shouldShow
-            {
-                self.messageSenderAvatar.isHidden = false
-            }
-            self.messageSenderAvatar.alpha = shouldShow ? 1.0 : 0.0
-        } completion: { _ in
-            if !shouldShow
-            {
-                self.messageSenderAvatar.isHidden = true
-            }
+        if shouldShow && messageSenderAvatar.image == nil
+        {
+            self.messageLayoutConfiguration = messageLayoutConfiguration.updateShowAvatar(true)
+            setupSenderAvatar()
         }
+//        print("shouldShow: ", shouldShow)
+//        print("messageBody: ", cellViewModel.message?.messageBody)
+//        executeAfter(seconds: 2.0) {
+            UIView.animate(withDuration: 0.3) {
+                if shouldShow
+                {
+                    self.messageSenderAvatar.isHidden = false
+                }
+                self.messageSenderAvatar.alpha = shouldShow ? 1.0 : 0.0
+            } completion: { _ in
+                print("Hash value: ", self.hashValue)
+                if !shouldShow
+                {
+                    self.messageSenderAvatar.isHidden = true
+                }
+                print("shouldShow: ", shouldShow)
+                print("messageBody: ", self.cellViewModel.message?.messageBody)
+            }
+//        }
     }
 
     /// - lifecycle
@@ -128,6 +140,18 @@ final class ConversationMessageCell: UITableViewCell
         {
             assert(false, "message and it's type should be valid at this point")
             return
+        }
+        
+        if message.messageBody.contains("Haircut appointment")
+        {
+            Task {
+                try await Task.sleep(for: .seconds(1))
+                print("Hash value: ", self.hashValue)
+                print("text?: ", self.cellViewModel.message?.messageBody)
+                print("layout config avatar: ",self.messageLayoutConfiguration.shouldShowAvatar)
+                print("messageSenderAvatar: ", self.messageSenderAvatar)
+                print("alpha?: ", self.messageSenderAvatar.alpha)
+            }
         }
 
         cleanupCellContent()
@@ -266,6 +290,8 @@ extension ConversationMessageCell
         } else {
             messageSenderAvatar.image = UIImage(named: "default_profile_photo")
         }
+        messageSenderAvatar.isHidden = false
+        messageSenderAvatar.alpha = 1.0
     }
     
     private func setupSenderAvatarConstraints()

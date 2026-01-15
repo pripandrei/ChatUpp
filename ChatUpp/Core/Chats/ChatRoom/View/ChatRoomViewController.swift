@@ -1211,6 +1211,8 @@ extension ChatRoomViewController: UITableViewDelegate
         if indexPath == IndexPath(row: 0, section: 0),
            viewModel.messageClusters[0].items.count > 1
         {
+//            guard let conversationCell = cell as? ConversationMessageCell,
+//                  conversationCell.messageLayoutConfiguration. else {return }
             let firstMessageSenderId = viewModel.messageClusters[0].items[0].message?.senderId
             let secondMessageSenderId = viewModel.messageClusters[0].items[1].message?.senderId
             
