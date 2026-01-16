@@ -512,7 +512,8 @@ extension TextImageMessageContentView
     private func updateMessage(fieldValue: MessageObservedProperty)
     {
         executeAfter(seconds: 0.2)
-        {
+        { [weak self] in
+            guard let self = self else {return}
             self.messageLabel.messageUpdateType = .edited
             
             switch fieldValue

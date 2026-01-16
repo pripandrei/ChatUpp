@@ -160,12 +160,12 @@ final class VoiceMessageContentView: ContainerView
     
     private func updateMessageSeenStatus()
     {
-        executeAfter(seconds: 0.2, block: {
-            self.messageComponentsView.messageComponentsStackView.setNeedsLayout()
-            self.messageComponentsView.configureMessageSeenStatus()
+        executeAfter(seconds: 0.2, block: { [weak self] in
+            self?.messageComponentsView.messageComponentsStackView.setNeedsLayout()
+            self?.messageComponentsView.configureMessageSeenStatus()
             
             UIView.animate(withDuration: 0.3) {
-                self.superview?.layoutIfNeeded()
+                self?.superview?.layoutIfNeeded()
             }
         })
     }

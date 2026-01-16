@@ -136,12 +136,12 @@ extension StickerMessageContentView
 {
     private func updateMessageSeenStatus()
     {
-        executeAfter(seconds: 0.2, block: {
-            self.stickerComponentsView.messageComponentsStackView.setNeedsLayout()
-            self.stickerComponentsView.configureMessageSeenStatus()
+        executeAfter(seconds: 0.2, block: { [weak self] in
+            self?.stickerComponentsView.messageComponentsStackView.setNeedsLayout()
+            self?.stickerComponentsView.configureMessageSeenStatus()
             
             UIView.animate(withDuration: 0.3) {
-                self.superview?.layoutIfNeeded()
+                self?.superview?.layoutIfNeeded()
             }
         })
     }
