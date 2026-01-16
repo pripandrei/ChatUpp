@@ -66,12 +66,12 @@ class Message: Object, Codable
         self.sticker = try container.decodeIfPresent(String.self, forKey: .sticker)
         self.voicePath = try container.decodeIfPresent(String.self, forKey: .voicePath)
         
-//        let seenBy = try container.decodeIfPresent([String].self, forKey: .seenBy)
-//        self.seenBy.append(objectsIn: seenBy ?? [])
+        let seenBy = try container.decodeIfPresent([String].self, forKey: .seenBy)
+        self.seenBy.append(objectsIn: seenBy ?? [])
         
-        let seenBy = try container.decodeIfPresent([String: Bool].self, forKey: .seenBy)
-        let seenByIDs: [String] = seenBy?.keys.map { $0 } ?? []
-        self.seenBy.append(objectsIn: seenByIDs)
+//        let seenBy = try container.decodeIfPresent([String: Bool].self, forKey: .seenBy)
+//        let seenByIDs: [String] = seenBy?.keys.map { $0 } ?? []
+//        self.seenBy.append(objectsIn: seenByIDs)
         
         let reactionsMap = try container.decode([String: [String]].self, forKey: .reactions)
         self.reactions = mapReactionsForDecoding(reactionsMap)
@@ -96,14 +96,17 @@ class Message: Object, Codable
         try container.encodeIfPresent(self.sticker, forKey: .sticker)
         try container.encodeIfPresent(self.voicePath, forKey: .voicePath)
         
-//        let seenBy = Dictionary(uniqueKeysWithValues: self.seenBy.map { ($0, true) })
-        var seenBy: [String : Bool] = [:]
-        
-        for item in self.seenBy {
-            seenBy[item] = true
-        }
-        
+        let seenBy = Array(self.seenBy)
         try container.encodeIfPresent(seenBy, forKey: .seenBy)
+        
+//        let seenBy = Dictionary(uniqueKeysWithValues: self.seenBy.map { ($0, true) })
+//        var seenBy: [String : Bool] = [:]
+//        
+//        for item in self.seenBy {
+//            seenBy[item] = true
+//        }
+//        
+//        try container.encodeIfPresent(seenBy, forKey: .seenBy)
         
         let mapedReactions = mapReactionsForEncoding(self.reactions)
         try container.encode(mapedReactions, forKey: .reactions)
@@ -117,7 +120,7 @@ class Message: Object, Codable
                      senderId: String,
                      timestamp: Date,
                      messageSeen: Bool?,
-                     seenBy: [String: Bool]? = nil,
+                     seenBy: [String]? = nil,
                      isEdited: Bool,
                      imagePath: String?,
                      imageSize: MessageImageSize?,
@@ -137,9 +140,9 @@ class Message: Object, Codable
         self.imagePath = imagePath
         self.timestamp = timestamp
         self.messageSeen = messageSeen
-        let seenByIDs: [String] = seenBy?.keys.map { $0 } ?? []
-        self.seenBy.append(objectsIn: seenByIDs)
-//        self.seenBy.append(objectsIn: seenBy ?? [])
+//        let seenByIDs: [String] = seenBy?.keys.map { $0 } ?? []
+//        self.seenBy.append(objectsIn: seenByIDs)
+        self.seenBy.append(objectsIn: seenBy ?? [])
         self.imageSize = imageSize
         self.isEdited = isEdited
         self.repliedTo = repliedTo

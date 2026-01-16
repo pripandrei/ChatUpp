@@ -69,7 +69,7 @@ struct MessageNotificationBannerView: View
 
 #Preview {
     let chat = Chat()
-    let message = Message(id: "", messageBody: "test", senderId: "", timestamp: .now, messageSeen: false, seenBy: [:], isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil, type: .image, sticker: "nil")
+    let message = Message(id: "", messageBody: "test", senderId: "", timestamp: .now, messageSeen: false, seenBy: [], isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil, type: .image, sticker: "nil")
     
     let imageData = UIImage(named: "testPath")?.pngData()
     

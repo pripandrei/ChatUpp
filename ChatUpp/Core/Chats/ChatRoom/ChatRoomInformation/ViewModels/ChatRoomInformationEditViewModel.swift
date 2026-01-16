@@ -39,7 +39,7 @@ final class ChatRoomInformationEditViewModel: SwiftUI.ObservableObject
     {
         let isGroupChat = conversation.isGroup
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
-        let seenByValue = isGroupChat ? [authUserID : true] : nil
+        let seenByValue = isGroupChat ? [authUserID] : nil
         
         return Message(
             id: UUID().uuidString,

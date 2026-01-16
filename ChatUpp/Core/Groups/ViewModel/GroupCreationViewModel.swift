@@ -71,7 +71,7 @@ extension GroupCreationViewModel
             senderId: authUserID,
             timestamp: Date(),
             messageSeen: nil,
-            seenBy: [authUserID : true],
+            seenBy: [authUserID],
             isEdited: false,
             imagePath: nil,
             imageSize: nil,

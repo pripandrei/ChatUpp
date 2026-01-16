@@ -123,7 +123,7 @@ extension ChatRoomInformationViewModel
     private func createMessage(messageText text: String) async throws -> Message
     {
         let authUserID = AuthenticationManager.shared.authenticatedUser!.uid
-        let seenByValue = chat.isGroup ? [authUserID : true] : nil
+        let seenByValue = chat.isGroup ? [authUserID] : nil
         
         let message = Message(
             id: UUID().uuidString,
