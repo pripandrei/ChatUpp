@@ -8,7 +8,7 @@
 import UIKit
 import SkeletonView
 
-protocol DataSourceProviding {
+protocol ChatRoomDataSourceProviding {
     var messageClusters : [ChatRoomViewModel.MessageCluster] { get }
 }
 
@@ -23,12 +23,12 @@ extension ConversationDataSourceManager
 
 final class ConversationDataSourceManager
 {
-    private var dataProvider: DataSourceProviding
+    private var dataProvider: ChatRoomDataSourceProviding
     private var layoutProvider: MessageLayoutProvider
     private var diffableDataSource: DataSource!
     private var tableView: UITableView
     
-    init(dataProvider: DataSourceProviding,
+    init(dataProvider: ChatRoomDataSourceProviding,
          layoutProvider: MessageLayoutProvider,
          tableView: UITableView)
     {

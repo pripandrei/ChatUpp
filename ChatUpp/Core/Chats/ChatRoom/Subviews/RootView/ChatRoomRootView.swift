@@ -113,14 +113,14 @@ final class ChatRoomRootView: UIView
         sendMessageButton.configuration?.image                      = UIImage(systemName: "arrow.up")
         sendMessageButton.configuration?.baseBackgroundColor        = ColorScheme.sendMessageButtonBackgroundColor
         sendMessageButton.clipsToBounds                             = true
-        sendMessageButton.isHidden                                  = true
+        sendMessageButton.isHidden                                  = false
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         return sendMessageButton
     }()
     
     lazy private(set) var voiceRecButton: UIButton = {
         let button = UIButton(type: .custom)
-        
+        button.isHidden = true
         var config = UIButton.Configuration.bordered()
        
         // Resize custom image
@@ -393,59 +393,59 @@ final class ChatRoomRootView: UIView
     
     func setInputBarParametersVisibility(shouldHideJoinButton: Bool, shouldAnimate: Bool = false)
     {
-        joinChatRoomButton.isHidden = shouldHideJoinButton
-        
-        self.messageTextView.layer.opacity = 0.0
-        self.voiceRecButton.layer.opacity = 0.0
-        self.addPictureButton.layer.opacity = 0.0
-        self.textViewTrailingItemView.layer.opacity = 0.0
-        
-        UIView.animate(withDuration: shouldAnimate ? 0.5 : 0.0)
-        {
-            self.messageTextView.isHidden = !shouldHideJoinButton
-            self.voiceRecButton.isHidden = !shouldHideJoinButton
-            self.addPictureButton.isHidden = !shouldHideJoinButton
-            self.textViewTrailingItemView.isHidden = !shouldHideJoinButton
-            
-            self.messageTextView.layer.opacity = 1.0
-            self.voiceRecButton.layer.opacity = 1.0
-            self.addPictureButton.layer.opacity = 1.0
-            self.textViewTrailingItemView.layer.opacity = 1.0
-        }
+//        joinChatRoomButton.isHidden = shouldHideJoinButton
+//        
+//        self.messageTextView.layer.opacity = 0.0
+//        self.voiceRecButton.layer.opacity = 0.0
+//        self.addPictureButton.layer.opacity = 0.0
+//        self.textViewTrailingItemView.layer.opacity = 0.0
+//        
+//        UIView.animate(withDuration: shouldAnimate ? 0.5 : 0.0)
+//        {
+//            self.messageTextView.isHidden = !shouldHideJoinButton
+//            self.voiceRecButton.isHidden = !shouldHideJoinButton
+//            self.addPictureButton.isHidden = !shouldHideJoinButton
+//            self.textViewTrailingItemView.isHidden = !shouldHideJoinButton
+//            
+//            self.messageTextView.layer.opacity = 1.0
+//            self.voiceRecButton.layer.opacity = 1.0
+//            self.addPictureButton.layer.opacity = 1.0
+//            self.textViewTrailingItemView.layer.opacity = 1.0
+//        }
     }
  
     func toggleVoiceRecButtonVisibility(_ isShown: Bool)
     {
-        sendMessageButtonPropertyAnimator?.stopAnimation(true)
-        sendMessageButtonPropertyAnimator = nil
-        
-        // Determine which buttons to animate
-        let buttonToShow = isShown ? voiceRecButton : sendMessageButton
-        let buttonToHide = isShown ? sendMessageButton : voiceRecButton
-        
-        buttonToShow.isHidden = false
-        buttonToShow.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
-        
-        sendMessageButtonPropertyAnimator = UIViewPropertyAnimator.runningPropertyAnimator(
-            withDuration: 0.1,
-            delay: 0.0,
-            animations: {
-                buttonToHide.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
-            },
-            completion: { [weak self] _ in
-                self?.sendMessageButtonPropertyAnimator = UIViewPropertyAnimator.runningPropertyAnimator(
-                    withDuration: 0.2,
-                    delay: 0.0,
-                    animations: {
-                        buttonToHide.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
-                        buttonToShow.transform = .identity
-                    },
-                    completion: { _ in
-                        buttonToHide.isHidden = true
-                    }
-                )
-            }
-        )
+//        sendMessageButtonPropertyAnimator?.stopAnimation(true)
+//        sendMessageButtonPropertyAnimator = nil
+//        
+//        // Determine which buttons to animate
+//        let buttonToShow = isShown ? voiceRecButton : sendMessageButton
+//        let buttonToHide = isShown ? sendMessageButton : voiceRecButton
+//        
+//        buttonToShow.isHidden = false
+//        buttonToShow.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+//        
+//        sendMessageButtonPropertyAnimator = UIViewPropertyAnimator.runningPropertyAnimator(
+//            withDuration: 0.1,
+//            delay: 0.0,
+//            animations: {
+//                buttonToHide.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+//            },
+//            completion: { [weak self] _ in
+//                self?.sendMessageButtonPropertyAnimator = UIViewPropertyAnimator.runningPropertyAnimator(
+//                    withDuration: 0.2,
+//                    delay: 0.0,
+//                    animations: {
+//                        buttonToHide.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+//                        buttonToShow.transform = .identity
+//                    },
+//                    completion: { _ in
+//                        buttonToHide.isHidden = true
+//                    }
+//                )
+//            }
+//        )
     }
 }
 

@@ -194,46 +194,60 @@ extension ChatCellViewModel
 
 extension ChatCellViewModel
 {
+   
+    
+    
     private func processNewRecentMessage(messageID: String)
     {
         let chatID = chat.id
-        guard let newMessage = RealmDatabase.shared.retrieveSingleObject(ofType: Message.self,
-                                                                         primaryKey: messageID) else
+
+        if let message = RealmDatabase.shared.retrieveSingleObject(
+            ofType: Message.self,
+            primaryKey: messageID
+        ) {
+            recentMessage = message
+            return
+        }
+
+        guard chatID != ChatRoomSessionManager.activeChatID else
         {
-            self.dispatchGroup.enter() // See FootNote.swift [20]
-            
-            Task {
-                guard let recentMessage = await self.fetchRecentMessage() else {
-                    self.dispatchGroup.leave()
-                    return
-                }
-                await self.performMessageImageUpdate(recentMessage)
-                
-                if chatID == ChatRoomSessionManager.activeChatID
-                { try await Task.sleep(for: .seconds(1)) }
-                
-                nonisolated(unsafe) let message = recentMessage
-                
-                await MainActor.run
-                {
-                    self.addMessageToRealm(message)
-                    self.recentMessage = message
-                    if chatID != ChatRoomSessionManager.activeChatID,
-                       message.senderId != self.authUser.uid
-                    {
-                        self.showRecentMessageBanner()
-                        if let url = Bundle.main.url(forResource: "notification_sound",
-                                                     withExtension: "m4a")
-                        {
-                            AudioSessionManager.shared.play(audioURL: url)
-                        }
-                    }
-                    self.dispatchGroup.leave()
-                }
+            Task { @MainActor in
+                try await Task.sleep(for: .seconds(1))
+                self.processNewRecentMessage(messageID: messageID)
             }
             return
         }
-        self.recentMessage = newMessage
+
+        dispatchGroup.enter() // See FootNote.swift [20]
+
+        Task {
+            guard let recentMessage = await fetchRecentMessage() else {
+                dispatchGroup.leave()
+                return
+            }
+
+            await performMessageImageUpdate(recentMessage)
+
+            nonisolated(unsafe) let message = recentMessage
+
+            await MainActor.run {
+                addMessageToRealm(message)
+                self.recentMessage = message
+
+                if message.senderId != self.authUser.uid {
+                    showRecentMessageBanner()
+
+                    if let url = Bundle.main.url(
+                        forResource: "notification_sound",
+                        withExtension: "m4a"
+                    ) {
+                        AudioSessionManager.shared.play(audioURL: url)
+                    }
+                }
+
+                dispatchGroup.leave()
+            }
+        }
     }
 
     /// - updated user after deletion

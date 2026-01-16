@@ -15,10 +15,10 @@ protocol MessageLayoutProvider
 struct MessageLayoutManager: MessageLayoutProvider
 {
     private let chatType: ChatType
-    private let sourceProvider: DataSourceProviding
+    private let sourceProvider: ChatRoomDataSourceProviding
     
     init(chatType: ChatType,
-         sourceProvider: DataSourceProviding)
+         sourceProvider: ChatRoomDataSourceProviding)
     {
         self.sourceProvider = sourceProvider
         self.chatType = chatType

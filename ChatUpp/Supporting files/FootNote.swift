@@ -142,3 +142,10 @@
 /// The unseen counter should not update before message is fully ready to be displayed,
 /// so we delay counter setup and use dispatchGroup in case recent message is still in process.
 /// That way counter and message (text,image) will be set in sync, without delays
+
+//MARK: - [21]
+//
+/// We should leave recent message update to chat room if it is opened, but we still want to update the recentMessage variable and trigger cell UI update,
+/// so we call processNewRecentMessage recursively until realm is not refreshed and see added recent message form chat room
+///
+///

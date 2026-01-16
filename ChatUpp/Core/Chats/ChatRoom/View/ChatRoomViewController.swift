@@ -710,6 +710,7 @@ extension ChatRoomViewController
         return lhs.row < rhs.row
     }
 
+    static var counter = 0
     
     private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
     {
@@ -734,11 +735,12 @@ extension ChatRoomViewController
 
         // Update last processed index path
         pendingIndexPathForSeenStatusCheck = messageIndexPath
-
+        
         Task {
             let updateResult = await viewModel.syncMessagesSeenStatus(startFrom: unseenMessage)
 
-            if case .success(let updatedMessagesCount) = updateResult {
+            if case .success(let updatedMessagesCount) = updateResult
+            {
                 await viewModel.updateMessagesUnseenCounter(
                     numberOfUpdatedMessages: updatedMessagesCount,
                     increment: false
@@ -747,9 +749,10 @@ extension ChatRoomViewController
                     if messageIndexPath == self.pendingIndexPathForSeenStatusCheck
                     {
                         self.pendingIndexPathForSeenStatusCheck = nil
-//                        print("Did set pendingIndexPathForSeenStatusCheck to nil")
+                        print("Did set pendingIndexPathForSeenStatusCheck to nil")
                     } else {
-                        print("did not update index, current pendingIndexPathForSeenStatusCheck: ", pendingIndexPathForSeenStatusCheck, "was: ", messageIndexPath)
+                        print("did not update index, current pendingIndexPathForSeenStatusCheck: ",
+                              pendingIndexPathForSeenStatusCheck, "was: ", messageIndexPath)
                     }
                 }
             }
@@ -765,7 +768,7 @@ extension ChatRoomViewController
               message.senderId != authUserID else { return true }
         
         let messageIsSeenByAuthUser: Bool
-        
+        print("messageWith id:", message.id, "has seen status: ", message.seenBy.contains(authUserID))
         if viewModel.conversation?.isGroup == true
         {
             messageIsSeenByAuthUser = message.seenBy.contains(authUserID)
