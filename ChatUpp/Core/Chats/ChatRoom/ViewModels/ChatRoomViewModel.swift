@@ -274,7 +274,19 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         {
             await syncMessagesSeenStatus(startFrom: unseenMessage)
         }
+        updateChatOpenStatusIfNeeded()
         addListeners()
+    }
+    
+    private func updateChatOpenStatusIfNeeded()
+    {
+        guard let chat = conversation else {return}
+        if chat.isFirstTimeOpened != false
+        {
+            RealmDatabase.shared.update(object: chat) { dbChat in
+                dbChat.isFirstTimeOpened = false
+            }
+        }
     }
     
     private func getCurrentMessagesFromCluster() -> [Message]
@@ -718,6 +730,7 @@ extension ChatRoomViewModel
             }
             realmService?.addMessagesToConversationInRealm(messages)
             initializeWithLocalData()
+            updateChatOpenStatusIfNeeded()
         } catch {
             print("Error while initiating conversation: - \(error)")
         }
@@ -1375,10 +1388,22 @@ extension ChatRoomViewModel
                 return .descending(startAtMessage: recentMessage, included: true)
             }
         }
+        
+        if conversation.isGroup
+        {
+            if let lastSeenMessage = try await firestoreService?.getLastSeenMessageFromFirestore(from: conversation.id)
+            {
+                return (conversation.isFirstTimeOpened == true) ?
+                    .hybrit(startAtMessage: lastSeenMessage) :
+                    .ascending(startAtMessage: lastSeenMessage, included: true)
+            }
+        }
 
         if let firstUnseenMessage = try await firestoreService?.getFirstUnseenMessageFromFirestore(from: conversation.id)
         {
-            return isChatFetchedFirstTime ? .hybrit(startAtMessage: firstUnseenMessage) : .ascending(startAtMessage: firstUnseenMessage, included: true)
+            return (conversation.isFirstTimeOpened == true) ?
+                .hybrit(startAtMessage: firstUnseenMessage) :
+                .ascending(startAtMessage: firstUnseenMessage, included: true)
         }
         
         if let lastSeenMessage = conversation.getLastMessage()

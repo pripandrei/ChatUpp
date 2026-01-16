@@ -180,13 +180,28 @@ extension FirebaseChatService
         return Int(truncating: snapshot.count)
     }
     
-    func getFirstUnseenMessage(fromChatDocumentPath documentID: String, whereSenderIDNotEqualTo senderID: String) async throws -> Message?
+    func getFirstUnseenMessage(fromChatDocumentPath documentID: String,
+                               whereSenderIDNotEqualTo senderID: String) async throws -> Message?
     {
-        let messagesReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
-        return try await messagesReference
+        let messagesCollectionReference = chatDocument(documentPath: documentID).collection(FirestoreCollection.messages.rawValue)
+        return try await messagesCollectionReference
             .whereField(Message.CodingKeys.messageSeen.rawValue, isEqualTo: false)
             .whereField(Message.CodingKeys.senderId.rawValue, isNotEqualTo: senderID)
             .order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
+            .limit(to: 1)
+            .getDocuments(as: Message.self)
+            .first
+    }
+    
+    func getLastSeenMessage(fromChatDocumentPath documentID: String,
+                            forSenderWithID senderID: String) async throws -> Message?
+    {
+        let messagesCollectionReference = chatDocument(documentPath: documentID)
+            .collection(FirestoreCollection.messages.rawValue)
+        
+        return try await messagesCollectionReference
+            .whereField(Message.CodingKeys.seenBy.rawValue, arrayContainsAny: [senderID])
+            .order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
             .limit(to: 1)
             .getDocuments(as: Message.self)
             .first

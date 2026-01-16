@@ -32,6 +32,14 @@ final class ConversationFirestoreService
             whereSenderIDNotEqualTo: authenticatedUserID ?? ""
         )
     }
+    
+    func getLastSeenMessageFromFirestore(from chatID: String) async throws -> Message?
+    {
+        return try await FirebaseChatService.shared.getLastSeenMessage(
+            fromChatDocumentPath: chatID,
+            forSenderWithID: authenticatedUserID ?? ""
+        )
+    }
 
     func addChatToFirestore(_ chat: Chat) async {
         do {

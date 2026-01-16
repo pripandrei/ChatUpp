@@ -126,7 +126,7 @@ class Chat: Object, Codable
                      participants: [ChatParticipant],
                      recentMessageID: String?,
                      messagesCount: Int? = 0,
-                     isFirstTimeOpened: Bool? = nil,
+                     isFirstTimeOpened: Bool? = false,
                      dateCreated: Date? = nil,
                      name: String? = nil,
                      thumbnailURL: String? = nil,
