@@ -21,9 +21,7 @@ final class ChatRoomViewController: UIViewController
 {
     weak var coordinatorDelegate :Coordinator?
     
-    private var animatedPreviewView: UIView?
-    private var contextMenuInteractionDidEnd: Bool = true
-    private var shouldBlockCellDragging: Bool = false
+    private var animatedPreviewViews: [UIView] = []
     private var targetedPreview: UITargetedPreview?
     
     private var pendingIndexPathForSeenStatusCheck: IndexPath?
@@ -1660,7 +1658,6 @@ extension ChatRoomViewController
             return nil
         }
 
-        self.contextMenuInteractionDidEnd = false
         // Keep the original cell visible but make it transparent during preview
         // This keeps animations running in the background
         cell.alpha = 0.01 // Almost invisible but still rendering
@@ -1682,7 +1679,8 @@ extension ChatRoomViewController
         cellReference.frame = cell.contentView.bounds
         cellReference.layer.cornerRadius = 10
         cellReference.layer.masksToBounds = true
-        animatedPreviewView = cellReference
+        
+        animatedPreviewViews.append(cellReference)
         
         // Create reaction panel
         var reactionPanelView = ReactionPanelView()
@@ -1758,7 +1756,10 @@ extension ChatRoomViewController
         
         let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
  
-        guard let snapshot = animatedPreviewView else {return nil}
+        let previewsCount = self.animatedPreviewViews.count
+        guard previewsCount > 0 else { return nil }
+        let snapshot = animatedPreviewViews[previewsCount - 1]
+        
         snapshot.frame = CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
         
         let containerHeight = TargetedPreviewComponentsSize.getSnapshotContainerHeight(snapshot)
@@ -1797,10 +1798,8 @@ extension ChatRoomViewController
                    animator: UIContextMenuInteractionAnimating?
     )
     {
-        self.contextMenuInteractionDidEnd = true
         animator?.addCompletion { [weak self] in
             guard let self,
-                  contextMenuInteractionDidEnd,
                   let indexPath = configuration.identifier as? IndexPath,
                   let cell = tableView.cellForRow(at: indexPath) else
             {
@@ -1809,10 +1808,15 @@ extension ChatRoomViewController
             
             // Restore cell visibility after animation completes
             cell.alpha = 1
-            if let view = self.animatedPreviewView as? TargetedPreviewContentView {
-                view.cleanup()
-                self.animatedPreviewView = nil
-                
+            
+            executeAfter(seconds: 1.0)
+            {
+                if let view = self.animatedPreviewViews.first as? TargetedPreviewContentView
+                {
+                    view.cleanup()
+                    self.animatedPreviewViews.first?.removeFromSuperview()
+                    self.animatedPreviewViews.remove(at: 0)
+                }
             }
         }
     }
