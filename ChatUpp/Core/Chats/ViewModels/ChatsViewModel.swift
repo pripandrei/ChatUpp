@@ -44,6 +44,13 @@ final class ChatsViewModel
         setupCellViewModels()
         observeChats()
         updateUserTimestamp() // while firestore functions is deactivated
+//        Task {
+//            do {
+//               try await  FirebaseChatService.shared.migrateSeenByMapToArray()
+//            } catch {
+//                print("Could not perform migration from map to array: \(error)")
+//            }
+//        }
     }
     
     deinit {

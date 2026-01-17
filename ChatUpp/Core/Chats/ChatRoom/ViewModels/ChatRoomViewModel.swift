@@ -149,7 +149,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         self.conversation = conversation
         self.unseenMessagesCount = conversation.getParticipant(byID: authUser.uid)?.unseenMessagesCount ?? 0
         self.setupServices(using: conversation)
-        
         if !conversation.isGroup {
             self.participant = getPrivateChatMember(from: conversation)
         }
@@ -730,7 +729,6 @@ extension ChatRoomViewModel
             }
             realmService?.addMessagesToConversationInRealm(messages)
             initializeWithLocalData()
-            updateChatOpenStatusIfNeeded()
         } catch {
             print("Error while initiating conversation: - \(error)")
         }
@@ -748,6 +746,7 @@ extension ChatRoomViewModel
         }
         createMessageClustersWith(messages)
         validateMessagesForDeletion(messages)
+        updateChatOpenStatusIfNeeded()
     }
     
     private func prepareMessagesForConversationInitialization() -> [Message]
@@ -1393,7 +1392,7 @@ extension ChatRoomViewModel
         {
             if let lastSeenMessage = try await firestoreService?.getLastSeenMessageFromFirestore(from: conversation.id)
             {
-                return (conversation.isFirstTimeOpened == true) ?
+                return (conversation.isFirstTimeOpened != false) ?
                     .hybrit(startAtMessage: lastSeenMessage) :
                     .ascending(startAtMessage: lastSeenMessage, included: true)
             }
@@ -1401,7 +1400,7 @@ extension ChatRoomViewModel
 
         if let firstUnseenMessage = try await firestoreService?.getFirstUnseenMessageFromFirestore(from: conversation.id)
         {
-            return (conversation.isFirstTimeOpened == true) ?
+            return (conversation.isFirstTimeOpened != false) ?
                 .hybrit(startAtMessage: firstUnseenMessage) :
                 .ascending(startAtMessage: firstUnseenMessage, included: true)
         }
