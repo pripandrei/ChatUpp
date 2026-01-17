@@ -15,9 +15,9 @@ class Message: Object, Codable
     @Persisted(primaryKey: true) var id: String
     @Persisted var messageBody: String
     @Persisted var senderId: String
-    @Persisted var timestamp: Date
+    @Persisted(indexed: true) var timestamp: Date
     @Persisted var isEdited: Bool
-    @Persisted var messageSeen: Bool?
+    @Persisted(indexed: true) var messageSeen: Bool?
     @Persisted var seenBy: List<String>
     @Persisted var imagePath: String?
     @Persisted var repliedTo: String?
