@@ -476,17 +476,8 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             userID: authUser.uid,
             delta: -numberOfUpdatedMessages
         )
-        print("Updated counter unseen: ", numberOfUpdatedMessages)
     }
     
-    
-    private func updateSeenStatusMessage(_ message: Message) -> Int
-    {
-        RealmDatabase.shared.update(object: message, update: { _ in
-            message.seenBy.append(self.authUser.uid)
-        })
-        return 1
-    }
     /// update unseen messages
     ///
     @MainActor
@@ -508,9 +499,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             isGroup: isGroup,
             timestamp: message.timestamp
         )
-//        let updatedMessagesCount = updateSeenStatusMessage(message)
         RealmDatabase.shared.refresh()
-        print("did refresh. Now first message '\(messageClusters[0].items[0].message?.id)' seen status : ", messageClusters[0].items[0].message?.seenBy.contains(authUser.uid))
         guard updatedMessagesCount > 0 else {
             return .success(0)
         }
@@ -522,7 +511,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             seenByUser: isGroup ? authUser.uid : nil,
             limit: updatedMessagesCount
         )
-        print("updated messages total in DB: ", updatedMessagesCount)
+        
         return .success(updatedMessagesCount)
     }
     
@@ -1000,7 +989,6 @@ extension ChatRoomViewModel
         messageListenerService?.$updatedMessages
             .debounce(for: .seconds(0.5), /// See FootNote.swift [18]
                       scheduler: DispatchQueue.global(qos: .background))
-//            .receive(on: DispatchQueue.global(qos: .background))
             .filter { !$0.isEmpty }
             .sink { [weak self] messagesTypes in
                 guard let self = self else { return }
@@ -1075,6 +1063,7 @@ extension ChatRoomViewModel
     private func handleAddedMessages(_ messages: [Message]) async
     {
         guard !messages.isEmpty else {return}
+        
         let sortedMessages = messages.sorted(by: { $0.timestamp < $1.timestamp } )
         var newMessages = [Message]()
         var updatedMessages = [Message]()

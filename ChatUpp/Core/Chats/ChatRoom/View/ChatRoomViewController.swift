@@ -749,10 +749,6 @@ extension ChatRoomViewController
                     if messageIndexPath == self.pendingIndexPathForSeenStatusCheck
                     {
                         self.pendingIndexPathForSeenStatusCheck = nil
-                        print("Did set pendingIndexPathForSeenStatusCheck to nil")
-                    } else {
-                        print("did not update index, current pendingIndexPathForSeenStatusCheck: ",
-                              pendingIndexPathForSeenStatusCheck, "was: ", messageIndexPath)
                     }
                 }
             }
@@ -768,7 +764,7 @@ extension ChatRoomViewController
               message.senderId != authUserID else { return true }
         
         let messageIsSeenByAuthUser: Bool
-        print("messageWith id:", message.id, "has seen status: ", message.seenBy.contains(authUserID))
+        
         if viewModel.conversation?.isGroup == true
         {
             messageIsSeenByAuthUser = message.seenBy.contains(authUserID)
