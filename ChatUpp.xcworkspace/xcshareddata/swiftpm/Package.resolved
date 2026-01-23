@@ -1,5 +1,5 @@
 {
-  "originHash" : "65a805f97624df9adde9d0183c1dc2bcb2c30bba43857acf634467a34871c701",
+  "originHash" : "2dd2b0c20a30ba83174b959316a77ccaa590d9d82cbf40603d79ad23ad187fd0",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -164,15 +164,6 @@
       }
     },
     {
-      "identity" : "librlottie-xcode",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SDWebImage/librlottie-Xcode.git",
-      "state" : {
-        "revision" : "4ae1ba205910c804ee2d4cd7dd7f122964fe3aad",
-        "version" : "0.2.1"
-      }
-    },
-    {
       "identity" : "loaderui",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ninjaprox/LoaderUI.git",
@@ -251,6 +242,15 @@
       "state" : {
         "revision" : "9f0c76544701845ad98716f3f6a774a892152bcb",
         "version" : "1.26.0"
+      }
+    },
+    {
+      "identity" : "thorvg.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/thorvg/thorvg.swift.git",
+      "state" : {
+        "revision" : "31bb6eae059a773a65d349530a8965ce3625beda",
+        "version" : "0.1.2"
       }
     },
     {
