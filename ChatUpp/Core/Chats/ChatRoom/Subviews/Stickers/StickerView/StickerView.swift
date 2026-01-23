@@ -148,7 +148,7 @@ final class StickerView: UIView
     
     private func createContext(buffer: UnsafeMutablePointer<UInt32>) -> CGContext?
     {
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let colorSpace = CGColorSpace(name: CGColorSpace.displayP3) ?? CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo.byteOrder32Little.rawValue |
                          CGImageAlphaInfo.premultipliedFirst.rawValue
 
