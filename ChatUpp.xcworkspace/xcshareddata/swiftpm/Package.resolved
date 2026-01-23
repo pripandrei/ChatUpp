@@ -1,5 +1,5 @@
 {
-  "originHash" : "41fd338102ab513e0d77b8edb8a8e2f26f309110f47fbcbca857e90093a1c611",
+  "originHash" : "eff8638d2d65d0900fba88fc5cdc408a65a3ae8442d5b5eac9d6fbc002c020b9",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -251,6 +251,15 @@
       "state" : {
         "revision" : "9f0c76544701845ad98716f3f6a774a892152bcb",
         "version" : "1.26.0"
+      }
+    },
+    {
+      "identity" : "thorvg.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/thorvg/thorvg.swift.git",
+      "state" : {
+        "revision" : "31bb6eae059a773a65d349530a8965ce3625beda",
+        "version" : "0.1.2"
       }
     },
     {

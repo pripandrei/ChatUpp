@@ -101,11 +101,7 @@ class RLLottieView: UIView, ObjectRenderable
             print("❌ Failed to unzip \(name).tgs")
             return nil
         }
-        
-        if let path = Bundle.main.path(forResource: name, ofType: "json") {
-            print(path)
-        }
-        
+
         CacheManager.shared.saveData(unzippedData, toPath: name + ".json")
         
         guard let jsonPath = CacheManager.shared.getURL(for: name + ".json")?.path() else
