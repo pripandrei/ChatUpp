@@ -8,29 +8,6 @@
 import UIKit
 import Combine
 
-extension StickerMessageContentView: FrameTickRecievable
-{
-    func didReceiveFrameTick(deltaTime: TimeInterval)
-    {
-        guard /*isVisible, */!isRendering else { return }
-
-        //  Drop frames if renderer lags
-//        if CACurrentMediaTime() - lastRenderTime < (1.0 / 60.0)
-//        {
-//            return
-//        }
-
-        lastRenderTime = CACurrentMediaTime()
-        isRendering = true
-
-        ThorVGRenderQueue.shared.async { [weak self] in
-            guard let self else { return }
-            defer { self.isRendering = false }
-            self.stickerView.render(deltaTime: deltaTime)
-        }
-    }
-}
-
 
 final class StickerMessageContentView: UIView
 {
@@ -175,5 +152,29 @@ extension StickerMessageContentView
                 self?.superview?.layoutIfNeeded()
             }
         })
+    }
+}
+
+
+extension StickerMessageContentView: FrameTickRecievable
+{
+    func didReceiveFrameTick(deltaTime: TimeInterval)
+    {
+        guard !isRendering else { return }
+
+        //  Drop frames if renderer lags
+//        if CACurrentMediaTime() - lastRenderTime < (1.0 / 60.0)
+//        {
+//            return
+//        }
+
+        lastRenderTime = CACurrentMediaTime()
+        isRendering = true
+
+        ThorVGRenderQueue.shared.async { [weak self] in
+            guard let self else { return }
+            defer { self.isRendering = false }
+            self.stickerView.render(deltaTime: deltaTime)
+        }
     }
 }

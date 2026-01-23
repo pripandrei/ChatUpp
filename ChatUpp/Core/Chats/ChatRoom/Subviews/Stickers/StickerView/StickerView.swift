@@ -23,9 +23,7 @@ final class StickerView: UIView
     private var animationFrameRate: Float = 60
     private var currentFrameIndex: Float = 1
     
-    private let imageView = UIImageView()
-    
-    var name: String = ""
+    private let imageLayer: CALayer = .init()
 
     init(size: CGSize = .init(width: 200, height: 200))
     {
@@ -35,8 +33,7 @@ final class StickerView: UIView
         let bufferSize = Int(size.width * size.height)
         buffer = UnsafeMutablePointer<UInt32>.allocate(capacity: bufferSize)
         buffer?.initialize(repeating: 0, count: bufferSize)
-        setupImageView()
-        
+        layer.addSublayer(imageLayer)
     }
     
     required init?(coder: NSCoder) {
@@ -49,19 +46,11 @@ final class StickerView: UIView
         destroyBuffer()
     }
     
-    private func setupImageView()
-    {
-        imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(imageView)
-
-        NSLayoutConstraint.activate([
-            imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            imageView.topAnchor.constraint(equalTo: topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        imageLayer.frame = bounds
     }
+
     
     //MARK: - Setup lottie
     
@@ -98,7 +87,7 @@ final class StickerView: UIView
         let fileName = name + ".json"
         let pathExist = CacheManager.shared.doesFileExist(at: fileName)
         let stickerPath = pathExist ? CacheManager.shared.getURL(for: fileName)?.path() : nil
-        self.name = fileName
+        
         if let stickerPath
         {
             // sticker is cached, return path
@@ -138,17 +127,13 @@ final class StickerView: UIView
                 }
 
                 guard let cgImage = context?.makeImage() else { return }
-                let image = UIImage(cgImage: cgImage)
 
                 DispatchQueue.main.async {
-                    self.imageView.image = image
+                    self.imageLayer.contents = cgImage
+//                    self.layer.contents = cgImage
                 }
 
                 currentFrameIndex += Float(deltaTime) * animationFrameRate
-                if name == "hg_2.json"
-                {
-                    print("currentFrameIndex: ", currentFrameIndex)
-                }
                 if currentFrameIndex > numberOfFrames {
                     currentFrameIndex -= numberOfFrames
                 }
@@ -181,7 +166,8 @@ final class StickerView: UIView
     // MARK: - cleanup
     func cleanup(withBufferDestruction: Bool = false)
     {
-        imageView.image = nil
+//        layer.contents = nil
+        imageLayer.contents = nil
         renderer = nil
         context = nil
         currentFrameIndex = 1
