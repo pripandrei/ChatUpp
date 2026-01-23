@@ -31,6 +31,7 @@ final class StickersPackCell: UICollectionViewCell, FrameTickRecievable
 
     deinit {
         cleanup(destroyBuffer: true)
+//        print("StickersPackCell deinit")
     }
 
     // MARK: Setup

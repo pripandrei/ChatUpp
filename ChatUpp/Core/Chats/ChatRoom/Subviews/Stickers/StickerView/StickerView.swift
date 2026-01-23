@@ -9,6 +9,7 @@
 import UIKit
 import Foundation
 import ThorVGSwift
+import Gzip
 
 final class StickerView: UIView
 {
@@ -130,7 +131,6 @@ final class StickerView: UIView
 
                 DispatchQueue.main.async {
                     self.imageLayer.contents = cgImage
-//                    self.layer.contents = cgImage
                 }
 
                 currentFrameIndex += Float(deltaTime) * animationFrameRate
@@ -166,7 +166,6 @@ final class StickerView: UIView
     // MARK: - cleanup
     func cleanup(withBufferDestruction: Bool = false)
     {
-//        layer.contents = nil
         imageLayer.contents = nil
         renderer = nil
         context = nil

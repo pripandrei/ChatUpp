@@ -43,19 +43,6 @@ final class StickersPackCollectionView: UIView
     }
 
     deinit {
-//        stopAnimationLoop()
-//
-//        /// See FootNote.swift - [14]
-//        let sections = stickerSections
-//        Task {
-//            await StickerAnimationManager.shared.destroyAnimation
-//            {
-//                for section in sections
-//                {
-//                    section.items.forEach { $0.destroyAnimation() }
-//                }
-//            }
-//        }
 //        print("Sticker collection DEINIT")
     }
 

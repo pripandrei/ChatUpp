@@ -126,7 +126,7 @@ final class GreetingView: UIView
     deinit
     {
         cleanup()
-        print("deinit GreetingView")
+//        print("deinit GreetingView")
     }
 }
 
