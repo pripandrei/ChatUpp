@@ -20,16 +20,12 @@ final class StickerView: UIView
     private var context: CGContext?
 
     private var numberOfFrames: Float = 0
-    private var animationFrameRate: Float = 120
+    private var animationFrameRate: Float = 60
     private var currentFrameIndex: Float = 1
     
     private let imageView = UIImageView()
-    //    private var lastRenderTime: CFTimeInterval = 0
     
-//    var shouldDropFrame: Bool
-//    {
-//        return (CACurrentMediaTime() - lastRenderTime) < (1.0 / 60.0)
-//    }
+    var name: String = ""
 
     init(size: CGSize = .init(width: 200, height: 200))
     {
@@ -102,7 +98,7 @@ final class StickerView: UIView
         let fileName = name + ".json"
         let pathExist = CacheManager.shared.doesFileExist(at: fileName)
         let stickerPath = pathExist ? CacheManager.shared.getURL(for: fileName)?.path() : nil
-        
+        self.name = fileName
         if let stickerPath
         {
             // sticker is cached, return path
@@ -120,9 +116,6 @@ final class StickerView: UIView
 
         CacheManager.shared.saveData(unzippedData, toPath: fileName)
         return CacheManager.shared.getURL(for: fileName)?.path()
-        
-//        guard let jsonPath = CacheManager.shared.getURL(for: fileName)?.path() else
-//        { return nil }
     }
     
     //MARK: - Render
@@ -130,7 +123,7 @@ final class StickerView: UIView
     func render(deltaTime: CFTimeInterval)
     {
         autoreleasepool
-        {   // 🔑 MEMORY FIX
+        {
             guard let renderer, let buffer else { return }
 
             do {
@@ -152,6 +145,10 @@ final class StickerView: UIView
                 }
 
                 currentFrameIndex += Float(deltaTime) * animationFrameRate
+                if name == "hg_2.json"
+                {
+                    print("currentFrameIndex: ", currentFrameIndex)
+                }
                 if currentFrameIndex > numberOfFrames {
                     currentFrameIndex -= numberOfFrames
                 }
@@ -164,7 +161,8 @@ final class StickerView: UIView
     
     // MARK: - CGContext
     
-    private func createContext(buffer: UnsafeMutablePointer<UInt32>) -> CGContext? {
+    private func createContext(buffer: UnsafeMutablePointer<UInt32>) -> CGContext?
+    {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo.byteOrder32Little.rawValue |
                          CGImageAlphaInfo.premultipliedFirst.rawValue

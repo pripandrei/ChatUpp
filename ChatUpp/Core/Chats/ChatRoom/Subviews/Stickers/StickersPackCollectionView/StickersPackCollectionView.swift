@@ -6,7 +6,6 @@
 //
 
 import UIKit
-//import librlottie
 
 struct StickerPackSection
 {
@@ -60,26 +59,8 @@ final class StickersPackCollectionView: UIView
 //        print("Sticker collection DEINIT")
     }
 
-//    override func layoutSubviews()
-//    {
-//        if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout
-//        {
-//            let spacing: CGFloat = 10
-//            let itemWidth = (bounds.width - spacing * 5) / 4
-//            
-//            layout.itemSize = CGSize(width: itemWidth, height: itemWidth)
-//            layout.minimumLineSpacing = spacing
-//            layout.minimumInteritemSpacing = spacing
-//            layout.sectionInset = UIEdgeInsets(top: 0,
-//                                               left: spacing,
-//                                               bottom: 0,
-//                                               right: spacing)
-//        }
-//    }
-
     private func setupCollectionView()
     {
-//        let layout = UICollectionViewFlowLayout()
         let layout = makeLayout()
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
@@ -140,7 +121,6 @@ final class StickersPackCollectionView: UIView
         )
         
         // HEADER
-        
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                 heightDimension: .absolute(40))
         
@@ -152,13 +132,6 @@ final class StickersPackCollectionView: UIView
         
         return UICollectionViewCompositionalLayout(section: section)
     }
-
-    // MARK: - Animation Loop
-//    func startAnimationLoop() {
-//        let proxy = DisplayLinkProxy(target: self, selector: #selector(renderFrame))
-//        displayLink = CADisplayLink(target: proxy, selector: #selector(DisplayLinkProxy.onDisplayLink(_:)))
-//        displayLink?.add(to: .main, forMode: .common)
-//    }
 }
 
 // MARK: - DataSource
@@ -250,16 +223,4 @@ extension StickersPackCollectionView: UICollectionViewDelegate
         let stickerName = self.stickerSections[indexPath.section].stickers[indexPath.item]
         ChatManager.shared.newStickerSubject.send(stickerName)
     }
-    
-//    func collectionView(
-//        _ collectionView: UICollectionView,
-//        layout collectionViewLayout: UICollectionViewLayout,
-//        sizeForItemAt indexPath: IndexPath
-//    ) -> CGSize
-//    {
-//        let spacing: CGFloat = 10
-//        let totalSpacing = spacing * 5
-//        let width = (collectionView.bounds.width - totalSpacing) / 4
-//        return CGSize(width: width, height: width)
-//    }
 }

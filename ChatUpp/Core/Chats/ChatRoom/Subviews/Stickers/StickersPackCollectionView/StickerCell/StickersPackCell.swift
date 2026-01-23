@@ -7,18 +7,11 @@
 
 import UIKit
 
-//MARK: - Static variables
-extension StickersPackCell
-{
-    private static let renderQueue = DispatchQueue(
-        label: "thorvg.render.serial.queue",
-        qos: .userInitiated
-    )
-    static let reuseID = "StickerCell"
-}
 
 final class StickersPackCell: UICollectionViewCell, FrameTickRecievable
 {
+    static let reuseID = "StickersPackCell"
+    
     private let stickerView: StickerView!
     private var isVisible = false
     private var isRendering = false
@@ -75,15 +68,15 @@ final class StickersPackCell: UICollectionViewCell, FrameTickRecievable
         guard isVisible, !isRendering else { return }
 
         //  Drop frames if renderer lags
-        if CACurrentMediaTime() - lastRenderTime < (1.0 / 60.0)
-        {
-            return
-        }
+//        if CACurrentMediaTime() - lastRenderTime < (1.0 / 60.0)
+//        {
+//            return
+//        }
 
         lastRenderTime = CACurrentMediaTime()
         isRendering = true
 
-        Self.renderQueue.async { [weak self] in
+        ThorVGRenderQueue.shared.async { [weak self] in
             guard let self else { return }
             defer { self.isRendering = false }
             self.stickerView.render(deltaTime: deltaTime)

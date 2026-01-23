@@ -36,8 +36,7 @@ final class FrameTicker
     {
         guard displayLink == nil else { return }
         displayLink = CADisplayLink(target: self, selector: #selector(tick))
-        // 🔑 MEMORY + CPU CONTROL
-        displayLink?.preferredFrameRateRange = .init(minimum: 30,
+        displayLink?.preferredFrameRateRange = .init(minimum: 60,
                                                      maximum: 120,
                                                      preferred: 60)
         
@@ -61,4 +60,13 @@ final class FrameTicker
             (object as? FrameTickRecievable)?.didReceiveFrameTick(deltaTime: delta)
         }
     }
+}
+
+
+/// Only one, serial queue should be used for all stickers render !!!
+///
+enum ThorVGRenderQueue
+{
+    static let shared: DispatchQueue = .init(label: "thorvg.render.global.serial",
+                                             qos: .userInitiated)
 }

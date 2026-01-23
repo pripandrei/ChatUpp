@@ -8,12 +8,39 @@
 import UIKit
 import Combine
 
+extension StickerMessageContentView: FrameTickRecievable
+{
+    func didReceiveFrameTick(deltaTime: TimeInterval)
+    {
+        guard /*isVisible, */!isRendering else { return }
+
+        //  Drop frames if renderer lags
+//        if CACurrentMediaTime() - lastRenderTime < (1.0 / 60.0)
+//        {
+//            return
+//        }
+
+        lastRenderTime = CACurrentMediaTime()
+        isRendering = true
+
+        ThorVGRenderQueue.shared.async { [weak self] in
+            guard let self else { return }
+            defer { self.isRendering = false }
+            self.stickerView.render(deltaTime: deltaTime)
+        }
+    }
+}
+
+
 final class StickerMessageContentView: UIView
 {
-    private var stickerRLottieView: RLLottieView = .init(renderSize: .init(width: 300, height: 300))
+    private var stickerView: StickerView = .init(size: .init(width: 300, height: 300))
     private let stickerComponentsView: MessageComponentsView = .init()
     private var replyToMessageStackView: ReplyToMessageStackView?
     private var cancellables = Set<AnyCancellable>()
+    
+    private var isRendering: Bool = false
+    private var lastRenderTime: CFTimeInterval = 0
     
     convenience init()
     {
@@ -22,14 +49,14 @@ final class StickerMessageContentView: UIView
         setupStickerComponentsView()
     }
     
-    deinit {
-//        print("sticker view deinit")
-        DisplayLinkManager.shered.cleanup(stickerRLottieView)
-        stickerRLottieView.setVisible(false)
-        stickerRLottieView.destroyAnimation()
+    deinit
+    {
+        FrameTicker.shared.remove(self)
+        stickerView.cleanup(withBufferDestruction: true)
         stickerComponentsView.cleanupContent()
         replyToMessageStackView?.removeFromSuperview()
         replyToMessageStackView = nil
+//        print("deinit sticker content view")
     }
     
     //MARK: - UI setup
@@ -39,28 +66,28 @@ final class StickerMessageContentView: UIView
         stickerComponentsView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            stickerComponentsView.trailingAnchor.constraint(equalTo: stickerRLottieView.trailingAnchor, constant: -8),
+            stickerComponentsView.trailingAnchor.constraint(equalTo: stickerView.trailingAnchor, constant: -8),
             stickerComponentsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
         ])
     }
     
     private func setupSticker()
     {
-        addSubview(stickerRLottieView)
-        stickerRLottieView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stickerView)
+        stickerView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            stickerRLottieView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            stickerRLottieView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
-            stickerRLottieView.widthAnchor.constraint(equalTo: stickerRLottieView.heightAnchor),
+            stickerView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            stickerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            stickerView.widthAnchor.constraint(equalTo: stickerView.heightAnchor),
         ])
     }
     
     private func adjustStickerAlignment(_ alignment: MessageAlignment)
     {
         let stickerSideConstraint = alignment == .right ?
-        stickerRLottieView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15) :
-        stickerRLottieView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
+        stickerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15) :
+        stickerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
         stickerSideConstraint.isActive = true
     }
     
@@ -96,7 +123,7 @@ final class StickerMessageContentView: UIView
     
     // MARK: - binding
     
-    func setupBinding(publisher: AnyPublisher<MessageObservedProperty, Never>)
+    private func setupBinding(publisher: AnyPublisher<MessageObservedProperty, Never>)
     {
         publisher.sink { [weak self] property in
             switch property
@@ -115,9 +142,13 @@ final class StickerMessageContentView: UIView
         
         setupBinding(publisher: viewModel.messagePropertyUpdateSubject.eraseToAnyPublisher())
         
-        stickerRLottieView.loadAnimation(named: message.sticker!)
-        stickerRLottieView.setVisible(true)
-        DisplayLinkManager.shered.addObject(stickerRLottieView)
+        if let stickerName = message.sticker
+        {
+            stickerView.setupSticker(stickerName)
+            FrameTicker.shared.add(self)
+        } else {
+            print("Message with sticker type, missing sticker name !!!!")
+        }
         
         stickerComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
         
