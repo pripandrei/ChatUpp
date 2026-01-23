@@ -693,7 +693,13 @@ extension ChatRoomViewModel
         if shouldFetchNewMessages
         {
             conversationInitializationStatus = .inProgress
-            Task { await initializeWithRemoteData() }
+            Task {
+                while NetworkMonitor.shared.isReachable == false
+                {
+                    try await Task.sleep(for: .seconds(7))
+                }
+                await initializeWithRemoteData()
+            }
         }
         else { initializeWithLocalData() }
     }

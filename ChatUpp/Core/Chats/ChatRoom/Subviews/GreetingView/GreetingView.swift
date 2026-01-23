@@ -9,8 +9,10 @@ import UIKit
 
 final class GreetingView: UIView
 {
-    private let greetingRLottieView: RLLottieView = .init(renderSize: .init(width: 250, height: 250))
+    private let greetingStickerView: StickerView = .init(size: .init(width: 250, height: 250))
     private var blurredView: UIVisualEffectView?
+    private var lastRenderTime: CFTimeInterval = 0.0
+    private var isRendering: Bool = false
     
     private let animationName: String = {
         let animationName = ["hg_5","dd_5","duck_5", "lb_5", "mb_5"].randomElement() ?? "hg_5"
@@ -42,7 +44,7 @@ final class GreetingView: UIView
         super.init(frame: .zero)
         setupView()
         setupConstraints()
-        setupGreetingRLottieAnimation()
+        setupGreetingStickerAnimation()
         setupGesture()
     }
     
@@ -61,7 +63,7 @@ final class GreetingView: UIView
                                          backgroundColor: #colorLiteral(red: 0.2272113562, green: 0.1652361751, blue: 0.2635013759, alpha: 1),
                                          alpha: 0.2)
         
-        [titleLabel, subTitle, greetingRLottieView].forEach {
+        [titleLabel, subTitle, greetingStickerView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             addSubview($0)
         }
@@ -86,12 +88,12 @@ final class GreetingView: UIView
             subTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -paddingSides),
             
             // Lottie View
-            greetingRLottieView.topAnchor.constraint(equalTo: subTitle.bottomAnchor, constant: spacing),
-            greetingRLottieView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            greetingRLottieView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -paddingTop),
+            greetingStickerView.topAnchor.constraint(equalTo: subTitle.bottomAnchor, constant: spacing),
+            greetingStickerView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            greetingStickerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -paddingTop),
             
             // Maintain aspect ratio: width = height
-            greetingRLottieView.widthAnchor.constraint(equalTo: greetingRLottieView.heightAnchor)
+            greetingStickerView.widthAnchor.constraint(equalTo: greetingStickerView.heightAnchor)
         ])
     }
     
@@ -109,23 +111,44 @@ final class GreetingView: UIView
     }
     
     // MARK: - Lottie Setup
-    private func setupGreetingRLottieAnimation()
+    private func setupGreetingStickerAnimation()
     {
-        greetingRLottieView.loadAnimation(named: animationName)
-        greetingRLottieView.setVisible(true)
-        DisplayLinkManager.shered.addObject(greetingRLottieView)
+        greetingStickerView.setupSticker(animationName)
+        FrameTicker.shared.add(self)
     }
 
     private func cleanup()
     {
-        DisplayLinkManager.shered.cleanup(greetingRLottieView)
-        greetingRLottieView.setVisible(false)
-        greetingRLottieView.destroyAnimation()
+        FrameTicker.shared.remove(self)
+        greetingStickerView.cleanup(withBufferDestruction: true)
     }
     
     deinit
     {
-//        print("deinit GreetingView")
         cleanup()
+//        print("deinit GreetingView")
+    }
+}
+
+extension GreetingView: FrameTickRecievable
+{
+    func didReceiveFrameTick(deltaTime: TimeInterval)
+    {
+        guard !isRendering else { return }
+
+        //  Drop frames if renderer lags
+//        if CACurrentMediaTime() - lastRenderTime < (1.0 / 60.0)
+//        {
+//            return
+//        }
+
+        lastRenderTime = CACurrentMediaTime()
+        isRendering = true
+
+        ThorVGRenderQueue.shared.async { [weak self] in
+            guard let self else { return }
+            defer { self.isRendering = false }
+            self.greetingStickerView.render(deltaTime: deltaTime)
+        }
     }
 }
