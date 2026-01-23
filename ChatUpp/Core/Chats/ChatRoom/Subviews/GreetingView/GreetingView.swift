@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 final class GreetingView: UIView
 {
     private let greetingStickerView: StickerView = .init(size: .init(width: 250, height: 250))

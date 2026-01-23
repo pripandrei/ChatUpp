@@ -45,7 +45,6 @@
 		7552C0432E2975B400020BDB /* RemoteMessagePaginator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7552C03E2E2975B200020BDB /* RemoteMessagePaginator.swift */; };
 		7553BE912E5BE87B001EAC63 /* MessageNotificationBannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7553BE8C2E5BE86C001EAC63 /* MessageNotificationBannerViewModel.swift */; };
 		75592EB12E70D4D600247CB5 /* StickersPackCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75592EB02E70D4C500247CB5 /* StickersPackCollectionView.swift */; };
-		75592EB42E70D59A00247CB5 /* librlottie in Frameworks */ = {isa = PBXBuildFile; productRef = 75592EB32E70D59A00247CB5 /* librlottie */; };
 		755A3F7B2AD0689500739861 /* ChatsTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7A2AD0689500739861 /* ChatsTableViewDataSource.swift */; };
 		755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */; };
 		755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F9F2AD2F2C100739861 /* Coordinator.swift */; };
@@ -160,16 +159,11 @@
 		75C0CE1B2ECF8D7900F083D0 /* TargetedPreviewContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0CE1A2ECF8D7200F083D0 /* TargetedPreviewContentView.swift */; };
 		75C0CE1D2ECF8DB500F083D0 /* TargetedPreviewComponentsSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0CE1C2ECF8DA800F083D0 /* TargetedPreviewComponentsSize.swift */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
-		75C8F7612E818CFF007317E0 /* StickerRlottieCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7602E818CF6007317E0 /* StickerRlottieCell.swift */; };
-		75C8F7632E818D3D007317E0 /* StickerRLottieCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7622E818D32007317E0 /* StickerRLottieCellViewModel.swift */; };
 		75C8F7652E818E6A007317E0 /* DisplayLinkProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7642E818E64007317E0 /* DisplayLinkProxy.swift */; };
-		75C8F7672E818F06007317E0 /* StickerAnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7662E818F04007317E0 /* StickerAnimationManager.swift */; };
-		75C8F7692E818FB8007317E0 /* RLLottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7682E818FB6007317E0 /* RLLottieView.swift */; };
 		75C8F76B2E819089007317E0 /* OpaquePointer+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F76A2E81907D007317E0 /* OpaquePointer+Extensions.swift */; };
 		75C8F76F2E81930E007317E0 /* CustomFPNTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F76E2E81930C007317E0 /* CustomFPNTextField.swift */; };
 		75C8F7712E8193CF007317E0 /* CustomizedShadowTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */; };
 		75C8F7772E819A79007317E0 /* ChatRoom+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */; };
-		75C8F77E2E84739E007317E0 /* DisplayLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F77D2E847396007317E0 /* DisplayLinkManager.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
 		75CC9FE62D594042002051EB /* ColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorScheme.swift */; };
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
@@ -388,16 +382,11 @@
 		75C0CE1A2ECF8D7200F083D0 /* TargetedPreviewContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetedPreviewContentView.swift; sourceTree = "<group>"; };
 		75C0CE1C2ECF8DA800F083D0 /* TargetedPreviewComponentsSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetedPreviewComponentsSize.swift; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
-		75C8F7602E818CF6007317E0 /* StickerRlottieCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerRlottieCell.swift; sourceTree = "<group>"; };
-		75C8F7622E818D32007317E0 /* StickerRLottieCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerRLottieCellViewModel.swift; sourceTree = "<group>"; };
 		75C8F7642E818E64007317E0 /* DisplayLinkProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkProxy.swift; sourceTree = "<group>"; };
-		75C8F7662E818F04007317E0 /* StickerAnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerAnimationManager.swift; sourceTree = "<group>"; };
-		75C8F7682E818FB6007317E0 /* RLLottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RLLottieView.swift; sourceTree = "<group>"; };
 		75C8F76A2E81907D007317E0 /* OpaquePointer+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OpaquePointer+Extensions.swift"; sourceTree = "<group>"; };
 		75C8F76E2E81930C007317E0 /* CustomFPNTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFPNTextField.swift; sourceTree = "<group>"; };
 		75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizedShadowTextField.swift; sourceTree = "<group>"; };
 		75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatRoom+Enums.swift"; sourceTree = "<group>"; };
-		75C8F77D2E847396007317E0 /* DisplayLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkManager.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
 		75CC9FE12D59402F002051EB /* ColorScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorScheme.swift; sourceTree = "<group>"; };
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
@@ -464,7 +453,6 @@
 			files = (
 				757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */,
 				7587D3AC2E63B7FD00DEE900 /* Gzip in Frameworks */,
-				75592EB42E70D59A00247CB5 /* librlottie in Frameworks */,
 				75FD79812E95CDD200B3782F /* Core in Frameworks */,
 				757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */,
 				75FD79832E95CDD200B3782F /* Search in Frameworks */,
@@ -860,7 +848,6 @@
 			isa = PBXGroup;
 			children = (
 				756A2AD12F23742B00C5D7B0 /* StickerView */,
-				75C8F77C2E819E03007317E0 /* StickerManager */,
 				75C8F77A2E819D7A007317E0 /* StickersPackModel */,
 				75C8F7792E819D64007317E0 /* StickersPackCollectionView */,
 			);
@@ -923,7 +910,6 @@
 			isa = PBXGroup;
 			children = (
 				75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */,
-				75C8F7682E818FB6007317E0 /* RLLottieView.swift */,
 				759894B12E4E7281003CF661 /* ContainerView.swift */,
 			);
 			path = UIComponents;
@@ -1055,7 +1041,6 @@
 			isa = PBXGroup;
 			children = (
 				756A2AD62F23754F00C5D7B0 /* FrameTicker.swift */,
-				75C8F77D2E847396007317E0 /* DisplayLinkManager.swift */,
 				75AD5EA22E7B03630075377B /* KeyboardService.swift */,
 				75A9184A2C942E15006ED4CA /* CacheManager.swift */,
 				758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */,
@@ -1349,26 +1334,8 @@
 			isa = PBXGroup;
 			children = (
 				756A2AD42F2374D300C5D7B0 /* StickersPackCell.swift */,
-				75C8F75F2E818CEF007317E0 /* ViewModel */,
-				75C8F75E2E818CE6007317E0 /* View */,
 			);
 			path = StickerCell;
-			sourceTree = "<group>";
-		};
-		75C8F75E2E818CE6007317E0 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				75C8F7602E818CF6007317E0 /* StickerRlottieCell.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		75C8F75F2E818CEF007317E0 /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				75C8F7622E818D32007317E0 /* StickerRLottieCellViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		75C8F76C2E8192F9007317E0 /* UIComponents */ = {
@@ -1449,14 +1416,6 @@
 				756812E62E63D79200E421CE /* StickersPackModel.swift */,
 			);
 			path = StickersPackModel;
-			sourceTree = "<group>";
-		};
-		75C8F77C2E819E03007317E0 /* StickerManager */ = {
-			isa = PBXGroup;
-			children = (
-				75C8F7662E818F04007317E0 /* StickerAnimationManager.swift */,
-			);
-			path = StickerManager;
 			sourceTree = "<group>";
 		};
 		75CB52192B0BF07D007F3AB6 /* Firebase storage */ = {
@@ -1820,7 +1779,6 @@
 				756E6D1E2D8210890065CADB /* NVActivityIndicatorViewExtended */,
 				751599012E5F899100E22801 /* SKPhotoBrowser */,
 				7587D3AB2E63B7FD00DEE900 /* Gzip */,
-				75592EB32E70D59A00247CB5 /* librlottie */,
 				75FD79802E95CDD200B3782F /* Core */,
 				75FD79822E95CDD200B3782F /* Search */,
 				75B9CABD2ED6342B002D701F /* LoaderUI */,
@@ -1865,7 +1823,6 @@
 				756E6D1B2D8210890065CADB /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */,
 				751599002E5F899100E22801 /* XCRemoteSwiftPackageReference "SKPhotoBrowser" */,
 				7587D3AA2E63B7FD00DEE900 /* XCRemoteSwiftPackageReference "GzipSwift" */,
-				75592EB22E70D59A00247CB5 /* XCRemoteSwiftPackageReference "librlottie-Xcode" */,
 				75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 				75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */,
 				756A2ACC2F22B39700C5D7B0 /* XCRemoteSwiftPackageReference "thorvg.swift" */,
@@ -1932,7 +1889,6 @@
 				75D31DD32EDAB41800AF6102 /* ThemesPackViewModel.swift in Sources */,
 				7543BE352ACC87E1003001BF /* ChatRoomViewModel.swift in Sources */,
 				75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */,
-				75C8F77E2E84739E007317E0 /* DisplayLinkManager.swift in Sources */,
 				75C0898E2ECABB4300F083D0 /* UIColor+Extensions.swift in Sources */,
 				756891B42B6549E500DC7D71 /* ResultsCellViewModel.swift in Sources */,
 				7541EF072D8B6F0D00ABC8BA /* ChatRoomInformationViewModel.swift in Sources */,
@@ -2037,7 +1993,6 @@
 				7573E5C32B5BD4500096B4E6 /* ProfileDeletionViewController.swift in Sources */,
 				75E8AAC02D9192ED007479E4 /* ChatRoomInformationEditViewModel.swift in Sources */,
 				75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */,
-				75C8F7692E818FB8007317E0 /* RLLottieView.swift in Sources */,
 				75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */,
 				75FB78F62AC3113700C2743A /* UsernameRegistrationViewModel.swift in Sources */,
 				7553BE912E5BE87B001EAC63 /* MessageNotificationBannerViewModel.swift in Sources */,
@@ -2079,7 +2034,6 @@
 				75C0CE1B2ECF8D7900F083D0 /* TargetedPreviewContentView.swift in Sources */,
 				75C0CE1D2ECF8DB500F083D0 /* TargetedPreviewComponentsSize.swift in Sources */,
 				75A7AFDA2D3C394800E081DF /* InputBarContainer.swift in Sources */,
-				75C8F7632E818D3D007317E0 /* StickerRLottieCellViewModel.swift in Sources */,
 				752706552DAAF494002128DF /* ChatRoomNavigationBarViewModel.swift in Sources */,
 				75D7C5952AD72DBC00F6D4B9 /* ConversationMessageCell.swift in Sources */,
 				752DE4092D21700A003AC40C /* GroupCreationViewModel.swift in Sources */,
@@ -2095,14 +2049,12 @@
 				7527068A2DAEB37B002128DF /* ReactionPanelView.swift in Sources */,
 				75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */,
 				756525CC2A9E8EBD005DC594 /* SettingsViewController.swift in Sources */,
-				75C8F7672E818F06007317E0 /* StickerAnimationManager.swift in Sources */,
 				7563F87C2ADE25E6006FA374 /* ConversationTableViewDataSource.swift in Sources */,
 				75BC06742DFB60E6002ED4AA /* GroupEventMessageList.swift in Sources */,
 				75E8AAC22D9213F9007479E4 /* ImageRepositoryRepresentable.swift in Sources */,
 				759894BF2E4FFFA8003CF661 /* ChatManager.swift in Sources */,
 				754439302B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift in Sources */,
 				752DE40D2D218B95003AC40C /* GroupMembersSelectionScreen.swift in Sources */,
-				75C8F7612E818CFF007317E0 /* StickerRlottieCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2330,14 +2282,6 @@
 				minimumVersion = 8.6.0;
 			};
 		};
-		75592EB22E70D59A00247CB5 /* XCRemoteSwiftPackageReference "librlottie-Xcode" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/librlottie-Xcode.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.2.1;
-			};
-		};
 		756A2ACC2F22B39700C5D7B0 /* XCRemoteSwiftPackageReference "thorvg.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/thorvg/thorvg.swift.git";
@@ -2438,11 +2382,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 752514B82D0CD2FF003330E7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
-		};
-		75592EB32E70D59A00247CB5 /* librlottie */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 75592EB22E70D59A00247CB5 /* XCRemoteSwiftPackageReference "librlottie-Xcode" */;
-			productName = librlottie;
 		};
 		756A2ACD2F22B39700C5D7B0 /* ThorVGSwift */ = {
 			isa = XCSwiftPackageProductDependency;

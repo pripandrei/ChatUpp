@@ -1,5 +1,5 @@
 {
-  "originHash" : "eff8638d2d65d0900fba88fc5cdc408a65a3ae8442d5b5eac9d6fbc002c020b9",
+  "originHash" : "2dd2b0c20a30ba83174b959316a77ccaa590d9d82cbf40603d79ad23ad187fd0",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -161,15 +161,6 @@
       "state" : {
         "revision" : "a0bc79961d7be727d258d33d5a6b2f1023270ba1",
         "version" : "1.22.5"
-      }
-    },
-    {
-      "identity" : "librlottie-xcode",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SDWebImage/librlottie-Xcode.git",
-      "state" : {
-        "revision" : "4ae1ba205910c804ee2d4cd7dd7f122964fe3aad",
-        "version" : "0.2.1"
       }
     },
     {
