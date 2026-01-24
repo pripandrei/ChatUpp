@@ -457,6 +457,36 @@ extension FirebaseChatService
 
 extension FirebaseChatService
 {
+    func updateUnseenMessagesCountUsingTransaction(for participantsID: [String],
+                                                   inChatWithID chatID: String,
+                                                   counter: Int,
+                                                   shouldIncrement: Bool) async throws
+    {
+        let chatRef = chatDocument(documentPath: chatID)
+        let counter = shouldIncrement ? counter : -counter
+        
+        let _ = try await db.runTransaction ({ transaction, errorPointer in
+            
+            do {
+                let snapshot = try transaction.getDocument(chatRef)
+                
+                for id in participantsID
+                {
+                    let fieldPath = "participants.\(id).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
+                    let currentUnseenCount = snapshot.get(fieldPath) as? Int ?? 0
+                    
+                    let finalCount = max(0, currentUnseenCount + counter)
+                    
+                    transaction.updateData([fieldPath: finalCount],
+                                           forDocument: chatRef)
+                }
+            } catch let fetchError as NSError {
+                errorPointer?.pointee = fetchError
+            }
+            return nil
+        })
+    }
+    
     func updateUnseenMessagesCount(for participantsID: [String],
                                    inChatWithID chatID: String,
                                    counter: Int,

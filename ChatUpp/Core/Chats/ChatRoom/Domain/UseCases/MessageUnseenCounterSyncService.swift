@@ -61,7 +61,13 @@ actor MessageUnseenCounterSyncService
         guard delta != 0 else { return }
 
         do {
-            try await FirebaseChatService.shared.updateUnseenMessagesCount(
+//            try await FirebaseChatService.shared.updateUnseenMessagesCount(
+//                for: [userID],
+//                inChatWithID: chatID,
+//                counter: abs(delta),
+//                shouldIncrement: delta > 0
+//            )
+            try await FirebaseChatService.shared.updateUnseenMessagesCountUsingTransaction(
                 for: [userID],
                 inChatWithID: chatID,
                 counter: abs(delta),
@@ -75,26 +81,26 @@ actor MessageUnseenCounterSyncService
         }
     }
 
-    func updateRemote(chatID: String,
-                      userID: String,
-                      numberOfUpdatedMessages: Int,
-                      increment: Bool) async
-    {
-//        Task
-//        {
-        print("counter read: " , numberOfUpdatedMessages)
-            do {
-                try await FirebaseChatService.shared.updateUnseenMessagesCount(
-                    for: [userID],
-                    inChatWithID: chatID,
-                    counter: numberOfUpdatedMessages,
-                    shouldIncrement: increment
-                )
-            } catch {
-                print("Error updating unseen messages counter remote: ", error)
-            }
-//        }
-    }
+//    func updateRemote(chatID: String,
+//                      userID: String,
+//                      numberOfUpdatedMessages: Int,
+//                      increment: Bool) async
+//    {
+////        Task
+////        {
+////        print("counter read: " , numberOfUpdatedMessages)
+//            do {
+//                try await FirebaseChatService.shared.updateUnseenMessagesCount(
+//                    for: [userID],
+//                    inChatWithID: chatID,
+//                    counter: numberOfUpdatedMessages,
+//                    shouldIncrement: increment
+//                )
+//            } catch {
+//                print("Error updating unseen messages counter remote: ", error)
+//            }
+////        }
+//    }
     
     func updateParticipantsUnseenCounterRemote(chat: ThreadSafe<Chat>) async
     {
