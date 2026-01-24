@@ -17,6 +17,9 @@ final class ResultsTableCell: UITableViewCell {
     var imageURL: String?
     private var cancellables = Set<AnyCancellable>()
     
+    private var titleYAnchor: NSLayoutConstraint?
+    private var subtitleStackView: UIStackView?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -36,7 +39,13 @@ final class ResultsTableCell: UITableViewCell {
         self.cellViewModel = viewModel
         setupBinding()
         titleLabel.text = cellViewModel.titleName
-        self.profileImageView.image = nil
+        setupTitleYconstraint()
+        
+        if cellViewModel.nickname != nil || cellViewModel.groupParticipantsCount != nil
+        {
+            createStackViewForSubTitle()
+        }
+//        self.profileImageView.image = nil
         setImage()
     }
     
@@ -95,16 +104,85 @@ final class ResultsTableCell: UITableViewCell {
         titleLabel.lastLineFillPercent = 30
         titleLabel.textColor = ColorScheme.textFieldTextColor
         titleLabel.font = .systemFont(ofSize: 17, weight: .bold)
+        titleLabel.numberOfLines = 1
+        titleLabel.lineBreakMode = .byTruncatingTail
         
 //        userNameLabel.skeletonPaddingInsets
 //        userNameLabel.backgroundColor = .green
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
+//        let titleYAnchor = cellViewModel.nickname == nil ?
+//        titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+//        :
+//        titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 10)
+//        
         NSLayoutConstraint.activate([
-            titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+//            titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
         ])
+    }
+    
+    private func setupTitleYconstraint()
+    {
+        let shouldCenterY = (cellViewModel.nickname == nil && cellViewModel.groupParticipantsCount == nil)
+        self.titleYAnchor = shouldCenterY ?
+        titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+        :
+        titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 10)
+        titleYAnchor?.isActive = true
+    }
+    
+    private func createStackViewForSubTitle()
+    {
+        self.subtitleStackView = UIStackView()
+        subtitleStackView?.axis = .horizontal
+        subtitleStackView?.spacing = 4
+        subtitleStackView?.distribution = .equalSpacing
+        subtitleStackView?.alignment = .center
+        subtitleStackView?.translatesAutoresizingMaskIntoConstraints = false
+        
+        if let nick = cellViewModel.nickname
+        {
+            let nicknameLabel = UILabel()
+            nicknameLabel.text = nick
+            nicknameLabel.font = .systemFont(ofSize: 13, weight: .regular)
+            nicknameLabel.textColor = ColorScheme.actionButtonsTintColor
+            subtitleStackView?.addArrangedSubview(nicknameLabel)
+        }
+        
+        if let participantsCount = cellViewModel.groupParticipantsCount
+        {
+            let participantsLabel = UILabel()
+            participantsLabel.text = participantsCount
+            participantsLabel.font = .systemFont(ofSize: 13, weight: .regular)
+            participantsLabel.textColor = ColorScheme.actionButtonsTintColor
+            subtitleStackView?.addArrangedSubview(participantsLabel)
+        }
+        
+        contentView.addSubview(subtitleStackView!)
+        
+        NSLayoutConstraint.activate([
+            subtitleStackView!.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor,
+                                                        constant: 10),
+            subtitleStackView!.trailingAnchor.constraint(equalTo: self.trailingAnchor,
+                                                         constant: -10),
+            subtitleStackView!.bottomAnchor.constraint(equalTo: self.bottomAnchor,
+                                                         constant: -7),
+        ])
+    }
+    
+    override func prepareForReuse()
+    {
+        super.prepareForReuse()
+        
+        titleLabel.text = nil
+        profileImageView.image = nil
+        titleYAnchor?.isActive = false
+        
+        subtitleStackView?.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        subtitleStackView?.removeFromSuperview()
+        subtitleStackView = nil
     }
 }
 

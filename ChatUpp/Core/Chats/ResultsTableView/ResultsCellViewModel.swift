@@ -37,7 +37,21 @@ final class ResultsCellViewModel
         }
         
         return "No Name"
-//        return chat?.name != nil ? chat?.name : participant?.name
+    }
+    
+    var nickname: String?
+    {
+        if let nick = participant?.nickname
+        {
+            return "@\(nick)"
+        }
+        return nil
+    }
+    
+    var groupParticipantsCount: String?
+    {
+        guard chat?.isGroup == true else { return nil }
+        return "\(chat!.participants.count) participants"
     }
     
     var imageURL: String? {
