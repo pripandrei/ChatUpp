@@ -83,13 +83,13 @@ extension NewGroupSetupScreen
                    groupNameTextField()
                    removeTextButton()
                }
-               .onChange(of: profilePhotoItem) { _ in
+               .onChange(of: profilePhotoItem, {
                    Task {
                        if let imageData = await extractImageData() {
                            self.imageDataContainer = IdentifiableItem(item: imageData)
                        }
                    }
-               }
+               })
            }
            .listRowBackground(Color(ColorScheme.listCellBackgroundColor))
            .sheet(item: $imageDataContainer) { container in

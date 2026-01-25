@@ -179,3 +179,74 @@ extension ProfileEditingViewModel
         case username = "username"
     }
 }
+
+//import Observation
+
+@Observable
+final class NicknameUpdateViewModel
+{
+    private(set) var nicknameValidationStatus: NicknameValidationResult
+    var updatedNickname: String
+    var initialNickname: String
+//
+    init(updatedNickname: String)
+    {
+        self.initialNickname = updatedNickname
+        self.updatedNickname = updatedNickname
+        self.nicknameValidationStatus = .initial
+    }
+    
+    func checkIfNicknameIsValid()
+    {
+        if updatedNickname.count < 5
+        {
+            nicknameValidationStatus = .isShort
+            return
+        }
+        
+        if updatedNickname.count > 30
+        {
+            nicknameValidationStatus = .invalid
+            return
+        }
+        
+        if updatedNickname == initialNickname
+        {
+            nicknameValidationStatus = .initial
+            return
+        }
+        
+        if updatedNickname.count == 10
+        {
+            nicknameValidationStatus = .isAvailable(name: updatedNickname)
+            return
+        }
+        
+        
+        
+    }
+}
+
+extension NicknameUpdateViewModel
+{
+    enum NicknameValidationResult: Equatable, Hashable
+    {
+        case isAvailable(name: String)
+        case isTaken
+        case isShort
+        case invalid
+        case initial
+        
+        var statusTitle: String
+        {
+            switch self
+            {
+            case .isAvailable(let nickName): return "\(nickName) is available"
+            case .isTaken: return "This is already taken"
+            case .isShort: return "nickname must have at least 5 characters"
+            case .invalid: return "sorry, this nickname is invalid"
+            default: return ""
+            }
+        }
+    }
+}

@@ -8,9 +8,18 @@ import SwiftUI
 
 struct NicknameUpdateScreen: View
 {
-    @State var username: String = ""
+    @State private var viewModel: NicknameUpdateViewModel
+//    @State var nickname: String = ""
+//    @State var isNicknameValid: Bool?
     @Environment(\.dismiss) private var dismiss
     
+    init(nickname: String)
+    {
+        self._viewModel = State(wrappedValue: NicknameUpdateViewModel(updatedNickname: nickname))
+//        self.nickname = nickname
+//        self.isNicknameValid = isNicknameValid
+    }
+
     var body: some View
     {
         NavigationStack {
@@ -22,12 +31,16 @@ struct NicknameUpdateScreen: View
                 {
                     TextField
                     
-                    DescriptionText("You can choose a username on ChatUpp. If you do so, peopler will e able to find you by this ursername.")
+                    CurrentStatusText
+                    
+                    DescriptionText("You can choose a nickname on ChatUpp. If you do so, peopler will e able to find you by this ursername.")
                     
                     DescriptionText("You can use a-z, 0-9 and underscores. Minimum lenght is 5 cahracters.")
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 50)
+                .animation(.easeInOut(duration: 0.25),
+                           value: viewModel.nicknameValidationStatus)
                 
                 //            Spacer()
             }
@@ -44,13 +57,35 @@ struct NicknameUpdateScreen: View
     }
 }
 
+extension NicknameUpdateScreen
+{
+    private var CurrentStatusText: some View
+    {
+        return Text(viewModel.nicknameValidationStatus.statusTitle)
+            .foregroundStyle(nicknameTextStatusColor)
+            .padding(.horizontal, 10)
+//            .transition(.opacity.combined(with: .move(edge: .bottom)))
+    }
+    
+    var nicknameTextStatusColor: Color
+    {
+        switch viewModel.nicknameValidationStatus
+        {
+        case .invalid, .isShort, .isTaken: return .red
+        case .isAvailable(name: _): return .green
+        default: return .primary
+        }
+    }
+}
+
 // MARK: - Textfield
 extension NicknameUpdateScreen
 {
     var TextField: some View
     {
-        return textField($username, placeholder: "Username")
-            .padding(.horizontal, 20)
+        return textField($viewModel.updatedNickname, placeholder: "Nickname")
+            .padding(.leading, 20)
+            .padding(.trailing, 55)
             .font(.system(size: 18, weight: .medium))
             .frame(height: 50)
             .background(Color(ColorScheme.messageTextFieldBackgroundColor))
@@ -61,6 +96,10 @@ extension NicknameUpdateScreen
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(20)
             }
+            .onChange(of: viewModel.updatedNickname)
+        {
+            viewModel.checkIfNicknameIsValid()
+        }
     }
 }
 
@@ -83,6 +122,7 @@ extension NicknameUpdateScreen
         
         ToolbarItem(placement: .topBarTrailing) {
             ToolbarItemButton(text: "Done")
+                .disabled(viewModel.updatedNickname.isEmpty)
         }
     }
     
@@ -138,7 +178,7 @@ extension NicknameUpdateScreen
     private func RemoveTextButton() -> some View
     {
         Button {
-            self.username = ""
+            viewModel.updatedNickname = ""
         } label: {
             Image(systemName: "xmark")
                 .imageScale(.small)
@@ -149,12 +189,10 @@ extension NicknameUpdateScreen
                 .clipShape(.circle)
         }
     }
-    
-    
 }
 
 
 #Preview
 {
-    NicknameUpdateScreen()
+    NicknameUpdateScreen(nickname: "Damien")
 }
