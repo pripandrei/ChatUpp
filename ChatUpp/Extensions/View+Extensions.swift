@@ -36,6 +36,15 @@ extension View
             }
         }
     }
+    
+    func textField(_ text: Binding<String>,
+                           placeholder: String) -> some View
+    {
+        return TextField("",
+                         text: text,
+                         prompt: Text(verbatim: placeholder).foregroundColor(Color(ColorScheme.textFieldPlaceholderColor)))
+        .foregroundStyle(Color(ColorScheme.textFieldTextColor))
+    }
 }
 
 struct AlertModifier: ViewModifier

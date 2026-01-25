@@ -1,0 +1,160 @@
+//
+//  NicknameUpdateScreen.swift
+//  ChatUpp
+//
+//  Created by Andrei Pripa on 1/25/26.
+//
+import SwiftUI
+
+struct NicknameUpdateScreen: View
+{
+    @State var username: String = ""
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View
+    {
+        NavigationStack {
+            ZStack
+            {
+                //            Color(#colorLiteral(red: 0.443, green: 0.165, blue: 0.322, alpha: 1))
+                //                   .ignoresSafeArea()
+                VStack(alignment: .leading)
+                {
+                    TextField
+                    
+                    DescriptionText("You can choose a username on ChatUpp. If you do so, peopler will e able to find you by this ursername.")
+                    
+                    DescriptionText("You can use a-z, 0-9 and underscores. Minimum lenght is 5 cahracters.")
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 50)
+                
+                //            Spacer()
+            }
+            .frame(maxWidth: .infinity,
+                   maxHeight: .infinity,
+                   alignment: .topLeading) // alignes all content inside to topLeading
+            .background(Color(ColorScheme.appBackgroundColor))
+//            .navigationTitle("Username")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarContent()
+            }
+        }
+    }
+}
+
+// MARK: - Textfield
+extension NicknameUpdateScreen
+{
+    var TextField: some View
+    {
+        return textField($username, placeholder: "Username")
+            .padding(.horizontal, 20)
+            .font(.system(size: 18, weight: .medium))
+            .frame(height: 50)
+            .background(Color(ColorScheme.messageTextFieldBackgroundColor))
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay {
+                RemoveTextButton()
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(20)
+            }
+    }
+}
+
+// MARK: - Toolbar Content
+extension NicknameUpdateScreen
+{
+    @ToolbarContentBuilder
+    private func ToolbarContent() -> some ToolbarContent
+    {
+        ToolbarItem(placement: .principal)
+        {
+            Text("Nickname")
+                .font(.headline)
+                .foregroundStyle(.white)
+        }
+        
+        ToolbarItem(placement: .topBarLeading) {
+            ToolbarItemButton(text: "Cancel")
+        }
+        
+        ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemButton(text: "Done")
+        }
+    }
+    
+    private func ToolbarItemButton(text: String) -> some View
+    {
+        if #available(iOS 26, *)
+        {
+            return Button {
+                dismiss()
+            } label: {
+                Text(text)
+                    .foregroundStyle(Color(.systemGray))
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color(ColorScheme.messageTextFieldBackgroundColor))
+        } else {
+            return Button {
+                
+            } label: {
+                ToolbarItemButtonLabel(text)
+            }
+        }
+    }
+    
+    private func ToolbarItemButtonLabel(_ text: String) -> some View
+    {
+        Text(text)
+            .foregroundStyle(Color(ColorScheme.tabBarNormalItemsTintColor))
+            .font(.system(size: 17, weight: .medium))
+            .frame(height: 45)
+            .padding(.horizontal, 10)
+            .background(Color(ColorScheme.messageTextFieldBackgroundColor).opacity(0.9))
+            .clipShape(.capsule)
+            .overlay {
+                //                            RoundedRectangle(cornerRadius: 100)
+                Capsule()
+                    .stroke(Color(#colorLiteral(red: 0.4868350625, green: 0.345061183, blue: 0.5088059902, alpha: 1)), lineWidth: 1)
+            }
+    }
+}
+
+extension NicknameUpdateScreen
+{
+    private func DescriptionText(_ text: String) -> some View
+    {
+        Text(text)
+            .font(.system(.headline, design: .default, weight: .medium))
+            .foregroundStyle(Color(#colorLiteral(red: 0.5859215856, green: 0.5880212188, blue: 0.6103259325, alpha: 1)))
+            .padding(.horizontal, 10)
+            .padding(.top, 5)
+    }
+    
+    private func RemoveTextButton() -> some View
+    {
+        Button {
+            self.username = ""
+        } label: {
+            Image(systemName: "xmark")
+                .imageScale(.small)
+                .frame(width: 8, height: 8)
+                .padding(8)
+                .background(Color(#colorLiteral(red: 0.5859215856, green: 0.5880212188, blue: 0.6103259325, alpha: 1)))
+                .foregroundStyle(Color(ColorScheme.messageTextFieldBackgroundColor))
+                .clipShape(.circle)
+        }
+    }
+    
+    
+}
+
+
+#Preview
+{
+    NicknameUpdateScreen()
+}

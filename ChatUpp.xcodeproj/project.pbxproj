@@ -70,6 +70,7 @@
 		756A2AD32F23743C00C5D7B0 /* StickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756A2AD22F23743700C5D7B0 /* StickerView.swift */; };
 		756A2AD52F2374F500C5D7B0 /* StickersPackCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756A2AD42F2374D300C5D7B0 /* StickersPackCell.swift */; };
 		756A2AD72F23755E00C5D7B0 /* FrameTicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756A2AD62F23754F00C5D7B0 /* FrameTicker.swift */; };
+		756A55A22F262D0F00C5D7B0 /* NicknameUpdateScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756A55A12F262CF900C5D7B0 /* NicknameUpdateScreen.swift */; };
 		756A868D2F0E661E00DABC28 /* MessageSeenSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756A868C2F0E661600DABC28 /* MessageSeenSyncService.swift */; };
 		756A868F2F0E663600DABC28 /* MessageUnseenCounterSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756A868E2F0E663300DABC28 /* MessageUnseenCounterSyncService.swift */; };
 		756BDFA82EA84559003D5EE2 /* AudioSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756BDFA72EA84553003D5EE2 /* AudioSessionManager.swift */; };
@@ -311,6 +312,7 @@
 		756A2AD22F23743700C5D7B0 /* StickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerView.swift; sourceTree = "<group>"; };
 		756A2AD42F2374D300C5D7B0 /* StickersPackCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickersPackCell.swift; sourceTree = "<group>"; };
 		756A2AD62F23754F00C5D7B0 /* FrameTicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameTicker.swift; sourceTree = "<group>"; };
+		756A55A12F262CF900C5D7B0 /* NicknameUpdateScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NicknameUpdateScreen.swift; sourceTree = "<group>"; };
 		756A868C2F0E661600DABC28 /* MessageSeenSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSeenSyncService.swift; sourceTree = "<group>"; };
 		756A868E2F0E663300DABC28 /* MessageUnseenCounterSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageUnseenCounterSyncService.swift; sourceTree = "<group>"; };
 		756BDFA72EA84553003D5EE2 /* AudioSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionManager.swift; sourceTree = "<group>"; };
@@ -612,9 +614,8 @@
 		754439512B3FCFA80044A84B /* ProfileEditing */ = {
 			isa = PBXGroup;
 			children = (
-				7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */,
-				754439522B3FCFF30044A84B /* ProfileEditingViewController.swift */,
-				754439542B4134150044A84B /* ProfileEditingViewModel.swift */,
+				756A559F2F2628CF00C5D7B0 /* View */,
+				756A559E2F2628AF00C5D7B0 /* ViewModels */,
 			);
 			path = ProfileEditing;
 			sourceTree = "<group>";
@@ -752,6 +753,73 @@
 				756A2AD22F23743700C5D7B0 /* StickerView.swift */,
 			);
 			path = StickerView;
+			sourceTree = "<group>";
+		};
+		756A55992F2627EE00C5D7B0 /* SettingsView */ = {
+			isa = PBXGroup;
+			children = (
+				756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */,
+			);
+			path = SettingsView;
+			sourceTree = "<group>";
+		};
+		756A559A2F26280300C5D7B0 /* SettingsViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */,
+			);
+			path = SettingsViewModel;
+			sourceTree = "<group>";
+		};
+		756A559B2F26281300C5D7B0 /* SettingsModel */ = {
+			isa = PBXGroup;
+			children = (
+				7544392D2B3D2B620044A84B /* SettingsItemModel.swift */,
+			);
+			path = SettingsModel;
+			sourceTree = "<group>";
+		};
+		756A559C2F26286600C5D7B0 /* ListCell */ = {
+			isa = PBXGroup;
+			children = (
+				7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */,
+			);
+			path = ListCell;
+			sourceTree = "<group>";
+		};
+		756A559D2F26289F00C5D7B0 /* ListHeaderCell */ = {
+			isa = PBXGroup;
+			children = (
+				7544392F2B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift */,
+			);
+			path = ListHeaderCell;
+			sourceTree = "<group>";
+		};
+		756A559E2F2628AF00C5D7B0 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				754439542B4134150044A84B /* ProfileEditingViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		756A559F2F2628CF00C5D7B0 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				754439522B3FCFF30044A84B /* ProfileEditingViewController.swift */,
+				756A559D2F26289F00C5D7B0 /* ListHeaderCell */,
+				756A559C2F26286600C5D7B0 /* ListCell */,
+				756A55A02F262CC600C5D7B0 /* NicknameUpdateScreen */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		756A55A02F262CC600C5D7B0 /* NicknameUpdateScreen */ = {
+			isa = PBXGroup;
+			children = (
+				756A55A12F262CF900C5D7B0 /* NicknameUpdateScreen.swift */,
+			);
+			path = NicknameUpdateScreen;
 			sourceTree = "<group>";
 		};
 		756A86892F0E660300DABC28 /* UseCases */ = {
@@ -1647,13 +1715,12 @@
 		75FB78FD2AC3165F00C2743A /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				756A559B2F26281300C5D7B0 /* SettingsModel */,
+				756A559A2F26280300C5D7B0 /* SettingsViewModel */,
+				756A55992F2627EE00C5D7B0 /* SettingsView */,
+				754439512B3FCFA80044A84B /* ProfileEditing */,
 				75D31DCC2EDA2A6700AF6102 /* ThemesScreens */,
 				7573E5C12B5BD41A0096B4E6 /* ProfileDeletion */,
-				754439512B3FCFA80044A84B /* ProfileEditing */,
-				756525CB2A9E8EBD005DC594 /* SettingsViewController.swift */,
-				75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */,
-				7544392D2B3D2B620044A84B /* SettingsItemModel.swift */,
-				7544392F2B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2049,6 +2116,7 @@
 				756812EB2E63D7A800E421CE /* StickersPackModel.swift in Sources */,
 				7541615C2ABDDABC007CF0FA /* CredentialsValidator.swift in Sources */,
 				75BA23852D2F02F700A4C508 /* ImageSaveble.swift in Sources */,
+				756A55A22F262D0F00C5D7B0 /* NicknameUpdateScreen.swift in Sources */,
 				75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */,
 				756525D22AAA147A005DC594 /* ChatCell.swift in Sources */,
 				758A48D62E4A2CF900D0A10B /* AlertPresenter.swift in Sources */,
