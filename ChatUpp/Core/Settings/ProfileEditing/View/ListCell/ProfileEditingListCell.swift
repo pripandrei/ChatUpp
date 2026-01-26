@@ -58,15 +58,38 @@ class ProfileEditingListCell: UICollectionViewListCell, UITextFieldDelegate
         return true
     }
     
-    func createAttributedPlaceholder(with text: String) -> NSAttributedString
+    private func createAttributedPlaceholder(with text: String) -> NSAttributedString
     {
         return NSAttributedString(string: text,
                                   attributes: [.foregroundColor : ColorScheme.textFieldPlaceholderColor])
     }
     
     
-    func createAttributedText(with text: String) -> NSAttributedString
+    private func createAttributedText(with text: String) -> NSAttributedString
     {
         return NSAttributedString(string: text)
+    }
+    
+    func configureCell(with textFieldText: String?,
+                       placeholder: ProfileEditingViewModel.ProfileEditingItemsPlaceholder)
+    {
+        textField.attributedPlaceholder = createAttributedPlaceholder(with: placeholder.rawValue)
+        
+        if let textFieldText
+        {
+            textField.attributedText = createAttributedText(with: textFieldText)
+        }
+        
+        if placeholder == .username
+        {
+            textField.isUserInteractionEnabled = false
+            accessories = [
+                .disclosureIndicator(displayed: .always, options: .init(isHidden: false,
+                                                                        reservedLayoutWidth: .custom(30), tintColor: .systemGray))
+            ]
+        } else {
+            accessories.removeAll() 
+            textField.isUserInteractionEnabled = true
+        }
     }
 }

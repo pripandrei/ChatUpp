@@ -34,6 +34,11 @@ final class ProfileEditingViewModel
         fatalError("user is missing")
     }
     
+    var userNickname: String
+    {
+        return user.nickname ?? ""
+    }
+    
     init(user: User, profilePicutre: Data)
     {
         self.userData.name = user.name!

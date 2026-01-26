@@ -29,6 +29,7 @@ protocol Coordinator: AnyObject
     func showGroupCreationScreen()
     func showChatRoomInformationScreen(viewModel: ChatRoomInformationViewModel)
     func openThemeScreen()
+    func showNicknameUpdateScreen(_ nickname: String)
 }
 
 class MainCoordinator: Coordinator, SwiftUI.ObservableObject
@@ -193,5 +194,16 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
         hostingController.hidesBottomBarWhenPushed = true
         
         tabBar.settingsNavigationController?.pushViewController(hostingController, animated: true)
+    }
+    
+    func showNicknameUpdateScreen(_ userNickname: String)
+    {
+        let nicknameUpdateScreen = NicknameUpdateScreen(nickname: userNickname)
+        let hostingVC = UIHostingController(rootView: nicknameUpdateScreen)
+        hostingVC.view.backgroundColor = .clear
+        hostingVC.modalPresentationStyle = .pageSheet
+        hostingVC.modalTransitionStyle = .coverVertical
+        
+        tabBar.settingsNavigationController?.visibleViewController?.present(hostingVC, animated: true)
     }
 }

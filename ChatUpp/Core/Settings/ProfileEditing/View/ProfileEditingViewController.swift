@@ -105,12 +105,16 @@ final class ProfileEditingViewController: UIViewController,
         var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
         configuration.backgroundColor = ColorScheme.appBackgroundColor
         configuration.headerMode = .supplementary
+        configuration.showsSeparators = true
+//        configuration.separatorConfiguration.bottomSeparatorVisibility = .visible
+        
         
         let layout = UICollectionViewCompositionalLayout.list(using: configuration)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         
         collectionView.delegate = self
         collectionView.dataSource = self
+
         return collectionView
     }
     
@@ -145,7 +149,7 @@ final class ProfileEditingViewController: UIViewController,
     }
 }
 
-//MARK: - COLLECTION VIEW DELEGATE
+//MARK: - COLLECTION VIEW DATA SOURCE
 extension ProfileEditingViewController
 {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -156,21 +160,16 @@ extension ProfileEditingViewController
         profileEditingViewModel.userDataItems.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ReuseIdentifire.ProfileEditingCollectionCell.list.identifire, for: indexPath) as? ProfileEditingListCell else {fatalError("Could not deqeue CustomListCell")}
         
-        let placeholderText = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item].rawValue
-        
+        let placeholder = ProfileEditingViewModel.ProfileEditingItemsPlaceholder.allCases[indexPath.item]
         let textFieldText = profileEditingViewModel.userDataItems[indexPath.item]
         
-        cell.textField.attributedPlaceholder = cell.createAttributedPlaceholder(with: placeholderText)
-        
-        if let text = textFieldText
-        {
-            cell.textField.attributedText = cell.createAttributedText(with: text)
-        }
-        
+        cell.configureCell(with: textFieldText, placeholder: placeholder)
+
         cell.onTextChanged = { [weak self] text in
             self?.profileEditingViewModel.applyTitle(title: text, toItem: indexPath.item)
         }
@@ -193,6 +192,18 @@ extension ProfileEditingViewController
         headerCell.setupNewPhotoConstraints()
         addGestureToNewPhotoLabelAndImageView()
         return headerCell
+    }
+}
+
+//MARK: - COLLECTION VIEW DELEGATE
+extension ProfileEditingViewController
+{
+    func collectionView(_ collectionView: UICollectionView,
+                        didSelectItemAt indexPath: IndexPath)
+    {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        let nickname = profileEditingViewModel.userNickname
+        coordinatorDelegate.showNicknameUpdateScreen(nickname)
     }
 }
 
