@@ -6,11 +6,17 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct GroupMembersSelectionScreen: View
 {
     @ObservedObject var viewModel: GroupCreationViewModel
     @State var searchText: String = ""
+    
+    init(viewModel: GroupCreationViewModel)
+    {
+        self._viewModel = ObservedObject(wrappedValue: viewModel)
+    }
     
     var body: some View
     {
@@ -38,9 +44,13 @@ struct GroupMembersSelectionScreen: View
         .searchable(text: $searchText,
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: "Search users")
+        .foregroundStyle(Color(ColorScheme.textFieldTextColor))
         .toolbar {
             toolbarContent()
         }
+        .onAppear(perform: {
+            SearchBarAppearance.setUISearchBarAppearance()
+        })
         .navigationBarTitleDisplayMode(.inline)
     }
 }

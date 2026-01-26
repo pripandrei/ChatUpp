@@ -166,6 +166,7 @@
 		75C8F7712E8193CF007317E0 /* CustomizedShadowTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */; };
 		75C8F7772E819A79007317E0 /* ChatRoom+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */; };
 		75CB1A022F26EF0300AFF45A /* NicknameUpdateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB1A012F26EF0100AFF45A /* NicknameUpdateViewModel.swift */; };
+		75CB22982F28044200AFF45A /* SearchBarAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB22952F28043C00AFF45A /* SearchBarAppearance.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
 		75CC9FE62D594042002051EB /* ColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorScheme.swift */; };
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
@@ -391,6 +392,7 @@
 		75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizedShadowTextField.swift; sourceTree = "<group>"; };
 		75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatRoom+Enums.swift"; sourceTree = "<group>"; };
 		75CB1A012F26EF0100AFF45A /* NicknameUpdateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NicknameUpdateViewModel.swift; sourceTree = "<group>"; };
+		75CB22952F28043C00AFF45A /* SearchBarAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarAppearance.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
 		75CC9FE12D59402F002051EB /* ColorScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorScheme.swift; sourceTree = "<group>"; };
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
@@ -1701,6 +1703,7 @@
 		75E90BF52EE90D4C00E2DC43 /* Appearance */ = {
 			isa = PBXGroup;
 			children = (
+				75CB22952F28043C00AFF45A /* SearchBarAppearance.swift */,
 				75E90BF82EE90DC500E2DC43 /* SkeletonAnimationAppearance.swift */,
 				75E90BF62EE90D5400E2DC43 /* NavigationBarAppearance.swift */,
 			);
@@ -2049,6 +2052,7 @@
 				759894D82E52645A003CF661 /* MessageNotificationBannerView.swift in Sources */,
 				75B48B572AF6837700A5FBFC /* ChatRoomRootView.swift in Sources */,
 				756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */,
+				75CB22982F28044200AFF45A /* SearchBarAppearance.swift in Sources */,
 				7574D2232DA84A940007A1D6 /* MessageMenuBuilder.swift in Sources */,
 				75AD5EB02E7B05ED0075377B /* MessageTextViewTrailingItem.swift in Sources */,
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,

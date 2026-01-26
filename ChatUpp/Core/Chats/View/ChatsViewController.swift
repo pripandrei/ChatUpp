@@ -172,7 +172,8 @@ class ChatsViewController: UIViewController {
         
 //        searchController.searchBar.searchTextPositionAdjustment =  UIOffset(horizontal: (searchController.searchBar.bounds.width / 2), vertical: 0)
         
-        if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField, let searchIcon = textField.leftView
+        if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField,
+            let searchIcon = textField.leftView
         {
             textField.backgroundColor = ColorScheme.navigationSearchFieldBackgroundColor
             textField.attributedPlaceholder = NSAttributedString(string: "Search",

@@ -11,7 +11,7 @@ struct GroupCreationScreen: View
 {
     @StateObject private var groupCreationViewModel = GroupCreationViewModel()
     
-    @State private var searchText = ""
+//    @State private var searchText = ""
     @Environment(\.dismiss) private var dismiss
     
     var body: some View
@@ -40,9 +40,9 @@ struct GroupCreationScreen: View
             .padding(.top, 1)
             .scrollContentBackground(.hidden)
             .background(Color(ColorScheme.appBackgroundColor))
-            .searchable(text: $searchText,
-                        placement: .navigationBarDrawer(displayMode: .always),
-                        prompt: "search for name")
+//            .searchable(text: $searchText,
+//                        placement: .navigationBarDrawer(displayMode: .always),
+//                        prompt: "search for name")
             //            }
             .navigationTitle("New group")
             .navigationDestination(for: GroupCreationRoute.self, destination: { route in
