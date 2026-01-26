@@ -13,6 +13,8 @@ struct NicknameUpdateScreen: View
 //    @State var isNicknameValid: Bool?
     @Environment(\.dismiss) private var dismiss
     
+    @State private var textValidationDebounceTask: Task<Void, Never>?
+    
     init(nickname: String)
     {
         self._viewModel = State(wrappedValue: NicknameUpdateViewModel(updatedNickname: nickname))
@@ -97,8 +99,17 @@ extension NicknameUpdateScreen
                     .padding(20)
             }
             .onChange(of: viewModel.updatedNickname)
-        {
-            viewModel.checkIfNicknameIsValid()
+        { oldValue, newValue in
+            textValidationDebounceTask?.cancel()
+            
+            self.textValidationDebounceTask = Task
+            {
+                try? await Task.sleep(for: .seconds(0.3))
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    viewModel.checkIfNicknameIsValid()
+                }
+            }
         }
     }
 }
@@ -122,7 +133,7 @@ extension NicknameUpdateScreen
         
         ToolbarItem(placement: .topBarTrailing) {
             ToolbarItemButton(text: "Done")
-                .disabled(viewModel.updatedNickname.isEmpty)
+                .disabled(!viewModel.nicknameValidationStatus.isValid)
         }
     }
     

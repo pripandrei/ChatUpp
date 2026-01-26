@@ -180,7 +180,6 @@ extension ProfileEditingViewModel
     }
 }
 
-//import Observation
 
 @Observable
 final class NicknameUpdateViewModel
@@ -198,6 +197,14 @@ final class NicknameUpdateViewModel
     
     func checkIfNicknameIsValid()
     {
+        updateNicknameCuttingSpace()
+        
+        if updatedNickname.contains("__")
+        {
+            nicknameValidationStatus = .invalid
+            return
+        }
+        
         if updatedNickname.count < 5
         {
             nicknameValidationStatus = .isShort
@@ -216,14 +223,29 @@ final class NicknameUpdateViewModel
             return
         }
         
-        if updatedNickname.count == 10
-        {
-            nicknameValidationStatus = .isAvailable(name: updatedNickname)
-            return
+        Task {
+            try await checkIfNicknameIsAvailable()
         }
+    }
+    
+    private func checkIfNicknameIsAvailable() async throws
+    {
+        let exists = await AlgoliaSearchManager.shared.checkIfUserWithNicknameExists(updatedNickname)
+        print(exists)
+
+        self.nicknameValidationStatus = exists ? .isTaken : .isAvailable(name: self.updatedNickname)
+    }
+    
+    private func updateNicknameCuttingSpace()
+    {
+        var updatedNickname: String = self.updatedNickname
+    
+        updatedNickname = updatedNickname.replacingOccurrences(of: " ", with: "_")
         
-        
-        
+        if self.updatedNickname != updatedNickname
+        {
+            self.updatedNickname = updatedNickname
+        }
     }
 }
 
@@ -246,6 +268,15 @@ extension NicknameUpdateViewModel
             case .isShort: return "nickname must have at least 5 characters"
             case .invalid: return "sorry, this nickname is invalid"
             default: return ""
+            }
+        }
+        
+        var isValid: Bool
+        {
+            switch self
+            {
+            case .isAvailable: return true
+            default: return false
             }
         }
     }

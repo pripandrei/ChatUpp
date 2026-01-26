@@ -115,6 +115,16 @@ final class FirestoreUserService {
 //        return try await userDocument(userID: userID).getDocument(as: User.self, source: .server)
     }
     
+    func userWithNicknameExists(_ nickname: String) async throws -> Bool
+    {
+        let result = try await usersCollection
+            .whereField("nickname", isEqualTo: nickname)
+            .limit(to: 1)
+            .getDocuments()
+        
+        return !result.documents.isEmpty
+    }
+    
     // MARK: - GET USER PROFILE IMAGE
     
 //    func getProfileImageData(urlPath: String?) async throws -> Data {

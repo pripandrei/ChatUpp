@@ -20,6 +20,22 @@ final class AlgoliaSearchManager
         groupsClient = try! SearchClient(appID: keys.appID, apiKey: keys.groupsKey)
     }
     
+//    func performSearchForUsers(searchText: String) async -> Bool
+//    {
+//        do {
+//            let users =  try await searchInUsersIndex(withQuery: searchText)
+//            for user in users {
+//                if user.nickname?.lowercased() == searchText.lowercased()
+//                {
+//                    return true
+//                }
+//            }
+//        } catch {
+//            print("error getting users from algolia: \(error)")
+//        }
+//        return false
+//    }
+//    
     func performSearch(_ searchText: String) async -> AlgoliaSearchResult? {
         do {
             let users = try await searchInUsersIndex(withQuery: searchText)
@@ -30,6 +46,7 @@ final class AlgoliaSearchManager
             return nil
         }
     }
+    
     
     private func searchInUsersIndex(withQuery query: String) async throws -> [User]
     {
@@ -99,10 +116,46 @@ final class AlgoliaSearchManager
         
         return groups
     }
+    
+    func checkIfUserWithNicknameExists(_ nickname: String) async -> Bool
+    {
+        do {
+            // Create search request with FILTER for exact nickname match
+            let searchRequest = SearchForHits(
+                query: "",  // Empty query - we're filtering, not searching
+                filters: "\(User.CodingKeys.nickname.rawValue):\(nickname)",  // Exact match on nickname field
+                hitsPerPage: 1, typoTolerance: .searchTypoToleranceEnum(.false),
+                indexName: "Users"  // We only need to know if it exists
+            )
+            
+            // Perform search
+            let response: SearchResponses<Hit> = try await usersClient.search(
+                searchMethodParams: SearchMethodParams(
+                    requests: [SearchQuery.searchForHits(searchRequest)]
+                )
+            )
+            
+            // Check if we got any results
+            if let firstResult = response.results.first,
+               case .searchResponse(let searchResponse) = firstResult
+            {
+                return searchResponse.nbHits ?? 0 > 0  // True if nickname exists
+            }
+            
+        } catch {
+            print("error getting users from algolia: \(error)")
+        }
+        return false
+    }
 }
 
 struct AlgoliaSearchResult
 {
     let users: [User]
     let groups: [Chat]
+}
+struct UserAlgolia: Codable {
+    let objectID: String
+    let nickname: String
+    // add other fields stored in Algolia index
 }
