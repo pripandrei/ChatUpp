@@ -309,9 +309,12 @@ extension SettingsViewController
         let profileVM = ProfileEditingViewModel(user: user, profilePicutre: profilePicutre)
         
         profileVM.$profileDataIsEdited
+            .dropFirst()
             .sink { [weak self] isEdited in
                 if isEdited == true {
                     self?.settingsViewModel.retrieveDataFromDB()
+                } else {
+                    self?.settingsViewModel.updateUser()
                 }
             }.store(in: &subscribers)
         

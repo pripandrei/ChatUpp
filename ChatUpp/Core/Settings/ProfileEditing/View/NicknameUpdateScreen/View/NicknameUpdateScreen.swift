@@ -10,11 +10,14 @@ struct NicknameUpdateScreen: View
 {
     @State private var viewModel: NicknameUpdateViewModel
     @Environment(\.dismiss) private var dismiss
-    
     @State private var textValidationDebounceTask: Task<Void, Never>?
+    @State private var isLoading: Bool = false
+    let onUpdate: (String) -> Void
     
-    init(nickname: String)
+    init(nickname: String,
+         onUpdate: @escaping (String) -> Void)
     {
+        self.onUpdate = onUpdate
         self._viewModel = State(wrappedValue: NicknameUpdateViewModel(updatedNickname: nickname))
     }
 
@@ -50,6 +53,7 @@ struct NicknameUpdateScreen: View
             .toolbar {
                 ToolbarContent()
             }
+            .isLoading(isLoading)
         }
     }
 }
@@ -123,32 +127,48 @@ extension NicknameUpdateScreen
         }
         
         ToolbarItem(placement: .topBarLeading) {
-            ToolbarItemButton(text: "Cancel")
+            ToolbarItemButton(itemTitle: .cancel)
         }
         
         ToolbarItem(placement: .topBarTrailing) {
-            ToolbarItemButton(text: "Done")
+            ToolbarItemButton(itemTitle: .save)
                 .disabled(!viewModel.nicknameValidationStatus.isValid)
         }
     }
     
-    private func ToolbarItemButton(text: String) -> some View
+    private func onToolbarItemButtonTap(_ itemTitle: ToolbarItemTitle)
+    {
+        Task
+        {
+            if itemTitle == .save {
+                self.isLoading = true
+                try await viewModel.saveNickname()
+                onUpdate(viewModel.updatedNickname)
+                self.isLoading = false
+            }
+            dismiss()
+        }
+    }
+    
+    private func ToolbarItemButton(itemTitle: ToolbarItemTitle) -> some View
     {
         if #available(iOS 26, *)
         {
-            return Button {
-                dismiss()
+            return Button
+            {
+                onToolbarItemButtonTap(itemTitle)
             } label: {
-                Text(text)
+                Text(itemTitle.rawValue)
                     .foregroundStyle(Color(.systemGray))
             }
             .buttonStyle(.borderedProminent)
             .tint(Color(ColorScheme.messageTextFieldBackgroundColor))
         } else {
-            return Button {
-                dismiss()
+            return Button
+            {
+                onToolbarItemButtonTap(itemTitle)
             } label: {
-                ToolbarItemButtonLabel(text)
+                ToolbarItemButtonLabel(itemTitle.rawValue)
             }
         }
     }
@@ -167,6 +187,12 @@ extension NicknameUpdateScreen
                 Capsule()
                     .stroke(Color(#colorLiteral(red: 0.4868350625, green: 0.345061183, blue: 0.5088059902, alpha: 1)), lineWidth: 1)
             }
+    }
+    
+    enum ToolbarItemTitle: String
+    {
+        case save
+        case cancel
     }
 }
 
@@ -200,5 +226,5 @@ extension NicknameUpdateScreen
 
 #Preview
 {
-    NicknameUpdateScreen(nickname: "Damien")
+    NicknameUpdateScreen(nickname: "Damien") { nickname in }
 }

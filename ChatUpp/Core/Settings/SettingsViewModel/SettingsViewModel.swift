@@ -56,6 +56,12 @@ final class SettingsViewModel
         self.profileImageData = CacheManager.shared.retrieveData(from: pictureURL)
     }
     
+    // just to trigger nickname update if cancel button was taped
+    func updateUser()
+    {
+        user = user
+    }
+    
     @MainActor
     private func fetchUserFromFirestoreDatabase() async throws
     {
@@ -92,12 +98,12 @@ final class SettingsViewModel
         self.authProvider = try await AuthenticationManager.shared.getAuthProvider()
     }
     
-    func updateUserData(_ dbUser: User, _ photoData: Data?)
-    {
-        self.user = dbUser
-        guard let photo = photoData else {return}
-        self.profileImageData = photo
-    }
+//    func updateUserData(_ dbUser: User, _ photoData: Data?)
+//    {
+//        self.user = dbUser
+//        guard let photo = photoData else {return}
+//        self.profileImageData = photo
+//    }
 
     @MainActor
     func deleteUser() async throws

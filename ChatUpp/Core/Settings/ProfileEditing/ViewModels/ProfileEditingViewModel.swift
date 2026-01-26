@@ -16,6 +16,7 @@ final class ProfileEditingViewModel
     private var userData: (name: String?, phone: String?, nickname: String?)
     
     private var imageSampleRepository: ImageSampleRepository?
+    private var subscribers: Set<AnyCancellable> = []
     
     deinit {
 //        print("ProfileEditingViewModel was deinited")
@@ -49,6 +50,11 @@ final class ProfileEditingViewModel
         self.user = user
     }
     
+    func updateUsername(_ username: String)
+    {
+        userData.nickname = username
+    }
+    
     func applyTitle(title: String, toItem item: Int)
     {
         switch item {
@@ -77,6 +83,11 @@ final class ProfileEditingViewModel
                 print("Error occurred while updating user data: ", error)
             }
         }
+    }
+    
+    func triggerUpdate()
+    {
+        profileDataIsEdited = true
     }
 }
 
@@ -118,6 +129,20 @@ extension ProfileEditingViewModel
                                                          phoneNumber: userData.phone,
                                                          nickname: userData.nickname)
     }
+    
+//    private func listenToRealmUserUpdates()
+//    {
+//        RealmDatabase.shared.observeChanges(for: user)
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] (property, _) in
+//                guard let userProperty = UserObservedProperty(rawValue: property.name) else {return}
+//                if userProperty == .nickname
+//                {
+//                    self.
+//                }
+//                    
+//            }.store(in: &subscribers)
+//    }
 }
 
 //MARK: - Image update

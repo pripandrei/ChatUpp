@@ -82,13 +82,18 @@ final class ProfileEditingViewController: UIViewController,
     ///
     private func setupNavigationBarItems()
     {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(closeProfileVC))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(saveEditedData))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel,
+                                                           target: self,
+                                                           action: #selector(closeProfileVC))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done,
+                                                            target: self,
+                                                            action: #selector(saveEditedData))
         navigationItem.leftBarButtonItem?.tintColor = ColorScheme.actionButtonsTintColor
         navigationItem.rightBarButtonItem?.tintColor = ColorScheme.actionButtonsTintColor
     }
     
     @objc func closeProfileVC() {
+        profileEditingViewModel.triggerUpdate()
         coordinatorDelegate.dismissEditProfileVC()
     }
     
@@ -203,7 +208,13 @@ extension ProfileEditingViewController
     {
         collectionView.deselectItem(at: indexPath, animated: true)
         let nickname = profileEditingViewModel.userNickname
-        coordinatorDelegate.showNicknameUpdateScreen(nickname)
+        
+        guard let cell = collectionView.cellForItem(at: indexPath) as? ProfileEditingListCell else {return}
+        let onUpdate = { [weak self] (updatedNickname: String) in
+            cell.textField.text = updatedNickname
+            self?.profileEditingViewModel.updateUsername(updatedNickname)
+        }
+        coordinatorDelegate.showNicknameUpdateScreen(nickname, updateCompletion: onUpdate)
     }
 }
 

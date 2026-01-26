@@ -73,6 +73,21 @@ final class NicknameUpdateViewModel
             self.updatedNickname = updatedNickname
         }
     }
+    
+    @MainActor
+    func saveNickname() async throws
+    {
+        guard let userID = AuthenticationManager.shared.authenticatedUser?.uid,
+        let realmUser = RealmDatabase.shared.retrieveSingleObject(ofType: User.self,
+                                                                  primaryKey: userID) else {return}
+
+        RealmDatabase.shared.update(object: realmUser) { dbUser in
+            dbUser.nickname = self.updatedNickname
+        }
+        
+            try await FirestoreUserService.shared.updateUser(with: userID,
+                                                             nickname: self.updatedNickname)
+    }
 }
 
 extension NicknameUpdateViewModel

@@ -766,3 +766,11 @@ enum MessageObservedProperty
     //    }
         
 }
+
+enum UserObservedProperty: String
+{
+    case name
+    case nickname
+    
+    
+}
