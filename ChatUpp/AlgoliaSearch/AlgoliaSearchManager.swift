@@ -20,22 +20,6 @@ final class AlgoliaSearchManager
         groupsClient = try! SearchClient(appID: keys.appID, apiKey: keys.groupsKey)
     }
     
-//    func performSearchForUsers(searchText: String) async -> Bool
-//    {
-//        do {
-//            let users =  try await searchInUsersIndex(withQuery: searchText)
-//            for user in users {
-//                if user.nickname?.lowercased() == searchText.lowercased()
-//                {
-//                    return true
-//                }
-//            }
-//        } catch {
-//            print("error getting users from algolia: \(error)")
-//        }
-//        return false
-//    }
-//    
     func performSearch(_ searchText: String) async -> AlgoliaSearchResult? {
         do {
             let users = try await searchInUsersIndex(withQuery: searchText)
@@ -153,9 +137,4 @@ struct AlgoliaSearchResult
 {
     let users: [User]
     let groups: [Chat]
-}
-struct UserAlgolia: Codable {
-    let objectID: String
-    let nickname: String
-    // add other fields stored in Algolia index
 }

@@ -165,6 +165,7 @@
 		75C8F76F2E81930E007317E0 /* CustomFPNTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F76E2E81930C007317E0 /* CustomFPNTextField.swift */; };
 		75C8F7712E8193CF007317E0 /* CustomizedShadowTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */; };
 		75C8F7772E819A79007317E0 /* ChatRoom+Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */; };
+		75CB1A022F26EF0300AFF45A /* NicknameUpdateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB1A012F26EF0100AFF45A /* NicknameUpdateViewModel.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
 		75CC9FE62D594042002051EB /* ColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorScheme.swift */; };
 		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
@@ -389,6 +390,7 @@
 		75C8F76E2E81930C007317E0 /* CustomFPNTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFPNTextField.swift; sourceTree = "<group>"; };
 		75C8F7702E8193C6007317E0 /* CustomizedShadowTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizedShadowTextField.swift; sourceTree = "<group>"; };
 		75C8F7762E819A72007317E0 /* ChatRoom+Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChatRoom+Enums.swift"; sourceTree = "<group>"; };
+		75CB1A012F26EF0100AFF45A /* NicknameUpdateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NicknameUpdateViewModel.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
 		75CC9FE12D59402F002051EB /* ColorScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorScheme.swift; sourceTree = "<group>"; };
 		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
@@ -817,7 +819,8 @@
 		756A55A02F262CC600C5D7B0 /* NicknameUpdateScreen */ = {
 			isa = PBXGroup;
 			children = (
-				756A55A12F262CF900C5D7B0 /* NicknameUpdateScreen.swift */,
+				75CB1A002F26EEF900AFF45A /* ViewModel */,
+				75CB19FF2F26EEED00AFF45A /* View */,
 			);
 			path = NicknameUpdateScreen;
 			sourceTree = "<group>";
@@ -1486,6 +1489,22 @@
 			path = StickersPackModel;
 			sourceTree = "<group>";
 		};
+		75CB19FF2F26EEED00AFF45A /* View */ = {
+			isa = PBXGroup;
+			children = (
+				756A55A12F262CF900C5D7B0 /* NicknameUpdateScreen.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		75CB1A002F26EEF900AFF45A /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				75CB1A012F26EF0100AFF45A /* NicknameUpdateViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		75CB52192B0BF07D007F3AB6 /* Firebase storage */ = {
 			isa = PBXGroup;
 			children = (
@@ -2091,6 +2110,7 @@
 				75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */,
 				75D31DE02EDE8DF300AF6102 /* ThemeGridItemView.swift in Sources */,
 				757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */,
+				75CB1A022F26EF0300AFF45A /* NicknameUpdateViewModel.swift in Sources */,
 				756BDFA82EA84559003D5EE2 /* AudioSessionManager.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
 				75E4807B2E49001700E8C005 /* ReplyToMessageStackView.swift in Sources */,

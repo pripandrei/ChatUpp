@@ -9,8 +9,6 @@ import SwiftUI
 struct NicknameUpdateScreen: View
 {
     @State private var viewModel: NicknameUpdateViewModel
-//    @State var nickname: String = ""
-//    @State var isNicknameValid: Bool?
     @Environment(\.dismiss) private var dismiss
     
     @State private var textValidationDebounceTask: Task<Void, Never>?
@@ -18,8 +16,6 @@ struct NicknameUpdateScreen: View
     init(nickname: String)
     {
         self._viewModel = State(wrappedValue: NicknameUpdateViewModel(updatedNickname: nickname))
-//        self.nickname = nickname
-//        self.isNicknameValid = isNicknameValid
     }
 
     var body: some View
@@ -50,7 +46,6 @@ struct NicknameUpdateScreen: View
                    maxHeight: .infinity,
                    alignment: .topLeading) // alignes all content inside to topLeading
             .background(Color(ColorScheme.appBackgroundColor))
-//            .navigationTitle("Username")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarContent()
@@ -151,7 +146,7 @@ extension NicknameUpdateScreen
             .tint(Color(ColorScheme.messageTextFieldBackgroundColor))
         } else {
             return Button {
-                
+                dismiss()
             } label: {
                 ToolbarItemButtonLabel(text)
             }

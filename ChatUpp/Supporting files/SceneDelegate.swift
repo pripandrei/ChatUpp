@@ -25,9 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let tabBarController = TabBarViewController()
         coordinator = MainCoordinator(tabBar: tabBarController)
         
-        let searchScreen = NicknameUpdateScreen(nickname: "Testim")
-//        window?.rootViewController = tabBarController
-        window?.rootViewController = UIHostingController(rootView: searchScreen)
+        window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
         
         coordinator?.start()
