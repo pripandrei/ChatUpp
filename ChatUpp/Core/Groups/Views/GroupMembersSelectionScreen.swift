@@ -11,7 +11,6 @@ import UIKit
 struct GroupMembersSelectionScreen: View
 {
     @ObservedObject var viewModel: GroupCreationViewModel
-    @State var searchText: String = ""
     
     init(viewModel: GroupCreationViewModel)
     {
@@ -28,7 +27,7 @@ struct GroupMembersSelectionScreen: View
             }
             
             Section {
-                ForEach(viewModel.allUsers) { user in
+                ForEach(viewModel.usersToShow) { user in
                     Button {
                         viewModel.toggleUserSelection(user)
                     } label: {
@@ -41,7 +40,7 @@ struct GroupMembersSelectionScreen: View
         .scrollContentBackground(.hidden)
         .background(Color(ColorScheme.appBackgroundColor))
         .animation(.easeInOut, value: viewModel.showSelectedUsers)
-        .searchable(text: $searchText,
+        .searchable(text: $viewModel.searchText,
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: "Search users")
         .foregroundStyle(Color(ColorScheme.textFieldTextColor))
@@ -50,6 +49,15 @@ struct GroupMembersSelectionScreen: View
         }
         .onAppear(perform: {
             SearchBarAppearance.setUISearchBarAppearance()
+        })
+        .onChange(of: viewModel.searchText, { oldValue, newValue in
+            if !newValue.isEmpty
+            {
+                Task
+                {
+                    await viewModel.performSearch(query: newValue)                    
+                }
+            }
         })
         .navigationBarTitleDisplayMode(.inline)
     }

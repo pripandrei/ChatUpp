@@ -18,14 +18,17 @@ enum GroupCreationRoute
 final class GroupCreationViewModel: SwiftUI.ObservableObject
 {
     private var groupID: String?
-    private var subscribtions = Set<AnyCancellable>()
+//    private var subscribtions = Set<AnyCancellable>()
     
     @Published private(set) var chatGroup: Chat?
     @Published private(set) var allUsers: [User] = []
+    @Published private(set) var searchedUsers: [User] = []
     @Published private(set) var imageSampleRepository: ImageSampleRepository?
     @Published var navigationStack = [GroupCreationRoute]()
     @Published var selectedGroupMembers = [User]()
     @Published var groupName: String = ""
+    @Published var searchText: String = ""
+    private var searchTask: Task<Void, Never>?
 
     init() {
         self.presentUsers()
@@ -39,6 +42,11 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
     var showSelectedUsers: Bool
     {
         return selectedGroupMembers.count > 0
+    }
+
+    var usersToShow: [User]
+    {
+        return !searchText.isEmpty ? searchedUsers : allUsers
     }
     
     func toggleUserSelection(_ user: User)
@@ -55,6 +63,52 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
     {
         let isSelected = selectedGroupMembers.contains(where: { return $0.id == user.id })
         return isSelected
+    }
+}
+
+//MARK: - User search
+extension GroupCreationViewModel
+{
+    func performSearch(query: String) async
+    {
+        self.searchTask?.cancel()
+        
+        self.searchTask = Task { @MainActor in
+            
+            try? await Task.sleep(for: .seconds(0.3))
+            guard !Task.isCancelled else { return }
+            
+            let normalizedText = query.normalizedSerachText()
+            let localUsers = preformLocalUsersSearch(from: normalizedText)
+            
+            if !localUsers.isEmpty
+            {
+                self.searchedUsers = localUsers
+                return
+            }
+            
+            let globalUsers = await performGlobalUserSearch(from: normalizedText)
+            self.searchedUsers = globalUsers
+        }
+    }
+    
+    @MainActor
+    private func preformLocalUsersSearch(from query: String) -> [User]
+    {
+        let nameRawValue = User.CodingKeys.name.rawValue
+        let nicknameRawValue = User.CodingKeys.nickname.rawValue
+        let predicate = NSPredicate(format: "\(nameRawValue) CONTAINS[c] %@ OR \(nicknameRawValue) CONTAINS[c] %@", query, query)
+        return RealmDatabase.shared.retrieveObjects(ofType: User.self, filter: predicate)?.toArray() ?? []
+    }
+    
+    private func performGlobalUserSearch(from query: String) async -> [User]
+    {
+        do {
+            return try await AlgoliaSearchManager.shared.searchInUsersIndex(withQuery: query)
+        } catch {
+            print("Could not perform search on users from Algolia: \(error)")
+        }
+        return []
     }
 }
 
@@ -159,7 +213,9 @@ extension GroupCreationViewModel
     }
     
     private func retrieveUsers() -> [User] {
-        return RealmDatabase.shared.retrieveObjects(ofType: User.self)?.toArray() ?? []
+
+        guard let users = RealmDatabase.shared.retrieveObjects(ofType: User.self) else {return []}
+        return Array(users.prefix(50))
     }
 }
 

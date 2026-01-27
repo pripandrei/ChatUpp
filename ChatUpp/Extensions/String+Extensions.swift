@@ -44,4 +44,16 @@ extension String
         }
         return self
     }
+    
+    func normalizedSerachText() -> Self
+    {
+        let delimiters = CharacterSet(charactersIn: " /.:!?;[]%$£@^&()-+=<>,")
+        
+        return self
+            .folding(options: .diacriticInsensitive, locale: .current)
+            .components(separatedBy: delimiters)
+            .joined(separator: " ")
+            .split(whereSeparator: \.isWhitespace)
+            .joined(separator: " ")
+    }
 }

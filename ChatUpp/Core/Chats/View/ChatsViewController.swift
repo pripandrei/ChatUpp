@@ -190,11 +190,12 @@ class ChatsViewController: UIViewController {
         
         let filteredSearchText = searchText
             .components(separatedBy: delimiters)
+            .filter { !$0.isEmpty }
             .joined(separator: " ")
         let trimmedSearchText = removeExcessiveSpaces(from: filteredSearchText).lowercased()
         
-        return chatsViewModel.cellViewModels.compactMap { chatCell in
-            let searchedTitle: String? = chatCell.chat.isGroup ? chatCell.chat.name : chatCell.chatUser?.name
+        return chatsViewModel.cellViewModels.compactMap { chatCellViewModel in
+            let searchedTitle: String? = chatCellViewModel.chat.isGroup ? chatCellViewModel.chat.name : chatCellViewModel.chatUser?.name
             
             guard let title = searchedTitle?.lowercased(), !title.isEmpty else { return nil }
             
@@ -205,13 +206,13 @@ class ChatsViewController: UIViewController {
             
             guard isMatching else { return nil }
            
-            return ResultsCellViewModel(chat: chatCell.chat, memberUser: chatCell.chatUser)
+            return ResultsCellViewModel(chat: chatCellViewModel.chat, memberUser: chatCellViewModel.chatUser)
         }
     }
     
     func removeExcessiveSpaces(from input: String) -> String {
         do {
-            let regex = try NSRegularExpression(pattern: "\\s+", options: .caseInsensitive)
+            let regex = try NSRegularExpression(pattern: "\\s+")
             let range = NSRange(location: 0, length: input.utf16.count)
             let result = regex.stringByReplacingMatches(in: input, options: [], range: range, withTemplate: " ")
             return result.trimmingCharacters(in: .whitespacesAndNewlines)

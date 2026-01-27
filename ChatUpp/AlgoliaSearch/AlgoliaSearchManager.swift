@@ -32,7 +32,7 @@ final class AlgoliaSearchManager
     }
     
     
-    private func searchInUsersIndex(withQuery query: String) async throws -> [User]
+    func searchInUsersIndex(withQuery query: String) async throws -> [User]
     {
         // Create search request 
         let searchRequest = SearchForHits(
@@ -108,7 +108,8 @@ final class AlgoliaSearchManager
             let searchRequest = SearchForHits(
                 query: "",  // Empty query - we're filtering, not searching
                 filters: "\(User.CodingKeys.nickname.rawValue):\(nickname)",  // Exact match on nickname field
-                hitsPerPage: 1, typoTolerance: .searchTypoToleranceEnum(.false),
+                hitsPerPage: 1,
+                typoTolerance: .searchTypoToleranceEnum(.false),
                 indexName: "Users"  // We only need to know if it exists
             )
             
