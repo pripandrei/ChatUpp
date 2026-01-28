@@ -58,6 +58,10 @@ struct GroupMembersSelectionScreen: View
                     await viewModel.performSearch(query: newValue)                    
                 }
             }
+            if newValue.isEmpty
+            {
+                viewModel.emptySearchUsers()
+            }
         })
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -99,7 +103,7 @@ extension GroupMembersSelectionScreen
                 Text("Add participants")
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
-                Text("\(selectedParticipants)/30")
+                Text("\(selectedParticipants)/100000")
                     .font(.system(size: 15))
                     .foregroundStyle(Color.gray)
             }

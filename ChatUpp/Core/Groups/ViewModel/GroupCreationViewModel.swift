@@ -18,7 +18,6 @@ enum GroupCreationRoute
 final class GroupCreationViewModel: SwiftUI.ObservableObject
 {
     private var groupID: String?
-//    private var subscribtions = Set<AnyCancellable>()
     
     @Published private(set) var chatGroup: Chat?
     @Published private(set) var allUsers: [User] = []
@@ -64,6 +63,11 @@ final class GroupCreationViewModel: SwiftUI.ObservableObject
         let isSelected = selectedGroupMembers.contains(where: { return $0.id == user.id })
         return isSelected
     }
+    
+    func emptySearchUsers()
+    {
+        self.searchedUsers.removeAll(keepingCapacity: true)
+    }
 }
 
 //MARK: - User search
@@ -79,7 +83,7 @@ extension GroupCreationViewModel
             guard !Task.isCancelled else { return }
             
             let normalizedText = query.normalizedSerachText()
-            let localUsers = preformLocalUsersSearch(from: normalizedText)
+            let localUsers = performLocalUsersSearch(from: normalizedText)
             
             if !localUsers.isEmpty
             {
@@ -93,12 +97,27 @@ extension GroupCreationViewModel
     }
     
     @MainActor
-    private func preformLocalUsersSearch(from query: String) -> [User]
-    {
+    private func performLocalUsersSearch(from query: String) -> [User] {
         let nameRawValue = User.CodingKeys.name.rawValue
         let nicknameRawValue = User.CodingKeys.nickname.rawValue
-        let predicate = NSPredicate(format: "\(nameRawValue) CONTAINS[c] %@ OR \(nicknameRawValue) CONTAINS[c] %@", query, query)
-        return RealmDatabase.shared.retrieveObjects(ofType: User.self, filter: predicate)?.toArray() ?? []
+        
+        let queryWords = query.components(separatedBy: " ").filter { !$0.isEmpty }
+        var argumentsArray = [String]()
+        
+        let predicates = queryWords
+            .map { word in
+                argumentsArray.append(word)
+                argumentsArray.append(word)
+                // Each word must be found in name OR nickname
+                return "(\(nameRawValue) CONTAINS[c] %@ OR \(nicknameRawValue) CONTAINS[c] %@)"
+            }
+            .joined(separator: " AND ")
+        
+        let finalPredicate = NSPredicate(format: predicates, argumentArray: argumentsArray)
+        
+        guard let result = RealmDatabase.shared.retrieveObjects(ofType: User.self,
+                                                                filter: finalPredicate) else { return [] }
+        return Array(result.prefix(20))
     }
     
     private func performGlobalUserSearch(from query: String) async -> [User]

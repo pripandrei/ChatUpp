@@ -42,6 +42,7 @@
 		754439302B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7544392F2B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift */; };
 		754439532B3FCFF30044A84B /* ProfileEditingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754439522B3FCFF30044A84B /* ProfileEditingViewController.swift */; };
 		754439552B4134150044A84B /* ProfileEditingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754439542B4134150044A84B /* ProfileEditingViewModel.swift */; };
+		75485B0E2F2A9ACD00DA5E2A /* UncheckedSendableWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75485B0D2F2A9ACC00DA5E2A /* UncheckedSendableWrapper.swift */; };
 		7552C0432E2975B400020BDB /* RemoteMessagePaginator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7552C03E2E2975B200020BDB /* RemoteMessagePaginator.swift */; };
 		7553BE912E5BE87B001EAC63 /* MessageNotificationBannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7553BE8C2E5BE86C001EAC63 /* MessageNotificationBannerViewModel.swift */; };
 		75592EB12E70D4D600247CB5 /* StickersPackCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75592EB02E70D4C500247CB5 /* StickersPackCollectionView.swift */; };
@@ -287,6 +288,7 @@
 		7544392F2B3D2BDC0044A84B /* ProfileEditingListHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingListHeaderCell.swift; sourceTree = "<group>"; };
 		754439522B3FCFF30044A84B /* ProfileEditingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingViewController.swift; sourceTree = "<group>"; };
 		754439542B4134150044A84B /* ProfileEditingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditingViewModel.swift; sourceTree = "<group>"; };
+		75485B0D2F2A9ACC00DA5E2A /* UncheckedSendableWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UncheckedSendableWrapper.swift; sourceTree = "<group>"; };
 		7552C03E2E2975B200020BDB /* RemoteMessagePaginator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteMessagePaginator.swift; sourceTree = "<group>"; };
 		7553BE8C2E5BE86C001EAC63 /* MessageNotificationBannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageNotificationBannerViewModel.swift; sourceTree = "<group>"; };
 		75592EB02E70D4C500247CB5 /* StickersPackCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickersPackCollectionView.swift; sourceTree = "<group>"; };
@@ -624,6 +626,14 @@
 			path = ProfileEditing;
 			sourceTree = "<group>";
 		};
+		75485B0A2F2A9AC400DA5E2A /* Wrappers */ = {
+			isa = PBXGroup;
+			children = (
+				75485B0D2F2A9ACC00DA5E2A /* UncheckedSendableWrapper.swift */,
+			);
+			path = Wrappers;
+			sourceTree = "<group>";
+		};
 		754E56062BBA158E008F8E8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -732,6 +742,7 @@
 		756525C82A8127CC005DC594 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				75485B0A2F2A9AC400DA5E2A /* Wrappers */,
 				75B9CAB92ED16B3C002D701F /* ImageCache */,
 				75AD5EB62E7C47300075377B /* Media */,
 				756525C92A8127F5005DC594 /* Observable.swift */,
@@ -2115,6 +2126,7 @@
 				75D31DE02EDE8DF300AF6102 /* ThemeGridItemView.swift in Sources */,
 				757033A52BC2D8C4002732B5 /* TextViewShadowConfigurable.swift in Sources */,
 				75CB1A022F26EF0300AFF45A /* NicknameUpdateViewModel.swift in Sources */,
+				75485B0E2F2A9ACD00DA5E2A /* UncheckedSendableWrapper.swift in Sources */,
 				756BDFA82EA84559003D5EE2 /* AudioSessionManager.swift in Sources */,
 				75D7C5D02ADD9C3300F6D4B9 /* Date+Extensions.swift in Sources */,
 				75E4807B2E49001700E8C005 /* ReplyToMessageStackView.swift in Sources */,

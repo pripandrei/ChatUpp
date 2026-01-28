@@ -9,6 +9,8 @@ final class AlgoliaSearchManager
     private let usersClient: SearchClient
     private let groupsClient: SearchClient
     
+//    private
+    
     private init()
     {
         guard let keys = AlgoliaAPIKeys.load() else
@@ -31,12 +33,12 @@ final class AlgoliaSearchManager
         }
     }
     
-    
     func searchInUsersIndex(withQuery query: String) async throws -> [User]
     {
-        // Create search request 
+        // Create search request
         let searchRequest = SearchForHits(
             query: query,
+            hitsPerPage: 20,
             typoTolerance: .searchTypoToleranceEnum(.false),
             indexName: "Users"
         )
@@ -47,25 +49,26 @@ final class AlgoliaSearchManager
                 requests: [SearchQuery.searchForHits(searchRequest)]
             )
         )
-        
-        var users: [User] = []
-        
-        // Process results
+
         if let firstResult = response.results.first,
            case .searchResponse(let searchResponse) = firstResult
         {
-            for hit in searchResponse.hits
-            {
-                if let userIDAnyCodable = hit["user_id"],
-                   let userID = userIDAnyCodable.value as? String
+            return try await withThrowingTaskGroup(of: UncheckedSendableWrapper<User>.self) { group in
+                for hit in searchResponse.hits
                 {
-                    let user = try await FirestoreUserService.shared.getUserFromDB(userID: userID)
-                    users.append(user)
+                    if let userIDAnyCodable = hit["user_id"],
+                       let userID = userIDAnyCodable.value as? String
+                    {
+                        group.addTask { @MainActor in
+                            let user = try await FirestoreUserService.shared.getUserFromDB(userID: userID)
+                            return UncheckedSendableWrapper(object: user)
+                        }
+                    }
                 }
+                return try await group.reduce(into: []) { $0.append($1.object) }
             }
         }
-        
-        return users
+        return []
     }
     
     private func searchInGroupsIndex(withQuery query: String) async throws -> [Chat]
@@ -139,3 +142,5 @@ struct AlgoliaSearchResult
     let users: [User]
     let groups: [Chat]
 }
+
+

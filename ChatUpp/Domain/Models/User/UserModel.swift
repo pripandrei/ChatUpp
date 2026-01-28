@@ -9,8 +9,8 @@ import Foundation
 import RealmSwift
 
 // MARK: - User model
-
-class User: Object, Codable, Identifiable
+//extension ChatUpp.User: @unchecked Sendable {}
+class User: Object, Codable, Identifiable, @unchecked Sendable
 {
     @Persisted(primaryKey: true) var id: String
     @Persisted var name: String?
