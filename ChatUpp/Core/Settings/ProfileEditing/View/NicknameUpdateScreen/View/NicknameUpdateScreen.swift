@@ -49,11 +49,14 @@ struct NicknameUpdateScreen: View
                    maxHeight: .infinity,
                    alignment: .topLeading) // alignes all content inside to topLeading
             .background(Color(ColorScheme.appBackgroundColor))
+//            .ignoresSafeArea()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarContent()
             }
             .isLoading(isLoading)
+            .toolbarBackground(Color(ColorScheme.appBackgroundColor), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
     }
 }

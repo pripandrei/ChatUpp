@@ -169,8 +169,6 @@ final class ProfileDeletionViewController: UIViewController
     
     @objc func sendCodeButtonTapped()
     {
-        guard verificationCodeTextField.text?.isEmpty == false else {return}
-        
         Task
         {
             do {

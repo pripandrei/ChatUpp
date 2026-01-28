@@ -202,9 +202,10 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
         let nicknameUpdateScreen = NicknameUpdateScreen(nickname: userNickname, onUpdate: updateCompletion)
         let hostingVC = UIHostingController(rootView: nicknameUpdateScreen)
         hostingVC.view.backgroundColor = .clear
+        
         hostingVC.modalPresentationStyle = .pageSheet
         hostingVC.modalTransitionStyle = .coverVertical
-        
+
         tabBar.settingsNavigationController?.visibleViewController?.present(hostingVC, animated: true)
     }
 }

@@ -216,7 +216,7 @@ extension ConversationMessageCell
             view.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -10).isActive = true
             contentContainer?.backgroundColor = .clear
         case .audio:
-            view.widthAnchor.constraint(lessThanOrEqualToConstant: 330).isActive = true
+            view.widthAnchor.constraint(lessThanOrEqualToConstant: 270).isActive = true
             contentContainer?.backgroundColor = cellViewModel.messageAlignment == .right ?
             ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
         default: break

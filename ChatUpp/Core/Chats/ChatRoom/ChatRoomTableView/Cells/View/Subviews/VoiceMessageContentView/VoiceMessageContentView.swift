@@ -87,7 +87,7 @@ final class VoiceMessageContentView: ContainerView
         
         guard let view = UIHostingController(rootView: playbackControlPanel).view else {return}
         view.backgroundColor = .clear
-        view.isOpaque = true
+//        view.isOpaque = true
         
         addArrangedSubview(view)
         
