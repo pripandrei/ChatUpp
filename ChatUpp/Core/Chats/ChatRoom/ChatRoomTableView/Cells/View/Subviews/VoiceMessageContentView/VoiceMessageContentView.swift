@@ -15,11 +15,20 @@ final class VoiceMessageContentView: ContainerView
     private var playbackControlPanel: VoicePlaybackControlPanelView!
     private let viewModel: MessageContentViewModel
     private var cancellables = Set<AnyCancellable>()
+    private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
     lazy var replyToMessageStack: ReplyToMessageStackView = {
         let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
         let replyToMessageStack = ReplyToMessageStackView(margin: margins)
         return replyToMessageStack
+    }()
+    
+    private lazy var messageSenderNameLabel: UILabel = {
+       let senderNameLabel = UILabel()
+        senderNameLabel.numberOfLines = 1
+        senderNameLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+        senderNameLabel.textColor = messageSenderNameColor
+        return senderNameLabel
     }()
     
     private var messageSenderNameColor: UIColor
@@ -28,7 +37,8 @@ final class VoiceMessageContentView: ContainerView
         return ColorScheme.color(for: senderID ?? "12345")
     }
 
-    init(viewModel: MessageContentViewModel)
+    init(viewModel: MessageContentViewModel,
+         messageLayoutConfiguration: MessageLayoutConfiguration)
     {
         self.viewModel = viewModel
         super.init(spacing: 2.0,
@@ -39,9 +49,13 @@ final class VoiceMessageContentView: ContainerView
         layer.cornerRadius = 15
         clipsToBounds = true
         
+        self.messageLayoutConfiguration = messageLayoutConfiguration
+        
         guard let path = viewModel.message?.voicePath,
               let url = CacheManager.shared.getURL(for: path),
               let audioSamples = viewModel.message?.audioSamples else { fatalError("Audio path should be present") }
+        
+        setupSenderNameLabel()
         
         let controlPanelcolorScheme = makeColorSchemeForControlPanel(basedOnAlignment: viewModel.messageAlignment)
         setupPlaybackControlPanel(withUrl: url, audioSamples: Array(audioSamples), colorScheme: controlPanelcolorScheme)
@@ -139,8 +153,8 @@ final class VoiceMessageContentView: ContainerView
                                       messageText: replyLabelText,
                                       imageData: imageData)
         
-        let index = viewModel.message?.seenBy.isEmpty == true ? 0 : 1 // this is a check for wheather chat is group or not (seenBy will be empty if its 1 to 1 chat)
-    
+        let index = messageLayoutConfiguration.shouldShowSenderName ? 1 : 0
+        
         addArrangedSubview(replyToMessageStack, at: index)
         updateReplyToMessageColor()
     }
@@ -168,6 +182,26 @@ final class VoiceMessageContentView: ContainerView
                 self?.superview?.layoutIfNeeded()
             }
         })
+    }
+}
+
+//MARK: Sender name setup
+extension VoiceMessageContentView
+{
+    private func setupSenderNameLabel()
+    {
+        guard messageLayoutConfiguration.shouldShowSenderName else
+        {
+            removeArrangedSubview(messageSenderNameLabel)
+            return
+        }
+    
+        if !contains(messageSenderNameLabel)
+        {
+            addArrangedSubview(messageSenderNameLabel, at: 0)
+        }
+        
+        messageSenderNameLabel.text = viewModel.messageSender?.name
     }
 }
 

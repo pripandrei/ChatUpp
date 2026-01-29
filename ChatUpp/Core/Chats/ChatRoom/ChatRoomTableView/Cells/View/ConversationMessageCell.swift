@@ -154,7 +154,8 @@ final class ConversationMessageCell: UITableViewCell
             setupContainerView(stickerView, type: .sticker)
             stickerView.configure(with: viewModel.messageContainerViewModel!)
         case .audio:
-            let audioView = VoiceMessageContentView(viewModel: viewModel.messageContainerViewModel!)
+            let audioView = VoiceMessageContentView(viewModel: viewModel.messageContainerViewModel!,
+                                                    messageLayoutConfiguration: layoutConfiguration)
             setupContainerView(audioView, type: .audio)
         default: break
         }
