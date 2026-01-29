@@ -1692,13 +1692,26 @@ extension ChatRoomViewController
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
             self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-            let delayInterval = 0.7 // do not modify to lower than 0.7 value (result in animation glitch on reload)
+            let delayInterval = 0.8 // do not modify to lower than 0.8 value (result in animation glitch on reload)
             self?.dismiss(animated: true)
             
-            executeAfter(seconds: delayInterval) {
-                guard let cellVM = (cell as? TargetPreviewable)?.cellViewModel else {return}
-                self?.dataSourceManager.reloadItems([cellVM])
-            }
+//            executeAfter(seconds: delayInterval) {
+//                guard let cellVM = (cell as? TargetPreviewable)?.cellViewModel else {return}
+//                self?.dataSourceManager.reloadItems([cellVM])
+//            }
+            
+//            var handleContentRelayout: (() -> Void)?
+//            func configureSticker(with message: Message)
+//            {
+//                UIView.performWithoutAnimation {
+//                    setupReactionView(for: message)
+//                    setContentContainerViewBottomConstraint()
+//                }
+//                UIView.animate(withDuration: 0.3) {
+//                    self.contentView.layoutIfNeeded()
+//                }
+//                handleContentRelayout?()
+//            }
         }
         
         let hostingView = UIHostingController(rootView: reactionPanelView).view!

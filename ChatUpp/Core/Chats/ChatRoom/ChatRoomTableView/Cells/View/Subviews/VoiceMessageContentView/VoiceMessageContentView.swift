@@ -195,7 +195,7 @@ extension VoiceMessageContentView
             removeArrangedSubview(messageSenderNameLabel)
             return
         }
-    
+        
         if !contains(messageSenderNameLabel)
         {
             addArrangedSubview(messageSenderNameLabel, at: 0)

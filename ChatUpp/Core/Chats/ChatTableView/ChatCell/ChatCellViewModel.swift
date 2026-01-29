@@ -609,6 +609,7 @@ extension ChatCellViewModel
                     Task { await self.performMessageImageUpdate(message) }
                 case .messageSeen, .seenBy, .messageBody(_), .isEdited:
                     self.recentMessage = propertyChange.1 as? Message
+                default: break
                 }
                 
             }.store(in: &recentMessagesCancellables)
@@ -743,6 +744,7 @@ enum MessageObservedProperty
     case seenBy
     case messageBody(String)
     case isEdited
+    case reactions
 
     init?(from propertyName: String, newValue: Any? = nil)
     {
@@ -755,6 +757,7 @@ enum MessageObservedProperty
         case "messageBody":
             guard let value = newValue as? String else {return nil}
             self = .messageBody(value)
+        case "reactions": self = .reactions
         default:
             return nil
         }

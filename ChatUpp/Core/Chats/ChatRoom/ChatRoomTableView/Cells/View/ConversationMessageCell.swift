@@ -154,15 +154,14 @@ final class ConversationMessageCell: UITableViewCell
             setupContainerView(stickerView, type: .sticker)
             stickerView.configure(with: viewModel.messageContainerViewModel!)
         case .audio:
-            let audioView = VoiceMessageContentView(viewModel: viewModel.messageContainerViewModel!,
-                                                    messageLayoutConfiguration: layoutConfiguration)
+            let audioView = VoiceMessageContentView(viewModel: viewModel.messageContainerViewModel!, messageLayoutConfiguration: layoutConfiguration)
             setupContainerView(audioView, type: .audio)
         default: break
         }
         
         adjustMessageSide()
         setupSenderAvatar()
-        setupReactionView(for: message)
+//        setupReactionView(for: message)
         setContentContainerViewBottomConstraint()
     }
     
@@ -285,8 +284,9 @@ extension ConversationMessageCell
     
     private func setContentContainerViewBottomConstraint()
     {
-        let isReactionsEmpty = cellViewModel.message?.reactions.isEmpty
-        self.contentContainerViewBottomConstraint.constant = isReactionsEmpty ?? true ? -3 : -25
+//        let isReactionsEmpty = cellViewModel.message?.reactions.isEmpty
+//        self.contentContainerViewBottomConstraint.constant = isReactionsEmpty ?? true ? -3 : -25
+        self.contentContainerViewBottomConstraint.constant = -3
     }
 }
 

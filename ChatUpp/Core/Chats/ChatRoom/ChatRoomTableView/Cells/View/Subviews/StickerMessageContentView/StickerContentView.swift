@@ -54,8 +54,9 @@ final class StickerMessageContentView: UIView
         stickerView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            stickerView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            stickerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+//            stickerView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+//            stickerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            stickerView.heightAnchor.constraint(equalToConstant: 170),
             stickerView.widthAnchor.constraint(equalTo: stickerView.heightAnchor),
         ])
     }

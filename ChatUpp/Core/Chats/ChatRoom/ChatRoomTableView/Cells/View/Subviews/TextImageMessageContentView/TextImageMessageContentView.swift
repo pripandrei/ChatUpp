@@ -12,6 +12,8 @@ import Combine
 
 final class TextImageMessageContentView: ContainerView
 {
+    var reactionView: UIView?
+    
     static var maxWidth: CGFloat
     {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -175,6 +177,7 @@ extension TextImageMessageContentView
         messageLabel.preferredMaxLayoutWidth = maxMessageWidth
         messageLabel.contentMode = .redraw
         messageLabel.clipsToBounds = true
+//        messageLabel.backgroundColor = .blue
     }
     
     func configureMessageImageView()
@@ -505,14 +508,14 @@ extension TextImageMessageContentView
 }
 
 
-
+import SwiftUI
 // MARK: Message edit animation
 extension TextImageMessageContentView
 {
     private func updateMessage(fieldValue: MessageObservedProperty)
     {
         executeAfter(seconds: 0.2)
-        { [weak self] in
+        { [weak self] in 
             guard let self = self else {return}
             self.messageLabel.messageUpdateType = .edited
             
@@ -532,6 +535,9 @@ extension TextImageMessageContentView
                 {
                     self.handleMessageLayout()
                 }
+            case .reactions:
+                self.handleMessageLayout()
+                setupReactionView()
             default: break
             }
 
@@ -540,6 +546,38 @@ extension TextImageMessageContentView
             }
             self.handleContentRelayout?()
         }
+    }
+    
+    func setupReactionView()
+    {
+        guard let message = viewModel.message else {return}
+        guard !message.reactions.isEmpty else
+        {
+            if let rectionView = self.reactionView
+            {
+                removeArrangedSubview(rectionView)
+            }
+            return
+        }
+        
+        let reactionVM = ReactionViewModel(message: message)
+        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+        
+        self.reactionView = hostView.view
+//        guard let reactionBadgeHostingView = hostView.view else {return}
+        
+        hostView.view.backgroundColor = .clear
+//        hostView.view.translatesAutoresizingMaskIntoConstraints = false
+//        contentView.addSubview(hostView.view)
+        addArrangedSubview(reactionView!)
+        
+//        let horizontalConstraint = viewModel.messageAlignment == .right ?
+//        hostView.view.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -10) :
+//        hostView.view.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 10)
+//        
+//        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
+//        
+//        horizontalConstraint.isActive = true
     }
     
     

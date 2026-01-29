@@ -96,6 +96,8 @@ class ContainerView: UIView
             } else {
                 // First view
                 let top = view.topAnchor.constraint(equalTo: topAnchor, constant: margins.top + padding.top)
+                top.priority = .defaultLow
+                
                 arrangedConstraints.append(top)
             }
             
