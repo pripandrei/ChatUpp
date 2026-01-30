@@ -20,7 +20,7 @@ final class MessageComponentsView: UIView
     private(set) var messageComponentsStackView: UIStackView = UIStackView()
     private var seenStatusMark = YYLabel()
     private var editedLabel: UILabel = UILabel()
-    private var timeStamp = YYLabel()
+    private(set) var timeStamp = YYLabel()
     
     init() {
         super.init(frame: .zero)

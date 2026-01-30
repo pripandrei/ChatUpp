@@ -23,54 +23,8 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "E4758FA8-0D4C-4158-A990-BD279741D4FC"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "522"
-            endingLineNumber = "522"
-            landmarkName = "updateMessage(fieldValue:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "E4758FA8-0D4C-4158-A990-BD279741D4FC - 1af4875b728f9301"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in ChatUpp.TextImageMessageContentView.updateMessage(fieldValue: ChatUpp.MessageObservedProperty) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "524"
-                  endingLineNumber = "524">
-               </Location>
-               <Location
-                  uuid = "E4758FA8-0D4C-4158-A990-BD279741D4FC - 1af4875b728f9301"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in ChatUpp.TextImageMessageContentView.updateMessage(fieldValue: ChatUpp.MessageObservedProperty) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "524"
-                  endingLineNumber = "524">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "BABBDB1E-A2FF-497E-A677-CBAA0A11FB99"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/ConversationMessageCell.swift"
@@ -96,75 +50,13 @@
             endingLineNumber = "152"
             landmarkName = "updateMessageSeenStatus()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "26083EDC-1C0B-4097-A39A-C8680B42DC1F - 327f18776fad1926"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in ChatUpp.StickerMessageContentView.updateMessageSeenStatus() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/StickerMessageContentView/StickerContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "152"
-                  endingLineNumber = "152">
-               </Location>
-               <Location
-                  uuid = "26083EDC-1C0B-4097-A39A-C8680B42DC1F - 1bc7686f52494523"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in closure #1 () -&gt; () in ChatUpp.StickerMessageContentView.updateMessageSeenStatus() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/StickerMessageContentView/StickerContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "148"
-                  endingLineNumber = "148">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "CE65F355-F3CE-44B2-9810-9532DACF953E"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/ConversationMessageCell.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "288"
-            endingLineNumber = "288"
-            landmarkName = "setContentContainerViewBottomConstraint()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "65B6716F-F349-4D93-BC40-70E3D6B1D393"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/StickerMessageContentView/StickerContentView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "56"
-            endingLineNumber = "56"
-            landmarkName = "setupSticker()"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "EE2A6E74-414E-4AC3-951A-265548FF99E7"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/StickerMessageContentView/StickerContentView.swift"
@@ -179,54 +71,8 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "0F4AC5E7-B7C1-4F8E-B4DD-0EBBAD157065"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "520"
-            endingLineNumber = "520"
-            landmarkName = "updateMessage(fieldValue:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "0F4AC5E7-B7C1-4F8E-B4DD-0EBBAD157065 - 1af4875b728f9301"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in ChatUpp.TextImageMessageContentView.updateMessage(fieldValue: ChatUpp.MessageObservedProperty) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "524"
-                  endingLineNumber = "524">
-               </Location>
-               <Location
-                  uuid = "0F4AC5E7-B7C1-4F8E-B4DD-0EBBAD157065 - 1af4875b728f9301"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in ChatUpp.TextImageMessageContentView.updateMessage(fieldValue: ChatUpp.MessageObservedProperty) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "524"
-                  endingLineNumber = "524">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "7A138134-EAE9-4764-89D0-F35A07063100"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/ConversationMessageCell.swift"
@@ -235,148 +81,6 @@
             startingLineNumber = "162"
             endingLineNumber = "162"
             landmarkName = "configureCell(using:layoutConfiguration:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "4CF80767-ABFD-49FA-8BBE-87DD8E970086"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "540"
-            endingLineNumber = "540"
-            landmarkName = "updateMessage(fieldValue:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "7D34F156-4475-4280-A724-12D69127ADF8"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "107"
-            endingLineNumber = "107"
-            landmarkName = "setupBindings()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "97917B3D-8B4E-4562-8B97-1F55394BF2B6"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "210"
-            endingLineNumber = "210"
-            landmarkName = "observeMainMessage()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "C02DA0AF-FA11-44C7-8FE4-D8AFD91415C1"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "205"
-            endingLineNumber = "205"
-            landmarkName = "observeMainMessage()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "C02DA0AF-FA11-44C7-8FE4-D8AFD91415C1 - 56a8e1836d79c3cb"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (ChatUpp.RealmObjectUpdate) -&gt; () in ChatUpp.MessageContentViewModel.observeMainMessage() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "205"
-                  endingLineNumber = "205">
-               </Location>
-               <Location
-                  uuid = "C02DA0AF-FA11-44C7-8FE4-D8AFD91415C1 - 56a8e1836d79c3cb"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (ChatUpp.RealmObjectUpdate) -&gt; () in ChatUpp.MessageContentViewModel.observeMainMessage() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "205"
-                  endingLineNumber = "205">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "3D6AF752-37FD-49CF-BB95-7E415DB2EB72"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "208"
-            endingLineNumber = "208"
-            landmarkName = "observeMainMessage()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "39D78416-B6E2-47DD-9A58-40AF35AE9BD4"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatTableView/ChatCell/ChatCellViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "751"
-            endingLineNumber = "751"
-            landmarkName = "init?(from:newValue:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "EEE1D48A-B18D-431F-BDDE-AC745C332D07"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "554"
-            endingLineNumber = "554"
-            landmarkName = "setupReactionView()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -415,84 +119,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A8BDF3D3-B8A5-4371-8B34-CEDE7C33CE5B"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "229"
-            endingLineNumber = "229"
-            landmarkName = "observeReplyToMessage()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A8BDF3D3-B8A5-4371-8B34-CEDE7C33CE5B - 9d6a511ef4412985"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.RealmObjectUpdate) -&gt; () in ChatUpp.MessageContentViewModel.observeReplyToMessage() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "230"
-                  endingLineNumber = "230">
-               </Location>
-               <Location
-                  uuid = "A8BDF3D3-B8A5-4371-8B34-CEDE7C33CE5B - 9d6a511ef4412985"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (ChatUpp.RealmObjectUpdate) -&gt; () in ChatUpp.MessageContentViewModel.observeReplyToMessage() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "230"
-                  endingLineNumber = "230">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "890472E6-05F1-475F-AA82-ACE5E8B650CD"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "238"
-            endingLineNumber = "238"
-            landmarkName = "observeReplyToMessage()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "AD60BE55-5425-4E9D-97C3-24F4A36A5E33"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/MessageContentViewModel/MessageContentViewModel.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "225"
-            endingLineNumber = "225"
-            landmarkName = "observeReplyToMessage()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "8FC0BC9E-EAA3-47EB-B17F-FFDF83B80CD3"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -504,50 +130,6 @@
             endingLineNumber = "249"
             landmarkName = "removeMessageToReplyLabel()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "8FC0BC9E-EAA3-47EB-B17F-FFDF83B80CD3 - 899f85c229be4cb6"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in ChatUpp.TextImageMessageContentView.removeMessageToReplyLabel() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "249"
-                  endingLineNumber = "249">
-               </Location>
-               <Location
-                  uuid = "8FC0BC9E-EAA3-47EB-B17F-FFDF83B80CD3 - 5aa87039deddbd7"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in closure #1 () -&gt; () in ChatUpp.TextImageMessageContentView.removeMessageToReplyLabel() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "249"
-                  endingLineNumber = "249">
-               </Location>
-               <Location
-                  uuid = "8FC0BC9E-EAA3-47EB-B17F-FFDF83B80CD3 - 7bdbff30eaf6eb4f"
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #2 (Swift.Bool) -&gt; () in closure #1 () -&gt; () in ChatUpp.TextImageMessageContentView.removeMessageToReplyLabel() -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "250"
-                  endingLineNumber = "250">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

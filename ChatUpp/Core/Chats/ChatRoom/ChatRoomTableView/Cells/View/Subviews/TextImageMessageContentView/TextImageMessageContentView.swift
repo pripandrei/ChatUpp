@@ -310,7 +310,7 @@ extension TextImageMessageContentView
     func handleMessageLayout()
     {
         createMessageTextLayout()
-        let padding = getMessagePaddingStrategy()
+        let padding = viewModel.message?.reactions.isEmpty == true ? getMessagePaddingStrategy() : .initial
         applyMessagePadding(strategy: padding)
     }
     
@@ -514,8 +514,8 @@ extension TextImageMessageContentView
 {
     private func updateMessage(fieldValue: MessageObservedProperty)
     {
-        executeAfter(seconds: 0.2)
-        { [weak self] in 
+        executeAfter(seconds: 1.0)
+        { [weak self] in
             guard let self = self else {return}
             self.messageLabel.messageUpdateType = .edited
             
@@ -537,49 +537,61 @@ extension TextImageMessageContentView
                 }
             case .reactions:
                 self.handleMessageLayout()
-                setupReactionView()
+                self.setupReactionView()
             default: break
             }
 
-            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: 0.6) {
                 self.superview?.layoutIfNeeded()
             }
             self.handleContentRelayout?()
         }
     }
     
-    func setupReactionView()
-    {
-        guard let message = viewModel.message else {return}
-        guard !message.reactions.isEmpty else
-        {
-            if let rectionView = self.reactionView
-            {
-                removeArrangedSubview(rectionView)
+    func setupReactionView() {
+        guard let message = viewModel.message else { return }
+        
+        guard !message.reactions.isEmpty else {
+            if let reactionView = self.reactionView {
+                removeArrangedSubview(reactionView)
+            }
+            UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
+                self.superview?.layoutIfNeeded()
             }
             return
         }
         
         let reactionVM = ReactionViewModel(message: message)
         let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
-        
         self.reactionView = hostView.view
-//        guard let reactionBadgeHostingView = hostView.view else {return}
+        self.reactionView?.backgroundColor = .clear
+        self.reactionView?.alpha = 0.2
+        self.reactionView?.transform = .init(scaleX: 0.1, y: 0.1)
+//        addSubview(hostView.view)
+//        hostView.view.trailingAnchor.constraint(equalTo: messageComponentsView.timeStamp.leadingAnchor, constant: -10).isActive = true
+//        hostView.view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
         
-        hostView.view.backgroundColor = .clear
-//        hostView.view.translatesAutoresizingMaskIntoConstraints = false
-//        contentView.addSubview(hostView.view)
-        addArrangedSubview(reactionView!)
+        // Just add it - the stack handles everything
+        self.addArrangedSubview(hostView.view,
+                                padding: .init(top: 3, left: 2, bottom: 0, right: 0),
+                                shouldFillWidth: false)
         
-//        let horizontalConstraint = viewModel.messageAlignment == .right ?
-//        hostView.view.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -10) :
-//        hostView.view.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 10)
-//        
-//        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
-//        
-//        horizontalConstraint.isActive = true
-    }
     
+       
+        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0)
+        {
+            UIView.animate(withDuration: 0.2, delay: 0.3) {
+                self.reactionView?.transform = .init(scaleX: 1.2, y: 1.2)
+                self.reactionView?.alpha = 1.0
+                UIView.animate(withDuration: 0.2, delay: 0.5) {
+                    self.reactionView?.transform = .identity
+//                    self.reactionView?.alpha = 1.0
+                }
+            }
+            self.superview?.layoutIfNeeded()
+        }
+    }
+
     
 //    private func updateMessage(_ message: Message)
 //    {
@@ -599,3 +611,37 @@ extension TextImageMessageContentView
 //        }
 //    }
 }
+//
+//
+//func setupReactionView() {
+//    guard let message = viewModel.message else { return }
+//    
+//    guard !message.reactions.isEmpty else {
+//        if let reactionView = self.reactionView {
+//            removeArrangedSubview(reactionView)
+//        }
+//        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
+//            self.superview?.layoutIfNeeded()
+//        }
+//        return
+//    }
+//    
+//    let reactionVM = ReactionViewModel(message: message)
+//    let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+//    self.reactionView = hostView.view
+//    self.reactionView?.backgroundColor = .clear
+//    self.reactionView?.alpha = 0.0
+//
+//    // Just add it - the stack handles everything
+//    self.addArrangedSubview(hostView.view,
+//                            padding: .init(top: 3, left: 2, bottom: 0, right: 0),
+//                            shouldFillWidth: false)
+//    
+//
+//    UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
+//            self.reactionView?.alpha = 1.0
+//        self.superview?.layoutIfNeeded()
+//    }
+//
+//    self.layoutIfNeeded()
+//}
