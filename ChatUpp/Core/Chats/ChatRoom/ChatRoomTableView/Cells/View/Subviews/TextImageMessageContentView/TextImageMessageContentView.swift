@@ -12,7 +12,7 @@ import Combine
 
 final class ReactionUIView: UIView
 {
-    private var reactionView: UIView!
+    private(set) var reactionView: UIView!
     private var message: Message!
     
     init(from message: Message)
@@ -32,6 +32,7 @@ final class ReactionUIView: UIView
         let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
         self.reactionView = hostView.view
         self.reactionView?.backgroundColor = .clear
+//        addSubview(self.reactionView)
     }
     
     func setupReactionView(on view: TextImageMessageContentView,
@@ -62,7 +63,7 @@ final class ReactionUIView: UIView
 //        hostView.view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
 //
         view.addArrangedSubview(self.reactionView,
-                                padding: .init(top: 5, left: 2, bottom: 0, right: 45),
+                                padding: .init(top: 5, left: 2, bottom: 0, right: 0),
                                 shouldFillWidth: false)
         
         
@@ -217,6 +218,8 @@ extension TextImageMessageContentView
             reactionView?.setupReactionView(on: self,
 //                                           from: message,
                                            withAnimation: false)
+
+            reactionView?.reactionView.trailingAnchor.constraint(lessThanOrEqualTo: self.messageComponentsView.leadingAnchor, constant: -10).isActive = true
         }
     }
     
@@ -261,6 +264,7 @@ extension TextImageMessageContentView
     private func setupMessageLabel()
     {
         addArrangedSubview(messageLabel)
+        
         messageLabel.numberOfLines = 0
         messageLabel.preferredMaxLayoutWidth = maxMessageWidth
         messageLabel.contentMode = .redraw

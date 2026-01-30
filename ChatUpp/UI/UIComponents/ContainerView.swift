@@ -12,7 +12,7 @@ class ContainerView: UIView {
     
     // MARK: - Properties
     var spacing: CGFloat = 0 {
-        didSet { stackView.spacing = spacing }
+        didSet { containerStackView.spacing = spacing }
     }
     
     var margins: UIEdgeInsets = .zero {
@@ -22,7 +22,7 @@ class ContainerView: UIView {
         }
     }
     
-    private let stackView: UIStackView = {
+    private let containerStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.alignment = .fill
@@ -49,16 +49,16 @@ class ContainerView: UIView {
     
     // MARK: - Setup
     private func setupStackView() {
-        addSubview(stackView)
+        addSubview(containerStackView)
         updateMargins()
     }
     
     private func updateMargins() {
         marginConstraints = [
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: margins.top),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: margins.left),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -margins.right),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -margins.bottom)
+            containerStackView.topAnchor.constraint(equalTo: topAnchor, constant: margins.top),
+            containerStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: margins.left),
+            containerStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -margins.right),
+            containerStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -margins.bottom)
         ]
         NSLayoutConstraint.activate(marginConstraints)
     }
@@ -73,16 +73,16 @@ class ContainerView: UIView {
                                     padding: padding,
                                     shouldFillWidth: shouldFillWidth)
         
-        if let index = index, index >= 0, index < stackView.arrangedSubviews.count {
-            stackView.insertArrangedSubview(wrapper, at: index)
+        if let index = index, index >= 0, index < containerStackView.arrangedSubviews.count {
+            containerStackView.insertArrangedSubview(wrapper, at: index)
         } else {
-            stackView.addArrangedSubview(wrapper)
+            containerStackView.addArrangedSubview(wrapper)
         }
     }
     
     func removeArrangedSubview(_ view: UIView) {
-        if let wrapper = stackView.arrangedSubviews.first(where: { $0.subviews.contains(view) }) {
-            stackView.removeArrangedSubview(wrapper)
+        if let wrapper = containerStackView.arrangedSubviews.first(where: { $0.subviews.contains(view) }) {
+            containerStackView.removeArrangedSubview(wrapper)
             wrapper.removeFromSuperview()
             viewPaddings.removeValue(forKey: view)
             print("view is removed")
@@ -90,7 +90,7 @@ class ContainerView: UIView {
     }
     
     func updatePadding(for view: UIView, padding: UIEdgeInsets) {
-        if let wrapper = stackView.arrangedSubviews.first(where: { $0.subviews.contains(view) }) {
+        if let wrapper = containerStackView.arrangedSubviews.first(where: { $0.subviews.contains(view) }) {
             viewPaddings[view] = padding
             
             NSLayoutConstraint.deactivate(wrapper.constraints)
