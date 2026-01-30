@@ -277,7 +277,7 @@ extension ConversationMessageCell
         guard let avatarSize = messageLayoutConfiguration.avatarSize else {return}
         
         messageSenderAvatar.trailingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: -8).isActive = true
-        messageSenderAvatar.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3).isActive = true
+        messageSenderAvatar.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
         messageSenderAvatar.widthAnchor.constraint(equalToConstant: avatarSize.width).isActive = true
         messageSenderAvatar.heightAnchor.constraint(equalToConstant: avatarSize.height).isActive = true
     }

@@ -10,9 +10,89 @@ import UIKit
 import YYText
 import Combine
 
+final class ReactionUIView: UIView
+{
+    private var reactionView: UIView!
+    private var message: Message!
+    
+    init(from message: Message)
+    {
+        super.init(frame: .zero)
+        self.message = message
+        self.setupReactionView(fromMessage: message)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupReactionView(fromMessage message: Message)
+    {
+        let reactionVM = ReactionViewModel(message: message)
+        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+        self.reactionView = hostView.view
+        self.reactionView?.backgroundColor = .clear
+    }
+    
+    func setupReactionView(on view: TextImageMessageContentView,
+//                           from message: Message,
+                           withAnimation: Bool)
+    {
+//        guard let message = viewModel.message else { return }
+        
+        guard !message.reactions.isEmpty else
+        {
+            if let reactionView = self.reactionView
+            {
+                view.removeArrangedSubview(reactionView)
+                UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
+                    view.superview?.layoutIfNeeded()
+                }
+            }
+            return
+        }
+        
+//        let reactionVM = ReactionViewModel(message: message)
+//        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+//        self.reactionView = hostView.view
+//        self.reactionView?.backgroundColor = .clear
+        
+//        addSubview(hostView.view)
+//        hostView.view.trailingAnchor.constraint(equalTo: messageComponentsView.timeStamp.leadingAnchor, constant: -10).isActive = true
+//        hostView.view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
+//
+        view.addArrangedSubview(self.reactionView,
+                                padding: .init(top: 5, left: 2, bottom: 0, right: 45),
+                                shouldFillWidth: false)
+        
+        
+        
+        guard withAnimation else {return}
+        
+        self.reactionView?.alpha = 0.2
+        self.reactionView?.transform = .init(scaleX: 0.1, y: 0.1)
+        
+        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0)
+        {
+            UIView.animate(withDuration: 0.2, delay: 0.3)
+            {
+                self.reactionView?.transform = .init(scaleX: 1.2, y: 1.2)
+                self.reactionView?.alpha = 1.0
+                
+                UIView.animate(withDuration: 0.2, delay: 0.5) {
+                    self.reactionView?.transform = .identity
+                }
+            }
+            view.superview?.layoutIfNeeded()
+        }
+    }
+}
+
 final class TextImageMessageContentView: ContainerView
 {
-    var reactionView: UIView?
+//    var reactionView: UIView?
+//    lazy var reactionView: ReactionUIView = ReactionUIView()
+    private var reactionView: ReactionUIView?
     
     static var maxWidth: CGFloat
     {
@@ -130,6 +210,14 @@ extension TextImageMessageContentView
         setupSenderNameLabel()
         setupMessageToReplyView()
         setupMessageLabel(with: message)
+        
+        if viewModel.message?.reactions.isEmpty == false
+        {
+            self.reactionView = .init(from: message)
+            reactionView?.setupReactionView(on: self,
+//                                           from: message,
+                                           withAnimation: false)
+        }
     }
     
     func setupMessageLabel(with message: Message)
@@ -537,7 +625,15 @@ extension TextImageMessageContentView
                 }
             case .reactions:
                 self.handleMessageLayout()
-                self.setupReactionView()
+//                self.setupReactionView(withAnimation: true)
+                if reactionView == nil,
+                   let message = viewModel.message
+                {
+                    self.reactionView = .init(from: message)
+                }
+                self.reactionView?.setupReactionView(on: self,
+//                                                     from: viewModel.message!,
+                                                     withAnimation: true)
             default: break
             }
 
@@ -548,49 +644,56 @@ extension TextImageMessageContentView
         }
     }
     
-    func setupReactionView() {
-        guard let message = viewModel.message else { return }
-        
-        guard !message.reactions.isEmpty else {
-            if let reactionView = self.reactionView {
-                removeArrangedSubview(reactionView)
-            }
-            UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
-                self.superview?.layoutIfNeeded()
-            }
-            return
-        }
-        
-        let reactionVM = ReactionViewModel(message: message)
-        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
-        self.reactionView = hostView.view
-        self.reactionView?.backgroundColor = .clear
-        self.reactionView?.alpha = 0.2
-        self.reactionView?.transform = .init(scaleX: 0.1, y: 0.1)
-//        addSubview(hostView.view)
-//        hostView.view.trailingAnchor.constraint(equalTo: messageComponentsView.timeStamp.leadingAnchor, constant: -10).isActive = true
-//        hostView.view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
-        
-        // Just add it - the stack handles everything
-        self.addArrangedSubview(hostView.view,
-                                padding: .init(top: 3, left: 2, bottom: 0, right: 0),
-                                shouldFillWidth: false)
-        
-    
-       
-        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0)
-        {
-            UIView.animate(withDuration: 0.2, delay: 0.3) {
-                self.reactionView?.transform = .init(scaleX: 1.2, y: 1.2)
-                self.reactionView?.alpha = 1.0
-                UIView.animate(withDuration: 0.2, delay: 0.5) {
-                    self.reactionView?.transform = .identity
-//                    self.reactionView?.alpha = 1.0
-                }
-            }
-            self.superview?.layoutIfNeeded()
-        }
-    }
+//    func setupReactionView(withAnimation: Bool)
+//    {
+//        guard let message = viewModel.message else { return }
+//        
+//        guard !message.reactions.isEmpty else
+//        {
+//            if let reactionView = self.reactionView
+//            {
+//                removeArrangedSubview(reactionView)
+//                UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
+//                    self.superview?.layoutIfNeeded()
+//                }
+//            }
+//            return
+//        }
+//        
+//        let reactionVM = ReactionViewModel(message: message)
+//        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+//        self.reactionView = hostView.view
+//        self.reactionView?.backgroundColor = .clear
+//        
+////        addSubview(hostView.view)
+////        hostView.view.trailingAnchor.constraint(equalTo: messageComponentsView.timeStamp.leadingAnchor, constant: -10).isActive = true
+////        hostView.view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
+////
+//        self.addArrangedSubview(hostView.view,
+//                                padding: .init(top: 5, left: 2, bottom: 0, right: 0),
+//                                shouldFillWidth: false)
+//        
+//        
+//        
+//        guard withAnimation else {return}
+//        
+//        self.reactionView?.alpha = 0.2
+//        self.reactionView?.transform = .init(scaleX: 0.1, y: 0.1)
+//        
+//        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0)
+//        {
+//            UIView.animate(withDuration: 0.2, delay: 0.3)
+//            {
+//                self.reactionView?.transform = .init(scaleX: 1.2, y: 1.2)
+//                self.reactionView?.alpha = 1.0
+//                
+//                UIView.animate(withDuration: 0.2, delay: 0.5) {
+//                    self.reactionView?.transform = .identity
+//                }
+//            }
+//            self.superview?.layoutIfNeeded()
+//        }
+//    }
 
     
 //    private func updateMessage(_ message: Message)
@@ -612,6 +715,18 @@ extension TextImageMessageContentView
 //    }
 }
 //
+
+
+protocol ReactionDisplayable
+{
+    var reactionView: UIView? { get set }
+}
+
+protocol ReactionAnimatable: ReactionDisplayable
+{
+    
+}
+
 //
 //func setupReactionView() {
 //    guard let message = viewModel.message else { return }
