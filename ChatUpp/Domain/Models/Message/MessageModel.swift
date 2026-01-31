@@ -10,7 +10,7 @@ import RealmSwift
 
 
 
-class Message: Object, Codable
+class Message: Object, Codable, Identifiable
 {
     @Persisted(primaryKey: true) var id: String
     @Persisted var messageBody: String

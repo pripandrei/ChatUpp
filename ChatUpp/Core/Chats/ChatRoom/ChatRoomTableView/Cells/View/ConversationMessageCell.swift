@@ -98,27 +98,27 @@ final class ConversationMessageCell: UITableViewCell
             }).store(in: &subscribers)
     }
     
-    func setupReactionView(for message: Message)
-    {
-        guard !message.reactions.isEmpty else {return}
-        
-        let reactionVM = ReactionViewModel(message: message)
-        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
-        
-        self.reactionBadgeHostingView = hostView.view
-        
-        hostView.view.backgroundColor = .clear
-        hostView.view.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(hostView.view)
-        
-        let horizontalConstraint = cellViewModel.messageAlignment == .right ?
-        hostView.view.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -10) :
-        hostView.view.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 10)
-        
-        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
-        
-        horizontalConstraint.isActive = true
-    }
+//    func setupReactionView(for message: Message)
+//    {
+//        guard !message.reactions.isEmpty else {return}
+//        
+//        let reactionVM = ReactionViewModel(message: message)
+//        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+//        
+//        self.reactionBadgeHostingView = hostView.view
+//        
+//        hostView.view.backgroundColor = .clear
+//        hostView.view.translatesAutoresizingMaskIntoConstraints = false
+//        contentView.addSubview(hostView.view)
+//        
+//        let horizontalConstraint = cellViewModel.messageAlignment == .right ?
+//        hostView.view.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -10) :
+//        hostView.view.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 10)
+//        
+//        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
+//        
+//        horizontalConstraint.isActive = true
+//    }
         
     /// - cell configuration
     ///

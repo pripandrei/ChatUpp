@@ -76,14 +76,14 @@ final class MessageEventCell: UITableViewCell
         
         messageLabel.attributedText = makeAttributedMessage(username: username,
                                                             text: textMessage)
-        setupReactionView(for: viewModel.message!)
+//        setupReactionView(for: viewModel.message!)
         setContentContainerViewBottomConstraint()
     }
     
     func performCellCleanup()
     {
-        reactionBadgeHostingView?.removeFromSuperview()
-        reactionBadgeHostingView = nil
+//        reactionBadgeHostingView?.removeFromSuperview()
+//        reactionBadgeHostingView = nil
     }
     
     private func setContentContainerViewBottomConstraint()
@@ -92,24 +92,24 @@ final class MessageEventCell: UITableViewCell
         self.contentContainerViewBottomConstraint.constant = isReactionsEmpty ?? true ? -4 : -27
     }
     
-    func setupReactionView(for message: Message)
-    {
-        guard !message.reactions.isEmpty else {return}
-        
-        let reactionVM = ReactionViewModel(message: message)
-        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
-        
-        self.reactionBadgeHostingView = hostView.view
-        
-        hostView.view.backgroundColor = .clear
-        hostView.view.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(hostView.view)
-        
-        hostView.view.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor).isActive = true
-        
-        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
-    }
-    
+//    func setupReactionView(for message: Message)
+//    {
+//        guard !message.reactions.isEmpty else {return}
+//        
+//        let reactionVM = ReactionViewModel(message: message)
+//        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+//        
+//        self.reactionBadgeHostingView = hostView.view
+//        
+//        hostView.view.backgroundColor = .clear
+//        hostView.view.translatesAutoresizingMaskIntoConstraints = false
+//        contentView.addSubview(hostView.view)
+//        
+//        hostView.view.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor).isActive = true
+//        
+//        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
+//    }
+//    
     private func makeAttributedMessage(username: String?, text: String?) -> NSAttributedString
     {
         let attributedText = NSMutableAttributedString()

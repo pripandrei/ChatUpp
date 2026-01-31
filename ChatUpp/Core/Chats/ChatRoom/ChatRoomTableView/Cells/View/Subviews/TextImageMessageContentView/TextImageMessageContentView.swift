@@ -12,27 +12,19 @@ import Combine
 
 final class ReactionUIView: UIView
 {
-    private(set) var reactionView: UIView!
+    private(set) var reactionView: UIView?
     private var message: Message!
+    private var hostingController: UIHostingController<ReactionBadgeView>?
+    var viewmodel: ReactionViewModel!
     
     init(from message: Message)
     {
         super.init(frame: .zero)
         self.message = message
-        self.setupReactionView(fromMessage: message)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupReactionView(fromMessage message: Message)
-    {
-        let reactionVM = ReactionViewModel(message: message)
-        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
-        self.reactionView = hostView.view
-        self.reactionView?.backgroundColor = .clear
-//        addSubview(self.reactionView)
     }
     
     func setupReactionView(on view: TextImageMessageContentView,
@@ -46,25 +38,43 @@ final class ReactionUIView: UIView
             if let reactionView = self.reactionView
             {
                 view.removeArrangedSubview(reactionView)
-                UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0) {
+                UIView.animate(withDuration: 0.6, delay: 0,
+                               usingSpringWithDamping: 0.8,
+                               initialSpringVelocity: 0)
+                {
+                    view.superview?.layoutIfNeeded()
+                }
+                self.reactionView = nil
+            }
+            return
+        }
+        
+        if reactionView == nil
+        {
+            let reactionVM = ReactionViewModel(message: message)
+            self.viewmodel = reactionVM
+            let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM,
+                                                                           message: self.message))
+            self.reactionView = hostView.view
+            self.reactionView?.backgroundColor = .clear
+            self.hostingController = hostView
+            view.addArrangedSubview(self.reactionView!,
+                                    padding: .init(top: 5, left: 2, bottom: 0, right: 0),
+                                    shouldFillWidth: false)
+        } else {
+            self.viewmodel?.updateMessage()
+            
+            mainQueue {
+                self.hostingController?.view.invalidateIntrinsicContentSize()
+//                self.hostingController?.view.setNeedsLayout()
+                self.hostingController?.view.layoutIfNeeded()
+                UIView.animate(withDuration: 0.6) {
+                    //                self.hostingController?.view.layoutIfNeeded()
                     view.superview?.layoutIfNeeded()
                 }
             }
             return
         }
-        
-//        let reactionVM = ReactionViewModel(message: message)
-//        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
-//        self.reactionView = hostView.view
-//        self.reactionView?.backgroundColor = .clear
-        
-//        addSubview(hostView.view)
-//        hostView.view.trailingAnchor.constraint(equalTo: messageComponentsView.timeStamp.leadingAnchor, constant: -10).isActive = true
-//        hostView.view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30).isActive = true
-//
-        view.addArrangedSubview(self.reactionView,
-                                padding: .init(top: 5, left: 2, bottom: 0, right: 0),
-                                shouldFillWidth: false)
         
         
         
@@ -219,7 +229,7 @@ extension TextImageMessageContentView
 //                                           from: message,
                                            withAnimation: false)
 
-            reactionView?.reactionView.trailingAnchor.constraint(lessThanOrEqualTo: self.messageComponentsView.leadingAnchor, constant: -10).isActive = true
+            reactionView?.reactionView?.trailingAnchor.constraint(lessThanOrEqualTo: self.messageComponentsView.leadingAnchor, constant: -10).isActive = true
         }
     }
     

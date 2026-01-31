@@ -7,14 +7,7 @@
 
 import SwiftUI
 import Combine
-
-//extension ReactionBadgeView
-//{
-//    init(sourceMessage: Message)
-//    {
-//        self._viewModel = StateObject(wrappedValue: ReactionViewModel(message: sourceMessage))
-//    }
-//}
+import RealmSwift
 
 //MARK: - reaction badge
 
@@ -22,6 +15,7 @@ struct ReactionBadgeView: View
 {
     @ObservedObject var viewModel: ReactionViewModel
     @State private var showReactionPresentationSheet: Bool = false
+    var message: Message
     
     var body: some View
     {
@@ -57,9 +51,9 @@ struct ReactionBadgeView: View
     }
 }
 
-#Preview {
-    let message = Message(id: "tester", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
-//    ReactionBadgeView(sourceMessage: message)
-    let vm = ReactionViewModel(message: message)
-    ReactionBadgeView(viewModel: vm)
-}
+//#Preview {
+//    let message = Message(id: "tester", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
+////    ReactionBadgeView(sourceMessage: message)
+//    let vm = ReactionViewModel(message: message)
+//    ReactionBadgeView(viewModel: vm, message: message)
+//}

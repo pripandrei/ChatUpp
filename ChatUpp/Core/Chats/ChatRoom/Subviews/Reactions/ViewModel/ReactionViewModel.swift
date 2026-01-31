@@ -31,15 +31,20 @@ class ReactionViewModel: SwiftUI.ObservableObject
         return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: userID)
     }
     
-    private func addReactionObserver()
+    func updateMessage()
     {
-        RealmDatabase.shared.observeChanges(for: message)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] properyChange in
-                if properyChange.0.name == "reactions" {
-                    self?.objectWillChange.send()
-                }
-            }.store(in: &subscribers)
+        self.objectWillChange.send()
     }
+    
+//    private func addReactionObserver()
+//    {
+//        RealmDatabase.shared.observeChanges(for: message)
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] properyChange in
+//                if properyChange.0.name == "reactions" {
+//                    self?.objectWillChange.send()
+//                }
+//            }.store(in: &subscribers)
+//    }
 }
 
