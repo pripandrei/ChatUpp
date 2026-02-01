@@ -22,7 +22,7 @@ class ContainerView: UIView {
         }
     }
     
-    private let containerStackView: UIStackView = {
+    private(set) var containerStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.alignment = .fill

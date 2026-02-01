@@ -15,7 +15,8 @@ struct ReactionPresentationSheetView: View
     {
         List
         {
-            ForEach(viewModel.message.reactions, id: \.emoji) { reaction in
+//            ForEach(viewModel.message.reactions, id: \.emoji) { reaction in
+            ForEach(viewModel.reactions, id: \.emoji) { reaction in
                 userReactionView(reaction)
             }
             .listRowBackground(Color(ColorScheme.appBackgroundColor))
@@ -44,9 +45,9 @@ extension ReactionPresentationSheetView
 }
 
 
-#Preview {
-    let message = Message(id: "tester", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
-//    ReactionBadgeView(sourceMessage: message)
-    let vm = ReactionViewModel(message: message)
-    ReactionPresentationSheetView(viewModel: vm)
-}
+//#Preview {
+//    let message = Message(id: "tester", messageBody: "hello test message", senderId: "asdasd", timestamp: Date(), messageSeen: nil, isEdited: false, imagePath: nil, imageSize: nil, repliedTo: nil)
+////    ReactionBadgeView(sourceMessage: message)
+//    let vm = ReactionViewModel(message: message)
+//    ReactionPresentationSheetView(viewModel: vm)
+//}

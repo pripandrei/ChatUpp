@@ -51,27 +51,26 @@ final class ReactionUIView: UIView
         
         if reactionView == nil
         {
-            let reactionVM = ReactionViewModel(message: message)
+//            let reactionVM = ReactionViewModel(message: message)
+            let reactionVM = ReactionViewModel(reactions: Array(message.reactions))
             self.viewmodel = reactionVM
-            let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM,
-                                                                           message: self.message))
+            let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
+           
             self.reactionView = hostView.view
             self.reactionView?.backgroundColor = .clear
             self.hostingController = hostView
             view.addArrangedSubview(self.reactionView!,
-                                    padding: .init(top: 5, left: 2, bottom: 0, right: 0),
+                                    padding: .init(top: 7, left: 2, bottom: 0, right: 0),
                                     shouldFillWidth: false)
         } else {
-            self.viewmodel?.updateMessage()
-            
+            self.viewmodel?.updateMessage(Array(self.message.reactions.prefix(4)))
             mainQueue {
                 self.hostingController?.view.invalidateIntrinsicContentSize()
-//                self.hostingController?.view.setNeedsLayout()
                 self.hostingController?.view.layoutIfNeeded()
-                UIView.animate(withDuration: 0.6) {
-                    //                self.hostingController?.view.layoutIfNeeded()
+                UIView.animate(withDuration: 0.3) {
                     view.superview?.layoutIfNeeded()
                 }
+                //                }
             }
             return
         }

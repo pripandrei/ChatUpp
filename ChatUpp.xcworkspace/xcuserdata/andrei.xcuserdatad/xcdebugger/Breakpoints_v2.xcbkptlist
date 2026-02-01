@@ -7,96 +7,80 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "3389C4E7-B4CA-4BDD-AB0E-FEAE25DD58C6"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/Reactions/View/ReactionBadgeView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "24"
-            endingLineNumber = "24"
-            landmarkName = "ReactionBadgeView"
-            landmarkType = "14">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "AEB5428F-086E-4F7C-9B09-7457F51C9FB1"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/Reactions/View/ReactionBadgeView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "29"
-            endingLineNumber = "29"
-            landmarkName = "ReactionBadgeView"
-            landmarkType = "14">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B667A0A2-243D-4068-BA97-57B50FBBDD91"
+            uuid = "AFA28981-B01E-4A33-8916-745D0D8452E3"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/Reactions/ViewModel/ReactionViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "36"
-            endingLineNumber = "36"
-            landmarkName = "updateMessage()"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "updateMessage(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5FC6A178-18EB-4553-B082-C698DCCEC17D"
+            uuid = "34435BF3-43C5-4538-87D4-EFA3EB316451"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/Reactions/ViewModel/ReactionViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "76"
-            endingLineNumber = "76"
-            landmarkName = "setupReactionView(on:withAnimation:)"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "updateMessage(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7C2502E9-E047-41EF-B330-83583FA586F5"
+            uuid = "A12E6524-25D8-42B2-AFD6-1FFD6B4C6057"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/Reactions/ViewModel/ReactionViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "67"
-            endingLineNumber = "67"
-            landmarkName = "setupReactionView(on:withAnimation:)"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "reactionsCount"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "63D83FEA-5D1D-40AC-8494-F3607E5900C9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/Reactions/ViewModel/ReactionViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
+            landmarkName = "syncReactions(original:with:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "E0CE105D-4FE0-413B-A3FB-72DCC0216830"
+            uuid = "EB583D3D-7176-449C-BD56-44856B868653"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/TextImageMessageContentView/TextImageMessageContentView.swift"
+            filePath = "ChatUpp/Core/Chats/ChatRoom/Subviews/Reactions/ViewModel/ReactionViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "68"
-            endingLineNumber = "68"
-            landmarkName = "setupReactionView(on:withAnimation:)"
+            startingLineNumber = "74"
+            endingLineNumber = "74"
+            landmarkName = "syncReactions(original:with:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

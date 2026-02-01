@@ -15,15 +15,15 @@ struct ReactionBadgeView: View
 {
     @ObservedObject var viewModel: ReactionViewModel
     @State private var showReactionPresentationSheet: Bool = false
-    var message: Message
     
     var body: some View
     {
         HStack(spacing: 3)
         {
-            ForEach(viewModel.reactions, id: \.emoji) { reaction in
+            ForEach(viewModel.currentReactions, id: \.emoji) { reaction in
                 Text("\(reaction.emoji)")
                     .font(.system(size: 15))
+//                    .transition(.scale.combined(with: .opacity))
             }
             
             Text(verbatim: "\(viewModel.reactionsCount)")
@@ -31,14 +31,19 @@ struct ReactionBadgeView: View
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 2)
+        
         .background {
             RoundedRectangle(cornerRadius: 50)
                 .fill(Color(#colorLiteral(red: 0.6555908918, green: 0.5533221364, blue: 0.5700033307, alpha: 1)))
         }
+//        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.reactions)
         .overlay(content: {
             RoundedRectangle(cornerRadius: 50)
                 .stroke(Color(#colorLiteral(red: 0.4449622631, green: 0.3755400777, blue: 0.3865504265, alpha: 1)), lineWidth: 0.5)
         })
+//        .fixedSize()
+//        .frame(maxWidth: .infinity, alignment: .leading)
+//        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.reactions)
         .onTapGesture {
             showReactionPresentationSheet = true
         }
