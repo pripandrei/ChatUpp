@@ -1667,18 +1667,6 @@ extension ChatRoomViewController
         // Keep the original cell visible but make it transparent during preview
         // This keeps animations running in the background
         cell.alpha = 0.01 // Almost invisible but still rendering
-        
-        // Create a live rendering layer from the cell
-        let liveView = UIView(frame: cell.contentView.bounds)
-        liveView.backgroundColor = cell.contentView.backgroundColor
-        liveView.layer.cornerRadius = 10
-        liveView.layer.masksToBounds = true
-        
-        // Use layer rendering to show live content
-        // This creates a "window" into the actual cell's layer
-        let mirrorLayer = CAReplicatorLayer()
-        mirrorLayer.frame = liveView.bounds
-        mirrorLayer.instanceCount = 1
        
         // Create a container that references the cell
         let cellReference = TargetedPreviewContentView(contentView: cell.contentView)

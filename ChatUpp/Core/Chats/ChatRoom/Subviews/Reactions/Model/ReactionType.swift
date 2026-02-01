@@ -17,6 +17,15 @@ enum ReactionType: String, CaseIterable, Identifiable
     case peace = "✌️"
     case cool = "😎"
     case alien = "👽"
+    case tongueShow = "😜"
+    case creature = "👾"
+    case inLove = "🥰"
+    case clappingHands = "👏"
+    case robot = "🤖"
+    case omg = "🤯"
+    case handshake = "🤝"
+    case angry = "🤬"
+    case caring = "🥺"
     
     var id: String { self.rawValue }
     
@@ -27,6 +36,7 @@ enum ReactionType: String, CaseIterable, Identifiable
         case .heart: return 0.20
         case .laughing, .peace: return 0.27
         case .cool, .alien: return 0.35
+        default: return 0.0 // for rest of emojies (that are not shown initialy)
         }
     }
     
@@ -37,6 +47,7 @@ enum ReactionType: String, CaseIterable, Identifiable
         case .heart: return 20
         case .laughing, .peace: return 15
         case .cool, .alien: return 10
+        default: return 0.0 // for rest of emojies (that are not shown initialy)
         }
     }
 }
