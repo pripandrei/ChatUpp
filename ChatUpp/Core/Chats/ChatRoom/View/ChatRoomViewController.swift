@@ -1687,8 +1687,7 @@ extension ChatRoomViewController
         cellReference.layer.masksToBounds = true
         
         animatedPreviewViews.append(cellReference)
-        
-        // Create reaction panel
+ 
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
             self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
@@ -1714,13 +1713,13 @@ extension ChatRoomViewController
 //            }
         }
         
-        let hostingView = UIHostingController(rootView: reactionPanelView).view!
-        hostingView.backgroundColor = .clear
-        hostingView.translatesAutoresizingMaskIntoConstraints = false
+        let reactionPanelUIView = UIHostingController(rootView: reactionPanelView).view!
+        reactionPanelUIView.backgroundColor = .clear
+        reactionPanelUIView.translatesAutoresizingMaskIntoConstraints = false
         
         // Calculate heights
         let cellHeight = cell.bounds.height
-        let reactionHeight: CGFloat = 45
+        let reactionHeight: CGFloat = ReactionPanelView.panelHeight
         let spacing: CGFloat = TargetedPreviewComponentsSize.spaceReactionHeight
         let totalHeight = reactionHeight + spacing + cellHeight
         
@@ -1729,19 +1728,19 @@ extension ChatRoomViewController
                                              size: CGSize(width: cell.bounds.width, height: totalHeight)))
         container.backgroundColor = .clear
         
-        container.addSubview(hostingView)
+        container.addSubview(reactionPanelUIView)
         container.addSubview(cellReference)
         
         cellReference.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            hostingView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
-            hostingView.topAnchor.constraint(equalTo: container.topAnchor),
-            hostingView.widthAnchor.constraint(equalToConstant: 306),
-            hostingView.heightAnchor.constraint(equalToConstant: reactionHeight),
+            reactionPanelUIView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
+            reactionPanelUIView.topAnchor.constraint(equalTo: container.topAnchor),
+            reactionPanelUIView.widthAnchor.constraint(equalToConstant: 306),
+            reactionPanelUIView.heightAnchor.constraint(equalToConstant: reactionHeight),
             
             cellReference.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            cellReference.topAnchor.constraint(equalTo: hostingView.bottomAnchor, constant: spacing),
+            cellReference.topAnchor.constraint(equalTo: reactionPanelUIView.bottomAnchor, constant: spacing),
             cellReference.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             cellReference.heightAnchor.constraint(equalToConstant: cellHeight),
             cellReference.bottomAnchor.constraint(equalTo: container.bottomAnchor)
