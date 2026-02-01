@@ -23,7 +23,7 @@ struct ReactionBadgeView: View
             ForEach(viewModel.currentReactions, id: \.emoji) { reaction in
                 Text("\(reaction.emoji)")
                     .font(.system(size: 15))
-//                    .transition(.scale.combined(with: .opacity))
+                    .transition(.scale)
             }
             
             Text(verbatim: "\(viewModel.reactionsCount)")
@@ -31,10 +31,11 @@ struct ReactionBadgeView: View
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 2)
-        
+        .animation(.spring(response: 0.4, dampingFraction: 0.4), value: viewModel.reactions)
         .background {
             RoundedRectangle(cornerRadius: 50)
-                .fill(Color(#colorLiteral(red: 0.6555908918, green: 0.5533221364, blue: 0.5700033307, alpha: 1)))
+//                .fill(Color(#colorLiteral(red: 0.6555908918, green: 0.5533221364, blue: 0.5700033307, alpha: 1)))
+                .fill(Color(#colorLiteral(red: 0.6690413356, green: 0.4663018584, blue: 0.6267552376, alpha: 0.659084234)))
         }
 //        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.reactions)
         .overlay(content: {
@@ -42,8 +43,6 @@ struct ReactionBadgeView: View
                 .stroke(Color(#colorLiteral(red: 0.4449622631, green: 0.3755400777, blue: 0.3865504265, alpha: 1)), lineWidth: 0.5)
         })
 //        .fixedSize()
-//        .frame(maxWidth: .infinity, alignment: .leading)
-//        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.reactions)
         .onTapGesture {
             showReactionPresentationSheet = true
         }
