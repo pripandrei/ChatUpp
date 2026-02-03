@@ -119,7 +119,8 @@ extension Utilities
 // Async
 func executeAfter(seconds: Double, block: @escaping () -> Void)
 {
-    DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: block)
+    DispatchQueue.main.asyncAfter(deadline: .now() + seconds,
+                                  execute: block)
 }
 
 func mainQueue(block: @escaping () -> Void)
