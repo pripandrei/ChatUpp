@@ -54,7 +54,28 @@ final class VoiceMessageContentView: ContainerView, RelayoutNotifying
         clipsToBounds = true
         
         self.messageLayoutConfiguration = messageLayoutConfiguration
-        
+        self.setupSelf()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit
+    {
+        print("deinit voice message content view")
+        cancellables.forEach { cancelable in
+            cancelable.cancel()
+        }
+        cancellables.removeAll()
+        messageComponentsView.cleanupContent()
+        reactionUIView = nil
+    }
+    
+    // setup self
+    
+    private func setupSelf()
+    {
         guard let message = viewModel.message,
               let path = message.voicePath,
               let url = CacheManager.shared.getURL(for: path) else { fatalError("Audio path should be present") }
@@ -78,21 +99,6 @@ final class VoiceMessageContentView: ContainerView, RelayoutNotifying
                                shouldFillWidth: false)
             setReactionViewTrailingConstraint()
         }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    deinit
-    {
-        print("deinit voice message content view")
-        cancellables.forEach { cancelable in
-            cancelable.cancel()
-        }
-        cancellables.removeAll()
-        messageComponentsView.cleanupContent()
-        reactionUIView = nil
     }
     
     // Bindings

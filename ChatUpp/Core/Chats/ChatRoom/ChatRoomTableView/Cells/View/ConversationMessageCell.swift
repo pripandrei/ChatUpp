@@ -219,6 +219,7 @@ extension ConversationMessageCell
             ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
         case .sticker:
             view.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -10).isActive = true
+//            view.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, constant: -10).isActive = true
             contentContainer?.backgroundColor = .clear
         case .audio:
             view.widthAnchor.constraint(lessThanOrEqualToConstant: 270).isActive = true

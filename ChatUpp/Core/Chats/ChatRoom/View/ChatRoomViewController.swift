@@ -1192,16 +1192,17 @@ extension ChatRoomViewController: UITableViewDelegate
         if viewModel.conversationInitializationStatus == .inProgress {
             return CGFloat((70...120).randomElement()!)
         }
+        
         let itemsCount = viewModel.messageClusters[indexPath.section].items.count
         let sectionsCount = viewModel.messageClusters.count
         
         guard indexPath.section < sectionsCount,
               indexPath.item < itemsCount else { return UITableView.automaticDimension }
         
-        if viewModel.messageClusters[indexPath.section].items[indexPath.item].message?.type == .sticker
-        {
-            return 180
-        }
+//        if viewModel.messageClusters[indexPath.section].items[indexPath.item].message?.type == .sticker
+//        {
+//            return 180
+//        }
         
         return  UITableView.automaticDimension
     }

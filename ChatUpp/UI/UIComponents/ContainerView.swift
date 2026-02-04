@@ -89,7 +89,8 @@ class ContainerView: UIView {
         }
     }
     
-    func updatePadding(for view: UIView, padding: UIEdgeInsets) {
+    func updatePadding(for view: UIView, padding: UIEdgeInsets)
+    {
         if let wrapper = containerStackView.arrangedSubviews.first(where: { $0.subviews.contains(view) }) {
             viewPaddings[view] = padding
             

@@ -9,21 +9,38 @@ import UIKit
 import Combine
 
 
-final class StickerMessageContentView: UIView
+final class StickerMessageContentView: UIView, RelayoutNotifying
 {
-    private var stickerView: StickerView = .init(size: .init(width: 300, height: 300))
-    private let stickerComponentsView: MessageComponentsView = .init()
-    private var replyToMessageStackView: ReplyToMessageStackView?
+    private let stickerView :StickerView
+    private let containerView :ContainerView
+    private let stickerComponentsView :MessageComponentsView
+    private var replyToMessageStackView :ReplyToMessageStackView?
+    private var reactionUIView :ReactionUIView?
+    private var viewModel :MessageContentViewModel?
     private var cancellables = Set<AnyCancellable>()
     
-    private var isRendering: Bool = false
-    private var lastRenderTime: CFTimeInterval = 0
+    private var isRendering :Bool = false
+    private var lastRenderTime :CFTimeInterval = 0
     
-    convenience init()
+    var onRelayoutNeeded: (() -> Void)?
+    
+    init()
     {
-        self.init(frame: .zero)
+        let margin: UIEdgeInsets = .init(top: 6, left: 6, bottom: 12, right: 0)
+        self.containerView = .init(spacing: 2.0,
+                                   margin: margin)
+        self.stickerView = .init(size: .init(width: 300, height: 300))
+        self.stickerComponentsView = .init()
+        
+        super.init(frame: .zero)
+
+        setupContainerView()
         setupSticker()
         setupStickerComponentsView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     deinit
@@ -37,22 +54,23 @@ final class StickerMessageContentView: UIView
     }
     
     //MARK: - UI setup
-    private func setupStickerComponentsView()
+    
+    private func setupContainerView()
     {
-        addSubview(stickerComponentsView)
-        stickerComponentsView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(containerView)
+        
+        containerView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            stickerComponentsView.trailingAnchor.constraint(equalTo: stickerView.trailingAnchor, constant: -8),
-            stickerComponentsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            containerView.topAnchor.constraint(equalTo: topAnchor),
+            containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
     
     private func setupSticker()
     {
-        addSubview(stickerView)
-        stickerView.translatesAutoresizingMaskIntoConstraints = false
-
+        containerView.addArrangedSubview(stickerView)
+        
         NSLayoutConstraint.activate([
 //            stickerView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
 //            stickerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
@@ -61,14 +79,26 @@ final class StickerMessageContentView: UIView
         ])
     }
     
-    private func adjustStickerAlignment(_ alignment: MessageAlignment)
+    private func setupStickerComponentsView()
     {
-        let stickerSideConstraint = alignment == .right ?
-        stickerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15) :
-        stickerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
-        stickerSideConstraint.isActive = true
+        addSubview(stickerComponentsView)
+        stickerComponentsView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            stickerComponentsView.trailingAnchor.constraint(equalTo: stickerView.trailingAnchor, constant: 10),
+            stickerComponentsView.topAnchor.constraint(equalTo: stickerView.bottomAnchor, constant: -10),
+//            stickerComponentsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+        ])
     }
-    
+
+    private func adjustStickerAlignment(_ alignment: MessageAlignment) // rename
+    {
+        let containerViewSideConstraint = alignment == .right ?
+        containerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15) :
+        containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15)
+        containerViewSideConstraint.isActive = true
+    }
+
     private func setupReplyToMessage(viewModel: MessageContentViewModel)
     {
         self.replyToMessageStackView = .init(margin: .init(top: 2, left: 2, bottom: 2, right: 2))
@@ -104,11 +134,7 @@ final class StickerMessageContentView: UIView
     private func setupBinding(publisher: AnyPublisher<MessageObservedProperty, Never>)
     {
         publisher.sink { [weak self] property in
-            switch property
-            {
-            case .messageSeen, .seenBy: self?.updateMessageSeenStatus()
-            default: break
-            }
+            self?.updateMessage(fieldValue: property)
         }.store(in: &cancellables)
     }
     
@@ -117,6 +143,7 @@ final class StickerMessageContentView: UIView
     func configure(with viewModel: MessageContentViewModel)
     {
         guard let message = viewModel.message else { return }
+        self.viewModel = viewModel
         
         setupBinding(publisher: viewModel.messagePropertyUpdateSubject.eraseToAnyPublisher())
         
@@ -143,16 +170,48 @@ final class StickerMessageContentView: UIView
 
 extension StickerMessageContentView
 {
-    private func updateMessageSeenStatus()
+    private func updateMessage(fieldValue: MessageObservedProperty)
     {
-        executeAfter(seconds: 0.2, block: { [weak self] in
-            self?.stickerComponentsView.messageComponentsStackView.setNeedsLayout()
-            self?.stickerComponentsView.configureMessageSeenStatus()
+        executeAfter(seconds: 1.0, block: { [weak self] in
+            switch fieldValue
+            {
+            case .messageSeen, .seenBy:
+                self?.stickerComponentsView.messageComponentsStackView.setNeedsLayout()
+                self?.stickerComponentsView.configureMessageSeenStatus()
+            case .reactions:
+                self?.manageReactionsSetup()
+            default: break
+            }
             
             UIView.animate(withDuration: 0.3) {
                 self?.superview?.layoutIfNeeded()
             }
+            
+            self?.onRelayoutNeeded?()
         })
+    }
+    
+    private func manageReactionsSetup()
+    {
+        if reactionUIView == nil,
+           let message = viewModel?.message
+        {
+            self.reactionUIView = .init(from: message)
+            reactionUIView?.addReaction(to: containerView)
+            setReactionViewTrailingConstraint()
+        }
+        if viewModel?.message?.reactions.isEmpty == true
+        {
+            self.reactionUIView?.removeReaction(from: containerView)
+            self.reactionUIView = nil
+        } else {
+            self.reactionUIView?.updateReactions(on: containerView)
+        }
+    }
+    
+    private func setReactionViewTrailingConstraint()
+    {
+        reactionUIView?.reactionView?.trailingAnchor.constraint(lessThanOrEqualTo: self.stickerComponentsView.leadingAnchor, constant: -10).isActive = true
     }
 }
 
