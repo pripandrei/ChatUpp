@@ -11,6 +11,10 @@ import Combine
 import SkeletonView
 import SwiftUI
 
+protocol RelayoutNotifying: AnyObject
+{
+    var onRelayoutNeeded: (() -> Void)? { get set }
+}
 
 final class ConversationMessageCell: UITableViewCell
 {
@@ -19,8 +23,9 @@ final class ConversationMessageCell: UITableViewCell
     private var contentContainerViewTrailingConstraint: NSLayoutConstraint!
     private(set) var messageLayoutConfiguration: MessageLayoutConfiguration!
     
+//    private(set) var contentContainer: ContentContainerView!
     private(set) var contentContainer: UIView!
-    private(set) var reactionBadgeHostingView: UIView?
+//    private(set) var reactionBadgeHostingView: UIView?
     private(set) var cellViewModel: MessageCellViewModel!
     
     private var subscribers = Set<AnyCancellable>()
@@ -169,8 +174,8 @@ final class ConversationMessageCell: UITableViewCell
     private func cleanupCellContent()
     {
         messageSenderAvatar.image = nil
-        reactionBadgeHostingView?.removeFromSuperview()
-        reactionBadgeHostingView = nil
+//        reactionBadgeHostingView?.removeFromSuperview()
+//        reactionBadgeHostingView = nil
         
         subscribers.forEach { subscriber in
             subscriber.cancel()

@@ -9,13 +9,17 @@ import UIKit
 import SwiftUI
 import Combine
 
-final class VoiceMessageContentView: ContainerView
+final class VoiceMessageContentView: ContainerView, RelayoutNotifying
 {
     private let messageComponentsView: MessageComponentsView = .init()
     private var playbackControlPanel: VoicePlaybackControlPanelView!
     private let viewModel: MessageContentViewModel
     private var cancellables = Set<AnyCancellable>()
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
+    private var reactionUIView: ReactionUIView?
+    private var playbackControlPanelUIView: UIView?
+    
+    var onRelayoutNeeded: (() -> Void)?
     
     lazy var replyToMessageStack: ReplyToMessageStackView = {
         let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
@@ -51,9 +55,11 @@ final class VoiceMessageContentView: ContainerView
         
         self.messageLayoutConfiguration = messageLayoutConfiguration
         
-        guard let path = viewModel.message?.voicePath,
-              let url = CacheManager.shared.getURL(for: path),
-              let audioSamples = viewModel.message?.audioSamples else { fatalError("Audio path should be present") }
+        guard let message = viewModel.message,
+              let path = message.voicePath,
+              let url = CacheManager.shared.getURL(for: path) else { fatalError("Audio path should be present") }
+        
+        let audioSamples = message.audioSamples
         
         setupSenderNameLabel()
         
@@ -63,6 +69,15 @@ final class VoiceMessageContentView: ContainerView
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
         setupMessageToReplyView()
         setupBings()
+        
+        if message.reactions.isEmpty == false
+        {
+            self.reactionUIView = .init(from: message)
+            addArrangedSubview(self.reactionUIView!.reactionView!,
+                               padding: .init(top: 7, left: 2, bottom: 0, right: 0),
+                               shouldFillWidth: false)
+            setReactionViewTrailingConstraint()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -77,6 +92,7 @@ final class VoiceMessageContentView: ContainerView
         }
         cancellables.removeAll()
         messageComponentsView.cleanupContent()
+        reactionUIView = nil
     }
     
     // Bindings
@@ -85,9 +101,7 @@ final class VoiceMessageContentView: ContainerView
     {
         viewModel.messagePropertyUpdateSubject
             .sink { [weak self] property in
-                if case .messageSeen = property {
-                    self?.updateMessageSeenStatus()
-                }
+                self?.updateMessage(fieldValue: property)
             }.store(in: &cancellables)
     }
     
@@ -100,6 +114,7 @@ final class VoiceMessageContentView: ContainerView
                                           colorScheme: colorScheme)
         
         guard let view = UIHostingController(rootView: playbackControlPanel).view else {return}
+        self.playbackControlPanelUIView = view
         view.backgroundColor = .clear
 //        view.isOpaque = true
         
@@ -172,16 +187,53 @@ final class VoiceMessageContentView: ContainerView
                                                      barColor: barColor)
     }
     
-    private func updateMessageSeenStatus()
+    private func setReactionViewTrailingConstraint()
     {
-        executeAfter(seconds: 0.2, block: { [weak self] in
-            self?.messageComponentsView.messageComponentsStackView.setNeedsLayout()
-            self?.messageComponentsView.configureMessageSeenStatus()
+        reactionUIView?.reactionView?.trailingAnchor.constraint(lessThanOrEqualTo: self.messageComponentsView.leadingAnchor, constant: -10).isActive = true
+    }
+}
+
+//MARK: - Message fields update handle
+
+extension VoiceMessageContentView
+{
+    private func updateMessage(fieldValue: MessageObservedProperty)
+    {
+        executeAfter(seconds: 1.0, block: { [weak self] in
+            switch fieldValue
+            {
+            case .messageSeen, .seenBy:
+                self?.messageComponentsView.messageComponentsStackView.setNeedsLayout()
+                self?.messageComponentsView.configureMessageSeenStatus()
+            case .reactions:
+                self?.manageReactionsSetup()
+            default: break
+            }
             
             UIView.animate(withDuration: 0.3) {
                 self?.superview?.layoutIfNeeded()
             }
+            
+            self?.onRelayoutNeeded?()
         })
+    }
+    
+    private func manageReactionsSetup()
+    {
+        if reactionUIView == nil,
+           let message = viewModel.message
+        {
+            self.reactionUIView = .init(from: message)
+            reactionUIView?.addReaction(to: self)
+            setReactionViewTrailingConstraint()
+        }
+        if viewModel.message?.reactions.isEmpty == true
+        {
+            self.reactionUIView?.removeReaction(from: self)
+            self.reactionUIView = nil
+        } else {
+            self.reactionUIView?.updateReactions(on: self)
+        }
     }
 }
 

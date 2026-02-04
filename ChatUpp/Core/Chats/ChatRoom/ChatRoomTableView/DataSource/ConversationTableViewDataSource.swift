@@ -140,12 +140,13 @@ extension ConversationDataSourceManager
         let layoutConfiguration = layoutProvider.makeLayoutConfigurationForCell(at: indexPath)
         cell.configureCell(using: viewModel,
                            layoutConfiguration: layoutConfiguration)
-        
-        cell.messageContentView?.handleContentRelayout = { [weak tableView] in
+   
+        (cell.contentContainer as? RelayoutNotifying)?.onRelayoutNeeded = { [weak tableView] in
             guard let tableView else {return}
             tableView.beginUpdates()
             tableView.endUpdates()
         }
+        
         return cell
     }
     

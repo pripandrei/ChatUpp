@@ -10,7 +10,7 @@ import UIKit
 import YYText
 import Combine
 
-final class TextImageMessageContentView: ContainerView
+final class TextImageMessageContentView: ContainerView, RelayoutNotifying
 {
     static var maxWidth: CGFloat
     {
@@ -36,7 +36,7 @@ final class TextImageMessageContentView: ContainerView
     
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     
-    var handleContentRelayout: (() -> Void)?
+    var onRelayoutNeeded: (() -> Void)?
     
     var maxMessageWidth: CGFloat {
         return TextImageMessageContentView.maxWidth - 23
@@ -138,11 +138,6 @@ extension TextImageMessageContentView
                                shouldFillWidth: false)
             setReactionViewTrailingConstraint()
         }
-    }
-    
-    private func setReactionViewTrailingConstraint()
-    {
-        reactionUIView?.reactionView?.trailingAnchor.constraint(lessThanOrEqualTo: self.messageComponentsView.leadingAnchor, constant: -10).isActive = true
     }
     
     func setupMessageLabel(with message: Message)
@@ -267,7 +262,7 @@ extension TextImageMessageContentView
                 UIView.animate(withDuration: 0.3) {
                     self.superview?.layoutIfNeeded()
                 }
-                self.handleContentRelayout?()
+                self.onRelayoutNeeded?()
             }
         }
     }
@@ -359,6 +354,12 @@ extension TextImageMessageContentView
         messageLabel.textContainerInset = paddingStrategy.padding
         messageLabel.invalidateIntrinsicContentSize()
     }
+    
+    private func setReactionViewTrailingConstraint()
+    {
+        reactionUIView?.reactionView?.trailingAnchor.constraint(lessThanOrEqualTo: self.messageComponentsView.leadingAnchor, constant: -10).isActive = true
+    }
+    
 }
 
 //MARK: - image setup
@@ -552,14 +553,14 @@ extension TextImageMessageContentView
                 }
             case .reactions:
                 self.handleMessageLayout()
-                manageReactionsSetup()
+                self.manageReactionsSetup()
             default: break
             }
 
             UIView.animate(withDuration: 0.3) {
                 self.superview?.layoutIfNeeded()
             }
-            self.handleContentRelayout?()
+            self.onRelayoutNeeded?()
         }
     }
     
