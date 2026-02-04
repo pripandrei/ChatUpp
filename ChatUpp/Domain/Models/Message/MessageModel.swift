@@ -8,8 +8,6 @@
 import Foundation
 import RealmSwift
 
-
-
 class Message: Object, Codable, Identifiable
 {
     @Persisted(primaryKey: true) var id: String
@@ -28,7 +26,7 @@ class Message: Object, Codable, Identifiable
     @Persisted var type: MessageType?
     @Persisted var imageSize: MessageImageSize?
     
-    enum CodingKeys: String, CodingKey
+    enum CodingKeys: String, CodingKey, CaseIterable
     {
         case id = "id"
         case messageBody = "message_body"
@@ -208,6 +206,31 @@ extension Message
         unmanagedMessage.seenBy.append(userID)
         return unmanagedMessage
     }
+}
+
+extension Message
+{
+    /// observableKeyPaths are created exclusively for "reactions.userIDs" to be observed by realm
+    ///
+    static let observableKeyPaths: [String] =
+    [
+        "id",
+        "messageBody",
+        "senderId",
+        "imagePath",
+        "timestamp",
+        "messageSeen",
+        "seenBy",
+        "imageSize",
+        "isEdited",
+        "repliedTo",
+        "type",
+        "reactions",
+        "sticker",
+        "voicePath",
+        "audioSamples",
+        "reactions.userIDs"
+    ]
 }
 
 //MARK: - manager for fetching test data

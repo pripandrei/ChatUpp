@@ -78,7 +78,7 @@ final class ReactionUIView: UIView
     
     func updateReactions(on view: ContainerView)
     {
-        self.viewModel?.updateMessage(Array(self.message.reactions.prefix(4)))
+        self.viewModel?.updateMessage(Array(self.message.reactions))
         mainQueue
         {
             self.reactionView?.invalidateIntrinsicContentSize()

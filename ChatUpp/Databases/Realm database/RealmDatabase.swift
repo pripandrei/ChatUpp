@@ -118,12 +118,11 @@ final class RealmDatabase
 //MARK: - realm object observer
 extension RealmDatabase
 {
-    
-    func observerObject(_ object: Object) -> AnyPublisher<RealmObjectUpdate, Never>
+    func observerObject(_ object: Object, keyPaths: [String]? = nil) -> AnyPublisher<RealmObjectUpdate, Never>
     {
         let subject = PassthroughSubject<(RealmObjectUpdate), Never>()
         
-        let token = object.observe { change in
+        let token = object.observe(keyPaths: keyPaths) { change in
             switch change {
             case .change(let object, let properties):
                 subject.send(.changed(object: object, property: properties))
@@ -139,7 +138,7 @@ extension RealmDatabase
             })
             .eraseToAnyPublisher()
     }
-    
+
     func observeChanges<T>(for object: T) -> AnyPublisher<(PropertyChange, RLMObjectBase), Never>
     {
         let subject = PassthroughSubject<(PropertyChange, RLMObjectBase), Never>()

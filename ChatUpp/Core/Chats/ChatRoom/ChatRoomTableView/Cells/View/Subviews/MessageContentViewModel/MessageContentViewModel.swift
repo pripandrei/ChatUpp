@@ -195,7 +195,7 @@ extension MessageContentViewModel
             return
         }
         
-        RealmDatabase.shared.observerObject(message)
+        RealmDatabase.shared.observerObject(message, keyPaths: Message.observableKeyPaths)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] objectUpdate in
                 guard let self else {return}

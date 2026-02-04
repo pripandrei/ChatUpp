@@ -523,7 +523,7 @@ extension TextImageMessageContentView
 }
 
 
-import SwiftUI
+
 // MARK: Message edit animation
 extension TextImageMessageContentView
 {
@@ -556,7 +556,7 @@ extension TextImageMessageContentView
             default: break
             }
 
-            UIView.animate(withDuration: 0.6) {
+            UIView.animate(withDuration: 0.3) {
                 self.superview?.layoutIfNeeded()
             }
             self.handleContentRelayout?()

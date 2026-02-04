@@ -10,60 +10,39 @@ import Combine
 
 class ReactionViewModel: SwiftUI.ObservableObject
 {
-//    private(set) var message: Message
-//    @Published private(set) var _reactions: [Reaction]
     @Published private(set) var currentReactions: [Reaction] = []
+    @Published private(set) var reactionsCount: Int = 0
     private var subscribers = Set<AnyCancellable>()
     
-//    init(message: Message) {
-    init(reactions: [Reaction]) {
-//        self._reactions = reactions
+    init(reactions: [Reaction])
+    {
         self.currentReactions = reactions.map { $0.freeze() }
-//        self.message = message
-//        self.addReactionObserver()
+        self.reactionsCount = countReactions(reactions)
     }
     
     var reactions: [Reaction] {
         return Array(currentReactions.prefix(4))
     }
     
-    var reactionsCount: Int {
-        return currentReactions.reduce(0) { count, reaction in
-//            if reaction.isInvalidated { return count }
-            return count + reaction.userIDs.count
-        }
-    }
-
     func retreiveRealmUser(_ userID: String) -> User?
     {
         return RealmDatabase.shared.retrieveSingleObject(ofType: User.self, primaryKey: userID)
     }
     
-    func updateMessage(_ reactions: [Reaction]) {
-
-//        if _reactions.count < reactions.count {
-//
-//            guard let reaction = reactions.first(where: { newReaction in
-//                !currentReactions.contains(where: { $0.emoji == newReaction.emoji })
-//            }) else { return }
-//
-//            _reactions.append(reaction)
-//
-//        } else {
-//
-//            guard let removedIndex = currentReactions.firstIndex(where: { oldReaction in
-//                !reactions.contains(where: { $0.emoji == oldReaction.emoji })
-//            }) else { return }
-//
-//            _reactions.remove(at: removedIndex)
-//        }
-
-        syncReactions(original: &currentReactions, with: reactions)
+    func countReactions(_ reactions: [Reaction]) -> Int
+    {
+        return reactions.reduce(0) { count, reaction in
+            //            if reaction.isInvalidated { return count }
+            return count + reaction.userIDs.count
+        }
+    }
+    
+    func updateMessage(_ reactions: [Reaction])
+    {
+        self.reactionsCount = countReactions(reactions)
         
-//        let freezedReactions = reactions.map { $0.freeze() }
-//        _reactions = reactions
-//        currentReactions = freezedReactions
-//        RealmDatabase.shared.refresh()
+        syncReactions(original: &currentReactions,
+                      with: Array(reactions.prefix(4)))
     }
     
     func syncReactions(
@@ -90,16 +69,5 @@ class ReactionViewModel: SwiftUI.ObservableObject
             }
         }
     }
-    
-//    private func addReactionObserver()
-//    {
-//        RealmDatabase.shared.observeChanges(for: message)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] properyChange in
-//                if properyChange.0.name == "reactions" {
-//                    self?.objectWillChange.send()
-//                }
-//            }.store(in: &subscribers)
-//    }
 }
 
