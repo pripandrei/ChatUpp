@@ -142,22 +142,6 @@ extension FirebaseStorageManager
             print("Error while saving voice message to storage")
         }
     }
-    
-//    func saveVoice(data: Data,
-//                   to path: StoragePathType,
-//                   voicePath: String) async throws
-//    {
-//        let meta = StorageMetadata()
-//        meta.contentType = "audio/m4a"
-//        
-//        let metaData = try await path.reference.child(voicePath).putDataAsync(data, metadata: meta)
-//        
-//        guard let returnedPath = metaData.path,
-//              let returnedName = metaData.name else
-//        {
-//            throw URLError(.badServerResponse)
-//        }
-//    }
 }
 
 

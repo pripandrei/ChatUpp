@@ -125,46 +125,12 @@ final class FirestoreUserService {
         return !result.documents.isEmpty
     }
     
-    // MARK: - GET USER PROFILE IMAGE
-    
-//    func getProfileImageData(urlPath: String?) async throws -> Data {
-//        guard let urlPath = urlPath,
-//              let url = URL(string: urlPath) else { throw UnwrappingError.nilValueFound("URL path for image Data is nil") }
-//
-//        do {
-//            let (imgData,_) = try await URLSession.shared.data(from: url)
-//            return imgData
-//        } catch {
-//            print("Could not get the image from url: ", error.localizedDescription)
-//            throw error
-//        }
-//    }
-    
     // MARK: - Delete user form DB
     
     func deleteUserFromDB(userID: String) async throws {
         try await userDocument(userID: userID).delete()
     }
-    
-    // MARK: - Add listener to users
-    
-//    @discardableResult
-//    func addListenerToUsers(_ usersID: [String], complitionHandler: @escaping ([User], [DocumentChangeType]) -> Void) -> Listener
-//    {
-//        return usersCollection.whereField("user_id", in: usersID).addSnapshotListener { snapshot, error in
-//            guard error == nil else { print(error!.localizedDescription); return }
-//            guard let documents = snapshot?.documentChanges else { print("No user to listen to"); return }
-//            
-//            var docType = [DocumentChangeType]()
-//            
-//            let users = documents.compactMap { userDocument in
-//                docType.append(userDocument.type)
-//                return try? userDocument.document.data(as: User.self)
-//            }
-//            complitionHandler(users, docType)
-//        }
-//    }
-    
+
     @discardableResult
     func addListenerToUsers(_ usersID: [String]) -> AnyPublisher<DatabaseChangedObject<User>, Never>
     {
