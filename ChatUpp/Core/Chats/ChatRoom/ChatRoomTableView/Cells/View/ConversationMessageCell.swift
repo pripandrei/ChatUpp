@@ -11,11 +11,6 @@ import Combine
 import SkeletonView
 import SwiftUI
 
-protocol RelayoutNotifying: AnyObject
-{
-    var onRelayoutNeeded: (() -> Void)? { get set }
-}
-
 final class ConversationMessageCell: UITableViewCell
 {
     private var contentContainerViewBottomConstraint: NSLayoutConstraint!

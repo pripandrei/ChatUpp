@@ -18,36 +18,6 @@
             endingLineNumber = "188"
             landmarkName = "updateMessage(fieldValue:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "FA24ED7B-4254-487A-A57F-024EB8FBF429 - 97d74168ac4a81d8"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in ChatUpp.StickerMessageContentView.updateMessage(fieldValue: ChatUpp.MessageObservedProperty) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/StickerMessageContentView/StickerContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "188"
-                  endingLineNumber = "188">
-               </Location>
-               <Location
-                  uuid = "FA24ED7B-4254-487A-A57F-024EB8FBF429 - 5e838c2f734279e3"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in closure #1 () -&gt; () in ChatUpp.StickerMessageContentView.updateMessage(fieldValue: ChatUpp.MessageObservedProperty) -&gt; ()"
-                  moduleName = "ChatUpp.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/View/Subviews/StickerMessageContentView/StickerContentView.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "177"
-                  endingLineNumber = "177">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

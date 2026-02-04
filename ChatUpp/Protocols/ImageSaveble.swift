@@ -13,8 +13,6 @@ protocol ImageSampleHandling: AnyObject
 {
     var imageSampleRepository: ImageSampleRepository? { get set }
     var profilePhotoURL: String? { get set }
-    
-    // Required property that conforming types must implement
     var userId: String { get }
 }
 

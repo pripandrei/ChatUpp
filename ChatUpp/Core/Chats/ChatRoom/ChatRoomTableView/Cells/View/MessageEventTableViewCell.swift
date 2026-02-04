@@ -13,7 +13,6 @@ import SwiftUI
 final class MessageEventCell: UITableViewCell
 {
     private(set) var cellViewModel: MessageCellViewModel!
-    private var contentContainerViewBottomConstraint: NSLayoutConstraint!
     
     let messageLabel: UILabel =
     {
@@ -28,8 +27,7 @@ final class MessageEventCell: UITableViewCell
         return messageEventLabel
     }()
     
-    let contentContainer: UIView!
-    =
+    let contentContainer: UIView! =
     {
         let container = UIView()
         container.backgroundColor = ColorScheme.messageEventBackgroundColor
@@ -109,8 +107,6 @@ final class MessageEventCell: UITableViewCell
         contentContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4).isActive = true
         contentContainer.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
         contentContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4).isActive = true
-//        contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
-        contentContainerViewBottomConstraint.isActive = true
     }
     
     private func setupMessageEventLabelConstraints()

@@ -10,7 +10,8 @@ import UIKit
 import YYText
 import Combine
 
-final class TextImageMessageContentView: ContainerView, RelayoutNotifying
+// MARK: static properties
+extension TextImageMessageContentView
 {
     static var maxWidth: CGFloat
     {
@@ -18,7 +19,10 @@ final class TextImageMessageContentView: ContainerView, RelayoutNotifying
               let window = windowScene.keyWindow else {return 295.0 }
         return window.bounds.width * 0.8
     }
-    
+}
+
+final class TextImageMessageContentView: ContainerView, RelayoutNotifying
+{
     private var messageImageViewBottomConstraint: NSLayoutConstraint?
     
     private var viewModel: MessageContentViewModel!
@@ -189,7 +193,7 @@ extension TextImageMessageContentView
 //        messageLabel.backgroundColor = .blue
     }
     
-    func configureMessageImageView()
+    private func configureMessageImageView()
     {
         self.addSubview(messageImageView)
         self.sendSubviewToBack(messageImageView)
@@ -198,7 +202,8 @@ extension TextImageMessageContentView
         messageImageView.clipsToBounds = true
         messageImageView.translatesAutoresizingMaskIntoConstraints = false
         
-        self.messageImageViewBottomConstraint = messageImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -2)
+        self.messageImageViewBottomConstraint = messageImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor,
+                                                                                         constant: -2)
         
         NSLayoutConstraint.activate([
             messageImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 2),
