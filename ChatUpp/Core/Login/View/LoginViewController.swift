@@ -11,8 +11,8 @@ import AVFoundation
 
 class LoginViewController: UIViewController, UINavigationControllerDelegate
 {
-    private var player: AVPlayer?
     weak var coordinatorDelegate: Coordinator?
+    private var player: AVPlayer?
     private let loginViewModel = LoginViewModel()
     private let signUpLable: UILabel = UILabel()
     private let signUpButton = UILabel()
