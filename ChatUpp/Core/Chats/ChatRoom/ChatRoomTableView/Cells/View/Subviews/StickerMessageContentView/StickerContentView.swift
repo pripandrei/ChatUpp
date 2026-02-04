@@ -50,7 +50,7 @@ final class StickerMessageContentView: UIView, RelayoutNotifying
         stickerComponentsView.cleanupContent()
         replyToMessageStackView?.removeFromSuperview()
         replyToMessageStackView = nil
-//        print("deinit sticker content view")
+        print("deinit sticker content view")
     }
     
     //MARK: - UI setup
@@ -72,8 +72,6 @@ final class StickerMessageContentView: UIView, RelayoutNotifying
         containerView.addArrangedSubview(stickerView)
         
         NSLayoutConstraint.activate([
-//            stickerView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-//            stickerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             stickerView.heightAnchor.constraint(equalToConstant: 170),
             stickerView.widthAnchor.constraint(equalTo: stickerView.heightAnchor),
         ])
@@ -87,7 +85,6 @@ final class StickerMessageContentView: UIView, RelayoutNotifying
         NSLayoutConstraint.activate([
             stickerComponentsView.trailingAnchor.constraint(equalTo: stickerView.trailingAnchor, constant: 10),
             stickerComponentsView.topAnchor.constraint(equalTo: stickerView.bottomAnchor, constant: -10),
-//            stickerComponentsView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
         ])
     }
 
@@ -163,6 +160,11 @@ final class StickerMessageContentView: UIView, RelayoutNotifying
         }
         
         adjustStickerAlignment(viewModel.messageAlignment)
+        
+        if !message.reactions.isEmpty
+        {
+            manageReactionsSetup(withAnimation: false)
+        }
     }
 }
 
@@ -191,16 +193,15 @@ extension StickerMessageContentView
         })
     }
     
-    private func manageReactionsSetup()
+    private func manageReactionsSetup(withAnimation animated: Bool = true)
     {
         if reactionUIView == nil,
            let message = viewModel?.message
         {
             self.reactionUIView = .init(from: message)
-            reactionUIView?.addReaction(to: containerView)
+            reactionUIView?.addReaction(to: containerView, withAnimation: animated)
             setReactionViewTrailingConstraint()
-        }
-        if viewModel?.message?.reactions.isEmpty == true
+        } else if viewModel?.message?.reactions.isEmpty == true
         {
             self.reactionUIView?.removeReaction(from: containerView)
             self.reactionUIView = nil

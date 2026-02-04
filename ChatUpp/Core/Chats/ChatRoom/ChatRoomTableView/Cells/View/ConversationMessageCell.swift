@@ -22,10 +22,7 @@ final class ConversationMessageCell: UITableViewCell
     private var contentContainerViewLeadingConstraint: NSLayoutConstraint!
     private var contentContainerViewTrailingConstraint: NSLayoutConstraint!
     private(set) var messageLayoutConfiguration: MessageLayoutConfiguration!
-    
-//    private(set) var contentContainer: ContentContainerView!
     private(set) var contentContainer: UIView!
-//    private(set) var reactionBadgeHostingView: UIView?
     private(set) var cellViewModel: MessageCellViewModel!
     
     private var subscribers = Set<AnyCancellable>()
@@ -36,27 +33,6 @@ final class ConversationMessageCell: UITableViewCell
         senderAvatar.translatesAutoresizingMaskIntoConstraints = false
         return senderAvatar
     }()
-    
-    func toggleMessageSenderAvatarVisibility(shouldShow: Bool)
-    {
-        if shouldShow && messageSenderAvatar.image == nil
-        {
-            self.messageLayoutConfiguration = messageLayoutConfiguration.updateShowAvatar(true)
-            setupSenderAvatar()
-        }
-            UIView.animate(withDuration: 0.3) {
-                if shouldShow
-                {
-                    self.messageSenderAvatar.isHidden = false
-                }
-                self.messageSenderAvatar.alpha = shouldShow ? 1.0 : 0.0
-            } completion: { _ in
-                if !shouldShow
-                {
-                    self.messageSenderAvatar.isHidden = true
-                }
-            }
-    }
 
     /// - lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -74,16 +50,16 @@ final class ConversationMessageCell: UITableViewCell
 //        print("ConversationMessageCell deinit")
 //    }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // implement for proper cell selection highlight when using UIMenuContextConfiguration on tableView
     private func setupBackgroundSelectionView()
     {
         let selectedView = UIView()
         selectedView.backgroundColor = UIColor.clear
         selectedBackgroundView = selectedView
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     /// - binding
@@ -102,28 +78,6 @@ final class ConversationMessageCell: UITableViewCell
                 self?.toggleMessageSenderAvatarVisibility(shouldShow: shouldShow)
             }).store(in: &subscribers)
     }
-    
-//    func setupReactionView(for message: Message)
-//    {
-//        guard !message.reactions.isEmpty else {return}
-//        
-//        let reactionVM = ReactionViewModel(message: message)
-//        let hostView = UIHostingController(rootView: ReactionBadgeView(viewModel: reactionVM))
-//        
-//        self.reactionBadgeHostingView = hostView.view
-//        
-//        hostView.view.backgroundColor = .clear
-//        hostView.view.translatesAutoresizingMaskIntoConstraints = false
-//        contentView.addSubview(hostView.view)
-//        
-//        let horizontalConstraint = cellViewModel.messageAlignment == .right ?
-//        hostView.view.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -10) :
-//        hostView.view.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 10)
-//        
-//        hostView.view.topAnchor.constraint(equalTo: contentContainer.bottomAnchor, constant: -2).isActive = true
-//        
-//        horizontalConstraint.isActive = true
-//    }
         
     /// - cell configuration
     ///
@@ -147,35 +101,36 @@ final class ConversationMessageCell: UITableViewCell
         contentContainer?.removeFromSuperview()
         contentContainer = nil
         
+        manageContentViewCreation(forMessageType: type)
+        adjustMessageSide()
+        setupSenderAvatar()
+    }
+    
+    private func manageContentViewCreation(forMessageType type: MessageType)
+    {
         switch type
         {
         case .text, .image, .imageText:
             let imageTextView = TextImageMessageContentView()
             setupContainerView(imageTextView, type: type)
-            imageTextView.configure(with: viewModel.messageContainerViewModel!,
-                                    layoutConfiguration: layoutConfiguration)
+            imageTextView.configure(with: cellViewModel.messageContainerViewModel!,
+                                    layoutConfiguration: messageLayoutConfiguration)
         case .sticker:
             let stickerView = StickerMessageContentView()
             setupContainerView(stickerView, type: .sticker)
-            stickerView.configure(with: viewModel.messageContainerViewModel!)
+            stickerView.configure(with: cellViewModel.messageContainerViewModel!)
         case .audio:
-            let audioView = VoiceMessageContentView(viewModel: viewModel.messageContainerViewModel!, messageLayoutConfiguration: layoutConfiguration)
+            let audioView = VoiceMessageContentView(viewModel: cellViewModel.messageContainerViewModel!,
+                                                    messageLayoutConfiguration: messageLayoutConfiguration)
             setupContainerView(audioView, type: .audio)
         default: break
         }
-        
-        adjustMessageSide()
-        setupSenderAvatar()
-//        setupReactionView(for: message)
-        setContentContainerViewBottomConstraint()
     }
     
     /// - cleanup
     private func cleanupCellContent()
     {
         messageSenderAvatar.image = nil
-//        reactionBadgeHostingView?.removeFromSuperview()
-//        reactionBadgeHostingView = nil
         
         subscribers.forEach { subscriber in
             subscriber.cancel()
@@ -201,7 +156,7 @@ extension ConversationMessageCell
     
         view.translatesAutoresizingMaskIntoConstraints = false
         
-        self.contentContainerViewBottomConstraint = view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        self.contentContainerViewBottomConstraint = view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3)
         self.contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
         self.contentContainerViewBottomConstraint.isActive = true
         
@@ -288,11 +243,26 @@ extension ConversationMessageCell
         messageSenderAvatar.heightAnchor.constraint(equalToConstant: avatarSize.height).isActive = true
     }
     
-    private func setContentContainerViewBottomConstraint()
+    
+    func toggleMessageSenderAvatarVisibility(shouldShow: Bool)
     {
-//        let isReactionsEmpty = cellViewModel.message?.reactions.isEmpty
-//        self.contentContainerViewBottomConstraint.constant = isReactionsEmpty ?? true ? -3 : -25
-        self.contentContainerViewBottomConstraint.constant = -3
+        if shouldShow && messageSenderAvatar.image == nil
+        {
+            self.messageLayoutConfiguration = messageLayoutConfiguration.updateShowAvatar(true)
+            setupSenderAvatar()
+        }
+        UIView.animate(withDuration: 0.3) {
+            if shouldShow
+            {
+                self.messageSenderAvatar.isHidden = false
+            }
+            self.messageSenderAvatar.alpha = shouldShow ? 1.0 : 0.0
+        } completion: { _ in
+            if !shouldShow
+            {
+                self.messageSenderAvatar.isHidden = true
+            }
+        }
     }
 }
 

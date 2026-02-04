@@ -50,13 +50,15 @@ final class ReactionUIView: UIView
         }
     }
     
-    func addReaction(to view: ContainerView)
+    func addReaction(to view: ContainerView, withAnimation animated: Bool = true)
     {
         guard let reactionView = reactionView else {return}
         
         view.addArrangedSubview(reactionView,
                                 padding: .init(top: 7, left: 2, bottom: 0, right: 0),
                                 shouldFillWidth: false)
+        
+        guard animated else {return}
         
         self.reactionView?.alpha = 0.2
         self.reactionView?.transform = .init(scaleX: 0.1, y: 0.1)
