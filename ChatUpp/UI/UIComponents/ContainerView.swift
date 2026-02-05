@@ -50,6 +50,7 @@ class ContainerView: UIView {
     // MARK: - Setup
     private func setupStackView() {
         addSubview(containerStackView)
+        containerStackView.spacing = spacing
         updateMargins()
     }
     
