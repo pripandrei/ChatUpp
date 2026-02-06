@@ -23,18 +23,20 @@ final class TextImageMessageCell: UITableViewCell
     
     // MARK: - Message content views (moved from TextImageMessageContentView)
     private let containerView: ContainerView
-    private var viewModel: MessageContentViewModel!
+    private var contentViewModel: MessageContentViewModel!
     private var messageComponentsView: MessageComponentsView = MessageComponentsView()
     private var messageLabel: MessageLabel?
     private(set) var messageImageView: UIImageView?
     private var reactionUIView: ReactionUIView?
     private var contentSubscribers = Set<AnyCancellable>()
     
-    lazy var replyToMessageStack: ReplyToMessageStackView = {
-        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
-        let replyToMessageStack = ReplyToMessageStackView(margin: margins)
-        return replyToMessageStack
-    }()
+    private var replyToMessageStackView: ReplyToMessageStackView?
+    
+//    lazy var replyToMessageStack: ReplyToMessageStackView = {
+//        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
+//        let replyToMessageStack = ReplyToMessageStackView(margin: margins)
+//        return replyToMessageStack
+//    }()
     
     var onRelayoutNeeded: (() -> Void)?
     
@@ -56,7 +58,7 @@ final class TextImageMessageCell: UITableViewCell
     }()
 
     private var messageSenderNameColor: UIColor {
-        let senderID = viewModel.message?.senderId
+        let senderID = contentViewModel.message?.senderId
         return ColorScheme.color(for: senderID ?? "12345")
     }
     
@@ -149,7 +151,7 @@ final class TextImageMessageCell: UITableViewCell
         
         cellViewModel = viewModel
         messageLayoutConfiguration = layoutConfiguration
-        self.viewModel = viewModel.messageContainerViewModel!
+        self.contentViewModel = viewModel.messageContainerViewModel!
         
         // Set background color
         containerView.backgroundColor = cellViewModel.messageAlignment == .right ?
@@ -185,11 +187,11 @@ final class TextImageMessageCell: UITableViewCell
     
     func setupMessageLabel(with message: Message)
     {
-        if let imageData = viewModel.retrieveImageData(),
+        if let imageData = contentViewModel.retrieveImageData(),
            let image = UIImage(data: imageData) {
             configureMessageImage(image)
         } else if message.imagePath != nil {
-            viewModel.fetchMessageImageData()
+            contentViewModel.fetchMessageImageData()
         }
         
         if !message.messageBody.isEmpty {
@@ -244,26 +246,29 @@ final class TextImageMessageCell: UITableViewCell
             containerView.addArrangedSubview(messageSenderNameLabel, at: 0)
         }
         
-        messageSenderNameLabel.text = viewModel.messageSender?.name
+        messageSenderNameLabel.text = contentViewModel.messageSender?.name
     }
     
     // MARK: - Reply Message
     private func setupMessageToReplyView()
     {
-        guard let senderName = viewModel.referencedMessageSenderName else {
-            containerView.removeArrangedSubview(replyToMessageStack)
+        guard let senderName = contentViewModel.referencedMessageSenderName else {
             return
         }
         
-        let replyLabelText = viewModel.getTextForReplyToMessage()
-        let imageData: Data? = viewModel.getImageDataThumbnailFromReferencedMessage()
-        replyToMessageStack.configure(senderName: senderName,
-                                      messageText: replyLabelText,
-                                      imageData: imageData)
+        // Create fresh every time (matches your pattern for messageLabel, messageImageView)
+        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
+        self.replyToMessageStackView = ReplyToMessageStackView(margin: margins)
         
+        let replyLabelText = contentViewModel.getTextForReplyToMessage()
+        let imageData: Data? = contentViewModel.getImageDataThumbnailFromReferencedMessage()
+        replyToMessageStackView?.configure(senderName: senderName,
+                                           messageText: replyLabelText,
+                                           imageData: imageData)
+
         let index = messageLayoutConfiguration.shouldShowSenderName ? 1 : 0
-    
-        containerView.addArrangedSubview(replyToMessageStack, at: index)
+        containerView.addArrangedSubview(replyToMessageStackView!, at: index)
+        
         updateReplyToMessageColor()
     }
     
@@ -271,9 +276,9 @@ final class TextImageMessageCell: UITableViewCell
         executeAfter(seconds: 1.0) {
             self.messageLabel?.messageUpdateType = .replyRemoved
             UIView.animate(withDuration: 0.3) {
-                self.replyToMessageStack.alpha = 0
+                self.replyToMessageStackView?.alpha = 0
             } completion: { _ in
-                self.containerView.removeArrangedSubview(self.replyToMessageStack)
+                self.containerView.removeArrangedSubview(self.replyToMessageStackView!)
                 self.messageLabel?.layoutIfNeeded()
                 UIView.animate(withDuration: 0.3) {
                     self.contentView.layoutIfNeeded()
@@ -284,14 +289,14 @@ final class TextImageMessageCell: UITableViewCell
     }
 
     private func updateMessageToReply(_ message: Message) {
-        guard let messageSenderName = viewModel.referencedMessageSenderName else { return }
+        guard let messageSenderName = contentViewModel.referencedMessageSenderName else { return }
         
         executeAfter(seconds: 0.6, block: { [weak self] in
             guard let self else { return }
             self.messageLabel?.messageUpdateType = .edited
-            let messageText = viewModel.getTextForReplyToMessage()
-            let image = message.imagePath == nil ? nil : self.viewModel.retrieveReferencedImageData()
-            self.replyToMessageStack.configure(senderName: messageSenderName,
+            let messageText = contentViewModel.getTextForReplyToMessage()
+            let image = message.imagePath == nil ? nil : self.contentViewModel.retrieveReferencedImageData()
+            self.replyToMessageStackView?.configure(senderName: messageSenderName,
                                                messageText: messageText,
                                                imageData: image)
             
@@ -305,11 +310,11 @@ final class TextImageMessageCell: UITableViewCell
         var backgroundColor: UIColor = ColorScheme.outgoingReplyToMessageBackgroundColor
         var barColor: UIColor = .white
         
-        if viewModel.messageAlignment == .left {
+        if contentViewModel.messageAlignment == .left {
             backgroundColor = messageSenderNameColor.withAlphaComponent(0.3)
             barColor = messageSenderNameColor
         }
-        replyToMessageStack.setReplyInnerStackColors(background: backgroundColor,
+        replyToMessageStackView?.setReplyInnerStackColors(background: backgroundColor,
                                                      barColor: barColor)
     }
     
@@ -329,7 +334,7 @@ final class TextImageMessageCell: UITableViewCell
     }
     
     private func setupContentBindings() {
-        viewModel.$referencedMessage
+        contentViewModel.$referencedMessage
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] replyMessage in
@@ -340,14 +345,14 @@ final class TextImageMessageCell: UITableViewCell
                 }
             }.store(in: &contentSubscribers)
         
-        viewModel.messageImageDataSubject
+        contentViewModel.messageImageDataSubject
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] imageData in
                 guard let image = UIImage(data: imageData) else { return }
                 self?.configureMessageImage(image)
             }).store(in: &contentSubscribers)
 
-        viewModel.messagePropertyUpdateSubject
+        contentViewModel.messagePropertyUpdateSubject
             .receive(on: DispatchQueue.main)
             .sink { [weak self] property in
                 self?.updateMessage(fieldValue: property)
@@ -357,7 +362,7 @@ final class TextImageMessageCell: UITableViewCell
     // MARK: - Message Layout
     func handleMessageLayout() {
         createMessageTextLayout()
-        let padding = viewModel.message?.reactions.isEmpty == true ? getMessagePaddingStrategy() : .initial
+        let padding = contentViewModel.message?.reactions.isEmpty == true ? getMessagePaddingStrategy() : .initial
         applyMessagePadding(strategy: padding)
     }
     
@@ -416,7 +421,7 @@ final class TextImageMessageCell: UITableViewCell
     }
 
     private func resizeImage(_ image: UIImage, toSize size: CGSize) {
-        guard let imagePath = viewModel.resizedMessageImagePath else { return }
+        guard let imagePath = contentViewModel.resizedMessageImagePath else { return }
         
         if let image = CacheManager.shared.getCachedImage(forKey: imagePath) {
             self.messageImageView?.image = image
@@ -494,7 +499,7 @@ final class TextImageMessageCell: UITableViewCell
                 self.messageComponentsView.messageComponentsStackView.setNeedsLayout()
                 self.messageComponentsView.configureMessageSeenStatus()
                 
-                if self.viewModel.message?.type != .image {
+                if self.contentViewModel.message?.type != .image {
                     self.handleMessageLayout()
                 }
             case .reactions:
@@ -512,12 +517,12 @@ final class TextImageMessageCell: UITableViewCell
     
     private func manageReactionsSetup() {
         if reactionUIView == nil,
-           let message = viewModel.message {
+           let message = contentViewModel.message {
             self.reactionUIView = .init(from: message)
             reactionUIView?.addReaction(to: containerView)
             setReactionViewTrailingConstraint()
         }
-        if viewModel.message?.reactions.isEmpty == true {
+        if contentViewModel.message?.reactions.isEmpty == true {
             self.reactionUIView?.removeReaction(from: containerView)
             self.reactionUIView = nil
         } else {
@@ -526,7 +531,8 @@ final class TextImageMessageCell: UITableViewCell
     }
     
     // MARK: - Cleanup
-    private func cleanupCellContent() {
+    private func cleanupCellContent()
+    {
         messageSenderAvatar.image = nil
         
         if let imageView = messageImageView {
@@ -549,8 +555,19 @@ final class TextImageMessageCell: UITableViewCell
         
         messageComponentsView.cleanupContent()
         
-        reactionUIView?.removeReaction(from: containerView)
-        reactionUIView = nil
+        
+        if let reactionView = reactionUIView?.reactionView
+        {
+            containerView.removeArrangedSubview(reactionView)
+            reactionUIView = nil
+        }
+//        reactionUIView?.removeReaction(from: containerView)
+//        reactionUIView = nil
+        
+        if let replyStack = replyToMessageStackView {
+            containerView.removeArrangedSubview(replyStack)
+            replyToMessageStackView = nil
+        }
         
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()

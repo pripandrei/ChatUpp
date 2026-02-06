@@ -28,15 +28,16 @@ final class VoiceMessageCell: UITableViewCell
     private var contentCancellables = Set<AnyCancellable>()
     private var reactionUIView: ReactionUIView?
     private var playbackControlPanelUIView: UIView?
+    private var replyToMessageStackView: ReplyToMessageStackView?
     
     var onRelayoutNeeded: (() -> Void)?
-    
-    lazy var replyToMessageStack: ReplyToMessageStackView = {
-        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
-        let replyToMessageStack = ReplyToMessageStackView(margin: margins)
-        return replyToMessageStack
-    }()
-    
+//    
+//    lazy var replyToMessageStack: ReplyToMessageStackView = {
+//        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
+//        let replyToMessageStack = ReplyToMessageStackView(margin: margins)
+//        return replyToMessageStack
+//    }()
+//    
     private lazy var messageSenderNameLabel: UILabel = {
        let senderNameLabel = UILabel()
         senderNameLabel.numberOfLines = 1
@@ -232,21 +233,27 @@ final class VoiceMessageCell: UITableViewCell
     }
     
     // MARK: - Reply Message
-    private func setupMessageToReplyView() {
+
+    // Update setupMessageToReplyView:
+    private func setupMessageToReplyView()
+    {
         guard let senderName = contentViewModel.referencedMessageSenderName else {
-            containerView.removeArrangedSubview(replyToMessageStack)
             return
         }
         
+        // Create fresh every time (matches your pattern for messageLabel, messageImageView)
+        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
+        self.replyToMessageStackView = ReplyToMessageStackView(margin: margins)
+        
         let replyLabelText = contentViewModel.getTextForReplyToMessage()
         let imageData: Data? = contentViewModel.getImageDataThumbnailFromReferencedMessage()
-        replyToMessageStack.configure(senderName: senderName,
-                                      messageText: replyLabelText,
-                                      imageData: imageData)
-        
+        replyToMessageStackView?.configure(senderName: senderName,
+                                           messageText: replyLabelText,
+                                           imageData: imageData)
+
         let index = messageLayoutConfiguration.shouldShowSenderName ? 1 : 0
+        containerView.addArrangedSubview(replyToMessageStackView!, at: index)
         
-        containerView.addArrangedSubview(replyToMessageStack, at: index)
         updateReplyToMessageColor()
     }
     
@@ -258,7 +265,7 @@ final class VoiceMessageCell: UITableViewCell
             backgroundColor = messageSenderNameColor.withAlphaComponent(0.3)
             barColor = messageSenderNameColor
         }
-        replyToMessageStack.setReplyInnerStackColors(background: backgroundColor,
+        replyToMessageStackView?.setReplyInnerStackColors(background: backgroundColor,
                                                      barColor: barColor)
     }
     
@@ -345,6 +352,14 @@ final class VoiceMessageCell: UITableViewCell
         {
             containerView.removeArrangedSubview(reactionView)
             reactionUIView = nil
+        }
+//        
+//        reactionUIView?.removeReaction(from: containerView)
+//        reactionUIView = nil
+        
+        if let replyStack = replyToMessageStackView {
+            containerView.removeArrangedSubview(replyStack)
+            replyToMessageStackView = nil
         }
         
         UIView.performWithoutAnimation {

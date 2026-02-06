@@ -70,6 +70,7 @@ final class StickerMessageCell: UITableViewCell
         replyToMessageStackView = nil
         print("deinit StickerMessageCell")
     }
+
     
     // MARK: - Setup
     private func setupBackgroundSelectionView() {
@@ -159,26 +160,24 @@ final class StickerMessageCell: UITableViewCell
             setupReplyToMessage(viewModel: viewModel)
         }
         
-//        adjustStickerAlignment(viewModel.messageAlignment)
-        
         if !message.reactions.isEmpty {
             manageReactionsSetup(withAnimation: false)
         }
     }
     
-    private func adjustStickerAlignment(_ alignment: MessageAlignment) {
-        // First deactivate both constraints
+    private func adjustStickerAlignment(_ alignment: MessageAlignment)
+    {
         contentContainerViewLeadingConstraint.isActive = false
         contentContainerViewTrailingConstraint.isActive = false
         
-        // Then activate the correct one based on alignment
         let containerViewSideConstraint = alignment == .right ?
             containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15) :
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15)
         containerViewSideConstraint.isActive = true
     }
     
-    private func setupReplyToMessage(viewModel: MessageContentViewModel) {
+    private func setupReplyToMessage(viewModel: MessageContentViewModel)
+    {
         self.replyToMessageStackView = .init(margin: .init(top: 2, left: 2, bottom: 2, right: 2))
         contentView.addSubview(replyToMessageStackView!)
         
@@ -208,7 +207,8 @@ final class StickerMessageCell: UITableViewCell
     }
     
     // MARK: - Binding
-    private func setupBinding() {
+    private func setupBinding()
+    {
         cellViewModel.senderImageDataSubject
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] imageData in
@@ -222,7 +222,8 @@ final class StickerMessageCell: UITableViewCell
             }).store(in: &subscribers)
     }
     
-    private func setupMessagePropertyBinding(publisher: AnyPublisher<MessageObservedProperty, Never>) {
+    private func setupMessagePropertyBinding(publisher: AnyPublisher<MessageObservedProperty, Never>)
+    {
         publisher.sink { [weak self] property in
             self?.updateMessage(fieldValue: property)
         }.store(in: &cancellables)
@@ -248,7 +249,8 @@ final class StickerMessageCell: UITableViewCell
         })
     }
     
-    private func manageReactionsSetup(withAnimation animated: Bool = true) {
+    private func manageReactionsSetup(withAnimation animated: Bool = true)
+    {
         if reactionUIView == nil,
            let message = viewModel?.message {
             self.reactionUIView = .init(from: message)
@@ -267,8 +269,11 @@ final class StickerMessageCell: UITableViewCell
     }
     
     // MARK: - Cleanup
-    private func cleanupCellContent() {
-        messageSenderAvatar.image = nil
+    private func cleanupCellContent()
+    {
+//        if messageLayoutConfiguration?.shouldShowAvatar {
+            messageSenderAvatar.image = nil
+//        }
         
         subscribers.forEach { subscriber in
             subscriber.cancel()
@@ -278,6 +283,19 @@ final class StickerMessageCell: UITableViewCell
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
         
+        stickerComponentsView.cleanupContent()
+        
+            replyToMessageStackView?.removeFromSuperview()
+            replyToMessageStackView = nil
+        
+        if let reactionView = reactionUIView?.reactionView
+        {
+            containerView.removeArrangedSubview(reactionView)
+            reactionUIView = nil
+        }
+        
+//        reactionUIView?.removeReaction(from: containerView)
+//        reactionUIView = nil
         // Layout with no animation
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
