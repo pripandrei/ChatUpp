@@ -27,8 +27,8 @@ final class TextImageMessageContentView: ContainerView, RelayoutNotifying
     
     private var viewModel: MessageContentViewModel!
     private var messageComponentsView: MessageComponentsView = MessageComponentsView()
-    private var messageLabel = MessageLabel()
-    private(set) var messageImageView = UIImageView()
+    private var messageLabel: MessageLabel!
+    private(set) var messageImageView: UIImageView!
     private var reactionUIView: ReactionUIView?
     private var subscribers = Set<AnyCancellable>()
     
@@ -42,9 +42,16 @@ final class TextImageMessageContentView: ContainerView, RelayoutNotifying
     
     var onRelayoutNeeded: (() -> Void)?
     
-    var maxMessageWidth: CGFloat {
+    var maxMessageWidth: CGFloat
+    {
+        if let imageSize
+        {
+            return imageSize.width
+        }
         return TextImageMessageContentView.maxWidth - 23
     }
+    
+    private var imageSize: CGSize?
 
     private lazy var messageSenderNameLabel: UILabel = {
        let senderNameLabel = UILabel()
@@ -137,9 +144,7 @@ extension TextImageMessageContentView
         if viewModel.message?.reactions.isEmpty == false
         {
             self.reactionUIView = .init(from: message)
-//            addArrangedSubview(self.reactionUIView!.reactionView!,
-//                               padding: .init(top: 0, left: 2, bottom: 0, right: 0),
-//                               shouldFillWidth: false)
+
             self.reactionUIView?.addReaction(to: self, withAnimation: false)
             setReactionViewTrailingConstraint()
         }
@@ -150,7 +155,7 @@ extension TextImageMessageContentView
         if let imageData = viewModel.retrieveImageData(),
            let image = UIImage(data: imageData)
         {
-            showImageMessage(image)
+            configureMessageImage(image)
         } else if message.imagePath != nil {
             viewModel.fetchMessageImageData()
         }
@@ -165,10 +170,6 @@ extension TextImageMessageContentView
     {
         messageLabel.attributedText = messageTextLabelLinkSetup(from: text)
         handleMessageLayout()
-    }
-
-    func showImageMessage(_ image: UIImage) {
-        configureMessageImage(image)
     }
 }
 
@@ -189,6 +190,7 @@ extension TextImageMessageContentView
     
     private func setupMessageLabel()
     {
+        self.messageLabel = .init()
         addArrangedSubview(messageLabel)
         
         messageLabel.numberOfLines = 0
@@ -200,8 +202,8 @@ extension TextImageMessageContentView
     
     private func configureMessageImageView(withSize size: CGSize)
     {
-//        self.addSubview(messageImageView)
         let padding: UIEdgeInsets = .init(top: -2, left: -5, bottom: -2, right: -5)
+        self.messageImageView = .init()
         
         addArrangedSubview(messageImageView,
                            padding: padding,
@@ -210,22 +212,14 @@ extension TextImageMessageContentView
         
         messageImageView.layer.cornerRadius = 13
         messageImageView.clipsToBounds = true
-        messageImageView.translatesAutoresizingMaskIntoConstraints = false
+//        messageImageView.translatesAutoresizingMaskIntoConstraints = false
           
         NSLayoutConstraint.activate([
             messageImageView.heightAnchor.constraint(equalToConstant: size.height),
             messageImageView.widthAnchor.constraint(equalToConstant: size.width)
         ])
         
-//        self.messageImageViewBottomConstraint = messageImageView.bottomAnchor.constraint(equalTo: messageLabel.bottomAnchor,
-//                                                                                         constant: 4)
-//        
-//        NSLayoutConstraint.activate([
-//            messageImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 2),
-//            messageImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -2),
-//            messageImageView.topAnchor.constraint(equalTo: messageLabel.topAnchor, constant: -4),
-//            self.messageImageViewBottomConstraint!
-//        ])
+       
     }
     
     private func setupSenderNameLabel()
@@ -346,8 +340,10 @@ extension TextImageMessageContentView
     
     private func createMessageTextLayout()
     {
-        let textLayout = YYTextLayout(containerSize: CGSize(width: messageLabel.intrinsicContentSize.width,
-                                                            height: messageLabel.intrinsicContentSize.height),
+        let containerSize = CGSize(width: maxMessageWidth,
+                                         height: CGFloat.greatestFiniteMagnitude)
+        let textLayout = YYTextLayout(containerSize: CGSize(width: containerSize.width,
+                                                            height: containerSize.height),
                                       text: messageLabel.attributedText!)
         messageLabel.textLayout = textLayout
 //        applyMessagePadding(strategy: .initial)
@@ -391,33 +387,9 @@ extension TextImageMessageContentView
     private func configureMessageImage(_ image: UIImage)
     {
         let newSize = image.getAspectRatio()
-        
-        resizeImage(image, toSize: newSize)
+        self.imageSize = newSize
         configureMessageImageView(withSize: newSize)
-        
-//        let imageAttachementAttributed = getAttributedImageAttachment(size: newSize)
-        
-//        if let messageText = viewModel.message?.messageBody, !messageText.isEmpty
-//        {
-//            let newLine = "\n"
-//            let text = "\(newLine)\(messageText))"
-//            let combinedAttributedString = NSMutableAttributedString()
-//            combinedAttributedString.append(imageAttachementAttributed)
-//            guard let messageTextAttribute = messageTextLabelLinkSetup(from: text) else {return}
-//            combinedAttributedString.append(messageTextAttribute)
-//            self.messageLabel.attributedText = combinedAttributedString
-//            handleMessageLayout()
-////            self.messageImageViewBottomConstraint?.isActive = false
-//        } else {
-////            
-////            NSLayoutConstraint.activate([
-////                messageImageView.heightAnchor.constraint(equalToConstant: newSize.height),
-////                messageImageView.widthAnchor.constraint(equalToConstant: newSize.width)
-////            ])
-////            self.messageLabel.attributedText = imageAttachementAttributed
-////            self.messageImageViewBottomConstraint?.isActive = true
-////            applyMessagePadding(strategy: .image)
-//        }
+        resizeImage(image, toSize: newSize)
     }
 
     private func resizeImage(_ image: UIImage, toSize size: CGSize)
@@ -511,13 +483,29 @@ extension TextImageMessageContentView
 {
     func cleanupContent()
     {
-        messageLabel.attributedText = nil
-        messageImageView.image = nil
+//        messageLabel.attributedText = nil
+        if let imageView = messageImageView
+        {
+            removeArrangedSubview(imageView)
+            messageImageView.image = nil
+            messageImageView = nil
+        }
         removeSubscriers()
-        applyMessagePadding(strategy: .initial)
-        messageLabel.invalidateIntrinsicContentSize()
+//        applyMessagePadding(strategy: .initial)
+        if let messageLabel = messageLabel
+        {
+            removeArrangedSubview(messageLabel)
+            self.messageLabel = nil
+        }
+        imageSize = nil
+//        removeArrangedSubview(messageLabel)
+//        messageLabel = nil
+//        messageLabel.invalidateIntrinsicContentSize()
+//        messageLabel = nil
         messageComponentsView.cleanupContent()
-        reactionUIView = nil
+        
+//        reactionUIView?.removeReaction(from: self)
+//        reactionUIView = nil
 //        layoutIfNeeded() // to relayout message label text
     }
     

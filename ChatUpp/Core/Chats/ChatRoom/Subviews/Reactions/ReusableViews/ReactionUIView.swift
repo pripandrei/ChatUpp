@@ -56,7 +56,7 @@ final class ReactionUIView: UIView
         
         view.addArrangedSubview(reactionView,
 //                                padding: .init(top: 7, left: 2, bottom: 0, right: 0),
-                                padding: .init(top: 0, left: 2, bottom: 0, right: 0),
+                                padding: .init(top: 2, left: 2, bottom: 0, right: 0),
                                 shouldFillWidth: false)
         
         guard animated else {return}
