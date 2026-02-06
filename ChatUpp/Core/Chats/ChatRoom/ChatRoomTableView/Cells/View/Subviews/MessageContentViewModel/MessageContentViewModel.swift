@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-//MARK: - View model for all types (text/image/audio...) of messages content views
+//MARK: - View model for all types (text/image/audio...) of messages 
 
 final class MessageContentViewModel
 {

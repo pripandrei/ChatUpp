@@ -81,7 +81,8 @@ class ContainerView: UIView {
         }
     }
     
-    func removeArrangedSubview(_ view: UIView) {
+    func removeArrangedSubview(_ view: UIView)
+    {
         if let wrapper = containerStackView.arrangedSubviews.first(where: { $0.subviews.contains(view) }) {
             containerStackView.removeArrangedSubview(wrapper)
             wrapper.removeFromSuperview()

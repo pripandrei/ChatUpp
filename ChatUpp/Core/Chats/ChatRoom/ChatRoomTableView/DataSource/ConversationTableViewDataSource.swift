@@ -136,7 +136,8 @@ extension ConversationDataSourceManager
         
         let layoutConfiguration = layoutProvider.makeLayoutConfigurationForCell(at: indexPath)
         
-        switch messageType {
+        switch messageType
+        {
         case .sticker:
             guard let cell = tableView.dequeueReusableCell(
                 withIdentifier: "StickerMessageCell",

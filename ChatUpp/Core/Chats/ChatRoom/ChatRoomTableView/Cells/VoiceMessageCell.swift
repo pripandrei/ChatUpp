@@ -24,7 +24,7 @@ final class VoiceMessageCell: UITableViewCell
     private let containerView: ContainerView
     private let messageComponentsView: MessageComponentsView = .init()
     private var playbackControlPanel: VoicePlaybackControlPanelView!
-    private var viewModel: MessageContentViewModel!
+    private var contentViewModel: MessageContentViewModel!
     private var contentCancellables = Set<AnyCancellable>()
     private var reactionUIView: ReactionUIView?
     private var playbackControlPanelUIView: UIView?
@@ -46,7 +46,7 @@ final class VoiceMessageCell: UITableViewCell
     }()
     
     private var messageSenderNameColor: UIColor {
-        let senderID = viewModel.message?.senderId
+        let senderID = contentViewModel.message?.senderId
         return ColorScheme.color(for: senderID ?? "12345")
     }
     
@@ -125,7 +125,8 @@ final class VoiceMessageCell: UITableViewCell
     
     // MARK: - Configuration
     func configureCell(using viewModel: MessageCellViewModel,
-                       layoutConfiguration: MessageLayoutConfiguration) {
+                       layoutConfiguration: MessageLayoutConfiguration)
+    {
         guard let message = viewModel.message else {
             assert(false, "message should be valid at this point")
             return
@@ -135,20 +136,22 @@ final class VoiceMessageCell: UITableViewCell
         
         cellViewModel = viewModel
         messageLayoutConfiguration = layoutConfiguration
-        self.viewModel = viewModel.messageContainerViewModel!
+        contentViewModel = viewModel.messageContainerViewModel!
         
         // Set background color
         containerView.backgroundColor = cellViewModel.messageAlignment == .right ?
-            ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
+        ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
         
         setupBinding()
-        configureAudioContent(with: viewModel.messageContainerViewModel!, layoutConfiguration: layoutConfiguration)
+        configureAudioContent(with: viewModel.messageContainerViewModel!,
+                              layoutConfiguration: layoutConfiguration)
         adjustMessageSide()
         setupSenderAvatar()
     }
     
     private func configureAudioContent(with viewModel: MessageContentViewModel,
-                                       layoutConfiguration: MessageLayoutConfiguration) {
+                                       layoutConfiguration: MessageLayoutConfiguration)
+    {
         guard let message = viewModel.message,
               let path = message.voicePath,
               let url = CacheManager.shared.getURL(for: path) else {
@@ -160,24 +163,28 @@ final class VoiceMessageCell: UITableViewCell
         setupSenderNameLabel()
         
         let controlPanelColorScheme = makeColorSchemeForControlPanel(basedOnAlignment: viewModel.messageAlignment)
-        setupPlaybackControlPanel(withUrl: url, audioSamples: Array(audioSamples), colorScheme: controlPanelColorScheme)
+        setupPlaybackControlPanel(withUrl: url,
+                                  audioSamples: Array(audioSamples),
+                                  colorScheme: controlPanelColorScheme)
         
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
         setupMessageToReplyView()
         setupContentBindings()
         
-        if message.reactions.isEmpty == false {
+        if !message.reactions.isEmpty
+        {
             self.reactionUIView = .init(from: message)
             containerView.addArrangedSubview(self.reactionUIView!.reactionView!,
-                                            padding: .init(top: 7, left: 2, bottom: 0, right: 0),
-                                            shouldFillWidth: false)
+                                             padding: .init(top: 7, left: 2, bottom: 0, right: 0),
+                                             shouldFillWidth: false)
             setReactionViewTrailingConstraint()
         }
     }
     
     private func setupPlaybackControlPanel(withUrl URL: URL,
                                            audioSamples: [Float],
-                                           colorScheme: VoicePlaybackControlPanelView.ColorScheme) {
+                                           colorScheme: VoicePlaybackControlPanelView.ColorScheme)
+    {
         self.playbackControlPanel = .init(audioFileURL: URL,
                                           audioSamples: audioSamples,
                                           colorScheme: colorScheme)
@@ -187,7 +194,7 @@ final class VoiceMessageCell: UITableViewCell
         view.backgroundColor = .clear
         
         containerView.addArrangedSubview(view)
-        
+         
         view.translatesAutoresizingMaskIntoConstraints = false
         
         view.heightAnchor.constraint(equalToConstant: 55).isActive = true
@@ -221,18 +228,18 @@ final class VoiceMessageCell: UITableViewCell
             containerView.addArrangedSubview(messageSenderNameLabel, at: 0)
         }
         
-        messageSenderNameLabel.text = viewModel.messageSender?.name
+        messageSenderNameLabel.text = contentViewModel.messageSender?.name
     }
     
     // MARK: - Reply Message
     private func setupMessageToReplyView() {
-        guard let senderName = viewModel.referencedMessageSenderName else {
+        guard let senderName = contentViewModel.referencedMessageSenderName else {
             containerView.removeArrangedSubview(replyToMessageStack)
             return
         }
         
-        let replyLabelText = viewModel.getTextForReplyToMessage()
-        let imageData: Data? = viewModel.getImageDataThumbnailFromReferencedMessage()
+        let replyLabelText = contentViewModel.getTextForReplyToMessage()
+        let imageData: Data? = contentViewModel.getImageDataThumbnailFromReferencedMessage()
         replyToMessageStack.configure(senderName: senderName,
                                       messageText: replyLabelText,
                                       imageData: imageData)
@@ -247,7 +254,7 @@ final class VoiceMessageCell: UITableViewCell
         var backgroundColor: UIColor = ColorScheme.outgoingReplyToMessageBackgroundColor
         var barColor: UIColor = .white
         
-        if viewModel.messageAlignment == .left {
+        if contentViewModel.messageAlignment == .left {
             backgroundColor = messageSenderNameColor.withAlphaComponent(0.3)
             barColor = messageSenderNameColor
         }
@@ -275,7 +282,7 @@ final class VoiceMessageCell: UITableViewCell
     }
     
     private func setupContentBindings() {
-        viewModel.messagePropertyUpdateSubject
+        contentViewModel.messagePropertyUpdateSubject
             .sink { [weak self] property in
                 self?.updateMessage(fieldValue: property)
             }.store(in: &contentCancellables)
@@ -303,12 +310,12 @@ final class VoiceMessageCell: UITableViewCell
     
     private func manageReactionsSetup() {
         if reactionUIView == nil,
-           let message = viewModel.message {
+           let message = contentViewModel.message {
             self.reactionUIView = .init(from: message)
             reactionUIView?.addReaction(to: containerView)
             setReactionViewTrailingConstraint()
         }
-        if viewModel.message?.reactions.isEmpty == true {
+        if contentViewModel.message?.reactions.isEmpty == true {
             self.reactionUIView?.removeReaction(from: containerView)
             self.reactionUIView = nil
         } else {
@@ -317,7 +324,13 @@ final class VoiceMessageCell: UITableViewCell
     }
     
     // MARK: - Cleanup
-    private func cleanupCellContent() {
+    private func cleanupCellContent()
+    {
+        if let panelView = playbackControlPanelUIView
+        {
+            containerView.removeArrangedSubview(panelView)
+        }
+        
         messageSenderAvatar.image = nil
         
         subscribers.forEach { $0.cancel() }
@@ -328,7 +341,11 @@ final class VoiceMessageCell: UITableViewCell
         
         messageComponentsView.cleanupContent()
         
-        reactionUIView = nil
+        if let reactionView = reactionUIView?.reactionView
+        {
+            containerView.removeArrangedSubview(reactionView)
+            reactionUIView = nil
+        }
         
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
@@ -342,8 +359,10 @@ final class VoiceMessageCell: UITableViewCell
 }
 
 // MARK: - Avatar Management
-extension VoiceMessageCell {
-    private func adjustMessageSide() {
+extension VoiceMessageCell
+{
+    private func adjustMessageSide()
+    {
         let leadingConstant = messageLayoutConfiguration.leadingConstraintConstant
         
         switch cellViewModel.messageAlignment {

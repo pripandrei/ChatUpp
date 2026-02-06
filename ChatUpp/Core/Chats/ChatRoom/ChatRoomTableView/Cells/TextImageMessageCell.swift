@@ -15,6 +15,7 @@ final class TextImageMessageCell: UITableViewCell
     private var contentContainerViewBottomConstraint: NSLayoutConstraint!
     private var contentContainerViewLeadingConstraint: NSLayoutConstraint!
     private var contentContainerViewTrailingConstraint: NSLayoutConstraint!
+    private var messageImageViewBottomConstraint: NSLayoutConstraint?
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
     private(set) var cellViewModel: MessageCellViewModel!
     
@@ -22,11 +23,10 @@ final class TextImageMessageCell: UITableViewCell
     
     // MARK: - Message content views (moved from TextImageMessageContentView)
     private let containerView: ContainerView
-    private var messageImageViewBottomConstraint: NSLayoutConstraint?
     private var viewModel: MessageContentViewModel!
     private var messageComponentsView: MessageComponentsView = MessageComponentsView()
-    private var messageLabel: MessageLabel!
-    private(set) var messageImageView: UIImageView!
+    private var messageLabel: MessageLabel?
+    private(set) var messageImageView: UIImageView?
     private var reactionUIView: ReactionUIView?
     private var contentSubscribers = Set<AnyCancellable>()
     
@@ -156,7 +156,8 @@ final class TextImageMessageCell: UITableViewCell
             ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
         
         setupBinding()
-        configureTextImageContent(with: viewModel.messageContainerViewModel!, layoutConfiguration: layoutConfiguration)
+        configureTextImageContent(with: viewModel.messageContainerViewModel!,
+                                  layoutConfiguration: layoutConfiguration)
         adjustMessageSide()
         setupSenderAvatar()
     }
@@ -182,7 +183,8 @@ final class TextImageMessageCell: UITableViewCell
         }
     }
     
-    func setupMessageLabel(with message: Message) {
+    func setupMessageLabel(with message: Message)
+    {
         if let imageData = viewModel.retrieveImageData(),
            let image = UIImage(data: imageData) {
             configureMessageImage(image)
@@ -197,12 +199,14 @@ final class TextImageMessageCell: UITableViewCell
     }
     
     func showTextMessage(_ text: String) {
-        messageLabel.attributedText = messageTextLabelLinkSetup(from: text)
+        messageLabel?.attributedText = messageTextLabelLinkSetup(from: text)
         handleMessageLayout()
     }
     
-    private func createMessageLabel() {
-        self.messageLabel = .init()
+    private func createMessageLabel()
+    {
+        let messageLabel: MessageLabel = .init()
+        self.messageLabel = messageLabel
         containerView.addArrangedSubview(messageLabel)
         
         messageLabel.numberOfLines = 0
@@ -211,19 +215,22 @@ final class TextImageMessageCell: UITableViewCell
         messageLabel.clipsToBounds = true
     }
     
-    private func configureMessageImageView(withSize size: CGSize) {
+    private func configureMessageImageView(withSize size: CGSize)
+    {
+        let imageView = UIImageView()
         let padding: UIEdgeInsets = .init(top: -2, left: -5, bottom: -2, right: -5)
-        self.messageImageView = .init()
         
-        containerView.addArrangedSubview(messageImageView, padding: padding, at: 0)
-        containerView.containerStackView.sendSubviewToBack(messageImageView)
+        self.messageImageView = imageView
         
-        messageImageView.layer.cornerRadius = 13
-        messageImageView.clipsToBounds = true
+        containerView.addArrangedSubview(imageView, padding: padding, at: 0)
+        containerView.containerStackView.sendSubviewToBack(imageView)
+        
+        imageView.layer.cornerRadius = 13
+        imageView.clipsToBounds = true
           
         NSLayoutConstraint.activate([
-            messageImageView.heightAnchor.constraint(equalToConstant: size.height),
-            messageImageView.widthAnchor.constraint(equalToConstant: size.width)
+            imageView.heightAnchor.constraint(equalToConstant: size.height),
+            imageView.widthAnchor.constraint(equalToConstant: size.width)
         ])
     }
     
@@ -241,7 +248,8 @@ final class TextImageMessageCell: UITableViewCell
     }
     
     // MARK: - Reply Message
-    private func setupMessageToReplyView() {
+    private func setupMessageToReplyView()
+    {
         guard let senderName = viewModel.referencedMessageSenderName else {
             containerView.removeArrangedSubview(replyToMessageStack)
             return
@@ -261,12 +269,12 @@ final class TextImageMessageCell: UITableViewCell
     
     private func removeMessageToReplyLabel() {
         executeAfter(seconds: 1.0) {
-            self.messageLabel.messageUpdateType = .replyRemoved
+            self.messageLabel?.messageUpdateType = .replyRemoved
             UIView.animate(withDuration: 0.3) {
                 self.replyToMessageStack.alpha = 0
             } completion: { _ in
                 self.containerView.removeArrangedSubview(self.replyToMessageStack)
-                self.messageLabel.layoutIfNeeded()
+                self.messageLabel?.layoutIfNeeded()
                 UIView.animate(withDuration: 0.3) {
                     self.contentView.layoutIfNeeded()
                 }
@@ -280,7 +288,7 @@ final class TextImageMessageCell: UITableViewCell
         
         executeAfter(seconds: 0.6, block: { [weak self] in
             guard let self else { return }
-            messageLabel.messageUpdateType = .edited
+            self.messageLabel?.messageUpdateType = .edited
             let messageText = viewModel.getTextForReplyToMessage()
             let image = message.imagePath == nil ? nil : self.viewModel.retrieveReferencedImageData()
             self.replyToMessageStack.configure(senderName: messageSenderName,
@@ -353,21 +361,26 @@ final class TextImageMessageCell: UITableViewCell
         applyMessagePadding(strategy: padding)
     }
     
-    private func createMessageTextLayout() {
+    private func createMessageTextLayout()
+    {
+        guard let attributedText = messageLabel?.attributedText else {
+            assertionFailure("messageLabel.attributedText should not be nil")
+            return
+        }
         let containerSize = CGSize(width: maxMessageWidth,
                                    height: CGFloat.greatestFiniteMagnitude)
         let textLayout = YYTextLayout(containerSize: CGSize(width: containerSize.width,
                                                             height: containerSize.height),
-                                      text: messageLabel.attributedText!)
-        messageLabel.textLayout = textLayout
+                                      text: attributedText)
+        messageLabel?.textLayout = textLayout
     }
     
     private var messageLastLineTextWidth: CGFloat {
-        messageLabel.textLayout?.lines.last?.width ?? 0.0
+        messageLabel?.textLayout?.lines.last?.width ?? 0.0
     }
 
     private var messageTextBoundingWidth: CGFloat {
-        return messageLabel.textLayout?.textBoundingRect.width ?? 0.0
+        return messageLabel?.textLayout?.textBoundingRect.width ?? 0.0
     }
     
     private func getMessagePaddingStrategy() -> TextPaddingStrategy {
@@ -386,8 +399,8 @@ final class TextImageMessageCell: UITableViewCell
     }
     
     private func applyMessagePadding(strategy paddingStrategy: TextPaddingStrategy) {
-        messageLabel.textContainerInset = paddingStrategy.padding
-        messageLabel.invalidateIntrinsicContentSize()
+        messageLabel?.textContainerInset = paddingStrategy.padding
+        messageLabel?.invalidateIntrinsicContentSize()
     }
     
     private func setReactionViewTrailingConstraint() {
@@ -406,7 +419,7 @@ final class TextImageMessageCell: UITableViewCell
         guard let imagePath = viewModel.resizedMessageImagePath else { return }
         
         if let image = CacheManager.shared.getCachedImage(forKey: imagePath) {
-            self.messageImageView.image = image
+            self.messageImageView?.image = image
             return
         }
         
@@ -416,7 +429,7 @@ final class TextImageMessageCell: UITableViewCell
             CacheManager.shared.cacheImage(image: image, key: imagePath)
             
             DispatchQueue.main.async {
-                self.messageImageView.image = image
+                self.messageImageView?.image = image
             }
         }
     }
@@ -468,11 +481,11 @@ final class TextImageMessageCell: UITableViewCell
     private func updateMessage(fieldValue: MessageObservedProperty) {
         executeAfter(seconds: 1.0) { [weak self] in
             guard let self = self else { return }
-            self.messageLabel.messageUpdateType = .edited
+            self.messageLabel?.messageUpdateType = .edited
             
             switch fieldValue {
             case .messageBody(let text):
-                self.messageLabel.attributedText = self.messageTextLabelLinkSetup(from: text)
+                self.messageLabel?.attributedText = self.messageTextLabelLinkSetup(from: text)
                 self.handleMessageLayout()
             case .isEdited:
                 self.messageComponentsView.updateEditedLabel()
@@ -518,7 +531,7 @@ final class TextImageMessageCell: UITableViewCell
         
         if let imageView = messageImageView {
             containerView.removeArrangedSubview(imageView)
-            messageImageView.image = nil
+            messageImageView?.image = nil
             messageImageView = nil
         }
         

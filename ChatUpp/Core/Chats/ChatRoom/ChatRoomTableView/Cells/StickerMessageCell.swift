@@ -292,6 +292,7 @@ final class StickerMessageCell: UITableViewCell
 }
 
 // MARK: - Avatar Management
+
 extension StickerMessageCell {
     private func adjustMessageSide() {
         let leadingConstant = messageLayoutConfiguration.leadingConstraintConstant
