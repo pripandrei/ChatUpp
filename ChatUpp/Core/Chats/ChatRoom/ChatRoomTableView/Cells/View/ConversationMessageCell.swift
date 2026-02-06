@@ -169,7 +169,7 @@ extension ConversationMessageCell
             ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
         case .sticker:
             view.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -10).isActive = true
-//            view.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, constant: -10).isActive = true
+
             contentContainer?.backgroundColor = .clear
         case .audio:
             view.widthAnchor.constraint(lessThanOrEqualToConstant: 270).isActive = true
@@ -202,8 +202,6 @@ extension ConversationMessageCell
     private func setupSenderAvatar()
     {
         /// check if chat is group (seen by is not empty in group)
-//        guard cellViewModel.message?.seenBy.isEmpty == false else {return}
-        
         guard messageLayoutConfiguration.shouldShowAvatar else
         {
             messageSenderAvatar.removeFromSuperview()

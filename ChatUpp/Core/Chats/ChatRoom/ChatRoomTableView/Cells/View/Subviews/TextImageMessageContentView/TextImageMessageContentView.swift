@@ -76,9 +76,7 @@ final class TextImageMessageContentView: ContainerView, RelayoutNotifying
                                  right: 10))
         layer.cornerRadius = 15
         clipsToBounds = true
-//        setupMessageLabel()
         setupMessageComponentsView()
-//        configureMessageImageView()
     }
     
     required init?(coder: NSCoder) {
@@ -197,7 +195,6 @@ extension TextImageMessageContentView
         messageLabel.preferredMaxLayoutWidth = maxMessageWidth
         messageLabel.contentMode = .redraw
         messageLabel.clipsToBounds = true
-//        messageLabel.backgroundColor = .blue
     }
     
     private func configureMessageImageView(withSize size: CGSize)
@@ -212,7 +209,6 @@ extension TextImageMessageContentView
         
         messageImageView.layer.cornerRadius = 13
         messageImageView.clipsToBounds = true
-//        messageImageView.translatesAutoresizingMaskIntoConstraints = false
           
         NSLayoutConstraint.activate([
             messageImageView.heightAnchor.constraint(equalToConstant: size.height),
@@ -483,7 +479,6 @@ extension TextImageMessageContentView
 {
     func cleanupContent()
     {
-//        messageLabel.attributedText = nil
         if let imageView = messageImageView
         {
             removeArrangedSubview(imageView)
@@ -491,21 +486,17 @@ extension TextImageMessageContentView
             messageImageView = nil
         }
         removeSubscriers()
-//        applyMessagePadding(strategy: .initial)
         if let messageLabel = messageLabel
         {
             removeArrangedSubview(messageLabel)
             self.messageLabel = nil
         }
         imageSize = nil
-//        removeArrangedSubview(messageLabel)
-//        messageLabel = nil
-//        messageLabel.invalidateIntrinsicContentSize()
-//        messageLabel = nil
+
         messageComponentsView.cleanupContent()
         
-//        reactionUIView?.removeReaction(from: self)
-//        reactionUIView = nil
+        reactionUIView?.removeReaction(from: self)
+        reactionUIView = nil
 //        layoutIfNeeded() // to relayout message label text
     }
     
@@ -533,7 +524,6 @@ extension TextImageMessageContentView
             switch self {
             case .image: return UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
             case .bottom: return UIEdgeInsets(top: 0, left: 0, bottom: 15, right: 0)
-//            case .initial: return UIEdgeInsets(top: 6, left: 10, bottom: 6, right: 10)
             case .initial: return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
             case .trailling (let space): return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: space + 3.0)
             }

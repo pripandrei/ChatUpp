@@ -103,11 +103,9 @@ extension MessageCellViewModel
     }
 }
 
-//extension MessageCellViewModel
-//{
     enum MessageAlignment {
         case left
         case right
         case center
     }
-//}
+
