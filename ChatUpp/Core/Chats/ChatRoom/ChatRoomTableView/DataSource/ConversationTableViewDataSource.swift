@@ -130,25 +130,92 @@ extension ConversationDataSourceManager
                                     in tableView: UITableView,
                                     with viewModel: MessageCellViewModel) -> UITableViewCell
     {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
-            for: indexPath
-        ) as? ConversationMessageCell else {
-            fatalError("Could not dequeue conversation cell")
+        guard let messageType = viewModel.message?.type else {
+            fatalError("Message type should be valid")
         }
         
         let layoutConfiguration = layoutProvider.makeLayoutConfigurationForCell(at: indexPath)
-        cell.configureCell(using: viewModel,
-                           layoutConfiguration: layoutConfiguration)
-   
-        (cell.contentContainer as? RelayoutNotifying)?.onRelayoutNeeded = { [weak tableView] in
-            guard let tableView else {return}
-            tableView.beginUpdates()
-            tableView.endUpdates()
-        }
         
-        return cell
+        switch messageType {
+        case .sticker:
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: "StickerMessageCell",
+                for: indexPath
+            ) as? StickerMessageCell else {
+                fatalError("Could not dequeue StickerMessageCell")
+            }
+            
+            cell.configureCell(using: viewModel, layoutConfiguration: layoutConfiguration)
+            cell.onRelayoutNeeded = { [weak tableView] in
+                guard let tableView else { return }
+                tableView.beginUpdates()
+                tableView.endUpdates()
+            }
+            
+            return cell
+            
+        case .text, .image, .imageText:
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: "TextImageMessageCell",
+                for: indexPath
+            ) as? TextImageMessageCell else {
+                fatalError("Could not dequeue TextImageMessageCell")
+            }
+            
+            cell.configureCell(using: viewModel, layoutConfiguration: layoutConfiguration)
+            cell.onRelayoutNeeded = { [weak tableView] in
+                guard let tableView else { return }
+                tableView.beginUpdates()
+                tableView.endUpdates()
+            }
+            
+            return cell
+            
+        case .audio:
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: "VoiceMessageCell",
+                for: indexPath
+            ) as? VoiceMessageCell else {
+                fatalError("Could not dequeue VoiceMessageCell")
+            }
+            
+            cell.configureCell(using: viewModel, layoutConfiguration: layoutConfiguration)
+            cell.onRelayoutNeeded = { [weak tableView] in
+                guard let tableView else { return }
+                tableView.beginUpdates()
+                tableView.endUpdates()
+            }
+            
+            return cell
+            
+        default:
+            fatalError("Unhandled message type: \(messageType)")
+        }
     }
+    
+//    private func dequeueMessageCell(for indexPath: IndexPath,
+//                                    in tableView: UITableView,
+//                                    with viewModel: MessageCellViewModel) -> UITableViewCell
+//    {
+//        guard let cell = tableView.dequeueReusableCell(
+//            withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
+//            for: indexPath
+//        ) as? ConversationMessageCell else {
+//            fatalError("Could not dequeue conversation cell")
+//        }
+//        
+//        let layoutConfiguration = layoutProvider.makeLayoutConfigurationForCell(at: indexPath)
+//        cell.configureCell(using: viewModel,
+//                           layoutConfiguration: layoutConfiguration)
+//   
+//        (cell.contentContainer as? RelayoutNotifying)?.onRelayoutNeeded = { [weak tableView] in
+//            guard let tableView else {return}
+//            tableView.beginUpdates()
+//            tableView.endUpdates()
+//        }
+//        
+//        return cell
+//    }
     
     func cleanup()
     {

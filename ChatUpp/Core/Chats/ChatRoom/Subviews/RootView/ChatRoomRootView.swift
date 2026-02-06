@@ -357,6 +357,10 @@ final class ChatRoomRootView: UIView
         tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
         tableView.register(UnseenMessagesTitleTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
         tableView.register(MessageEventCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.eventMessage.identifire)
+        
+        tableView.register(StickerMessageCell.self, forCellReuseIdentifier: "StickerMessageCell")
+        tableView.register(TextImageMessageCell.self, forCellReuseIdentifier: "TextImageMessageCell")
+        tableView.register(VoiceMessageCell.self, forCellReuseIdentifier: "VoiceMessageCell")
     }
     
     // MARK: - Internal functions

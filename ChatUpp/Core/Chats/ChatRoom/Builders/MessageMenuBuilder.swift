@@ -66,9 +66,9 @@ final class MessageMenuBuilder
                 guard let sender = self?.viewModel.getMessageSender(message.senderId) else {return}
                 self?.viewModel.currentlyReplyToMessageID = message.id
  
-                let image: UIImage? = (self?.cell as? ConversationMessageCell)?.messageImage
+                let image: UIImage? = (self?.cell as? TextImageMessageCell)?.messageImage
 
-                let text = (self?.cell as? ConversationMessageCell)?.messageText
+                let text = (self?.cell as? TextImageMessageCell)?.messageText
                 
                 self?.contextMenuSelectedActionHandler?(.reply(
                     senderName: sender.name,
@@ -97,9 +97,9 @@ final class MessageMenuBuilder
             DispatchQueue.main.async {
                 self.rootView.messageTextView.text = message.messageBody
  
-                let image: UIImage? = (self.cell as? ConversationMessageCell)?.messageImage
+                let image: UIImage? = (self.cell as? TextImageMessageCell)?.messageImage
                 
-                let text = (self.cell as? ConversationMessageCell)?.messageText
+                let text = (self.cell as? TextImageMessageCell)?.messageText
                 self.contextMenuSelectedActionHandler?(.edit(text: text,
                                                              image: image))
                 self.viewModel.shouldEditMessage = { [message] editedText in
