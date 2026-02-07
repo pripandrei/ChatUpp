@@ -852,7 +852,7 @@ extension ChatRoomViewController
     
     @objc func editMessageBtnWasTapped() {
         guard let editedMessage = rootView.messageTextView.text else {return}
-        viewModel.shouldEditMessage?(editedMessage)
+        viewModel.shouldEditMessage?(editedMessage) 
         rootView.sendEditMessageButton.isHidden = true
         rootView.messageTextView.text.removeAll()
         animateInputBarHeaderViewDestruction()

@@ -127,9 +127,20 @@ final class ConversationFirestoreService
     }
     
     @MainActor
-    func editMessageTextFromFirestore(_ messageText: String, messageID: String) {
+    func editMessageFromFirestore(messageID: String,
+                                  _ messageText: String,
+                                  editedType type: MessageType? = nil)
+    {
         Task {
-            try await FirebaseChatService.shared.updateMessageText(messageText, messageID: messageID, chatID: conversation!.id)
+            try await FirebaseChatService.shared.updateMessageText(messageText,
+                                                                   messageID: messageID,
+                                                                   chatID: conversation!.id)
+            if let type
+            {
+                try await FirebaseChatService.shared.updateMessageType(type,
+                                                                       messageID: messageID,
+                                                                       chatID: conversation!.id)                
+            }
         }
     }
 }

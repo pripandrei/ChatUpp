@@ -178,6 +178,7 @@ extension MessageComponentsView
 {
     func configure(viewModel: MessageComponentsViewModel)
     {
+        cleanupContent()
         self.viewModel = viewModel
         timeStamp.text = viewModel.timestamp
         updateEditedLabel()

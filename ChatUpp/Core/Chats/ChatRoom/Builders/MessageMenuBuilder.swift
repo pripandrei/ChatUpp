@@ -102,8 +102,15 @@ final class MessageMenuBuilder
                 let text = (self.cell as? TextImageMessageCell)?.messageText
                 self.contextMenuSelectedActionHandler?(.edit(text: text,
                                                              image: image))
-                self.viewModel.shouldEditMessage = { [message] editedText in
-                    self.viewModel.firestoreService?.editMessageTextFromFirestore(editedText, messageID: message.id)
+//                self.viewModel.shouldEditMessage = { [message] editedText in
+                self.viewModel.shouldEditMessage = { editedText in
+                    guard !message.isInvalidated else {return}
+
+                    let updatedType :MessageType? = message.type == .image ? .imageText : nil
+
+                    self.viewModel.firestoreService?.editMessageFromFirestore(messageID: message.id,
+                                                                              editedText,
+                                                                              editedType: updatedType)
                 }
             }
         }

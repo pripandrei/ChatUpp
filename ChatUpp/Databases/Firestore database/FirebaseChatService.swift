@@ -298,6 +298,16 @@ extension FirebaseChatService
         try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
     }
     
+    func updateMessageType(_ type: MessageType,
+                           messageID: String,
+                           chatID: String) async throws
+    {
+        let data: [String: Any] = [
+            Message.CodingKeys.type.rawValue : type.rawValue,
+        ]
+        try await getMessageDocument(messagePath: messageID, fromChatDocumentPath: chatID).updateData(data)
+    }
+    
     func updateMessageSeenStatusTest(messageID: String , chatID: String) async throws {
         let data: [String: Any] = [
             Message.CodingKeys.messageSeen.rawValue : false

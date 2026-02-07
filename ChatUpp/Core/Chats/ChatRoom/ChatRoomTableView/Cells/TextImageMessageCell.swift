@@ -181,8 +181,13 @@ final class TextImageMessageCell: UITableViewCell
         if viewModel.message?.reactions.isEmpty == false
         {
             self.reactionUIView = .init(from: message)
-            self.reactionUIView?.addReaction(to: containerView, withAnimation: false)
-            setReactionViewTrailingConstraint()
+            if message.type == .image && message.messageBody.isEmpty
+            {
+                constrainReactionUIViewToCellContent()
+            } else {
+                reactionUIView?.addReaction(to: containerView, withAnimation: false)
+                setReactionViewTrailingConstraint()
+            }
         }
     }
     
@@ -491,6 +496,7 @@ final class TextImageMessageCell: UITableViewCell
             
             switch fieldValue {
             case .messageBody(let text):
+                if self.messageLabel == nil { createMessageLabel() }
                 self.messageLabel?.attributedText = self.messageTextLabelLinkSetup(from: text)
                 self.handleMessageLayout()
             case .isEdited:
@@ -504,7 +510,9 @@ final class TextImageMessageCell: UITableViewCell
                     self.handleMessageLayout()
                 }
             case .reactions:
-                self.handleMessageLayout()
+                if cellViewModel.message?.type != .image {
+                    self.handleMessageLayout()
+                }
                 self.manageReactionsSetup()
             default: break
             }
@@ -519,17 +527,43 @@ final class TextImageMessageCell: UITableViewCell
     private func manageReactionsSetup()
     {
         if reactionUIView == nil,
-           let message = contentViewModel.message {
+            let message = contentViewModel.message
+        {
             self.reactionUIView = .init(from: message)
-            reactionUIView?.addReaction(to: containerView)
-            setReactionViewTrailingConstraint()
+            if message.type == .image
+            {
+                constrainReactionUIViewToCellContent()
+            } else {
+                reactionUIView?.addReaction(to: containerView)
+                setReactionViewTrailingConstraint()
+            }
         }
-        if contentViewModel.message?.reactions.isEmpty == true {
+        if contentViewModel.message?.reactions.isEmpty == true
+        {
+            // remove if image code here
             self.reactionUIView?.removeReaction(from: containerView)
             self.reactionUIView = nil
         } else {
+            //update if image code here
             self.reactionUIView?.updateReactions(on: containerView)
         }
+    }
+    
+    private func constrainReactionUIViewToCellContent()
+    {
+        guard let reactionUIView = self.reactionUIView?.reactionView else { return }
+        
+        reactionUIView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(reactionUIView)
+        
+        NSLayoutConstraint.activate([
+            reactionUIView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 5),
+            reactionUIView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 3)
+        ])
+        
+//        UIView.animate(0.6) {
+//            self.layoutIfNeeded()
+//        }
     }
     
     // MARK: - Cleanup
@@ -554,10 +588,7 @@ final class TextImageMessageCell: UITableViewCell
         
         contentSubscribers.forEach { $0.cancel() }
         contentSubscribers.removeAll()
-        
-        messageComponentsView.cleanupContent()
-        
-        
+
         if let reactionView = reactionUIView?.reactionView
         {
             containerView.removeArrangedSubview(reactionView)
