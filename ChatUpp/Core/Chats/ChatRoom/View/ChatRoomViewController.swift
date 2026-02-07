@@ -1323,7 +1323,8 @@ extension ChatRoomViewController: UITableViewDelegate
     
     private func offsetTableContentOnPaginationCompletion(
         to contentOffsetY: CGFloat,
-        visibleCell: ConversationMessageCell?)
+//        visibleCell: ConversationMessageCell?)
+        visibleCell: UITableViewCell?)
     {
         if self.rootView.tableView.contentOffset.y < -90.0
         {
@@ -1348,7 +1349,7 @@ extension ChatRoomViewController: UITableViewDelegate
             case .didPaginate:
                 await MainActor.run
                 {
-                    let visibleCell: ConversationMessageCell? = self.rootView.tableView.visibleCells.first as? ConversationMessageCell
+                    let visibleCell = self.rootView.tableView.visibleCells.first
                     let currentOffsetY = self.rootView.tableView.contentOffset.y
                     
                     CATransaction.begin()
@@ -1360,7 +1361,7 @@ extension ChatRoomViewController: UITableViewDelegate
                         animationType: .automatic)
                     {
                         self.shouldIgnoreUnseenMessagesUpdate = false
-
+                        
                         self.offsetTableContentOnPaginationCompletion(
                             to: currentOffsetY,
                             visibleCell: visibleCell)
@@ -1515,7 +1516,7 @@ extension ChatRoomViewController
             )
         }
         
-        if let messageCell = baseCell as? ConversationMessageCell,
+        if let messageCell = baseCell as? TargetPreviewable,
            let message = messageCell.cellViewModel.message
         {
             let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
@@ -1800,7 +1801,7 @@ extension ChatRoomViewController
 
     func getMessageFromCell(_ cell: UITableViewCell) -> Message?
     {
-        if let messageCell = cell as? ConversationMessageCell,
+        if let messageCell = cell as? TargetPreviewable,
             let cellMessage = messageCell.cellViewModel.message
         {
             return cellMessage

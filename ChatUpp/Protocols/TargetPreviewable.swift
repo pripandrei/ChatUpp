@@ -12,4 +12,5 @@ protocol TargetPreviewable: UIView
 {
     var cellViewModel: MessageCellViewModel! { get }
     var contentContainer: UIView! { get }
+    var contentView: UIView { get }
 }
