@@ -119,7 +119,6 @@ final class TextImageMessageCell: UITableViewCell
         
         self.contentContainerViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3)
         self.contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
-//        self.contentContainerViewBottomConstraint.priority = .defaultLow
         self.contentContainerViewBottomConstraint.isActive = true
         
         self.contentContainerViewLeadingConstraint = containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
@@ -554,12 +553,38 @@ final class TextImageMessageCell: UITableViewCell
         if contentViewModel.message?.reactions.isEmpty == true
         {
             // remove if image code here
-            self.reactionUIView?.removeReaction(from: containerView)
-            self.reactionUIView = nil
+            if contentViewModel?.message?.type == .image
+            {
+                removeReactionUIViewFromCellContent()
+            } else {
+                self.reactionUIView?.removeReaction(from: containerView)
+                self.reactionUIView = nil
+            }
+            
         } else {
             //update if image code here
             self.reactionUIView?.updateReactions(on: containerView)
         }
+    }
+    
+    private func removeReactionUIViewFromCellContent()
+    {
+        guard let reactionUIView = self.reactionUIView?.reactionView else { return }
+        
+        contentContainerViewBottomConstraint.isActive = false
+        
+        self.contentContainerViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3)
+        self.contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
+        self.contentContainerViewBottomConstraint.isActive = true
+        
+        reactionUIView.removeFromSuperview()
+        
+        UIView.animate(withDuration: 0.4) {
+            self.contentView.layoutIfNeeded()
+        }
+        
+        self.reactionUIView?.cleanup()
+        self.reactionUIView = nil
     }
     
     private func constrainReactionUIViewToCellContent()
@@ -580,12 +605,20 @@ final class TextImageMessageCell: UITableViewCell
             reactionUIView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3)
         ])
         
-        reactionUIView.alpha = 0.1
-        reactionUIView.transform = .init(scaleX: 0.01, y: 0.01)
+        reactionUIView.alpha = 0.2
+        reactionUIView.transform = .init(scaleX: 0.1, y: 0.1)
         
-        UIView.animate(withDuration: 0.5, delay: 0.2) {
-            reactionUIView.alpha = 1.0
-            reactionUIView.transform = .identity
+        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0)
+        {
+            UIView.animate(withDuration: 0.2, delay: 0.3)
+            {
+                reactionUIView.transform = .init(scaleX: 1.2, y: 1.2)
+                reactionUIView.alpha = 1.0
+                
+                UIView.animate(withDuration: 0.2, delay: 0.5) {
+                    reactionUIView.transform = .identity
+                }
+            }
         }
     }
     

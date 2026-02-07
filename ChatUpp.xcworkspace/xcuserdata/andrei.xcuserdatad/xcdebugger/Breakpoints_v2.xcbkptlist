@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "B86B9203-7F9E-4974-A03F-40423B1E0EF9"
+            uuid = "580AB8DA-0220-4662-8297-37B546BA4F31"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/TextImageMessageCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "534"
-            endingLineNumber = "534"
-            landmarkName = "updateMessage(fieldValue:)"
+            startingLineNumber = "541"
+            endingLineNumber = "541"
+            landmarkName = "manageReactionsSetup()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

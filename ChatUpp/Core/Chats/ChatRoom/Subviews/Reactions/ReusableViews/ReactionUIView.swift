@@ -96,4 +96,9 @@ final class ReactionUIView: UIView
             }
         }
     }
+    
+    func cleanup()
+    {
+        self.reactionView = nil
+    }
 }
