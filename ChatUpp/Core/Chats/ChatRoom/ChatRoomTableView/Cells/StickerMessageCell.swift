@@ -394,9 +394,10 @@ extension StickerMessageCell: FrameTickRecievable {
 }
 
 // MARK: - Protocol Conformances
-extension StickerMessageCell: TargetPreviewable {
+extension StickerMessageCell: TargetPreviewable
+{
     var contentContainer: UIView! { // fix this
-        return nil
+        return containerView
     }
 }
 extension StickerMessageCell: MessageCellSeenable {}

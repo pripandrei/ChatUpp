@@ -1244,7 +1244,7 @@ extension ChatRoomViewController: UITableViewDelegate
             if cell.contentContainer.frame.contains(touchLocation)
             {
                 guard cell.cellViewModel.message?.imagePath != nil,
-                      let messageCell = cell as? ConversationMessageCell
+                      let messageCell = cell as? TextImageMessageCell
                 else {
                     return
                 }
@@ -1253,9 +1253,9 @@ extension ChatRoomViewController: UITableViewDelegate
         }
     }
     
-    private func initiatePhotoBrowserPresentation(from cell: ConversationMessageCell)
+    private func initiatePhotoBrowserPresentation(from cell: TextImageMessageCell)
     {
-        guard let imageView = (cell.contentContainer as? TextImageMessageContentView)?.messageImageView else {return}
+        guard let imageView = cell.messageImageView else {return}
         let items = self.viewModel.mediaItems
         
         let initialIndex = items.firstIndex { $0.imagePath.lastPathComponent == cell.cellViewModel.message?.imagePath }

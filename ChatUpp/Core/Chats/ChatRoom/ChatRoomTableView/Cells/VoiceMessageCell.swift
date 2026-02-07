@@ -443,9 +443,10 @@ extension VoiceMessageCell
 }
 
 // MARK: - Protocol Conformances
-extension VoiceMessageCell: TargetPreviewable {
+extension VoiceMessageCell: TargetPreviewable
+{
     var contentContainer: UIView! {
-        return nil // fix this TargetPreviewable
+        return containerView
     }
 }
 extension VoiceMessageCell: MessageCellSeenable {}

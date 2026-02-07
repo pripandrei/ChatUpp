@@ -178,7 +178,8 @@ final class TextImageMessageCell: UITableViewCell
         setupMessageToReplyView()
         setupMessageLabel(with: message)
         
-        if viewModel.message?.reactions.isEmpty == false {
+        if viewModel.message?.reactions.isEmpty == false
+        {
             self.reactionUIView = .init(from: message)
             self.reactionUIView?.addReaction(to: containerView, withAnimation: false)
             setReactionViewTrailingConstraint()
@@ -515,7 +516,8 @@ final class TextImageMessageCell: UITableViewCell
         }
     }
     
-    private func manageReactionsSetup() {
+    private func manageReactionsSetup()
+    {
         if reactionUIView == nil,
            let message = contentViewModel.message {
             self.reactionUIView = .init(from: message)
@@ -667,9 +669,10 @@ extension TextImageMessageCell {
 }
 
 // MARK: - Protocol Conformances
-extension TextImageMessageCell: TargetPreviewable {
+extension TextImageMessageCell: TargetPreviewable
+{
     var contentContainer: UIView! {
-        return nil // fix this TargetPreviewable
+        return containerView // fix this TargetPreviewable
     }
 }
 extension TextImageMessageCell: MessageCellSeenable {}
