@@ -186,6 +186,7 @@ final class VoiceMessageCell: UITableViewCell
                                            audioSamples: [Float],
                                            colorScheme: VoicePlaybackControlPanelView.ColorScheme)
     {
+        
         self.playbackControlPanel = .init(audioFileURL: URL,
                                           audioSamples: audioSamples,
                                           colorScheme: colorScheme)

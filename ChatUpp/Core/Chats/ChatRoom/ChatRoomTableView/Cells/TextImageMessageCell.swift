@@ -170,7 +170,10 @@ final class TextImageMessageCell: UITableViewCell
             assert(false, "message should be valid at this point")
             return
         }
-        
+        if message.messageBody.contains("regex")
+        {
+            print("stop")
+        }
         setupContentBindings()
         
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
@@ -494,9 +497,18 @@ final class TextImageMessageCell: UITableViewCell
             guard let self = self else { return }
             self.messageLabel?.messageUpdateType = .edited
             
+            if cellViewModel.message!.messageBody.contains("regex") || cellViewModel.message!.type == .imageText
+            {
+                print("stop")
+            }
+            
             switch fieldValue {
             case .messageBody(let text):
-                if self.messageLabel == nil { createMessageLabel() }
+                if self.messageLabel == nil
+                {
+                    createMessageLabel()
+                    messageComponentsView.layoutSubviews()
+                }
                 self.messageLabel?.attributedText = self.messageTextLabelLinkSetup(from: text)
                 self.handleMessageLayout()
             case .isEdited:

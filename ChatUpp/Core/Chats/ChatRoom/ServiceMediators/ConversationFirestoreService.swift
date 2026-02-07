@@ -132,14 +132,20 @@ final class ConversationFirestoreService
                                   editedType type: MessageType? = nil)
     {
         Task {
-            try await FirebaseChatService.shared.updateMessageText(messageText,
-                                                                   messageID: messageID,
-                                                                   chatID: conversation!.id)
-            if let type
-            {
-                try await FirebaseChatService.shared.updateMessageType(type,
+            do {
+                try await FirebaseChatService.shared.updateMessageText(messageText,
                                                                        messageID: messageID,
-                                                                       chatID: conversation!.id)                
+                                                                       chatID: conversation!.id,
+                                                                       type: type
+                )
+//                if let type
+//                {
+//                    try await FirebaseChatService.shared.updateMessageType(type,
+//                                                                           messageID: messageID,
+//                                                                           chatID: conversation!.id)
+//                }
+            } catch {
+                print("unable to edit message in firestore: \(error)")
             }
         }
     }
