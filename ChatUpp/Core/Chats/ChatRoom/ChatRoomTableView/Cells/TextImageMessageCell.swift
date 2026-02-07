@@ -119,6 +119,7 @@ final class TextImageMessageCell: UITableViewCell
         
         self.contentContainerViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3)
         self.contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
+//        self.contentContainerViewBottomConstraint.priority = .defaultLow
         self.contentContainerViewBottomConstraint.isActive = true
         
         self.contentContainerViewLeadingConstraint = containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0)
@@ -565,17 +566,27 @@ final class TextImageMessageCell: UITableViewCell
     {
         guard let reactionUIView = self.reactionUIView?.reactionView else { return }
         
-        reactionUIView.translatesAutoresizingMaskIntoConstraints = false
+        contentContainerViewBottomConstraint.isActive = false
+        
         contentView.addSubview(reactionUIView)
+        reactionUIView.translatesAutoresizingMaskIntoConstraints = false
+        
+        contentContainerViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: reactionUIView.topAnchor, constant: -3)
+        contentContainerViewBottomConstraint.priority = UILayoutPriority(999)
+        contentContainerViewBottomConstraint.isActive = true
         
         NSLayoutConstraint.activate([
-            reactionUIView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 5),
-            reactionUIView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 3)
+            reactionUIView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -7),
+            reactionUIView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3)
         ])
         
-//        UIView.animate(0.6) {
-//            self.layoutIfNeeded()
-//        }
+        reactionUIView.alpha = 0.1
+        reactionUIView.transform = .init(scaleX: 0.01, y: 0.01)
+        
+        UIView.animate(withDuration: 0.5, delay: 0.2) {
+            reactionUIView.alpha = 1.0
+            reactionUIView.transform = .identity
+        }
     }
     
     // MARK: - Cleanup
