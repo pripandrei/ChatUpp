@@ -186,7 +186,7 @@ final class TextImageMessageCell: UITableViewCell
             self.reactionUIView = .init(from: message)
             if message.type == .image && message.messageBody.isEmpty
             {
-                constrainReactionUIViewToCellContent()
+                constrainReactionUIViewToCellContent(withAnimation: false)
             } else {
                 reactionUIView?.addReaction(to: containerView, withAnimation: false)
                 setReactionViewTrailingConstraint()
@@ -544,7 +544,7 @@ final class TextImageMessageCell: UITableViewCell
             self.reactionUIView = .init(from: message)
             if message.type == .image
             {
-                constrainReactionUIViewToCellContent()
+                constrainReactionUIViewToCellContent(withAnimation: true)
             } else {
                 reactionUIView?.addReaction(to: containerView)
                 setReactionViewTrailingConstraint()
@@ -555,7 +555,7 @@ final class TextImageMessageCell: UITableViewCell
             // remove if image code here
             if contentViewModel?.message?.type == .image
             {
-                removeReactionUIViewFromCellContent()
+                removeReactionUIViewFromCellContent(withAnimation: true)
             } else {
                 self.reactionUIView?.removeReaction(from: containerView)
                 self.reactionUIView = nil
@@ -567,7 +567,7 @@ final class TextImageMessageCell: UITableViewCell
         }
     }
     
-    private func removeReactionUIViewFromCellContent()
+    private func removeReactionUIViewFromCellContent(withAnimation animate: Bool)
     {
         guard let reactionUIView = self.reactionUIView?.reactionView else { return }
         
@@ -579,15 +579,18 @@ final class TextImageMessageCell: UITableViewCell
         
         reactionUIView.removeFromSuperview()
         
-        UIView.animate(withDuration: 0.4) {
-            self.contentView.layoutIfNeeded()
+        if animate
+        {
+            UIView.animate(withDuration: 0.4) {
+                self.contentView.layoutIfNeeded()
+            }
         }
         
         self.reactionUIView?.cleanup()
         self.reactionUIView = nil
     }
     
-    private func constrainReactionUIViewToCellContent()
+    private func constrainReactionUIViewToCellContent(withAnimation animate: Bool)
     {
         guard let reactionUIView = self.reactionUIView?.reactionView else { return }
         
@@ -604,6 +607,8 @@ final class TextImageMessageCell: UITableViewCell
             reactionUIView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -7),
             reactionUIView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3)
         ])
+        
+        guard animate else {return}
         
         reactionUIView.alpha = 0.2
         reactionUIView.transform = .init(scaleX: 0.1, y: 0.1)
@@ -647,8 +652,13 @@ final class TextImageMessageCell: UITableViewCell
 
         if let reactionView = reactionUIView?.reactionView
         {
-            containerView.removeArrangedSubview(reactionView)
-            reactionUIView = nil
+            if cellViewModel.message?.type == .image && cellViewModel.message?.messageBody.isEmpty == true
+            {
+                removeReactionUIViewFromCellContent(withAnimation: false)
+            } else {
+                containerView.removeArrangedSubview(reactionView)
+                reactionUIView = nil
+            }
         }
 //        reactionUIView?.removeReaction(from: containerView)
 //        reactionUIView = nil
