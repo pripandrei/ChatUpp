@@ -25,11 +25,6 @@ final class ReactionUIView: UIView
         fatalError("init(coder:) has not been implemented")
     }
     
-    deinit
-    {
-        print("removed ReactionUIView")
-    }
-    
     private func setupReaction()
     {
         let reactionVM = ReactionViewModel(reactions: Array(message.reactions))

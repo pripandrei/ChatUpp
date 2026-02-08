@@ -87,7 +87,6 @@ class ContainerView: UIView {
             containerStackView.removeArrangedSubview(wrapper)
             wrapper.removeFromSuperview()
             viewPaddings.removeValue(forKey: view)
-            print("view is removed")
         }
     }
     

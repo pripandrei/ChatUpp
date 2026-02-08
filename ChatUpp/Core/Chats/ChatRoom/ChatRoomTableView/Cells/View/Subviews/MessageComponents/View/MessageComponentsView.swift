@@ -70,7 +70,9 @@ final class MessageComponentsView: UIView
     
     override func layoutSubviews() {
         super.layoutSubviews()
+
         updateStackViewComponentsAppearance()
+        configureMessageSeenStatus() // if color of seen status changes, we need to call again
     }
     
     private func updateStackViewComponentsAppearance()
@@ -98,7 +100,6 @@ final class MessageComponentsView: UIView
     {
         timeStamp.textColor = getColorForMessageComponents()
         editedLabel.textColor = getColorForMessageComponents()
-        configureMessageSeenStatus()
     }
     
     func updateEditedLabel()
@@ -111,7 +112,7 @@ final class MessageComponentsView: UIView
     
     func configureMessageSeenStatus()
     {
-        guard viewModel.componentsContext == .outgoing else {return}
+        guard viewModel?.componentsContext == .outgoing else {return}
         
         let isSeen = viewModel.isMessageSeen
         let iconSize = isSeen ? CGSize(width: 14, height: 10) : CGSize(width: 10, height: 10)
@@ -184,6 +185,6 @@ extension MessageComponentsView
         timeStamp.text = viewModel.timestamp
         updateEditedLabel()
         configureMessageSeenStatus()
-//        updateStackViewComponentsAppearance()
+        updateStackViewComponentsAppearance()
     }
 }

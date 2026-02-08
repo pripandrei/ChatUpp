@@ -32,12 +32,6 @@ final class TextImageMessageCell: UITableViewCell
     
     private var replyToMessageStackView: ReplyToMessageStackView?
     
-//    lazy var replyToMessageStack: ReplyToMessageStackView = {
-//        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
-//        let replyToMessageStack = ReplyToMessageStackView(margin: margins)
-//        return replyToMessageStack
-//    }()
-    
     var onRelayoutNeeded: (() -> Void)?
     
     var maxMessageWidth: CGFloat {
@@ -141,8 +135,9 @@ final class TextImageMessageCell: UITableViewCell
     
     // MARK: - Configuration
     func configureCell(using viewModel: MessageCellViewModel,
-                       layoutConfiguration: MessageLayoutConfiguration) {
-        guard let message = viewModel.message else {
+                       layoutConfiguration: MessageLayoutConfiguration)
+    {
+        guard let _ = viewModel.message else {
             assert(false, "message should be valid at this point")
             return
         }
@@ -151,11 +146,12 @@ final class TextImageMessageCell: UITableViewCell
         
         cellViewModel = viewModel
         messageLayoutConfiguration = layoutConfiguration
-        self.contentViewModel = viewModel.messageContainerViewModel!
+        contentViewModel = viewModel.messageContainerViewModel!
         
         // Set background color
-        containerView.backgroundColor = cellViewModel.messageAlignment == .right ?
-            ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
+        containerView.backgroundColor = cellViewModel.messageAlignment == .right
+        ?
+        ColorScheme.outgoingMessageBackgroundColor : ColorScheme.incomingMessageBackgroundColor
         
         setupBinding()
         configureTextImageContent(with: viewModel.messageContainerViewModel!,
@@ -172,7 +168,7 @@ final class TextImageMessageCell: UITableViewCell
         }
 
         setupContentBindings()
-        
+         
         messageComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
         setupSenderNameLabel()
         setupMessageToReplyView()
@@ -180,14 +176,7 @@ final class TextImageMessageCell: UITableViewCell
         
         if viewModel.message?.reactions.isEmpty == false
         {
-            self.reactionUIView = .init(from: message)
-            if message.type == .image && message.messageBody.isEmpty
-            {
-                constrainReactionUIViewToCellContent(withAnimation: false)
-            } else {
-                reactionUIView?.addReaction(to: containerView, withAnimation: false)
-                setReactionViewTrailingConstraint()
-            }
+            configureReactionView(for: message)
         }
     }
     
@@ -445,8 +434,9 @@ final class TextImageMessageCell: UITableViewCell
         }
     }
     
-    // MARK: - Attributed Text
-    private func messageTextLabelLinkSetup(from text: String) -> NSAttributedString? {
+    // MARK: - message attributed text
+    private func messageTextLabelLinkSetup(from text: String) -> NSAttributedString?
+    {
         guard let attributedText = makeAttributedString(for: text) else { return nil }
 
         if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
@@ -488,8 +478,10 @@ final class TextImageMessageCell: UITableViewCell
         return NSMutableAttributedString(string: text, attributes: attributes)
     }
     
-    // MARK: - Updates
-    private func updateMessage(fieldValue: MessageObservedProperty) {
+    // MARK: - Message updates
+    
+    private func updateMessage(fieldValue: MessageObservedProperty)
+    {
         executeAfter(seconds: 1.0) { [weak self] in
             guard let self = self else { return }
             self.messageLabel?.messageUpdateType = .edited
@@ -534,6 +526,8 @@ final class TextImageMessageCell: UITableViewCell
         }
     }
     
+    // MARK: - Reaction configurations
+    
     private func manageReactionsSetup()
     {
         if reactionUIView == nil,
@@ -550,7 +544,6 @@ final class TextImageMessageCell: UITableViewCell
         }
         if contentViewModel.message?.reactions.isEmpty == true
         {
-            // remove if image code here
             if contentViewModel?.message?.type == .image
             {
                 removeReactionUIViewFromCellContent(withAnimation: true)
@@ -560,7 +553,6 @@ final class TextImageMessageCell: UITableViewCell
             }
             
         } else {
-            //update if image code here
             self.reactionUIView?.updateReactions(on: containerView)
         }
     }
@@ -625,7 +617,20 @@ final class TextImageMessageCell: UITableViewCell
         }
     }
     
+    private func configureReactionView(for message: Message)
+    {
+        self.reactionUIView = .init(from: message)
+        if message.type == .image && message.messageBody.isEmpty
+        {
+            constrainReactionUIViewToCellContent(withAnimation: false)
+        } else {
+            reactionUIView?.addReaction(to: containerView, withAnimation: false)
+            setReactionViewTrailingConstraint()
+        }
+    }
+    
     // MARK: - Cleanup
+    
     private func cleanupCellContent()
     {
         messageSenderAvatar.image = nil
@@ -658,9 +663,7 @@ final class TextImageMessageCell: UITableViewCell
                 reactionUIView = nil
             }
         }
-//        reactionUIView?.removeReaction(from: containerView)
-//        reactionUIView = nil
-        
+
         if let replyStack = replyToMessageStackView {
             containerView.removeArrangedSubview(replyStack)
             replyToMessageStackView = nil
