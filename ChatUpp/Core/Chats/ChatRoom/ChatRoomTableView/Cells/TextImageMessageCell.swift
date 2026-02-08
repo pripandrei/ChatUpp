@@ -183,7 +183,8 @@ final class TextImageMessageCell: UITableViewCell
     func setupMessageLabel(with message: Message)
     {
         if let imageData = contentViewModel.retrieveImageData(),
-           let image = UIImage(data: imageData) {
+           let image = UIImage(data: imageData)
+        {
             configureMessageImage(image)
         } else if message.imagePath != nil {
             contentViewModel.fetchMessageImageData()
@@ -219,6 +220,7 @@ final class TextImageMessageCell: UITableViewCell
         
         self.messageImageView = imageView
         
+//        let index = messageLayoutConfiguration.shouldShowSenderName ? 1 : 0
         containerView.addArrangedSubview(imageView, padding: padding, at: 0)
         containerView.containerStackView.sendSubviewToBack(imageView)
         
@@ -231,8 +233,15 @@ final class TextImageMessageCell: UITableViewCell
         ])
     }
     
-    private func setupSenderNameLabel() {
-        guard messageLayoutConfiguration.shouldShowSenderName else {
+    private func setupSenderNameLabel()
+    {
+        let excludedTypes: [MessageType] = [.imageText, .image]
+        let currentType: MessageType = cellViewModel.message?.type ?? .text
+        
+        guard messageLayoutConfiguration.shouldShowSenderName,
+              !excludedTypes.contains(currentType)
+        else
+        {
             containerView.removeArrangedSubview(messageSenderNameLabel)
             return
         }
