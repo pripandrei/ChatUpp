@@ -143,8 +143,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     /// - Life cycle
-    /// 51DAACBD-9FB9-46ED-A1EE-B6E0DCE664D7
-//    messageBody CONTAINS[c] "The first one I ever did is the"
     init(conversation: Chat)
     {
         self.conversation = conversation

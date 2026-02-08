@@ -39,8 +39,22 @@ final class SKPhotoBrowserManager
                                      initialPageIndex: initialIndex)
         browser.delegate = self
         
+        setToolbarAppearanceClear(for: browser) // ios 26 adds background to toolbar 🤷, set it to clear
+        
         viewController.present(browser,
                                animated: true)
+    }
+    
+    private func setToolbarAppearanceClear(for browser: SKPhotoBrowser)
+    {
+        if let toolbar = browser.view.subviews.first(where: { $0 is UIToolbar }) as? UIToolbar
+        {
+            let appearance = UIToolbarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = .clear
+            toolbar.standardAppearance = appearance
+            toolbar.scrollEdgeAppearance = appearance
+        }
     }
 }
 
