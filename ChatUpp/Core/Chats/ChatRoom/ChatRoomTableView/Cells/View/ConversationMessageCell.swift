@@ -5,11 +5,18 @@
 //  Created by Andrei Pripa on 10/11/23.
 //
 
+
 import UIKit
 import YYText
 import Combine
 import SkeletonView
 import SwiftUI
+
+
+
+//MARK: - REMOVED, LEAVE IT FOR NOW!
+//
+//
 
 final class ConversationMessageCell: UITableViewCell
 {

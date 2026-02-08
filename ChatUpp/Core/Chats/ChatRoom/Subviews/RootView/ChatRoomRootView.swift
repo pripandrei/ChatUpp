@@ -352,15 +352,20 @@ final class ChatRoomRootView: UIView
     
     private func registerCells(for tableView: UITableView)
     {
-        tableView.register(ConversationMessageCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire)
-        tableView.register(SkeletonViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
-        tableView.register(FooterSectionView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
-        tableView.register(UnseenMessagesTitleTableViewCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
-        tableView.register(MessageEventCell.self, forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.eventMessage.identifire)
-        
-        tableView.register(StickerMessageCell.self, forCellReuseIdentifier: "StickerMessageCell")
-        tableView.register(TextImageMessageCell.self, forCellReuseIdentifier: "TextImageMessageCell")
-        tableView.register(VoiceMessageCell.self, forCellReuseIdentifier: "VoiceMessageCell")
+        tableView.register(TextImageMessageCell.self,
+                           forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.textImageMessage.identifire)
+        tableView.register(StickerMessageCell.self,
+                           forCellReuseIdentifier:  ReuseIdentifire.ConversationTableCell.stickerMessage.identifire)
+        tableView.register(VoiceMessageCell.self,
+                           forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.voiceMessage.identifire)
+        tableView.register(SkeletonViewCell.self,
+                           forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
+        tableView.register(FooterSectionView.self,
+                           forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
+        tableView.register(UnseenMessagesTitleTableViewCell.self,
+                           forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
+        tableView.register(MessageEventCell.self,
+                           forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.eventMessage.identifire)
     }
     
     // MARK: - Internal functions

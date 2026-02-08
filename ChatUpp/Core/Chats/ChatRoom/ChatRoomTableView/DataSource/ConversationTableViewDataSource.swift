@@ -140,10 +140,10 @@ extension ConversationDataSourceManager
         {
         case .sticker:
             guard let cell = tableView.dequeueReusableCell(
-                withIdentifier: "StickerMessageCell",
+                withIdentifier: ReuseIdentifire.ConversationTableCell.stickerMessage.identifire,
                 for: indexPath
             ) as? StickerMessageCell else {
-                fatalError("Could not dequeue StickerMessageCell")
+                fatalError("Could not dequeue \(ReuseIdentifire.ConversationTableCell.stickerMessage.identifire))")
             }
             
             cell.configureCell(using: viewModel, layoutConfiguration: layoutConfiguration)
@@ -157,10 +157,10 @@ extension ConversationDataSourceManager
             
         case .text, .image, .imageText:
             guard let cell = tableView.dequeueReusableCell(
-                withIdentifier: "TextImageMessageCell",
+                withIdentifier: ReuseIdentifire.ConversationTableCell.textImageMessage.identifire,
                 for: indexPath
             ) as? TextImageMessageCell else {
-                fatalError("Could not dequeue TextImageMessageCell")
+                fatalError("Could not dequeue \(ReuseIdentifire.ConversationTableCell.textImageMessage.identifire)")
             }
             
             cell.configureCell(using: viewModel, layoutConfiguration: layoutConfiguration)
@@ -174,10 +174,10 @@ extension ConversationDataSourceManager
             
         case .audio:
             guard let cell = tableView.dequeueReusableCell(
-                withIdentifier: "VoiceMessageCell",
+                withIdentifier: ReuseIdentifire.ConversationTableCell.voiceMessage.identifire,
                 for: indexPath
             ) as? VoiceMessageCell else {
-                fatalError("Could not dequeue VoiceMessageCell")
+                fatalError("Could not dequeue \(ReuseIdentifire.ConversationTableCell.voiceMessage.identifire)")
             }
             
             cell.configureCell(using: viewModel, layoutConfiguration: layoutConfiguration)
@@ -193,30 +193,6 @@ extension ConversationDataSourceManager
             fatalError("Unhandled message type: \(messageType)")
         }
     }
-    
-//    private func dequeueMessageCell(for indexPath: IndexPath,
-//                                    in tableView: UITableView,
-//                                    with viewModel: MessageCellViewModel) -> UITableViewCell
-//    {
-//        guard let cell = tableView.dequeueReusableCell(
-//            withIdentifier: ReuseIdentifire.ConversationTableCell.message.identifire,
-//            for: indexPath
-//        ) as? ConversationMessageCell else {
-//            fatalError("Could not dequeue conversation cell")
-//        }
-//        
-//        let layoutConfiguration = layoutProvider.makeLayoutConfigurationForCell(at: indexPath)
-//        cell.configureCell(using: viewModel,
-//                           layoutConfiguration: layoutConfiguration)
-//   
-//        (cell.contentContainer as? RelayoutNotifying)?.onRelayoutNeeded = { [weak tableView] in
-//            guard let tableView else {return}
-//            tableView.beginUpdates()
-//            tableView.endUpdates()
-//        }
-//        
-//        return cell
-//    }
     
     func cleanup()
     {

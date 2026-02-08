@@ -13,19 +13,24 @@ enum ReuseIdentifire
 {
     enum ConversationTableCell: String
     {
-        case message,
-             messageSekeleton,
+        case textImageMessage,
+             voiceMessage,
+             stickerMessage,
              unseenTitle,
-             eventMessage
+             eventMessage,
+             messageSekeleton
         
+        
+//        
         var identifire: String
         {
-            switch self {
-            case .message: return rawValue.capitalized
-            case .messageSekeleton: return rawValue.capitalized
-            case .unseenTitle: return rawValue.capitalized
-            case .eventMessage: return rawValue.capitalized
-            }
+            return rawValue.capitalized
+//            switch self {
+//            case .textImageMessage: return rawValue.capitalized
+//            case .messageSekeleton: return rawValue.capitalized
+//            case .unseenTitle: return rawValue.capitalized
+//            case .eventMessage: return rawValue.capitalized
+//            }
         }
     }
     
