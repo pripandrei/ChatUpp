@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftUI
 import UIKit
 
 struct WaveformScrubber: View
@@ -24,20 +23,37 @@ struct WaveformScrubber: View
         GeometryReader { geo in
             let width = geo.size.width
             let height = geo.size.height
-            let barWidth = samples.isEmpty ? 0 : width / CGFloat(samples.count)
             
-            HStack(alignment: .bottom, spacing: barWidth * 0.5) {
-                ForEach(Array(samples.enumerated()), id: \.offset) { index, sample in
-                    let barHeight = CGFloat(sample) * height
-                    let isFilled = CGFloat(index) / CGFloat(samples.count) <= progress
-                    
+            // Calculate bar width and spacing based on available width
+            let totalBars = CGFloat(samples.count)
+            let barWidth = totalBars > 0 ? width / (totalBars * 1.5) : 0
+            let spacing = barWidth * 0.5
+            
+            ZStack(alignment: .leading)
+            {
+                // Unfilled waveform (background)
+                WaveformShape(
+                    samples: samples,
+                    spacing: Float(spacing),
+                    width: Float(barWidth)
+                )
+                .fill(unfilledColor)
+                .frame(width: width, height: height)
+                
+                // Filled waveform (foreground) - masked by progress
+                WaveformShape(
+                    samples: samples,
+                    spacing: Float(spacing),
+                    width: Float(barWidth)
+                )
+                .fill(filledColor)
+                .frame(width: width, height: height)
+                .mask(
                     Rectangle()
-                        .fill(isFilled ? filledColor : unfilledColor)
-                        .frame(width: barWidth * 0.5,
-                               height: max(1, max(barHeight, 3.5)))
-                        .cornerRadius(3)
-                        .animation(.spring(duration: 0.15), value: progress)
-                }
+                        .frame(width: width * progress)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                )
+                .animation(.spring(duration: 0.15), value: progress)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .overlay(
@@ -53,6 +69,36 @@ struct WaveformScrubber: View
                     onSeek?(newProgress)
                 }
             )
+        }
+    }
+}
+
+fileprivate struct WaveformShape: Shape
+{
+    var samples: [Float]
+    var spacing: Float
+    var width: Float
+    
+    nonisolated func path(in rect: CGRect) -> Path
+    {
+        Path { path in
+            var x: CGFloat = 0
+            
+            for sample in samples
+            {
+                let height = max(CGFloat(sample) * rect.height, 3.5)
+                let barRect = CGRect(
+                    x: x,
+                    y: (rect.height - height) / 2,
+                    width: CGFloat(width),
+                    height: height
+                )
+                
+                // Add rounded rectangle
+                path.addRoundedRect(in: barRect, cornerSize: CGSize(width: 3, height: 3))
+                
+                x += CGFloat(spacing + width)
+            }
         }
     }
 }
@@ -135,3 +181,4 @@ struct HorizontalDragView: UIViewRepresentable
         }
     }
 }
+

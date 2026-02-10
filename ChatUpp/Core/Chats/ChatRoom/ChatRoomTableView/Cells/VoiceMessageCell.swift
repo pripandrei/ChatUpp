@@ -128,7 +128,7 @@ final class VoiceMessageCell: UITableViewCell
     func configureCell(using viewModel: MessageCellViewModel,
                        layoutConfiguration: MessageLayoutConfiguration)
     {
-        guard let message = viewModel.message else {
+        guard let _ = viewModel.message else {
             assert(false, "message should be valid at this point")
             return
         }
