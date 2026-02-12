@@ -82,14 +82,9 @@ final class ReactionUIView: UIView
     func updateReactions(on view: ContainerView)
     {
         self.viewModel?.updateMessage(Array(self.message.reactions))
-        mainQueue
-        {
-            self.reactionView?.invalidateIntrinsicContentSize()
-            self.reactionView?.layoutIfNeeded()
-            UIView.animate(withDuration: 0.3) {
-                view.superview?.layoutIfNeeded()
-            }
-        }
+        view.superview?.layoutIfNeeded()
+        self.reactionView?.invalidateIntrinsicContentSize()
+        self.reactionView?.layoutIfNeeded()
     }
     
     func cleanup()

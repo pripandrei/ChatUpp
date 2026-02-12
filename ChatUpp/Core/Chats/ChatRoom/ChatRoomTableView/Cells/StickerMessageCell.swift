@@ -237,7 +237,10 @@ final class StickerMessageCell: UITableViewCell
                 self?.stickerComponentsView.messageComponentsStackView.setNeedsLayout()
                 self?.stickerComponentsView.configureMessageSeenStatus()
             case .reactions:
-                self?.manageReactionsSetup()
+                if self?.manageReactionsSetup() == .updateInPlace
+                {
+                    return
+                }
             default: break
             }
             
@@ -249,18 +252,22 @@ final class StickerMessageCell: UITableViewCell
         })
     }
     
-    private func manageReactionsSetup(withAnimation animated: Bool = true)
+    @discardableResult
+    private func manageReactionsSetup(withAnimation animated: Bool = true) -> ReactionModificationState
     {
         if reactionUIView == nil,
            let message = viewModel?.message {
             self.reactionUIView = .init(from: message)
             reactionUIView?.addReaction(to: containerView, withAnimation: animated)
             setReactionViewTrailingConstraint()
+            return .added
         } else if viewModel?.message?.reactions.isEmpty == true {
             self.reactionUIView?.removeReaction(from: containerView)
             self.reactionUIView = nil
+            return .removed
         } else {
             self.reactionUIView?.updateReactions(on: containerView)
+            return .updateInPlace
         }
     }
     

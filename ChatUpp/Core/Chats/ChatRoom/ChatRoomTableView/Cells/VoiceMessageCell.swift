@@ -304,7 +304,10 @@ final class VoiceMessageCell: UITableViewCell
                 self?.messageComponentsView.messageComponentsStackView.setNeedsLayout()
                 self?.messageComponentsView.configureMessageSeenStatus()
             case .reactions:
-                self?.manageReactionsSetup()
+                if self?.manageReactionsSetup() == .updateInPlace
+                {
+                    return
+                }
             default: break
             }
             
@@ -316,18 +319,23 @@ final class VoiceMessageCell: UITableViewCell
         })
     }
     
-    private func manageReactionsSetup() {
+    @discardableResult
+    private func manageReactionsSetup() -> ReactionModificationState
+    {
         if reactionUIView == nil,
            let message = contentViewModel.message {
             self.reactionUIView = .init(from: message)
             reactionUIView?.addReaction(to: containerView)
             setReactionViewTrailingConstraint()
+                return .added
         }
         if contentViewModel.message?.reactions.isEmpty == true {
             self.reactionUIView?.removeReaction(from: containerView)
             self.reactionUIView = nil
+            return .removed
         } else {
             self.reactionUIView?.updateReactions(on: containerView)
+            return .updateInPlace
         }
     }
     

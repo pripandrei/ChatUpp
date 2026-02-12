@@ -521,10 +521,14 @@ final class TextImageMessageCell: UITableViewCell
                     self.handleMessageLayout()
                 }
             case .reactions:
-                if cellViewModel.message?.type != .image {
+                if cellViewModel.message?.type != .image
+                {
                     self.handleMessageLayout()
                 }
-                self.manageReactionsSetup()
+                if self.manageReactionsSetup() == .updateInPlace
+                {
+                    return
+                }
             default: break
             }
 
@@ -537,7 +541,8 @@ final class TextImageMessageCell: UITableViewCell
     
     // MARK: - Reaction configurations
     
-    private func manageReactionsSetup()
+    @discardableResult
+    private func manageReactionsSetup() -> ReactionModificationState
     {
         if reactionUIView == nil,
             let message = contentViewModel.message
@@ -550,6 +555,7 @@ final class TextImageMessageCell: UITableViewCell
                 reactionUIView?.addReaction(to: containerView)
                 setReactionViewTrailingConstraint()
             }
+            return .added
         }
         if contentViewModel.message?.reactions.isEmpty == true
         {
@@ -560,9 +566,10 @@ final class TextImageMessageCell: UITableViewCell
                 self.reactionUIView?.removeReaction(from: containerView)
                 self.reactionUIView = nil
             }
-            
+            return .removed
         } else {
             self.reactionUIView?.updateReactions(on: containerView)
+            return .updateInPlace
         }
     }
     
@@ -681,11 +688,6 @@ final class TextImageMessageCell: UITableViewCell
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
         }
-    }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        // Views stay in place - just cleanup will happen in configure
     }
 }
 
@@ -826,4 +828,11 @@ extension TextImageMessageCell {
     var messageContentView: TextImageMessageCell? {
         return self
     }
+}
+
+enum ReactionModificationState
+{
+    case added
+    case removed
+    case updateInPlace
 }

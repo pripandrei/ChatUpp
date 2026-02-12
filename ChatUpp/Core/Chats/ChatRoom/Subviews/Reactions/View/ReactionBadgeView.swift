@@ -52,6 +52,7 @@ struct ReactionBadgeView: View
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
         })
+//        .drawingGroup()
     }
 }
 
