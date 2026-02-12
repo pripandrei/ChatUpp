@@ -177,7 +177,6 @@ extension NicknameUpdateScreen
                 }
             }
         }
-//        .disabled(!viewModel.nicknameValidationStatus.isValid)
     }
     
     private func ToolbarItemButtonLabel(_ itemTitle: ToolbarItemTitle) -> some View

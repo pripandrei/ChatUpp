@@ -74,3 +74,52 @@ class CustomizedShadowButton: UIButton {
         layer.insertSublayer(bottomShadowLayer, at: 0)
     }
 }
+
+extension UIButton
+{
+    static func makeToolbarItemButton(_ text: String?,
+                                      image: UIImage?,
+                                      sizeConstant: CGFloat,
+                                      action: Selector,
+                                      on target: UIViewController) -> UIButton
+    {
+        var configuration = UIButton.Configuration.plain()
+        configuration.baseForegroundColor = .white
+        configuration.image = image
+        configuration.background.backgroundColor =
+            ColorScheme.messageTextFieldBackgroundColor.withAlphaComponent(0.9)
+        
+        // Capsule shape
+//        let heightConstant = 40.0
+        configuration.background.cornerRadius = sizeConstant / 2
+        configuration.background.strokeWidth = 1
+
+        configuration.background.strokeColor = #colorLiteral(red: 0.3386824131, green: 0.3035695553, blue: 0.3411948085, alpha: 1)
+        
+        if let text
+        {
+            configuration.attributedTitle = AttributedString(
+                text,
+                attributes: AttributeContainer([
+                    .font: UIFont.systemFont(ofSize: 17, weight: .medium)
+                ])
+            )
+        }
+        
+//        configuration.cornerStyle = .fixed
+        let button = UIButton(configuration: configuration)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.heightAnchor.constraint(equalToConstant: sizeConstant).isActive = true
+
+        button.addTarget(target, action: action, for: .touchUpInside)
+        
+        if image != nil && text == nil
+        {
+            // only image is passed so make button rounded
+            button.widthAnchor.constraint(equalToConstant: sizeConstant).isActive = true
+        }
+        
+        return button
+    }
+}

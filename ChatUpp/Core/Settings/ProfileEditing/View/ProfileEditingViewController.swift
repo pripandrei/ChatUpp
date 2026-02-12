@@ -82,52 +82,19 @@ final class ProfileEditingViewController: UIViewController,
     ///
     private func setupNavigationBarItems()
     {
-        let cancelButtonItem = makeToolbarItemButton("Cancel",
-                                                     action: #selector(closeProfileVC))
-        let saveButtonItem = makeToolbarItemButton("Save",
-                                                  action: #selector(saveEditedData))
-                                                   
+        let cancelButtonItem = UIButton.makeToolbarItemButton("Cancel",
+                                                              image: nil,
+                                                              sizeConstant: 40,
+                                                              action: #selector(closeProfileVC),
+                                                              on: self)
+        let saveButtonItem = UIButton.makeToolbarItemButton("Save",
+                                                            image: nil,
+                                                            sizeConstant: 40,
+                                                            action: #selector(saveEditedData),
+                                                            on: self)
+        
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButtonItem)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButtonItem)
-    }
-    
-    
-    private func makeToolbarItemButton(_ text: String, action: Selector) -> UIButton
-    {
-        var configuration = UIButton.Configuration.plain()
-        
-        configuration.baseForegroundColor = .white
-        
-        configuration.attributedTitle = AttributedString(
-            text,
-            attributes: AttributeContainer([
-                .font: UIFont.systemFont(ofSize: 17, weight: .medium)
-            ])
-        )
-        
-        configuration.contentInsets = NSDirectionalEdgeInsets(
-            top: 0,
-            leading: 10,
-            bottom: 0,
-            trailing: 10
-        )
-        
-        configuration.background.backgroundColor =
-            ColorScheme.messageTextFieldBackgroundColor.withAlphaComponent(0.9)
-        
-        // Capsule shape
-        configuration.background.cornerRadius = 22.5
-        configuration.background.strokeWidth = 1
-        configuration.background.strokeColor = #colorLiteral(red: 0.4868350625, green: 0.345061183, blue: 0.5088059902, alpha: 1)
-        
-        let button = UIButton(configuration: configuration)
-        
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        
-        button.addTarget(self, action: action, for: .touchUpInside)
-        
-        return button
     }
     
     @objc func closeProfileVC() {
