@@ -408,6 +408,7 @@ final class ChatRoomViewController: UIViewController
         dataSourceManager.cleanup()
         CacheManager.shared.clear()
         ChatRoomSessionManager.activeChatID = nil
+        AudioSessionManager.shared.cleanupPlaybackMetaData()
     }
     
     @objc private func dismissInputBarView()

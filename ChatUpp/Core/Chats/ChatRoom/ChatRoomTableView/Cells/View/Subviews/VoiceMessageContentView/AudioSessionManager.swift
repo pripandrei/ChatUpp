@@ -54,7 +54,6 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
     private var audioRecorder: AVAudioRecorder?
     private var audioSession: AVAudioSession?
     
-    private var cancellables = Set<AnyCancellable>()
     private var timerCancellable: AnyCancellable?
     
     // Lifecycle
@@ -69,13 +68,21 @@ class AudioSessionManager: NSObject, SwiftUI.ObservableObject
         stopRecording()
     }
     
+    func cleanupPlaybackMetaData()
+    {
+        currentPlaybackTime = 0.0
+        isAudioPlaying = false
+        currentlyLoadedAudioURL = nil
+        stopTimer()
+    }
+    
     private func setupAudioSession()
     {
         self.audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession?.setCategory(.playAndRecord,
                                           mode: .default,
-                                          options: [.defaultToSpeaker, .allowBluetooth])
+                                          options: [.defaultToSpeaker, .allowBluetoothHFP])
             try audioSession?.setActive(true)
         } catch {
             print("Failed to set up audio session: \(error)")

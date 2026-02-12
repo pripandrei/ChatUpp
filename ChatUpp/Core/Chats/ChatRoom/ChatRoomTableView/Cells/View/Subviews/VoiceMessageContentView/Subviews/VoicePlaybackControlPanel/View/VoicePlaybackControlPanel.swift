@@ -63,7 +63,7 @@ struct VoicePlaybackControlPanelView: View
                         Text(viewModel.remainingTime)
                             .font(.system(size: 11, weight: .medium))
                             .foregroundColor(remainingTimeColor())
-                            .animation(.easeInOut(duration: 0.3))
+                            .animation(.easeInOut(duration: 0.2))
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)

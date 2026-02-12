@@ -18,6 +18,36 @@
             endingLineNumber = "535"
             landmarkName = "updateMessage(fieldValue:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C9C1791C-BD07-45E8-93B1-AB70090AA21F - 3c8a382ea30e5198"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in ChatUpp.TextImageMessageCell.updateMessage(fieldValue: ChatUpp.MessageObservedProperty) -&gt; ()"
+                  moduleName = "ChatUpp.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/TextImageMessageCell.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "535"
+                  endingLineNumber = "535">
+               </Location>
+               <Location
+                  uuid = "C9C1791C-BD07-45E8-93B1-AB70090AA21F - f483036a926ec8cd"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in closure #1 () -&gt; () in ChatUpp.TextImageMessageCell.updateMessage(fieldValue: ChatUpp.MessageObservedProperty) -&gt; ()"
+                  moduleName = "ChatUpp.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrei/Documents/Swift%20learn/ChatUpp/ChatUpp/Core/Chats/ChatRoom/ChatRoomTableView/Cells/TextImageMessageCell.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "536"
+                  endingLineNumber = "536">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
