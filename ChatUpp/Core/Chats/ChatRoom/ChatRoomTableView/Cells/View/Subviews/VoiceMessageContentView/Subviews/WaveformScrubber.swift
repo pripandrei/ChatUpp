@@ -89,7 +89,7 @@ fileprivate struct WaveformShape: Shape
                 let height = max(CGFloat(sample) * rect.height, 3.5)
                 let barRect = CGRect(
                     x: x,
-                    y: (rect.height - height) / 2,
+                    y: (rect.height - height),
                     width: CGFloat(width),
                     height: height
                 )

@@ -61,8 +61,9 @@ struct VoicePlaybackControlPanelView: View
                         .padding(.top,5)
                         
                         Text(viewModel.remainingTime)
-                            .font(.system(size: 11))
-                            .foregroundColor(Color(ChatUpp.ColorScheme.incomingMessageComponentsTextColor))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(remainingTimeColor())
+                            .animation(.easeInOut(duration: 0.3))
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -77,7 +78,15 @@ struct VoicePlaybackControlPanelView: View
         }
         .background(colorScheme.backgroundColor)
         .clipped()
-//        .drawingGroup() 
+    }
+    
+    private func remainingTimeColor() -> Color
+    {
+        let color = viewModel.isPlaying ?
+        Color(colorScheme.filledColor)
+        :
+        Color(ChatUpp.ColorScheme.incomingMessageComponentsTextColor)
+        return color
     }
 }
 
