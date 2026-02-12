@@ -135,7 +135,6 @@ extension NicknameUpdateScreen
         
         ToolbarItem(placement: .topBarTrailing) {
             ToolbarItemButton(itemTitle: .save)
-                .disabled(!viewModel.nicknameValidationStatus.isValid)
         }
     }
     
@@ -153,35 +152,43 @@ extension NicknameUpdateScreen
         }
     }
     
+    
     private func ToolbarItemButton(itemTitle: ToolbarItemTitle) -> some View
     {
-        if #available(iOS 26, *)
+        Group
         {
-            return Button
+            if #available(iOS 26, *)
             {
-                onToolbarItemButtonTap(itemTitle)
-            } label: {
-                Text(itemTitle.rawValue)
-                    .foregroundStyle(Color(.systemGray))
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(Color(ColorScheme.messageTextFieldBackgroundColor))
-        } else {
-            return Button
-            {
-                onToolbarItemButtonTap(itemTitle)
-            } label: {
-                ToolbarItemButtonLabel(itemTitle.rawValue)
+                Button
+                {
+                    onToolbarItemButtonTap(itemTitle)
+                } label: {
+                    Text(itemTitle.rawValue)
+                        .foregroundStyle(Color(.systemGray))
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color(ColorScheme.messageTextFieldBackgroundColor))
+            } else {
+                Button
+                {
+                    onToolbarItemButtonTap(itemTitle)
+                } label: {
+                    ToolbarItemButtonLabel(itemTitle)
+                }
             }
         }
+//        .disabled(!viewModel.nicknameValidationStatus.isValid)
     }
     
-    private func ToolbarItemButtonLabel(_ text: String) -> some View
+    private func ToolbarItemButtonLabel(_ itemTitle: ToolbarItemTitle) -> some View
     {
-        Text(text)
-            .foregroundStyle(Color(ColorScheme.tabBarNormalItemsTintColor))
+        let saveItemColor = (itemTitle == .save) && viewModel.nicknameValidationStatus.isValid ? Color(.white) : Color(.gray)
+        let textColor = (itemTitle == .save) ? saveItemColor : Color(.white)
+        let disabled = (itemTitle == .save) && !viewModel.nicknameValidationStatus.isValid
+        return Text(itemTitle.rawValue.capitalized)
+            .foregroundStyle(textColor)
             .font(.system(size: 17, weight: .medium))
-            .frame(height: 45)
+            .frame(height: 40)
             .padding(.horizontal, 10)
             .background(Color(ColorScheme.messageTextFieldBackgroundColor).opacity(0.9))
             .clipShape(.capsule)
@@ -190,6 +197,7 @@ extension NicknameUpdateScreen
                 Capsule()
                     .stroke(Color(#colorLiteral(red: 0.4868350625, green: 0.345061183, blue: 0.5088059902, alpha: 1)), lineWidth: 1)
             }
+            .disabled(disabled)
     }
     
     enum ToolbarItemTitle: String
