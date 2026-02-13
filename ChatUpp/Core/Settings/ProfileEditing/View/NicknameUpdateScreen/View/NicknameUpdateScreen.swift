@@ -6,6 +6,7 @@
 //
 import SwiftUI
 
+
 struct NicknameUpdateScreen: View
 {
     @State private var viewModel: NicknameUpdateViewModel
@@ -157,17 +158,21 @@ extension NicknameUpdateScreen
     {
         Group
         {
-            if #available(iOS 26, *)
+            if #available(iOS 26, *), checkUIDesignRequiresCompatibility == false
             {
+                let disabled = (itemTitle == .save) && !viewModel.nicknameValidationStatus.isValid
                 Button
                 {
                     onToolbarItemButtonTap(itemTitle)
                 } label: {
+                    let saveItemColor = (itemTitle == .save) && viewModel.nicknameValidationStatus.isValid ? Color(.white) : Color(.gray)
+                    let textColor = (itemTitle == .save) ? saveItemColor : Color(.white)
                     Text(itemTitle.rawValue)
-                        .foregroundStyle(Color(.systemGray))
+                        .foregroundStyle(textColor)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(Color(ColorScheme.messageTextFieldBackgroundColor))
+                .disabled(disabled)
             } else {
                 Button
                 {
@@ -237,4 +242,30 @@ extension NicknameUpdateScreen
 #Preview
 {
     NicknameUpdateScreen(nickname: "Damien") { nickname in }
+}
+
+
+
+
+@available(iOS 26.0, *)
+struct GlassCapsuleButton: ButtonStyle
+{
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .fixedSize()
+            .padding(11)
+            .contentShape(.capsule)
+            .background(Color(ColorScheme.messageTextFieldBackgroundColor).opacity(0.4))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+//            .glassEffect(.clear.tint(.blue.opacity(0.1)), in: .capsule)
+            .glassEffect(.regular.interactive(), in: .capsule)
+            
+//            .tint(.clear)
+    }
+}
+
+@available(iOS 26.0, *)
+extension ButtonStyle where Self == GlassCapsuleButton
+{
+    static var glassCapsule: Self { .init() }
 }

@@ -140,3 +140,8 @@ func measureDuration(lable: String ,
     let millisec = Double(duration.components.attoseconds) / 1_000_000_000_000_000.0
     print("\(lable) Duration of fetchMessagesMetadata: \(millisec) milliseconds")
 }
+
+var checkUIDesignRequiresCompatibility: Bool
+{
+    return Bundle.main.object(forInfoDictionaryKey: "UIDesignRequiresCompatibility") as? Bool ?? false
+}

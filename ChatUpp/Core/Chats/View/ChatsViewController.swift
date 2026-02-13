@@ -429,13 +429,14 @@ extension ChatsViewController
     private func setupRightBarButtonItem()
     {
         let plusButton = UIButton.makeToolbarItemButton(nil,
-                                                        image: UIImage(systemName: "plus"),
-                                                        sizeConstant: 37,
-                                                        action: #selector(presentGropupOptionScreen),
-                                                        on: self)
+                                                            image: UIImage(systemName: "plus"),
+                                                            sizeConstant: 37,
+                                                            action: #selector(presentGropupOptionScreen),
+                                                            on: self)
         plusButton.transform = .init(translationX: 1.0, y: -3.0)
         
         let trailingBarItem = UIBarButtonItem(customView: plusButton)
+    
         self.navigationItem.rightBarButtonItem = trailingBarItem
     }
     

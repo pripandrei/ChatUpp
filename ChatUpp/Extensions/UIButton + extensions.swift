@@ -77,24 +77,23 @@ class CustomizedShadowButton: UIButton {
 
 extension UIButton
 {
-    static func makeToolbarItemButton(_ text: String?,
-                                      image: UIImage?,
-                                      sizeConstant: CGFloat,
-                                      action: Selector,
-                                      on target: UIViewController) -> UIButton
+    static func makePriorToLiquidGlassToolbarItemButton(_ text: String?,
+                                                        image: UIImage?,
+                                                        sizeConstant: CGFloat,
+                                                        action: Selector,
+                                                        on target: UIViewController) -> UIButton
     {
         var configuration = UIButton.Configuration.plain()
         configuration.baseForegroundColor = .white
         configuration.image = image
-        configuration.background.backgroundColor =
-            ColorScheme.messageTextFieldBackgroundColor.withAlphaComponent(0.9)
-        
+//        configuration.background.backgroundColor = ColorScheme.messageTextFieldBackgroundColor.withAlphaComponent(0.9)
+        configuration.background.backgroundColor = #colorLiteral(red: 0.2099263668, green: 0.151156038, blue: 0.2217666507, alpha: 1)
+         
         // Capsule shape
-//        let heightConstant = 40.0
         configuration.background.cornerRadius = sizeConstant / 2
         configuration.background.strokeWidth = 1
 
-        configuration.background.strokeColor = #colorLiteral(red: 0.3386824131, green: 0.3035695553, blue: 0.3411948085, alpha: 1)
+        configuration.background.strokeColor = #colorLiteral(red: 0.3804821372, green: 0.3410403132, blue: 0.3833082914, alpha: 1)
         
         if let text
         {
@@ -106,7 +105,6 @@ extension UIButton
             )
         }
         
-//        configuration.cornerStyle = .fixed
         let button = UIButton(configuration: configuration)
         
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -122,4 +120,57 @@ extension UIButton
         
         return button
     }
+    
+    @available(iOS 26.0, *)
+    static func makeToolbarItemLiquidButton(_ text: String?,
+                                            image: UIImage?,
+                                            sizeConstant: CGFloat,
+                                            action: Selector,
+                                            on target: UIViewController) -> UIButton
+    {
+        var configuration = UIButton.Configuration.borderless()
+        configuration.image = image
+//        configuration.background.backgroundColor = .clear
+    
+        if let text
+        {
+            configuration.attributedTitle = AttributedString(
+                text,
+                attributes: AttributeContainer([
+                    .foregroundColor: UIColor.white,
+                    .font: UIFont.systemFont(ofSize: 17, weight: .medium)
+                ])
+            )
+        }
+        
+        let button = UIButton(configuration: configuration)
+        button.addTarget(target, action: action, for: .touchUpInside)
+//        button.tintAdjustmentMode = .normal
+        return button
+    }
+    
+    static func makeToolbarItemButton(_ text: String?,
+                                      image: UIImage?,
+                                      sizeConstant: CGFloat,
+                                      action: Selector,
+                                      on target: UIViewController) -> UIButton
+    {
+        if #available(iOS 26, *),
+           checkUIDesignRequiresCompatibility == false
+        {
+            return makeToolbarItemLiquidButton(text,
+                                               image: image,
+                                               sizeConstant: sizeConstant,
+                                               action: action,
+                                               on: target)
+        } else {
+            return makePriorToLiquidGlassToolbarItemButton(text,
+                                                           image: image,
+                                                           sizeConstant: sizeConstant,
+                                                           action: action,
+                                                           on: target)
+        }
+    }
+    
 }
+
