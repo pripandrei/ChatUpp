@@ -14,11 +14,11 @@ import Combine
 struct VoicePlaybackControlPanelView: View
 {
     @StateObject var viewModel: VoicePlaybackControlPanelViewModel
-    private let colorScheme: ColorScheme
+    private let colorScheme: ColorConfiguration
 
     init(audioFileURL: URL,
          audioSamples: [Float],
-         colorScheme: ColorScheme)
+         colorScheme: ColorConfiguration)
     {
         _viewModel = StateObject(wrappedValue: .init(audioFileURL: audioFileURL,
                                                      audioSamples: audioSamples))
@@ -85,14 +85,14 @@ struct VoicePlaybackControlPanelView: View
         let color = viewModel.isPlaying ?
         Color(colorScheme.filledColor)
         :
-        Color(ChatUpp.ColorScheme.incomingMessageComponentsTextColor)
+        Color(ColorScheme.incomingMessageComponentsTextColor)
         return color
     }
 }
 
 extension VoicePlaybackControlPanelView
 {
-    struct ColorScheme
+    struct ColorConfiguration
     {
         let backgroundColor: Color
         let filledColor: Color

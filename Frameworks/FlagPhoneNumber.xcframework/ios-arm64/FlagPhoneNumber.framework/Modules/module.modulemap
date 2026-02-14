@@ -1,0 +1,11 @@
+framework module FlagPhoneNumber {
+  umbrella header "FlagPhoneNumber.h"
+  export *
+
+  module * { export * }
+}
+
+module FlagPhoneNumber.Swift {
+  header "FlagPhoneNumber-Swift.h"
+  requires objc
+}

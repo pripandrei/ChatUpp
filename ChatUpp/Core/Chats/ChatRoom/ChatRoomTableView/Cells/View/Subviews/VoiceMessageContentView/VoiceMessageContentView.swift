@@ -113,7 +113,7 @@ final class VoiceMessageContentView: ContainerView, RelayoutNotifying
     
     private func setupPlaybackControlPanel(withUrl URL: URL,
                                            audioSamples: [Float],
-                                           colorScheme: VoicePlaybackControlPanelView.ColorScheme)
+                                           colorScheme: VoicePlaybackControlPanelView.ColorConfiguration)
     {
         self.playbackControlPanel = .init(audioFileURL: URL,
                                           audioSamples: audioSamples,
@@ -143,7 +143,7 @@ final class VoiceMessageContentView: ContainerView, RelayoutNotifying
         ])
     }
     
-    private func makeColorSchemeForControlPanel(basedOnAlignment alignment: MessageAlignment) ->  VoicePlaybackControlPanelView.ColorScheme
+    private func makeColorSchemeForControlPanel(basedOnAlignment alignment: MessageAlignment) ->  VoicePlaybackControlPanelView.ColorConfiguration
     {
         switch alignment
         {

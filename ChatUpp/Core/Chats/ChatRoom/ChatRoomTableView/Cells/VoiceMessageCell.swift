@@ -184,7 +184,7 @@ final class VoiceMessageCell: UITableViewCell
     
     private func setupPlaybackControlPanel(withUrl URL: URL,
                                            audioSamples: [Float],
-                                           colorScheme: VoicePlaybackControlPanelView.ColorScheme)
+                                           colorScheme: VoicePlaybackControlPanelView.ColorConfiguration)
     {
         
         self.playbackControlPanel = .init(audioFileURL: URL,
@@ -203,7 +203,7 @@ final class VoiceMessageCell: UITableViewCell
         view.widthAnchor.constraint(equalToConstant: 250).isActive = true
     }
     
-    private func makeColorSchemeForControlPanel(basedOnAlignment alignment: MessageAlignment) -> VoicePlaybackControlPanelView.ColorScheme {
+    private func makeColorSchemeForControlPanel(basedOnAlignment alignment: MessageAlignment) -> VoicePlaybackControlPanelView.ColorConfiguration {
         switch alignment {
         case .right:
             return .init(backgroundColor: .init(ColorScheme.outgoingMessageBackgroundColor),

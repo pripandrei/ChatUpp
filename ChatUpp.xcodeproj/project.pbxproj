@@ -175,8 +175,6 @@
 		75CB22982F28044200AFF45A /* SearchBarAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB22952F28043C00AFF45A /* SearchBarAppearance.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
 		75CC9FE62D594042002051EB /* ColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorScheme.swift */; };
-		75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
-		75D08BAA2BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */; };
 		75D31DCE2EDA2AD900AF6102 /* ThemesPackScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */; };
 		75D31DD02EDAB3D100AF6102 /* ThemeSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DCF2EDAB3C100AF6102 /* ThemeSelectionScreen.swift */; };
@@ -209,9 +207,6 @@
 		75F608842BEC2F560065DA83 /* InputBarTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608832BEC2F560065DA83 /* InputBarTextViewDelegate.swift */; };
 		75F608862BEC33400065DA83 /* InputBarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F608852BEC33400065DA83 /* InputBarHeaderView.swift */; };
 		75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 7587CE212C7CC403002D60CE /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		75F9B1282E68F528000F496E /* YYText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08B9B2BEFDC9E000AE1B5 /* YYText.framework */; };
-		75F9B1292E68F528000F496E /* YYText.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08B9B2BEFDC9E000AE1B5 /* YYText.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		75F9B12A2E68F52C000F496E /* FlagPhoneNumber.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */; };
 		75FB78F02AC2F40A00C2743A /* SignInGoogleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78EF2AC2F40A00C2743A /* SignInGoogleHelper.swift */; };
 		75FB78F22AC3106700C2743A /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F12AC3106700C2743A /* LoginViewModel.swift */; };
 		75FB78F42AC310AA00C2743A /* SignUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78F32AC310AA00C2743A /* SignUpViewModel.swift */; };
@@ -226,23 +221,6 @@
 		75FD97202DF3914400EC001E /* SkeletonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		75D08B9A2BEFDC9E000AE1B5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D918BFD61F372E3000106E14;
-			remoteInfo = YYText;
-		};
-		75D08BA72BEFDCF4000AE1B5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0DF48B3922917047006AB39C;
-			remoteInfo = FlagPhoneNumber;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		7545AD922BB9E65B00E9B107 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -251,8 +229,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				75F6A9AF2C82400B00AF60EA /* RealmSwift in Embed Frameworks */,
-				75F9B1292E68F528000F496E /* YYText.framework in Embed Frameworks */,
-				75D08BAA2BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -407,8 +383,6 @@
 		75CB22952F28043C00AFF45A /* SearchBarAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarAppearance.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
 		75CC9FE12D59402F002051EB /* ColorScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorScheme.swift; sourceTree = "<group>"; };
-		75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = YYText.xcodeproj; path = YYText/Framework/YYText.xcodeproj; sourceTree = "<group>"; };
-		75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FlagPhoneNumber.xcodeproj; path = FlagPhoneNumber/FlagPhoneNumber.xcodeproj; sourceTree = "<group>"; };
 		75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationScreen.swift; sourceTree = "<group>"; };
 		75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesPackScreen.swift; sourceTree = "<group>"; };
 		75D31DCF2EDAB3C100AF6102 /* ThemeSelectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeSelectionScreen.swift; sourceTree = "<group>"; };
@@ -453,6 +427,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		7557B90D2F40AC42004C66BE /* Frameworks */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Frameworks; sourceTree = "<group>"; };
 		755BF3BA2E982AA10017577E /* MiaBunny */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MiaBunny; sourceTree = "<group>"; };
 		756E689F2E95692F00C5FDB9 /* StealthMoon */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = StealthMoon; sourceTree = "<group>"; };
 		756E691C2E9569F400C5FDB9 /* LightningBug */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LightningBug; sourceTree = "<group>"; };
@@ -482,17 +457,14 @@
 				756E6D1D2D8210890065CADB /* NVActivityIndicatorView in Frameworks */,
 				7587CE222C7CC403002D60CE /* RealmSwift in Frameworks */,
 				756A2ACE2F22B39700C5D7B0 /* ThorVGSwift in Frameworks */,
-				75D08BA92BEFDCFD000AE1B5 /* FlagPhoneNumber.framework in Frameworks */,
 				757AB0EA2BB9D70D00A64DA4 /* FirebaseFirestore in Frameworks */,
 				751599022E5F899100E22801 /* SKPhotoBrowser in Frameworks */,
 				756E6D1F2D8210890065CADB /* NVActivityIndicatorViewExtended in Frameworks */,
 				75B9CABE2ED6342B002D701F /* LoaderUI in Frameworks */,
 				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */,
-				75F9B12A2E68F52C000F496E /* FlagPhoneNumber.framework in Frameworks */,
 				757AB1012BB9D85100A64DA4 /* SkeletonView in Frameworks */,
 				757AB0F62BB9D70D00A64DA4 /* FirebaseStorageCombine-Community in Frameworks */,
-				75F9B1282E68F528000F496E /* YYText.framework in Frameworks */,
 				757AB0F22BB9D70D00A64DA4 /* FirebaseInstallations in Frameworks */,
 				757AB0FC2BB9D81B00A64DA4 /* GoogleSignIn in Frameworks */,
 				75A086182D19619E00DE5333 /* TOCropViewController in Frameworks */,
@@ -642,15 +614,6 @@
 				75485B0D2F2A9ACC00DA5E2A /* UncheckedSendableWrapper.swift */,
 			);
 			path = Wrappers;
-			sourceTree = "<group>";
-		};
-		754E56062BBA158E008F8E8A /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */,
-				75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		755A3F9E2AD2F2A700739861 /* Coordinator */ = {
@@ -1304,8 +1267,8 @@
 			isa = PBXGroup;
 			children = (
 				75B5C4B82A49AB0A00F63A5A /* ChatUpp */,
+				7557B90D2F40AC42004C66BE /* Frameworks */,
 				75B5C4B72A49AB0A00F63A5A /* Products */,
-				754E56062BBA158E008F8E8A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1547,22 +1510,6 @@
 				75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */,
 			);
 			path = "Firebase storage";
-			sourceTree = "<group>";
-		};
-		75D08B972BEFDC9E000AE1B5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				75D08B9B2BEFDC9E000AE1B5 /* YYText.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		75D08BA42BEFDCF4000AE1B5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		75D08C8A2D1ABF4200F077B9 /* Groups */ = {
@@ -1870,6 +1817,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				7557B90D2F40AC42004C66BE /* Frameworks */,
 				755BF3BA2E982AA10017577E /* MiaBunny */,
 				756E689F2E95692F00C5FDB9 /* StealthMoon */,
 				756E691C2E9569F400C5FDB9 /* LightningBug */,
@@ -1953,39 +1901,12 @@
 			);
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 75D08BA42BEFDCF4000AE1B5 /* Products */;
-					ProjectRef = 75D08BA32BEFDCF4000AE1B5 /* FlagPhoneNumber.xcodeproj */;
-				},
-				{
-					ProductGroup = 75D08B972BEFDC9E000AE1B5 /* Products */;
-					ProjectRef = 75D08B962BEFDC9E000AE1B5 /* YYText.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				75B5C4B52A49AB0A00F63A5A /* ChatUpp */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		75D08B9B2BEFDC9E000AE1B5 /* YYText.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = YYText.framework;
-			remoteRef = 75D08B9A2BEFDC9E000AE1B5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		75D08BA82BEFDCF4000AE1B5 /* FlagPhoneNumber.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = FlagPhoneNumber.framework;
-			remoteRef = 75D08BA72BEFDCF4000AE1B5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		75B5C4B42A49AB0A00F63A5A /* Resources */ = {
