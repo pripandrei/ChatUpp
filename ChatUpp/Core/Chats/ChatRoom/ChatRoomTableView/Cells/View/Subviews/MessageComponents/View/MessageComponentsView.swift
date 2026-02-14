@@ -33,6 +33,11 @@ final class MessageComponentsView: UIView
         fatalError("init(coder:) has not been implemented")
     }
     
+//    deinit
+//    {
+//        print("components were deinit")
+//    }
+//    
     private func setupMessageComponentsStackView()
     {
         addSubview(messageComponentsStackView)

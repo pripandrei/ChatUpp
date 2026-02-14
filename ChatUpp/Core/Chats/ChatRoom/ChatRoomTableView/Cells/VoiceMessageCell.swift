@@ -80,9 +80,9 @@ final class VoiceMessageCell: UITableViewCell
         fatalError("init(coder:) has not been implemented")
     }
     
-    deinit {
-        print("deinit VoiceMessageCell")
-    }
+//    deinit {
+//        print("deinit VoiceMessageCell")
+//    }
     
     // MARK: - Setup
     private func setupBackgroundSelectionView() {
@@ -355,16 +355,11 @@ final class VoiceMessageCell: UITableViewCell
         contentCancellables.forEach { $0.cancel() }
         contentCancellables.removeAll()
         
-        messageComponentsView.cleanupContent()
-        
         if let reactionView = reactionUIView?.reactionView
         {
             containerView.removeArrangedSubview(reactionView)
             reactionUIView = nil
         }
-//        
-//        reactionUIView?.removeReaction(from: containerView)
-//        reactionUIView = nil
         
         if let replyStack = replyToMessageStackView {
             containerView.removeArrangedSubview(replyStack)
@@ -374,11 +369,6 @@ final class VoiceMessageCell: UITableViewCell
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
         }
-    }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        // Views stay in place - just cleanup will happen in configure
     }
 }
 

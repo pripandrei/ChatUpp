@@ -689,6 +689,11 @@ final class TextImageMessageCell: UITableViewCell
             self.contentView.layoutIfNeeded()
         }
     }
+    
+//    deinit
+//    {
+//        print(String(describing: Self.self), "deallocated")
+//    }
 }
 
 // MARK: - Avatar Management

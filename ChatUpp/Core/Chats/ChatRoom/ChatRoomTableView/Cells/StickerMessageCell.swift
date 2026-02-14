@@ -68,7 +68,7 @@ final class StickerMessageCell: UITableViewCell
         stickerComponentsView.cleanupContent()
         replyToMessageStackView?.removeFromSuperview()
         replyToMessageStackView = nil
-        print("deinit StickerMessageCell")
+//        print("deinit StickerMessageCell")
     }
 
     
@@ -290,7 +290,7 @@ final class StickerMessageCell: UITableViewCell
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
         
-        stickerComponentsView.cleanupContent()
+//        stickerComponentsView.cleanupContent()
         
             replyToMessageStackView?.removeFromSuperview()
             replyToMessageStackView = nil

@@ -46,10 +46,10 @@ final class MessageCellViewModel
         self.displayUnseenMessagesTitle = isUnseenCell
     }
     
-//    deinit
-//    {
-//        print("MessageCellViewModel deinit")
-//    }
+    deinit
+    {
+        print(String(describing: Self.self), "deinit")
+    }
     
     lazy var messageSender: User? = {
         guard let key = message?.senderId else { return nil }
