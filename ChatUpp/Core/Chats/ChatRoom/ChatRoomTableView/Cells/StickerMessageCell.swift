@@ -63,7 +63,7 @@ final class StickerMessageCell: UITableViewCell
     
     deinit {
         FrameTicker.shared.remove(self)
-        stickerView.cleanup(withBufferDestruction: true)
+//        stickerView.cleanup(withBufferDestruction: true)
         stickerComponentsView.cleanupContent()
         replyToMessageStackView?.removeFromSuperview()
         replyToMessageStackView = nil
@@ -142,7 +142,8 @@ final class StickerMessageCell: UITableViewCell
         setupSenderAvatar()
     }
     
-    private func configureStickerContent(with viewModel: MessageContentViewModel) {
+    private func configureStickerContent(with viewModel: MessageContentViewModel)
+    {
         guard let message = viewModel.message else { return }
          
         setupMessagePropertyBinding(publisher: viewModel.messagePropertyUpdateSubject.eraseToAnyPublisher())
@@ -293,7 +294,8 @@ final class StickerMessageCell: UITableViewCell
             containerView.removeArrangedSubview(reactionView)
             reactionUIView = nil
         }
- 
+        
+        stickerView.cleanup(withBufferDestruction: false)
         // Layout with no animation
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
@@ -377,8 +379,10 @@ extension StickerMessageCell {
 }
 
 // MARK: - Frame Rendering
-extension StickerMessageCell: FrameTickRecievable {
-    func didReceiveFrameTick(deltaTime: TimeInterval) {
+extension StickerMessageCell: FrameTickRecievable
+{
+    func didReceiveFrameTick(deltaTime: TimeInterval)
+    {
         guard !isRendering else { return }
         
         lastRenderTime = CACurrentMediaTime()

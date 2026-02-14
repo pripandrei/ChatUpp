@@ -73,7 +73,7 @@ final class ConversationMessageListenerService
         let messageID = message.id
         let messageTimestamp = message.timestamp
         
-        Task { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self else { return }
 
             try await FirebaseChatService.shared
