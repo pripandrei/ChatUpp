@@ -28,7 +28,6 @@ final class TextImageMessageCell: UITableViewCell
     private var messageLabel: MessageLabel?
     private(set) var messageImageView: UIImageView?
     private var reactionUIView: ReactionUIView?
-    private var contentSubscribers = Set<AnyCancellable>()
     
     private var replyToMessageStackView: ReplyToMessageStackView?
     
@@ -348,20 +347,20 @@ final class TextImageMessageCell: UITableViewCell
                 } else {
                     self?.removeMessageToReplyLabel()
                 }
-            }.store(in: &contentSubscribers)
+            }.store(in: &subscribers)
         
         contentViewModel.messageImageDataSubject
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] imageData in
                 guard let image = UIImage(data: imageData) else { return }
                 self?.configureMessageImage(image)
-            }).store(in: &contentSubscribers)
+            }).store(in: &subscribers)
 
         contentViewModel.messagePropertyUpdateSubject
             .receive(on: DispatchQueue.main)
             .sink { [weak self] property in
                 self?.updateMessage(fieldValue: property)
-            }.store(in: &contentSubscribers)
+            }.store(in: &subscribers)
     }
     
     // MARK: - Message Layout
@@ -666,9 +665,6 @@ final class TextImageMessageCell: UITableViewCell
         
         subscribers.forEach { $0.cancel() }
         subscribers.removeAll()
-        
-        contentSubscribers.forEach { $0.cancel() }
-        contentSubscribers.removeAll()
 
         if let reactionView = reactionUIView?.reactionView
         {

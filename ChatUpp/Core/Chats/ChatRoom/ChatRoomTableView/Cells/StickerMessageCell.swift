@@ -25,8 +25,7 @@ final class StickerMessageCell: UITableViewCell
     weak private var viewModel: MessageContentViewModel?
     private var reactionUIView: ReactionUIView?
     private let containerView: ContainerView
-    private let stickerView: StickerView
-    private var cancellables = Set<AnyCancellable>()
+    private let stickerView: StickerView 
     
     private var isRendering: Bool = false
     private var lastRenderTime: CFTimeInterval = 0
@@ -124,8 +123,9 @@ final class StickerMessageCell: UITableViewCell
     
     // MARK: - Configuration
     func configureCell(using viewModel: MessageCellViewModel,
-                       layoutConfiguration: MessageLayoutConfiguration) {
-        guard let message = viewModel.message else {
+                       layoutConfiguration: MessageLayoutConfiguration)
+    {
+        guard let _ = viewModel.message else {
             assert(false, "message should be valid at this point")
             return
         }
@@ -226,7 +226,7 @@ final class StickerMessageCell: UITableViewCell
     {
         publisher.sink { [weak self] property in
             self?.updateMessage(fieldValue: property)
-        }.store(in: &cancellables)
+        }.store(in: &subscribers)
     }
     
     // MARK: - Updates
@@ -278,31 +278,22 @@ final class StickerMessageCell: UITableViewCell
     // MARK: - Cleanup
     private func cleanupCellContent()
     {
-//        if messageLayoutConfiguration?.shouldShowAvatar {
-            messageSenderAvatar.image = nil
-//        }
+        messageSenderAvatar.image = nil
         
         subscribers.forEach { subscriber in
             subscriber.cancel()
         }
         subscribers.removeAll()
-        
-        cancellables.forEach { $0.cancel() }
-        cancellables.removeAll()
-        
-//        stickerComponentsView.cleanupContent()
-        
-            replyToMessageStackView?.removeFromSuperview()
-            replyToMessageStackView = nil
+
+        replyToMessageStackView?.removeFromSuperview()
+        replyToMessageStackView = nil
         
         if let reactionView = reactionUIView?.reactionView
         {
             containerView.removeArrangedSubview(reactionView)
             reactionUIView = nil
         }
-        
-//        reactionUIView?.removeReaction(from: containerView)
-//        reactionUIView = nil
+ 
         // Layout with no animation
         UIView.performWithoutAnimation {
             self.contentView.layoutIfNeeded()
@@ -335,7 +326,8 @@ extension StickerMessageCell {
         }
     }
     
-    private func setupSenderAvatar() {
+    private func setupSenderAvatar()
+    {
         guard messageLayoutConfiguration.shouldShowAvatar else {
             messageSenderAvatar.removeFromSuperview()
             return

@@ -25,7 +25,6 @@ final class VoiceMessageCell: UITableViewCell
     private let messageComponentsView: MessageComponentsView = .init()
     private var playbackControlPanel: VoicePlaybackControlPanelView!
     weak private var contentViewModel: MessageContentViewModel!
-    private var contentCancellables = Set<AnyCancellable>()
     private var reactionUIView: ReactionUIView?
     private var playbackControlPanelUIView: UIView?
     private var replyToMessageStackView: ReplyToMessageStackView?
@@ -287,7 +286,7 @@ final class VoiceMessageCell: UITableViewCell
         contentViewModel.messagePropertyUpdateSubject
             .sink { [weak self] property in
                 self?.updateMessage(fieldValue: property)
-            }.store(in: &contentCancellables)
+            }.store(in: &subscribers)
     }
     
     // MARK: - Updates
@@ -345,10 +344,7 @@ final class VoiceMessageCell: UITableViewCell
         
         subscribers.forEach { $0.cancel() }
         subscribers.removeAll()
-        
-        contentCancellables.forEach { $0.cancel() }
-        contentCancellables.removeAll()
-        
+
         if let reactionView = reactionUIView?.reactionView
         {
             containerView.removeArrangedSubview(reactionView)
