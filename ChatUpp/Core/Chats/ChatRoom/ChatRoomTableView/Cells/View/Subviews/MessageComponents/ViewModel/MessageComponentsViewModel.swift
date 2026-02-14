@@ -24,7 +24,7 @@ final class MessageComponentsViewModel
     
     deinit
     {
-        print(String(describing: Self.self), "deinit")
+//        print(String(describing: Self.self), "deinit")
     }
     
     var timestamp: String? {

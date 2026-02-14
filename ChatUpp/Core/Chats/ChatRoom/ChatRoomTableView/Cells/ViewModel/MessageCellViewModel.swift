@@ -48,7 +48,7 @@ final class MessageCellViewModel
     
     deinit
     {
-        print(String(describing: Self.self), "deinit")
+//        print(String(describing: Self.self), "deinit")
     }
     
     lazy var messageSender: User? = {

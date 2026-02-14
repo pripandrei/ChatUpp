@@ -31,7 +31,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     @Published private(set) var messageClusters     : [MessageCluster] = []
     @Published private(set) var unseenMessagesCount: Int
-    @Published private(set) var messageChangedTypes: Set<MessageChangeType> = []
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
     
@@ -104,7 +103,13 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     private var firstMessage: Message? {
-        conversation?.getFirstMessage()
+        conversation?.getFirstMessage() 
+    }
+    
+    var isLastMessageFromClusterTheMostRecentInChat: Bool
+    {
+        let clusterRecentMessage = recentMessageItem?.message
+        return conversation?.recentMessageID == clusterRecentMessage?.id
     }
     
     var shouldFetchNewMessages: Bool
@@ -168,7 +173,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     deinit
     {
-        print(String(describing: Self.self) + " deinit")
+//        print(String(describing: Self.self) + " deinit")
     }
     
     private func observeParticipantChanges()
@@ -207,14 +212,19 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             messageListenerService?.addListenerToUpcomingMessages()
         }
         
-        let totalMessagesCount = messageClusters.reduce(0) { total, cluster in
-            total + cluster.items.filter { $0.message != nil }.count
-        }
         messageListenerService?.addListenerToExistingMessages(
             startAtMesssage: startMessage,
             ascending: false,
-            limit: totalMessagesCount
+            limit: self.currentTotalMessagesCount
         )
+    }
+   
+    var currentTotalMessagesCount: Int
+    {
+        let totalMessagesCount = messageClusters.reduce(0) { total, cluster in
+            total + cluster.items.filter { $0.message != nil }.count
+        }
+        return totalMessagesCount
     }
     
     func removeAllListeners()
@@ -264,7 +274,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         realmService?.addMessagesToConversationInRealm(messages)
         
         createMessageClustersWith([newMessage])
-        messageChangedTypes = [.added(IndexPath(row: 0, section: 0))]
         
         //Add new chat row
         ChatManager.shared.broadcastJoinedGroupChat(conversation)
@@ -540,14 +549,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         let conversationCellVM = MessageCellViewModel(isUnseenCell: true)
         messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
-    
-    func clearMessageChanges() {
-        Task {
-            await MainActor.run {
-                messageChangedTypes.removeAll()
-            }
-        }
-    }
+
     
     //TODO: - the whole function should be refactored along with reaction model, for better querying
     @MainActor
@@ -1111,10 +1113,6 @@ extension ChatRoomViewModel
         } else if newMessages.count > 1 {
             datasourceUpdateType.send(DatasourceRowAnimation.top)
         }
-        
-//        if !updatedMessages.isEmpty {
-//            datasourceUpdateType.send(DatasourceRowAnimation.left)
-//        }
     }
     
     @MainActor

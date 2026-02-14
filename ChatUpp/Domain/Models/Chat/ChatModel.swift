@@ -165,7 +165,8 @@ class Chat: Object, Codable
     
     func getLastMessage() -> Message? {
         guard self.realm != nil else {return nil}
-        return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false).first
+        return conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue,
+                                           ascending: false).first
     }
     
     func getFirstMessage() -> Message? {

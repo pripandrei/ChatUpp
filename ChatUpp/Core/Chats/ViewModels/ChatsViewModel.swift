@@ -46,9 +46,9 @@ final class ChatsViewModel
         updateUserTimestamp() // while firestore functions is deactivated
     }
     
-    deinit {
-        print("deinit chats view model")
-    }
+//    deinit {
+//        print("deinit chats view model")
+//    }
     
     func activateOnDisconnect() {
         Task {

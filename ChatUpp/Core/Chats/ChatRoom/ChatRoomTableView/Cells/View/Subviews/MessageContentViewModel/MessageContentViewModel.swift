@@ -35,7 +35,7 @@ final class MessageContentViewModel
     }
     
     deinit {
-            print(String(describing: Self.self), "deinit")
+//            print(String(describing: Self.self), "deinit")
     }
 
     lazy var messageSender: User? = {

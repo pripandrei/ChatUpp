@@ -89,7 +89,7 @@ final class ChatRoomViewController: UIViewController
     }
     
     deinit {
-        print("ChatRoomVC deinit")
+//        print("ChatRoomVC deinit")
         cleanUp()
     }
     
@@ -259,7 +259,7 @@ final class ChatRoomViewController: UIViewController
                 }
             }.store(in: &subscriptions)
         
-        viewModel.datasourceUpdateType
+        viewModel.datasourceUpdateType 
             .receive(on: DispatchQueue.main)
             .sink { [weak self] updateType in
                 guard let self = self else { return }
@@ -1203,13 +1203,21 @@ extension ChatRoomViewController: UITableViewDelegate
         if let globalIndex = globalIndex(for: indexPath,
                                          in: groupedClusterItems)
         {
-            if globalIndex == 3
+            if globalIndex == 3 && !viewModel.isLastMessageFromClusterTheMostRecentInChat
             {
                 paginateIfNeeded(ascending: true)
+                return
             } else if globalIndex == totalItems - 6
             {
                 paginateIfNeeded(ascending: false)
+                return
             }
+            /// should be checked based upon the messages total count in chat model,
+            /// but i dont have time to implemnte this
+//            if totalItems < 30
+//            {
+//                paginateIfNeeded(ascending: false)
+//            }
         }
     }
     

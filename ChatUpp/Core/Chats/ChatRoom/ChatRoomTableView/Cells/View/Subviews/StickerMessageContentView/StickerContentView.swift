@@ -50,7 +50,7 @@ final class StickerMessageContentView: UIView, RelayoutNotifying
         stickerComponentsView.cleanupContent()
         replyToMessageStackView?.removeFromSuperview()
         replyToMessageStackView = nil
-        print("deinit sticker content view")
+//        print("deinit sticker content view")
     }
     
     //MARK: - UI setup

@@ -68,7 +68,7 @@ final class StickerMessageCell: UITableViewCell
         stickerComponentsView.cleanupContent()
         replyToMessageStackView?.removeFromSuperview()
         replyToMessageStackView = nil
-        print("deinit StickerMessageCell")
+//        print("deinit StickerMessageCell")
     }
 
     
@@ -192,10 +192,6 @@ final class StickerMessageCell: UITableViewCell
         
         if let stickerName = message.sticker {
             stickerView.setupSticker(stickerName)
-//            FrameTicker.shared.add(self)
-            print("Added to Thicker in cell: \(self.hashValue)")
-        } else {
-            print("Message with sticker type, missing sticker name !!!!")
         }
         
         stickerComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)

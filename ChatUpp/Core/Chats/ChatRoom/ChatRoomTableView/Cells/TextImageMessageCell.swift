@@ -687,10 +687,10 @@ final class TextImageMessageCell: UITableViewCell
         }
     }
     
-    deinit
-    {
-        print(String(describing: Self.self), "deallocated")
-    }
+//    deinit
+//    {
+//        print(String(describing: Self.self), "deallocated")
+//    }
 }
 
 // MARK: - Avatar Management
