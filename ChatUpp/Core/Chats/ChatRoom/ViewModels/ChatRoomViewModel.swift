@@ -1112,9 +1112,9 @@ extension ChatRoomViewModel
             datasourceUpdateType.send(DatasourceRowAnimation.top)
         }
         
-        if !updatedMessages.isEmpty {
-            datasourceUpdateType.send(DatasourceRowAnimation.left)
-        }
+//        if !updatedMessages.isEmpty {
+//            datasourceUpdateType.send(DatasourceRowAnimation.left)
+//        }
     }
     
     @MainActor

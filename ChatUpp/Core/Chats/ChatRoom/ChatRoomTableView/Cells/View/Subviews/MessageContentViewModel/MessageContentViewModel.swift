@@ -33,6 +33,10 @@ final class MessageContentViewModel
                                                 context: messageAlignment == .right ? .outgoing : .incoming)
         self.setupComponents(from: message)
     }
+    
+    deinit {
+            print(String(describing: Self.self), "deinit")
+    }
 
     lazy var messageSender: User? = {
         guard let key = message?.senderId else { return nil }

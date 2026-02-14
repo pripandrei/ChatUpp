@@ -16,28 +16,22 @@ final class VoiceMessageCell: UITableViewCell
     private var contentContainerViewLeadingConstraint: NSLayoutConstraint!
     private var contentContainerViewTrailingConstraint: NSLayoutConstraint!
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
-    private(set) var cellViewModel: MessageCellViewModel!
+    weak private(set) var cellViewModel: MessageCellViewModel!
     
     private var subscribers = Set<AnyCancellable>()
     
-    // MARK: - Audio content views (moved from VoiceMessageContentView)
+    // MARK: - Audio content views 
     private let containerView: ContainerView
     private let messageComponentsView: MessageComponentsView = .init()
     private var playbackControlPanel: VoicePlaybackControlPanelView!
-    private var contentViewModel: MessageContentViewModel!
+    weak private var contentViewModel: MessageContentViewModel!
     private var contentCancellables = Set<AnyCancellable>()
     private var reactionUIView: ReactionUIView?
     private var playbackControlPanelUIView: UIView?
     private var replyToMessageStackView: ReplyToMessageStackView?
     
     var onRelayoutNeeded: (() -> Void)?
-//    
-//    lazy var replyToMessageStack: ReplyToMessageStackView = {
-//        let margins: UIEdgeInsets = .init(top: 2, left: 0, bottom: 4, right: 0)
-//        let replyToMessageStack = ReplyToMessageStackView(margin: margins)
-//        return replyToMessageStack
-//    }()
-//    
+
     private lazy var messageSenderNameLabel: UILabel = {
        let senderNameLabel = UILabel()
         senderNameLabel.numberOfLines = 1

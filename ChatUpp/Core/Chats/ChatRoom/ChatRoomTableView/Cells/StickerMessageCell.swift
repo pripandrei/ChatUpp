@@ -15,17 +15,17 @@ final class StickerMessageCell: UITableViewCell
     private var contentContainerViewLeadingConstraint: NSLayoutConstraint!
     private var contentContainerViewTrailingConstraint: NSLayoutConstraint!
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
-    private(set) var cellViewModel: MessageCellViewModel!
+    weak private(set) var cellViewModel: MessageCellViewModel!
     
     private var subscribers = Set<AnyCancellable>()
     
-    // MARK: - Sticker-specific views (moved from StickerMessageContentView)
-    private let stickerView: StickerView
-    private let containerView: ContainerView
-    private let stickerComponentsView: MessageComponentsView
+    // MARK: - Sticker-specific views 
     private var replyToMessageStackView: ReplyToMessageStackView?
+    private let stickerComponentsView: MessageComponentsView
+    weak private var viewModel: MessageContentViewModel?
     private var reactionUIView: ReactionUIView?
-    private var viewModel: MessageContentViewModel?
+    private let containerView: ContainerView
+    private let stickerView: StickerView
     private var cancellables = Set<AnyCancellable>()
     
     private var isRendering: Bool = false
@@ -68,7 +68,7 @@ final class StickerMessageCell: UITableViewCell
         stickerComponentsView.cleanupContent()
         replyToMessageStackView?.removeFromSuperview()
         replyToMessageStackView = nil
-//        print("deinit StickerMessageCell")
+        print("deinit StickerMessageCell")
     }
 
     

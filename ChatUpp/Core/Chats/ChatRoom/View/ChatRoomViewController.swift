@@ -587,33 +587,33 @@ extension ChatRoomViewController
         }
     }
 
-    private func handleTableViewCellInsertion(
-        with indexPath: IndexPath = IndexPath(row: 0, section: 0),
-        scrollToBottom: Bool)
-    {
-        let isNewSectionAdded = checkIfNewSectionWasAdded()
-        let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
-        let isIndexPathVisible = visibleIndexPaths?.contains(indexPath) ?? false
-        
-        handleRowAndSectionInsertion(with: indexPath, withAnimation: !isIndexPathVisible)
-        if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
-        {
-            animateFirstCellOffset(withNewSectionAdded: isNewSectionAdded)
-        }
-        
-        if scrollToBottom
-        {
-            executeAfter(seconds: 0.15)
-            {
-                if self.rootView.tableView.visibleCells.count > 0
-                {
-                    self.rootView.tableView.layoutIfNeeded()
-                    self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
-                }
-            }
-        }
-    }
-    
+//    private func handleTableViewCellInsertion(
+//        with indexPath: IndexPath = IndexPath(row: 0, section: 0),
+//        scrollToBottom: Bool)
+//    {
+//        let isNewSectionAdded = checkIfNewSectionWasAdded()
+//        let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
+//        let isIndexPathVisible = visibleIndexPaths?.contains(indexPath) ?? false
+//        
+//        handleRowAndSectionInsertion(with: indexPath, withAnimation: !isIndexPathVisible)
+//        if isIndexPathVisible || visibleIndexPaths?.isEmpty == true
+//        {
+//            animateFirstCellOffset(withNewSectionAdded: isNewSectionAdded)
+//        }
+//        
+//        if scrollToBottom
+//        {
+//            executeAfter(seconds: 0.15)
+//            {
+//                if self.rootView.tableView.visibleCells.count > 0
+//                {
+//                    self.rootView.tableView.layoutIfNeeded()
+//                    self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+//                }
+//            }
+//        }
+//    }
+//    
     private func handleRowAndSectionInsertion(with indexPath: IndexPath,
                                               withAnimation: Bool)
     {

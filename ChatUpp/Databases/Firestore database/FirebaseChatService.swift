@@ -676,6 +676,9 @@ extension FirebaseChatService
         
         query = document.exists ? query.start(atDocument: document) : query.start(after: [timestamp])
         
+        // Track the initial set of message IDs
+        var initialMessageIDs: Set<String>?
+        
         let listener = query
             .limit(to: limit)
             .addSnapshotListener { snapshot, error in
@@ -684,14 +687,37 @@ extension FirebaseChatService
 
                 var DBChangeObjects: [DatabaseChangedObject<Message>] = []
                 
+                // On first snapshot, capture the initial message IDs
+                if initialMessageIDs == nil
+                {
+                    initialMessageIDs = Set(snapshot?.documents.compactMap { $0.documentID } ?? [])
+                }
+                
                 for document in documents
                 {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
                     
-                    let object = DatabaseChangedObject(data: message, changeType: document.type)
-                    DBChangeObjects.append(object)
+                    // Only process changes for messages that were in the initial set
+                    // OR handle removals (since removed messages were obviously in the initial set)
+                    let condition = document.type == .removed || initialMessageIDs?.contains(message.id) == true
+                    
+                    if condition
+                    {
+                        let object = DatabaseChangedObject(data: message,
+                                                           changeType: document.type)
+                        DBChangeObjects.append(object)
+                        
+                        // If removed, take it out of our tracked set
+                        if document.type == .removed
+                        {
+                            initialMessageIDs?.remove(document.document.documentID)
+                        }
+                    }
                 }
-                subject.send(DBChangeObjects)
+                
+                if !DBChangeObjects.isEmpty {
+                    subject.send(DBChangeObjects)
+                }
             }
         
         return subject

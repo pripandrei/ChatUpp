@@ -17,14 +17,14 @@ final class TextImageMessageCell: UITableViewCell
     private var contentContainerViewTrailingConstraint: NSLayoutConstraint!
     private var messageImageViewBottomConstraint: NSLayoutConstraint?
     private var messageLayoutConfiguration: MessageLayoutConfiguration!
-    private(set) var cellViewModel: MessageCellViewModel!
+    weak private(set) var cellViewModel: MessageCellViewModel!
     
     private var subscribers = Set<AnyCancellable>()
     
-    // MARK: - Message content views (moved from TextImageMessageContentView)
+    // MARK: - Message content views
     private let containerView: ContainerView
-    private var contentViewModel: MessageContentViewModel!
-    private var messageComponentsView: MessageComponentsView = MessageComponentsView()
+    weak private var contentViewModel: MessageContentViewModel!
+    private var messageComponentsView: MessageComponentsView!
     private var messageLabel: MessageLabel?
     private(set) var messageImageView: UIImageView?
     private var reactionUIView: ReactionUIView?
@@ -84,6 +84,7 @@ final class TextImageMessageCell: UITableViewCell
         transform = CGAffineTransform(scaleX: 1, y: -1)
         
         backgroundColor = .clear
+        self.messageComponentsView = .init()
         setupBackgroundSelectionView()
         setupUI()
     }
@@ -690,10 +691,10 @@ final class TextImageMessageCell: UITableViewCell
         }
     }
     
-//    deinit
-//    {
-//        print(String(describing: Self.self), "deallocated")
-//    }
+    deinit
+    {
+        print(String(describing: Self.self), "deallocated")
+    }
 }
 
 // MARK: - Avatar Management

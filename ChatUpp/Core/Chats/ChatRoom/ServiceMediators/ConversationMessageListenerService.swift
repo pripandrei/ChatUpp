@@ -83,7 +83,7 @@ final class ConversationMessageListenerService
                     messageTimestamp: messageTimestamp,
                     ascending: ascending,
                     limit: limit
-                )
+                ) 
                 .sink { [weak self] messagesUpdate in
                     guard let self else { return }
                     self.updatedMessages.append(contentsOf: messagesUpdate)

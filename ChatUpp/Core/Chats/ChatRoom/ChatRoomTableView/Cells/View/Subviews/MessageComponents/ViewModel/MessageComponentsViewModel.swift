@@ -22,6 +22,11 @@ final class MessageComponentsViewModel
         self.componentsContext = context
     }
     
+    deinit
+    {
+        print(String(describing: Self.self), "deinit")
+    }
+    
     var timestamp: String? {
         let hoursAndMinutes = message.timestamp.formatToHoursAndMinutes()
         return hoursAndMinutes
