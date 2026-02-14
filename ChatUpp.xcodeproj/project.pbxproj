@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 73;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -426,8 +426,29 @@
 		75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		7557C1A92F40CAC8004C66BE /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			attributesByRelativePath = {
+				FlagPhoneNumber.xcframework = (
+					CodeSignOnCopy,
+					RemoveHeadersOnCopy,
+				);
+				YYText.xcframework = (
+					CodeSignOnCopy,
+					RemoveHeadersOnCopy,
+				);
+			};
+			buildPhase = 7545AD922BB9E65B00E9B107 /* Embed Frameworks */;
+			membershipExceptions = (
+				FlagPhoneNumber.xcframework,
+				YYText.xcframework,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7557B90D2F40AC42004C66BE /* Frameworks */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Frameworks; sourceTree = "<group>"; };
+		7557B90D2F40AC42004C66BE /* Frameworks */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (7557C1A92F40CAC8004C66BE /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Frameworks; sourceTree = "<group>"; };
 		755BF3BA2E982AA10017577E /* MiaBunny */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MiaBunny; sourceTree = "<group>"; };
 		756E689F2E95692F00C5FDB9 /* StealthMoon */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = StealthMoon; sourceTree = "<group>"; };
 		756E691C2E9569F400C5FDB9 /* LightningBug */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LightningBug; sourceTree = "<group>"; };
@@ -1876,7 +1897,6 @@
 				};
 			};
 			buildConfigurationList = 75B5C4B12A49AB0A00F63A5A /* Build configuration list for PBXProject "ChatUpp" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1899,6 +1919,7 @@
 				75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */,
 				756A2ACC2F22B39700C5D7B0 /* XCRemoteSwiftPackageReference "thorvg.swift" */,
 			);
+			preferredProjectObjectVersion = 56;
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
