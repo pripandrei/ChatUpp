@@ -1170,10 +1170,19 @@ extension ChatRoomViewController: UITableViewDelegate
         return  UITableView.automaticDimension
     }
     
+    func tableView(_ tableView: UITableView,
+                   didEndDisplaying cell: UITableViewCell,
+                   forRowAt indexPath: IndexPath)
+    {
+        (cell as? StickerMessageCell)?.setVisible(false)
+    }
+    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
         guard !viewModel.messageClusters.isEmpty,
               didFinishInitialScrollToUnseenIndexPathIfAny else { return }
+        
+        (cell as? StickerMessageCell)?.setVisible(true)
         
         if indexPath == IndexPath(row: 0, section: 0),
            viewModel.messageClusters[0].items.count > 1

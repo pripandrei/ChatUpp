@@ -27,6 +27,7 @@ final class StickerMessageCell: UITableViewCell
     private let containerView: ContainerView
     private let stickerView: StickerView 
     
+    private var isStickerVisible: Bool = false
     private var isRendering: Bool = false
     private var lastRenderTime: CFTimeInterval = 0
     
@@ -121,51 +122,6 @@ final class StickerMessageCell: UITableViewCell
         ])
     }
     
-    // MARK: - Configuration
-    func configureCell(using viewModel: MessageCellViewModel,
-                       layoutConfiguration: MessageLayoutConfiguration)
-    {
-        guard let _ = viewModel.message else {
-            assert(false, "message should be valid at this point")
-            return
-        }
-        
-        cleanupCellContent()
-        
-        cellViewModel = viewModel
-        messageLayoutConfiguration = layoutConfiguration
-        self.viewModel = viewModel.messageContainerViewModel
-        
-        setupBinding()
-        configureStickerContent(with: viewModel.messageContainerViewModel!)
-        adjustMessageSide()
-        setupSenderAvatar()
-    }
-    
-    private func configureStickerContent(with viewModel: MessageContentViewModel)
-    {
-        guard let message = viewModel.message else { return }
-         
-        setupMessagePropertyBinding(publisher: viewModel.messagePropertyUpdateSubject.eraseToAnyPublisher())
-        
-        if let stickerName = message.sticker {
-            stickerView.setupSticker(stickerName)
-            FrameTicker.shared.add(self)
-        } else {
-            print("Message with sticker type, missing sticker name !!!!")
-        }
-        
-        stickerComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
-        
-        if viewModel.message?.repliedTo != nil {
-            setupReplyToMessage(viewModel: viewModel)
-        }
-        
-        if !message.reactions.isEmpty {
-            manageReactionsSetup(withAnimation: false)
-        }
-    }
-    
     private func adjustStickerAlignment(_ alignment: MessageAlignment)
     {
         contentContainerViewLeadingConstraint.isActive = false
@@ -205,6 +161,62 @@ final class StickerMessageCell: UITableViewCell
         replyToMessageStackView?.setReplyInnerStackColors(
             background: ColorScheme.stickerReplyToMessageBackgroundColor.withAlphaComponent(0.9),
             barColor: .white)
+    }
+    
+    // MARK: - Configuration
+    func configureCell(using viewModel: MessageCellViewModel,
+                       layoutConfiguration: MessageLayoutConfiguration)
+    {
+        guard let _ = viewModel.message else {
+            assert(false, "message should be valid at this point")
+            return
+        }
+        
+        cleanupCellContent()
+        
+        cellViewModel = viewModel
+        messageLayoutConfiguration = layoutConfiguration
+        self.viewModel = viewModel.messageContainerViewModel
+        
+        setupBinding()
+        configureStickerContent(with: viewModel.messageContainerViewModel!)
+        adjustMessageSide()
+        setupSenderAvatar()
+    }
+    
+    private func configureStickerContent(with viewModel: MessageContentViewModel)
+    {
+        guard let message = viewModel.message else { return }
+         
+        setupMessagePropertyBinding(publisher: viewModel.messagePropertyUpdateSubject.eraseToAnyPublisher())
+        
+        if let stickerName = message.sticker {
+            stickerView.setupSticker(stickerName)
+//            FrameTicker.shared.add(self)
+            print("Added to Thicker in cell: \(self.hashValue)")
+        } else {
+            print("Message with sticker type, missing sticker name !!!!")
+        }
+        
+        stickerComponentsView.configure(viewModel: viewModel.messageComponentsViewModel)
+        
+        if viewModel.message?.repliedTo != nil {
+            setupReplyToMessage(viewModel: viewModel)
+        }
+        
+        if !message.reactions.isEmpty {
+            manageReactionsSetup(withAnimation: false)
+        }
+    }
+    
+    func setVisible(_ visible: Bool)
+    {
+        isStickerVisible = visible
+        if visible {
+            FrameTicker.shared.add(self)
+        } else {
+            FrameTicker.shared.remove(self)
+        }
     }
     
     // MARK: - Binding
@@ -302,11 +314,11 @@ final class StickerMessageCell: UITableViewCell
         }
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        // Views stay in place - just cleanup data
-        FrameTicker.shared.remove(self)
-    }
+//    override func prepareForReuse() {
+//        super.prepareForReuse()
+//        // Views stay in place - just cleanup data
+//        FrameTicker.shared.remove(self)
+//    }
 }
 
 // MARK: - Avatar Management
