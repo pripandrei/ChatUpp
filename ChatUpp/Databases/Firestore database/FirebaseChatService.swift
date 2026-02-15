@@ -655,6 +655,7 @@ extension FirebaseChatService
                 
             }
     }
+     
     
     func addListenerForExistingMessagesTest(inChat chatID: String,
                                             startAtMessageWithID messageID: String,
@@ -678,13 +679,15 @@ extension FirebaseChatService
         
         // Track the initial set of message IDs
         var initialMessageIDs: Set<String>?
-        
+        let options = SnapshotListenOptions().withSource(.default)
         let listener = query
             .limit(to: limit)
             .addSnapshotListener { snapshot, error in
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
-
+                
+//                guard snapshot?.metadata.isFromCache == false else {return}
+                
                 var DBChangeObjects: [DatabaseChangedObject<Message>] = []
                 
                 // On first snapshot, capture the initial message IDs
@@ -698,7 +701,6 @@ extension FirebaseChatService
                     guard let message = try? document.document.data(as: Message.self) else { continue }
                     
                     // Only process changes for messages that were in the initial set
-                    // OR handle removals (since removed messages were obviously in the initial set)
                     let condition = document.type == .removed || initialMessageIDs?.contains(message.id) == true
                     
                     if condition
@@ -716,6 +718,10 @@ extension FirebaseChatService
                 }
                 
                 if !DBChangeObjects.isEmpty {
+                    let messagesBody = DBChangeObjects.map { $0.data.messageBody }
+                    let changeTypes = DBChangeObjects.map { $0.changeType }
+                    print("Body's; ",messagesBody)
+                    print("types change; ",changeTypes)
                     subject.send(DBChangeObjects)
                 }
             }
@@ -764,6 +770,56 @@ extension FirebaseChatService
         }
         
         return try await query.limit(to: limit)
+            .getDocuments(as: Message.self)
+    }
+    
+    func fetchMessagesFromChat(chatID: String,
+                               startingFrom messageID: String?,
+                               endingWith endMessageID: String?,
+                               inclusive: Bool,
+                               fetchDirection: MessagesFetchDirection,
+                               limit: Int = ObjectsPaginationLimit.remoteMessages) async throws -> [Message]
+    {
+        var query: Query = chatDocument(documentPath: chatID).collection(FirestoreCollection.messages.rawValue)
+
+        if fetchDirection == .ascending {
+            query = query.order(by: Message.CodingKeys.timestamp.rawValue, descending: false)
+        }
+        else if fetchDirection == .descending {
+            query = query.order(by: Message.CodingKeys.timestamp.rawValue, descending: true)
+        }
+        
+        // Handle starting message
+        if let messageID = messageID
+        {
+            let document = try await chatDocument(documentPath: chatID)
+                .collection(FirestoreCollection.messages.rawValue)
+                .document(messageID)
+                .getDocument()
+            
+            if document.exists {
+                query = inclusive ? query.start(atDocument: document) : query.start(afterDocument: document)
+            } else {
+                return []
+            }
+        }
+        
+        // Handle ending message
+        if let endMessageID = endMessageID
+        {
+            let endDocument = try await chatDocument(documentPath: chatID)
+                .collection(FirestoreCollection.messages.rawValue)
+                .document(endMessageID)
+                .getDocument()
+            
+            if endDocument.exists {
+                query = inclusive ? query.end(atDocument: endDocument) : query.end(beforeDocument: endDocument)
+            } else {
+                return []
+            }
+        }
+        
+        return try await query
             .getDocuments(as: Message.self)
     }
 }
@@ -1518,4 +1574,21 @@ enum MessageFetchError: Error
 enum ChatUnwrappingError: Error
 {
     case chatIsNil
+}
+
+extension DocumentChangeType: @retroactive CustomStringConvertible
+{
+    public var description: String
+    {
+        switch self {
+        case .added:
+            return "added"
+        case .modified:
+            return "modified"
+        case .removed:
+            return "removed"
+        @unknown default:
+            return "unknown"
+        }
+    }
 }

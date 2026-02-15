@@ -129,14 +129,14 @@ final class ChatRoomViewController: UIViewController
         
         let chatType: ChatType = viewModel.conversation?.isGroup == true ? ._group : ._private
         let layoutProvider: MessageLayoutManager = .init(chatType: chatType,
-                                                         sourceProvider: self.viewModel)
+                                                         sourceProvider: self.viewModel.messageClusterRepository)
         self.dataSourceManager = ConversationDataSourceManager(
-            dataProvider: self.viewModel,
+            dataProvider: self.viewModel.messageClusterRepository,
             layoutProvider: layoutProvider,
             tableView: self.rootView.tableView
         )
     }
-
+    
     private func addTargetsToButtons() {
         addTargetToSendMessageBtn()
         addTargetToAddPictureBtn()
@@ -177,8 +177,13 @@ final class ChatRoomViewController: UIViewController
             self.scrollToCell(at: indexPath)
         }
         
-        viewModel.addListeners()
-        
+//        viewModel.addListeners()
+//        Task
+//        {
+//            let messages = await viewModel.messageListenerService?.fetchMessagesGaps() ?? []
+//            viewModel.addListeners()
+//        }
+//        
         if viewModel.authParticipantUnreadMessagesCount > 0
         {
             triggerUpdateUnseenMessagesCheck()
@@ -233,7 +238,7 @@ final class ChatRoomViewController: UIViewController
                 self?.rootView.toggleVoiceRecButtonVisibility(shouldBeVisible)
             }.store(in: &subscriptions)
         
-        viewModel.$messageClusters
+        viewModel.messageClusterRepository.$messageClusters
             .receive(on: DispatchQueue.main)
             .sink { [weak self] clusters in
                 if !clusters.isEmpty { self?.rootView.removeGreetingViewIfNeeded() }
@@ -567,7 +572,7 @@ extension ChatRoomViewController
     private func handleNewMessageDisplay()
     {
         let isFirstIndexVisible = isFirstIndexPathVisible()
-        let isNewSectionAdded = self.viewModel.messageClusters[0].items.count == 1 ? true : false
+        let isNewSectionAdded = self.viewModel.messageClusterRepository.messageClusters[0].items.count == 1 ? true : false
         
         if isFirstIndexVisible || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
         {
@@ -593,7 +598,7 @@ extension ChatRoomViewController
         /// See FootNote.swift [5]
         if withAnimation {
             UIView.animate(withDuration: 0.0) {
-                if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
+                if self.viewModel.messageClusterRepository.messageClusters.count > self.rootView.tableView.numberOfSections
                 {
                     self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
                 } else {
@@ -604,7 +609,7 @@ extension ChatRoomViewController
             // - See Footnote.swift [1]
             UIView.performWithoutAnimation {
     //        UIView.animate(withDuration: 0.0) {
-                if self.viewModel.messageClusters.count > self.rootView.tableView.numberOfSections
+                if self.viewModel.messageClusterRepository.messageClusters.count > self.rootView.tableView.numberOfSections
                 {
                     self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
                 } else {
@@ -665,7 +670,7 @@ extension ChatRoomViewController
     }
     
     private func checkIfNewSectionWasAdded() -> Bool {
-        if rootView.tableView.numberOfSections < viewModel.messageClusters.count {
+        if rootView.tableView.numberOfSections < viewModel.messageClusterRepository.messageClusters.count {
             return true
         }
         return false
@@ -692,19 +697,19 @@ extension ChatRoomViewController
         }
 
         guard messageIndexPath.row < rootView.tableView.numberOfRows(inSection: messageIndexPath.section),
-              messageIndexPath.row < viewModel.messageClusters[messageIndexPath.section].items.count,
+              messageIndexPath.row < viewModel.messageClusterRepository.messageClusters[messageIndexPath.section].items.count,
               !checkIfMessageWasSeen(at: messageIndexPath)
         else {
             return
         }
-
+        
         let unseenMessage =
-            viewModel.messageClusters[messageIndexPath.section]
-                .items[messageIndexPath.row]
-                .message
-
+        viewModel.messageClusterRepository.messageClusters[messageIndexPath.section]
+            .items[messageIndexPath.row]
+            .message
+        
         guard let unseenMessage else { return }
-
+        
         // Update last processed index path
         pendingIndexPathForSeenStatusCheck = messageIndexPath
         
@@ -732,7 +737,7 @@ extension ChatRoomViewController
         let authUserID = viewModel.authUser.uid
          
         // proceed further only if message does not belong to authenticated user
-        guard let message = viewModel.messageClusters[indexPath.section].items[indexPath.row].message,
+        guard let message = viewModel.messageClusterRepository.messageClusters[indexPath.section].items[indexPath.row].message,
               message.senderId != authUserID else { return true }
         
         let messageIsSeenByAuthUser: Bool
@@ -1144,7 +1149,7 @@ extension ChatRoomViewController: UITableViewDelegate
         guard !tableView.sk.isSkeletonActive,
               let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? FooterSectionView else { return nil }
         
-        let dateForSection = viewModel.messageClusters[section].date.formattedAsRelativeDayLabel()
+        let dateForSection = viewModel.messageClusterRepository.messageClusters[section].date.formattedAsRelativeDayLabel()
         footerView.setDate(dateText: dateForSection)
         return footerView
     }
@@ -1179,24 +1184,24 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
-        guard !viewModel.messageClusters.isEmpty,
+        guard !viewModel.messageClusterRepository.messageClusters.isEmpty,
               didFinishInitialScrollToUnseenIndexPathIfAny else { return }
         
         (cell as? StickerMessageCell)?.setVisible(true)
         
         if indexPath == IndexPath(row: 0, section: 0),
-           viewModel.messageClusters[0].items.count > 1
+           viewModel.messageClusterRepository.messageClusters[0].items.count > 1
         {
-            let firstMessageSenderId = viewModel.messageClusters[0].items[0].message?.senderId
-            let secondMessageSenderId = viewModel.messageClusters[0].items[1].message?.senderId
+            let firstMessageSenderId = viewModel.messageClusterRepository.messageClusters[0].items[0].message?.senderId
+            let secondMessageSenderId = viewModel.messageClusterRepository.messageClusters[0].items[1].message?.senderId
             
             if firstMessageSenderId == secondMessageSenderId
             {
-                viewModel.messageClusters[0].items[1].toggleVisibilityOfSenderAvatar(false)
+                viewModel.messageClusterRepository.messageClusters[0].items[1].toggleVisibilityOfSenderAvatar(false)
             }
         }
         
-        let groupedClusterItems = viewModel.messageClusters.map { $0.items }
+        let groupedClusterItems = viewModel.messageClusterRepository.messageClusters.map { $0.items }
         let totalItems = groupedClusterItems.flatMap { $0 }.count
         
         
@@ -1259,7 +1264,7 @@ extension ChatRoomViewController: UITableViewDelegate
         )
     }
     
-    func globalIndex(for indexPath: IndexPath, in groupedData: [[ChatRoomViewModel.MessageItem]]) -> Int?
+    func globalIndex(for indexPath: IndexPath, in groupedData: [[MessageItem]]) -> Int?
     {
         guard indexPath.section < groupedData.count else { return nil }
         
@@ -1468,7 +1473,7 @@ extension ChatRoomViewController
         else { return }
         
         let lastSection = rootView.tableView.numberOfSections - 1
-        let lastItemInSection = viewModel.messageClusters[lastSection].items.count - 1
+        let lastItemInSection = viewModel.messageClusterRepository.messageClusters[lastSection].items.count - 1
         let isLastCellVisible = lastVisibleIndex.row == lastItemInSection
         
         let targetOpacity: Float = (isScrollActive || isLastCellVisible) ? 1.0 : 0.0

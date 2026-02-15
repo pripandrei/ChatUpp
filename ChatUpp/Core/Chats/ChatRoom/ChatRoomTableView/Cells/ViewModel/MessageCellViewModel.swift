@@ -30,7 +30,7 @@ final class MessageCellViewModel
     
     private(set) var displayUnseenMessagesTitle: Bool?
     private(set) var senderImageDataSubject = PassthroughSubject<Data, Never>()
-    private var cancellables: Set<AnyCancellable> = []
+//    private var cancellables: Set<AnyCancellable> = []
     
     private(set) var visibilitySenderAvatarSubject = PassthroughSubject<Bool, Never>()
     

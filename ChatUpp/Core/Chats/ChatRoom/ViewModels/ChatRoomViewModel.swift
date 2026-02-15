@@ -22,6 +22,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private(set) var datasourceUpdateType = PassthroughSubject<DatasourceRowAnimation, Never>()
     private let messagesSeenStatusUpdater: MessageSeenSyncService = .init()
     private let unseenMessageCounterUpdater: MessageUnseenCounterSyncService = .init()
+    private(set) var messageClusterRepository: MessageClusterRepository = .init()
     
     private(set) var conversation        : Chat?
     private(set) var participant         : User?
@@ -29,7 +30,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private(set) var lastPaginatedMessage: Message?
     private var cancellables             = Set<AnyCancellable>()
     
-    @Published private(set) var messageClusters     : [MessageCluster] = []
+//    @Published private(set) var messageClusters     : [MessageCluster] = []
     @Published private(set) var unseenMessagesCount: Int
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
@@ -43,7 +44,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     var currentlyReplyToMessageID: String?
     
     private var recentMessageItem: MessageItem? {
-        return messageClusters.first?.items.first
+        return messageClusterRepository.messageClusters.first?.items.first
     }
     
     var conversationExists: Bool {
@@ -162,6 +163,9 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
         
+        Timer.scheduledTimer(withTimeInterval: 5, repeats: true, block: { _ in
+            print("Current total message count: ",self.currentTotalMessagesCount)
+        })
 //        testMessagesCountAndUnseenCount() // test functions
     }
     
@@ -198,7 +202,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         observeParticipantChanges()
          
-        guard let startMessage = messageClusters.first?.items.first?.message
+        guard let startMessage = messageClusterRepository.messageClusters.first?.items.first?.message
         else {
             // chat is empty, safe to attache to upcoming messages
             messageListenerService?.addListenerToUpcomingMessages()
@@ -221,7 +225,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
    
     var currentTotalMessagesCount: Int
     {
-        let totalMessagesCount = messageClusters.reduce(0) { total, cluster in
+        let totalMessagesCount = messageClusterRepository.messageClusters.reduce(0) { total, cluster in
             total + cluster.items.filter { $0.message != nil }.count
         }
         return totalMessagesCount
@@ -273,7 +277,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         realmService?.addMessagesToConversationInRealm(messages)
         
-        createMessageClustersWith([newMessage])
+        messageClusterRepository.addMessages([newMessage])
         
         //Add new chat row
         ChatManager.shared.broadcastJoinedGroupChat(conversation)
@@ -298,7 +302,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     private func getCurrentMessagesFromCluster() -> [Message]
     {
-        let messages: [Message] = messageClusters.flatMap { cluster in
+        let messages: [Message] = messageClusterRepository.messageClusters.flatMap { cluster in
             cluster.items.compactMap { item in
                 item.message
             }
@@ -318,7 +322,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             ChatParticipant(userID: participant.id, unseenMessageCount: 0)
         ]
         let recentMessageID = recentMessageItem?.message?.id
-        let messagesCount = messageClusters.first?.items.count
+        let messagesCount = messageClusterRepository.messageClusters.first?.items.count
         
         return Chat(
             id: chatId,
@@ -385,7 +389,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         realmService?.addMessagesToRealmChat([message])
         
-        createMessageClustersWith([message])
+        messageClusterRepository.addMessages([message])
         return message
     }
     
@@ -525,7 +529,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     
     func findLastUnseenMessageIndexPath() -> IndexPath?
     {
-        for (sectionIndex, messageGroup) in messageClusters.enumerated().reversed()
+        for (sectionIndex, messageGroup) in messageClusterRepository.messageClusters.enumerated().reversed()
         {
             if let rowIndex = messageGroup.items
                 .lastIndex(where: { cellVM in
@@ -547,7 +551,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     func insertUnseenMessagesTitle(afterIndexPath indexPath: IndexPath)
     {
         let conversationCellVM = MessageCellViewModel(isUnseenCell: true)
-        messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
+        messageClusterRepository.messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row + 1)
     }
 
     
@@ -740,9 +744,19 @@ extension ChatRoomViewModel
         if !shouldDisplayLastMessage {
             messages.removeLast()
         }
-        createMessageClustersWith(messages)
+        messageClusterRepository.addMessages(messages)
         validateMessagesForDeletion(messages)
         updateChatOpenStatusIfNeeded()
+        
+        Task {
+            let messages = await messageListenerService?.fetchGappedMessages() ?? []
+            if !messages.isEmpty {
+                await handleAddedMessages(messages, withInsertion: true)
+            }
+            await MainActor.run {
+                addListeners()
+            }
+        }
     }
     
     private func prepareMessagesForConversationInitialization() -> [Message]
@@ -771,7 +785,7 @@ extension ChatRoomViewModel
     {
         guard conversation?.realm != nil else {return false} // if group chat that we are not member of is opened
         guard !shouldFetchNewMessages else {return false}
-        var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
+        var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending) 
         let recentMessageIsPresent = paginatedMessages.contains(where: { $0.id == conversation?.recentMessageID })
         
         if recentMessageIsPresent
@@ -788,7 +802,7 @@ extension ChatRoomViewModel
         
         if !paginatedMessages.isEmpty
         {
-            createMessageClustersWith(paginatedMessages)
+            messageClusterRepository.addMessages(paginatedMessages)
             self.lastPaginatedMessage = paginatedMessages.last
             self.validateMessagesForDeletion(paginatedMessages)
             return true
@@ -802,7 +816,7 @@ extension ChatRoomViewModel
         
         if ascending
         {
-            guard let startMessage = messageClusters[0].items.first?.message
+            guard let startMessage = messageClusterRepository.messageClusters[0].items.first?.message
             else {return [] }
             
             let messages = conversation.getMessages(startingFrom: startMessage.id,
@@ -811,8 +825,8 @@ extension ChatRoomViewModel
             return messages
         }
         
-        let messageClustersCount = messageClusters.count
-        guard let startMessage = messageClusters[messageClustersCount - 1].items.last?.message
+        let messageClustersCount = messageClusterRepository.messageClusters.count
+        guard let startMessage = messageClusterRepository.messageClusters[messageClustersCount - 1].items.last?.message
         else {return [] }
 
         let messages = conversation.getMessages(startingFrom: startMessage.id,
@@ -842,7 +856,7 @@ extension ChatRoomViewModel
     {
         if !messages.isEmpty
         {
-            createMessageClustersWith(messages.reversed())
+            messageClusterRepository.addMessages(messages.reversed())
         }
         conversationInitializationStatus = .finished
     }
@@ -1012,7 +1026,7 @@ extension ChatRoomViewModel
         messageListenerService?.$eventMessage
             .sink { [weak self] eventMessage in
                 guard let message = eventMessage else {return}
-                self?.createMessageClustersWith([message])
+                self?.messageClusterRepository.addMessages([message])
                 self?.datasourceUpdateType.send(DatasourceRowAnimation.none)
             }.store(in: &cancellables)
     }
@@ -1048,12 +1062,12 @@ extension ChatRoomViewModel
     /// Use this variable before updating realm with new message
     var isMostRecentMessagePaginated: Bool
     {
-        conversation?.getLastMessage()?.id == messageClusters[0].items[0].message?.id ? true : false
+        conversation?.getLastMessage()?.id == messageClusterRepository.messageClusters[0].items[0].message?.id ? true : false
     }
     
     var isChatRecentMessagePaginated: Bool
     {
-        guard let dataSourceFirstMessage = self.messageClusters[0].items[0].message else
+        guard let dataSourceFirstMessage = messageClusterRepository.messageClusters[0].items[0].message else
         {
             return true
         }
@@ -1067,7 +1081,7 @@ extension ChatRoomViewModel
 extension ChatRoomViewModel
 {
     @MainActor
-    private func handleAddedMessages(_ messages: [Message]) async
+    private func handleAddedMessages(_ messages: [Message], withInsertion insert: Bool = false) async
     {
         guard !messages.isEmpty else {return}
         
@@ -1106,7 +1120,13 @@ extension ChatRoomViewModel
         RealmDatabase.shared.add(objects: updatedMessages)
 
         realmService?.addMessagesToRealmChat(newMessages)
-        createMessageClustersWith(newMessages)
+//        createMessageClustersWith(newMessages)
+        if insert
+        {
+            messageClusterRepository.insertMessagesInOrder(newMessages)
+        } else {
+            messageClusterRepository.addMessages(newMessages)
+        }
         
         if newMessages.count == 1 {
             datasourceUpdateType.send(DatasourceRowAnimation.none)
@@ -1123,16 +1143,14 @@ extension ChatRoomViewModel
         for message in messages
         {
             let day = message.timestamp.formatToYearMonthDay()
-            guard let clusterIndex = messageClusters.firstIndex(where: { $0.date == day }) else {continue}
+            guard let clusterIndex = messageClusterRepository.messageClusters.firstIndex(where: { $0.date == day }) else {continue}
             
-            // TODO: - crash on last message removal. Check chat cell recent message if it's deleted before this code runs
-            //
-            guard let cellVMIndex = messageClusters[clusterIndex].items.firstIndex(where: { $0.message?.id == message.id } ) else {continue}
+            guard let cellVMIndex = messageClusterRepository.messageClusters[clusterIndex].items.firstIndex(where: { $0.message?.id == message.id } ) else {continue}
             
-            let _ = messageClusters[clusterIndex].items.remove(at: cellVMIndex)
+            let _ = messageClusterRepository.messageClusters[clusterIndex].items.remove(at: cellVMIndex)
             
-            if messageClusters[clusterIndex].items.isEmpty {
-                messageClusters.remove(at: clusterIndex)
+            if messageClusterRepository.messageClusters[clusterIndex].items.isEmpty {
+                messageClusterRepository.messageClusters.remove(at: clusterIndex)
             }
             
             if clusterIndex == 0 && cellVMIndex == 0,
@@ -1142,13 +1160,13 @@ extension ChatRoomViewModel
                     await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: recentMessageID)
                 }
                 
-                if !messageClusters[clusterIndex].items.isEmpty
+                if !messageClusterRepository.messageClusters[clusterIndex].items.isEmpty
                 {
-                    messageClusters[clusterIndex].items[0].toggleVisibilityOfSenderAvatar(true)
+                    messageClusterRepository.messageClusters[clusterIndex].items[0].toggleVisibilityOfSenderAvatar(true)
                 }
             }
             
-            if messageClusters.isEmpty
+            if messageClusterRepository.messageClusters.isEmpty
             {
                 Task { @MainActor in
                     guard let chatID = self.conversation?.id else { return }
@@ -1278,7 +1296,7 @@ extension ChatRoomViewModel
     {
         guard let date = message.timestamp.formatToYearMonthDay() else { return nil }
         
-        for (groupIndex, group) in messageClusters.enumerated() where group.date == date
+        for (groupIndex, group) in messageClusterRepository.messageClusters.enumerated() where group.date == date
         {
             if let messageIndex = group.items.firstIndex(where: { $0.message?.id == message.id })
             {
@@ -1352,7 +1370,7 @@ extension ChatRoomViewModel
             startMessage = recentMessageItem?.message
         } else {
             // last message can be UnseenMessagesTitle, so we need to check and get one before last message instead
-            guard let items = messageClusters.last?.items else { return nil }
+            guard let items = messageClusterRepository.messageClusters.last?.items else { return nil }
                   
             if let lastItem = items.last, lastItem.displayUnseenMessagesTitle == true
             {
@@ -1406,54 +1424,79 @@ extension ChatRoomViewModel
     }
 }
 
+extension Array
+{
+    func insertionIndex(where predicate: (Element) -> Bool) -> Int
+    {
+        var low = 0
+        var high = count
+
+        while low < high
+        {
+            let mid = (low + high) / 2
+            if predicate(self[mid]) {
+                low = mid + 1
+            } else {
+                high = mid
+            }
+        }
+
+        return low
+    }
+}
+
 // MARK: - messageCluster functions
 extension ChatRoomViewModel
 {
-    @discardableResult
-    func createMessageClustersWith(_ messages: [Message]) -> [MessageCellViewModel]
-    {
-        guard !messages.isEmpty else { return [] }
-        
-        var cellVMs: [MessageCellViewModel] = []
-        
-        var dateToClusterIndex = Dictionary(uniqueKeysWithValues: self.messageClusters.enumerated().map { ($0.element.date, $0.offset) })
-        var tempMessageClusters = self.messageClusters
-        
-        // Determine insertion direction by comparing timestamps
-        let isAscendingInsertion = {
-            guard let firstCurrent = self.messageClusters.first?.items.first?.message?.timestamp,
-                  let lastNew = messages.last?.timestamp else {
-                return true /// since table view is inverted, return true
-            }
-            return lastNew > firstCurrent
-        }()
-        
-        for message in messages {
-            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
-            let messageItem = MessageItem(message: message)
-            cellVMs.append(messageItem)
-            if let index = dateToClusterIndex[date] {
-                if isAscendingInsertion {
-                    tempMessageClusters[index].items.insert(messageItem, at: 0)
-                } else {
-                    tempMessageClusters[index].items.append(messageItem)
-                }
-            } else {
-                let newCluster = MessageCluster(date: date, items: [messageItem])
-                if isAscendingInsertion {
-                    tempMessageClusters.insert(newCluster, at: 0)
-                    dateToClusterIndex[date] = 0
-                } else {
-                    tempMessageClusters.append(newCluster)
-                    dateToClusterIndex[date] = tempMessageClusters.count - 1
-                }
-            }
-        }
-        
-        self.messageClusters = tempMessageClusters
-        return cellVMs
-    }
-
+//    func createMessageClustersWith(_ messages: [Message])
+//    {
+//        guard !messages.isEmpty else { return  }
+//        
+//        var dateToClusterIndex = Dictionary(uniqueKeysWithValues: self.messageClusters
+//            .enumerated()
+//            .map { ($0.element.date, $0.offset) }
+//        )
+//        var tempMessageClusters = self.messageClusters
+//        
+//        // Determine insertion direction by comparing timestamps
+//        let isAscendingInsertion = {
+//            guard let firstCurrent = self.messageClusters.first?.items.first?.message?.timestamp,
+//                  let lastNew = messages.last?.timestamp else
+//            {
+//                return true /// since table view is inverted, return true
+//            }
+//            return lastNew > firstCurrent
+//        }()
+//        
+//        for message in messages
+//        {
+//            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
+//            
+//            let messageItem = MessageItem(message: message)
+//            
+//            if let index = dateToClusterIndex[date]
+//            {
+//                if isAscendingInsertion {
+//                    tempMessageClusters[index].items.insert(messageItem, at: 0)
+//                } else {
+//                    tempMessageClusters[index].items.append(messageItem)
+//                }
+//            } else
+//            {
+//                let newCluster = MessageCluster(date: date, items: [messageItem])
+//                if isAscendingInsertion {
+//                    tempMessageClusters.insert(newCluster, at: 0)
+//                    dateToClusterIndex[date] = 0
+//                } else {
+//                    tempMessageClusters.append(newCluster)
+//                    dateToClusterIndex[date] = tempMessageClusters.count - 1
+//                }
+//            }
+//        }
+//        
+//        self.messageClusters = tempMessageClusters
+//    }
+//
     @MainActor
     func paginateRemoteMessages(direction: PaginationDirection) async throws -> MessagesPaginationResult
     {
@@ -1480,7 +1523,7 @@ extension ChatRoomViewModel
             }
         }
         
-        createMessageClustersWith(newMessages)
+        messageClusterRepository.addMessages(newMessages)
         return .didPaginate
     }
     

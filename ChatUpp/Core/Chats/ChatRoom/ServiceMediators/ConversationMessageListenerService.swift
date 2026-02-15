@@ -20,6 +20,7 @@ final class ConversationMessageListenerService
 //    private(set) var updatedMessage = PassthroughSubject<DatabaseChangedObject<Message>,Never>()
     @Published var updatedMessages: [DatabaseChangedObject<Message>] = []
     @Published var eventMessage: Message?
+    @Published var gappedMessages: [Message] = []
     
     init(conversation: Chat?) {
         self.conversation = conversation
@@ -98,5 +99,28 @@ final class ConversationMessageListenerService
             .sink { [weak self] message in
                 self?.eventMessage = message
             }.store(in: &cancellables)
+    }
+    
+    /// fetch potential gap of messages between starting and ending one
+    ///
+    @MainActor
+    func fetchGappedMessages() async -> [Message]
+    {
+        guard let chatID = conversation?.id,
+              let startFromMessageID = conversation?.getLastMessage()?.id,
+              let endMessageID = conversation?.getMessagesResults(ascending: false).prefix(2).last?.id
+        else { return [] }
+        
+        do {
+            let messages = try await FirebaseChatService.shared.fetchMessagesFromChat(chatID: chatID,
+                                                                                      startingFrom: startFromMessageID,
+                                                                                      endingWith: endMessageID,
+                                                                                      inclusive: false,
+                                                                                      fetchDirection: .descending)
+            return messages
+        } catch {
+            print("Could not fetch messages gaps ",error)
+        }
+        return []
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Array where Element == ChatRoomViewModel.MessageCluster
+extension Array where Element == MessageCluster
 {
     mutating func removeClusterItem(at indexPath: IndexPath) {
         self[indexPath.section].items.remove(at: indexPath.row)

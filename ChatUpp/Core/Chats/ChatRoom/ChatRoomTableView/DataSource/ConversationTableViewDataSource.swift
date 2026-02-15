@@ -8,8 +8,12 @@
 import UIKit
 import SkeletonView
 
+//protocol ChatRoomDataSourceProviding {
+//    var messageClusters : [ChatRoomViewModel.MessageCluster] { get }
+//}
+
 protocol ChatRoomDataSourceProviding {
-    var messageClusters : [ChatRoomViewModel.MessageCluster] { get }
+    var messageClusters : [MessageCluster] { get }
 }
 
 fileprivate class ConversationTableViewDataSource: UITableViewDiffableDataSource<Section,MessageCellViewModel>
@@ -54,6 +58,12 @@ final class ConversationDataSourceManager
             {
                 return self.dequeueUnseenTitleCell(for: indexPath, in: tableView)
             }
+            
+            if cellViewModel.message?.isInvalidated == true
+            {
+                print("stop")
+            }
+            
             
             if cellViewModel.message?.type == .title {
                 return self.dequeueMessageEventCell(for: indexPath, in: tableView, with: cellViewModel)
