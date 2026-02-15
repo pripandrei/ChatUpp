@@ -785,7 +785,7 @@ extension ChatRoomViewModel
     {
         guard conversation?.realm != nil else {return false} // if group chat that we are not member of is opened
         guard !shouldFetchNewMessages else {return false}
-        var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending) 
+        var paginatedMessages = prepareAdditionalMessagesForConversation(ascending: ascending)
         let recentMessageIsPresent = paginatedMessages.contains(where: { $0.id == conversation?.recentMessageID })
         
         if recentMessageIsPresent
@@ -1120,7 +1120,7 @@ extension ChatRoomViewModel
         RealmDatabase.shared.add(objects: updatedMessages)
 
         realmService?.addMessagesToRealmChat(newMessages)
-//        createMessageClustersWith(newMessages)
+
         if insert
         {
             messageClusterRepository.insertMessagesInOrder(newMessages)

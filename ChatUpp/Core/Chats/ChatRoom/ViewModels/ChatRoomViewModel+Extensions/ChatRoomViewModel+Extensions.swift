@@ -127,8 +127,7 @@ final class MessageClusterRepository: MessageClusterRepositoryProtocol
         self.messageClusters = tempMessageClusters
     }
     
-    func insertMessagesInOrder(_ messages: [Message])
-    {
+    func insertMessagesInOrder(_ messages: [Message]) {
         guard !messages.isEmpty else { return }
         
         var tempClusters = self.messageClusters
@@ -145,10 +144,10 @@ final class MessageClusterRepository: MessageClusterRepositoryProtocol
                 clusterIndex = existingIndex
             } else {
                 let newCluster = MessageCluster(date: date, items: [])
-                let insertionIndex = tempClusters.firstIndex { $0.date > date } ?? tempClusters.count
+                // CHANGED: For inverted, find first cluster with date < message date
+                let insertionIndex = tempClusters.firstIndex { $0.date < date } ?? tempClusters.count
                 tempClusters.insert(newCluster, at: insertionIndex)
                 
-                // More efficient: rebuild affected portion of map
                 for i in insertionIndex..<tempClusters.count {
                     dateToClusterIndex[tempClusters[i].date] = i
                 }
@@ -156,10 +155,10 @@ final class MessageClusterRepository: MessageClusterRepositoryProtocol
                 clusterIndex = insertionIndex
             }
             
-            // Insert message in sorted order inside cluster
+            // CHANGED: For inverted, find first message with timestamp < new message
             let insertionIndex = tempClusters[clusterIndex].items.firstIndex {
                 guard let existingTimestamp = $0.message?.timestamp else { return false }
-                return existingTimestamp > message.timestamp
+                return existingTimestamp < message.timestamp
             } ?? tempClusters[clusterIndex].items.count
             
             tempClusters[clusterIndex].items.insert(newItem, at: insertionIndex)
