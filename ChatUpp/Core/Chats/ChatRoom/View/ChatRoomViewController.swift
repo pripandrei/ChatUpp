@@ -46,11 +46,13 @@ final class ChatRoomViewController: UIViewController
     private var isContextMenuPresented: Bool = false
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScrollToUnseenIndexPathIfAny: Bool = true
+    private var paginateOldMessagesOnInitialChatOpen: Bool = true
     
-    private var isLastCellFullyVisible: Bool {
+    private var isFirstCellFullyVisible: Bool {
         checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
     }
     
+
     lazy private var photoBrowser: SKPhotoBrowserManager = SKPhotoBrowserManager()
     
     //MARK: - Lifecycle
@@ -166,7 +168,8 @@ final class ChatRoomViewController: UIViewController
             
             self.didFinishInitialScrollToUnseenIndexPathIfAny = false
             // Delay table view willDisplay cell functionality
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            executeAfter(seconds: 1.0)
+            {
                 self.didFinishInitialScrollToUnseenIndexPathIfAny = true
             }
         }
@@ -177,13 +180,10 @@ final class ChatRoomViewController: UIViewController
             self.scrollToCell(at: indexPath)
         }
         
-//        viewModel.addListeners()
-//        Task
-//        {
-//            let messages = await viewModel.messageListenerService?.fetchMessagesGaps() ?? []
-//            viewModel.addListeners()
-//        }
-//        
+        executeAfter(seconds: 1.0) {
+            self.paginateOldMessagesOnInitialChatOpen = false
+        }
+        
         if viewModel.authParticipantUnreadMessagesCount > 0
         {
             triggerUpdateUnseenMessagesCheck()
@@ -1204,25 +1204,24 @@ extension ChatRoomViewController: UITableViewDelegate
         let groupedClusterItems = viewModel.messageClusterRepository.messageClusters.map { $0.items }
         let totalItems = groupedClusterItems.flatMap { $0 }.count
         
-        
+       
         if let globalIndex = globalIndex(for: indexPath,
                                          in: groupedClusterItems)
         {
+            /// should be checked based upon the messages total count in chat model (which is missing),
+            /// and i dont have time to implemnte it
+            let shouldPaginateAnyway: Bool = viewModel.messageClusterRepository.messageClusters.count < 6
+            && paginateOldMessagesOnInitialChatOpen
+             
             if globalIndex == 3 && !viewModel.isLastMessageFromClusterTheMostRecentInChat
             {
                 paginateIfNeeded(ascending: true)
                 return
-            } else if globalIndex == totalItems - 6
+            } else if (globalIndex == totalItems - 6) || shouldPaginateAnyway
             {
                 paginateIfNeeded(ascending: false)
                 return
             }
-            /// should be checked based upon the messages total count in chat model,
-            /// but i dont have time to implemnte this
-//            if totalItems < 30
-//            {
-//                paginateIfNeeded(ascending: false)
-//            }
         }
     }
     
@@ -1396,7 +1395,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
         }
 
         /// Toggle scrollToBottom badge
-        isLastCellFullyVisible ?
+        isFirstCellFullyVisible ?
         toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
         :
         toggleScrollBadgeButtonVisibility(shouldBeHidden: false)

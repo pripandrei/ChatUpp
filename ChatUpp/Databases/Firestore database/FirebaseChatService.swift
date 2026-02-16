@@ -655,7 +655,6 @@ extension FirebaseChatService
                 
             }
     }
-     
     
     func addListenerForExistingMessagesTest(inChat chatID: String,
                                             startAtMessageWithID messageID: String,
@@ -679,7 +678,6 @@ extension FirebaseChatService
         
         var initialMessageIDs: Set<String>?
         
-        let options = SnapshotListenOptions().withSource(.default)
         let listener = query
             .limit(to: limit)
             .addSnapshotListener { snapshot, error in
@@ -935,8 +933,6 @@ extension FirebaseChatService
         
         for chatDoc in chatsSnapshot.documents
         {
-            let chat = try chatDoc.data(as: Chat.self)
-            
             // Messages
             let messagesRef = chatDoc.reference.collection("messages")
             let messagesSnapshot = try await messagesRef.getDocuments()

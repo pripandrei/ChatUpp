@@ -1445,55 +1445,6 @@ extension Array
 // MARK: - messageCluster functions
 extension ChatRoomViewModel
 {
-//    func createMessageClustersWith(_ messages: [Message])
-//    {
-//        guard !messages.isEmpty else { return  }
-//        
-//        var dateToClusterIndex = Dictionary(uniqueKeysWithValues: self.messageClusters
-//            .enumerated()
-//            .map { ($0.element.date, $0.offset) }
-//        )
-//        var tempMessageClusters = self.messageClusters
-//        
-//        // Determine insertion direction by comparing timestamps
-//        let isAscendingInsertion = {
-//            guard let firstCurrent = self.messageClusters.first?.items.first?.message?.timestamp,
-//                  let lastNew = messages.last?.timestamp else
-//            {
-//                return true /// since table view is inverted, return true
-//            }
-//            return lastNew > firstCurrent
-//        }()
-//        
-//        for message in messages
-//        {
-//            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
-//            
-//            let messageItem = MessageItem(message: message)
-//            
-//            if let index = dateToClusterIndex[date]
-//            {
-//                if isAscendingInsertion {
-//                    tempMessageClusters[index].items.insert(messageItem, at: 0)
-//                } else {
-//                    tempMessageClusters[index].items.append(messageItem)
-//                }
-//            } else
-//            {
-//                let newCluster = MessageCluster(date: date, items: [messageItem])
-//                if isAscendingInsertion {
-//                    tempMessageClusters.insert(newCluster, at: 0)
-//                    dateToClusterIndex[date] = 0
-//                } else {
-//                    tempMessageClusters.append(newCluster)
-//                    dateToClusterIndex[date] = tempMessageClusters.count - 1
-//                }
-//            }
-//        }
-//        
-//        self.messageClusters = tempMessageClusters
-//    }
-//
     @MainActor
     func paginateRemoteMessages(direction: PaginationDirection) async throws -> MessagesPaginationResult
     {
