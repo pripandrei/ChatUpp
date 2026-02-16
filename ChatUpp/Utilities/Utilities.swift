@@ -145,3 +145,13 @@ var checkUIDesignRequiresCompatibility: Bool
 {
     return Bundle.main.object(forInfoDictionaryKey: "UIDesignRequiresCompatibility") as? Bool ?? false
 }
+
+
+public func description<T>(for type: T.Type, description: String = "")
+{
+    print(String(describing: type), " : " , description)
+}
+public func deinitDescription<T>(for type: T.Type)
+{
+    print("\(type) was deinited")
+}

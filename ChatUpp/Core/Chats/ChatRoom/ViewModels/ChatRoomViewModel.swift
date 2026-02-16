@@ -30,7 +30,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     private(set) var lastPaginatedMessage: Message?
     private var cancellables             = Set<AnyCancellable>()
     
-//    @Published private(set) var messageClusters     : [MessageCluster] = []
     @Published private(set) var unseenMessagesCount: Int
     @Published private(set) var schedualedMessagesForRemoval: Set<Message> = []
     @Published private(set) var conversationInitializationStatus: ConversationInitializationStatus?
@@ -41,6 +40,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     @Published private var deletedMessageIDs: [String] = []
 
     var shouldEditMessage: ((String) -> Void)?
+    var editeMessageMetatype: (() -> (String, MessageType))?
     var currentlyReplyToMessageID: String?
     
     private var recentMessageItem: MessageItem? {
@@ -162,10 +162,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         bindToDeletedMessages()
         initiateConversation()
         ChatRoomSessionManager.activeChatID = conversation.id
-        
-        Timer.scheduledTimer(withTimeInterval: 5, repeats: true, block: { _ in
-            print("Current total message count: ",self.currentTotalMessagesCount)
-        })
+ 
 //        testMessagesCountAndUnseenCount() // test functions
     }
     
@@ -1009,7 +1006,7 @@ extension ChatRoomViewModel
     {
         messageListenerService?.$updatedMessages
             .debounce(for: .seconds(0.5), /// See FootNote.swift [18]
-                      scheduler: DispatchQueue.global(qos: .background))
+                      scheduler: DispatchQueue.main)
             .filter { !$0.isEmpty }
             .sink { [weak self] messagesTypes in
                 guard let self = self else { return }

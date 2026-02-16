@@ -577,11 +577,11 @@ final class TextImageMessageCell: UITableViewCell
     {
         guard let reactionUIView = self.reactionUIView?.reactionView else { return }
         
-        contentContainerViewBottomConstraint.isActive = false
+        contentContainerViewBottomConstraint?.isActive = false
         
         self.contentContainerViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -3)
-        self.contentContainerViewBottomConstraint.priority = UILayoutPriority(rawValue: 999)
-        self.contentContainerViewBottomConstraint.isActive = true
+        self.contentContainerViewBottomConstraint?.priority = UILayoutPriority(rawValue: 999)
+        self.contentContainerViewBottomConstraint?.isActive = true
         
         reactionUIView.removeFromSuperview()
         
@@ -668,7 +668,7 @@ final class TextImageMessageCell: UITableViewCell
 
         if let reactionView = reactionUIView?.reactionView
         {
-            if cellViewModel.message?.type == .image && cellViewModel.message?.messageBody.isEmpty == true
+            if cellViewModel?.message?.type == .image && cellViewModel?.message?.messageBody.isEmpty == true
             {
                 removeReactionUIViewFromCellContent(withAnimation: false)
             } else {

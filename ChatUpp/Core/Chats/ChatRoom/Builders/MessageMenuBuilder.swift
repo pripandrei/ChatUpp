@@ -17,6 +17,11 @@ final class MessageMenuBuilder
     
     private var contextMenuSelectedActionHandler: ((_ actionOption: InputBarHeaderView.Mode) -> Void)?
     
+    deinit
+    {
+        deinitDescription(for: Self.self)
+    }
+    
     init(viewModel: ChatRoomViewModel!,
          rootView: ChatRoomRootView!,
          cell: UITableViewCell,
@@ -94,7 +99,8 @@ final class MessageMenuBuilder
             image: UIImage(systemName: "pencil.and.scribble"),
             attributes: isOwner ? [] : .hidden
         ) { _ in
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self else {return}
                 self.rootView.messageTextView.text = message.messageBody
  
                 let image: UIImage? = (self.cell as? TextImageMessageCell)?.messageImage
@@ -102,15 +108,16 @@ final class MessageMenuBuilder
                 let text = (self.cell as? TextImageMessageCell)?.messageText
                 self.contextMenuSelectedActionHandler?(.edit(text: text,
                                                              image: image))
-//                self.viewModel.shouldEditMessage = { [message] editedText in
+
+                let firstoreService = self.viewModel.firestoreService
                 self.viewModel.shouldEditMessage = { editedText in
                     guard !message.isInvalidated else {return}
 
                     let updatedType :MessageType? = message.type == .image ? .imageText : nil
-
-                    self.viewModel.firestoreService?.editMessageFromFirestore(messageID: message.id,
-                                                                              editedText,
-                                                                              editedType: updatedType)
+                    
+                    firstoreService?.editMessageFromFirestore(messageID: message.id,
+                                                              editedText,
+                                                              editedType: updatedType)
                 }
             }
         }
@@ -123,12 +130,13 @@ final class MessageMenuBuilder
             image: UIImage(systemName: "trash"),
             attributes: isOwner ? .destructive : .hidden
         ) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 // TODO: should also delete locally in case network is off
 //                let freezedMessage = message.freeze()
 //                self.viewModel.realmService?.removeMessageFromRealm(message: message)
-                self.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
-                self.viewModel.firestoreService?.handleCounterUpdateOnMessageDeletionIfNeeded(message)
+                self?.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
+                self?.viewModel.firestoreService?.handleCounterUpdateOnMessageDeletionIfNeeded(message)
             }
         }
     }

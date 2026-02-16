@@ -25,6 +25,10 @@ final class ConversationFirestoreService
         self.conversation = conversation
     }
     
+    deinit {
+//        deinitDescription(for: Self.self)
+    }
+    
     func getFirstUnseenMessageFromFirestore(from chatID: String) async throws -> Message?
     {
         return try await FirebaseChatService.shared.getFirstUnseenMessage(

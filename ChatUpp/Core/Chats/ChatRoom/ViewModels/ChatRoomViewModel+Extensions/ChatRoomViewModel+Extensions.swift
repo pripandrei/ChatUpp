@@ -7,35 +7,6 @@
 
 import Foundation
 
-//MARK: - Model representing section of messages
-//extension ChatRoomViewModel: ChatRoomDataSourceProviding
-//{
-//    typealias MessageItem = MessageCellViewModel
-//    
-//    struct MessageCluster: Hashable
-//    {
-//        let id: UUID
-//        let date: Date
-//        var items: [MessageCellViewModel]
-//        
-//        init(id: UUID = UUID(), date: Date, items: [MessageItem])
-//        {
-//            self.id = id
-//            self.date = date
-//            self.items = items
-//        }
-//        
-//        func hash(into hasher: inout Hasher) {
-//            hasher.combine(id)
-//        }
-//        
-//        static func ==(lhs: MessageCluster, rhs: MessageCluster) -> Bool
-//        {
-//            lhs.id == rhs.id
-//        }
-//    }
-//}
-
 typealias MessageItem = MessageCellViewModel
 
 struct MessageCluster: Hashable
@@ -71,12 +42,6 @@ protocol MessageClusterRepositoryProtocol: AnyObject, ChatRoomDataSourceProvidin
 final class MessageClusterRepository: MessageClusterRepositoryProtocol
 {
     @Published var messageClusters: [MessageCluster] = []
-    {
-        didSet
-        {
-            print("messageClusters: ", messageClusters)
-        }
-    }
     
     func addMessages(_ messages: [Message])
     {
@@ -144,7 +109,7 @@ final class MessageClusterRepository: MessageClusterRepositoryProtocol
                 clusterIndex = existingIndex
             } else {
                 let newCluster = MessageCluster(date: date, items: [])
-                // CHANGED: For inverted, find first cluster with date < message date
+                
                 let insertionIndex = tempClusters.firstIndex { $0.date < date } ?? tempClusters.count
                 tempClusters.insert(newCluster, at: insertionIndex)
                 
@@ -155,7 +120,6 @@ final class MessageClusterRepository: MessageClusterRepositoryProtocol
                 clusterIndex = insertionIndex
             }
             
-            // CHANGED: For inverted, find first message with timestamp < new message
             let insertionIndex = tempClusters[clusterIndex].items.firstIndex {
                 guard let existingTimestamp = $0.message?.timestamp else { return false }
                 return existingTimestamp < message.timestamp

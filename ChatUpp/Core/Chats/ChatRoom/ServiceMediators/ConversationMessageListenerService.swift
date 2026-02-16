@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 
-
 //MARK: conversation message listener
 final class ConversationMessageListenerService
 {
@@ -17,7 +16,10 @@ final class ConversationMessageListenerService
     
     private var cancellables: Set<AnyCancellable> = []
 
-//    private(set) var updatedMessage = PassthroughSubject<DatabaseChangedObject<Message>,Never>()
+    deinit {
+        deinitDescription(for: Self.self)
+    }
+    
     @Published var updatedMessages: [DatabaseChangedObject<Message>] = []
     @Published var eventMessage: Message?
     @Published var gappedMessages: [Message] = []
@@ -88,7 +90,7 @@ final class ConversationMessageListenerService
                 .sink { [weak self] messagesUpdate in
                     guard let self else { return }
                     self.updatedMessages.append(contentsOf: messagesUpdate)
-                }.store(in: &cancellables)
+                }.store(in: &self.cancellables)
         }
     }
     

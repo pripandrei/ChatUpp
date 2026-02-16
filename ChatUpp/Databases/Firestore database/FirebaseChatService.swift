@@ -677,20 +677,20 @@ extension FirebaseChatService
         
         query = document.exists ? query.start(atDocument: document) : query.start(after: [timestamp])
         
-        // Track the initial set of message IDs
         var initialMessageIDs: Set<String>?
+        
         let options = SnapshotListenOptions().withSource(.default)
         let listener = query
             .limit(to: limit)
             .addSnapshotListener { snapshot, error in
-                guard error == nil else { print(error!.localizedDescription); return }
-                guard let documents = snapshot?.documentChanges else { print("No Message Documents to listen"); return }
-                
-//                guard snapshot?.metadata.isFromCache == false else {return}
+                if let error { print(error.localizedDescription); return }
+                guard let documents = snapshot?.documentChanges else
+                {
+                    print("No Message Documents to listen"); return
+                }
                 
                 var DBChangeObjects: [DatabaseChangedObject<Message>] = []
                 
-                // On first snapshot, capture the initial message IDs
                 if initialMessageIDs == nil
                 {
                     initialMessageIDs = Set(snapshot?.documents.compactMap { $0.documentID } ?? [])
@@ -700,7 +700,6 @@ extension FirebaseChatService
                 {
                     guard let message = try? document.document.data(as: Message.self) else { continue }
                     
-                    // Only process changes for messages that were in the initial set
                     let condition = document.type == .removed || initialMessageIDs?.contains(message.id) == true
                     
                     if condition
@@ -709,7 +708,6 @@ extension FirebaseChatService
                                                            changeType: document.type)
                         DBChangeObjects.append(object)
                         
-                        // If removed, take it out of our tracked set
                         if document.type == .removed
                         {
                             initialMessageIDs?.remove(document.document.documentID)
@@ -718,10 +716,6 @@ extension FirebaseChatService
                 }
                 
                 if !DBChangeObjects.isEmpty {
-                    let messagesBody = DBChangeObjects.map { $0.data.messageBody }
-                    let changeTypes = DBChangeObjects.map { $0.changeType }
-                    print("Body's; ",messagesBody)
-                    print("types change; ",changeTypes)
                     subject.send(DBChangeObjects)
                 }
             }

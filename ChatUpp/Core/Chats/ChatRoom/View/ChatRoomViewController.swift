@@ -89,7 +89,7 @@ final class ChatRoomViewController: UIViewController
     }
     
     deinit {
-//        print("ChatRoomVC deinit")
+        print("ChatRoomVC deinit")
         cleanUp()
     }
     
