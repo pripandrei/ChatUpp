@@ -14,7 +14,7 @@ final class MailSignInViewController: UIViewController {
     private let stackView = UIStackView()
     private var mailLogInField = CustomizedShadowTextField()
     private var passwordLogInField = CustomizedShadowTextField()
-    private let logInButton = CustomizedShadowButton()
+    private let logInButton = CustomizedShadowButton(shadowType: .bodyItem)
     private let envelopeLogo = UIImageView()
     private let signInWithEmailLabel = UILabel()
     

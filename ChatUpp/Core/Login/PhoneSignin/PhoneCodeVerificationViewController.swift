@@ -15,7 +15,7 @@ final class PhoneCodeVerificationViewController: UIViewController , UITextFieldD
     private var phoneViewModel: PhoneSignInViewModel!
     
     private let smsTextField = CustomizedShadowTextField()
-    private let verifyMessageButton = CustomizedShadowButton()
+    private let verifyMessageButton = CustomizedShadowButton(shadowType: .bodyItem)
     private let messageCodeLogo = UIImageView()
     private let codeTextLabel = UILabel()
     

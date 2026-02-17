@@ -170,8 +170,7 @@ extension ChatRoomInformationScreen
                     .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
             }
             .frame(width: 70, height: 40)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 8)
+            .padding(8)
             .background(Color(ColorScheme.listCellBackgroundColor).opacity(0.9))
             .clipShape(.rect(cornerRadius: 12))
             .overlay {

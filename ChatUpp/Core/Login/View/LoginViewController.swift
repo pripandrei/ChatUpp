@@ -16,9 +16,10 @@ class LoginViewController: UIViewController, UINavigationControllerDelegate
     private let loginViewModel = LoginViewModel()
     private let signUpLable: UILabel = UILabel()
     private let signUpButton = UILabel()
-    private var mailSignInButton = CustomizedShadowButton(type: .system)
-    private let phoneButton = CustomizedShadowButton()
-    private var googleSignInButton = CustomizedShadowButton()
+//    private var mailSignInButton = CustomizedShadowButton(type: .system)
+    private var mailSignInButton = CustomizedShadowButton(shadowType: .navigationItem)
+    private let phoneButton = CustomizedShadowButton(shadowType: .navigationItem)
+    private var googleSignInButton = CustomizedShadowButton(shadowType: .navigationItem)
     private let logoImage = UIImageView()
     private let signupStackView = UIStackView()
 

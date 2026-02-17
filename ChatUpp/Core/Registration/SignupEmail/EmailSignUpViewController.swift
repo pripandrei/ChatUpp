@@ -14,7 +14,7 @@ class EmailSignUpViewController: UIViewController {
     
     private var signUpViewModel = EmailSignupViewModel()
     private let stackView = UIStackView()
-    private let signUpButton = CustomizedShadowButton()
+    private let signUpButton = CustomizedShadowButton(shadowType: .bodyItem)
     private var emailSignupField = CustomizedShadowTextField()
     private var passwordSignupField = CustomizedShadowTextField()
     private let doorLogo = UIImageView()

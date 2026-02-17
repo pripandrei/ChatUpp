@@ -18,7 +18,7 @@ class UsernameRegistrationViewController: UIViewController {
     
     private let usernameRegistrationViewModel = UsernameRegistrationViewModel()
     private let usernameTextField: CustomizedShadowTextField = CustomizedShadowTextField()
-    private let continueButton: UIButton = CustomizedShadowButton()
+    private let continueButton: UIButton = CustomizedShadowButton(shadowType: .bodyItem)
     private let profileImage: UIImageView = UIImageView()
     private let nameAndPhotoTextLabel: UILabel = UILabel()
     private var cancellables = Set<AnyCancellable>()

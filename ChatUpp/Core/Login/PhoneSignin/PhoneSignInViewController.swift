@@ -18,7 +18,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
     var isPhoneNumberValid: Bool = false
     let phoneViewModel = PhoneSignInViewModel()
     let customizedFPNTextField = CustomFPNTextField()
-    let receiveMessageButton = CustomizedShadowButton()
+    let receiveMessageButton = CustomizedShadowButton(shadowType: .bodyItem)
     let listController: FPNCountryListViewController = FPNCountryListViewController(style: .grouped)
     
     private(set) lazy var activityIndicator: NVActivityIndicatorView = {

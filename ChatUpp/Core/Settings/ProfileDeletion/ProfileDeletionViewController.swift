@@ -65,7 +65,7 @@ final class ProfileDeletionViewController: UIViewController
     }()
     
     lazy var sendCodeButton: CustomizedShadowButton = {
-        let button = CustomizedShadowButton()
+        let button = CustomizedShadowButton(shadowType: .bodyItem)
         button.configuration?.title = "Get Code"
         button.addTarget(self, action: #selector(sendCodeButtonTapped), for: .touchUpInside)
         return button
