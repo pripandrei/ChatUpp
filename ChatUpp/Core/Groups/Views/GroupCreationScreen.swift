@@ -97,9 +97,11 @@ extension GroupCreationScreen
             Image(systemName: "xmark")
                 .font(.system(size: 10))
                 .bold()
-                .foregroundStyle(Color(ColorScheme.appBackgroundColor))
+//                .foregroundStyle(Color(ColorScheme.appBackgroundColor))
+                .foregroundStyle(Color(#colorLiteral(red: 0.9062067866, green: 0.9062067866, blue: 0.9062067866, alpha: 1)))
                 .padding(7)
-                .background(Color(ColorScheme.actionButtonsTintColor))
+//                .background(Color(ColorScheme.actionButtonsTintColor))
+                .background(Color(ColorScheme.navigationItemsColor))
                 .clipShape(.circle)
         }
     }

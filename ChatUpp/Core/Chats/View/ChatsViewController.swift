@@ -425,64 +425,21 @@ extension ChatsViewController
         setupRightBarButtonItem()
         setupBackBackBarButtonItem()
     }
-    
-//    private func setupRightBarButtonItem()
-//    {
-//        let plusButton = UIButton.makeToolbarItemButton(nil,
-//                                                        image: UIImage(systemName: "plus"),
-//                                                        sizeConstant: 37,
-//                                                        action: #selector(presentGropupOptionScreen),
-//                                                        on: self)
-//        plusButton.transform = .init(translationX: 1.0, y: -3.0)
-//        let trailingBarItem = UIBarButtonItem(customView: plusButton)
-//        self.navigationItem.rightBarButtonItem = trailingBarItem
-//    }
-//    
+
     private func setupRightBarButtonItem()
     {
-        let groupOptionScreenButton = CustomizedShadowButton(shadowType: .navigationItem)
-        groupOptionScreenButton.configuration?.image = UIImage(systemName: "plus")
-        groupOptionScreenButton.configuration?.baseBackgroundColor = #colorLiteral(red: 0.210408628, green: 0.15214324, blue: 0.2235487998, alpha: 1)
-        groupOptionScreenButton.addTarget(self,
-                                          action: #selector(presentGropupOptionScreen),
-                                          for: .touchUpInside)
+        let image = UIImage(systemName: "plus")
+        let button = UIButton.makeToolbarItemButton(nil,
+                                                    image: image,
+                                                    action: #selector(presentGropupOptionScreen),
+                                                    on: self)
         
-        groupOptionScreenButton.transform = .init(translationX: 1.0, y: -3.0)
-//        groupOptionScreenButton.layer.opacity = 0.9
-        let trailingBarItem = UIBarButtonItem(customView: groupOptionScreenButton)
+        button.configuration?.baseBackgroundColor = #colorLiteral(red: 0.210408628, green: 0.15214324, blue: 0.2235487998, alpha: 1)
+        button.transform = .init(translationX: 1.0, y: -3.0)
+        
+        let trailingBarItem = UIBarButtonItem(customView: button)
         self.navigationItem.rightBarButtonItem = trailingBarItem
     }
-    
-//    private func setupRightBarButtonItem()
-//    {
-//        let groupOptionScreenButton = createButtonItem(title: nil,
-//                                                       image: UIImage(systemName: "plus"))
-////        groupOptionScreenButton.configuration?.image = UIImage(systemName: "plus")
-//        groupOptionScreenButton.addTarget(self,
-//                                          action: #selector(presentGropupOptionScreen),
-//                                          for: .touchUpInside)
-//        
-//        groupOptionScreenButton.layer.opacity = 0.9
-//        let trailingBarItem = UIBarButtonItem(customView: groupOptionScreenButton)
-//        self.navigationItem.rightBarButtonItem = trailingBarItem
-//    }
-    
-//    private func setupRightBarButtonItem()
-//    {
-//        let buttonOption = HighlightedButton()
-//        let config = UIButton.Configuration.plain()
-//        buttonOption.configuration = config
-//        buttonOption.configuration?.baseBackgroundColor = #colorLiteral(red: 0.5125256181, green: 0.4497631192, blue: 0.4526336193, alpha: 1)
-//        buttonOption.configuration?.baseForegroundColor = .white
-//        buttonOption.configuration?.image = UIImage(systemName: "plus")
-//        buttonOption.addTarget(self, action: #selector(presentGropupOptionScreen),
-//                               for: .touchUpInside)
-//
-//
-//        let trailingBarItem = UIBarButtonItem(customView: buttonOption)
-//        self.navigationItem.rightBarButtonItem = trailingBarItem
-//    }
-    
     
     private func setupBackBackBarButtonItem()
     {

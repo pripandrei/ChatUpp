@@ -82,36 +82,19 @@ final class ProfileEditingViewController: UIViewController,
     ///
     private func setupNavigationBarItems()
     {
-//        let cancelButtonItem = UIButton.makeToolbarItemButton("Cancel",
-//                                                              image: nil,
-//                                                              sizeConstant: 40,
-//                                                              action: #selector(closeProfileVC),
-//                                                              on: self)
-        
-        let cancelButtonItem = CustomizedShadowButton(shadowType: .navigationItem)
+        let cancelButtonItem = UIButton.makeToolbarItemButton("Cancel",
+                                                              image: nil,
+                                                              action: #selector(closeProfileVC),
+                                                              on: self)
         
         cancelButtonItem.configuration?.baseBackgroundColor = #colorLiteral(red: 0.1473019719, green: 0.1066215411, blue: 0.1570228934, alpha: 1)
-//        cancelButtonItem.configuration?.image = UIImage(systemName: "Save")
-//        cancelButtonItem.configuration?.title = "Cancel"
-        cancelButtonItem.setTitle("Cancel")
-        cancelButtonItem.addTarget(self,
-                                   action: #selector(closeProfileVC),
-                                   for: .touchUpInside)
-//        #colorLiteral(red: 0.210408628, green: 0.15214324, blue: 0.2235487998, alpha: 1)
-        let saveButtonItem = CustomizedShadowButton(shadowType: .navigationItem)
-//        saveButtonItem.configuration?.image = UIImage(systemName: "Save")
-//        saveButtonItem.configuration?.title = "Save"
-        saveButtonItem.setTitle("Save")
-        saveButtonItem.configuration?.baseBackgroundColor = #colorLiteral(red: 0.1473019719, green: 0.1066215411, blue: 0.1570228934, alpha: 1)
-        saveButtonItem.addTarget(self,
-                                   action: #selector(saveEditedData),
-                                   for: .touchUpInside)
         
-//        let saveButtonItem = UIButton.makeToolbarItemButton("Save",
-//                                                            image: nil,
-//                                                            sizeConstant: 40,
-//                                                            action: #selector(saveEditedData),
-//                                                            on: self)
+        let saveButtonItem = UIButton.makeToolbarItemButton("Save",
+                                                            image: nil,
+                                                            action: #selector(saveEditedData),
+                                                            on: self)
+        
+        saveButtonItem.configuration?.baseBackgroundColor = #colorLiteral(red: 0.1473019719, green: 0.1066215411, blue: 0.1570228934, alpha: 1)
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: cancelButtonItem)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: saveButtonItem)

@@ -30,6 +30,8 @@ struct ColorScheme
     static let scrollToBottomButtonBackgroundColor: UIColor = #colorLiteral(red: 0.2306482196, green: 0.1865905523, blue: 0.2809014618, alpha: 1)
     static let inputBarMessageContainerBackgroundColor: UIColor = #colorLiteral(red: 0.4341781139, green: 0.1795937121, blue: 0.3866679668, alpha: 1)
     static let sendMessageButtonBackgroundColor: UIColor = #colorLiteral(red: 0.976365149, green: 0.4590291381, blue: 0.9979678988, alpha: 1)
+//    static let navigationItemsColor: UIColor = #colorLiteral(red: 0.5362043381, green: 0.4447681308, blue: 0.5172539353, alpha: 1)
+    static let navigationItemsColor: UIColor = #colorLiteral(red: 0.3952603936, green: 0.3423251808, blue: 0.3399102092, alpha: 1)
     
     static let unseenMessagesBadgeBackgroundColor: UIColor = #colorLiteral(red: 0.8423270583, green: 0.4228419662, blue: 0.9524703622, alpha: 1)
     static let unseenMessagesBadgeTextColor: UIColor = .white

@@ -163,14 +163,14 @@ extension NewGroupSetupScreen
         } label: {
             ZStack {
                 Circle()
-                    .fill(Color(#colorLiteral(red: 0.6000000238, green: 0.6000000238, blue: 0.6000000238, alpha: 1)))
+                    .fill(Color(ColorScheme.navigationItemsColor))
                     .frame(width: 24, height: 24)
                 
                 Image(systemName: "xmark")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 10, height: 10)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color(#colorLiteral(red: 0.9062067866, green: 0.9062067866, blue: 0.9062067866, alpha: 1)))
             }
         }
         .buttonStyle(.plain)
