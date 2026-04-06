@@ -1,9 +1,9 @@
 ---
 triple:          'x86_64-apple-darwin'
-binary-path:     '/Users/andrei/Library/Caches/org.carthage.CarthageKit/DerivedData/26.2_17C52/FlagPhoneNumber/0.9.0/Build/Products/Release-iphonesimulator/FlagPhoneNumber.framework/FlagPhoneNumber'
+binary-path:     '/Users/andrei/Library/Caches/org.carthage.CarthageKit/DerivedData/26.3_17C529/FlagPhoneNumber-master/10867de7515be0a3b760ce79df3c29a92cc916df/Build/Products/Release-iphonesimulator/FlagPhoneNumber.framework/FlagPhoneNumber'
 relocations:
-  - { offset: 0xD445A, size: 0x8, addend: 0x0, symName: _FlagPhoneNumberVersionString, symObjAddr: 0x0, symBinAddr: 0x26660, symSize: 0x0 }
-  - { offset: 0xD448F, size: 0x8, addend: 0x0, symName: _FlagPhoneNumberVersionNumber, symObjAddr: 0x38, symBinAddr: 0x26698, symSize: 0x0 }
+  - { offset: 0xD445A, size: 0x8, addend: 0x0, symName: _FlagPhoneNumberVersionString, symObjAddr: 0x0, symBinAddr: 0x26670, symSize: 0x0 }
+  - { offset: 0xD448F, size: 0x8, addend: 0x0, symName: _FlagPhoneNumberVersionNumber, symObjAddr: 0x38, symBinAddr: 0x266A8, symSize: 0x0 }
   - { offset: 0xD44CC, size: 0x8, addend: 0x0, symName: '-[NSArray(NBAdditions) nb_safeObjectAtIndex:class:]', symObjAddr: 0x0, symBinAddr: 0x1630, symSize: 0x83 }
   - { offset: 0xD44DA, size: 0x8, addend: 0x0, symName: '-[NSArray(NBAdditions) nb_safeObjectAtIndex:class:]', symObjAddr: 0x0, symBinAddr: 0x1630, symSize: 0x83 }
   - { offset: 0xD458A, size: 0x8, addend: 0x0, symName: '-[NSArray(NBAdditions) nb_safeStringAtIndex:]', symObjAddr: 0x83, symBinAddr: 0x16B3, symSize: 0x33 }
@@ -72,9 +72,9 @@ relocations:
   - { offset: 0xD5EB1, size: 0x8, addend: 0x0, symName: '-[NBPhoneMetaData .cxx_destruct]', symObjAddr: 0xE10, symBinAddr: 0x258F, symSize: 0x138 }
   - { offset: 0xD5F9C, size: 0x8, addend: 0x0, symName: '+[NBRegularExpressionCache sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x26C7, symSize: 0x22 }
   - { offset: 0xD5FAA, size: 0x8, addend: 0x0, symName: '+[NBRegularExpressionCache sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x26C7, symSize: 0x22 }
-  - { offset: 0xD5FD4, size: 0x8, addend: 0x0, symName: _sharedInstance.instance, symObjAddr: 0x2658, symBinAddr: 0x48100, symSize: 0x0 }
-  - { offset: 0xD5FEA, size: 0x8, addend: 0x0, symName: _sharedInstance.token, symObjAddr: 0x2660, symBinAddr: 0x48108, symSize: 0x0 }
-  - { offset: 0xD609C, size: 0x8, addend: 0x0, symName: '+[NBRegularExpressionCache sharedInstance].cold.1', symObjAddr: 0x273, symBinAddr: 0x24A44, symSize: 0x18 }
+  - { offset: 0xD5FD4, size: 0x8, addend: 0x0, symName: _sharedInstance.instance, symObjAddr: 0x2740, symBinAddr: 0x48100, symSize: 0x0 }
+  - { offset: 0xD5FEA, size: 0x8, addend: 0x0, symName: _sharedInstance.token, symObjAddr: 0x2748, symBinAddr: 0x48108, symSize: 0x0 }
+  - { offset: 0xD609C, size: 0x8, addend: 0x0, symName: '+[NBRegularExpressionCache sharedInstance].cold.1', symObjAddr: 0x273, symBinAddr: 0x24A54, symSize: 0x18 }
   - { offset: 0xD60CA, size: 0x8, addend: 0x0, symName: '___42+[NBRegularExpressionCache sharedInstance]_block_invoke', symObjAddr: 0x22, symBinAddr: 0x26E9, symSize: 0x25 }
   - { offset: 0xD60FD, size: 0x8, addend: 0x0, symName: '-[NBRegularExpressionCache init]', symObjAddr: 0x47, symBinAddr: 0x270E, symSize: 0x56 }
   - { offset: 0xD6140, size: 0x8, addend: 0x0, symName: '-[NBRegularExpressionCache regularExpressionForPattern:error:]', symObjAddr: 0x9D, symBinAddr: 0x2764, symSize: 0x1AB }
@@ -86,14 +86,14 @@ relocations:
   - { offset: 0xD6514, size: 0x8, addend: 0x0, symName: _kPhoneNumberMetaDataCompressedLength, symObjAddr: 0xC660, symBinAddr: 0x44E20, symSize: 0x0 }
   - { offset: 0xD6532, size: 0x8, addend: 0x0, symName: _kPhoneNumberMetaDataExpandedLength, symObjAddr: 0xC668, symBinAddr: 0x44E28, symSize: 0x0 }
   - { offset: 0xD653C, size: 0x8, addend: 0x0, symName: '+[NBMetadataHelper phoneNumberDataMap]', symObjAddr: 0x56, symBinAddr: 0x2990, symSize: 0x63 }
-  - { offset: 0xD6566, size: 0x8, addend: 0x0, symName: _phoneNumberDataMap.phoneNumberDataDictionary, symObjAddr: 0x11BE8, symBinAddr: 0x48110, symSize: 0x0 }
-  - { offset: 0xD657C, size: 0x8, addend: 0x0, symName: _phoneNumberDataMap.onceToken, symObjAddr: 0x11BF0, symBinAddr: 0x48118, symSize: 0x0 }
+  - { offset: 0xD6566, size: 0x8, addend: 0x0, symName: _phoneNumberDataMap.phoneNumberDataDictionary, symObjAddr: 0x11CF8, symBinAddr: 0x48110, symSize: 0x0 }
+  - { offset: 0xD657C, size: 0x8, addend: 0x0, symName: _phoneNumberDataMap.onceToken, symObjAddr: 0x11D00, symBinAddr: 0x48118, symSize: 0x0 }
   - { offset: 0xD65D9, size: 0x8, addend: 0x0, symName: '+[NBMetadataHelper CCode2CNMap]', symObjAddr: 0x100, symBinAddr: 0x2A3A, symSize: 0x63 }
-  - { offset: 0xD6603, size: 0x8, addend: 0x0, symName: _CCode2CNMap.mapCCode2CN, symObjAddr: 0x11BF8, symBinAddr: 0x48120, symSize: 0x0 }
-  - { offset: 0xD6619, size: 0x8, addend: 0x0, symName: _CCode2CNMap.onceToken, symObjAddr: 0x11C00, symBinAddr: 0x48128, symSize: 0x0 }
+  - { offset: 0xD6603, size: 0x8, addend: 0x0, symName: _CCode2CNMap.mapCCode2CN, symObjAddr: 0x11D08, symBinAddr: 0x48120, symSize: 0x0 }
+  - { offset: 0xD6619, size: 0x8, addend: 0x0, symName: _CCode2CNMap.onceToken, symObjAddr: 0x11D10, symBinAddr: 0x48128, symSize: 0x0 }
   - { offset: 0xD6676, size: 0x8, addend: 0x0, symName: _StringByTrimming, symObjAddr: 0xB86, symBinAddr: 0x34C0, symSize: 0x5B }
-  - { offset: 0xD669C, size: 0x8, addend: 0x0, symName: _StringByTrimming.onceToken, symObjAddr: 0x11C08, symBinAddr: 0x48130, symSize: 0x0 }
-  - { offset: 0xD66B2, size: 0x8, addend: 0x0, symName: _StringByTrimming.whitespaceCharSet, symObjAddr: 0x11C10, symBinAddr: 0x48138, symSize: 0x0 }
+  - { offset: 0xD669C, size: 0x8, addend: 0x0, symName: _StringByTrimming.onceToken, symObjAddr: 0x11D18, symBinAddr: 0x48130, symSize: 0x0 }
+  - { offset: 0xD66B2, size: 0x8, addend: 0x0, symName: _StringByTrimming.whitespaceCharSet, symObjAddr: 0x11D20, symBinAddr: 0x48138, symSize: 0x0 }
   - { offset: 0xD6766, size: 0x8, addend: 0x0, symName: '-[NBMetadataHelper init]', symObjAddr: 0x0, symBinAddr: 0x293A, symSize: 0x56 }
   - { offset: 0xD67E9, size: 0x8, addend: 0x0, symName: '___38+[NBMetadataHelper phoneNumberDataMap]_block_invoke', symObjAddr: 0xB9, symBinAddr: 0x29F3, symSize: 0x47 }
   - { offset: 0xD6840, size: 0x8, addend: 0x0, symName: '___31+[NBMetadataHelper CCode2CNMap]_block_invoke', symObjAddr: 0x163, symBinAddr: 0x2A9D, symSize: 0x2A2 }
@@ -102,7 +102,7 @@ relocations:
   - { offset: 0xD6CC7, size: 0x8, addend: 0x0, symName: '+[NBMetadataHelper regionCodeFromCountryCode:]', symObjAddr: 0x88F, symBinAddr: 0x31C9, symSize: 0xED }
   - { offset: 0xD6DCF, size: 0x8, addend: 0x0, symName: '+[NBMetadataHelper countryCodeFromRegionCode:]', symObjAddr: 0x97C, symBinAddr: 0x32B6, symSize: 0x7A }
   - { offset: 0xD6E6B, size: 0x8, addend: 0x0, symName: '-[NBMetadataHelper getMetadataForRegion:]', symObjAddr: 0x9F6, symBinAddr: 0x3330, symSize: 0x190 }
-  - { offset: 0xD700D, size: 0x8, addend: 0x0, symName: _StringByTrimming.cold.1, symObjAddr: 0xE4B, symBinAddr: 0x24A5C, symSize: 0x18 }
+  - { offset: 0xD700D, size: 0x8, addend: 0x0, symName: _StringByTrimming.cold.1, symObjAddr: 0xE4B, symBinAddr: 0x24A6C, symSize: 0x18 }
   - { offset: 0xD703B, size: 0x8, addend: 0x0, symName: '-[NBMetadataHelper getMetadataForNonGeographicalRegion:]', symObjAddr: 0xBE1, symBinAddr: 0x351B, symSize: 0x62 }
   - { offset: 0xD70BE, size: 0x8, addend: 0x0, symName: '+[NBMetadataHelper hasValue:]', symObjAddr: 0xC43, symBinAddr: 0x357D, symSize: 0x42 }
   - { offset: 0xD712F, size: 0x8, addend: 0x0, symName: '+[NBMetadataHelper jsonObjectFromZippedDataWithBytes:compressedLength:expandedLength:]', symObjAddr: 0xC85, symBinAddr: 0x35BF, symSize: 0x10E }
@@ -123,33 +123,33 @@ relocations:
   - { offset: 0xD7BCE, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberDesc .cxx_destruct]', symObjAddr: 0x2DC, symBinAddr: 0x3A61, symSize: 0x5F }
   - { offset: 0xD7C4C, size: 0x8, addend: 0x0, symName: '+[NBPhoneNumberUtil sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x3AC0, symSize: 0x63 }
   - { offset: 0xD7C8D, size: 0x8, addend: 0x0, symName: '+[NBPhoneNumberUtil sharedInstance]', symObjAddr: 0x0, symBinAddr: 0x3AC0, symSize: 0x63 }
-  - { offset: 0xD7CB7, size: 0x8, addend: 0x0, symName: _sharedInstance.sharedOnceInstance, symObjAddr: 0x39FB8, symBinAddr: 0x48140, symSize: 0x0 }
-  - { offset: 0xD7CCD, size: 0x8, addend: 0x0, symName: _sharedInstance.onceToken, symObjAddr: 0x39FC0, symBinAddr: 0x48148, symSize: 0x0 }
+  - { offset: 0xD7CB7, size: 0x8, addend: 0x0, symName: _sharedInstance.sharedOnceInstance, symObjAddr: 0x3A0F8, symBinAddr: 0x48140, symSize: 0x0 }
+  - { offset: 0xD7CCD, size: 0x8, addend: 0x0, symName: _sharedInstance.onceToken, symObjAddr: 0x3A100, symBinAddr: 0x48148, symSize: 0x0 }
   - { offset: 0xD7E6D, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil initRegularExpressionSet]', symObjAddr: 0x1392, symBinAddr: 0x4E52, symSize: 0x12D }
-  - { offset: 0xD7E95, size: 0x8, addend: 0x0, symName: _initRegularExpressionSet.onceToken, symObjAddr: 0x39FD0, symBinAddr: 0x48158, symSize: 0x0 }
+  - { offset: 0xD7E95, size: 0x8, addend: 0x0, symName: _initRegularExpressionSet.onceToken, symObjAddr: 0x3A110, symBinAddr: 0x48158, symSize: 0x0 }
   - { offset: 0xD7F75, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil DIGIT_MAPPINGS]', symObjAddr: 0x1642, symBinAddr: 0x5102, symSize: 0x22 }
-  - { offset: 0xD7FA1, size: 0x8, addend: 0x0, symName: _DIGIT_MAPPINGS.onceToken, symObjAddr: 0x3A010, symBinAddr: 0x48198, symSize: 0x0 }
+  - { offset: 0xD7FA1, size: 0x8, addend: 0x0, symName: _DIGIT_MAPPINGS.onceToken, symObjAddr: 0x3A150, symBinAddr: 0x48198, symSize: 0x0 }
   - { offset: 0xD7FDC, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil initNormalizationMappings]', symObjAddr: 0x19BD, symBinAddr: 0x547D, symSize: 0x16 }
-  - { offset: 0xD8004, size: 0x8, addend: 0x0, symName: _initNormalizationMappings.onceToken, symObjAddr: 0x3A020, symBinAddr: 0x481A8, symSize: 0x0 }
+  - { offset: 0xD8004, size: 0x8, addend: 0x0, symName: _initNormalizationMappings.onceToken, symObjAddr: 0x3A160, symBinAddr: 0x481A8, symSize: 0x0 }
   - { offset: 0xD807F, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil telephonyNetworkInfo]', symObjAddr: 0xACE3, symBinAddr: 0xE7A3, symSize: 0x22 }
-  - { offset: 0xD80AB, size: 0x8, addend: 0x0, symName: _telephonyNetworkInfo.onceToken, symObjAddr: 0x3A048, symBinAddr: 0x481D0, symSize: 0x0 }
-  - { offset: 0xD8100, size: 0x8, addend: 0x0, symName: _LEADING_PLUS_CHARS_PATTERN, symObjAddr: 0x39FD8, symBinAddr: 0x48160, symSize: 0x0 }
-  - { offset: 0xD8116, size: 0x8, addend: 0x0, symName: _EXTN_PATTERN, symObjAddr: 0x39FF8, symBinAddr: 0x48180, symSize: 0x0 }
-  - { offset: 0xD812C, size: 0x8, addend: 0x0, symName: _SEPARATOR_PATTERN, symObjAddr: 0x3A000, symBinAddr: 0x48188, symSize: 0x0 }
-  - { offset: 0xD8142, size: 0x8, addend: 0x0, symName: _VALID_PHONE_NUMBER_PATTERN, symObjAddr: 0x3A008, symBinAddr: 0x48190, symSize: 0x0 }
-  - { offset: 0xD8158, size: 0x8, addend: 0x0, symName: _VALID_START_CHAR_PATTERN, symObjAddr: 0x39FE0, symBinAddr: 0x48168, symSize: 0x0 }
-  - { offset: 0xD816E, size: 0x8, addend: 0x0, symName: _UNWANTED_END_CHAR_PATTERN, symObjAddr: 0x39FF0, symBinAddr: 0x48178, symSize: 0x0 }
-  - { offset: 0xD8184, size: 0x8, addend: 0x0, symName: _SECOND_NUMBER_START_PATTERN, symObjAddr: 0x39FE8, symBinAddr: 0x48170, symSize: 0x0 }
-  - { offset: 0xD819A, size: 0x8, addend: 0x0, symName: _ALL_NORMALIZATION_MAPPINGS, symObjAddr: 0x3A030, symBinAddr: 0x481B8, symSize: 0x0 }
-  - { offset: 0xD81B0, size: 0x8, addend: 0x0, symName: _DIALLABLE_CHAR_MAPPINGS, symObjAddr: 0x3A028, symBinAddr: 0x481B0, symSize: 0x0 }
-  - { offset: 0xD81C6, size: 0x8, addend: 0x0, symName: _ALL_PLUS_NUMBER_GROUPING_SYMBOLS, symObjAddr: 0x3A038, symBinAddr: 0x481C0, symSize: 0x0 }
-  - { offset: 0xD81DC, size: 0x8, addend: 0x0, symName: _MOBILE_TOKEN_MAPPINGS, symObjAddr: 0x3A040, symBinAddr: 0x481C8, symSize: 0x0 }
-  - { offset: 0xD81F2, size: 0x8, addend: 0x0, symName: _DIGIT_MAPPINGS, symObjAddr: 0x3A018, symBinAddr: 0x481A0, symSize: 0x0 }
-  - { offset: 0xD8208, size: 0x8, addend: 0x0, symName: _GEO_MOBILE_COUNTRIES, symObjAddr: 0x39FC8, symBinAddr: 0x48150, symSize: 0x0 }
-  - { offset: 0xD8224, size: 0x8, addend: 0x0, symName: __telephonyNetworkInfo, symObjAddr: 0x3A050, symBinAddr: 0x481D8, symSize: 0x0 }
+  - { offset: 0xD80AB, size: 0x8, addend: 0x0, symName: _telephonyNetworkInfo.onceToken, symObjAddr: 0x3A188, symBinAddr: 0x481D0, symSize: 0x0 }
+  - { offset: 0xD8100, size: 0x8, addend: 0x0, symName: _LEADING_PLUS_CHARS_PATTERN, symObjAddr: 0x3A118, symBinAddr: 0x48160, symSize: 0x0 }
+  - { offset: 0xD8116, size: 0x8, addend: 0x0, symName: _EXTN_PATTERN, symObjAddr: 0x3A138, symBinAddr: 0x48180, symSize: 0x0 }
+  - { offset: 0xD812C, size: 0x8, addend: 0x0, symName: _SEPARATOR_PATTERN, symObjAddr: 0x3A140, symBinAddr: 0x48188, symSize: 0x0 }
+  - { offset: 0xD8142, size: 0x8, addend: 0x0, symName: _VALID_PHONE_NUMBER_PATTERN, symObjAddr: 0x3A148, symBinAddr: 0x48190, symSize: 0x0 }
+  - { offset: 0xD8158, size: 0x8, addend: 0x0, symName: _VALID_START_CHAR_PATTERN, symObjAddr: 0x3A120, symBinAddr: 0x48168, symSize: 0x0 }
+  - { offset: 0xD816E, size: 0x8, addend: 0x0, symName: _UNWANTED_END_CHAR_PATTERN, symObjAddr: 0x3A130, symBinAddr: 0x48178, symSize: 0x0 }
+  - { offset: 0xD8184, size: 0x8, addend: 0x0, symName: _SECOND_NUMBER_START_PATTERN, symObjAddr: 0x3A128, symBinAddr: 0x48170, symSize: 0x0 }
+  - { offset: 0xD819A, size: 0x8, addend: 0x0, symName: _ALL_NORMALIZATION_MAPPINGS, symObjAddr: 0x3A170, symBinAddr: 0x481B8, symSize: 0x0 }
+  - { offset: 0xD81B0, size: 0x8, addend: 0x0, symName: _DIALLABLE_CHAR_MAPPINGS, symObjAddr: 0x3A168, symBinAddr: 0x481B0, symSize: 0x0 }
+  - { offset: 0xD81C6, size: 0x8, addend: 0x0, symName: _ALL_PLUS_NUMBER_GROUPING_SYMBOLS, symObjAddr: 0x3A178, symBinAddr: 0x481C0, symSize: 0x0 }
+  - { offset: 0xD81DC, size: 0x8, addend: 0x0, symName: _MOBILE_TOKEN_MAPPINGS, symObjAddr: 0x3A180, symBinAddr: 0x481C8, symSize: 0x0 }
+  - { offset: 0xD81F2, size: 0x8, addend: 0x0, symName: _DIGIT_MAPPINGS, symObjAddr: 0x3A158, symBinAddr: 0x481A0, symSize: 0x0 }
+  - { offset: 0xD8208, size: 0x8, addend: 0x0, symName: _GEO_MOBILE_COUNTRIES, symObjAddr: 0x3A108, symBinAddr: 0x48150, symSize: 0x0 }
+  - { offset: 0xD8224, size: 0x8, addend: 0x0, symName: __telephonyNetworkInfo, symObjAddr: 0x3A190, symBinAddr: 0x481D8, symSize: 0x0 }
   - { offset: 0xD822E, size: 0x8, addend: 0x0, symName: _isNan, symObjAddr: 0x32BA, symBinAddr: 0x6D7A, symSize: 0x5C }
-  - { offset: 0xD8254, size: 0x8, addend: 0x0, symName: _isNan.onceToken, symObjAddr: 0x3A058, symBinAddr: 0x481E0, symSize: 0x0 }
-  - { offset: 0xD826A, size: 0x8, addend: 0x0, symName: _isNan.nonDecimalCharacterSet, symObjAddr: 0x3A060, symBinAddr: 0x481E8, symSize: 0x0 }
+  - { offset: 0xD8254, size: 0x8, addend: 0x0, symName: _isNan.onceToken, symObjAddr: 0x3A198, symBinAddr: 0x481E0, symSize: 0x0 }
+  - { offset: 0xD826A, size: 0x8, addend: 0x0, symName: _isNan.nonDecimalCharacterSet, symObjAddr: 0x3A1A0, symBinAddr: 0x481E8, symSize: 0x0 }
   - { offset: 0xD84C5, size: 0x8, addend: 0x0, symName: '___35+[NBPhoneNumberUtil sharedInstance]_block_invoke', symObjAddr: 0x63, symBinAddr: 0x3B23, symSize: 0x22 }
   - { offset: 0xD8510, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil errorWithObject:withDomain:]', symObjAddr: 0x85, symBinAddr: 0x3B45, symSize: 0xA0 }
   - { offset: 0xD85D8, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil entireRegularExpressionWithPattern:options:error:]', symObjAddr: 0x125, symBinAddr: 0x3BE5, symSize: 0x19A }
@@ -168,11 +168,11 @@ relocations:
   - { offset: 0xD981E, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil getNationalSignificantNumber:]', symObjAddr: 0x1125, symBinAddr: 0x4BE5, symSize: 0x15B }
   - { offset: 0xD999D, size: 0x8, addend: 0x0, symName: '+[NBPhoneNumberUtil initialize]', symObjAddr: 0x1280, symBinAddr: 0x4D40, symSize: 0x4A }
   - { offset: 0xD99DD, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil init]', symObjAddr: 0x12CA, symBinAddr: 0x4D8A, symSize: 0xC8 }
-  - { offset: 0xD9A6D, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil initRegularExpressionSet].cold.1', symObjAddr: 0xD0AA, symBinAddr: 0x24A76, symSize: 0x19 }
+  - { offset: 0xD9A6D, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil initRegularExpressionSet].cold.1', symObjAddr: 0xD0AA, symBinAddr: 0x24A86, symSize: 0x19 }
   - { offset: 0xD9A9C, size: 0x8, addend: 0x0, symName: '___45-[NBPhoneNumberUtil initRegularExpressionSet]_block_invoke', symObjAddr: 0x14BF, symBinAddr: 0x4F7F, symSize: 0x183 }
-  - { offset: 0xD9B75, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil DIGIT_MAPPINGS].cold.1', symObjAddr: 0xD0C3, symBinAddr: 0x24A8F, symSize: 0x18 }
+  - { offset: 0xD9B75, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil DIGIT_MAPPINGS].cold.1', symObjAddr: 0xD0C3, symBinAddr: 0x24A9F, symSize: 0x18 }
   - { offset: 0xD9BA4, size: 0x8, addend: 0x0, symName: '___35-[NBPhoneNumberUtil DIGIT_MAPPINGS]_block_invoke', symObjAddr: 0x1664, symBinAddr: 0x5124, symSize: 0x359 }
-  - { offset: 0xD9BE5, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil initNormalizationMappings].cold.1', symObjAddr: 0xD0DB, symBinAddr: 0x24AA7, symSize: 0x18 }
+  - { offset: 0xD9BE5, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil initNormalizationMappings].cold.1', symObjAddr: 0xD0DB, symBinAddr: 0x24AB7, symSize: 0x18 }
   - { offset: 0xD9C14, size: 0x8, addend: 0x0, symName: '___46-[NBPhoneNumberUtil initNormalizationMappings]_block_invoke', symObjAddr: 0x19D3, symBinAddr: 0x5493, symSize: 0x93C }
   - { offset: 0xD9CB7, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil extractPossibleNumber:]', symObjAddr: 0x230F, symBinAddr: 0x5DCF, symSize: 0x11D }
   - { offset: 0xD9DFE, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil isViablePhoneNumber:]', symObjAddr: 0x242C, symBinAddr: 0x5EEC, symSize: 0x8C }
@@ -190,7 +190,7 @@ relocations:
   - { offset: 0xDAB49, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil formattingRuleHasFirstGroupOnly:]', symObjAddr: 0x30D2, symBinAddr: 0x6B92, symSize: 0x6C }
   - { offset: 0xDABFB, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil isNumberGeographical:]', symObjAddr: 0x313E, symBinAddr: 0x6BFE, symSize: 0xA9 }
   - { offset: 0xDAD07, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil isValidRegionCode:]', symObjAddr: 0x31E7, symBinAddr: 0x6CA7, symSize: 0xD3 }
-  - { offset: 0xDADF3, size: 0x8, addend: 0x0, symName: _isNan.cold.1, symObjAddr: 0xD0F3, symBinAddr: 0x24ABF, symSize: 0x18 }
+  - { offset: 0xDADF3, size: 0x8, addend: 0x0, symName: _isNan.cold.1, symObjAddr: 0xD0F3, symBinAddr: 0x24ACF, symSize: 0x18 }
   - { offset: 0xDAE21, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil hasValidCountryCallingCode:]', symObjAddr: 0x3316, symBinAddr: 0x6DD6, symSize: 0x3A }
   - { offset: 0xDAE8F, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil format:numberFormat:error:]', symObjAddr: 0x3350, symBinAddr: 0x6E10, symSize: 0x165 }
   - { offset: 0xDAFF4, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil format:numberFormat:]', symObjAddr: 0x34B5, symBinAddr: 0x6F75, symSize: 0x2BF }
@@ -257,7 +257,7 @@ relocations:
   - { offset: 0xE27C3, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil checkRegionForParsing:defaultRegion:]', symObjAddr: 0xAA3F, symBinAddr: 0xE4FF, symSize: 0x89 }
   - { offset: 0xE2890, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil parse:defaultRegion:error:]', symObjAddr: 0xAAC8, symBinAddr: 0xE588, symSize: 0xFB }
   - { offset: 0xE298D, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil parseWithPhoneCarrierRegion:error:]', symObjAddr: 0xABC3, symBinAddr: 0xE683, symSize: 0x120 }
-  - { offset: 0xE2AC9, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil telephonyNetworkInfo].cold.1', symObjAddr: 0xD10B, symBinAddr: 0x24AD7, symSize: 0x18 }
+  - { offset: 0xE2AC9, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil telephonyNetworkInfo].cold.1', symObjAddr: 0xD10B, symBinAddr: 0x24AE7, symSize: 0x18 }
   - { offset: 0xE2AF8, size: 0x8, addend: 0x0, symName: '___41-[NBPhoneNumberUtil telephonyNetworkInfo]_block_invoke', symObjAddr: 0xAD05, symBinAddr: 0xE7C5, symSize: 0x25 }
   - { offset: 0xE2B2D, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil countryCodeByCarrier]', symObjAddr: 0xAD2A, symBinAddr: 0xE7EA, symSize: 0xB4 }
   - { offset: 0xE2BF6, size: 0x8, addend: 0x0, symName: '-[NBPhoneNumberUtil parseAndKeepRawInput:defaultRegion:error:]', symObjAddr: 0xADDE, symBinAddr: 0xE89E, symSize: 0x18D }
@@ -428,7 +428,7 @@ relocations:
   - { offset: 0xEC784, size: 0x8, addend: 0x0, symName: _NB_PLUS_CHARS, symObjAddr: 0xB8, symBinAddr: 0x32718, symSize: 0x0 }
   - { offset: 0xEC79A, size: 0x8, addend: 0x0, symName: _NB_VALID_DIGITS_STRING, symObjAddr: 0xC0, symBinAddr: 0x32720, symSize: 0x0 }
   - { offset: 0xEC7B0, size: 0x8, addend: 0x0, symName: _NB_REGION_CODE_FOR_NON_GEO_ENTITY, symObjAddr: 0xC8, symBinAddr: 0x32728, symSize: 0x0 }
-  - { offset: 0xEC80C, size: 0x8, addend: 0x0, symName: '_$sSo8NSBundleC15FlagPhoneNumberE0B5IconsABvpZ', symObjAddr: 0xABD0, symBinAddr: 0x48B70, symSize: 0x0 }
+  - { offset: 0xEC80C, size: 0x8, addend: 0x0, symName: '_$sSo8NSBundleC15FlagPhoneNumberE0B5IconsABvpZ', symObjAddr: 0xAD18, symBinAddr: 0x48B70, symSize: 0x0 }
   - { offset: 0xEC829, size: 0x8, addend: 0x0, symName: '_$sSo8NSBundleC15FlagPhoneNumberE0B5Icons_WZ', symObjAddr: 0x0, symBinAddr: 0x164A0, symSize: 0x20 }
   - { offset: 0xEC859, size: 0x8, addend: 0x0, symName: '_$sSo8NSBundleC15FlagPhoneNumberEAcByFZ', symObjAddr: 0x20, symBinAddr: 0x164C0, symSize: 0x10 }
   - { offset: 0xEC86D, size: 0x8, addend: 0x0, symName: '_$sSo8NSBundleC15FlagPhoneNumberE0B5IconsABvau', symObjAddr: 0x30, symBinAddr: 0x164D0, symSize: 0x40 }
@@ -612,23 +612,23 @@ relocations:
   - { offset: 0xF2665, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber10FPNCountryVSgWOe', symObjAddr: 0x5CB0, symBinAddr: 0x20990, symSize: 0x40 }
   - { offset: 0xF2679, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldCfETo', symObjAddr: 0x5D20, symBinAddr: 0x20A00, symSize: 0xD0 }
   - { offset: 0xF26A8, size: 0x8, addend: 0x0, symName: '_$sSaySSGSayxGSKsWl', symObjAddr: 0x5E20, symBinAddr: 0x20AD0, symSize: 0x40 }
-  - { offset: 0xF26BC, size: 0x8, addend: 0x0, symName: ___swift_instantiateConcreteTypeFromMangledNameAbstractV2, symObjAddr: 0x5E60, symBinAddr: 0x20B10, symSize: 0x40 }
-  - { offset: 0xF2733, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtFSnySiG_Tg5', symObjAddr: 0x5EA0, symBinAddr: 0x20B50, symSize: 0x120 }
-  - { offset: 0xF2880, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtF15FlagPhoneNumber10FPNCountryV_Tg5', symObjAddr: 0x5FC0, symBinAddr: 0x20C70, symSize: 0x130 }
-  - { offset: 0xF29E5, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtF15FlagPhoneNumber14FPNCountryCodeO_Tg5', symObjAddr: 0x60F0, symBinAddr: 0x20DA0, symSize: 0x100 }
-  - { offset: 0xF2AE7, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4findys10_HashTableV6BucketV6bucket_Sb5foundtxSHRzlFSo21NSAttributedStringKeya_Tg5', symObjAddr: 0x61F0, symBinAddr: 0x20EA0, symSize: 0x80 }
-  - { offset: 0xF2B70, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4findys10_HashTableV6BucketV6bucket_Sb5foundtxSHRzlF15FlagPhoneNumber17FPNOBJCCountryKeyO_Tg5', symObjAddr: 0x6270, symBinAddr: 0x20F20, symSize: 0x50 }
-  - { offset: 0xF2BF1, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4find_9hashValues10_HashTableV6BucketV6bucket_Sb5foundtx_SitSHRzlFSo21NSAttributedStringKeya_Tg5', symObjAddr: 0x62C0, symBinAddr: 0x20F70, symSize: 0x100 }
-  - { offset: 0xF2CCE, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4find_9hashValues10_HashTableV6BucketV6bucket_Sb5foundtx_SitSHRzlF15FlagPhoneNumber17FPNOBJCCountryKeyO_Tg5', symObjAddr: 0x63C0, symBinAddr: 0x21070, symSize: 0x70 }
-  - { offset: 0xF2D30, size: 0x8, addend: 0x0, symName: '_$sSTsE8contains5whereS2b7ElementQzKXE_tKFSay15FlagPhoneNumber10FPNCountryVG_Tg5', symObjAddr: 0x6430, symBinAddr: 0x210E0, symSize: 0x100 }
-  - { offset: 0xF2E30, size: 0x8, addend: 0x0, symName: '_$sSTsSQ7ElementRpzrlE8containsySbABFSbABXEfU_Say15FlagPhoneNumber10FPNCountryVG_TG5', symObjAddr: 0x6530, symBinAddr: 0x211E0, symSize: 0x80 }
-  - { offset: 0xF2EFB, size: 0x8, addend: 0x0, symName: '_$sSTsSQ7ElementRpzrlE8containsySbABFSbABXEfU_Say15FlagPhoneNumber10FPNCountryVG_TG5TA', symObjAddr: 0x65B0, symBinAddr: 0x21260, symSize: 0x10 }
-  - { offset: 0xF2F0F, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14FPNDisplayModeOSHAASQWb', symObjAddr: 0x65F0, symBinAddr: 0x21270, symSize: 0x10 }
-  - { offset: 0xF2F23, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14FPNDisplayModeOAESQAAWl', symObjAddr: 0x6600, symBinAddr: 0x21280, symSize: 0x30 }
-  - { offset: 0xF2F37, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14FPNDisplayModeOMa', symObjAddr: 0x6630, symBinAddr: 0x212B0, symSize: 0x10 }
-  - { offset: 0xF2F4B, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC16displayCountries33_A7CE2364C36A60583BF1B3449BC38264LLyyFyAA10FPNCountryVcfU_TA', symObjAddr: 0x6660, symBinAddr: 0x212E0, symSize: 0x10 }
-  - { offset: 0xF2F5F, size: 0x8, addend: 0x0, symName: '_$sSSWOc', symObjAddr: 0x6670, symBinAddr: 0x212F0, symSize: 0x30 }
-  - { offset: 0xF2F73, size: 0x8, addend: 0x0, symName: '_$sSo21NSAttributedStringKeyaABSHSCWl', symObjAddr: 0x6700, symBinAddr: 0x21350, symSize: 0x40 }
+  - { offset: 0xF26BC, size: 0x8, addend: 0x0, symName: ___swift_instantiateConcreteTypeFromMangledNameAbstractV2, symObjAddr: 0x5E60, symBinAddr: 0x20B10, symSize: 0x50 }
+  - { offset: 0xF2733, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtFSnySiG_Tg5', symObjAddr: 0x5EB0, symBinAddr: 0x20B60, symSize: 0x120 }
+  - { offset: 0xF2880, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtF15FlagPhoneNumber10FPNCountryV_Tg5', symObjAddr: 0x5FD0, symBinAddr: 0x20C80, symSize: 0x130 }
+  - { offset: 0xF29E5, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtF15FlagPhoneNumber14FPNCountryCodeO_Tg5', symObjAddr: 0x6100, symBinAddr: 0x20DB0, symSize: 0x100 }
+  - { offset: 0xF2AE7, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4findys10_HashTableV6BucketV6bucket_Sb5foundtxSHRzlFSo21NSAttributedStringKeya_Tg5', symObjAddr: 0x6200, symBinAddr: 0x20EB0, symSize: 0x80 }
+  - { offset: 0xF2B70, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4findys10_HashTableV6BucketV6bucket_Sb5foundtxSHRzlF15FlagPhoneNumber17FPNOBJCCountryKeyO_Tg5', symObjAddr: 0x6280, symBinAddr: 0x20F30, symSize: 0x50 }
+  - { offset: 0xF2BF1, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4find_9hashValues10_HashTableV6BucketV6bucket_Sb5foundtx_SitSHRzlFSo21NSAttributedStringKeya_Tg5', symObjAddr: 0x62D0, symBinAddr: 0x20F80, symSize: 0x100 }
+  - { offset: 0xF2CCE, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4find_9hashValues10_HashTableV6BucketV6bucket_Sb5foundtx_SitSHRzlF15FlagPhoneNumber17FPNOBJCCountryKeyO_Tg5', symObjAddr: 0x63D0, symBinAddr: 0x21080, symSize: 0x70 }
+  - { offset: 0xF2D30, size: 0x8, addend: 0x0, symName: '_$sSTsE8contains5whereS2b7ElementQzKXE_tKFSay15FlagPhoneNumber10FPNCountryVG_Tg5', symObjAddr: 0x6440, symBinAddr: 0x210F0, symSize: 0x100 }
+  - { offset: 0xF2E30, size: 0x8, addend: 0x0, symName: '_$sSTsSQ7ElementRpzrlE8containsySbABFSbABXEfU_Say15FlagPhoneNumber10FPNCountryVG_TG5', symObjAddr: 0x6540, symBinAddr: 0x211F0, symSize: 0x80 }
+  - { offset: 0xF2EFB, size: 0x8, addend: 0x0, symName: '_$sSTsSQ7ElementRpzrlE8containsySbABFSbABXEfU_Say15FlagPhoneNumber10FPNCountryVG_TG5TA', symObjAddr: 0x65C0, symBinAddr: 0x21270, symSize: 0x10 }
+  - { offset: 0xF2F0F, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14FPNDisplayModeOSHAASQWb', symObjAddr: 0x6600, symBinAddr: 0x21280, symSize: 0x10 }
+  - { offset: 0xF2F23, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14FPNDisplayModeOAESQAAWl', symObjAddr: 0x6610, symBinAddr: 0x21290, symSize: 0x30 }
+  - { offset: 0xF2F37, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14FPNDisplayModeOMa', symObjAddr: 0x6640, symBinAddr: 0x212C0, symSize: 0x10 }
+  - { offset: 0xF2F4B, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC16displayCountries33_A7CE2364C36A60583BF1B3449BC38264LLyyFyAA10FPNCountryVcfU_TA', symObjAddr: 0x6670, symBinAddr: 0x212F0, symSize: 0x10 }
+  - { offset: 0xF2F5F, size: 0x8, addend: 0x0, symName: '_$sSSWOc', symObjAddr: 0x6680, symBinAddr: 0x21300, symSize: 0x30 }
+  - { offset: 0xF2F73, size: 0x8, addend: 0x0, symName: '_$sSo21NSAttributedStringKeyaABSHSCWl', symObjAddr: 0x6710, symBinAddr: 0x21360, symSize: 0x40 }
   - { offset: 0xF2FBB, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14flagButtonSizeSo6CGSizeVvgTo', symObjAddr: 0x0, symBinAddr: 0x1AD30, symSize: 0x40 }
   - { offset: 0xF2FEE, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14flagButtonSizeSo6CGSizeVvg', symObjAddr: 0x40, symBinAddr: 0x1AD70, symSize: 0x40 }
   - { offset: 0xF304A, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC14flagButtonSizeSo6CGSizeVvsTo', symObjAddr: 0x80, symBinAddr: 0x1ADB0, symSize: 0x70 }
@@ -719,76 +719,76 @@ relocations:
   - { offset: 0xF6587, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC28getCountryListBarButtonItems33_A7CE2364C36A60583BF1B3449BC38264LLSaySo05UIBarJ4ItemCGyF', symObjAddr: 0x55D0, symBinAddr: 0x202F0, symSize: 0xF0 }
   - { offset: 0xF6686, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldC17updatePlaceholder33_A7CE2364C36A60583BF1B3449BC38264LLyyF', symObjAddr: 0x56C0, symBinAddr: 0x203E0, symSize: 0x580 }
   - { offset: 0xF688B, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber12FPNTextFieldCfD', symObjAddr: 0x5CF0, symBinAddr: 0x209D0, symSize: 0x30 }
-  - { offset: 0xF6A1C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeO8rawValueACSgSS_tcfC', symObjAddr: 0x0, symBinAddr: 0x213D0, symSize: 0x10 }
-  - { offset: 0xF6AD0, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSHAASQWb', symObjAddr: 0x500, symBinAddr: 0x218D0, symSize: 0x10 }
-  - { offset: 0xF6AE4, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOACSQAAWl', symObjAddr: 0x510, symBinAddr: 0x218E0, symSize: 0x30 }
-  - { offset: 0xF6AF8, size: 0x8, addend: 0x0, symName: ___swift_memcpy1_1, symObjAddr: 0x540, symBinAddr: 0x21910, symSize: 0x10 }
-  - { offset: 0xF6B0C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOwet', symObjAddr: 0x560, symBinAddr: 0x21920, symSize: 0x90 }
-  - { offset: 0xF6B20, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOwst', symObjAddr: 0x5F0, symBinAddr: 0x219B0, symSize: 0xD0 }
-  - { offset: 0xF6B34, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOwug', symObjAddr: 0x6C0, symBinAddr: 0x21A80, symSize: 0x10 }
-  - { offset: 0xF6B48, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOwui', symObjAddr: 0x6E0, symBinAddr: 0x21A90, symSize: 0x10 }
-  - { offset: 0xF6B5C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOMa', symObjAddr: 0x6F0, symBinAddr: 0x21AA0, symSize: 0x10 }
-  - { offset: 0xF6B9F, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSQAASQ2eeoiySbx_xtFZTW', symObjAddr: 0x40, symBinAddr: 0x21410, symSize: 0x70 }
-  - { offset: 0xF6C72, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSHAASH9hashValueSivgTW', symObjAddr: 0xB0, symBinAddr: 0x21480, symSize: 0x50 }
-  - { offset: 0xF6CF0, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSHAASH4hash4intoys6HasherVz_tFTW', symObjAddr: 0x100, symBinAddr: 0x214D0, symSize: 0x30 }
-  - { offset: 0xF6D42, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSHAASH13_rawHashValue4seedS2i_tFTW', symObjAddr: 0x130, symBinAddr: 0x21500, symSize: 0x50 }
-  - { offset: 0xF6DB4, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeO8rawValueACSgSS_tcfC', symObjAddr: 0x0, symBinAddr: 0x213D0, symSize: 0x10 }
-  - { offset: 0xF6DC8, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeO8rawValueSSvg', symObjAddr: 0x10, symBinAddr: 0x213E0, symSize: 0x30 }
-  - { offset: 0xF6E05, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSYAASY8rawValuexSg03RawG0Qz_tcfCTW', symObjAddr: 0x180, symBinAddr: 0x21550, symSize: 0x30 }
-  - { offset: 0xF6E2E, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSYAASY8rawValue03RawG0QzvgTW', symObjAddr: 0x1B0, symBinAddr: 0x21580, symSize: 0x30 }
-  - { offset: 0xF6E48, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeO8rawValueACSgSS_tcfCTf4nd_n', symObjAddr: 0x1E0, symBinAddr: 0x215B0, symSize: 0x320 }
-  - { offset: 0xF6F4C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber18FPNOBJCCountryCodeSDyAA0D3KeyOSSGvau', symObjAddr: 0x0, symBinAddr: 0x21AB0, symSize: 0x40 }
-  - { offset: 0xF6F70, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber18FPNOBJCCountryCodeSDyAA0D3KeyOSSGvp', symObjAddr: 0x3EF8, symBinAddr: 0x48B78, symSize: 0x0 }
-  - { offset: 0xF6FF9, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber18FPNOBJCCountryCodeSDyAA0D3KeyOSSGvau', symObjAddr: 0x0, symBinAddr: 0x21AB0, symSize: 0x40 }
-  - { offset: 0xF7043, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber18FPNOBJCCountryCode_WZ', symObjAddr: 0x150, symBinAddr: 0x21B30, symSize: 0x70 }
-  - { offset: 0xF71A1, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyOSHAASQWb', symObjAddr: 0x400, symBinAddr: 0x21DE0, symSize: 0x10 }
-  - { offset: 0xF71B5, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyOACSQAAWl', symObjAddr: 0x410, symBinAddr: 0x21DF0, symSize: 0x30 }
-  - { offset: 0xF71C9, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyOMa', symObjAddr: 0x440, symBinAddr: 0x21E20, symSize: 0x10 }
-  - { offset: 0xF726D, size: 0x8, addend: 0x0, symName: '_$sSD17dictionaryLiteralSDyxq_Gx_q_td_tcfCSo21NSAttributedStringKeya_So6UIFontCTt0g5Tf4g_n', symObjAddr: 0x1C0, symBinAddr: 0x21BA0, symSize: 0xE0 }
-  - { offset: 0xF73BA, size: 0x8, addend: 0x0, symName: '_$sSD17dictionaryLiteralSDyxq_Gx_q_td_tcfC15FlagPhoneNumber17FPNOBJCCountryKeyO_SSTt0g5Tf4g_n', symObjAddr: 0x2A0, symBinAddr: 0x21C80, symSize: 0x110 }
-  - { offset: 0xF74D4, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyO8rawValueACSgSi_tcfC', symObjAddr: 0x40, symBinAddr: 0x21AF0, symSize: 0x10 }
-  - { offset: 0xF74FB, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyOSYAASY8rawValuexSg03RawG0Qz_tcfCTW', symObjAddr: 0x110, symBinAddr: 0x21B00, symSize: 0x30 }
-  - { offset: 0xF7557, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyO8rawValueACSgSi_tcfCTf4nd_n', symObjAddr: 0x3B0, symBinAddr: 0x21D90, symSize: 0x50 }
-  - { offset: 0xF7A5B, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCMU', symObjAddr: 0x1940, symBinAddr: 0x23760, symSize: 0x10 }
-  - { offset: 0xF7A6F, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCMa', symObjAddr: 0x1950, symBinAddr: 0x23770, symSize: 0x30 }
-  - { offset: 0xF7A83, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCMr', symObjAddr: 0x1980, symBinAddr: 0x237A0, symSize: 0x70 }
-  - { offset: 0xF7B04, size: 0x8, addend: 0x0, symName: '_$sSMsSkRzrlE4sort2byySb7ElementSTQz_ADtKXE_tKFs15ContiguousArrayVy15FlagPhoneNumber10FPNCountryVG_Tg504$s15fg8Number20I90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1cn_n', symObjAddr: 0x19F0, symBinAddr: 0x23810, symSize: 0x60 }
-  - { offset: 0xF7C0B, size: 0x8, addend: 0x0, symName: '_$sSr15_stableSortImpl2byySbx_xtKXE_tKF15FlagPhoneNumber10FPNCountryV_Tg504$s15ef8Number20H90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1cn_n', symObjAddr: 0x1A50, symBinAddr: 0x23870, symSize: 0xE0 }
-  - { offset: 0xF7E46, size: 0x8, addend: 0x0, symName: '_$sSr15_stableSortImpl2byySbx_xtKXE_tKFySryxGz_SiztKXEfU_15FlagPhoneNumber10FPNCountryV_Tg504$s15ef8Number20H90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1nnncn_n', symObjAddr: 0x1B30, symBinAddr: 0x23950, symSize: 0x5C0 }
-  - { offset: 0xF840D, size: 0x8, addend: 0x0, symName: '_$sSMsSKRzrlE14_insertionSort6within9sortedEnd2byySny5IndexSlQzG_AFSb7ElementSTQz_AItKXEtKFSry15FlagPhoneNumber10FPNCountryVG_Tg504$s15ij8Number20L90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1nncn_n', symObjAddr: 0x20F0, symBinAddr: 0x23F10, symSize: 0x140 }
-  - { offset: 0xF85CE, size: 0x8, addend: 0x0, symName: '_$sSr13_mergeTopRuns_6buffer2bySbSaySnySiGGz_SpyxGSbx_xtKXEtKF15FlagPhoneNumber10FPNCountryV_Tg504$s15fg8Number20I90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1nncn_n', symObjAddr: 0x2230, symBinAddr: 0x24050, symSize: 0x2C0 }
-  - { offset: 0xF897B, size: 0x8, addend: 0x0, symName: '_$ss6_merge3low3mid4high6buffer2bySbSpyxG_A3GSbx_xtKXEtKlF15FlagPhoneNumber10FPNCountryV_Tg504$s15gh8Number20J90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1nnnnc_n', symObjAddr: 0x24F0, symBinAddr: 0x24310, symSize: 0x3B0 }
-  - { offset: 0xF8AFF, size: 0x8, addend: 0x0, symName: '_$sSa6remove2atxSi_tFSnySiG_Tg5', symObjAddr: 0x28A0, symBinAddr: 0x246C0, symSize: 0x90 }
-  - { offset: 0xF8B89, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNewAByxGyFSnySiG_Tgq5', symObjAddr: 0x2930, symBinAddr: 0x24750, symSize: 0x20 }
-  - { offset: 0xF8BAC, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNewAByxGyF15FlagPhoneNumber10FPNCountryV_Tg5', symObjAddr: 0x2970, symBinAddr: 0x24770, symSize: 0x20 }
-  - { offset: 0xF8BD9, size: 0x8, addend: 0x0, symName: '_$ss22_ContiguousArrayBufferV20_consumeAndCreateNewAByxGyF15FlagPhoneNumber10FPNCountryV_Tg5', symObjAddr: 0x2AB0, symBinAddr: 0x24790, symSize: 0x20 }
-  - { offset: 0xF8C3D, size: 0x8, addend: 0x0, symName: '_$ss20_ArrayBufferProtocolPsE15replaceSubrange_4with10elementsOfySnySiG_Siqd__ntSlRd__7ElementQyd__AGRtzlFs01_aB0Vy15FlagPhoneNumber10FPNCountryVG_s15EmptyCollectionVyANGTg5Tf4nndn_n', symObjAddr: 0x2AD0, symBinAddr: 0x247B0, symSize: 0xD0 }
-  - { offset: 0xF8D05, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataVSgWOy', symObjAddr: 0x2BA0, symBinAddr: 0x24880, symSize: 0x20 }
-  - { offset: 0xF8D19, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataV15_RepresentationOWOy', symObjAddr: 0x2BC0, symBinAddr: 0x248A0, symSize: 0x40 }
-  - { offset: 0xF8D2D, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataVSgWOe', symObjAddr: 0x2C00, symBinAddr: 0x248E0, symSize: 0x20 }
-  - { offset: 0xF8D41, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataV15_RepresentationOWOe', symObjAddr: 0x2C20, symBinAddr: 0x24900, symSize: 0x40 }
-  - { offset: 0xF8D55, size: 0x8, addend: 0x0, symName: '_$sypSgWOh', symObjAddr: 0x2CB0, symBinAddr: 0x24940, symSize: 0x40 }
-  - { offset: 0xF8DB1, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6localeAC10Foundation6LocaleV_tcfC', symObjAddr: 0x0, symBinAddr: 0x21E30, symSize: 0xC0 }
-  - { offset: 0xF8DEE, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6locale10Foundation6LocaleVvg', symObjAddr: 0xC0, symBinAddr: 0x21EF0, symSize: 0x50 }
-  - { offset: 0xF8E08, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6locale10Foundation6LocaleVvs', symObjAddr: 0x110, symBinAddr: 0x21F40, symSize: 0x60 }
-  - { offset: 0xF8E1C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6locale10Foundation6LocaleVvM', symObjAddr: 0x170, symBinAddr: 0x21FA0, symSize: 0x40 }
-  - { offset: 0xF901D, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC9countriesSayAA0D0VGvg', symObjAddr: 0x1C0, symBinAddr: 0x21FE0, symSize: 0x40 }
-  - { offset: 0xF9031, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC9countriesSayAA0D0VGvs', symObjAddr: 0x200, symBinAddr: 0x22020, symSize: 0x50 }
-  - { offset: 0xF9045, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC9countriesSayAA0D0VGvM', symObjAddr: 0x250, symBinAddr: 0x22070, symSize: 0x40 }
-  - { offset: 0xF9059, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6localeAC10Foundation6LocaleV_tcfc', symObjAddr: 0x290, symBinAddr: 0x220B0, symSize: 0xB0 }
-  - { offset: 0xF9164, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyF', symObjAddr: 0x340, symBinAddr: 0x22160, symSize: 0xCC0 }
-  - { offset: 0xF94DC, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLL9excludingSayAA0D0VGSayAA0D4CodeOG_tF', symObjAddr: 0x1000, symBinAddr: 0x22E20, symSize: 0x590 }
-  - { offset: 0xF9C18, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLL7equalToSayAA0D0VGSayAA0D4CodeOG_tF', symObjAddr: 0x1590, symBinAddr: 0x233B0, symSize: 0x2E0 }
-  - { offset: 0xF9F3B, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC5setup4withySayAA0D4CodeOG_tF', symObjAddr: 0x1870, symBinAddr: 0x23690, symSize: 0x20 }
-  - { offset: 0xF9F6E, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC5setup7withoutySayAA0D4CodeOG_tF', symObjAddr: 0x1890, symBinAddr: 0x236B0, symSize: 0x20 }
-  - { offset: 0xF9FA1, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCfd', symObjAddr: 0x18B0, symBinAddr: 0x236D0, symSize: 0x40 }
-  - { offset: 0xF9FD2, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCfD', symObjAddr: 0x18F0, symBinAddr: 0x23710, symSize: 0x50 }
-  - { offset: 0xFA12F, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatO8rawValueACSgSi_tcfC', symObjAddr: 0x0, symBinAddr: 0x24980, symSize: 0x10 }
-  - { offset: 0xFA1C2, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatOSHAASQWb', symObjAddr: 0x130, symBinAddr: 0x249E0, symSize: 0x10 }
-  - { offset: 0xFA1D6, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatOACSQAAWl', symObjAddr: 0x140, symBinAddr: 0x249F0, symSize: 0x30 }
-  - { offset: 0xFA1EA, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatOMa', symObjAddr: 0x170, symBinAddr: 0x24A20, symSize: 0xA }
-  - { offset: 0xFA216, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatO8rawValueACSgSi_tcfC', symObjAddr: 0x0, symBinAddr: 0x24980, symSize: 0x10 }
-  - { offset: 0xFA237, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatOSYAASY8rawValuexSg03RawF0Qz_tcfCTW', symObjAddr: 0xD0, symBinAddr: 0x24990, symSize: 0x30 }
-  - { offset: 0xFA260, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatO8rawValueACSgSi_tcfCTf4nd_n', symObjAddr: 0x110, symBinAddr: 0x249C0, symSize: 0x20 }
-  - { offset: 0xFA365, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber19ResourceBundleClass33_B7090D9849DC5CA82558D27A936ACF8CLLCMa', symObjAddr: 0x20, symBinAddr: 0x24A30, symSize: 0x14 }
+  - { offset: 0xF6A1C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeO8rawValueACSgSS_tcfC', symObjAddr: 0x0, symBinAddr: 0x213E0, symSize: 0x10 }
+  - { offset: 0xF6AD0, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSHAASQWb', symObjAddr: 0x500, symBinAddr: 0x218E0, symSize: 0x10 }
+  - { offset: 0xF6AE4, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOACSQAAWl', symObjAddr: 0x510, symBinAddr: 0x218F0, symSize: 0x30 }
+  - { offset: 0xF6AF8, size: 0x8, addend: 0x0, symName: ___swift_memcpy1_1, symObjAddr: 0x540, symBinAddr: 0x21920, symSize: 0x10 }
+  - { offset: 0xF6B0C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOwet', symObjAddr: 0x560, symBinAddr: 0x21930, symSize: 0x90 }
+  - { offset: 0xF6B20, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOwst', symObjAddr: 0x5F0, symBinAddr: 0x219C0, symSize: 0xD0 }
+  - { offset: 0xF6B34, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOwug', symObjAddr: 0x6C0, symBinAddr: 0x21A90, symSize: 0x10 }
+  - { offset: 0xF6B48, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOwui', symObjAddr: 0x6E0, symBinAddr: 0x21AA0, symSize: 0x10 }
+  - { offset: 0xF6B5C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOMa', symObjAddr: 0x6F0, symBinAddr: 0x21AB0, symSize: 0x10 }
+  - { offset: 0xF6B9F, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSQAASQ2eeoiySbx_xtFZTW', symObjAddr: 0x40, symBinAddr: 0x21420, symSize: 0x70 }
+  - { offset: 0xF6C72, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSHAASH9hashValueSivgTW', symObjAddr: 0xB0, symBinAddr: 0x21490, symSize: 0x50 }
+  - { offset: 0xF6CF0, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSHAASH4hash4intoys6HasherVz_tFTW', symObjAddr: 0x100, symBinAddr: 0x214E0, symSize: 0x30 }
+  - { offset: 0xF6D42, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSHAASH13_rawHashValue4seedS2i_tFTW', symObjAddr: 0x130, symBinAddr: 0x21510, symSize: 0x50 }
+  - { offset: 0xF6DB4, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeO8rawValueACSgSS_tcfC', symObjAddr: 0x0, symBinAddr: 0x213E0, symSize: 0x10 }
+  - { offset: 0xF6DC8, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeO8rawValueSSvg', symObjAddr: 0x10, symBinAddr: 0x213F0, symSize: 0x30 }
+  - { offset: 0xF6E05, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSYAASY8rawValuexSg03RawG0Qz_tcfCTW', symObjAddr: 0x180, symBinAddr: 0x21560, symSize: 0x30 }
+  - { offset: 0xF6E2E, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeOSYAASY8rawValue03RawG0QzvgTW', symObjAddr: 0x1B0, symBinAddr: 0x21590, symSize: 0x30 }
+  - { offset: 0xF6E48, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber14FPNCountryCodeO8rawValueACSgSS_tcfCTf4nd_n', symObjAddr: 0x1E0, symBinAddr: 0x215C0, symSize: 0x320 }
+  - { offset: 0xF6F4C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber18FPNOBJCCountryCodeSDyAA0D3KeyOSSGvau', symObjAddr: 0x0, symBinAddr: 0x21AC0, symSize: 0x40 }
+  - { offset: 0xF6F70, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber18FPNOBJCCountryCodeSDyAA0D3KeyOSSGvp', symObjAddr: 0x4020, symBinAddr: 0x48B78, symSize: 0x0 }
+  - { offset: 0xF6FF9, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber18FPNOBJCCountryCodeSDyAA0D3KeyOSSGvau', symObjAddr: 0x0, symBinAddr: 0x21AC0, symSize: 0x40 }
+  - { offset: 0xF7043, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber18FPNOBJCCountryCode_WZ', symObjAddr: 0x150, symBinAddr: 0x21B40, symSize: 0x70 }
+  - { offset: 0xF71A1, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyOSHAASQWb', symObjAddr: 0x400, symBinAddr: 0x21DF0, symSize: 0x10 }
+  - { offset: 0xF71B5, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyOACSQAAWl', symObjAddr: 0x410, symBinAddr: 0x21E00, symSize: 0x30 }
+  - { offset: 0xF71C9, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyOMa', symObjAddr: 0x440, symBinAddr: 0x21E30, symSize: 0x10 }
+  - { offset: 0xF726D, size: 0x8, addend: 0x0, symName: '_$sSD17dictionaryLiteralSDyxq_Gx_q_td_tcfCSo21NSAttributedStringKeya_So6UIFontCTt0g5Tf4g_n', symObjAddr: 0x1C0, symBinAddr: 0x21BB0, symSize: 0xE0 }
+  - { offset: 0xF73BA, size: 0x8, addend: 0x0, symName: '_$sSD17dictionaryLiteralSDyxq_Gx_q_td_tcfC15FlagPhoneNumber17FPNOBJCCountryKeyO_SSTt0g5Tf4g_n', symObjAddr: 0x2A0, symBinAddr: 0x21C90, symSize: 0x110 }
+  - { offset: 0xF74D4, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyO8rawValueACSgSi_tcfC', symObjAddr: 0x40, symBinAddr: 0x21B00, symSize: 0x10 }
+  - { offset: 0xF74FB, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyOSYAASY8rawValuexSg03RawG0Qz_tcfCTW', symObjAddr: 0x110, symBinAddr: 0x21B10, symSize: 0x30 }
+  - { offset: 0xF7557, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber17FPNOBJCCountryKeyO8rawValueACSgSi_tcfCTf4nd_n', symObjAddr: 0x3B0, symBinAddr: 0x21DA0, symSize: 0x50 }
+  - { offset: 0xF7A5B, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCMU', symObjAddr: 0x1940, symBinAddr: 0x23770, symSize: 0x10 }
+  - { offset: 0xF7A6F, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCMa', symObjAddr: 0x1950, symBinAddr: 0x23780, symSize: 0x30 }
+  - { offset: 0xF7A83, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCMr', symObjAddr: 0x1980, symBinAddr: 0x237B0, symSize: 0x70 }
+  - { offset: 0xF7B04, size: 0x8, addend: 0x0, symName: '_$sSMsSkRzrlE4sort2byySb7ElementSTQz_ADtKXE_tKFs15ContiguousArrayVy15FlagPhoneNumber10FPNCountryVG_Tg504$s15fg8Number20I90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1cn_n', symObjAddr: 0x19F0, symBinAddr: 0x23820, symSize: 0x60 }
+  - { offset: 0xF7C0B, size: 0x8, addend: 0x0, symName: '_$sSr15_stableSortImpl2byySbx_xtKXE_tKF15FlagPhoneNumber10FPNCountryV_Tg504$s15ef8Number20H90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1cn_n', symObjAddr: 0x1A50, symBinAddr: 0x23880, symSize: 0xE0 }
+  - { offset: 0xF7E46, size: 0x8, addend: 0x0, symName: '_$sSr15_stableSortImpl2byySbx_xtKXE_tKFySryxGz_SiztKXEfU_15FlagPhoneNumber10FPNCountryV_Tg504$s15ef8Number20H90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1nnncn_n', symObjAddr: 0x1B30, symBinAddr: 0x23960, symSize: 0x5C0 }
+  - { offset: 0xF840D, size: 0x8, addend: 0x0, symName: '_$sSMsSKRzrlE14_insertionSort6within9sortedEnd2byySny5IndexSlQzG_AFSb7ElementSTQz_AItKXEtKFSry15FlagPhoneNumber10FPNCountryVG_Tg504$s15ij8Number20L90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1nncn_n', symObjAddr: 0x20F0, symBinAddr: 0x23F20, symSize: 0x140 }
+  - { offset: 0xF85CE, size: 0x8, addend: 0x0, symName: '_$sSr13_mergeTopRuns_6buffer2bySbSaySnySiGGz_SpyxGSbx_xtKXEtKF15FlagPhoneNumber10FPNCountryV_Tg504$s15fg8Number20I90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1nncn_n', symObjAddr: 0x2230, symBinAddr: 0x24060, symSize: 0x2C0 }
+  - { offset: 0xF897B, size: 0x8, addend: 0x0, symName: '_$ss6_merge3low3mid4high6buffer2bySbSpyxG_A3GSbx_xtKXEtKlF15FlagPhoneNumber10FPNCountryV_Tg504$s15gh8Number20J90RepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyFSbAG_AGtXEfU_Tf1nnnnc_n', symObjAddr: 0x24F0, symBinAddr: 0x24320, symSize: 0x3B0 }
+  - { offset: 0xF8AFF, size: 0x8, addend: 0x0, symName: '_$sSa6remove2atxSi_tFSnySiG_Tg5', symObjAddr: 0x28A0, symBinAddr: 0x246D0, symSize: 0x90 }
+  - { offset: 0xF8B89, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNewAByxGyFSnySiG_Tgq5', symObjAddr: 0x2930, symBinAddr: 0x24760, symSize: 0x20 }
+  - { offset: 0xF8BAC, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNewAByxGyF15FlagPhoneNumber10FPNCountryV_Tg5', symObjAddr: 0x2970, symBinAddr: 0x24780, symSize: 0x20 }
+  - { offset: 0xF8BD9, size: 0x8, addend: 0x0, symName: '_$ss22_ContiguousArrayBufferV20_consumeAndCreateNewAByxGyF15FlagPhoneNumber10FPNCountryV_Tg5', symObjAddr: 0x2AB0, symBinAddr: 0x247A0, symSize: 0x20 }
+  - { offset: 0xF8C3D, size: 0x8, addend: 0x0, symName: '_$ss20_ArrayBufferProtocolPsE15replaceSubrange_4with10elementsOfySnySiG_Siqd__ntSlRd__7ElementQyd__AGRtzlFs01_aB0Vy15FlagPhoneNumber10FPNCountryVG_s15EmptyCollectionVyANGTg5Tf4nndn_n', symObjAddr: 0x2AD0, symBinAddr: 0x247C0, symSize: 0xD0 }
+  - { offset: 0xF8D05, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataVSgWOy', symObjAddr: 0x2BA0, symBinAddr: 0x24890, symSize: 0x20 }
+  - { offset: 0xF8D19, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataV15_RepresentationOWOy', symObjAddr: 0x2BC0, symBinAddr: 0x248B0, symSize: 0x40 }
+  - { offset: 0xF8D2D, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataVSgWOe', symObjAddr: 0x2C00, symBinAddr: 0x248F0, symSize: 0x20 }
+  - { offset: 0xF8D41, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataV15_RepresentationOWOe', symObjAddr: 0x2C20, symBinAddr: 0x24910, symSize: 0x40 }
+  - { offset: 0xF8D55, size: 0x8, addend: 0x0, symName: '_$sypSgWOh', symObjAddr: 0x2CB0, symBinAddr: 0x24950, symSize: 0x40 }
+  - { offset: 0xF8DB1, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6localeAC10Foundation6LocaleV_tcfC', symObjAddr: 0x0, symBinAddr: 0x21E40, symSize: 0xC0 }
+  - { offset: 0xF8DEE, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6locale10Foundation6LocaleVvg', symObjAddr: 0xC0, symBinAddr: 0x21F00, symSize: 0x50 }
+  - { offset: 0xF8E08, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6locale10Foundation6LocaleVvs', symObjAddr: 0x110, symBinAddr: 0x21F50, symSize: 0x60 }
+  - { offset: 0xF8E1C, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6locale10Foundation6LocaleVvM', symObjAddr: 0x170, symBinAddr: 0x21FB0, symSize: 0x40 }
+  - { offset: 0xF901D, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC9countriesSayAA0D0VGvg', symObjAddr: 0x1C0, symBinAddr: 0x21FF0, symSize: 0x40 }
+  - { offset: 0xF9031, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC9countriesSayAA0D0VGvs', symObjAddr: 0x200, symBinAddr: 0x22030, symSize: 0x50 }
+  - { offset: 0xF9045, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC9countriesSayAA0D0VGvM', symObjAddr: 0x250, symBinAddr: 0x22080, symSize: 0x40 }
+  - { offset: 0xF9059, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC6localeAC10Foundation6LocaleV_tcfc', symObjAddr: 0x290, symBinAddr: 0x220C0, symSize: 0xB0 }
+  - { offset: 0xF9164, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLLSayAA0D0VGyF', symObjAddr: 0x340, symBinAddr: 0x22170, symSize: 0xCC0 }
+  - { offset: 0xF94DC, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLL9excludingSayAA0D0VGSayAA0D4CodeOG_tF', symObjAddr: 0x1000, symBinAddr: 0x22E30, symSize: 0x590 }
+  - { offset: 0xF9C18, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC15getAllCountries33_D14300886A1EF0559BBDE45AA36739AFLL7equalToSayAA0D0VGSayAA0D4CodeOG_tF', symObjAddr: 0x1590, symBinAddr: 0x233C0, symSize: 0x2E0 }
+  - { offset: 0xF9F3B, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC5setup4withySayAA0D4CodeOG_tF', symObjAddr: 0x1870, symBinAddr: 0x236A0, symSize: 0x20 }
+  - { offset: 0xF9F6E, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryC5setup7withoutySayAA0D4CodeOG_tF', symObjAddr: 0x1890, symBinAddr: 0x236C0, symSize: 0x20 }
+  - { offset: 0xF9FA1, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCfd', symObjAddr: 0x18B0, symBinAddr: 0x236E0, symSize: 0x40 }
+  - { offset: 0xF9FD2, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber20FPNCountryRepositoryCfD', symObjAddr: 0x18F0, symBinAddr: 0x23720, symSize: 0x50 }
+  - { offset: 0xFA12F, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatO8rawValueACSgSi_tcfC', symObjAddr: 0x0, symBinAddr: 0x24990, symSize: 0x10 }
+  - { offset: 0xFA1C2, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatOSHAASQWb', symObjAddr: 0x130, symBinAddr: 0x249F0, symSize: 0x10 }
+  - { offset: 0xFA1D6, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatOACSQAAWl', symObjAddr: 0x140, symBinAddr: 0x24A00, symSize: 0x30 }
+  - { offset: 0xFA1EA, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatOMa', symObjAddr: 0x170, symBinAddr: 0x24A30, symSize: 0xA }
+  - { offset: 0xFA216, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatO8rawValueACSgSi_tcfC', symObjAddr: 0x0, symBinAddr: 0x24990, symSize: 0x10 }
+  - { offset: 0xFA237, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatOSYAASY8rawValuexSg03RawF0Qz_tcfCTW', symObjAddr: 0xD0, symBinAddr: 0x249A0, symSize: 0x30 }
+  - { offset: 0xFA260, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber9FPNFormatO8rawValueACSgSi_tcfCTf4nd_n', symObjAddr: 0x110, symBinAddr: 0x249D0, symSize: 0x20 }
+  - { offset: 0xFA365, size: 0x8, addend: 0x0, symName: '_$s15FlagPhoneNumber19ResourceBundleClass33_B7090D9849DC5CA82558D27A936ACF8CLLCMa', symObjAddr: 0x20, symBinAddr: 0x24A40, symSize: 0x14 }
 ...

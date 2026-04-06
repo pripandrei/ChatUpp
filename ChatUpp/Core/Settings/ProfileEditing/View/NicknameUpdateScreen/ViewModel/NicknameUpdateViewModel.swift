@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 @Observable
 final class NicknameUpdateViewModel
@@ -13,13 +14,72 @@ final class NicknameUpdateViewModel
     private(set) var nicknameValidationStatus: NicknameValidationResult
     private var initialNickname: String
     var updatedNickname: String
-
+    
+    private var subscribers: Set<AnyCancellable> = []
+ 
     init(updatedNickname: String)
     {
         self.initialNickname = updatedNickname
         self.updatedNickname = updatedNickname
         self.nicknameValidationStatus = .initial
+//        addUpdatedNicknamSubscriber()
     }
+    
+//    private func addUpdatedNicknamSubscriber()
+//    {
+//        $updatedNickname
+//            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+//            .sink { [weak self] _ in
+//                self?.checkIfNicknameIsValid()
+//            }.store(in: &subscribers)
+//    }
+    
+//    private func addUpdatedNicknamSubscriber()
+//    {
+//        $updatedNickname
+//            .debounce(for: 0.3, scheduler: DispatchQueue.main)
+//            .flatMap { output in
+//                Future<NicknameValidationResult, Never> { promise in
+//                    Task
+//                    {
+//                        let status = await self.checkIfNicknameIsValid()
+//                        promise(.success(status))
+//                    }
+//                }
+//            }
+//            .sink { [weak self] value in
+//                self?.nicknameValidationStatus = value
+//            }
+//            .store(in: &subscribers)
+//    }
+    
+//    func checkIfNicknameIsValid() async -> NicknameValidationResult
+//    {
+//        updateNicknameCuttingSpace()
+//        
+//        if updatedNickname.contains("__")
+//        {
+//            return .invalid
+//        }
+//        
+//        if updatedNickname.count < 5
+//        {
+//            return .isShort
+//        }
+//        
+//        if updatedNickname.count > 30
+//        {
+//            return .invalid
+//        }
+//        
+//        if updatedNickname == initialNickname
+//        {
+//            return .initial
+//        }
+//        
+//        let exists = await AlgoliaSearchManager.shared.checkIfUserWithNicknameExists(updatedNickname)
+//        return exists ? .isTaken : .isAvailable(name: self.updatedNickname)
+//    }
     
     func checkIfNicknameIsValid()
     {
@@ -50,16 +110,16 @@ final class NicknameUpdateViewModel
         }
         
         Task {
-            try await checkIfNicknameIsAvailable()
+           self.nicknameValidationStatus = try await checkIfNicknameIsAvailable()
         }
     }
     
-    private func checkIfNicknameIsAvailable() async throws
+    private func checkIfNicknameIsAvailable() async throws -> NicknameValidationResult
     {
         let exists = await AlgoliaSearchManager.shared.checkIfUserWithNicknameExists(updatedNickname)
         print(exists)
 
-        self.nicknameValidationStatus = exists ? .isTaken : .isAvailable(name: self.updatedNickname)
+        return exists ? .isTaken : .isAvailable(name: self.updatedNickname)
     }
     
     private func updateNicknameCuttingSpace()

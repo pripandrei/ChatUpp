@@ -167,6 +167,8 @@
 		75C0CE1B2ECF8D7900F083D0 /* TargetedPreviewContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0CE1A2ECF8D7200F083D0 /* TargetedPreviewContentView.swift */; };
 		75C0CE1D2ECF8DB500F083D0 /* TargetedPreviewComponentsSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0CE1C2ECF8DA800F083D0 /* TargetedPreviewComponentsSize.swift */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
+		75C8B8392F840A1500C58171 /* GlassCapsuleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8B8382F840A0900C58171 /* GlassCapsuleStyle.swift */; };
+		75C8B83B2F840A3600C58171 /* NoHeighlightStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8B83A2F840A2B00C58171 /* NoHeighlightStyle.swift */; };
 		75C8F7652E818E6A007317E0 /* DisplayLinkProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F7642E818E64007317E0 /* DisplayLinkProxy.swift */; };
 		75C8F76B2E819089007317E0 /* OpaquePointer+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F76A2E81907D007317E0 /* OpaquePointer+Extensions.swift */; };
 		75C8F76F2E81930E007317E0 /* CustomFPNTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8F76E2E81930C007317E0 /* CustomFPNTextField.swift */; };
@@ -376,6 +378,8 @@
 		75C0CE1A2ECF8D7200F083D0 /* TargetedPreviewContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetedPreviewContentView.swift; sourceTree = "<group>"; };
 		75C0CE1C2ECF8DA800F083D0 /* TargetedPreviewComponentsSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetedPreviewComponentsSize.swift; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
+		75C8B8382F840A0900C58171 /* GlassCapsuleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCapsuleStyle.swift; sourceTree = "<group>"; };
+		75C8B83A2F840A2B00C58171 /* NoHeighlightStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoHeighlightStyle.swift; sourceTree = "<group>"; };
 		75C8F7642E818E64007317E0 /* DisplayLinkProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkProxy.swift; sourceTree = "<group>"; };
 		75C8F76A2E81907D007317E0 /* OpaquePointer+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OpaquePointer+Extensions.swift"; sourceTree = "<group>"; };
 		75C8F76E2E81930C007317E0 /* CustomFPNTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFPNTextField.swift; sourceTree = "<group>"; };
@@ -1433,6 +1437,15 @@
 			path = TargetedPreview;
 			sourceTree = "<group>";
 		};
+		75C8B8372F840A0300C58171 /* Styles */ = {
+			isa = PBXGroup;
+			children = (
+				75C8B83A2F840A2B00C58171 /* NoHeighlightStyle.swift */,
+				75C8B8382F840A0900C58171 /* GlassCapsuleStyle.swift */,
+			);
+			path = Styles;
+			sourceTree = "<group>";
+		};
 		75C8F75D2E818C4B007317E0 /* StickerCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -1799,6 +1812,7 @@
 		75FB79022AC31AEA00C2743A /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				75C8B8372F840A0300C58171 /* Styles */,
 				759894D02E5263E9003CF661 /* MessageNotificationBanner */,
 				751100372CEEA0CF00DD659C /* Custom Views */,
 				75855B3D2CF14B2A00FF8E9E /* Reuse Identifires */,
@@ -2036,6 +2050,7 @@
 				759894DA2E5295D6003CF661 /* MessageBannerPresenter.swift in Sources */,
 				757E81B72D29957F00727277 /* NewGroupSetupScreen.swift in Sources */,
 				753D0B692AC1FA6100C22AC4 /* Utilities.swift in Sources */,
+				75C8B8392F840A1500C58171 /* GlassCapsuleStyle.swift in Sources */,
 				75D6DC332B0D735100D2CD26 /* MessageCellViewModel.swift in Sources */,
 				75AD5EB92E7C557B0075377B /* MessageComponentsView.swift in Sources */,
 				759894D82E52645A003CF661 /* MessageNotificationBannerView.swift in Sources */,
@@ -2066,6 +2081,7 @@
 				75A9184B2C942E15006ED4CA /* CacheManager.swift in Sources */,
 				75DD0AED2B17D3D0005DBADE /* PhoneCodeVerificationViewController.swift in Sources */,
 				75F608842BEC2F560065DA83 /* InputBarTextViewDelegate.swift in Sources */,
+				75C8B83B2F840A3600C58171 /* NoHeighlightStyle.swift in Sources */,
 				7525150D2D0EE427003330E7 /* ProfileEditingListCell.swift in Sources */,
 				754439552B4134150044A84B /* ProfileEditingViewModel.swift in Sources */,
 				75D7C5CC2ADAD40600F6D4B9 /* CGFloat+Extension.swift in Sources */,

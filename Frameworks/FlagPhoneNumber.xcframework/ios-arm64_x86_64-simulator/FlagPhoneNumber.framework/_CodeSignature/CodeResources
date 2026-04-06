@@ -6,7 +6,7 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		8nKghvic/kp+BNarFLr9bz3ufyA=
+		suX5q5DjH86tlK1bYLwE8pHLEAQ=
 		</data>
 		<key>FPNCountryView.nib</key>
 		<data>
@@ -14,7 +14,7 @@
 		</data>
 		<key>Headers/FlagPhoneNumber-Swift.h</key>
 		<data>
-		3KKkzy1f67L1DfUbn2TMjGXWYFg=
+		JMLBb1/h0Gi6ymVbNFSPn/yEuic=
 		</data>
 		<key>Headers/FlagPhoneNumber.h</key>
 		<data>
@@ -74,15 +74,15 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		wvZLIDniOKmqV3aKrTtPw7ucmvM=
+		2SMjpeCT9h77TjkKHAIUgNKE1kQ=
 		</data>
 		<key>Modules/FlagPhoneNumber.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		B2Digh45d6unq3Sige8SswSOx14=
+		yF163lREJjtvK8IT5pQL8gTUaQA=
 		</data>
 		<key>Modules/FlagPhoneNumber.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<data>
-		u039edkHxqVxz/nB0E+qTZIm0Eo=
+		DwzI8VBvtWCHs4qCDQanQKGfUvo=
 		</data>
 		<key>Modules/FlagPhoneNumber.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -90,11 +90,11 @@
 		</data>
 		<key>Modules/FlagPhoneNumber.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		KrjDQYfNLGQsUEYLJBat3YTE2QI=
+		Isx4rS4CYwwzmwYgUgxqIijwiww=
 		</data>
 		<key>Modules/FlagPhoneNumber.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		xi7r6nImhbunQkDWJdSI3z+lN+4=
+		raPVHi3wWH7fK1x9JvbwpLt47OA=
 		</data>
 		<key>Modules/FlagPhoneNumber.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
 		<data>
@@ -102,11 +102,11 @@
 		</data>
 		<key>Modules/FlagPhoneNumber.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		Nrs1FlVfKLDdBqb0vdnoSuNRGwg=
+		UGiNPztFXLP4de7VeaPsgG35mfg=
 		</data>
 		<key>Modules/FlagPhoneNumber.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		ClAJIN6YBDhOiNT6TGCkkXYFxYI=
+		a0hRLepnRmI5H3646yXlIQucOVM=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -127,7 +127,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			9sHLdhmCWC1cK73Li+wsABuNqJxnOMIC8Ns1WuHEE4k=
+			IMXtYt9foly+TozIAwK69l0jZK37sdi/vcBiX0yLpPc=
 			</data>
 		</dict>
 		<key>FPNCountryView.nib</key>
@@ -141,7 +141,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			OhICoHNt0DDiQK32xLPhcM9PwLVxRbmICdpfUfz3ePU=
+			1VjKT0IXx5xcic+AMPFIbX+0HIomnoZCP6uREETAhDc=
 			</data>
 		</dict>
 		<key>Headers/FlagPhoneNumber.h</key>
@@ -246,14 +246,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			mRo/jp4YizW43u54aEw9THsGhefTPHnu+TUXvN6pWdo=
+			Ud/dfyMt1ch2+76rtBZ/mrA8y0Aubzp+UXE5Qeyp36w=
 			</data>
 		</dict>
 		<key>Modules/FlagPhoneNumber.swiftmodule/Project/x86_64-apple-ios-simulator.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Xi0jHHLVjPUO2OldAlU0YZXluOxSEj6IjcfltJSzq2E=
+			5yG3DSwrt7MUqKKlnSIFB2U/nBsYi0yfbfY5GLXSwrA=
 			</data>
 		</dict>
 		<key>Modules/FlagPhoneNumber.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
@@ -267,14 +267,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			PIScQxl1rXQo1meqcewde+LYveUiHnzI3/XOYlUhvr8=
+			tm+EZECMTQcS4TWY7JdvlCv3i5ZVvfncb7j41J8Poh4=
 			</data>
 		</dict>
 		<key>Modules/FlagPhoneNumber.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			1gu8puye7e0eCCt+SitNelz85zPM1eQ3Ahy0KWblF6c=
+			ZtpYY07QJurou/mXVTn5jHHFBA38kVSnM1n+we7Gvc0=
 			</data>
 		</dict>
 		<key>Modules/FlagPhoneNumber.swiftmodule/x86_64-apple-ios-simulator.abi.json</key>
@@ -288,14 +288,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			hbP+a7aVa2dtaZRWyHZplRnFuuEfUmsZuaTsozdu59Q=
+			Q/YW/zyByG2uXQEKp9eQp3vfwCQmLlVOFAgiGhLnKRk=
 			</data>
 		</dict>
 		<key>Modules/FlagPhoneNumber.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			0S29eqa7K/UV4c/Imk3z5OSfEadcflqCVRWDcj9EQgs=
+			7ksc+qUR53M8vMCywQS+7f4tsz4OyHuP8R4Srfmh3L8=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

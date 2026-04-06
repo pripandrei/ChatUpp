@@ -44,7 +44,7 @@ struct VoicePlaybackControlPanelView: View
                             .rotationEffect(.degrees(viewModel.isPlaying ? 180 : 0))
                             .animation(.bouncy(duration: 0.3), value: viewModel.isPlaying)
                     }
-                    .buttonStyle(NoHighlightButtonStyle())
+                    .buttonStyle(NoHighlightStyle())
 
                     VStack(spacing: 4)
                     {
@@ -101,14 +101,6 @@ extension VoicePlaybackControlPanelView
     }
 }
 
-struct NoHighlightButtonStyle: ButtonStyle
-{
-    func makeBody(configuration: Configuration) -> some View
-    {
-        configuration.label
-            .opacity(1)
-    }
-}
 
 #Preview {
     let url = Bundle.main.url(forResource: "Wolfgang", withExtension: "mp3")
