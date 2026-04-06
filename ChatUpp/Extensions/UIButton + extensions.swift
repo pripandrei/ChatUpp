@@ -4,59 +4,48 @@
 //
 //  Created by Andrei Pripa on 6/18/24.
 //
-
 import Foundation
 import UIKit
 
 extension CustomizedShadowButton
 {
-    struct ShadowConfiguration
-    {
+    struct ShadowConfiguration {
         let shadowColor: UIColor
-        let fillColor: UIColor?
         let shadowOffset: CGSize
         let shadowOpacity: Float
         let shadowRadius: Float
     }
     
-    enum buttonStyle
-    {
+    enum buttonStyle {
         case navigationItem
         case bodyItem
     }
     
     static func getTopShadowConfig(for type: buttonStyle) -> ShadowConfiguration
     {
-        switch type
-        {
+        switch type {
         case .bodyItem:
             return .init(shadowColor: #colorLiteral(red: 0.769579947, green: 0.6207371354, blue: 0.6076716781, alpha: 1),
-                         fillColor: nil,
-                         shadowOffset: CGSize(width: -0.9, height: -0.9),
+                         shadowOffset: CGSize(width: -0.8, height: -0.8),
                          shadowOpacity: 0.9,
                          shadowRadius: 0.5)
         case .navigationItem:
             return .init(shadowColor: #colorLiteral(red: 0.346744597, green: 0.251160413, blue: 0.3698410094, alpha: 1),
-                         fillColor: nil,
                          shadowOffset: CGSize(width: -1.0, height: -1.0),
                          shadowOpacity: 0.3,
                          shadowRadius: 3.0)
         }
     }
     
-    static func getBottomShadowConfig(for type: buttonStyle) -> ShadowConfiguration
-    {
-        switch type
-        {
+    static func getBottomShadowConfig(for type: buttonStyle) -> ShadowConfiguration {
+        switch type {
         case .bodyItem:
             return .init(shadowColor: UIColor.black,
-                         fillColor: #colorLiteral(red: 0.3919434845, green: 0.3146837652, blue: 0.3270255327, alpha: 1),
                          shadowOffset: CGSize(width: 3.0, height: 3.0),
                          shadowOpacity: 0.8,
                          shadowRadius: 2.5)
         case .navigationItem:
             return .init(shadowColor: UIColor.black,
-                         fillColor: UIColor.white,
                          shadowOffset: CGSize(width: 1.0, height: 1.0),
                          shadowOpacity: 0.6,
                          shadowRadius: 1.5)
@@ -64,22 +53,19 @@ extension CustomizedShadowButton
     }
 }
 
-class CustomizedShadowButton: UIButton
-{
+class CustomizedShadowButton: UIButton {
     private let topShadowLayer: CAShapeLayer = .init()
     private let bottomShadowLayer: CAShapeLayer = .init()
     
     private let topShadowConfig: ShadowConfiguration
     private let bottomShadowConfig: ShadowConfiguration
     
-    private lazy var cornerRadius = (bounds.height / 2).rounded()
+    private var cornerRadius: CGFloat { (bounds.height / 2).rounded() }
     
-    init(shadowType: buttonStyle)
-    {
+    init(shadowType: buttonStyle) {
         self.topShadowConfig = Self.getTopShadowConfig(for: shadowType)
         self.bottomShadowConfig = Self.getBottomShadowConfig(for: shadowType)
         super.init(frame: .zero)
-        
         appearanceConfiguration()
     }
     
@@ -87,57 +73,53 @@ class CustomizedShadowButton: UIButton
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func layoutSubviews()
-    {
-        super.layoutSubviews()
-        setupTopShadow()
-        setupBottomShadow()
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        guard let superLayer = superview?.layer else { return }
+        superLayer.insertSublayer(bottomShadowLayer, below: layer)
+        superLayer.insertSublayer(topShadowLayer, below: layer)
     }
     
-    private func appearanceConfiguration()
-    {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateShadowLayers()
+    }
+    
+    private func appearanceConfiguration() {
         configuration = .bordered()
         configuration?.cornerStyle = .capsule
         configuration?.baseBackgroundColor = #colorLiteral(red: 0.2957182135, green: 0.2616393649, blue: 0.2596545649, alpha: 1)
         configuration?.baseForegroundColor = .white
-        
-        configuration?.background.cornerRadius = 17
         configuration?.background.strokeWidth = 0.6
         configuration?.background.strokeColor = #colorLiteral(red: 0.504460752, green: 0.4418102503, blue: 0.439527154, alpha: 1)
-        
         imageView?.contentMode = .scaleAspectFit
     }
- 
-    private func setupTopShadow()
-    {
-        topShadowLayer.path = UIBezierPath(roundedRect: bounds,
-                                           cornerRadius: cornerRadius).cgPath
-
+    
+    private func updateShadowLayers() {
+        // Convert bounds to superview coordinate space so layers align with the button
+        guard let superLayer = superview?.layer else { return }
+        let frameInSuper = superLayer.convert(bounds, from: layer)
+        let path = UIBezierPath(roundedRect: frameInSuper, cornerRadius: cornerRadius).cgPath
+        
+        topShadowLayer.path = path
+        topShadowLayer.fillColor = UIColor.clear.cgColor
         topShadowLayer.shadowColor = topShadowConfig.shadowColor.cgColor
-        topShadowLayer.shadowPath = topShadowLayer.path
+        topShadowLayer.shadowPath = path
         topShadowLayer.shadowOffset = topShadowConfig.shadowOffset
         topShadowLayer.shadowOpacity = topShadowConfig.shadowOpacity
         topShadowLayer.shadowRadius = CGFloat(topShadowConfig.shadowRadius)
         
-        layer.insertSublayer(topShadowLayer, at: 0)
-    }
-    
-    private func setupBottomShadow()
-    {
-        bottomShadowLayer.path = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
-        bottomShadowLayer.fillColor = bottomShadowConfig.fillColor?.cgColor
-        
+        bottomShadowLayer.path = path
+//        bottomShadowLayer.fillColor = bottomShadowConfig.fillColor?.cgColor ?? UIColor.clear.cgColor
+        bottomShadowLayer.fillColor = UIColor.clear.cgColor
         bottomShadowLayer.shadowColor = bottomShadowConfig.shadowColor.cgColor
-//        bottomShadowLayer.shadowPath = bottomShadowLayer.path
+        bottomShadowLayer.shadowPath = path
         bottomShadowLayer.shadowOffset = bottomShadowConfig.shadowOffset
         bottomShadowLayer.shadowOpacity = bottomShadowConfig.shadowOpacity
         bottomShadowLayer.shadowRadius = CGFloat(bottomShadowConfig.shadowRadius)
-        
-        layer.insertSublayer(bottomShadowLayer, at: 0)
     }
     
-    func setTitle(_ text: String)
-    {
+    func setTitle(_ text: String) {
         configuration?.attributedTitle = AttributedString(
             text,
             attributes: AttributeContainer([
@@ -147,7 +129,6 @@ class CustomizedShadowButton: UIButton
         )
     }
 }
-
 extension UIButton
 {
 //    static func makePriorToLiquidGlassToolbarItemButton(_ text: String?,

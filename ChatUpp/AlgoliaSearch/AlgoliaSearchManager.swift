@@ -9,8 +9,6 @@ final class AlgoliaSearchManager
     private let usersClient: SearchClient
     private let groupsClient: SearchClient
     
-//    private
-    
     private init()
     {
         guard let keys = AlgoliaAPIKeys.load() else
