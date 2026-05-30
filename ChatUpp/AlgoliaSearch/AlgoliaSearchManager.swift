@@ -1,6 +1,7 @@
 import Foundation
-import Core
-import Search
+import AlgoliaCore
+import AlgoliaSearch
+
 
 final class AlgoliaSearchManager
 {

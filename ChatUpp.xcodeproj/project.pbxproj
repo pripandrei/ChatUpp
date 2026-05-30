@@ -12,6 +12,8 @@
 		751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */; };
 		751598FC2E5F889200E22801 /* ImageBrowserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751598F72E5F886600E22801 /* ImageBrowserManager.swift */; };
 		751599022E5F899100E22801 /* SKPhotoBrowser in Frameworks */ = {isa = PBXBuildFile; productRef = 751599012E5F899100E22801 /* SKPhotoBrowser */; };
+		751FB66E2FCB06F600041D1D /* AlgoliaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 751FB66D2FCB06F600041D1D /* AlgoliaCore */; };
+		751FB6702FCB06F600041D1D /* AlgoliaSearch in Frameworks */ = {isa = PBXBuildFile; productRef = 751FB66F2FCB06F600041D1D /* AlgoliaSearch */; };
 		752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 752514B92D0CD2FF003330E7 /* Kingfisher */; };
 		7525150D2D0EE427003330E7 /* ProfileEditingListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7525150C2D0EE41D003330E7 /* ProfileEditingListCell.swift */; };
 		752706522DAA6DEF002128DF /* TargetPreviewable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7527064D2DAA6DED002128DF /* TargetPreviewable.swift */; };
@@ -218,8 +220,6 @@
 		75FB78FB2AC3164000C2743A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB78FA2AC3164000C2743A /* SettingsViewModel.swift */; };
 		75FB79012AC318D600C2743A /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FB79002AC318D600C2743A /* UIView+Extensions.swift */; };
 		75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */; };
-		75FD79812E95CDD200B3782F /* Core in Frameworks */ = {isa = PBXBuildFile; productRef = 75FD79802E95CDD200B3782F /* Core */; };
-		75FD79832E95CDD200B3782F /* Search in Frameworks */ = {isa = PBXBuildFile; productRef = 75FD79822E95CDD200B3782F /* Search */; };
 		75FD971E2DF230A800EC001E /* ReactionPresentationSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */; };
 		75FD97202DF3914400EC001E /* SkeletonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */; };
 /* End PBXBuildFile section */
@@ -472,10 +472,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				757AB0FE2BB9D81B00A64DA4 /* GoogleSignInSwift in Frameworks */,
+				751FB66E2FCB06F600041D1D /* AlgoliaCore in Frameworks */,
+				751FB6702FCB06F600041D1D /* AlgoliaSearch in Frameworks */,
 				7587D3AC2E63B7FD00DEE900 /* Gzip in Frameworks */,
-				75FD79812E95CDD200B3782F /* Core in Frameworks */,
 				757AB0E42BB9D70D00A64DA4 /* FirebaseDatabase in Frameworks */,
-				75FD79832E95CDD200B3782F /* Search in Frameworks */,
 				756E6D162D820D1F0065CADB /* ActivityIndicatorView in Frameworks */,
 				757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */,
 				752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */,
@@ -1897,10 +1897,10 @@
 				756E6D1E2D8210890065CADB /* NVActivityIndicatorViewExtended */,
 				751599012E5F899100E22801 /* SKPhotoBrowser */,
 				7587D3AB2E63B7FD00DEE900 /* Gzip */,
-				75FD79802E95CDD200B3782F /* Core */,
-				75FD79822E95CDD200B3782F /* Search */,
 				75B9CABD2ED6342B002D701F /* LoaderUI */,
 				756A2ACD2F22B39700C5D7B0 /* ThorVGSwift */,
+				751FB66D2FCB06F600041D1D /* AlgoliaCore */,
+				751FB66F2FCB06F600041D1D /* AlgoliaSearch */,
 			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
@@ -1940,9 +1940,9 @@
 				756E6D1B2D8210890065CADB /* XCRemoteSwiftPackageReference "NVActivityIndicatorView" */,
 				751599002E5F899100E22801 /* XCRemoteSwiftPackageReference "SKPhotoBrowser" */,
 				7587D3AA2E63B7FD00DEE900 /* XCRemoteSwiftPackageReference "GzipSwift" */,
-				75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 				75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */,
 				756A2ACC2F22B39700C5D7B0 /* XCRemoteSwiftPackageReference "thorvg.swift" */,
+				751FB66C2FCB06F600041D1D /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
@@ -2493,6 +2493,14 @@
 				minimumVersion = 7.1.0;
 			};
 		};
+		751FB66C2FCB06F600041D1D /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 9.43.2;
+			};
+		};
 		752514B82D0CD2FF003330E7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -2581,14 +2589,6 @@
 				minimumVersion = 0.2.1;
 			};
 		};
-		75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 9.31.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2596,6 +2596,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 751599002E5F899100E22801 /* XCRemoteSwiftPackageReference "SKPhotoBrowser" */;
 			productName = SKPhotoBrowser;
+		};
+		751FB66D2FCB06F600041D1D /* AlgoliaCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 751FB66C2FCB06F600041D1D /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = AlgoliaCore;
+		};
+		751FB66F2FCB06F600041D1D /* AlgoliaSearch */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 751FB66C2FCB06F600041D1D /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = AlgoliaSearch;
 		};
 		752514B92D0CD2FF003330E7 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -2706,16 +2716,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */;
 			productName = LoaderUI;
-		};
-		75FD79802E95CDD200B3782F /* Core */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
-			productName = Core;
-		};
-		75FD79822E95CDD200B3782F /* Search */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 75FD797F2E95CDD200B3782F /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
-			productName = Search;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
