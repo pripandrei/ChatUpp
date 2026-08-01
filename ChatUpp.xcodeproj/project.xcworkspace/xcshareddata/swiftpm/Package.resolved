@@ -1,5 +1,5 @@
 {
-  "originHash" : "c851ce0d9a98409dc41f2905afab000c8ff06d41c42e9e668e4df680ff49a77b",
+  "originHash" : "fa05773bfb5d5b324b83d984d975fa28f82592c10a229c0654bdf6cd43ff8c5a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -58,10 +58,10 @@
     {
       "identity" : "flagphonenumber",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/chronotruck/FlagPhoneNumber",
+      "location" : "https://github.com/pripandrei/FlagPhoneNumber.git",
       "state" : {
-        "revision" : "578ea3c5046f9423e6ce6b54c3f408cbe0f496d3",
-        "version" : "0.9.0"
+        "branch" : "master",
+        "revision" : "25fde93c451c6a6d2154946884f82622f9b05356"
       }
     },
     {
