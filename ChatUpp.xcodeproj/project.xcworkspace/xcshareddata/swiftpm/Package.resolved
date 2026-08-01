@@ -1,5 +1,5 @@
 {
-  "originHash" : "f16fb76cf8100d11f03c7d987a18d2ad17f6de5c7fbe176f649b706974941f10",
+  "originHash" : "c851ce0d9a98409dc41f2905afab000c8ff06d41c42e9e668e4df680ff49a77b",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -53,6 +53,15 @@
       "state" : {
         "revision" : "8d5b4189f1f482df8d5c58c9985ea70491ef5382",
         "version" : "12.14.0"
+      }
+    },
+    {
+      "identity" : "flagphonenumber",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/chronotruck/FlagPhoneNumber",
+      "state" : {
+        "revision" : "578ea3c5046f9423e6ce6b54c3f408cbe0f496d3",
+        "version" : "0.9.0"
       }
     },
     {
@@ -204,8 +213,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-core.git",
       "state" : {
-        "revision" : "cccb3ca9e26ec452a29f2f0d4050d1e38b8a3d43",
-        "version" : "14.14.0"
+        "revision" : "b4192c46305570577c4d08df790fddec5ab3aa04",
+        "version" : "20.1.5"
       }
     },
     {
@@ -213,8 +222,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/realm-swift.git",
       "state" : {
-        "revision" : "1c105d34f25af7851c5a3ff146be006de247a6b4",
-        "version" : "10.54.6"
+        "revision" : "ca03df491ec5e4bb8af0bca1e9957d08c10ec2da",
+        "version" : "20.0.5"
       }
     },
     {
