@@ -154,6 +154,7 @@
 		75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B5C4BD2A49AB0A00F63A5A /* LoginViewController.swift */; };
 		75B5C4C32A49AB0B00F63A5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */; };
 		75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 75B5C4C42A49AB0B00F63A5A /* LaunchScreen.storyboard */; };
+		75B9C873301E481F00ADED6D /* FlagPhoneNumber in Frameworks */ = {isa = PBXBuildFile; productRef = 75B9C872301E481F00ADED6D /* FlagPhoneNumber */; };
 		75B9CAB82ED16A93002D701F /* SeenStatusIconStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B9CAB72ED16A88002D701F /* SeenStatusIconStorage.swift */; };
 		75B9CABE2ED6342B002D701F /* LoaderUI in Frameworks */ = {isa = PBXBuildFile; productRef = 75B9CABD2ED6342B002D701F /* LoaderUI */; };
 		75BA23832D2D775700A4C508 /* CropViewControllerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BA23822D2D773100A4C508 /* CropViewControllerRepresentable.swift */; };
@@ -436,10 +437,6 @@
 		7557C1A92F40CAC8004C66BE /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			attributesByRelativePath = {
-				FlagPhoneNumber.xcframework = (
-					CodeSignOnCopy,
-					RemoveHeadersOnCopy,
-				);
 				YYText.xcframework = (
 					CodeSignOnCopy,
 					RemoveHeadersOnCopy,
@@ -447,7 +444,6 @@
 			};
 			buildPhase = 7545AD922BB9E65B00E9B107 /* Embed Frameworks */;
 			membershipExceptions = (
-				FlagPhoneNumber.xcframework,
 				YYText.xcframework,
 			);
 		};
@@ -479,6 +475,7 @@
 				756E6D162D820D1F0065CADB /* ActivityIndicatorView in Frameworks */,
 				757AB0E02BB9D70C00A64DA4 /* FirebaseAuth in Frameworks */,
 				752514BA2D0CD2FF003330E7 /* Kingfisher in Frameworks */,
+				75B9C873301E481F00ADED6D /* FlagPhoneNumber in Frameworks */,
 				757AB0F02BB9D70D00A64DA4 /* FirebaseFunctions in Frameworks */,
 				757AB0E22BB9D70C00A64DA4 /* FirebaseAuthCombine-Community in Frameworks */,
 				756E6D1D2D8210890065CADB /* NVActivityIndicatorView in Frameworks */,
@@ -1901,6 +1898,7 @@
 				756A2ACD2F22B39700C5D7B0 /* ThorVGSwift */,
 				751FB66D2FCB06F600041D1D /* AlgoliaCore */,
 				751FB66F2FCB06F600041D1D /* AlgoliaSearch */,
+				75B9C872301E481F00ADED6D /* FlagPhoneNumber */,
 			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
@@ -1943,6 +1941,7 @@
 				75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */,
 				756A2ACC2F22B39700C5D7B0 /* XCRemoteSwiftPackageReference "thorvg.swift" */,
 				751FB66C2FCB06F600041D1D /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
+				75B9C871301E481F00ADED6D /* XCRemoteSwiftPackageReference "FlagPhoneNumber" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
@@ -2581,6 +2580,14 @@
 				minimumVersion = 2.7.4;
 			};
 		};
+		75B9C871301E481F00ADED6D /* XCRemoteSwiftPackageReference "FlagPhoneNumber" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/chronotruck/FlagPhoneNumber.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
 		75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ninjaprox/LoaderUI.git";
@@ -2711,6 +2718,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 75A086142D19619E00DE5333 /* XCRemoteSwiftPackageReference "TOCropViewController" */;
 			productName = TOCropViewController;
+		};
+		75B9C872301E481F00ADED6D /* FlagPhoneNumber */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 75B9C871301E481F00ADED6D /* XCRemoteSwiftPackageReference "FlagPhoneNumber" */;
+			productName = FlagPhoneNumber;
 		};
 		75B9CABD2ED6342B002D701F /* LoaderUI */ = {
 			isa = XCSwiftPackageProductDependency;
