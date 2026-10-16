@@ -354,7 +354,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     @MainActor
-    func createVoiceMessage(fromURL url: URL, withAudioSamples samples: [Float])
+    func createVoiceMessage(fromURL url: URL, withAudioSamples samples: [Float]) -> Message
     {
         ensureConversationExists()
         let message = createMessageLocally(
@@ -363,6 +363,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             media: .audio(path: url.lastPathComponent, samples: samples)
         )
         syncMessageWithFirestore(message.freeze(), imageRepository: nil)
+        return message
     }
     
     // Extract samples from audio file to generate waveforms

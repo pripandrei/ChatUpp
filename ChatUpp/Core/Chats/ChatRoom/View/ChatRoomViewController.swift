@@ -14,6 +14,8 @@ import SKPhotoBrowser
 
 final class ChatRoomViewController: UIViewController
 {
+    private let newMessageInsertionOffset: CGFloat = 150.0
+
     weak var coordinatorDelegate :Coordinator?
     
     private var animatedPreviewViews: [UIView] = []
@@ -42,13 +44,11 @@ final class ChatRoomViewController: UIViewController
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScrollToUnseenIndexPathIfAny: Bool = true
     private var paginateOldMessagesOnInitialChatOpen: Bool = true
+    private var scrollToBottomCompletion: (() -> Void)?
+    private var newMessageInsertionSnapshot: UIView?
     
     private var isFirstCellFullyVisible: Bool {
-        guard let lastSection = rootView?.tableView.numberOfSections, lastSection > 0 else { return true }
-        let section = lastSection - 1
-        let row = rootView.tableView.numberOfRows(inSection: section) - 1
-        guard row >= 0 else { return true }
-        return checkIfCellIsFullyVisible(at: IndexPath(row: row, section: section))
+        return isTableViewAtBottom()
     }
     
 
@@ -80,6 +80,8 @@ final class ChatRoomViewController: UIViewController
         if viewModel.conversationInitializationStatus == .finished {
             finalizeConversationSetup()
         }
+
+        updateTableViewContentPosition(keepingBottomVisible: isTableViewAtBottom())
     }
     
     override func viewWillDisappear(_ animated: Bool)
@@ -105,6 +107,9 @@ final class ChatRoomViewController: UIViewController
     {
         self.performAdditionalSetupForRootView()
         self.configureTableView()
+        self.rootView.tableViewContentAttributesDidChange = { [weak self] wasAtBottom in
+            self?.updateTableViewContentPosition(keepingBottomVisible: wasAtBottom)
+        }
         self.addGestureToTableView()
         self.setNavigationBarItems()
         self.addTargetsToButtons()
@@ -175,7 +180,7 @@ final class ChatRoomViewController: UIViewController
         if let indexPath {
             self.scrollToCell(at: indexPath)
         } else {
-            self.scrollToBottom()
+            self.scrollToBottom(animated: false)
         }
         
         executeAfter(seconds: 1.0) {
@@ -269,17 +274,23 @@ final class ChatRoomViewController: UIViewController
                 
                 var updateType = updateType
                 let isUpdateAnimationNone = updateType == .none
-                let wasAtBottom = self.isFirstIndexPathVisible()
+                let wasAtBottom = self.isTableViewAtBottom()
                 if isUpdateAnimationNone
                 {
                     if !wasAtBottom {
                         updateType = .automatic
+                    } else if let newestMessageID = self.newestMessageID {
+                        self.dataSourceManager.prepareForNewestMessageInsertion(
+                            messageID: newestMessageID
+                        )
                     }
                 }
                 
-                self.dataSourceManager.configureSnapshot(animationType: updateType)
-                if isUpdateAnimationNone && wasAtBottom {
-                    self.scrollToBottom()
+                self.dataSourceManager.configureSnapshot(animationType: updateType) {
+                    guard isUpdateAnimationNone && wasAtBottom else { return }
+                    self.updateTableViewContentPosition(keepingBottomVisible: true)
+                    self.scrollToBottom(animated: false)
+                    self.animateNewestMessageInsertion(forMessageID: self.newestMessageID)
                 }
                 
             }.store(in: &subscriptions)
@@ -561,38 +572,128 @@ final class ChatRoomViewController: UIViewController
 //MARK: - Handle cell message insertion
 extension ChatRoomViewController
 {
-    private func isFirstIndexPathVisible() -> Bool
+    private func scrollToBottom(animated: Bool = true,
+                                completion: (() -> Void)? = nil)
     {
-        let lastSection = rootView.tableView.numberOfSections
-        guard lastSection > 0 else { return true }
-        let section = lastSection - 1
-        let row = rootView.tableView.numberOfRows(inSection: section) - 1
-        guard row >= 0 else { return true }
-        return rootView.tableView.indexPathsForVisibleRows?.contains(IndexPath(row: row, section: section)) ?? false
+        let tableView = rootView.tableView
+        let lastSection = tableView.numberOfSections
+        guard lastSection > 0,
+              tableView.numberOfRows(inSection: lastSection - 1) > 0
+        else {
+            completion?()
+            return
+        }
+
+        tableView.layoutIfNeeded()
+        let bottomOffset = tableViewMaximumOffset()
+        let targetOffset = CGPoint(x: tableView.contentOffset.x, y: bottomOffset)
+        let needsScroll = abs(tableView.contentOffset.y - bottomOffset) > 0.5
+
+        guard animated && needsScroll else {
+            tableView.setContentOffset(targetOffset, animated: false)
+            completion?()
+            return
+        }
+
+        scrollToBottomCompletion = completion
+        tableView.setContentOffset(targetOffset, animated: true)
     }
-    
-    private func handleNewMessageDisplay()
+
+    private func isTableViewAtBottom() -> Bool
     {
-        if isFirstIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
-        {
-            self.scrollToBottom()
+        let tableView = rootView.tableView
+        guard tableView.numberOfSections > 0 else { return true }
+        let maximumOffset = tableViewMaximumOffset()
+        return tableView.contentOffset.y >= maximumOffset - 1.0
+    }
+
+    private func tableViewMaximumOffset() -> CGFloat
+    {
+        let tableView = rootView.tableView
+        return max(
+            -tableView.adjustedContentInset.top,
+            tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom
+        )
+    }
+
+    private var newestMessageID: String?
+    {
+        viewModel.messageClusterRepository.messageClusters.last?.items.last(where: { $0.message != nil })?.message?.id
+    }
+
+    private func updateTableViewContentPosition(keepingBottomVisible: Bool)
+    {
+        let tableView = rootView.tableView
+        tableView.layoutIfNeeded()
+
+        let safeAreaTopInset = tableView.adjustedContentInset.top - tableView.contentInset.top
+        let availableHeight = tableView.bounds.height - safeAreaTopInset - tableView.adjustedContentInset.bottom
+        let desiredTopInset = max(0.0, availableHeight - tableView.contentSize.height)
+
+        if abs(tableView.contentInset.top - desiredTopInset) > 0.5 {
+            tableView.contentInset.top = desiredTopInset
+            tableView.verticalScrollIndicatorInsets.top = desiredTopInset
+        }
+
+        if keepingBottomVisible {
+            scrollToBottom(animated: false)
         }
     }
-    
-    private func scrollToBottom()
+
+    private func animateNewestMessageInsertion(forMessageID messageID: String?)
     {
-        executeAfter(seconds: 0.15)
-        {
-            let lastSection = self.rootView.tableView.numberOfSections
-            guard lastSection > 0 else { return }
-            let section = lastSection - 1
-            let row = self.rootView.tableView.numberOfRows(inSection: section) - 1
-            if row >= 0
-            {
-                self.rootView.tableView.layoutIfNeeded()
-                self.rootView.tableView.scrollToRow(at: IndexPath(row: row, section: section), at: .bottom, animated: true)
+        guard let messageID else {
+            dataSourceManager.clearPendingNewestMessageInsertion()
+            return
+        }
+
+        let indexPath: IndexPath? = viewModel.messageClusterRepository.messageClusters.enumerated().compactMap { section, cluster in
+            guard let row = cluster.items.firstIndex(where: { $0.message?.id == messageID }) else { return nil }
+            return IndexPath(row: row, section: section)
+        }.first
+
+        guard let indexPath,
+              let cell = rootView.tableView.cellForRow(at: indexPath)
+        else {
+            dataSourceManager.clearPendingNewestMessageInsertion()
+            return
+        }
+
+        cell.layoutIfNeeded()
+        cell.contentView.layoutIfNeeded()
+
+        guard let snapshot = cell.contentView.snapshotView(afterScreenUpdates: false) else {
+            cell.alpha = 1.0
+            return
+        }
+
+        cell.alpha = 0.0
+        newMessageInsertionSnapshot?.removeFromSuperview()
+        newMessageInsertionSnapshot = snapshot
+
+        snapshot.frame = rootView.convert(cell.contentView.bounds, from: cell.contentView)
+        rootView.insertSubview(snapshot, belowSubview: rootView.inputBarContainer)
+        snapshot.transform = CGAffineTransform(translationX: 0, y: newMessageInsertionOffset)
+
+        UIView.animate(
+            withDuration: 0.3,
+            delay: 0.0,
+            options: [.curveEaseOut, .beginFromCurrentState, .allowUserInteraction]
+        ) {
+            snapshot.transform = .identity
+        } completion: { [weak self, weak cell] _ in
+            cell?.alpha = 1.0
+            snapshot.removeFromSuperview()
+            if self?.newMessageInsertionSnapshot === snapshot {
+                self?.newMessageInsertionSnapshot = nil
             }
         }
+    }
+
+    private func tableViewCenter(for cell: UITableViewCell) -> CGPoint
+    {
+        let cellCenter = CGPoint(x: cell.bounds.midX, y: cell.bounds.midY)
+        return rootView.tableView.convert(cellCenter, from: cell)
     }
 
 }
@@ -796,8 +897,8 @@ extension ChatRoomViewController
         
         Task {
             let samples = await viewModel.generateWaveform(from: url)
-            viewModel.createVoiceMessage(fromURL: url, withAudioSamples: samples)
-            updateUIOnNewMessageCreation(.audio)
+            let message = viewModel.createVoiceMessage(fromURL: url, withAudioSamples: samples)
+            updateUIOnNewMessageCreation(message)
         }
     }
 
@@ -828,7 +929,7 @@ extension ChatRoomViewController
             {
                 await viewModel.saveImagesLocally(fromImageRepository: repo, for: message.id)
             }
-            updateUIOnNewMessageCreation(messageType)
+            updateUIOnNewMessageCreation(message)
         }
         
         // Start message remote sync
@@ -843,22 +944,29 @@ extension ChatRoomViewController
         let message = viewModel.createMessageLocally(ofType: .sticker,
                                                      text: nil,
                                                      media: media)
-        updateUIOnNewMessageCreation(.sticker)
+        updateUIOnNewMessageCreation(message)
         viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: nil)
     }
     
-    private func updateUIOnNewMessageCreation(_ messageType: MessageType)
+    private func updateUIOnNewMessageCreation(_ message: Message)
     {
-        dataSourceManager.configureSnapshot(animationType: isFirstIndexPathVisible() ? .none : .automatic)
-        handleNewMessageDisplay()
+        dataSourceManager.prepareForNewestMessageInsertion(
+            messageID: message.id
+        )
+        dataSourceManager.configureSnapshot(animationType: .none) { [weak self] in
+            guard let self else { return }
+            self.updateTableViewContentPosition(keepingBottomVisible: false)
+            self.scrollToBottom(animated: true) {
+                self.animateNewestMessageInsertion(forMessageID: message.id)
+            }
+        }
         
-        switch messageType
-        {
-        case .text, .imageText: clearTextViewInput()
-        default: break
+        if case .text? = message.type {
+            clearTextViewInput()
+        } else if case .imageText? = message.type {
+            clearTextViewInput()
         }
         closeInputBarHeaderView()
-        scrollToBottom()
     }
 
     @objc func addPicture()
@@ -926,9 +1034,16 @@ extension ChatRoomViewController
 {
     private func handleTableViewOffset(usingKeyboardHeight keyboardHeight: CGFloat)
     {
+        let tableView = rootView.tableView
+        tableView.layoutIfNeeded()
+        let wasAtBottom = isTableViewAtBottom()
+        let previousMaximumOffset = tableViewMaximumOffset()
+        let distanceFromBottom = max(0.0, previousMaximumOffset - tableView.contentOffset.y)
+
         // if number of lines inside textView is bigger than 1, it will expand
         let maxContainerViewY = 584.0 - 4.0
-        var keyboardHeight = keyboardHeight - 30
+        let keyboardOffset = max(0.0, keyboardHeight - 30.0)
+        var keyboardHeight = keyboardOffset
 
         keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardHeight : keyboardHeight
         let editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
@@ -936,25 +1051,35 @@ extension ChatRoomViewController
         // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
         let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(inputMessageTextViewDelegate.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
         
-        let customTableViewInset = keyboardHeight < 0 ? abs(keyboardHeight) + textViewHeight + editViewHeight : 0 + textViewHeight + editViewHeight
-        let currentOffSet = rootView.tableView.contentOffset
-        let offSet = CGPoint(x: currentOffSet.x, y: keyboardHeight + currentOffSet.y)
+        let customTableViewInset = keyboardHeight < 0
+            ? abs(keyboardHeight) + textViewHeight + editViewHeight
+            : textViewHeight + editViewHeight
         
         rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-        rootView.layoutSubviews()
-        rootView.tableView.contentInset.bottom = 75 + customTableViewInset
-        rootView.tableView.setContentOffset(offSet, animated: false)
-        rootView.tableView.verticalScrollIndicatorInsets.bottom = 85 + customTableViewInset
+        rootView.layoutIfNeeded()
+        tableView.contentInset.bottom = 75 + customTableViewInset
+        tableView.verticalScrollIndicatorInsets.bottom = 85 + customTableViewInset
+        updateTableViewContentPosition(keepingBottomVisible: false)
+
+        let newMaximumOffset = tableViewMaximumOffset()
+        let minimumOffset = -tableView.adjustedContentInset.top
+        let desiredOffset = wasAtBottom
+            ? newMaximumOffset
+            : newMaximumOffset - distanceFromBottom
+        let clampedOffset = min(max(desiredOffset, minimumOffset), newMaximumOffset)
+        tableView.setContentOffset(
+            CGPoint(x: tableView.contentOffset.x, y: clampedOffset),
+            animated: false
+        )
     }
     
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
-                                        currentNumberOfLines: Int)
+                                        currentNumberOfLines _: Int)
     {
         let textView = rootView.messageTextView
         let tableView = rootView.tableView
-        let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
         let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
-        let updatedContentOffset = tableView.contentOffset.y + (textView.font!.lineHeight * numberOfAddedLines)
+        let wasAtBottom = isTableViewAtBottom()
         let updatedContentBottomInset = rootView.tableViewInitialBottomInset +
         (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
         
@@ -962,7 +1087,7 @@ extension ChatRoomViewController
         {
             tableView.verticalScrollIndicatorInsets.bottom = 85 + updatedContentBottomInset
             tableView.contentInset.bottom = 75 + updatedContentBottomInset
-            tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
+            self.updateTableViewContentPosition(keepingBottomVisible: wasAtBottom)
         }
         inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
     }
@@ -1346,6 +1471,9 @@ extension ChatRoomViewController: UIScrollViewDelegate
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView)
     {
         triggerUpdateUnseenMessagesCheck()
+        let completion = scrollToBottomCompletion
+        scrollToBottomCompletion = nil
+        completion?()
     }
     
     
@@ -1469,6 +1597,18 @@ extension ChatRoomViewController
         if rootView.inputBarBottomConstraint.constant != 0.0 {
             isContextMenuPresented = true
         }
+
+        guard let indexPath = configuration.identifier as? IndexPath,
+              let cell = tableView.cellForRow(at: indexPath)
+        else {
+            return
+        }
+
+        // Coordinate hiding the source with the preview lift so the snapshot
+        // already exists when the original cell becomes transparent.
+        animator?.addAnimations {
+            cell.alpha = 0.0
+        }
     }
     
     private func handleContextMenuSelectedAction(
@@ -1565,12 +1705,11 @@ extension ChatRoomViewController
             return nil
         }
 
-        // Keep the original cell visible but make it transparent during preview
-        // This keeps animations running in the background
-        cell.alpha = 0.01 // Almost invisible but still rendering
-       
-        // Create a container that references the cell
-        let cellReference = TargetedPreviewContentView(contentView: cell.contentView)
+        // Capture synchronously before the source cell is hidden. A display-link
+        // snapshot leaves one empty frame at the start of the context-menu lift.
+        guard let cellReference = cell.contentView.snapshotView(afterScreenUpdates: false) else {
+            return nil
+        }
         cellReference.frame = cell.contentView.bounds
         cellReference.layer.cornerRadius = 10
         cellReference.layer.masksToBounds = true
@@ -1617,8 +1756,8 @@ extension ChatRoomViewController
         ])
         
         let heightDifference = totalHeight - cellHeight
-        let adjustedCenterY = cell.center.y + (heightDifference / 2)
-        let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
+        let cellCenter = tableViewCenter(for: cell)
+        let centerPoint = CGPoint(x: cellCenter.x, y: cellCenter.y - (heightDifference / 2))
         
         let previewTarget = UIPreviewTarget(container: rootView.tableView,
                                           center: centerPoint,
@@ -1643,10 +1782,9 @@ extension ChatRoomViewController
         }
         
         let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
- 
-        let previewsCount = self.animatedPreviewViews.count
-        guard previewsCount > 0 else { return nil }
-        let snapshot = animatedPreviewViews[previewsCount - 1]
+        guard let snapshot = cell.contentView.snapshotView(afterScreenUpdates: false) else {
+            return nil
+        }
         
         snapshot.frame = CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
         
@@ -1667,9 +1805,8 @@ extension ChatRoomViewController
         snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
         
         let heightDifference = container.bounds.height - cell.bounds.height
-        let adjustedCenterY = cell.center.y + (heightDifference / 2)
-        
-        let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
+        let cellCenter = tableViewCenter(for: cell)
+        let centerPoint = CGPoint(x: cellCenter.x, y: cellCenter.y - (heightDifference / 2))
         let previewTarget = UIPreviewTarget(container: rootView.tableView,
                                            center: centerPoint,
                                            transform: .identity)
@@ -1699,10 +1836,8 @@ extension ChatRoomViewController
             
             executeAfter(seconds: 1.0)
             {
-                if let view = self.animatedPreviewViews.first as? TargetedPreviewContentView
-                {
-                    view.cleanup()
-                    self.animatedPreviewViews.first?.removeFromSuperview()
+                if let view = self.animatedPreviewViews.first {
+                    view.removeFromSuperview()
                     self.animatedPreviewViews.remove(at: 0)
                 }
             }

@@ -17,6 +17,7 @@ final class ChatRoomRootView: UIView
 {
     let contentOffsetSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
     let cancelRecordingSubject: PassthroughSubject = PassthroughSubject<Void, Never>()
+    var tableViewContentAttributesDidChange: ((Bool) -> Void)?
     
     private var sendMessageButtonPropertyAnimator: UIViewPropertyAnimator?
     
@@ -383,6 +384,11 @@ final class ChatRoomRootView: UIView
     
     func updateTableViewContentAttributes(isInputBarHeaderRemoved: Bool)
     {
+        let currentMaxOffset = max(
+            -tableView.adjustedContentInset.top,
+            tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom
+        )
+        let wasAtBottom = tableView.contentOffset.y >= currentMaxOffset - 1.0
         let height = isInputBarHeaderRemoved ? 45.0 : -45.0
         
         // Use adjustedContentInset (the REAL effective inset)
@@ -393,6 +399,7 @@ final class ChatRoomRootView: UIView
         
         let newOffset = currentRelativeOffset - tableView.adjustedContentInset.bottom
         tableView.setContentOffset(CGPoint(x: 0, y: newOffset), animated: false)
+        tableViewContentAttributesDidChange?(wasAtBottom)
     }
     
     func setTextViewDelegate(to delegate: UITextViewDelegate) {

@@ -31,6 +31,7 @@ final class ConversationDataSourceManager
     private var layoutProvider: MessageLayoutProvider
     private var diffableDataSource: DataSource!
     private var tableView: UITableView
+    private var pendingNewestMessageInsertionID: String?
     
     init(dataProvider: ChatRoomDataSourceProviding,
          layoutProvider: MessageLayoutProvider,
@@ -54,24 +55,39 @@ final class ConversationDataSourceManager
                                     cellProvider:
                                         { tableView, indexPath, cellViewModel in
             
-            if cellViewModel.displayUnseenMessagesTitle == true
-            {
-                return self.dequeueUnseenTitleCell(for: indexPath, in: tableView)
-            }
-            
             if cellViewModel.message?.isInvalidated == true
             {
                 print("stop")
             }
-            
-            
-            if cellViewModel.message?.type == .title {
-                return self.dequeueMessageEventCell(for: indexPath, in: tableView, with: cellViewModel)
+
+            let cell: UITableViewCell
+            if cellViewModel.displayUnseenMessagesTitle == true {
+                cell = self.dequeueUnseenTitleCell(for: indexPath, in: tableView)
+            } else if cellViewModel.message?.type == .title {
+                cell = self.dequeueMessageEventCell(for: indexPath, in: tableView, with: cellViewModel)
+            } else {
+                cell = self.dequeueMessageCell(for: indexPath, in: tableView, with: cellViewModel)
             }
-            
-            return self.dequeueMessageCell(for: indexPath, in: tableView, with: cellViewModel)
+
+            cell.transform = .identity
+            cell.alpha = 1.0
+            if self.pendingNewestMessageInsertionID == cellViewModel.message?.id {
+                cell.alpha = 0.0
+                self.pendingNewestMessageInsertionID = nil
+            }
+            return cell
         })
         return dataSource
+    }
+
+    func prepareForNewestMessageInsertion(messageID: String)
+    {
+        pendingNewestMessageInsertionID = messageID
+    }
+
+    func clearPendingNewestMessageInsertion()
+    {
+        pendingNewestMessageInsertionID = nil
     }
     
     func configureSnapshot(
@@ -227,5 +243,3 @@ extension ConversationTableViewDataSource: SkeletonTableViewDataSource
        return ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire
     }
 }
-
-
