@@ -153,10 +153,10 @@ class Chat: Object, Codable
     }
     
     func getMessages() -> [Message] {
-        return Array(conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: false))
+        return Array(conversationMessages.sorted(byKeyPath: Message.CodingKeys.timestamp.rawValue, ascending: true))
     }
     
-    func getMessagesResults(ascending: Bool = false) -> Results<Message>
+    func getMessagesResults(ascending: Bool = true) -> Results<Message>
     {
         return conversationMessages.sorted(
             byKeyPath: Message.CodingKeys.timestamp.rawValue,

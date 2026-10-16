@@ -761,8 +761,9 @@ extension FirebaseChatService
             }
         }
         
-        return try await query.limit(to: limit)
+        let messages = try await query.limit(to: limit)
             .getDocuments(as: Message.self)
+        return messages.sorted(by: { $0.timestamp < $1.timestamp })
     }
     
     func fetchMessagesFromChat(chatID: String,
@@ -811,8 +812,9 @@ extension FirebaseChatService
             }
         }
         
-        return try await query
+        let messages = try await query
             .getDocuments(as: Message.self)
+        return messages.sorted(by: { $0.timestamp < $1.timestamp })
     }
 }
 

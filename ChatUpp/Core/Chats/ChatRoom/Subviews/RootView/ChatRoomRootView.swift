@@ -62,7 +62,6 @@ final class ChatRoomRootView: UIView
         
         // Bottom of table view has padding due to navigation controller
         let tableView                           = UITableView()
-        tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1)
         tableView.backgroundColor               = ColorScheme.appBackgroundColor
         tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 75, right: 0)
         tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 85, right: 0)
@@ -244,7 +243,7 @@ final class ChatRoomRootView: UIView
     var scrollToBottomBtnBottomConstraint: NSLayoutConstraint!
 
     // MARK: Internal variables
-    var tableViewInitialTopInset: CGFloat
+    var tableViewInitialBottomInset: CGFloat
     {
         let keyboardHeight = KeyboardService.shared.keyboardHeight
         return isKeyboardShown() ? CGFloat(keyboardHeight - 30) : CGFloat(0)
@@ -387,12 +386,12 @@ final class ChatRoomRootView: UIView
         let height = isInputBarHeaderRemoved ? 45.0 : -45.0
         
         // Use adjustedContentInset (the REAL effective inset)
-        let currentRelativeOffset = tableView.contentOffset.y + tableView.adjustedContentInset.top
+        let currentRelativeOffset = tableView.contentOffset.y + tableView.adjustedContentInset.bottom
         
-        tableView.contentInset.top -= height
-        tableView.verticalScrollIndicatorInsets.top -= height
+        tableView.contentInset.bottom -= height
+        tableView.verticalScrollIndicatorInsets.bottom -= height
         
-        let newOffset = currentRelativeOffset - tableView.adjustedContentInset.top
+        let newOffset = currentRelativeOffset - tableView.adjustedContentInset.bottom
         tableView.setContentOffset(CGPoint(x: 0, y: newOffset), animated: false)
     }
     
@@ -925,7 +924,6 @@ extension ChatRoomRootView
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.frame = view.bounds
         backgroundImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        backgroundImageView.transform = CGAffineTransform(scaleX: 1, y: -1)
         view.addSubview(backgroundImageView)
         return view
     }

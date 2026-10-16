@@ -26,7 +26,6 @@ final class FooterSectionView: UITableViewHeaderFooterView
     }
     
     private func setupFooterSection() {
-//        self.transform = CGAffineTransform(scaleX: 1, y: -1)
         self.backgroundConfiguration = .clear()
     }
     
@@ -54,7 +53,6 @@ extension FooterSectionView
         override init(frame: CGRect) 
         {
             super.init(frame: frame)
-            transform = CGAffineTransform(scaleX: 1, y: -1)
             backgroundColor = ColorScheme.footerSectionBackgroundColor
             textColor = .white
             textAlignment = .center

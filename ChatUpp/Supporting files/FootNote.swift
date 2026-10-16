@@ -90,10 +90,9 @@
 /// So we update firestore message seen status before adding to realm
 
 //MARK: - [13]
-/// When pagination of messages happens, it offsets content of table view
-/// to the very first cell. After that it wil be adjustead back,
-/// but during this phase we dont want to catche the smalles index path,
-/// so we just ignore updates ignore updates
+/// During pagination, the visible cell's relative offset is preserved while
+/// older rows are inserted above it, so seen-status updates are ignored until
+/// the snapshot has finished applying.
 
 //MARK: - [14]
 ///
@@ -110,11 +109,8 @@
 
 //MARK: - [16]
 //
-/// This code is a workaround to avoid content offset shift on new rows/sections insertion
-/// EXPLANATION:
-/// On new cells/sections insertion, if tableView contentOffset y is at the inital position y (-97.6...),
-/// tableView will animate scrolling to the last inserted cell, we want this to avoid,
-/// so we offset a bit content, which will result in content remaining at the same position after insertion
+/// Pagination preserves the visible cell's relative offset after new rows or
+/// sections are inserted above the current viewport.
 ///
 
 //MARK: - [17]

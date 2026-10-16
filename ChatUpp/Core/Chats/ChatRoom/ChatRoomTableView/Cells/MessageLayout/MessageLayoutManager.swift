@@ -61,18 +61,18 @@ struct MessageLayoutManager: MessageLayoutProvider
         let messageItems = sourceProvider.messageClusters[indexPath.section].items
         guard messageItems[indexPath.row].messageAlignment == .left else
         { return false }
-        guard indexPath.row < messageItems.count - 1 else { return true }
+        guard indexPath.row > 0 else { return true }
         
         guard
             let currentMessage = messageItems[indexPath.row].message,
-            let nextMessage = messageItems[indexPath.row + 1].message
+            let previousMessage = messageItems[indexPath.row - 1].message
         else {
             return false
         }
         
         guard currentMessage.type != .title else { return false }
-        guard nextMessage.type != .title else { return true }
+        guard previousMessage.type != .title else { return true }
         
-        return currentMessage.senderId != nextMessage.senderId
+        return currentMessage.senderId != previousMessage.senderId
     }
 }

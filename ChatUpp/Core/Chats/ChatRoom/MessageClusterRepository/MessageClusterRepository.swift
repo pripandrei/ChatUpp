@@ -20,84 +20,40 @@ final class MessageClusterRepository: MessageClusterRepositoryProtocol
     
     func addMessages(_ messages: [Message])
     {
-        guard !messages.isEmpty else { return  }
-        
-        var dateToClusterIndex = Dictionary(uniqueKeysWithValues: self.messageClusters
-            .enumerated()
-            .map { ($0.element.date, $0.offset) }
-        )
-        var tempMessageClusters = self.messageClusters
-        
-        // Determine insertion direction by comparing timestamps
-        let isAscendingInsertion = {
-            guard let firstCurrent = self.messageClusters.first?.items.first?.message?.timestamp,
-                  let lastNew = messages.last?.timestamp else
-            {
-                return true /// since table view is inverted, return true
-            }
-            return lastNew > firstCurrent
-        }()
-        
-        for message in messages
-        {
-            guard let date = message.timestamp.formatToYearMonthDay() else { continue }
-            
-            let messageItem = MessageItem(message: message)
-            
-            if let index = dateToClusterIndex[date]
-            {
-                if isAscendingInsertion {
-                    tempMessageClusters[index].items.insert(messageItem, at: 0)
-                } else {
-                    tempMessageClusters[index].items.append(messageItem)
-                }
-            } else
-            {
-                let newCluster = MessageCluster(date: date, items: [messageItem])
-                if isAscendingInsertion {
-                    tempMessageClusters.insert(newCluster, at: 0)
-                    dateToClusterIndex[date] = 0
-                } else {
-                    tempMessageClusters.append(newCluster)
-                    dateToClusterIndex[date] = tempMessageClusters.count - 1
-                }
-            }
-        }
-        
-        self.messageClusters = tempMessageClusters
+        insertMessagesInOrder(messages)
     }
     
     func insertMessagesInOrder(_ messages: [Message]) {
         guard !messages.isEmpty else { return }
         
         var tempClusters = self.messageClusters
-        var dateToClusterIndex: [Date: Int] = Dictionary(
-            uniqueKeysWithValues: tempClusters.enumerated().map { ($0.element.date, $0.offset) }
-        )
         
-        for message in messages {
+        for message in messages.sorted(by: { $0.timestamp < $1.timestamp }) {
             guard let date = message.timestamp.formatToYearMonthDay() else { continue }
+
+            // Listener snapshots can contain a message that was already loaded
+            // locally. Keep the existing cell view model so diffable data source
+            // identity remains stable.
+            guard !tempClusters.contains(where: { cluster in
+                cluster.items.contains { $0.message?.id == message.id }
+            }) else { continue }
+
             let newItem = MessageItem(message: message)
             
             let clusterIndex: Int
-            if let existingIndex = dateToClusterIndex[date] {
+            if let existingIndex = tempClusters.firstIndex(where: { $0.date == date }) {
                 clusterIndex = existingIndex
             } else {
                 let newCluster = MessageCluster(date: date, items: [])
                 
-                let insertionIndex = tempClusters.firstIndex { $0.date < date } ?? tempClusters.count
+                let insertionIndex = tempClusters.firstIndex { $0.date > date } ?? tempClusters.count
                 tempClusters.insert(newCluster, at: insertionIndex)
-                
-                for i in insertionIndex..<tempClusters.count {
-                    dateToClusterIndex[tempClusters[i].date] = i
-                }
-                
                 clusterIndex = insertionIndex
             }
             
             let insertionIndex = tempClusters[clusterIndex].items.firstIndex {
                 guard let existingTimestamp = $0.message?.timestamp else { return false }
-                return existingTimestamp < message.timestamp
+                return existingTimestamp > message.timestamp
             } ?? tempClusters[clusterIndex].items.count
             
             tempClusters[clusterIndex].items.insert(newItem, at: insertionIndex)

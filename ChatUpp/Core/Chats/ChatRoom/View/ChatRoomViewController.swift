@@ -4,11 +4,6 @@
 //
 //  Created by Andrei Pripa on 10/3/23.
 
-// IMPORTANT: TABLE VIEW IS INVERTED, UPSIDE DOWN (BOTTOM -> TOP),
-// THEREFORE, SOME PROPERTIES AND ADJUSTMENTS WERE MADE AND SET AS BOTTOM -> TOP.
-// KEEP THIS IN MIND WHENEVER YOU WISH TO ADJUST TABLE VIEW
-
-
 import UIKit
 import SwiftUI
 import Photos
@@ -49,7 +44,11 @@ final class ChatRoomViewController: UIViewController
     private var paginateOldMessagesOnInitialChatOpen: Bool = true
     
     private var isFirstCellFullyVisible: Bool {
-        checkIfCellIsFullyVisible(at: IndexPath(row: 0, section: 0))
+        guard let lastSection = rootView?.tableView.numberOfSections, lastSection > 0 else { return true }
+        let section = lastSection - 1
+        let row = rootView.tableView.numberOfRows(inSection: section) - 1
+        guard row >= 0 else { return true }
+        return checkIfCellIsFullyVisible(at: IndexPath(row: row, section: section))
     }
     
 
@@ -98,11 +97,8 @@ final class ChatRoomViewController: UIViewController
     private func scrollToCell(at indexPath: IndexPath)
     {
         guard indexPath.row < self.rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
-        
-        let updatedIndex = IndexPath(row: indexPath.row + 1,
-                                     section: indexPath.section)
-        
-        self.rootView.tableView.scrollToRow(at: updatedIndex, at: .bottom, animated: false)
+
+        self.rootView.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
     }
 
     private func setupController()
@@ -178,6 +174,8 @@ final class ChatRoomViewController: UIViewController
         
         if let indexPath {
             self.scrollToCell(at: indexPath)
+        } else {
+            self.scrollToBottom()
         }
         
         executeAfter(seconds: 1.0) {
@@ -271,16 +269,17 @@ final class ChatRoomViewController: UIViewController
                 
                 var updateType = updateType
                 let isUpdateAnimationNone = updateType == .none
+                let wasAtBottom = self.isFirstIndexPathVisible()
                 if isUpdateAnimationNone
                 {
-                    if !self.isFirstIndexPathVisible() {
+                    if !wasAtBottom {
                         updateType = .automatic
                     }
                 }
                 
                 self.dataSourceManager.configureSnapshot(animationType: updateType)
-                if isUpdateAnimationNone {
-                    self.handleNewMessageDisplay()
+                if isUpdateAnimationNone && wasAtBottom {
+                    self.scrollToBottom()
                 }
                 
             }.store(in: &subscriptions)
@@ -564,19 +563,19 @@ extension ChatRoomViewController
 {
     private func isFirstIndexPathVisible() -> Bool
     {
-        let visibleIndexPaths = rootView.tableView.indexPathsForVisibleRows
-        let indexPath = IndexPath(row: 0, section: 0)
-        return visibleIndexPaths?.contains(indexPath) ?? false
+        let lastSection = rootView.tableView.numberOfSections
+        guard lastSection > 0 else { return true }
+        let section = lastSection - 1
+        let row = rootView.tableView.numberOfRows(inSection: section) - 1
+        guard row >= 0 else { return true }
+        return rootView.tableView.indexPathsForVisibleRows?.contains(IndexPath(row: row, section: section)) ?? false
     }
     
     private func handleNewMessageDisplay()
     {
-        let isFirstIndexVisible = isFirstIndexPathVisible()
-        let isNewSectionAdded = self.viewModel.messageClusterRepository.messageClusters[0].items.count == 1 ? true : false
-        
-        if isFirstIndexVisible || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
+        if isFirstIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
         {
-            self.animateFirstCellOffset(withNewSectionAdded: isNewSectionAdded)
+            self.scrollToBottom()
         }
     }
     
@@ -584,97 +583,18 @@ extension ChatRoomViewController
     {
         executeAfter(seconds: 0.15)
         {
-            if self.rootView.tableView.visibleCells.count > 0
+            let lastSection = self.rootView.tableView.numberOfSections
+            guard lastSection > 0 else { return }
+            let section = lastSection - 1
+            let row = self.rootView.tableView.numberOfRows(inSection: section) - 1
+            if row >= 0
             {
                 self.rootView.tableView.layoutIfNeeded()
-                self.rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                self.rootView.tableView.scrollToRow(at: IndexPath(row: row, section: section), at: .bottom, animated: true)
             }
         }
     }
 
-    private func handleRowAndSectionInsertion(with indexPath: IndexPath,
-                                              withAnimation: Bool)
-    {
-        /// See FootNote.swift [5]
-        if withAnimation {
-            UIView.animate(withDuration: 0.0) {
-                if self.viewModel.messageClusterRepository.messageClusters.count > self.rootView.tableView.numberOfSections
-                {
-                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-                } else {
-                    self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
-                }
-            }
-        } else {
-            // - See Footnote.swift [1]
-            UIView.performWithoutAnimation {
-    //        UIView.animate(withDuration: 0.0) {
-                if self.viewModel.messageClusterRepository.messageClusters.count > self.rootView.tableView.numberOfSections
-                {
-                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
-                } else {
-                    self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
-                }
-            }
-        }
-    }
-    
-    private func animateFirstCellOffset(withNewSectionAdded isNewSectionAdded: Bool)
-    {
-        let indexPath = IndexPath(row: 0, section: 0)
-        let tableView = self.rootView.tableView
-        let currentOffSet = tableView.contentOffset
-        
-        rootView.tableView.layoutIfNeeded()
-        guard let cell = tableView.cellForRow(at: indexPath) else { return }
-        
-        // Shift content offset upward by new cell height + margin (if section inserted)
-        let offsetAdjustment = cell.bounds.height + (isNewSectionAdded ? 50 : 0)
-        let adjustedOffset = CGPoint(x: currentOffSet.x, y: currentOffSet.y + offsetAdjustment)
-        tableView.setContentOffset(adjustedOffset, animated: false)
-        
-        let isFirstCell = tableView.numberOfSections == 1 && tableView.numberOfRows(inSection: 0) == 1
-        
-        let checkIndexPath: IndexPath = {
-            if tableView.numberOfRows(inSection: 0) > 1 {
-                return IndexPath(row: 1, section: 0)
-            } else {
-                return IndexPath(row: 0, section: 1)
-            }
-        }()
-        
-        guard isFirstCell || checkIfCellIsFullyVisible(at: checkIndexPath) else {return}
-        
-        // Slide-in animation: cell starts off-screen
-        cell.frame.origin.y = -50
-        
-        UIView.animate(withDuration: 0.3, delay: 0.1) {
-            cell.frame.origin.y = 0
-            tableView.setContentOffset(currentOffSet, animated: false)
-        }
-        
-        /// If previous cell (the one that was before this inserted one)
-        /// was not fully visible, skip animation
-        ///
-        guard isNewSectionAdded else { return }
-        
-        // Animate section footer if new section added
-        if isNewSectionAdded,
-           let footer = tableView.footerView(forSection: 0)
-        {
-            footer.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-            UIView.animate(withDuration: 0.3, delay: 0.1) {
-                footer.transform = CGAffineTransform(scaleX: 1, y: 1)
-            }
-        }
-    }
-    
-    private func checkIfNewSectionWasAdded() -> Bool {
-        if rootView.tableView.numberOfSections < viewModel.messageClusterRepository.messageClusters.count {
-            return true
-        }
-        return false
-    }
 }
 
 //MARK: - Message seen status handler
@@ -692,7 +612,7 @@ extension ChatRoomViewController
     private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
     {
         if let lastIndexPath = pendingIndexPathForSeenStatusCheck,
-           !isLower(messageIndexPath, than: lastIndexPath) {
+           !isLower(lastIndexPath, than: messageIndexPath) {
             return
         }
 
@@ -826,7 +746,7 @@ extension ChatRoomViewController
 
     @objc func scrollToBottomBtnWasTapped()
     {
-        rootView.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        scrollToBottom()
     }
     
     @objc func editMessageBtnWasTapped() {
@@ -1022,9 +942,9 @@ extension ChatRoomViewController
         
         rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
         rootView.layoutSubviews()
-        rootView.tableView.contentInset.top = customTableViewInset
+        rootView.tableView.contentInset.bottom = 75 + customTableViewInset
         rootView.tableView.setContentOffset(offSet, animated: false)
-        rootView.tableView.verticalScrollIndicatorInsets.top = customTableViewInset
+        rootView.tableView.verticalScrollIndicatorInsets.bottom = 85 + customTableViewInset
     }
     
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
@@ -1034,14 +954,14 @@ extension ChatRoomViewController
         let tableView = rootView.tableView
         let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
         let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
-        let updatedContentOffset = tableView.contentOffset.y - (textView.font!.lineHeight * numberOfAddedLines)
-        let updatedContentTopInset = rootView.tableViewInitialTopInset +
+        let updatedContentOffset = tableView.contentOffset.y + (textView.font!.lineHeight * numberOfAddedLines)
+        let updatedContentBottomInset = rootView.tableViewInitialBottomInset +
         (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
         
         UIView.animate(withDuration: 0.15)
         {
-            tableView.verticalScrollIndicatorInsets.top = updatedContentTopInset
-            tableView.contentInset.top = updatedContentTopInset
+            tableView.verticalScrollIndicatorInsets.bottom = 85 + updatedContentBottomInset
+            tableView.contentInset.bottom = 75 + updatedContentBottomInset
             tableView.setContentOffset(CGPoint(x: 0, y: updatedContentOffset), animated: false)
         }
         inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
@@ -1144,7 +1064,7 @@ extension ChatRoomViewController
 //MARK: - TABLE DELEGATE
 extension ChatRoomViewController: UITableViewDelegate
 {
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView?
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView?
     {
         guard !tableView.sk.isSkeletonActive,
               let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? FooterSectionView else { return nil }
@@ -1154,11 +1074,11 @@ extension ChatRoomViewController: UITableViewDelegate
         return footerView
     }
     
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 50
     }
     
-    func tableView(_ tableView: UITableView, willDisplayFooterView view: UIView, forSection section: Int)
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int)
     {
         guard !tableView.sk.isSkeletonActive else {
             view.isHidden = true
@@ -1189,18 +1109,6 @@ extension ChatRoomViewController: UITableViewDelegate
         
         (cell as? StickerMessageCell)?.setVisible(true)
         
-        if indexPath == IndexPath(row: 0, section: 0),
-           viewModel.messageClusterRepository.messageClusters[0].items.count > 1
-        {
-            let firstMessageSenderId = viewModel.messageClusterRepository.messageClusters[0].items[0].message?.senderId
-            let secondMessageSenderId = viewModel.messageClusterRepository.messageClusters[0].items[1].message?.senderId
-            
-            if firstMessageSenderId == secondMessageSenderId
-            {
-                viewModel.messageClusterRepository.messageClusters[0].items[1].toggleVisibilityOfSenderAvatar(false)
-            }
-        }
-        
         let groupedClusterItems = viewModel.messageClusterRepository.messageClusters.map { $0.items }
         let totalItems = groupedClusterItems.flatMap { $0 }.count
         
@@ -1213,11 +1121,18 @@ extension ChatRoomViewController: UITableViewDelegate
             let shouldPaginateAnyway: Bool = viewModel.messageClusterRepository.messageClusters.count < 6
             && paginateOldMessagesOnInitialChatOpen
              
-            if globalIndex == 3 && !viewModel.isLastMessageFromClusterTheMostRecentInChat
+            if globalIndex <= 3
             {
+                // The top of a chronological table contains the oldest loaded
+                // messages, so pagination in this direction fetches older data.
+                paginateIfNeeded(ascending: false)
+                return
+            } else if (globalIndex >= totalItems - 6) && !viewModel.isLastMessageFromClusterTheMostRecentInChat
+            {
+                // The bottom contains the newest messages.
                 paginateIfNeeded(ascending: true)
                 return
-            } else if (globalIndex == totalItems - 6) || shouldPaginateAnyway
+            } else if shouldPaginateAnyway
             {
                 paginateIfNeeded(ascending: false)
                 return
@@ -1317,19 +1232,17 @@ extension ChatRoomViewController: UITableViewDelegate
     }
     
     private func offsetTableContentOnPaginationCompletion(
-        to contentOffsetY: CGFloat,
-//        visibleCell: ConversationMessageCell?)
+        relativeOffset: CGFloat,
         visibleCell: UITableViewCell?)
     {
-        if self.rootView.tableView.contentOffset.y < -90.0
-        {
-            if let visibleCell = visibleCell,
-               let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
-            {
-                let lastCellRect = self.rootView.tableView.rectForRow(at: indexPathOfVisibleCell)
-                self.rootView.tableView.contentOffset.y = contentOffsetY + lastCellRect.minY
-            }
+        guard let visibleCell,
+              let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
+        else {
+            return
         }
+
+        let visibleCellRect = self.rootView.tableView.rectForRow(at: indexPathOfVisibleCell)
+        self.rootView.tableView.contentOffset.y = visibleCellRect.minY - relativeOffset
     }
     
     private func preformRemotePagination(ascending: Bool) async
@@ -1346,6 +1259,9 @@ extension ChatRoomViewController: UITableViewDelegate
                 {
                     let visibleCell = self.rootView.tableView.visibleCells.first
                     let currentOffsetY = self.rootView.tableView.contentOffset.y
+                    let relativeOffset = visibleCell.map {
+                        $0.frame.minY - currentOffsetY
+                    }
                     
                     CATransaction.begin()
                     CATransaction.setDisableActions(true)
@@ -1357,9 +1273,11 @@ extension ChatRoomViewController: UITableViewDelegate
                     {
                         self.shouldIgnoreUnseenMessagesUpdate = false
                         
-                        self.offsetTableContentOnPaginationCompletion(
-                            to: currentOffsetY,
-                            visibleCell: visibleCell)
+                        if let relativeOffset {
+                            self.offsetTableContentOnPaginationCompletion(
+                                relativeOffset: relativeOffset,
+                                visibleCell: visibleCell)
+                        }
                         CATransaction.commit()
                         self.isNetworkPaginationRunning = false
                     }
@@ -1402,14 +1320,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
-    {
-        /// See FootNote.swift [16]
-        ///
-        if self.rootView.tableView.contentOffset.y <= -91
-        {
-            self.rootView.tableView.contentOffset.y += 0.2
-        }
-        
+    {
         triggerUpdateUnseenMessagesCheck()
         
         toggleSectionHeaderVisibility(isScrollActive: false)
@@ -1453,14 +1364,18 @@ extension ChatRoomViewController: UIScrollViewDelegate
 //MARK: - ScrollView helper functions
 extension ChatRoomViewController
 {
-    /// find min index path, to update all descending messages from it
+    /// Find the newest fully visible message so all messages up to it can be
+    /// marked as seen in chronological order.
     ///
     private func findMinimalVisibleIndexPath() -> IndexPath?
     {
-        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(),
-           let firstVisible = visibleIndices.first(where: { checkIfCellIsFullyVisible(at: $0) })
+        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(by: { lhs, rhs in
+            if lhs.section != rhs.section { return lhs.section < rhs.section }
+            return lhs.row < rhs.row
+        }),
+           let lastVisible = visibleIndices.last(where: { checkIfCellIsFullyVisible(at: $0) })
         {
-            return firstVisible
+            return lastVisible
         }
         return nil
     }
@@ -1468,7 +1383,7 @@ extension ChatRoomViewController
     private func toggleSectionHeaderVisibility(isScrollActive: Bool, withAnimation: Bool = true)
     {
         guard let lastVisibleIndex = rootView.tableView.indexPathsForVisibleRows?.last,
-              let footerView = rootView.tableView.footerView(forSection: lastVisibleIndex.section)
+              let footerView = rootView.tableView.headerView(forSection: lastVisibleIndex.section)
         else { return }
         
         let lastSection = rootView.tableView.numberOfSections - 1
@@ -1707,7 +1622,7 @@ extension ChatRoomViewController
         
         let previewTarget = UIPreviewTarget(container: rootView.tableView,
                                           center: centerPoint,
-                                          transform: CGAffineTransform(scaleX: 1, y: -1))
+                                          transform: .identity)
         
         let parameters = UIPreviewParameters()
         parameters.backgroundColor = .clear
@@ -1757,7 +1672,7 @@ extension ChatRoomViewController
         let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
         let previewTarget = UIPreviewTarget(container: rootView.tableView,
                                            center: centerPoint,
-                                           transform: CGAffineTransform(scaleX: 1, y: -1))
+                                           transform: .identity)
         
         let parameters = UIPreviewParameters()
         parameters.backgroundColor = .clear
