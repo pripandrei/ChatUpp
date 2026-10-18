@@ -309,7 +309,7 @@ final class ChatRoomViewController: UIViewController
                 
                 self.dataSourceManager.configureSnapshot(animationType: updateType)
                 if isUpdateAnimationNone {
-                    self.handleNewMessageDisplay(keepPinnedToBottom: wasAtBottom)
+                    self.handleNewMessageDisplay()
                 }
                 
             }.store(in: &subscriptions)
@@ -591,12 +591,59 @@ final class ChatRoomViewController: UIViewController
 //MARK: - Handle cell message insertion
 extension ChatRoomViewController
 {
-    private func handleNewMessageDisplay(keepPinnedToBottom: Bool)
+    private func handleNewMessageDisplay()
     {
-        /// If the user is already at the bottom (or the table is empty), keep the
-        /// newest message pinned. Otherwise do nothing so the unread badge shows.
-        guard keepPinnedToBottom || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else { return }
-        scrollToBottom(animated: true)
+        guard isNewestIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else { return }
+        
+        let isNewSectionAdded = viewModel.messageClusterRepository.messageClusters.last?.items.count == 1
+        animateNewestCellInsertion(withNewSectionAdded: isNewSectionAdded)
+    }
+    
+    private func animateNewestCellInsertion(withNewSectionAdded isNewSectionAdded: Bool)
+    {
+        guard let indexPath = newestIndexPath else { return }
+        let tableView = rootView.tableView
+        
+        scrollToNewestMessage(animated: false)
+        let currentOffset = tableView.contentOffset
+        tableView.layoutIfNeeded()
+        
+        guard let cell = tableView.cellForRow(at: indexPath) else { return }
+        
+        let isFirstCell = tableView.numberOfSections == 1 && tableView.numberOfRows(inSection: 0) == 1
+        let lastSection = tableView.numberOfSections - 1
+        var previousIndexPath = IndexPath(row: 0, section: 0)
+        if tableView.numberOfRows(inSection: lastSection) > 1
+        {
+            previousIndexPath = IndexPath(row: tableView.numberOfRows(inSection: lastSection) - 2,
+                                          section: lastSection)
+        }
+        else if lastSection > 0
+        {
+            previousIndexPath = IndexPath(row: tableView.numberOfRows(inSection: lastSection - 1) - 1,
+                                          section: lastSection - 1)
+        }
+        
+        guard isFirstCell || checkIfCellIsFullyVisible(at: previousIndexPath) else { return }
+        
+        let offsetAdjustment = cell.bounds.height + (isNewSectionAdded ? 50 : 0)
+        tableView.setContentOffset(CGPoint(x: currentOffset.x, y: currentOffset.y - offsetAdjustment),
+                                   animated: false)
+        
+        cell.frame.origin.y += 50
+        
+        UIView.animate(withDuration: 0.3, delay: 0.1) {
+            cell.frame.origin.y -= 50
+            tableView.setContentOffset(currentOffset, animated: false)
+        }
+        
+        guard isNewSectionAdded,
+              let headerView = tableView.headerView(forSection: lastSection) else { return }
+        
+        headerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        UIView.animate(withDuration: 0.3, delay: 0.1) {
+            headerView.transform = .identity
+        }
     }
     
     private func scrollToBottom(animated: Bool = true, delayed: Bool = true)
@@ -898,7 +945,9 @@ extension ChatRoomViewController
     
     private func updateUIOnNewMessageCreation(_ messageType: MessageType)
     {
-        dataSourceManager.configureSnapshot(animationType: isNewestIndexPathVisible() ? .none : .automatic)
+        let wasAtBottom = isNewestIndexPathVisible()
+        dataSourceManager.configureSnapshot(animationType: wasAtBottom ? .none : .automatic)
+        handleNewMessageDisplay()
         
         switch messageType
         {
@@ -906,7 +955,10 @@ extension ChatRoomViewController
         default: break
         }
         closeInputBarHeaderView()
-        scrollToBottom()
+        
+        if !wasAtBottom {
+            scrollToNewestMessage(animated: false)
+        }
     }
 
     @objc func addPicture()
