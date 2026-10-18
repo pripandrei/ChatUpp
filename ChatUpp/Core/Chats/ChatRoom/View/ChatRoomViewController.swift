@@ -957,7 +957,7 @@ extension ChatRoomViewController
         closeInputBarHeaderView()
         
         if !wasAtBottom {
-            scrollToNewestMessage(animated: false)
+            scrollToNewestMessage(animated: true)
         }
     }
 
