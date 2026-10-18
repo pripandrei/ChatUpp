@@ -401,8 +401,6 @@ final class ChatRoomViewController: UIViewController
         else { return }
         
         /// See FootNote.swift [15]
-        let wasHidden = isKeyboardHidden
-        let wasAtBottom = isNewestIndexPathVisible()
         isKeyboardHidden = false
         
         if rootView.greetingView != nil
@@ -410,13 +408,9 @@ final class ChatRoomViewController: UIViewController
             self.rootView.toggleGreetingViewPosition(up: true)
         }
         
-        rootView.updateInputBarBottomConstraint(toSize: -keyboardRiseHeight)
-        updateTableViewBottomInset(animated: true)
-        
-        /// keep the newest message above the input bar only when the user was
-        /// already at the bottom, so reading history is not interrupted
-        guard wasHidden, wasAtBottom, !isContextMenuPresented else { return }
-        scrollToBottom(animated: true)
+        updateTableLayoutAlongsideKeyboard(notification) {
+            self.rootView.updateInputBarBottomConstraint(toSize: -self.keyboardRiseHeight)
+        }
     }
     
     @objc func keyboardWillHide(notification: NSNotification)
@@ -432,8 +426,9 @@ final class ChatRoomViewController: UIViewController
             rootView.toggleGreetingViewPosition(up: false)
         }
         
-        rootView.updateInputBarBottomConstraint(toSize: 0)
-        updateTableViewBottomInset(animated: true)
+        updateTableLayoutAlongsideKeyboard(notification) {
+            self.rootView.updateInputBarBottomConstraint(toSize: 0)
+        }
     }
     
     //MARK: - Private functions
@@ -1027,6 +1022,57 @@ extension ChatRoomViewController
         UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut]) {
             applyInset()
         }
+    }
+    
+    /// Applies the input bar position, the table's bottom padding and the table's
+    /// content offset inside a single animation that mirrors the keyboard's own
+    /// duration and curve, so the table starts and finishes together with it.
+    ///
+    /// The offset is shifted by the same delta as the bottom padding, exactly as
+    /// the pre-inversion `handleTableViewOffset` did. Doing the shift (instead of
+    /// scrolling to the bottom) keeps the newest message anchored above the input
+    /// bar and makes showing and hiding perfectly symmetric.
+    private func updateTableLayoutAlongsideKeyboard(_ notification: NSNotification,
+                                                    changes: @escaping () -> Void)
+    {
+        let tableView = rootView.tableView
+        let previousBottomInset = tableView.contentInset.bottom
+        /// Captured before the inset changes. Changing the inset makes the scroll
+        /// view clamp an out-of-range offset by itself (which happens when the
+        /// table sits at the bottom), so the delta must be applied to the offset
+        /// from before that clamp, otherwise it is applied twice.
+        let previousOffsetY = tableView.contentOffset.y
+        let (duration, options) = keyboardAnimationParameters(from: notification)
+        
+        UIView.animate(withDuration: duration, delay: 0, options: options) {
+            changes()
+            
+            self.updateTableViewBottomInset(animated: false)
+            
+            let insetDelta = tableView.contentInset.bottom - previousBottomInset
+            let minOffsetY = -tableView.adjustedContentInset.top
+            let maxOffsetY = max(minOffsetY,
+                                 tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
+            tableView.contentOffset.y = min(max(previousOffsetY + insetDelta, minOffsetY), maxOffsetY)
+            
+            self.rootView.layoutIfNeeded()
+        }
+    }
+    
+    /// Keyboard notifications carry their own animation duration and curve.
+    /// UIKit encodes the curve in the upper 16 bits of `UIView.AnimationOptions`.
+    private func keyboardAnimationParameters(from notification: NSNotification)
+        -> (duration: TimeInterval, options: UIView.AnimationOptions)
+    {
+        let info = notification.userInfo
+        let reportedDuration = (info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue
+        let rawCurve = (info?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue
+            ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
+        
+        let duration = reportedDuration.flatMap { $0 > 0 ? $0 : nil } ?? 0.25
+        let options = UIView.AnimationOptions(rawValue: rawCurve << 16).union(.beginFromCurrentState)
+        
+        return (duration, options)
     }
     
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
