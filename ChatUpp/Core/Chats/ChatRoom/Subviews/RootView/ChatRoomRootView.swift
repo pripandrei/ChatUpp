@@ -62,9 +62,8 @@ final class ChatRoomRootView: UIView
         
         // Bottom of table view has padding due to navigation controller
         let tableView                           = UITableView()
-        tableView.transform                     = CGAffineTransform(scaleX: 1, y: -1)
         tableView.backgroundColor               = ColorScheme.appBackgroundColor
-        tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 75, right: 0)
+        tableView.contentInset                  = UIEdgeInsets(top: 0, left: 0, bottom: 85, right: 0)
         tableView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 85, right: 0)
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
@@ -243,13 +242,10 @@ final class ChatRoomRootView: UIView
     }
     var scrollToBottomBtnBottomConstraint: NSLayoutConstraint!
 
-    // MARK: Internal variables
-    var tableViewInitialTopInset: CGFloat
-    {
-        let keyboardHeight = KeyboardService.shared.keyboardHeight
-        return isKeyboardShown() ? CGFloat(keyboardHeight - 30) : CGFloat(0)
-    }
-    
+    /// Called whenever the reply/edit input-bar header appears or disappears,
+    /// so the owner can re-compute the table's bottom inset.
+    var onInputBarHeaderHeightChange: (() -> Void)?
+
     // MARK: - LIFECYCLE
     
     let backgroungImage: UIImage
@@ -346,10 +342,6 @@ final class ChatRoomRootView: UIView
     
     // MARK: Private functions
     
-    private func isKeyboardShown() -> Bool {
-        return messageTextView.isFirstResponder
-    }
-    
     private func registerCells(for tableView: UITableView)
     {
         tableView.register(TextImageMessageCell.self,
@@ -360,7 +352,7 @@ final class ChatRoomRootView: UIView
                            forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.voiceMessage.identifire)
         tableView.register(SkeletonViewCell.self,
                            forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire)
-        tableView.register(FooterSectionView.self,
+        tableView.register(SectionDateHeaderView.self,
                            forHeaderFooterViewReuseIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire)
         tableView.register(UnseenMessagesTitleTableViewCell.self,
                            forCellReuseIdentifier: ReuseIdentifire.ConversationTableCell.unseenTitle.identifire)
@@ -384,16 +376,7 @@ final class ChatRoomRootView: UIView
     
     func updateTableViewContentAttributes(isInputBarHeaderRemoved: Bool)
     {
-        let height = isInputBarHeaderRemoved ? 45.0 : -45.0
-        
-        // Use adjustedContentInset (the REAL effective inset)
-        let currentRelativeOffset = tableView.contentOffset.y + tableView.adjustedContentInset.top
-        
-        tableView.contentInset.top -= height
-        tableView.verticalScrollIndicatorInsets.top -= height
-        
-        let newOffset = currentRelativeOffset - tableView.adjustedContentInset.top
-        tableView.setContentOffset(CGPoint(x: 0, y: newOffset), animated: false)
+        onInputBarHeaderHeightChange?()
     }
     
     func setTextViewDelegate(to delegate: UITextViewDelegate) {
@@ -925,7 +908,6 @@ extension ChatRoomRootView
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.frame = view.bounds
         backgroundImageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        backgroundImageView.transform = CGAffineTransform(scaleX: 1, y: -1)
         view.addSubview(backgroundImageView)
         return view
     }

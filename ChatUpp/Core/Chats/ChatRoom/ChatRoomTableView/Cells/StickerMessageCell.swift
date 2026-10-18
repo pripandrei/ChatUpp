@@ -50,9 +50,6 @@ final class StickerMessageCell: UITableViewCell
         
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        // Invert cell upside down
-        transform = CGAffineTransform(scaleX: 1, y: -1)
-        
         backgroundColor = .clear
         setupBackgroundSelectionView()
         setupUI()

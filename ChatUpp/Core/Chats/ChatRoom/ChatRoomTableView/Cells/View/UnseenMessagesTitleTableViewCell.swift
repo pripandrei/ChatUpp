@@ -43,7 +43,6 @@ final class UnseenMessagesTitleTableViewCell: UITableViewCell
     }
     
     private func setupSelf() {
-        transform = CGAffineTransform(scaleX: 1, y: -1)
         backgroundColor = .clear
         isUserInteractionEnabled = false
     }

@@ -41,26 +41,8 @@ struct MessageLayoutManager: MessageLayoutProvider
         
         guard messageItems[indexPath.row].messageAlignment == .left else { return false }
         
-        guard indexPath.row > 0 else { return true }
-        
-        guard
-            let currentMessage = messageItems[indexPath.row].message,
-            let previousMessage = messageItems[indexPath.row - 1].message
-        else {
-            return false
-        }
-        
-        guard currentMessage.type != .title else { return false }
-        guard previousMessage.type != .title else { return true }
-        
-        return currentMessage.senderId != previousMessage.senderId
-    }
-    
-    private func shouldShowSenderName(at indexPath: IndexPath) -> Bool
-    {
-        let messageItems = sourceProvider.messageClusters[indexPath.section].items
-        guard messageItems[indexPath.row].messageAlignment == .left else
-        { return false }
+        /// ascending (oldest -> newest) layout: the avatar is carried by the
+        /// NEWEST message of a consecutive sender group, i.e. compare with next.
         guard indexPath.row < messageItems.count - 1 else { return true }
         
         guard
@@ -74,5 +56,28 @@ struct MessageLayoutManager: MessageLayoutProvider
         guard nextMessage.type != .title else { return true }
         
         return currentMessage.senderId != nextMessage.senderId
+    }
+    
+    private func shouldShowSenderName(at indexPath: IndexPath) -> Bool
+    {
+        let messageItems = sourceProvider.messageClusters[indexPath.section].items
+        guard messageItems[indexPath.row].messageAlignment == .left else
+        { return false }
+        
+        /// ascending (oldest -> newest) layout: the sender name is carried by the
+        /// OLDEST message of a consecutive sender group, i.e. compare with previous.
+        guard indexPath.row > 0 else { return true }
+        
+        guard
+            let currentMessage = messageItems[indexPath.row].message,
+            let previousMessage = messageItems[indexPath.row - 1].message
+        else {
+            return false
+        }
+        
+        guard currentMessage.type != .title else { return false }
+        guard previousMessage.type != .title else { return true }
+        
+        return currentMessage.senderId != previousMessage.senderId
     }
 }

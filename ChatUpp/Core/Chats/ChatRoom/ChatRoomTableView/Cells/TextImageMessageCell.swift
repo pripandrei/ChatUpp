@@ -79,9 +79,6 @@ final class TextImageMessageCell: UITableViewCell
         
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        // Invert cell upside down
-        transform = CGAffineTransform(scaleX: 1, y: -1)
-        
         backgroundColor = .clear
         self.messageComponentsView = .init()
         setupBackgroundSelectionView()

@@ -11,7 +11,7 @@ import UIKit
 
 //MARK: - Conversation Section header
 
-final class FooterSectionView: UITableViewHeaderFooterView
+final class SectionDateHeaderView: UITableViewHeaderFooterView
 {
     private var dateLabel: DateFooterLabel!
     
@@ -26,7 +26,6 @@ final class FooterSectionView: UITableViewHeaderFooterView
     }
     
     private func setupFooterSection() {
-//        self.transform = CGAffineTransform(scaleX: 1, y: -1)
         self.backgroundConfiguration = .clear()
     }
     
@@ -47,14 +46,13 @@ final class FooterSectionView: UITableViewHeaderFooterView
     
 }
 
-extension FooterSectionView 
+extension SectionDateHeaderView 
 {
     private class DateFooterLabel: UILabel
     {
         override init(frame: CGRect) 
         {
             super.init(frame: frame)
-            transform = CGAffineTransform(scaleX: 1, y: -1)
             backgroundColor = ColorScheme.footerSectionBackgroundColor
             textColor = .white
             textAlignment = .center

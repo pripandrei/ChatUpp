@@ -58,7 +58,6 @@ final class MessageEventCell: UITableViewCell
     }
     
     private func setupSelf() {
-        transform = CGAffineTransform(scaleX: 1, y: -1)
         backgroundColor = .clear
         contentView.backgroundColor = .clear
     }
