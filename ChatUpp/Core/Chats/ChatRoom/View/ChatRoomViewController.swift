@@ -604,39 +604,23 @@ extension ChatRoomViewController
         guard let indexPath = newestIndexPath else { return }
         let tableView = rootView.tableView
         
-        scrollToNewestMessage(animated: false)
-        let currentOffset = tableView.contentOffset
         tableView.layoutIfNeeded()
         
         guard let cell = tableView.cellForRow(at: indexPath) else { return }
         
-        let isFirstCell = tableView.numberOfSections == 1 && tableView.numberOfRows(inSection: 0) == 1
-        let lastSection = tableView.numberOfSections - 1
-        var previousIndexPath = IndexPath(row: 0, section: 0)
-        if tableView.numberOfRows(inSection: lastSection) > 1
-        {
-            previousIndexPath = IndexPath(row: tableView.numberOfRows(inSection: lastSection) - 2,
-                                          section: lastSection)
-        }
-        else if lastSection > 0
-        {
-            previousIndexPath = IndexPath(row: tableView.numberOfRows(inSection: lastSection - 1) - 1,
-                                          section: lastSection - 1)
-        }
+        let targetOffsetY = bottomOffsetY(for: tableView)
+        let cellTopInView = tableView.convert(cell.frame, to: rootView).minY
+        let slideDistance = max(50, rootView.inputBarContainer.frame.minY - cellTopInView)
         
-        guard isFirstCell || checkIfCellIsFullyVisible(at: previousIndexPath) else { return }
-        
-        let offsetAdjustment = cell.bounds.height + (isNewSectionAdded ? 50 : 0)
-        tableView.setContentOffset(CGPoint(x: currentOffset.x, y: currentOffset.y - offsetAdjustment),
-                                   animated: false)
-        
-        cell.frame.origin.y += 50
+        cell.transform = CGAffineTransform(translationX: 0, y: slideDistance)
         
         UIView.animate(withDuration: 0.3, delay: 0.1) {
-            cell.frame.origin.y -= 50
-            tableView.setContentOffset(currentOffset, animated: false)
+            cell.transform = .identity
+            tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x, y: targetOffsetY),
+                                       animated: false)
         }
         
+        let lastSection = tableView.numberOfSections - 1
         guard isNewSectionAdded,
               let headerView = tableView.headerView(forSection: lastSection) else { return }
         
@@ -650,7 +634,7 @@ extension ChatRoomViewController
     {
         if delayed
         {
-            executeAfter(seconds: 0.15) {
+            executeAfter(seconds: 0.2) {
                 self.scrollToNewestMessage(animated: animated)
             }
         } else {
@@ -660,9 +644,18 @@ extension ChatRoomViewController
     
     private func scrollToNewestMessage(animated: Bool)
     {
-        guard let newestIndexPath else { return }
-        rootView.tableView.layoutIfNeeded()
-        rootView.tableView.scrollToRow(at: newestIndexPath, at: .bottom, animated: animated)
+        let tableView = rootView.tableView
+        tableView.layoutIfNeeded()
+        tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
+                                           y: bottomOffsetY(for: tableView)),
+                                   animated: animated)
+    }
+    
+    private func bottomOffsetY(for tableView: UITableView) -> CGFloat
+    {
+        let minOffsetY = -tableView.adjustedContentInset.top
+        return max(minOffsetY,
+                   tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
     }
 
     private func handleRowAndSectionInsertion(with indexPath: IndexPath,
@@ -955,10 +948,7 @@ extension ChatRoomViewController
         default: break
         }
         closeInputBarHeaderView()
-        
-        if !wasAtBottom {
-            scrollToNewestMessage(animated: true)
-        }
+        scrollToBottom()
     }
 
     @objc func addPicture()
@@ -1131,12 +1121,13 @@ extension ChatRoomViewController
                                         currentNumberOfLines: Int)
     {
         let wasAtBottom = isNewestIndexPathVisible()
+        let isInputBarGrowing = numberOfLines > currentNumberOfLines
         inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
         updateTableViewBottomInset(animated: true)
         
         /// keep the newest message pinned above the growing input bar
-        if wasAtBottom {
-            scrollToNewestMessage(animated: false)
+        if wasAtBottom && isInputBarGrowing {
+            scrollToNewestMessage(animated: true)
         }
     }
 }
