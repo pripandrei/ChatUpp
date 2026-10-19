@@ -1126,8 +1126,16 @@ extension ChatRoomViewController
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
                                         currentNumberOfLines: Int)
     {
-        let wasAtBottom = isNewestIndexPathVisible()
+        let tableView = rootView.tableView
         let isInputBarGrowing = numberOfLines > currentNumberOfLines
+        
+        /// measured against the inset still applied, before the input bar grows
+        let bottomVisibleContentY = tableView.contentOffset.y + tableView.bounds.height
+            - tableView.adjustedContentInset.bottom
+        let wasAtBottom = newestIndexPath.map {
+            tableView.rectForRow(at: $0).maxY <= bottomVisibleContentY + 1
+        } ?? true
+        
         inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
         updateTableViewBottomInset(animated: true)
         
