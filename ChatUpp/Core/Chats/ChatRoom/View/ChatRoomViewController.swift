@@ -48,6 +48,10 @@ final class ChatRoomViewController: UIViewController
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScrollToUnseenIndexPathIfAny: Bool = true
     private var paginateOldMessagesOnInitialChatOpen: Bool = true
+    /// set while the animated scroll-to-newest flight is running, so its
+    /// completion (`scrollViewDidEndScrollingAnimation`) can re-land the view
+    /// on the real bottom edge - see `settleScrollAtNewestMessage`.
+    private var isScrollingToNewestMessage: Bool = false
     /// Guards `finalizeConversationSetup()` against a second invocation:
     /// both the debounced `$conversationInitializationStatus` subscription and
     /// `viewDidLayoutSubviews` can observe `.finished`, and re-running would
@@ -677,33 +681,56 @@ extension ChatRoomViewController
     {
         let tableView = rootView.tableView
         tableView.layoutIfNeeded()
+        
+        if animated
+        {
+            /// the animation target is computed ONCE here, from a content size
+            /// that still contains ESTIMATED heights for rows that were skipped
+            /// during scrolling (e.g. a block just inserted by a pagination
+            /// prepend). While the flight runs, UIKit loads cells and those
+            /// rows resolve to their real heights, moving the true bottom
+            /// edge - but `setContentOffset` never re-targets. The flight ends
+            /// a few messages short of the bottom, so once it completes
+            /// (`scrollViewDidEndScrollingAnimation`) the view is re-landed
+            /// on the real bottom via `settleScrollAtNewestMessage`.
+            isScrollingToNewestMessage = true
+            tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
+                                               y: bottomOffsetY(for: tableView)),
+                                       animated: true)
+            return
+        }
+        
         tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
                                            y: bottomOffsetY(for: tableView)),
-                                   animated: animated)
-        
-        /// self-sizing rows visible at the bottom resolve their REAL heights
-        /// only once they are laid out at the bottom position, after which the
-        /// content size grows and the previously computed bottom offset no
-        /// longer reaches the true bottom (the table would open slightly above
-        /// the most recent message). Re-land with the corrected offset.
-        guard !animated else { return }
+                                   animated: false)
+        settleScrollAtNewestMessage()
+    }
+    
+    /// lands precisely on the bottom edge after a direct (non animated)
+    /// scroll: self-sizing rows resolve their REAL heights only once they are
+    /// laid out at the bottom position, after which the content size changes
+    /// and the previously computed offset no longer reaches the true bottom.
+    /// Lay out, re-compute and land again until the position is stable.
+    private func settleScrollAtNewestMessage()
+    {
+        let tableView = rootView.tableView
         
         tableView.layoutIfNeeded()
         let correctedOffsetY = bottomOffsetY(for: tableView)
-        if abs(correctedOffsetY - tableView.contentOffset.y) > 0.5
+        if abs(correctedOffsetY - tableView.contentOffset.y) <= 0.5 { return }
+        
+        tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
+                                           y: correctedOffsetY),
+                                   animated: false)
+        tableView.layoutIfNeeded()
+        
+        /// one final pass in case the correction itself revealed new rows
+        let finalOffsetY = bottomOffsetY(for: tableView)
+        if abs(finalOffsetY - tableView.contentOffset.y) > 0.5
         {
             tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
-                                               y: correctedOffsetY),
+                                               y: finalOffsetY),
                                        animated: false)
-            tableView.layoutIfNeeded()
-            
-            /// one final pass in case the correction itself revealed new rows
-            let finalOffsetY = bottomOffsetY(for: tableView)
-            if abs(finalOffsetY - tableView.contentOffset.y) > 0.5 {
-                tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
-                                                   y: finalOffsetY),
-                                           animated: false)
-            }
         }
     }
     
@@ -1599,6 +1626,10 @@ extension ChatRoomViewController: UIScrollViewDelegate
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        /// the user took over the animated scroll flight - no automatic
+        /// landing correction should apply anymore
+        isScrollingToNewestMessage = false
+        
         toggleSectionHeaderVisibility(isScrollActive: true)
     }
     
@@ -1608,6 +1639,15 @@ extension ChatRoomViewController: UIScrollViewDelegate
     }
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView)
     {
+        /// an animated scroll-to-newest flight just finished; its target was
+        /// computed against the (partially estimate-based) content size at
+        /// flight start, so re-land on the real bottom edge
+        if isScrollingToNewestMessage
+        {
+            isScrollingToNewestMessage = false
+            settleScrollAtNewestMessage()
+        }
+        
         triggerUpdateUnseenMessagesCheck()
     }
     
