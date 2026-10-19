@@ -48,6 +48,12 @@ final class ChatRoomViewController: UIViewController
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScrollToUnseenIndexPathIfAny: Bool = true
     private var paginateOldMessagesOnInitialChatOpen: Bool = true
+    /// Guards `finalizeConversationSetup()` against a second invocation:
+    /// both the debounced `$conversationInitializationStatus` subscription and
+    /// `viewDidLayoutSubviews` can observe `.finished`, and re-running would
+    /// re-apply the snapshot and re-scroll (the "table shifts back and forth
+    /// on chat room open" bug).
+    private var didFinalizeConversationSetup: Bool = false
     
     /// Index path of the newest message (last section, last row) in the current table.
     private var newestIndexPath: IndexPath? {
@@ -177,6 +183,10 @@ final class ChatRoomViewController: UIViewController
     
     private func finalizeConversationSetup()
     {
+        /// only ever run once (see note on `didFinalizeConversationSetup`)
+        guard !didFinalizeConversationSetup else { return }
+        didFinalizeConversationSetup = true
+        
         viewModel.resetInitializationStatus()
         
         let unseenIndexPath = viewModel.shouldHideJoinGroupOption == true
@@ -185,15 +195,16 @@ final class ChatRoomViewController: UIViewController
         
         if let unseenIndexPath {
             viewModel.insertUnseenMessagesTitle(at: unseenIndexPath)
-            
-            self.didFinishInitialScrollToUnseenIndexPathIfAny = false
-            // Delay table view willDisplay cell functionality
-            executeAfter(seconds: 1.0)
-            {
-                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
-            }
         }
-            
+        
+        /// Block `willDisplay`-triggered pagination (and the "new message"
+        /// entrance animation) until the initial scroll has settled, so data
+        /// prepends/appends can't fight the initial scroll positioning.
+        /// Applies in BOTH branches - the scroll-to-bottom branch used to leave
+        /// the gate open, which let the initial forced pagination prepend
+        /// messages mid-scroll and shift the table back and forth.
+        self.didFinishInitialScrollToUnseenIndexPathIfAny = false
+        
         refreshTableView()
         
         if let unseenIndexPath {
@@ -204,6 +215,7 @@ final class ChatRoomViewController: UIViewController
         }
         
         executeAfter(seconds: 1.0) {
+            self.didFinishInitialScrollToUnseenIndexPathIfAny = true
             self.paginateOldMessagesOnInitialChatOpen = false
         }
         
@@ -297,6 +309,13 @@ final class ChatRoomViewController: UIViewController
                 guard let self = self else { return }
                 
                 var updateType = updateType
+                /// while the initial scroll hasn't settled the table must stay
+                /// still - incoming (gap-fill) messages simply appear instead
+                /// of animating, otherwise the table shifts back and forth
+                /// right after chat room open
+                if !self.didFinishInitialScrollToUnseenIndexPathIfAny {
+                    updateType = .none
+                }
                 let isUpdateAnimationNone = updateType == .none
                 let wasAtBottom = self.isNewestIndexPathVisible()
                     || self.rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
@@ -596,6 +615,15 @@ extension ChatRoomViewController
     {
         guard isNewestIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else { return false }
         
+        /// during the initial load window the table must stay still:
+        /// a new/gap message just appears and the view simply stays pinned to
+        /// the bottom, with no entrance animation or extra animated scroll
+        /// (prevents the shift back and forth on chat room open)
+        guard didFinishInitialScrollToUnseenIndexPathIfAny else {
+            scrollToNewestMessage(animated: false)
+            return true
+        }
+        
         let isNewSectionAdded = viewModel.messageClusterRepository.messageClusters.last?.items.count == 1
         animateNewestCellInsertion(withNewSectionAdded: isNewSectionAdded)
         return true
@@ -652,6 +680,31 @@ extension ChatRoomViewController
         tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
                                            y: bottomOffsetY(for: tableView)),
                                    animated: animated)
+        
+        /// self-sizing rows visible at the bottom resolve their REAL heights
+        /// only once they are laid out at the bottom position, after which the
+        /// content size grows and the previously computed bottom offset no
+        /// longer reaches the true bottom (the table would open slightly above
+        /// the most recent message). Re-land with the corrected offset.
+        guard !animated else { return }
+        
+        tableView.layoutIfNeeded()
+        let correctedOffsetY = bottomOffsetY(for: tableView)
+        if abs(correctedOffsetY - tableView.contentOffset.y) > 0.5
+        {
+            tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
+                                               y: correctedOffsetY),
+                                       animated: false)
+            tableView.layoutIfNeeded()
+            
+            /// one final pass in case the correction itself revealed new rows
+            let finalOffsetY = bottomOffsetY(for: tableView)
+            if abs(finalOffsetY - tableView.contentOffset.y) > 0.5 {
+                tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
+                                                   y: finalOffsetY),
+                                           animated: false)
+            }
+        }
     }
     
     private func bottomOffsetY(for tableView: UITableView) -> CGFloat
@@ -1323,8 +1376,10 @@ extension ChatRoomViewController: UITableViewDelegate
             let shouldPaginateAnyway: Bool = viewModel.messageClusterRepository.messageClusters.count < 6
             && paginateOldMessagesOnInitialChatOpen
              
-            /// ascending order: index 0 is the OLDEST, the last index is the NEWEST
-            if globalIndex >= totalItems - 3 && !viewModel.isLastMessageFromClusterTheMostRecentInChat
+            /// ascending order: index 0 is the OLDEST, the last index is the NEWEST.
+            /// Both thresholds sit 6 items away from the edge of the list, so the
+            /// page is always requested before its edge cell becomes visible.
+            if globalIndex >= totalItems - 6 && !viewModel.isLastMessageFromClusterTheMostRecentInChat
             {
                 paginateIfNeeded(ascending: true)
                 return
@@ -1394,24 +1449,8 @@ extension ChatRoomViewController: UITableViewDelegate
             
             if viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
-                let anchorCell = rootView.tableView.visibleCells.first
-                let anchorCellViewModel = (anchorCell as? TargetPreviewable)?.cellViewModel
-                let previousMinY = anchorCell.flatMap { cell -> CGFloat? in
-                    guard let indexPath = rootView.tableView.indexPath(for: cell) else { return nil }
-                    return rootView.tableView.rectForRow(at: indexPath).minY
-                }
-                let currentOffsetY = rootView.tableView.contentOffset.y
+                applyPaginationChanges(didPrependMessages: !ascending)
                 
-                self.shouldIgnoreUnseenMessagesUpdate = true
-                self.dataSourceManager.configureSnapshot(animationType: .automatic)
-                {
-                    self.shouldIgnoreUnseenMessagesUpdate = false
-                    self.offsetTableContentOnPaginationCompletion(
-                        to: currentOffsetY,
-                        cellViewModel: anchorCellViewModel,
-                        previousMinY: previousMinY,
-                        didPrependMessages: !ascending)
-                }
                 viewModel.isLocalPaginationActive = false
                 
                 if let startMessage = viewModel.lastPaginatedMessage
@@ -1421,7 +1460,6 @@ extension ChatRoomViewController: UITableViewDelegate
                         ascending: !ascending,
                         limit: ObjectsPaginationLimit.localMessages)
                 }
-                viewModel.isLocalPaginationActive = false
                 return
             }
             
@@ -1433,47 +1471,60 @@ extension ChatRoomViewController: UITableViewDelegate
                     await preformRemotePagination(ascending: ascending)
                 }
             }
-            viewModel.isLocalPaginationActive = false
         }
     }
     
-    /// Keeps the currently visible cell where it is on screen after
-    /// older messages were prepended at the top of the table.
-    private func offsetTableContentOnPaginationCompletion(
-        to contentOffsetY: CGFloat,
-        cellViewModel: MessageCellViewModel?,
-        previousMinY: CGFloat?,
-        didPrependMessages: Bool)
+    /// Applies the current repository contents to the data source without any
+    /// visible animation and keeps the scroll position untouched, as if
+    /// nothing was inserted.
+    ///
+    /// This is the solution that was already working on the previously
+    /// inverted table (see `eaf4682b`), ported to the standard table:
+    /// - the snapshot is applied through an **animated** diffable apply
+    ///   wrapped in `UIView.animate(withDuration: 0.0)` - the animation
+    ///   collapses to zero, but the update goes through `performBatchUpdates`,
+    ///   which spreads its work over the (now 0-duration) animation frames
+    ///   and keeps the scroll momentum intact. A non animated apply must NOT
+    ///   be used here: it re-builds the content synchronously like
+    ///   `reloadData` does and stalls an ongoing scroll for a beat.
+    /// - for prepends the offset is shifted by the content size delta right
+    ///   after the apply (the batch update inserts the rows synchronously),
+    ///   i.e. exactly the height of the rows added above the visible area.
+    ///   On the inverted table UIKit kept the visible content anchored on
+    ///   its own; on a standard table the correction has to be done here.
+    /// - See also FootNote.swift [16]: the 0-duration animation wrapper also
+    ///   neutralizes UIKit's implicit "scroll to make the inserted cell
+    ///   visible" behavior.
+    private func applyPaginationChanges(
+        didPrependMessages: Bool,
+        completion: (() -> Void)? = nil)
     {
-        guard didPrependMessages,
-              let cellViewModel,
-              let previousMinY,
-              let newIndexPath = indexPath(for: cellViewModel)
-        else { return }
+        let tableView = rootView.tableView
+        let currentOffsetY = tableView.contentOffset.y
+        let previousContentHeight = tableView.contentSize.height
         
-        self.rootView.tableView.layoutIfNeeded()
-        let newMinY = self.rootView.tableView.rectForRow(at: newIndexPath).minY
-        self.rootView.tableView.contentOffset.y = contentOffsetY + (newMinY - previousMinY)
-    }
-    
-    /// Locates the current index path of a cell view model in the repository.
-    private func indexPath(for cellViewModel: MessageCellViewModel) -> IndexPath?
-    {
-        for (section, cluster) in viewModel.messageClusterRepository.messageClusters.enumerated()
+        self.shouldIgnoreUnseenMessagesUpdate = true
+        
+        UIView.animate(withDuration: 0.0)
         {
-            if let row = cluster.items.firstIndex(where: { $0 === cellViewModel })
-            {
-                return IndexPath(row: row, section: section)
-            }
+            self.dataSourceManager.configureSnapshot(animationType: .automatic)
         }
-        return nil
+        
+        /// the batch update inserts the rows synchronously, so the offset can
+        /// be locked in the same tick, before the next frame is rendered
+        if didPrependMessages
+        {
+            tableView.contentOffset.y = currentOffsetY
+                + (tableView.contentSize.height - previousContentHeight)
+        }
+        
+        self.shouldIgnoreUnseenMessagesUpdate = false
+        completion?()
     }
     
     private func preformRemotePagination(ascending: Bool) async
     {
         do {
-            try await Task.sleep(for: .seconds(1))
-            
             let direction: PaginationDirection = ascending ?
                 .ascending : .descending
             switch try await viewModel.paginateRemoteMessages(direction: direction)
@@ -1481,32 +1532,9 @@ extension ChatRoomViewController: UITableViewDelegate
             case .didPaginate:
                 await MainActor.run
                 {
-                    let visibleCell = self.rootView.tableView.visibleCells.first
-                    let anchorCellViewModel = (visibleCell as? TargetPreviewable)?.cellViewModel
-                    let previousMinY = visibleCell.flatMap { cell -> CGFloat? in
-                        guard let indexPath = self.rootView.tableView.indexPath(for: cell) else { return nil }
-                        return self.rootView.tableView.rectForRow(at: indexPath).minY
-                    }
-                    let currentOffsetY = self.rootView.tableView.contentOffset.y
-                    
-                    CATransaction.begin()
-                    CATransaction.setDisableActions(true)
-                    
-                    self.shouldIgnoreUnseenMessagesUpdate = true
-                    
-                    self.dataSourceManager.configureSnapshot(
-                        animationType: .automatic)
-                    {
-                        self.shouldIgnoreUnseenMessagesUpdate = false
-                        
-                        self.offsetTableContentOnPaginationCompletion(
-                            to: currentOffsetY,
-                            cellViewModel: anchorCellViewModel,
-                            previousMinY: previousMinY,
-                            didPrependMessages: direction == .descending)
-                        CATransaction.commit()
-                        self.isNetworkPaginationRunning = false
-                    }
+                    self.applyPaginationChanges(
+                        didPrependMessages: direction == .descending,
+                        completion: { self.isNetworkPaginationRunning = false })
                 }
             default:
                 self.isNetworkPaginationRunning = false
@@ -1514,6 +1542,9 @@ extension ChatRoomViewController: UITableViewDelegate
             }
         } catch {
             print("Could not update conversation with additional messages: \(error)")
+            /// otherwise the guard would stay latched and remote pagination
+            /// would never be attempted again
+            self.isNetworkPaginationRunning = false
         }
     }
 }
