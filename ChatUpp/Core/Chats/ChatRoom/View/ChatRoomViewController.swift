@@ -1345,10 +1345,16 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
+        /// sticker rendering is started/stopped purely from willDisplay /
+        /// didEndDisplaying (`FrameTicker`), so it MUST run even while the
+        /// initial-load gate below is closed, otherwise a sticker visible
+        /// right after chat room open is never registered with the frame
+        /// ticker and stays blank until it gets recycled by scrolling it
+        /// off-screen and back.
+        (cell as? StickerMessageCell)?.setVisible(true)
+        
         guard !viewModel.messageClusterRepository.messageClusters.isEmpty,
               didFinishInitialScrollToUnseenIndexPathIfAny else { return }
-        
-        (cell as? StickerMessageCell)?.setVisible(true)
         
         if let newestIndexPath,
            indexPath == newestIndexPath,
