@@ -591,12 +591,14 @@ final class ChatRoomViewController: UIViewController
 //MARK: - Handle cell message insertion
 extension ChatRoomViewController
 {
-    private func handleNewMessageDisplay()
+    @discardableResult
+    private func handleNewMessageDisplay() -> Bool
     {
-        guard isNewestIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else { return }
+        guard isNewestIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else { return false }
         
         let isNewSectionAdded = viewModel.messageClusterRepository.messageClusters.last?.items.count == 1
         animateNewestCellInsertion(withNewSectionAdded: isNewSectionAdded)
+        return true
     }
     
     private func animateNewestCellInsertion(withNewSectionAdded isNewSectionAdded: Bool)
@@ -608,16 +610,17 @@ extension ChatRoomViewController
         
         guard let cell = tableView.cellForRow(at: indexPath) else { return }
         
-        let targetOffsetY = bottomOffsetY(for: tableView)
         let cellTopInView = tableView.convert(cell.frame, to: rootView).minY
-        let slideDistance = max(50, rootView.inputBarContainer.frame.minY - cellTopInView)
+        let slideDistance = max(60, rootView.inputBarContainer.frame.minY - cellTopInView)
         
         cell.transform = CGAffineTransform(translationX: 0, y: slideDistance)
         
         UIView.animate(withDuration: 0.3, delay: 0.1) {
             cell.transform = .identity
-            tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x, y: targetOffsetY),
-                                       animated: false)
+        }
+        
+        executeAfter(seconds: 0.1) {
+            self.scrollToNewestMessage(animated: true)
         }
         
         let lastSection = tableView.numberOfSections - 1
@@ -940,7 +943,7 @@ extension ChatRoomViewController
     {
         let wasAtBottom = isNewestIndexPathVisible()
         dataSourceManager.configureSnapshot(animationType: wasAtBottom ? .none : .automatic)
-        handleNewMessageDisplay()
+        let didAnimateInsertion = handleNewMessageDisplay()
         
         switch messageType
         {
@@ -948,7 +951,10 @@ extension ChatRoomViewController
         default: break
         }
         closeInputBarHeaderView()
-        scrollToBottom()
+        
+        if !didAnimateInsertion {
+            scrollToBottom()
+        }
     }
 
     @objc func addPicture()
