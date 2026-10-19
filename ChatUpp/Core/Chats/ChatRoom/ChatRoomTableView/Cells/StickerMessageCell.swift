@@ -10,6 +10,16 @@ import Combine
 
 final class StickerMessageCell: UITableViewCell
 {
+    // MARK: - Row size
+    
+    /// Row height a sticker message cell always occupies: 170pt sticker view
+    /// + container margins (top 6 / bottom 12) + 3pt bottom gap.
+    /// Since the size is fixed, it can be given to the table as an exact
+    /// row estimate (see `estimatedHeightForRowAt`), instead of leaving the
+    /// ~44pt default estimate - the big estimate-vs-real gap was what made
+    /// sticker-heavy chats open offset a few messages above the bottom.
+    static let fixedRowHeight: CGFloat = 191
+    
     // MARK: - Properties
     private var contentContainerViewBottomConstraint: NSLayoutConstraint!
     private var contentContainerViewLeadingConstraint: NSLayoutConstraint!

@@ -710,28 +710,26 @@ extension ChatRoomViewController
     /// scroll: self-sizing rows resolve their REAL heights only once they are
     /// laid out at the bottom position, after which the content size changes
     /// and the previously computed offset no longer reaches the true bottom.
-    /// Lay out, re-compute and land again until the position is stable.
+    /// Land, lay out and re-land until the position is stable (bounded, so a
+    /// pathological estimate mismatch can't spin it forever).
     private func settleScrollAtNewestMessage()
     {
         let tableView = rootView.tableView
         
-        tableView.layoutIfNeeded()
-        let correctedOffsetY = bottomOffsetY(for: tableView)
-        if abs(correctedOffsetY - tableView.contentOffset.y) <= 0.5 { return }
-        
-        tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
-                                           y: correctedOffsetY),
-                                   animated: false)
-        tableView.layoutIfNeeded()
-        
-        /// one final pass in case the correction itself revealed new rows
-        let finalOffsetY = bottomOffsetY(for: tableView)
-        if abs(finalOffsetY - tableView.contentOffset.y) > 0.5
+        var passes = 0
+        while passes < 5
         {
+            tableView.layoutIfNeeded()
+            let targetOffsetY = bottomOffsetY(for: tableView)
+            if abs(targetOffsetY - tableView.contentOffset.y) <= 0.5 { break }
+            
             tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
-                                               y: finalOffsetY),
+                                               y: targetOffsetY),
                                        animated: false)
+            passes += 1
         }
+        
+        tableView.layoutIfNeeded()
     }
     
     private func bottomOffsetY(for tableView: UITableView) -> CGFloat
@@ -1361,6 +1359,26 @@ extension ChatRoomViewController: UITableViewDelegate
         }
         
         return  UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat
+    {
+        /// With `estimatedRowHeight = .automatic` every off-screen self-sizing
+        /// row is estimated at ~44pt until it is displayed. For sticker
+        /// messages that estimate is far off (real height ~191pt), and in
+        /// chats whose newest messages are stickers the bottom-most block was
+        /// undercounted by roughly one viewport worth of height - the room
+        /// opened offset a few messages above the most recent one.
+        /// Stickers have a fixed size, so give the table the real number;
+        /// all other message types keep the default automatic estimate.
+        let clusters = viewModel.messageClusterRepository.messageClusters
+        guard indexPath.section < clusters.count,
+              indexPath.row < clusters[indexPath.section].items.count,
+              let message = clusters[indexPath.section].items[indexPath.row].message,
+              message.type == .sticker
+        else { return UITableView.automaticDimension }
+        
+        return StickerMessageCell.fixedRowHeight
     }
     
     func tableView(_ tableView: UITableView,
