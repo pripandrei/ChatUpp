@@ -1126,22 +1126,20 @@ extension ChatRoomViewController
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
                                         currentNumberOfLines: Int)
     {
+        let textView = rootView.messageTextView
         let tableView = rootView.tableView
-        let isInputBarGrowing = numberOfLines > currentNumberOfLines
-        
-        /// measured against the inset still applied, before the input bar grows
-        let bottomVisibleContentY = tableView.contentOffset.y + tableView.bounds.height
-            - tableView.adjustedContentInset.bottom
-        let wasAtBottom = newestIndexPath.map {
-            tableView.rectForRow(at: $0).maxY <= bottomVisibleContentY + 1
-        } ?? true
+        let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
         
         inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
-        updateTableViewBottomInset(animated: true)
         
-        /// keep the newest message pinned above the growing input bar
-        if wasAtBottom && isInputBarGrowing {
-            scrollToNewestMessage(animated: true)
+        guard numberOfAddedLines != 0 else { return }
+        
+        let updatedContentOffset = CGPoint(x: tableView.contentOffset.x,
+                                           y: tableView.contentOffset.y + (textView.font!.lineHeight * numberOfAddedLines))
+        
+        UIView.animate(withDuration: 0.15) {
+            self.updateTableViewBottomInset(animated: false)
+            tableView.setContentOffset(updatedContentOffset, animated: false)
         }
     }
 }
