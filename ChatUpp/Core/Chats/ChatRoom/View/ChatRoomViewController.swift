@@ -944,16 +944,28 @@ extension ChatRoomViewController
         let wasAtBottom = isNewestIndexPathVisible()
         dataSourceManager.configureSnapshot(animationType: wasAtBottom ? .none : .automatic)
         let didAnimateInsertion = handleNewMessageDisplay()
+        var wasInputBarExpanded = false
         
         switch messageType
         {
-        case .text, .imageText: clearTextViewInput()
+        case .text, .imageText:
+            /// read before the input bar collapses back to a single line
+            wasInputBarExpanded = inputMessageTextViewDelegate.messageTextViewNumberOfLines > 1
+            clearTextViewInput()
         default: break
         }
         closeInputBarHeaderView()
         
         if !didAnimateInsertion {
             scrollToBottom()
+        } else if wasInputBarExpanded {
+            /// the input bar collapse shifted the table by the same delta, which only
+            /// keeps the newest message anchored to the bar. The insertion reveal is
+            /// applied before that shift, so the table is brought to the bottom once
+            /// the shift settles.
+            executeAfter(seconds: 0.3) {
+                self.scrollToNewestMessage(animated: true)
+            }
         }
     }
 
