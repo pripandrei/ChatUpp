@@ -389,6 +389,11 @@ final class ChatRoomViewController: UIViewController
                 /// raise the input bar so the sticker panel can fill the space
                 /// below it - the in-animation offset shift keeps the table in
                 /// sync with the input bar instead of catching up afterwards
+                if self.rootView.greetingView != nil
+                {
+                    self.rootView.toggleGreetingViewPosition(up: true,
+                                                             lineLift: self.greetingLineLift)
+                }
                 self.updateTableLayoutAlongsideStickerPanel(obscuringHeight: self.stickerPanelHeight)
                 {
                     self.rootView.updateInputBarBottomConstraint(toSize: -self.stickerPanelHeight)
@@ -431,7 +436,8 @@ final class ChatRoomViewController: UIViewController
         
         if rootView.greetingView != nil
         {
-            self.rootView.toggleGreetingViewPosition(up: true)
+            self.rootView.toggleGreetingViewPosition(up: true,
+                                                     lineLift: self.greetingLineLift)
         }
         
         updateTableLayoutAlongsideKeyboard(notification) {
@@ -493,6 +499,10 @@ final class ChatRoomViewController: UIViewController
         /// animation (padding already targets 0 while the panel is still
         /// attached), so they move together instead of the table catching up
         /// after the chrome settles
+        if rootView.greetingView != nil
+        {
+            rootView.toggleGreetingViewPosition(up: false)
+        }
         self.updateTableLayoutAlongsideStickerPanel(obscuringHeight: 0)
         {
             self.rootView.updateInputBarBottomConstraint(toSize: 0)
@@ -1166,6 +1176,20 @@ extension ChatRoomViewController
         return max(0, KeyboardService.shared.keyboardHeight - rootView.safeAreaInsets.bottom)
     }
     
+    /// Vertical offset for the greeting view that clears the extra height the
+    /// multi-line text view adds to the raised input bar. Each successive line
+    /// contributes half of its predecessor's shift - 1st extra line: 1×line
+    /// height, 2nd: ½, 3rd: ¼ … - a geometric series capping at 2×. The sum is
+    /// symmetric, so removing lines restores the positions line by line.
+    private var greetingLineLift: CGFloat
+    {
+        let extraLines = max(0, inputMessageTextViewDelegate.messageTextViewNumberOfLines - 1)
+        let lineHeight = rootView.messageTextView.font?.lineHeight ?? 0
+        guard extraLines > 0 else { return 0 }
+        let shiftFactor = 2.0 - pow(2.0, CGFloat(1 - extraLines))
+        return -(shiftFactor * lineHeight)
+    }
+    
     /// Extra space currently covering the bottom of the table, below the input bar.
     private var bottomObscuringHeight: CGFloat
     {
@@ -1314,6 +1338,16 @@ extension ChatRoomViewController
         let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
         
         inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
+        
+        /// keep the greeting view clear of the input bar growing / shrinking
+        /// with each text view line - the 0.1s debounce aligns it with the
+        /// moment the text view's own height animation starts, and animating
+        /// the absolute offset for the current line count keeps it in sync
+        /// with the text view expansion (no drift over successive changes)
+        if rootView.greetingView != nil
+        {
+            rootView.updateGreetingLineLift(self.greetingLineLift)
+        }
         
         guard numberOfAddedLines != 0 else { return }
         

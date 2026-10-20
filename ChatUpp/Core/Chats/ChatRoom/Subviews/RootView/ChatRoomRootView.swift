@@ -362,10 +362,38 @@ final class ChatRoomRootView: UIView
     
     // MARK: - Internal functions
     
-    func toggleGreetingViewPosition(up: Bool)
+    /// Vertical offset clearing the keyboard / sticker panel reach.
+    private var greetingKeyboardLift: CGFloat = 0
+    /// Vertical offset clearing the extra height of a multi-line text view.
+    private var greetingLineLift: CGFloat = 0
+    
+    func toggleGreetingViewPosition(up: Bool, lineLift: CGFloat = 0)
     {
+        self.greetingKeyboardLift = up ? -130 : 0
+        /// with the input bar at rest the greeting returns to its initial
+        /// centered position, regardless of the text view's line count
+        self.greetingLineLift = up ? lineLift : 0
+        
         UIView.animate(withDuration: 0.3) {
-            self.greetingViewCenterYConstraint?.constant = up ? -130 : 0
+            self.greetingViewCenterYConstraint?.constant = self.greetingKeyboardLift + self.greetingLineLift
+            self.layoutIfNeeded()
+        }
+    }
+    
+    /// shifts the greeting view while the input bar grows / shrinks with the
+    /// text view's line count. `lineLift` is the absolute offset for the
+    /// current line count, which keeps it idempotent when called out of order.
+    func updateGreetingLineLift(_ lineLift: CGFloat)
+    {
+        guard greetingKeyboardLift != 0 else {return}
+        self.greetingLineLift = lineLift
+        
+        /// 0.15 mirrors the text view's own height-change animation; the
+        /// layout pass must run inside the animation block, otherwise the
+        /// constraint change is applied later and the view just jumps
+        UIView.animate(withDuration: 0.15) {
+            self.greetingViewCenterYConstraint?.constant = self.greetingKeyboardLift + self.greetingLineLift
+            self.layoutIfNeeded()
         }
     }
     
