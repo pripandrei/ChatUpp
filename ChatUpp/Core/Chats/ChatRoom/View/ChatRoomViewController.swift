@@ -1527,10 +1527,10 @@ extension ChatRoomViewController: UITableViewDelegate
     
     /// Applies the current repository contents to the data source without any
     /// visible animation and keeps the scroll position untouched, as if
-    /// nothing was inserted.
-    ///
-    /// This is the solution that was already working on the previously
-    /// inverted table (see `eaf4682b`), ported to the standard table:
+    /// nothing was inserted. Used by the LOCAL pagination path - the remote
+    /// path has its own application (see `preformRemotePagination`), ported
+    /// from the pre-inversion code with its CATransaction-based suppression
+    /// of UIKit's implicit scroll action.
     /// - the snapshot is applied through an **animated** diffable apply
     ///   wrapped in `UIView.animate(withDuration: 0.0)` - the animation
     ///   collapses to zero, but the update goes through `performBatchUpdates`,
@@ -1583,9 +1583,72 @@ extension ChatRoomViewController: UITableViewDelegate
             case .didPaginate:
                 await MainActor.run
                 {
-                    self.applyPaginationChanges(
-                        didPrependMessages: direction == .descending,
-                        completion: { self.isNetworkPaginationRunning = false })
+                    /// Remote pagination landing: port of the pre-inversion
+                    /// solution (see commit `eaf4682b`) adapted to the
+                    /// standard (non-inverted) table.
+                    ///
+                    /// Unlike the local path, a remote page arrives while the
+                    /// table typically rests at / hovers around its TOP edge
+                    /// (the user scrolled up to the oldest local message and
+                    /// waited for the fetch). There, on new-row insertion,
+                    /// UIKit applies its implicit "animate scrolling to the
+                    /// inserted cell" action (See FootNote.swift [16]) and
+                    /// `UIView.animate(withDuration: 0.0)` - used by the local
+                    /// path - does NOT suppress it reliably in this context;
+                    /// only a CATransaction with disabled actions did, which
+                    /// is exactly how the old code wrapped the remote apply.
+                    ///
+                    /// The offset is anchored to the previously visible
+                    /// top-most cell and corrected INSIDE the apply
+                    /// completion, from its NEW rect - the non-inverted
+                    /// equivalent of the old code's
+                    /// `offsetTableContentOnPaginationCompletion`, valid for
+                    /// any scroll position of a standard table (the old
+                    /// `-90.0` guard existed for the overscroll zone of the
+                    /// rotated geometry). Computing it in the completion
+                    /// makes it land correctly whenever UIKit actually
+                    /// commits the batch update.
+                    let tableView = self.rootView.tableView
+                    let anchorCell = tableView.indexPathsForVisibleRows?.min()
+                        .flatMap { tableView.cellForRow(at: $0) }
+                    let previousMinY = anchorCell.flatMap { cell -> CGFloat? in
+                        guard let indexPath = tableView.indexPath(for: cell) else { return nil }
+                        return tableView.rectForRow(at: indexPath).minY
+                    }
+                    let currentOffsetY = tableView.contentOffset.y
+                    /// fallback, used only if the anchor cell gets detached
+                    /// during the update (mutually exclusive with the anchor)
+                    let previousContentHeight = tableView.contentSize.height
+                    
+                    CATransaction.begin()
+                    CATransaction.setDisableActions(true)
+                    
+                    self.shouldIgnoreUnseenMessagesUpdate = true
+                    
+                    self.dataSourceManager.configureSnapshot(
+                        animationType: .automatic)
+                    {
+                        self.shouldIgnoreUnseenMessagesUpdate = false
+                        
+                        if direction == .descending
+                        {
+                            if let anchorCell,
+                               let previousMinY,
+                               let newAnchorIndexPath = tableView.indexPath(for: anchorCell)
+                            {
+                                let newMinY = tableView.rectForRow(at: newAnchorIndexPath).minY
+                                tableView.contentOffset.y = currentOffsetY + (newMinY - previousMinY)
+                            }
+                            else
+                            {
+                                tableView.contentOffset.y = currentOffsetY
+                                    + (tableView.contentSize.height - previousContentHeight)
+                            }
+                        }
+                        
+                        CATransaction.commit()
+                        self.isNetworkPaginationRunning = false
+                    }
                 }
             default:
                 self.isNetworkPaginationRunning = false
