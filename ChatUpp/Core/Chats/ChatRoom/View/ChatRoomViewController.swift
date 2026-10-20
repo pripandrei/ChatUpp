@@ -183,6 +183,7 @@ final class ChatRoomViewController: UIViewController
         self.view.layoutIfNeeded()
         /// the input bar has been laid out by now, so its real height is known
         self.updateTableViewBottomInset(animated: false)
+        self.updateTopContentInsetToAnchorContentAtBottom()
     }
     
     private func finalizeConversationSetup()
@@ -331,6 +332,7 @@ final class ChatRoomViewController: UIViewController
                 }
                 
                 self.dataSourceManager.configureSnapshot(animationType: updateType)
+                self.updateTopContentInsetToAnchorContentAtBottom()
                 if isUpdateAnimationNone {
                     self.handleNewMessageDisplay()
                 }
@@ -720,6 +722,7 @@ extension ChatRoomViewController
         while passes < 5
         {
             tableView.layoutIfNeeded()
+            self.updateTopContentInsetToAnchorContentAtBottom()
             let targetOffsetY = bottomOffsetY(for: tableView)
             if abs(targetOffsetY - tableView.contentOffset.y) <= 0.5 { break }
             
@@ -737,6 +740,34 @@ extension ChatRoomViewController
         let minOffsetY = -tableView.adjustedContentInset.top
         return max(minOffsetY,
                    tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
+    }
+
+    /// When the whole content is shorter than the visible area (no scrolling
+    /// needed), chat messages must sit pinned to the BOTTOM, above the input
+    /// bar, with the empty space ABOVE them - every new message pushes the
+    /// existing ones up, like in any chat.
+    /// Implemented as a flexible TOP content inset: with it, the table's
+    /// minimum offset coincides exactly with the "at the very bottom" offset
+    /// (`bottomOffsetY`), so all of the existing scroll / landing / keyboard
+    /// anchoring logic keeps working unchanged.
+    private func updateTopContentInsetToAnchorContentAtBottom()
+    {
+        let tableView = rootView.tableView
+
+        /// what the system (safe area etc.) contributes on top; it must be
+        /// restored untouched when the flexible space is not needed
+        let systemTopInset = tableView.adjustedContentInset.top - tableView.contentInset.top
+        let availableHeight = tableView.bounds.height
+            - tableView.adjustedContentInset.bottom
+            - systemTopInset
+        let contentHeight = tableView.contentSize.height
+
+        let flexibleInset = max(0, availableHeight - contentHeight)
+
+        if tableView.contentInset.top != flexibleInset
+        {
+            tableView.contentInset.top = flexibleInset
+        }
     }
 
     private func handleRowAndSectionInsertion(with indexPath: IndexPath,
@@ -1154,12 +1185,15 @@ extension ChatRoomViewController
         
         guard animated else {
             applyInset()
+            self.updateTopContentInsetToAnchorContentAtBottom()
             return
         }
         
         UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut]) {
             applyInset()
         }
+        
+        self.updateTopContentInsetToAnchorContentAtBottom()
     }
     
     /// Applies the input bar position, the table's bottom padding and the table's
@@ -1569,6 +1603,8 @@ extension ChatRoomViewController: UITableViewDelegate
                 + (tableView.contentSize.height - previousContentHeight)
         }
         
+        self.updateTopContentInsetToAnchorContentAtBottom()
+        
         self.shouldIgnoreUnseenMessagesUpdate = false
         completion?()
     }
@@ -1645,6 +1681,8 @@ extension ChatRoomViewController: UITableViewDelegate
                                     + (tableView.contentSize.height - previousContentHeight)
                             }
                         }
+                        
+                        self.updateTopContentInsetToAnchorContentAtBottom()
                         
                         CATransaction.commit()
                         self.isNetworkPaginationRunning = false
