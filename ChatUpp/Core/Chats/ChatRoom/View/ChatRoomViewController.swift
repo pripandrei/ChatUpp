@@ -374,23 +374,24 @@ final class ChatRoomViewController: UIViewController
                     /// swapping the keyboard for the sticker panel: dismiss the
                     /// keyboard but keep the input bar raised for the panel
                     self.rootView.messageTextView.resignFirstResponder()
-                    UIView.animate(withDuration: 0.27) {
+                    /// the keyboardWillHide handler skips the layout while the
+                    /// sticker panel is attached, so the hidden state must be
+                    /// reconciled here (otherwise the keyboard's rise height
+                    /// keeps padding the inset after the panel is gone)
+                    self.isKeyboardHidden = true
+                    self.updateTableLayoutAlongsideStickerPanel(obscuringHeight: self.stickerPanelHeight)
+                    {
                         self.rootView.updateInputBarBottomConstraint(toSize: -self.stickerPanelHeight)
-                        self.updateTableViewBottomInset(animated: false)
-                        self.rootView.layoutIfNeeded()
-                    } completion: { _ in
-                        self.scrollToNewestMessage(animated: true)
                     }
                     return
                 }
                 
-                UIView.animate(withDuration: 0.27) {
-                    /// raise the input bar so the sticker panel can fill the space below it
+                /// raise the input bar so the sticker panel can fill the space
+                /// below it - the in-animation offset shift keeps the table in
+                /// sync with the input bar instead of catching up afterwards
+                self.updateTableLayoutAlongsideStickerPanel(obscuringHeight: self.stickerPanelHeight)
+                {
                     self.rootView.updateInputBarBottomConstraint(toSize: -self.stickerPanelHeight)
-                    self.updateTableViewBottomInset(animated: false)
-                    self.rootView.layoutIfNeeded()
-                } completion: { _ in
-                    self.scrollToNewestMessage(animated: true)
                 }
             }
             .store(in: &subscriptions)
@@ -488,14 +489,16 @@ final class ChatRoomViewController: UIViewController
     
     private func dismissStickerView()
     {
-        UIView.animate(withDuration: 0.27)
+        /// the input bar drop and the table's offset shift run inside one
+        /// animation (padding already targets 0 while the panel is still
+        /// attached), so they move together instead of the table catching up
+        /// after the chrome settles
+        self.updateTableLayoutAlongsideStickerPanel(obscuringHeight: 0)
         {
             self.rootView.updateInputBarBottomConstraint(toSize: 0)
             self.rootView.stickerCollectionViewTopConstraint?.constant = 0.0
-            self.rootView.layoutIfNeeded()
         } completion: { _ in
             self.rootView.removeStickerView()
-            self.updateTableViewBottomInset(animated: true)
         }
     }
 
@@ -1050,7 +1053,14 @@ extension ChatRoomViewController
     
     private func updateUIOnNewMessageCreation(_ messageType: MessageType)
     {
+        /// an empty table (fresh chat, no messages yet) counts as "at the
+        /// bottom"; otherwise the first message applies with an animated
+        /// insert, and at the resting offset that triggers UIKit's implicit
+        /// scroll-to-inserted-cell animation, which lands the message about
+        /// mid-screen instead of pinned above the input bar
+        /// - See FootNote.swift [16]
         let wasAtBottom = isNewestIndexPathVisible()
+            || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
         dataSourceManager.configureSnapshot(animationType: wasAtBottom ? .none : .automatic)
         let didAnimateInsertion = handleNewMessageDisplay()
         var wasInputBarExpanded = false
@@ -1166,18 +1176,22 @@ extension ChatRoomViewController
     /// Single source of truth for the table's bottom padding.
     /// `inputBarContainer.bounds.height` already grows with the text view
     /// (multi-line input), so it is not added to again here.
-    private var tableViewBottomInset: CGFloat
+    private func tableViewBottomInset(obscuringHeightOverride: CGFloat? = nil) -> CGFloat
     {
         let inputBarHeight = rootView.inputBarContainer.bounds.height
         let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
+        let obscuringHeight = obscuringHeightOverride ?? bottomObscuringHeight
         
-        return inputBarHeight + bottomObscuringHeight + editViewHeight + 4
+        return inputBarHeight + obscuringHeight + editViewHeight + 4
     }
     
     /// Applies `tableViewBottomInset` to both the content and scroll indicator insets.
-    private func updateTableViewBottomInset(animated: Bool)
+    /// `obscuringHeightOverride` decouples the inset from the sticker panel's
+    /// attachment state: during the panel's dismiss animation the panel is still
+    /// in the view hierarchy, but the bottom padding must already target 0.
+    private func updateTableViewBottomInset(animated: Bool, obscuringHeightOverride: CGFloat? = nil)
     {
-        let inset = tableViewBottomInset
+        let inset = tableViewBottomInset(obscuringHeightOverride: obscuringHeightOverride)
         let applyInset = {
             self.rootView.tableView.contentInset.bottom = inset
             self.rootView.tableView.verticalScrollIndicatorInsets.bottom = inset
@@ -1228,6 +1242,51 @@ extension ChatRoomViewController
             tableView.contentOffset.y = min(max(previousOffsetY + insetDelta, minOffsetY), maxOffsetY)
             
             self.rootView.layoutIfNeeded()
+        }
+    }
+    
+    /// Applies the sticker panel's input bar raise / drop and the resulting
+    /// table bottom padding inside a single animation, shifting the content
+    /// offset by the same delta. This mirrors `updateTableLayoutAlongsideKeyboard`
+    /// for the panel's show / dismiss transitions, which are animated manually
+    /// (no keyboard notifications drive them): without the in-animation offset
+    /// shift the table only catches up when the animation completes.
+    ///
+    /// `obscuringHeight` is the padding the panel contributes for the target
+    /// layout: panelHeight when the panel fills the space below the input bar,
+    /// 0 while it is dismissed. The panel is removed only in the completion,
+    /// so the inset must not derive from its (still attached) state mid-flight.
+    private func updateTableLayoutAlongsideStickerPanel
+    (
+        obscuringHeight: CGFloat,
+        changes: @escaping () -> Void,
+        completion: ((Bool) -> Void)? = nil
+    )
+    {
+        let tableView = rootView.tableView
+        let previousBottomInset = tableView.contentInset.bottom
+        /// Captured before the inset changes. Changing the inset makes the scroll
+        /// view clamp an out-of-range offset by itself (which happens when the
+        /// table sits at the bottom), so the delta must be applied to the offset
+        /// from before that clamp, otherwise it is applied twice.
+        let previousOffsetY = tableView.contentOffset.y
+        
+        UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut])
+        {
+            changes()
+            
+            self.updateTableViewBottomInset(animated: false,
+                                            obscuringHeightOverride: obscuringHeight)
+            
+            let insetDelta = tableView.contentInset.bottom - previousBottomInset
+            let minOffsetY = -tableView.adjustedContentInset.top
+            let maxOffsetY = max(minOffsetY,
+                                 tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
+            tableView.contentOffset.y = min(max(previousOffsetY + insetDelta, minOffsetY), maxOffsetY)
+            
+            self.rootView.layoutIfNeeded()
+        } completion: { finished in
+            completion?(finished)
         }
     }
     
