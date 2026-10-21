@@ -15,7 +15,6 @@ import SwiftUI
 import Photos
 import PhotosUI
 import Combine
-import SkeletonView
 import SKPhotoBrowser
 
 final class ChatRoomViewController: UIViewController
