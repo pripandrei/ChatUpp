@@ -2186,6 +2186,13 @@ extension ChatRoomViewController
         let targetedPreview = UITargetedPreview(view: container,
                                parameters: parameters,
                                target: previewTarget)
+        /// lay the preview out synchronously before handing it to UIKit: the
+        /// menu machinery lifts it into its transient view in the same
+        /// transaction it is created, so auto-layout would otherwise resolve
+        /// the child positions a beat later, which flashes/jitters the
+        /// preview at the moment the menu appears
+        container.layoutIfNeeded()
+        
         self.targetedPreview = targetedPreview // See FootNote.swift [19]
         return targetedPreview
     }
@@ -2198,28 +2205,52 @@ extension ChatRoomViewController
         }
         
         let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
- 
+  
         let previewsCount = self.animatedPreviewViews.count
         guard previewsCount > 0 else { return nil }
-        let snapshot = animatedPreviewViews[previewsCount - 1]
+        /// the last created live preview belongs to the menu being dismissed
+        guard let livePreview = animatedPreviewViews[previewsCount - 1] as? TargetedPreviewContentView else
+        {
+            return nil
+        }
         
-        snapshot.frame = CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
+        /// the dismissal clones the live preview: re-parenting the original
+        /// snapshot out of the highlighted preview would leave that
+        /// container's cell area blank while the menu is still animating,
+        /// and the newly constrained container's frames only resolve during
+        /// the animation - which surfaces as the preview "jumping" from a
+        /// higher point before settling onto the cell's position
+        let stillImage = livePreview.renderedImage
+            ?? TargetedPreviewContentView.stillImage(from: cell.contentView)
         
-        let containerHeight = TargetedPreviewComponentsSize.getSnapshotContainerHeight(snapshot)
+        let containerHeight = TargetedPreviewComponentsSize.getSnapshotContainerHeight(livePreview)
         
         let container = UIView(frame: CGRect(origin: .zero,
                                              size: CGSize(width: cell.bounds.width,
                                                           height: containerHeight)))
         
-        container.addSubview(snapshot)
-        snapshot.layer.cornerRadius = 10
-        snapshot.layer.masksToBounds = true
-        snapshot.translatesAutoresizingMaskIntoConstraints = false
+        let stillFrame = UIView(frame: CGRect(origin: .zero,
+                                              size: CGSize(width: cell.bounds.width,
+                                                           height: maxSnapshotHeight)))
+        if let stillImage
+        {
+            let imageView = UIImageView(image: stillImage)
+            imageView.frame = stillFrame.bounds
+            imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            stillFrame.addSubview(imageView)
+        }
+        stillFrame.layer.cornerRadius = 10
+        stillFrame.layer.masksToBounds = true
+        
+        container.addSubview(stillFrame)
+        stillFrame.translatesAutoresizingMaskIntoConstraints = false
 
-        snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
-        snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
-        snapshot.heightAnchor.constraint(equalToConstant: snapshot.bounds.height).isActive = true
-        snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
+        NSLayoutConstraint.activate([
+            stillFrame.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            stillFrame.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            stillFrame.heightAnchor.constraint(equalToConstant: maxSnapshotHeight),
+            stillFrame.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
         
         let heightDifference = container.bounds.height - cell.bounds.height
         let adjustedCenterY = cell.center.y - (heightDifference / 2)
@@ -2233,7 +2264,11 @@ extension ChatRoomViewController
         parameters.backgroundColor = .clear
         parameters.shadowPath = UIBezierPath()
         
-        return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
+        let dismissPreview = UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
+        /// same reason as in `makeTargetedPreview`: never animate a container
+        /// whose constrained children have not been resolved yet
+        container.layoutIfNeeded()
+        return dismissPreview
     }
     
     func tableView(_ tableView: UITableView,
