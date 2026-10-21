@@ -32,6 +32,23 @@ final class ConversationDataSourceManager
     private var diffableDataSource: DataSource!
     private var tableView: UITableView
     
+    /// Skeleton display is driven by REAL rows in the diffable data source
+    /// rather than SkeletonView's data-source wrapper: the wrapper reloads the
+    /// whole table on every trait-collection pass (it swizzles
+    /// `traitCollectionDidChange`) and re-dequeues reuse-pool cells into
+    /// different rows, so the skeleton bars visibly "reset" their sizes while
+    /// the chat room waits for remote messages. Being ordinary diffable items,
+    /// skeleton rows produce EMPTY diffs on re-applies, so reloads are
+    /// geometric no-ops.
+    private(set) var isSkeletonDisplayed = false
+    /// created once per skeleton session: stable identities keep every
+    /// re-apply a no-op diff
+    private var skeletonCellViewModels: [MessageCellViewModel] = []
+    private var skeletonSectionDate = Date()
+    /// shifts the deterministic skeleton bar widths so every chat room open
+    /// gets a fresh skeleton arrangement
+    private let skeletonBarSeed = Int.random(in: 0...100_000)
+    
     init(dataProvider: ChatRoomDataSourceProviding,
          layoutProvider: MessageLayoutProvider,
          tableView: UITableView)
@@ -53,6 +70,11 @@ final class ConversationDataSourceManager
         let dataSource = DataSource(tableView: tableView,
                                     cellProvider:
                                         { tableView, indexPath, cellViewModel in
+            
+            if cellViewModel.displaySkeletonBar == true
+            {
+                return self.dequeueSkeletonCell(for: indexPath, in: tableView)
+            }
             
             if cellViewModel.displayUnseenMessagesTitle == true
             {
@@ -81,6 +103,12 @@ final class ConversationDataSourceManager
     {
         var snapshot = NSDiffableDataSourceSnapshot<Section, MessageCellViewModel>()
         
+        if isSkeletonDisplayed
+        {
+            snapshot.appendSections([.date(skeletonSectionDate)])
+            snapshot.appendItems(skeletonCellViewModels, toSection: .date(skeletonSectionDate))
+        }
+        
         for cluster in dataProvider.messageClusters
         {
             let section: Section = .date(cluster.date)
@@ -98,6 +126,33 @@ final class ConversationDataSourceManager
         }
     }
     
+    /// switches the table's content between skeleton placeholder rows and the
+    /// real message clusters; also (re)builds the stable skeleton items
+    func setSkeletonDisplay(displayed: Bool)
+    {
+        if displayed
+        {
+            if skeletonCellViewModels.isEmpty
+            {
+                /// match SkeletonView's own sizing: enough rows to fill the
+                /// table at the skeleton's 50pt estimated row height
+                let rowCount = max(8, Int(ceil(tableView.frame.height / 50.0)))
+                skeletonCellViewModels = (0..<rowCount).map { _ in
+                    MessageCellViewModel(isSkeletonCell: true)
+                }
+            }
+        }
+        else
+        {
+            isSkeletonDisplayed = false
+            configureSnapshot(animationType: .none)
+            return
+        }
+        
+        isSkeletonDisplayed = true
+        configureSnapshot(animationType: .none)
+    }
+    
     func reloadItems(_ items: [MessageCellViewModel])
     {
         var snapshot = diffableDataSource.snapshot()
@@ -111,6 +166,21 @@ final class ConversationDataSourceManager
 //MARK: - Dequeue cell
 extension ConversationDataSourceManager
 {
+    private func dequeueSkeletonCell(for indexPath: IndexPath,
+                                     in tableView: UITableView) -> UITableViewCell
+    {
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire,
+            for: indexPath) as? SkeletonViewCell else
+        {
+            fatalError("Could not dequeue skeleton cell")
+        }
+        
+        cell.setSkeletonBarWidth(forRow: indexPath.row, seed: skeletonBarSeed)
+        cell.showBarSkeleton()
+        return cell
+    }
+    
     private func dequeueUnseenTitleCell(for indexPath: IndexPath,
                                         in tableView: UITableView) -> UITableViewCell
     {
@@ -217,14 +287,6 @@ extension ConversationDataSourceManager
     enum InsertPosition {
         case beginning
         case end
-    }
-}
-
-// MARK: - SKELETONVIEW DATASOURCE
-extension ConversationTableViewDataSource: SkeletonTableViewDataSource
-{
-    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
-       return ReuseIdentifire.ConversationTableCell.messageSekeleton.identifire
     }
 }
 

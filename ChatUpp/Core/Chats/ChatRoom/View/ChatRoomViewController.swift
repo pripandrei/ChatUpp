@@ -78,6 +78,15 @@ final class ChatRoomViewController: UIViewController
         return rootView.tableView.indexPathsForVisibleRows?.contains(newestIndexPath) ?? false
     }
     
+    /// Randomized heights the skeleton cells display with while the chat room
+    /// waits for remote messages. `heightForRowAt` is re-queried by UIKit on
+    /// every layout pass during the opening sequence (frame / safe area /
+    /// input bar settling, inset changes), so drawing a fresh random value per
+    /// query visibly re-shuffles the skeleton cell sizes right after open -
+    /// one height is therefore fixed per row and reused until the skeleton
+    /// animation is terminated / re-initiated for the next room.
+    private var skeletonRowHeights: [Int: CGFloat] = [:]
+    
 
     lazy private var photoBrowser: SKPhotoBrowserManager = SKPhotoBrowserManager()
     
@@ -775,12 +784,12 @@ extension ChatRoomViewController
             - systemTopInset
         let contentHeight = tableView.contentSize.height
 
-        let flexibleInset = max(0, availableHeight - contentHeight)
+            let flexibleInset = max(0, availableHeight - contentHeight)
 
-        if tableView.contentInset.top != flexibleInset
-        {
-            tableView.contentInset.top = flexibleInset
-        }
+            if tableView.contentInset.top != flexibleInset
+            {
+                tableView.contentInset.top = flexibleInset
+            }
     }
 
     private func handleRowAndSectionInsertion(with indexPath: IndexPath,
@@ -1459,7 +1468,9 @@ extension ChatRoomViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView?
     {
-        guard !tableView.sk.isSkeletonActive,
+        /// while the skeleton placeholder rows are up, `messageClusters` is still
+        /// empty, so the header must not try to read a section date from it
+        guard viewModel.conversationInitializationStatus != .inProgress,
               let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? SectionDateHeaderView else { return nil }
         
         let dateForSection = viewModel.messageClusterRepository.messageClusters[section].date.formattedAsRelativeDayLabel()
@@ -1473,16 +1484,18 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int)
     {
-        guard !tableView.sk.isSkeletonActive else {
-            view.isHidden = true
-            return
-        }
+        view.isHidden = viewModel.conversationInitializationStatus == .inProgress
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
         if viewModel.conversationInitializationStatus == .inProgress {
-            return CGFloat((70...120).randomElement()!)
+            if let height = skeletonRowHeights[indexPath.row] {
+                return height
+            }
+            let height = CGFloat((70...120).randomElement()!)
+            skeletonRowHeights[indexPath.row] = height
+            return height
         }
         
         return  UITableView.automaticDimension
@@ -1490,6 +1503,17 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat
     {
+        /// While the skeleton runs the heights must be EXACT, not estimated:
+        /// on every reload UIKit lays cells out with the estimate first and
+        /// corrects to the real height right after, which is visible as the
+        /// rows briefly "resetting" their size. Since `heightForRowAt` draws
+        /// memoized values for skeleton rows, hand the same number to the
+        /// estimator (the 90 fallback is a reasonable guess for a row whose
+        /// height hasn't been drawn yet).
+        if viewModel.conversationInitializationStatus == .inProgress {
+            return skeletonRowHeights[indexPath.row] ?? 90
+        }
+
         /// With `estimatedRowHeight = .automatic` every off-screen self-sizing
         /// row is estimated at ~44pt until it is displayed. For sticker
         /// messages that estimate is far off (real height ~191pt), and in
@@ -2263,11 +2287,24 @@ extension ChatRoomViewController
     {
         switch state {
         case .initiated:
+            /// a fresh set of stable random heights for the coming skeleton rows
+            skeletonRowHeights.removeAll()
             rootView.tableView.estimatedRowHeight = 50 /// See FootNote.swift [17]
-            SkeletonAnimationAppearance.initiateSkeletonAnimation(for: rootView.tableView)
+            /// The skeleton rows are ordinary diffable items now (see
+            /// `ConversationDataSourceManager.setSkeletonDisplay`). SkeletonView's
+            /// data-source wrapper used to reload the whole table on every
+            /// trait-collection pass and re-dequeue reuse-pool cells into
+            /// different rows, which made the bars visibly "reset" their sizes.
+            dataSourceManager.setSkeletonDisplay(displayed: true)
+            /// the wrapper used to lock interaction while it owned the table
+            rootView.tableView.isScrollEnabled = false
+            rootView.tableView.isUserInteractionEnabled = false
         case .terminated:
             rootView.tableView.estimatedRowHeight = UITableView.automaticDimension /// See FootNote.swift [17]
-            SkeletonAnimationAppearance.stopSkeletonAnimation(for: rootView.tableView)
+            dataSourceManager.setSkeletonDisplay(displayed: false)
+            rootView.tableView.isScrollEnabled = true
+            rootView.tableView.isUserInteractionEnabled = true
+            skeletonRowHeights.removeAll()
         default: break
         }
     }
