@@ -775,6 +775,31 @@ extension ChatRoomViewController
     {
         let tableView = rootView.tableView
 
+        /// While the skeleton placeholder rows are up, the table is aligned
+        /// with the TOP of the visible area instead of being bottom-anchored:
+        /// the flexible space above short skeleton content reads as a dead gap
+        /// below the navigation bar, whereas a skeleton list starting at the
+        /// very top - intentionally bleeding under the navigation bar - reads
+        /// as "content is loading". Normal bottom-anchoring resumes with the
+        /// real messages (see `refreshTableView`).
+        if dataSourceManager.isSkeletonDisplayed
+        {
+            /// neutralize whatever the system (safe area / nav bar) contributes
+            /// on top so the adjusted top inset is 0 and row 0 sits at the
+            /// table frame's top edge
+            let systemTopInset = tableView.adjustedContentInset.top - tableView.contentInset.top
+            let collapsedInset = -systemTopInset
+
+            if tableView.contentInset.top != collapsedInset
+            {
+                tableView.contentInset.top = collapsedInset
+                /// re-anchor the scroll position to the new top edge, so the
+                /// cells land at the beginning without a stray blank strip
+                tableView.contentOffset.y = -tableView.adjustedContentInset.top
+            }
+            return
+        }
+
         /// what the system (safe area etc.) contributes on top; it must be
         /// restored untouched when the flexible space is not needed
         let systemTopInset = tableView.adjustedContentInset.top - tableView.contentInset.top
@@ -1478,7 +1503,11 @@ extension ChatRoomViewController: UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 50
+        /// while the skeleton placeholder rows are up the header is not
+        /// rendered (`viewForHeaderInSection` returns nil) - a non-zero height
+        /// would then show up as a blank strip between the navigation bar and
+        /// the first skeleton cell
+        return viewModel.conversationInitializationStatus == .inProgress ? 0 : 50
     }
     
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int)
@@ -2295,6 +2324,8 @@ extension ChatRoomViewController
             /// trait-collection pass and re-dequeue reuse-pool cells into
             /// different rows, which made the bars visibly "reset" their sizes.
             dataSourceManager.setSkeletonDisplay(displayed: true)
+            /// align the skeleton rows with the top of the visible area
+            updateTopContentInsetToAnchorContentAtBottom()
             /// the wrapper used to lock interaction while it owned the table
             rootView.tableView.isScrollEnabled = false
             rootView.tableView.isUserInteractionEnabled = false
