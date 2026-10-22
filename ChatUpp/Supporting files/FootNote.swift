@@ -130,13 +130,6 @@
 ///  each time the "updatedMessages" array is changed. That way, minimizing the initiation of message update processing
 ///
 
-//MARK: - [19]
-//
-/// Targeted Preview and cell dragging can both be initiated from tapping
-/// and simultaneously dragging the cell, this will result in two cells appear on screen for a fraction of a second, the one that is being dragged and the one that is presented
-/// by the targeted preview (snapshot). So we should hold Targeted Preview reference
-/// and then, if the drag was simultaniosly initiated, remove the Preview so that only one cell is always displayed
-
 //MARK: - [20]
 //
 /// The unseen counter should not update before message is fully ready to be displayed,

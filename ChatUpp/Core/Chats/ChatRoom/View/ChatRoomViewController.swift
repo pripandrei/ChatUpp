@@ -21,8 +21,9 @@ final class ChatRoomViewController: UIViewController
 {
     weak var coordinatorDelegate :Coordinator?
     
-    private var animatedPreviewViews: [UIView] = []
-    private var targetedPreview: UITargetedPreview?
+    /// Presents the custom long-press message menu (blur + flown bubble +
+    /// reaction panel + system-look menu card); see `MessageMenuPresenter`.
+    private var messageMenuPresenter: MessageMenuPresenter?
     
     private var pendingIndexPathForSeenStatusCheck: IndexPath?
     private var isNetworkPaginationRunning: Bool = false
@@ -43,7 +44,6 @@ final class ChatRoomViewController: UIViewController
     private var subscriptions = Set<AnyCancellable>()
     private lazy var alertPresenter: AlertPresenter = .init()
 
-    private var isContextMenuPresented: Bool = false
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScrollToUnseenIndexPathIfAny: Bool = true
     private var paginateOldMessagesOnInitialChatOpen: Bool = true
@@ -1456,13 +1456,16 @@ extension ChatRoomViewController
     {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTablePan))
         panGesture.delegate = self
-        
+
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleTableLongPress))
+
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissInputBarView))
-        
+
         tapGesture.delegate = self
         tapGesture.cancelsTouchesInView = false
-        
+
         rootView.tableView.addGestureRecognizer(panGesture)
+        rootView.tableView.addGestureRecognizer(longPressGesture)
         rootView.tableView.backgroundView?.addGestureRecognizer(tapGesture)
     }
 
@@ -1959,73 +1962,80 @@ extension ChatRoomViewController
 }
 
 
-//MARK: Context Menu configuration
+//MARK: - Message selection menu (custom long-press presentation)
 extension ChatRoomViewController
 {
-    func tableView(_ tableView: UITableView,
-                   contextMenuConfigurationForRowAt indexPath: IndexPath,
-                   point: CGPoint) -> UIContextMenuConfiguration?
+    @objc private func handleTableLongPress(_ gesture: UILongPressGestureRecognizer)
     {
-        guard viewModel.shouldHideJoinGroupOption,
-              let baseCell = tableView.cellForRow(at: indexPath) else { return nil }
-        let identifier = indexPath as NSCopying
-        
+        guard gesture.state == .began,
+              viewModel.shouldHideJoinGroupOption,
+              messageMenuPresenter == nil
+        else { return }
+
+        let table = rootView.tableView
+        let touchLocationInTable = gesture.location(in: table)
+        guard let indexPath = table.indexPathForRow(at: touchLocationInTable),
+              let cell = table.cellForRow(at: indexPath)
+        else { return }
+
         let menuBuilder = MessageMenuBuilder(
             viewModel: self.viewModel,
             rootView: self.rootView,
-            cell: baseCell
+            cell: cell
         )
-        { actionOption in
-            self.handleContextMenuSelectedAction(
+        { [weak self] actionOption in
+            self?.handleContextMenuSelectedAction(
                 actionOption: actionOption
             )
         }
-        
-        if let messageCell = baseCell as? TargetPreviewable,
+
+        var bubbleSourceView: UIView?
+        var optionGroups: [[MessageMenuOption]]?
+        var selectedMessage: Message?
+
+        if let messageCell = cell as? TargetPreviewable,
            let message = messageCell.cellViewModel.message
         {
-            let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
-            guard messageCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
-            
-            return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
-                return menuBuilder.buildUIMenuForMessage(message: message)
-            }
+            let tapLocationInCell = messageCell.contentView.convert(touchLocationInTable, from: table)
+            guard messageCell.contentContainer.frame.contains(tapLocationInCell) else { return }
+
+            optionGroups = menuBuilder.buildMenuOptionGroups(message: message)
+            selectedMessage = message
+            bubbleSourceView = messageCell.contentContainer
         }
-        else if let eventCell = baseCell as? MessageEventCell,
+        else if let eventCell = cell as? MessageEventCell,
                 let message = eventCell.cellViewModel.message
         {
-            let tapLocationInCell = eventCell.contentView.convert(point, from: tableView)
-            guard eventCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
-            
-            return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
-                return menuBuilder.buildUIMenuForEvent(message: message)
-            }
+            let tapLocationInCell = eventCell.contentView.convert(touchLocationInTable, from: table)
+            guard eventCell.contentContainer.frame.contains(tapLocationInCell) else { return }
+
+            optionGroups = menuBuilder.buildMenuOptionGroups(event: message)
+            selectedMessage = message
+            bubbleSourceView = eventCell.contentContainer
         }
-        return nil
-    }
-    
-    func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
-        return makeTargetedPreview(for: configuration)
+
+        guard let optionGroups,
+              let selectedMessage,
+              let bubbleSourceView
+        else { return }
+
+        self.messageMenuPresenter = MessageMenuPresenter(
+            rootView: self.rootView,
+            message: selectedMessage,
+            bubbleSourceView: bubbleSourceView,
+            optionGroups: optionGroups,
+            onReactionSelection: { [weak self] reactionEmoji in
+                self?.viewModel.updateReactionInDataBase(reactionEmoji, from: selectedMessage)
+            },
+            onFinished: { [weak self] in
+                self?.messageMenuPresenter = nil
+            }
+        )
+
+        triggerHapticFeedback(style: .medium)
+        messageMenuPresenter?.present()
     }
 
-    func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
-        executeAfter(seconds: 0.5) {
-            self.isContextMenuPresented = false
-        }
-        return makeTargetedDismissPreview(for: configuration)
-    }
-    
-    func tableView(_ tableView: UITableView,
-                   willDisplayContextMenu configuration: UIContextMenuConfiguration,
-                   animator: UIContextMenuInteractionAnimating?)
-    {
-        if rootView.inputBarBottomConstraint.constant != 0.0 {
-            isContextMenuPresented = true
-        }
-    }
-    
     private func handleContextMenuSelectedAction(
         actionOption: InputBarHeaderView.Mode
     )
@@ -2034,7 +2044,7 @@ extension ChatRoomViewController
         self.addGestureToCloseBtn()
         self.rootView.messageTextView.becomeFirstResponder()
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
-        
+
         if case .image(_) = actionOption,
            self.rootView.sendMessageButton.isHidden
         {
@@ -2049,9 +2059,6 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
 {
     @objc private func handleTablePan(_ gesture: UIPanGestureRecognizer)
     {
-        self.targetedPreview?.view.removeFromSuperview() //  See FootNote.swift [19]
-        self.targetedPreview = nil
-        
         let table = self.rootView.tableView
         let location = gesture.location(in: table)
         let translation = gesture.translation(in: table)
@@ -2108,212 +2115,6 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
         }
     }
 }
-
-//MARK: - Targeted Preview creation
-extension ChatRoomViewController
-{
-    func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
-        guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath),
-              let message: Message = getMessageFromCell(cell) else {
-            return nil
-        }
-
-        // Keep the original cell visible but make it transparent during preview
-        // This keeps animations running in the background
-        cell.alpha = 0.01 // Almost invisible but still rendering
-       
-        // Create a container that references the cell
-        let cellReference = TargetedPreviewContentView(contentView: cell.contentView)
-        cellReference.frame = cell.contentView.bounds
-        cellReference.layer.cornerRadius = 10
-        cellReference.layer.masksToBounds = true
-        
-        animatedPreviewViews.append(cellReference)
- 
-        var reactionPanelView = ReactionPanelView()
-        reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
-            self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-            self?.dismiss(animated: true)
-        }
-        
-        let reactionPanelUIView = UIHostingController(rootView: reactionPanelView).view!
-        reactionPanelUIView.backgroundColor = .clear
-        reactionPanelUIView.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Calculate heights
-        let cellHeight = cell.bounds.height
-        let reactionHeight: CGFloat = ReactionPanelView.panelHeight
-        let spacing: CGFloat = TargetedPreviewComponentsSize.spaceReactionHeight
-        let totalHeight = reactionHeight + spacing + cellHeight
-        
-        // Create container
-        let container = UIView(frame: CGRect(origin: .zero,
-                                             size: CGSize(width: cell.bounds.width, height: totalHeight)))
-        container.backgroundColor = .clear
-        
-        container.addSubview(reactionPanelUIView)
-        container.addSubview(cellReference)
-        
-        cellReference.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            reactionPanelUIView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
-            reactionPanelUIView.topAnchor.constraint(equalTo: container.topAnchor),
-            reactionPanelUIView.widthAnchor.constraint(equalToConstant: 306),
-            reactionPanelUIView.heightAnchor.constraint(equalToConstant: reactionHeight),
-            
-            cellReference.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            cellReference.topAnchor.constraint(equalTo: reactionPanelUIView.bottomAnchor, constant: spacing),
-            cellReference.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            cellReference.heightAnchor.constraint(equalToConstant: cellHeight),
-            cellReference.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-        ])
-        
-        let heightDifference = totalHeight - cellHeight
-        let adjustedCenterY = cell.center.y - (heightDifference / 2)
-        let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
-        
-        let previewTarget = UIPreviewTarget(container: rootView.tableView,
-                                          center: centerPoint,
-                                          transform: .identity)
-        
-        let parameters = UIPreviewParameters()
-        parameters.backgroundColor = .clear
-        parameters.shadowPath = UIBezierPath()
-        
-        let targetedPreview = UITargetedPreview(view: container,
-                               parameters: parameters,
-                               target: previewTarget)
-        /// lay the preview out synchronously before handing it to UIKit: the
-        /// menu machinery lifts it into its transient view in the same
-        /// transaction it is created, so auto-layout would otherwise resolve
-        /// the child positions a beat later, which flashes/jitters the
-        /// preview at the moment the menu appears
-        container.layoutIfNeeded()
-        
-        self.targetedPreview = targetedPreview // See FootNote.swift [19]
-        return targetedPreview
-    }
-
-    func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
-        guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) else {
-            return nil
-        }
-        
-        let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
-  
-        let previewsCount = self.animatedPreviewViews.count
-        guard previewsCount > 0 else { return nil }
-        /// the last created live preview belongs to the menu being dismissed
-        guard let livePreview = animatedPreviewViews[previewsCount - 1] as? TargetedPreviewContentView else
-        {
-            return nil
-        }
-        
-        /// the dismissal clones the live preview: re-parenting the original
-        /// snapshot out of the highlighted preview would leave that
-        /// container's cell area blank while the menu is still animating,
-        /// and the newly constrained container's frames only resolve during
-        /// the animation - which surfaces as the preview "jumping" from a
-        /// higher point before settling onto the cell's position
-        let stillImage = livePreview.renderedImage
-            ?? TargetedPreviewContentView.stillImage(from: cell.contentView)
-        
-        let containerHeight = TargetedPreviewComponentsSize.getSnapshotContainerHeight(livePreview)
-        
-        let container = UIView(frame: CGRect(origin: .zero,
-                                             size: CGSize(width: cell.bounds.width,
-                                                          height: containerHeight)))
-        
-        let stillFrame = UIView(frame: CGRect(origin: .zero,
-                                              size: CGSize(width: cell.bounds.width,
-                                                           height: maxSnapshotHeight)))
-        if let stillImage
-        {
-            let imageView = UIImageView(image: stillImage)
-            imageView.frame = stillFrame.bounds
-            imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            stillFrame.addSubview(imageView)
-        }
-        stillFrame.layer.cornerRadius = 10
-        stillFrame.layer.masksToBounds = true
-        
-        container.addSubview(stillFrame)
-        stillFrame.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            stillFrame.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            stillFrame.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            stillFrame.heightAnchor.constraint(equalToConstant: maxSnapshotHeight),
-            stillFrame.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-        ])
-        
-        let heightDifference = container.bounds.height - cell.bounds.height
-        let adjustedCenterY = cell.center.y - (heightDifference / 2)
-        
-        let centerPoint = CGPoint(x: cell.center.x, y: adjustedCenterY)
-        let previewTarget = UIPreviewTarget(container: rootView.tableView,
-                                           center: centerPoint,
-                                           transform: .identity)
-        
-        let parameters = UIPreviewParameters()
-        parameters.backgroundColor = .clear
-        parameters.shadowPath = UIBezierPath()
-        
-        let dismissPreview = UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
-        /// same reason as in `makeTargetedPreview`: never animate a container
-        /// whose constrained children have not been resolved yet
-        container.layoutIfNeeded()
-        return dismissPreview
-    }
-    
-    func tableView(_ tableView: UITableView,
-                   willEndContextMenuInteraction configuration: UIContextMenuConfiguration,
-                   animator: UIContextMenuInteractionAnimating?
-    )
-    {
-        animator?.addCompletion { [weak self] in
-            guard let self,
-                  let indexPath = configuration.identifier as? IndexPath,
-                  let cell = tableView.cellForRow(at: indexPath) else
-            {
-                return
-            }
-            
-            // Restore cell visibility after animation completes
-            cell.alpha = 1
-            
-            executeAfter(seconds: 1.0)
-            {
-                if let view = self.animatedPreviewViews.first as? TargetedPreviewContentView
-                {
-                    view.cleanup()
-                    self.animatedPreviewViews.first?.removeFromSuperview()
-                    self.animatedPreviewViews.remove(at: 0)
-                }
-            }
-        }
-    }
-
-    func getMessageFromCell(_ cell: UITableViewCell) -> Message?
-    {
-        if let messageCell = cell as? TargetPreviewable,
-            let cellMessage = messageCell.cellViewModel.message
-        {
-            return cellMessage
-        } else if let eventCell = cell as? MessageEventCell,
-                  let cellMessage = eventCell.cellViewModel.message {
-            return cellMessage
-        } else {
-            return nil
-        }
-    }
-}
-
 
 //MARK: - Gesture delegate
 extension ChatRoomViewController
