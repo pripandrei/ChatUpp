@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		75D0C4E10000000000000B06 /* PressFeedbackLongPressRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A06 /* PressFeedbackLongPressRecognizer.swift */; };
 		75D0C4E10000000000000B02 /* MessageMenuOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A02 /* MessageMenuOption.swift */; };
 		75D0C4E10000000000000B03 /* MessageMenuPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A03 /* MessageMenuPresenter.swift */; };
 		75D0C4E10000000000000B04 /* MessageMenuCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A04 /* MessageMenuCardView.swift */; };
@@ -242,6 +243,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		75D0C4E10000000000000A06 /* PressFeedbackLongPressRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressFeedbackLongPressRecognizer.swift; sourceTree = "<group>"; };
 		75D0C4E10000000000000A02 /* MessageMenuOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuOption.swift; sourceTree = "<group>"; };
 		75D0C4E10000000000000A03 /* MessageMenuPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuPresenter.swift; sourceTree = "<group>"; };
 		75D0C4E10000000000000A04 /* MessageMenuCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuCardView.swift; sourceTree = "<group>"; };
@@ -1840,6 +1842,7 @@
 		75D0C4E10000000000000A01 /* MessageMenu */ = {
 			isa = PBXGroup;
 			children = (
+				75D0C4E10000000000000A06 /* PressFeedbackLongPressRecognizer.swift */,
 				75D0C4E10000000000000A02 /* MessageMenuOption.swift */,
 				75D0C4E10000000000000A03 /* MessageMenuPresenter.swift */,
 				75D0C4E10000000000000A04 /* MessageMenuCardView.swift */,
@@ -2067,6 +2070,7 @@
 				75D0C4E10000000000000B03 /* MessageMenuPresenter.swift in Sources */,
 				75D0C4E10000000000000B04 /* MessageMenuCardView.swift in Sources */,
 				75D0C4E10000000000000B05 /* MenuRowView.swift in Sources */,
+				75D0C4E10000000000000B06 /* PressFeedbackLongPressRecognizer.swift in Sources */,
 				75AD5EB02E7B05ED0075377B /* MessageTextViewTrailingItem.swift in Sources */,
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
 				752706522DAA6DEF002128DF /* TargetPreviewable.swift in Sources */,

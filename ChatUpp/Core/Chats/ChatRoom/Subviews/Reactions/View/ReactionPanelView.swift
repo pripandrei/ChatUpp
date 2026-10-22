@@ -25,7 +25,7 @@ struct ReactionPanelView: View
                 })
                 .frame(width: showReactionsBackground ? 312 : 0, height: Self.panelHeight)
                 .animation(
-                    .interpolatingSpring(stiffness: 170, damping: 14).delay(0.2),
+                    .interpolatingSpring(stiffness: 170, damping: 14).delay(0.08),
                     value: showReactionsBackground
                 )
             
@@ -54,7 +54,7 @@ struct ReactionPanelView: View
         }
         .onAppear {
             Task {
-                try? await Task.sleep(for: .seconds(0.33))
+                try? await Task.sleep(for: .seconds(0.15))
                 activateReactionView()
                 guard !reactionsAreLoaded else {return}
                 reactionsAreLoaded = true

@@ -13,15 +13,19 @@ import SwiftUI
 ///
 /// 1. the room is covered by a dark blur,
 /// 2. the tapped message bubble is captured as an image and flown to the
-///    vertical center of the visible area (0.5s, keeping its horizontal slot),
+///    vertical center of the visible area (0.1s, keeping its horizontal slot),
 /// 3. the reaction panel appears above the flown bubble (its own internal
 ///    entrance animation is kept untouched),
-/// 4. the system-look menu card "hops up" below the flown bubble.
+/// 4. the vertical menu card "hops up" below the flown bubble. The native
+///    `UIEditMenuInteraction` pill was tried and rejected: it always renders
+///    horizontally, text-only (that is its fixed edit-menu design).
 ///
 /// The overlay lives inside `rootView`, so the keyboard / sticker collection
 /// (separate windows) are never affected. Tapping the blurred background or
 /// running any menu row / reaction dismisses everything.
-final class MessageMenuPresenter
+///
+/// Inherits `NSObject` because `UIGestureRecognizerDelegate` requires it.
+final class MessageMenuPresenter: NSObject
 {
     private enum Metrics
     {
@@ -32,7 +36,10 @@ final class MessageMenuPresenter
         static let menuGap: CGFloat = 8.0
         static let screenEdgeInset: CGFloat = 8.0
         /// Flight / blur fade duration in both directions.
-        static let flightDuration: TimeInterval = 0.5
+        static let flightDuration: TimeInterval = 0.1
+        /// Clearance kept below the navigation bar when a bottom-half message
+        /// has to be nudged out from under it.
+        static let navBarClearance: CGFloat = 10.0
     }
 
     private let rootView: ChatRoomRootView
@@ -50,6 +57,9 @@ final class MessageMenuPresenter
     private var reactionPanelHostView: UIView?
 
     private var isPresented = false
+    /// Guards `dismiss()` against re-entry from different dismissal paths
+    /// (backdrop tap, row tap, reaction selection) firing close together.
+    private var isDismissalRunning = false
 
     private var bubbleOriginFrame: CGRect = .zero
     private var bubbleLandedFrame: CGRect = .zero
@@ -81,32 +91,49 @@ final class MessageMenuPresenter
     func present()
     {
         guard !isPresented else { return }
+
+        /// The source bubble may be mid press-in shrink (touch-down feedback).
+        /// Capture at full size by resetting the transform around the
+        /// synchronous capture, then restore the shrunk state; the copy then
+        /// enters at the shrunk scale and expands during the flight, so the
+        /// press visually morphs into the preview continuously.
+        let pressedTransform = bubbleSourceView.transform
+        bubbleSourceView.transform = .identity
         guard let bubbleImage = captureBubbleImage() else
         {
+            bubbleSourceView.transform = pressedTransform
             onFinished()
             return
         }
+        bubbleSourceView.transform = pressedTransform
         isPresented = true
+
+        /// The copy takes over the message visually - it sits pixel-for-pixel
+        /// on top of the source at capture time - so the original goes dark
+        /// for the whole session, leaving its table slot empty, and only
+        /// reappears with the dismissal landing (where the copy lands exactly
+        /// on its slot first, so the crossfade is invisible).
+        bubbleSourceView.alpha = 0
 
         bubbleOriginFrame = rootView.convert(bubbleSourceView.bounds,
                                              from: bubbleSourceView)
         computeLandedFrames()
-        buildOverlayView(with: bubbleImage)
+        buildOverlayView(with: bubbleImage, initialTransform: pressedTransform)
         animatePresentation()
     }
 
     func dismiss(completion: (() -> Void)? = nil)
     {
-        guard isPresented else
+        guard isPresented, !isDismissalRunning else
         {
-            completion?()
             return
         }
         isPresented = false
+        isDismissalRunning = true
 
         /// The menu and the panel tuck away quickly while the bubble is
         /// still flying back home through the dissolving blur.
-        UIView.animate(withDuration: 0.25,
+        UIView.animate(withDuration: 0.15,
                        delay: 0,
                        options: [.curveEaseIn, .beginFromCurrentState])
         {
@@ -119,11 +146,22 @@ final class MessageMenuPresenter
                        delay: 0,
                        options: [.curveEaseInOut, .beginFromCurrentState],
                        animations: {
+            self.bubblePreviewView?.frame = self.bubbleOriginFrame
+        }, completion: nil)
+
+        /// the blur outlasts the flight by a beat so the bubble is never
+        /// left without a backdrop mid-exit
+        UIView.animate(withDuration: 0.2,
+                       delay: 0,
+                       options: [.curveEaseInOut, .beginFromCurrentState],
+                       animations: {
             self.blurView?.effect = nil
             self.dimmingView?.alpha = 0
-            self.bubblePreviewView?.frame = self.bubbleOriginFrame
         }, completion: { _ in
             guard let overlay = self.overlayView else { return }
+            /// the copy has landed on the source's slot - the original can
+            /// reappear underneath without any visible crossfade
+            self.bubbleSourceView.alpha = 1
             overlay.removeFromSuperview()
             self.disposeOverlay()
             self.onFinished()
@@ -133,33 +171,55 @@ final class MessageMenuPresenter
 
     // MARK: - Layout resolution
 
-    /// Positions the landed bubble in the vertical middle of the area that is
-    /// visually clear of the navigation bar and the input bar, then clamps it
-    /// so the reaction panel (above) and the menu (below) both fit. The bubble
-    /// keeps its original horizontal slot.
+    /// Positions the landed bubble. A message whose center sits at or above
+    /// the screen's vertical middle stays exactly where it is (only pulled a
+    /// few points down if the navigation bar covers it), while a message in
+    /// the lower half flies up to the middle of the band clear of the
+    /// navigation bar and the input bar, clamped so the reaction panel (above)
+    /// and the menu (below) both fit. The bubble keeps its horizontal slot.
     private func computeLandedFrames()
     {
-        let safeTop = rootView.safeAreaInsets.top
-        let inputBarTop = max(rootView.inputBarContainer.frame.minY,
-                              rootView.bounds.midY * 0.3)
+        let navBottom = rootView.safeAreaInsets.top
+        let screenCenterY = rootView.bounds.midY
+        let currentCenterY = bubbleOriginFrame.midY
+
+        var landedCenterY = currentCenterY
+
+        if currentCenterY > screenCenterY
+        {
+            /// message sits in the lower half: fly up to the band's middle
+            let inputBarTop = max(rootView.inputBarContainer.frame.minY,
+                                  rootView.bounds.midY * 0.3)
+            let bandTop = navBottom + Metrics.screenEdgeInset
+            let bandBottom = inputBarTop - Metrics.screenEdgeInset
+
+            let panelSize = CGSize(width: 306, height: ReactionPanelView.panelHeight)
+            let menuSize = MessageMenuCardView.preferredSize(for: optionGroups)
+
+            let minBubbleCenterY = bandTop + panelSize.height + Metrics.panelSpacing
+                + bubbleOriginFrame.height / 2
+            let maxBubbleCenterY = bandBottom - menuSize.height
+                - Metrics.menuGap - bubbleOriginFrame.height / 2
+            let preferredCenterY = bandTop + (bandBottom - bandTop) / 2
+
+            if minBubbleCenterY <= maxBubbleCenterY
+            {
+                landedCenterY = min(max(preferredCenterY, minBubbleCenterY), maxBubbleCenterY)
+            }
+        }
+        else
+        {
+            /// at or above the middle: hold position; shift down only the
+            /// minimum needed if the navigation bar covers (part of) the bubble
+            let uncoveredTop = navBottom + Metrics.navBarClearance
+            if bubbleOriginFrame.minY < uncoveredTop
+            {
+                landedCenterY = uncoveredTop + bubbleOriginFrame.height / 2
+            }
+        }
 
         let panelSize = CGSize(width: 306, height: ReactionPanelView.panelHeight)
         let menuSize = MessageMenuCardView.preferredSize(for: optionGroups)
-
-        let bandTop = safeTop + Metrics.screenEdgeInset
-        let bandBottom = inputBarTop - Metrics.screenEdgeInset
-
-        let minBubbleCenterY = bandTop + panelSize.height + Metrics.panelSpacing
-            + bubbleOriginFrame.height / 2
-        let maxBubbleCenterY = bandBottom - menuSize.height - Metrics.menuGap
-            - bubbleOriginFrame.height / 2
-        let preferredCenterY = bandTop + (bandBottom - bandTop) / 2
-
-        var landedCenterY = preferredCenterY
-        if minBubbleCenterY <= maxBubbleCenterY
-        {
-            landedCenterY = min(max(preferredCenterY, minBubbleCenterY), maxBubbleCenterY)
-        }
 
         bubbleLandedFrame = CGRect(
             x: bubbleOriginFrame.minX,
@@ -186,9 +246,18 @@ final class MessageMenuPresenter
 
     // MARK: - Overlay construction
 
-    private func buildOverlayView(with bubbleImage: UIImage)
+    private func buildOverlayView(with bubbleImage: UIImage, initialTransform: CGAffineTransform)
     {
-        let overlay = UIView(frame: rootView.bounds)
+        /// The overlay must sit ABOVE the navigation bar, which lives in the
+        /// navigation controller's own hierarchy outside `rootView` - an
+        /// overlay inside `rootView` could never cover it. Hosting the blur
+        /// in the window covers the entire screen (navigation bar, status
+        /// bar, input bar); the keyboard / sticker collection are separate
+        /// windows and stay untouched. The content container preserves
+        /// `rootView`'s coordinate space, so every landed frame and the
+        /// position math keep working unchanged.
+        let host = rootView.window ?? rootView
+        let overlay = UIView(frame: host.bounds)
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
         let dimming = UIView(frame: overlay.bounds)
@@ -202,10 +271,15 @@ final class MessageMenuPresenter
         blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         overlay.addSubview(blur)
 
+        let contentContainer = UIView(frame: rootView.convert(rootView.bounds, to: host))
+        contentContainer.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.addSubview(contentContainer)
+
         let bubblePreview = UIImageView(image: bubbleImage)
         bubblePreview.frame = bubbleOriginFrame
+        bubblePreview.transform = initialTransform
         bubblePreview.contentMode = .scaleToFill
-        overlay.addSubview(bubblePreview)
+        contentContainer.addSubview(bubblePreview)
 
         var reactionPanelView = ReactionPanelView()
         reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
@@ -216,7 +290,7 @@ final class MessageMenuPresenter
         let reactionPanelHost = UIHostingController(rootView: reactionPanelView).view!
         reactionPanelHost.backgroundColor = .clear
         reactionPanelHost.frame = panelLandedFrame
-        overlay.addSubview(reactionPanelHost)
+        contentContainer.addSubview(reactionPanelHost)
 
         let menuCard = MessageMenuCardView(frame: menuLandedFrame, optionGroups: optionGroups)
         anchorLayerToTopCenter(menuCard)
@@ -225,10 +299,11 @@ final class MessageMenuPresenter
         menuCard.onSelectionHandled = { [weak self] in
             self?.dismiss()
         }
-        overlay.addSubview(menuCard)
+        contentContainer.addSubview(menuCard)
 
         let tapGesture = UITapGestureRecognizer(target: self,
                                                 action: #selector(handleOverlayTap))
+        tapGesture.delegate = self
         overlay.addGestureRecognizer(tapGesture)
 
         overlayView = overlay
@@ -238,7 +313,7 @@ final class MessageMenuPresenter
         reactionPanelHostView = reactionPanelHost
         menuCardView = menuCard
 
-        rootView.addSubview(overlay)
+        host.addSubview(overlay)
     }
 
     private func disposeOverlay()
@@ -255,9 +330,6 @@ final class MessageMenuPresenter
 
     private func animatePresentation()
     {
-        /// The bubble copy starts pixel-identically on top of the original,
-        /// so fading the blur in and flying the copy away never leaves a
-        /// message-less gap at any point.
         UIView.animate(withDuration: Metrics.flightDuration,
                        delay: 0,
                        options: [.curveEaseInOut, .beginFromCurrentState])
@@ -267,13 +339,37 @@ final class MessageMenuPresenter
             self.bubblePreviewView?.frame = self.bubbleLandedFrame
         }
 
+        /// The copy expands from its press-in shrunk scale back to the full
+        /// original size with an elastic spring, independent from (and longer
+        /// than) the quick positional flight.
+        UIView.animate(withDuration: 0.3,
+                       delay: 0,
+                       usingSpringWithDamping: 0.65,
+                       initialSpringVelocity: 0.3,
+                       options: [.beginFromCurrentState])
+        {
+            self.bubblePreviewView?.transform = .identity
+        }
+
+        /// The real bubble underneath springs back from its press-in shrink
+        /// to full size as well (hidden during the session, the geometry
+        /// stays consistent for the dismissal landing).
+        UIView.animate(withDuration: 0.35,
+                       delay: 0,
+                       usingSpringWithDamping: 0.6,
+                       initialSpringVelocity: 0.3,
+                       options: [.beginFromCurrentState])
+        {
+            self.bubbleSourceView.transform = .identity
+        }
+
         /// The menu card "hops up" from the bottom of the flown bubble:
         /// its anchor point sits at the card's top edge, so scaling it up
         /// unfolds it downward out of the attachment point.
-        UIView.animate(withDuration: 0.55,
-                       delay: 0.18,
-                       usingSpringWithDamping: 0.72,
-                       initialSpringVelocity: 0.5,
+        UIView.animate(withDuration: 0.4,
+                       delay: 0.08,
+                       usingSpringWithDamping: 0.75,
+                       initialSpringVelocity: 0.6,
                        options: [.beginFromCurrentState])
         {
             self.menuCardView?.transform = .identity
@@ -316,7 +412,24 @@ final class MessageMenuPresenter
 
         return UIGraphicsImageRenderer(bounds: sourceView.bounds, format: format).image
         { _ in
-            sourceView.drawHierarchy(in: sourceView.bounds, afterScreenUpdates: false)
+            sourceView.drawHierarchy(in: sourceView.bounds, afterScreenUpdates: true)
         }
+    }
+}
+
+// MARK: - Backdrop tap delegate
+
+extension MessageMenuPresenter: UIGestureRecognizerDelegate
+{
+    /// Taps landing on the menu card belong to the card's drag-select
+    /// tracker (press a row, slide, lift to select); the backdrop
+    /// dismiss-tap must therefore not receive touches inside the card.
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldReceive touch: UITouch
+    ) -> Bool
+    {
+        guard let menuCard = menuCardView, let overlay = overlayView else { return true }
+        return !menuCard.frame.contains(touch.location(in: overlay))
     }
 }

@@ -7,10 +7,15 @@
 
 import UIKit
 
-/// One tappable row inside `MessageMenuCardView`, laid out like the system
-/// context menu rows: title on the leading side, symbol on the trailing side,
-/// a translucent highlight while pressed.
-final class MenuRowView: UIControl
+/// One visual row inside `MessageMenuCardView`: a leading symbol + title,
+/// with a translucent highlight while press-selected.
+///
+/// It is intentionally a plain view, not a control: selection is gesture
+/// driven at the card level (the finger may slide across rows while pressed,
+/// like a system context menu), and `MessageMenuCardView` keeps the
+/// selection tracker's touches flowing into the glass hierarchy so Liquid
+/// Glass keeps its interactive behavior underneath the rows.
+final class MenuRowView: UIView
 {
     /// Called after the option's action ran; the card forwards it to the
     /// presenter so the overlay gets dismissed.
@@ -41,27 +46,26 @@ final class MenuRowView: UIControl
 
         let iconView = UIImageView(image: option.image?.withConfiguration(
             UIImage.SymbolConfiguration(pointSize: 17, weight: .medium)))
-        iconView.tintColor = option.isDestructive ? .systemRed : .secondaryLabel
+        iconView.tintColor = option.isDestructive ? .systemRed : .white
         iconView.contentMode = .scaleAspectFit
         iconView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(iconView)
 
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-
-            iconView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -14),
+            iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
             iconView.widthAnchor.constraint(equalToConstant: 24),
             iconView.heightAnchor.constraint(equalToConstant: 24),
+
+            titleLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 14),
+            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -22),
 
             highlightOverlay.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
             highlightOverlay.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
             highlightOverlay.topAnchor.constraint(equalTo: topAnchor, constant: 1),
             highlightOverlay.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
         ])
-
-        addTarget(self, action: #selector(rowTapped), for: .touchUpInside)
     }
 
     required init?(coder: NSCoder)
@@ -69,18 +73,17 @@ final class MenuRowView: UIControl
         fatalError("init(coder:) has not been implemented")
     }
 
-    override var isHighlighted: Bool
+    /// Drives the highlight from the card's selection tracker.
+    func setPressed(_ pressed: Bool)
     {
-        didSet
+        UIView.animate(withDuration: 0.12)
         {
-            UIView.animate(withDuration: 0.12)
-            {
-                self.highlightOverlay.alpha = self.isHighlighted ? 0.1 : 0
-            }
+            self.highlightOverlay.alpha = pressed ? 0.1 : 0
         }
     }
 
-    @objc private func rowTapped()
+    /// Runs the option's side effect and notifies the card.
+    func performSelection()
     {
         option.action()
         onRowTapped?()

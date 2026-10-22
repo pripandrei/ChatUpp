@@ -24,6 +24,10 @@ final class ChatRoomViewController: UIViewController
     /// Presents the custom long-press message menu (blur + flown bubble +
     /// reaction panel + system-look menu card); see `MessageMenuPresenter`.
     private var messageMenuPresenter: MessageMenuPresenter?
+    /// The bubble currently shrunk by the press-in feedback; restored on any
+    /// non-began long-press state, or handed over to the presenter when the
+    /// preview begins.
+    private weak var pressedBubbleContainer: UIView?
     
     private var pendingIndexPathForSeenStatusCheck: IndexPath?
     private var isNetworkPaginationRunning: Bool = false
@@ -1457,7 +1461,12 @@ extension ChatRoomViewController
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTablePan))
         panGesture.delegate = self
 
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleTableLongPress))
+        let longPressGesture = PressFeedbackLongPressRecognizer(
+            target: self, action: #selector(handleTableLongPress))
+        longPressGesture.onTouchDown = { [weak self, weak gesture = longPressGesture] in
+            guard let self, let gesture else { return }
+            self.handlePressDown(at: gesture.location(in: self.rootView.tableView))
+        }
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissInputBarView))
 
@@ -1965,18 +1974,103 @@ extension ChatRoomViewController
 //MARK: - Message selection menu (custom long-press presentation)
 extension ChatRoomViewController
 {
+    /// Telegram-like press imitation: the long press gesture reports the
+    /// touch-down through `PressFeedbackLongPressRecognizer`.
+    private struct PressedMessageSource
+    {
+        let bubbleSourceView: UIView
+        let optionGroups: [[MessageMenuOption]]
+        let message: Message
+    }
+
     @objc private func handleTableLongPress(_ gesture: UILongPressGestureRecognizer)
     {
-        guard gesture.state == .began,
-              viewModel.shouldHideJoinGroupOption,
-              messageMenuPresenter == nil
+        switch gesture.state
+        {
+        case .began:
+            presentMessageMenu(at: gesture.location(in: rootView.tableView))
+        case .ended, .cancelled, .failed:
+            restorePressedCell()
+        default:
+            break
+        }
+    }
+
+    /// Called the moment fingers land (before the hold threshold): starts the
+    /// press-in shrink of the bubble under the finger.
+    private func handlePressDown(at locationInTable: CGPoint)
+    {
+        guard viewModel.shouldHideJoinGroupOption,
+              messageMenuPresenter == nil,
+              let source = resolveMenuSource(at: locationInTable)
         else { return }
 
+        pressedBubbleContainer = source.bubbleSourceView
+        UIView.animate(withDuration: 0.5,
+                       delay: 0,
+                       usingSpringWithDamping: 0.65,
+                       initialSpringVelocity: 0.2,
+                       options: [.beginFromCurrentState])
+        {
+            source.bubbleSourceView.transform = CGAffineTransform(scaleX: 0.92, y: 0.92)
+        }
+    }
+
+    /// Springs the pressed bubble back to full size when the press resolves
+    /// without a menu (moved finger, early release, drag took over). Returns
+    /// from wherever the shrink currently stands.
+    private func restorePressedCell()
+    {
+        guard let container = pressedBubbleContainer else { return }
+        pressedBubbleContainer = nil
+        UIView.animate(withDuration: 0.6,
+                       delay: 0,
+                       usingSpringWithDamping: 0.7,
+                       initialSpringVelocity: 0.3,
+                       options: [.beginFromCurrentState])
+        {
+            container.transform = .identity
+        }
+    }
+
+    private func presentMessageMenu(at locationInTable: CGPoint)
+    {
+        guard viewModel.shouldHideJoinGroupOption,
+              messageMenuPresenter == nil,
+              let source = resolveMenuSource(at: locationInTable)
+        else
+        {
+            restorePressedCell()
+            return
+        }
+
+        /// the presenter takes over the pressed bubble's restore
+        pressedBubbleContainer = nil
+        self.messageMenuPresenter = MessageMenuPresenter(
+            rootView: self.rootView,
+            message: source.message,
+            bubbleSourceView: source.bubbleSourceView,
+            optionGroups: source.optionGroups,
+            onReactionSelection: { [weak self] reactionEmoji in
+                self?.viewModel.updateReactionInDataBase(reactionEmoji, from: source.message)
+            },
+            onFinished: { [weak self] in
+                self?.messageMenuPresenter = nil
+            }
+        )
+
+        triggerHapticFeedback(style: .medium)
+        messageMenuPresenter?.present()
+    }
+
+    private func resolveMenuSource(
+        at locationInTable: CGPoint
+    ) -> PressedMessageSource?
+    {
         let table = rootView.tableView
-        let touchLocationInTable = gesture.location(in: table)
-        guard let indexPath = table.indexPathForRow(at: touchLocationInTable),
+        guard let indexPath = table.indexPathForRow(at: locationInTable),
               let cell = table.cellForRow(at: indexPath)
-        else { return }
+        else { return nil }
 
         let menuBuilder = MessageMenuBuilder(
             viewModel: self.viewModel,
@@ -1989,51 +2083,29 @@ extension ChatRoomViewController
             )
         }
 
-        var bubbleSourceView: UIView?
-        var optionGroups: [[MessageMenuOption]]?
-        var selectedMessage: Message?
-
         if let messageCell = cell as? TargetPreviewable,
            let message = messageCell.cellViewModel.message
         {
-            let tapLocationInCell = messageCell.contentView.convert(touchLocationInTable, from: table)
-            guard messageCell.contentContainer.frame.contains(tapLocationInCell) else { return }
+            let tapLocationInCell = messageCell.contentView.convert(locationInTable, from: table)
+            guard messageCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
 
-            optionGroups = menuBuilder.buildMenuOptionGroups(message: message)
-            selectedMessage = message
-            bubbleSourceView = messageCell.contentContainer
+            return PressedMessageSource(
+                bubbleSourceView: messageCell.contentContainer,
+                optionGroups: menuBuilder.buildMenuOptionGroups(message: message),
+                message: message)
         }
         else if let eventCell = cell as? MessageEventCell,
                 let message = eventCell.cellViewModel.message
         {
-            let tapLocationInCell = eventCell.contentView.convert(touchLocationInTable, from: table)
-            guard eventCell.contentContainer.frame.contains(tapLocationInCell) else { return }
+            let tapLocationInCell = eventCell.contentView.convert(locationInTable, from: table)
+            guard eventCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
 
-            optionGroups = menuBuilder.buildMenuOptionGroups(event: message)
-            selectedMessage = message
-            bubbleSourceView = eventCell.contentContainer
+            return PressedMessageSource(
+                bubbleSourceView: eventCell.contentContainer,
+                optionGroups: menuBuilder.buildMenuOptionGroups(event: message),
+                message: message)
         }
-
-        guard let optionGroups,
-              let selectedMessage,
-              let bubbleSourceView
-        else { return }
-
-        self.messageMenuPresenter = MessageMenuPresenter(
-            rootView: self.rootView,
-            message: selectedMessage,
-            bubbleSourceView: bubbleSourceView,
-            optionGroups: optionGroups,
-            onReactionSelection: { [weak self] reactionEmoji in
-                self?.viewModel.updateReactionInDataBase(reactionEmoji, from: selectedMessage)
-            },
-            onFinished: { [weak self] in
-                self?.messageMenuPresenter = nil
-            }
-        )
-
-        triggerHapticFeedback(style: .medium)
-        messageMenuPresenter?.present()
+        return nil
     }
 
     private func handleContextMenuSelectedAction(
