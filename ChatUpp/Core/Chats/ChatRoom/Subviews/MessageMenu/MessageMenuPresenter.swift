@@ -31,9 +31,8 @@ final class MessageMenuPresenter: NSObject
     {
         /// Reaction panel geometry, mirrored from the old targeted preview.
         static let panelSpacing: CGFloat = 14.0
-        static let panelLeadingInset: CGFloat = 10.0
         /// Gap between the landed bubble and the menu card.
-        static let menuGap: CGFloat = 8.0
+        static let menuGap: CGFloat = 12.0
         static let screenEdgeInset: CGFloat = 8.0
         /// Flight / blur fade duration in both directions.
         static let flightDuration: TimeInterval = 0.1
@@ -227,15 +226,24 @@ final class MessageMenuPresenter: NSObject
             width: bubbleOriginFrame.width,
             height: bubbleOriginFrame.height)
 
+        /// The reaction panel's trailing edge mirrors the menu card's
+        /// anchoring: it aligns with the message's trailing edge, clamped so
+        /// it never exits the safe screen bounds.
+        let panelX = max(Metrics.screenEdgeInset,
+                         min(bubbleLandedFrame.maxX - panelSize.width,
+                             rootView.bounds.width - panelSize.width - Metrics.screenEdgeInset))
+
         panelLandedFrame = CGRect(
-            x: Metrics.panelLeadingInset,
+            x: panelX,
             y: bubbleLandedFrame.minY - Metrics.panelSpacing - panelSize.height,
             width: panelSize.width,
             height: panelSize.height)
 
-        let centerX = rootView.bounds.width / 2
+        /// The card's trailing edge anchors to the message's trailing edge
+        /// (Telegram-style), only clamped so it never exits the safe screen
+        /// bounds (incoming bubbles may leave no room to the right).
         let menuX = max(Metrics.screenEdgeInset,
-                        min(centerX - menuSize.width / 2,
+                        min(bubbleLandedFrame.maxX - menuSize.width,
                             rootView.bounds.width - menuSize.width - Metrics.screenEdgeInset))
         menuLandedFrame = CGRect(
             x: menuX,

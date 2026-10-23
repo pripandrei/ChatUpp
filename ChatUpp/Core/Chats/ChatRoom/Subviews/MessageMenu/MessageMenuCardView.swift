@@ -90,7 +90,6 @@ final class MessageMenuCardView: UIView
             }
         }
 
-        // 20pt leading icon inset + 24pt icon slot + gap + trailing inset
         // 26pt leading icon inset + 24pt icon slot + gap + trailing inset
         let contentWidth = 26.0 + 24.0 + 14.0 + maxTitleWidth + 28.0
         let width = min(320.0, max(Self.minimalWidth, contentWidth))
