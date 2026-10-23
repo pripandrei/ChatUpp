@@ -21,8 +21,10 @@ final class MessageMenuCardView: UIView
     static let rowHeight: CGFloat = 48.0
     static let cornerRadius: CGFloat = 26.0
     private static let separatorHeight: CGFloat = 0.5
+    /// Space above the first and below the last row inside the card.
+    private static let verticalPadding: CGFloat = 12.0
     /// min / max card width the title measurement can land between
-    static let minimalWidth: CGFloat = 260.0
+    static let minimalWidth: CGFloat = 272.0
 
     /// Invoked every time one of the rows completes its action; the
     /// presenter uses it to dismiss the overlay.
@@ -73,7 +75,7 @@ final class MessageMenuCardView: UIView
     /// and the separators between groups.
     static func preferredSize(for optionGroups: [[MessageMenuOption]]) -> CGSize
     {
-        let font = UIFont.systemFont(ofSize: 17)
+        let font = UIFont.systemFont(ofSize: 18)
 
         var rowCount = 0
         var maxTitleWidth: CGFloat = 0
@@ -89,10 +91,12 @@ final class MessageMenuCardView: UIView
         }
 
         // 20pt leading icon inset + 24pt icon slot + gap + trailing inset
-        let contentWidth = 20.0 + 24.0 + 14.0 + maxTitleWidth + 22.0
+        // 26pt leading icon inset + 24pt icon slot + gap + trailing inset
+        let contentWidth = 26.0 + 24.0 + 14.0 + maxTitleWidth + 28.0
         let width = min(320.0, max(Self.minimalWidth, contentWidth))
         let height = CGFloat(rowCount) * rowHeight
             + CGFloat(max(optionGroups.count - 1, 0)) * separatorHeight
+            + 2 * Self.verticalPadding
         return CGSize(width: width, height: height)
     }
 
@@ -184,8 +188,10 @@ final class MessageMenuCardView: UIView
 
             rowsStack.leadingAnchor.constraint(equalTo: effectView.contentView.leadingAnchor),
             rowsStack.trailingAnchor.constraint(equalTo: effectView.contentView.trailingAnchor),
-            rowsStack.topAnchor.constraint(equalTo: effectView.contentView.topAnchor),
-            rowsStack.bottomAnchor.constraint(equalTo: effectView.contentView.bottomAnchor),
+            rowsStack.topAnchor.constraint(equalTo: effectView.contentView.topAnchor,
+                                           constant: Self.verticalPadding),
+            rowsStack.bottomAnchor.constraint(equalTo: effectView.contentView.bottomAnchor,
+                                              constant: -Self.verticalPadding),
         ])
 
         for (groupIndex, group) in optionGroups.enumerated()
