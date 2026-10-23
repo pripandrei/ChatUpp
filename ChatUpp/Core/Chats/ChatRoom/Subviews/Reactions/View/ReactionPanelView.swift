@@ -14,7 +14,9 @@ struct ReactionPanelView: View
     
     var body: some View
     {
-        ZStack(alignment: .leading)
+        /// .trailing: the rounded background grows anchored at its right edge,
+        /// so the panel reveals from right to left.
+        ZStack(alignment: .trailing)
         {
             RoundedRectangle(cornerRadius: 28)
                 .fill(Color(#colorLiteral(red: 0.2106938958, green: 0.1273534, blue: 0.2237152457, alpha: 0.7475769501)))
