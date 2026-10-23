@@ -187,11 +187,16 @@ final class MessageMenuPresenter: NSObject
             self.reactionPanelHostView?.alpha = 0
         }
 
+        /// Fly-back is center-only for the same reason as the presentation
+        /// flight: mutating `frame` while any transform is active rewrites
+        /// the copy's bounds, reintroducing the size change this dismissal
+        /// must never have.
         UIView.animate(withDuration: Metrics.flightDuration,
                        delay: 0,
                        options: [.curveEaseInOut, .beginFromCurrentState],
                        animations: {
-            self.bubblePreviewView?.frame = self.bubbleOriginFrame
+            self.bubblePreviewView?.center = CGPoint(x: self.bubbleOriginFrame.midX,
+                                                     y: self.bubbleOriginFrame.midY)
         }, completion: nil)
         /// the blur outlasts the flight by a beat so the bubble is never
         /// left without a backdrop mid-exit
@@ -393,7 +398,15 @@ final class MessageMenuPresenter: NSObject
         {
             self.blurView?.effect = UIBlurEffect(style: .systemUltraThinMaterialDark)
             self.dimmingView?.alpha = 0.25
-            self.bubblePreviewView?.frame = self.bubbleLandedFrame
+            /// The flight moves CENTER only. Setting `frame` on a view that
+            /// still carries the pressed transform makes UIKit divide the
+            /// requested size by the active scale (301 -> 327 points), which
+            /// inflated the copy's bounds to ~+8.7% and left the preview
+            /// message permanently bigger than the original. The size lives
+            /// in bounds (set once at build time from the true origin size)
+            /// and is never changed again.
+            self.bubblePreviewView?.center = CGPoint(x: self.bubbleLandedFrame.midX,
+                                                     y: self.bubbleLandedFrame.midY)
         }
 
         /// The copy expands from its press-in shrunk scale back to the full

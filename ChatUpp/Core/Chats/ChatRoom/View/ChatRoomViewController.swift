@@ -1475,10 +1475,11 @@ extension ChatRoomViewController
 
         let longPressGesture = PressFeedbackLongPressRecognizer(
             target: self, action: #selector(handleTableLongPress))
-        /// The preview initiation must come right as the press-in shrink
-        /// settles (~0.6s after touch-down, see `handlePressDown`). Raised
-        /// from 0.3 for now so the initiation moment is clearly observable.
-        longPressGesture.minimumPressDuration = 0.6
+        /// The preview initiation comes a short moment after the press-in
+        /// shrink starts (press-in scheduled at 0.1s, duration 0.3s - ends
+        /// exactly when this threshold trips), so the whole press cycle
+        /// completes in ~0.4s: touch + late press + straightaway initiation.
+        longPressGesture.minimumPressDuration = 0.4
         longPressGesture.onTouchDown = { [weak self, weak gesture = longPressGesture] in
             guard let self, let gesture else { return }
             self.handlePressDown(at: gesture.location(in: self.rootView.tableView))
@@ -2028,7 +2029,7 @@ extension ChatRoomViewController
     /// pressing. The press-in shrink is scheduled with a small delay and is
     /// cancelled if the fingers leave before it, so it only ever runs for
     /// actual holds. Duration is sized so the shrink completes exactly when
-    /// the hold threshold (0.6s, see `addGestureToTableView`) trips and the
+    /// the hold threshold (0.4s, see `addGestureToTableView`) trips and the
     /// preview initiation begins straightaway.
     private func handlePressDown(at locationInTable: CGPoint)
     {
@@ -2052,7 +2053,7 @@ extension ChatRoomViewController
             self?.startPressInShrink()
         }
         pendingPressInWork = pressInWork
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: pressInWork)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: pressInWork)
     }
 
     /// The delayed press-in feedback, only for actual holds.
@@ -2063,13 +2064,13 @@ extension ChatRoomViewController
         else { return }
 
         print("MENUPIPE[\(pipeTimestamp())]  press-in shrink started")
-        UIView.animate(withDuration: 0.4,
+        UIView.animate(withDuration: 0.3,
                        delay: 0,
                        usingSpringWithDamping: 0.85,
                        initialSpringVelocity: 0.1,
                        options: [.beginFromCurrentState])
         {
-            source.bubbleSourceView.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
+            source.bubbleSourceView.transform = CGAffineTransform(scaleX: 0.92, y: 0.92)
         }
     }
 
