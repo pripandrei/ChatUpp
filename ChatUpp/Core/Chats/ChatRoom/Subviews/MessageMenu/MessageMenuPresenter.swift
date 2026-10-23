@@ -47,6 +47,10 @@ final class MessageMenuPresenter: NSObject
     private let optionGroups: [[MessageMenuOption]]
     private let onReactionSelection: (String) -> Void
     private let onFinished: () -> Void
+    /// Full-size bubble snapshot captured at touch-down (before the shrink).
+    /// When supplied, initiation skips the synchronous capture entirely, so
+    /// the flight starts the instant the hold trips with no dead wait.
+    private var preCapturedImage: UIImage?
 
     private var overlayView: UIView?
     private var dimmingView: UIView?
@@ -74,6 +78,7 @@ final class MessageMenuPresenter: NSObject
          message: Message,
          bubbleSourceView: UIView,
          optionGroups: [[MessageMenuOption]],
+         preCapturedImage: UIImage? = nil,
          onReactionSelection: @escaping (String) -> Void,
          onFinished: @escaping () -> Void)
     {
@@ -81,6 +86,7 @@ final class MessageMenuPresenter: NSObject
         self.message = message
         self.bubbleSourceView = bubbleSourceView
         self.optionGroups = optionGroups
+        self.preCapturedImage = preCapturedImage
         self.onReactionSelection = onReactionSelection
         self.onFinished = onFinished
     }
@@ -90,21 +96,29 @@ final class MessageMenuPresenter: NSObject
     func present()
     {
         guard !isPresented else { return }
+        print("MENUPIPE[\(pipeTimestamp())]  preview present started (capture + overlay build)")
 
-        /// The source bubble may be mid press-in shrink (touch-down feedback).
-        /// Capture at full size by resetting the transform around the
-        /// synchronous capture, then restore the shrunk state; the copy then
-        /// enters at the shrunk scale and expands during the flight, so the
-        /// press visually morphs into the preview continuously.
         let pressedTransform = bubbleSourceView.transform
-        bubbleSourceView.transform = .identity
-        guard let bubbleImage = captureBubbleImage() else
+        if preCapturedImage == nil
         {
+            /// Fallback when no touch-down capture exists: the source may be
+            /// mid press-in shrink, so capture at full size by resetting the
+            /// transform around the synchronous capture, then restore the
+            /// shrunk state. (The reset can flash the message at full size -
+            /// that is why the touch-down pre-capture path is preferred.)
+            bubbleSourceView.transform = .identity
+            guard let captured = MessageMenuPresenter.captureBubbleImage(
+                from: bubbleSourceView,
+                afterScreenUpdates: true)
+            else
+            {
+                bubbleSourceView.transform = pressedTransform
+                onFinished()
+                return
+            }
             bubbleSourceView.transform = pressedTransform
-            onFinished()
-            return
+            preCapturedImage = captured
         }
-        bubbleSourceView.transform = pressedTransform
         isPresented = true
 
         /// The copy takes over the message visually - it sits pixel-for-pixel
@@ -117,8 +131,15 @@ final class MessageMenuPresenter: NSObject
         bubbleOriginFrame = rootView.convert(bubbleSourceView.bounds,
                                              from: bubbleSourceView)
         computeLandedFrames()
+        guard let bubbleImage = preCapturedImage
+        else
+        {
+            onFinished()
+            return
+        }
         buildOverlayView(with: bubbleImage, initialTransform: pressedTransform)
         animatePresentation()
+        print("MENUPIPE[\(pipeTimestamp())]  preview ready - flight running")
     }
 
     func dismiss(completion: (() -> Void)? = nil)
@@ -129,6 +150,18 @@ final class MessageMenuPresenter: NSObject
         }
         isPresented = false
         isDismissalRunning = true
+        print("MENUPIPE[\(pipeTimestamp())]  dismiss started")
+
+        /// Bug #5 hardening: the outgoing copy must be purely positional.
+        /// Freeze any residual layer animation and pin it to its full-size
+        /// identity state, so the fly-back can never re-introduce a size
+        /// change regardless of when the dismissal fires.
+        if let copy = bubblePreviewView
+        {
+            copy.layer.removeAllAnimations()
+            print("MENUPIPE[\(pipeTimestamp())]  dismissal - copy transform \(copy.transform.a), frame \(copy.frame), landed \(bubbleLandedFrame), origin \(bubbleOriginFrame)")
+            copy.transform = .identity
+        }
 
         /// The menu and the panel tuck away quickly while the bubble is
         /// still flying back home through the dissolving blur.
@@ -147,7 +180,6 @@ final class MessageMenuPresenter: NSObject
                        animations: {
             self.bubblePreviewView?.frame = self.bubbleOriginFrame
         }, completion: nil)
-
         /// the blur outlasts the flight by a beat so the bubble is never
         /// left without a backdrop mid-exit
         UIView.animate(withDuration: 0.2,
@@ -158,9 +190,13 @@ final class MessageMenuPresenter: NSObject
             self.dimmingView?.alpha = 0
         }, completion: { _ in
             guard let overlay = self.overlayView else { return }
-            /// the copy has landed on the source's slot - the original can
-            /// reappear underneath without any visible crossfade
+            /// The original must reappear at its settled original size with
+            /// no size animation at all: its transform was already restored
+            /// at presentation time, and it is pinned here as a guarantee -
+            /// the only animated change left is the copy's position fly-back.
+            self.bubbleSourceView.transform = .identity
             self.bubbleSourceView.alpha = 1
+            print("MENUPIPE[\(pipeTimestamp())]  reveal original - source transform \(self.bubbleSourceView.transform.a)")
             overlay.removeFromSuperview()
             self.disposeOverlay()
             self.onFinished()
@@ -348,12 +384,16 @@ final class MessageMenuPresenter: NSObject
         }
 
         /// The copy expands from its press-in shrunk scale back to the full
-        /// original size with an elastic spring, independent from (and longer
-        /// than) the quick positional flight.
-        UIView.animate(withDuration: 0.3,
+        /// original size. Critically a non-overshooting spring (damping 1.0):
+        /// an elastic damping here pops the copy past 1.0 and back within a
+        /// fraction of a second - visible as a size right at the moment the
+        /// press-in state completes - and its residual motion would still be
+        /// settling during an early dismissal, reading there as the press-in
+        /// animation "happening again" while the copy flies home.
+        UIView.animate(withDuration: 0.25,
                        delay: 0,
-                       usingSpringWithDamping: 0.65,
-                       initialSpringVelocity: 0.3,
+                       usingSpringWithDamping: 1.0,
+                       initialSpringVelocity: 0.1,
                        options: [.beginFromCurrentState])
         {
             self.bubblePreviewView?.transform = .identity
@@ -361,11 +401,13 @@ final class MessageMenuPresenter: NSObject
 
         /// The real bubble underneath springs back from its press-in shrink
         /// to full size as well (hidden during the session, the geometry
-        /// stays consistent for the dismissal landing).
-        UIView.animate(withDuration: 0.35,
+        /// stays consistent for the dismissal landing). Non-overshooting for
+        /// the same reason: on dismissal it must already sit settled at
+        /// identity, with no wobble left to reveal.
+        UIView.animate(withDuration: 0.3,
                        delay: 0,
-                       usingSpringWithDamping: 0.6,
-                       initialSpringVelocity: 0.3,
+                       usingSpringWithDamping: 1.0,
+                       initialSpringVelocity: 0.1,
                        options: [.beginFromCurrentState])
         {
             self.bubbleSourceView.transform = .identity
@@ -409,9 +451,14 @@ final class MessageMenuPresenter: NSObject
 
     // MARK: - Snapshot
 
-    private func captureBubbleImage() -> UIImage?
+    /// Renders the given view at full size. `afterScreenUpdates: false`
+    /// snapshots the last committed state (cheap, no forced screen flush -
+    /// used at touch-down while the view is still at its idle identity
+    /// transform); `true` waits for pending updates (fallback path, where the
+    /// caller resets/restores the transform around the call).
+    static func captureBubbleImage(from sourceView: UIView,
+                                   afterScreenUpdates: Bool) -> UIImage?
     {
-        let sourceView = bubbleSourceView
         guard sourceView.bounds.width > 0, sourceView.bounds.height > 0 else { return nil }
 
         let format = UIGraphicsImageRendererFormat.default()
@@ -420,7 +467,8 @@ final class MessageMenuPresenter: NSObject
 
         return UIGraphicsImageRenderer(bounds: sourceView.bounds, format: format).image
         { _ in
-            sourceView.drawHierarchy(in: sourceView.bounds, afterScreenUpdates: true)
+            sourceView.drawHierarchy(in: sourceView.bounds,
+                                     afterScreenUpdates: afterScreenUpdates)
         }
     }
 }

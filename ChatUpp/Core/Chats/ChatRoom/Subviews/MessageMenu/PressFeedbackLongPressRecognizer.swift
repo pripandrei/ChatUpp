@@ -16,6 +16,12 @@ final class PressFeedbackLongPressRecognizer: UILongPressGestureRecognizer
 {
     /// Fires once per press cycle, right after the fingers touch down.
     var onTouchDown: (() -> Void)?
+    /// Fires whenever the fingers leave the surface - both normal lifts and
+    /// system cancellations (scroll takeover, alert, etc.). This is the only
+    /// signal guaranteed to arrive for EVERY ended press, including presses
+    /// that never reached the hold threshold, where UIKit may silently fail
+    /// the recognizer without delivering `.ended/.failed/.cancelled` states.
+    var onTouchUp: (() -> Void)?
 
     private var notifiedTouchDown = false
 
@@ -25,6 +31,18 @@ final class PressFeedbackLongPressRecognizer: UILongPressGestureRecognizer
         guard !notifiedTouchDown else { return }
         notifiedTouchDown = true
         onTouchDown?()
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent)
+    {
+        super.touchesEnded(touches, with: event)
+        onTouchUp?()
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent)
+    {
+        super.touchesCancelled(touches, with: event)
+        onTouchUp?()
     }
 
     override func reset()
