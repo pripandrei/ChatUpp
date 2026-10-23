@@ -128,8 +128,21 @@ final class MessageMenuPresenter: NSObject
         /// on its slot first, so the crossfade is invisible).
         bubbleSourceView.alpha = 0
 
-        bubbleOriginFrame = rootView.convert(bubbleSourceView.bounds,
-                                             from: bubbleSourceView)
+        /// A view's `frame` (like a raw `convert(_:from:)` of bounds) is
+        /// derived from bounds + center + TRANSFORM — with the press-in
+        /// shrink active on the source, both come out ~10% scaled, which made
+        /// the entire preview run at pressed-in size and the dismissal reveal
+        /// jump to the true size without animation. The only transform-immune
+        /// geometry is `center` (its position in the superview) plus the
+        /// untransformed `bounds` size - rebuild the true original frame from
+        /// those two.
+        let sourceSuperview = bubbleSourceView.superview ?? rootView
+        let centerInRoot = rootView.convert(bubbleSourceView.center, from: sourceSuperview)
+        let trueSize = bubbleSourceView.bounds.size
+        bubbleOriginFrame = CGRect(x: centerInRoot.x - trueSize.width / 2,
+                                   y: centerInRoot.y - trueSize.height / 2,
+                                   width: trueSize.width,
+                                   height: trueSize.height)
         computeLandedFrames()
         guard let bubbleImage = preCapturedImage
         else

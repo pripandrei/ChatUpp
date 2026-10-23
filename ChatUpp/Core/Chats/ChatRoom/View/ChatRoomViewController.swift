@@ -28,6 +28,13 @@ final class ChatRoomViewController: UIViewController
     /// non-began long-press state, or handed over to the presenter when the
     /// preview begins.
     private weak var pressedBubbleContainer: UIView?
+    /// The resolved press target (view + message + menu options) captured at
+    /// touch-down, so the preview uses exactly what was captured, not a
+    /// re-resolved lookup (cells may move between press-down and initiation).
+    private var pressedBubbleSource: PressedMessageSource?
+    /// The scheduled press-in shrink; cancelled when the fingers leave before
+    /// it fires, so brief touches never start pressing.
+    private var pendingPressInWork: DispatchWorkItem?
     /// Full-size snapshot captured at touch-down (before the shrink), consumed
     /// by the presenter at initiation. Lets the preview fly without paying the
     /// capture cost at that moment, and without the transform reset/restore
@@ -2015,10 +2022,14 @@ extension ChatRoomViewController
         }
     }
 
-    /// Called the moment fingers land (before the hold threshold): starts the
-    /// press-in shrink of the bubble under the finger. The duration matches
-    /// the gesture's `minimumPressDuration` (0.6s), so the preview initiation
-    /// begins exactly when the press-in state completes.
+    /// Called the moment fingers land: resolves the pressed message and
+    /// captures its full-size state (still at identity), but does NOT shrink
+    /// yet - a bare touch or a fraction-of-a-second tap must not start any
+    /// pressing. The press-in shrink is scheduled with a small delay and is
+    /// cancelled if the fingers leave before it, so it only ever runs for
+    /// actual holds. Duration is sized so the shrink completes exactly when
+    /// the hold threshold (0.6s, see `addGestureToTableView`) trips and the
+    /// preview initiation begins straightaway.
     private func handlePressDown(at locationInTable: CGPoint)
     {
         guard viewModel.shouldHideJoinGroupOption,
@@ -2026,24 +2037,39 @@ extension ChatRoomViewController
               let source = resolveMenuSource(at: locationInTable)
         else { return }
 
+        pressedBubbleSource = source
         pressedBubbleContainer = source.bubbleSourceView
-        /// Full-size capture happens NOW, while the view is still at its idle
-        /// identity transform and before any shrink animation is configured.
-        /// This removes the capture cost from the initiation moment (the
-        /// flight then starts the instant the hold trips) and avoids the
-        /// reset/restore dance around the capture, which used to flash the
-        /// message briefly at full size mid-shrink.
+        /// full-size capture happens NOW, while the view is still at its idle
+        /// identity transform - removes both the capture cost from the
+        /// initiation moment and the reset/restore flash around it
         pendingPreviewCapture = MessageMenuPresenter.captureBubbleImage(
             from: source.bubbleSourceView,
             afterScreenUpdates: false)
-        print("MENUPIPE[\(pipeTimestamp())]  press-down - shrink started, capture \(pendingPreviewCapture != nil ? "ready" : "FAILED (fallback at initiation)")")
-        UIView.animate(withDuration: 0.6,
+        print("MENUPIPE[\(pipeTimestamp())]  press-down - capture ready, press-in scheduled")
+
+        pendingPressInWork?.cancel()
+        let pressInWork = DispatchWorkItem { [weak self] in
+            self?.startPressInShrink()
+        }
+        pendingPressInWork = pressInWork
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: pressInWork)
+    }
+
+    /// The delayed press-in feedback, only for actual holds.
+    private func startPressInShrink()
+    {
+        guard messageMenuPresenter == nil,
+              let source = pressedBubbleSource
+        else { return }
+
+        print("MENUPIPE[\(pipeTimestamp())]  press-in shrink started")
+        UIView.animate(withDuration: 0.4,
                        delay: 0,
                        usingSpringWithDamping: 0.85,
                        initialSpringVelocity: 0.1,
                        options: [.beginFromCurrentState])
         {
-            source.bubbleSourceView.transform = CGAffineTransform(scaleX: 0.92, y: 0.92)
+            source.bubbleSourceView.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
         }
     }
 
@@ -2053,9 +2079,12 @@ extension ChatRoomViewController
     /// restores the original state with animation.
     private func restorePressedCell()
     {
+        pendingPressInWork?.cancel()
+        pendingPressInWork = nil
+        pressedBubbleSource = nil
+        pendingPreviewCapture = nil
         guard let container = pressedBubbleContainer else { return }
         pressedBubbleContainer = nil
-        pendingPreviewCapture = nil
         print("MENUPIPE[\(pipeTimestamp())]  restoring pressed bubble to original size")
         UIView.animate(withDuration: 0.35,
                        delay: 0,
@@ -2071,7 +2100,7 @@ extension ChatRoomViewController
     {
         guard viewModel.shouldHideJoinGroupOption,
               messageMenuPresenter == nil,
-              let source = resolveMenuSource(at: locationInTable)
+              let source = pressedBubbleSource ?? resolveMenuSource(at: locationInTable)
         else
         {
             restorePressedCell()
@@ -2080,6 +2109,9 @@ extension ChatRoomViewController
 
         /// the presenter takes over the pressed bubble's restore
         pressedBubbleContainer = nil
+        pressedBubbleSource = nil
+        pendingPressInWork?.cancel()
+        pendingPressInWork = nil
         self.messageMenuPresenter = MessageMenuPresenter(
             rootView: self.rootView,
             message: source.message,
