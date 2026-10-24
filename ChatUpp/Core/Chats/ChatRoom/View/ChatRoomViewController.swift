@@ -2013,6 +2013,18 @@ extension ChatRoomViewController
         switch gesture.state
         {
         case .began:
+            /// A drag-to-reply that took over the same touch must always win
+            /// over the preview: once the finger moves sideways the press
+            /// pipeline is torn down (see `handleTablePan` .began), so the
+            /// hold can never escalate into the message preview mid-drag -
+            /// not even when the drag is so slow it is still under the pan
+            /// threshold when the hold trips.
+            guard dragableCell == nil else
+            {
+                print("MENUPIPE[\(pipeTimestamp())]  long-press .began suppressed - drag in progress")
+                restorePressedCell()
+                return
+            }
             print("MENUPIPE[\(pipeTimestamp())]  long-press .began - initiating preview")
             presentMessageMenu(at: gesture.location(in: rootView.tableView))
         case .ended, .cancelled, .failed:
@@ -2042,6 +2054,9 @@ extension ChatRoomViewController
         let table = rootView.tableView
         guard viewModel.shouldHideJoinGroupOption,
               messageMenuPresenter == nil,
+              /// a drag-to-reply already owns the touch - no press feedback
+              /// may start underneath it
+              dragableCell == nil,
               !table.isDragging,
               !table.isDecelerating,
               let source = resolveMenuSource(at: locationInTable)
@@ -2226,10 +2241,24 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
         switch gesture.state
         {
         case .began:
+            /// The drag takes the pressed message over: the pending / running
+            /// press-in sink is torn down right here and the bubble springs
+            /// back to full size while the cell starts following the finger -
+            /// the restore animation and the drag run concurrently (restore
+            /// animates the bubble's transform, the drag moves the cell's
+            /// center), so they stay in sync exactly like an early finger
+            /// lift. `restorePressedCell` also disarms the preview
+            /// initiation (`pressedBubbleSource` cleared), and together with
+            /// the `dragableCell` guard in `handleTableLongPress` this makes
+            /// the preview unreachable once a drag has begun.
+            /// A drag starting before the 0.1s press-in fires therefore never
+            /// sinks the bubble in at all; a drag starting mid-sink cancels it.
+            guard messageMenuPresenter == nil else { return }
             guard let indexPath = table.indexPathForRow(at: location),
                   let dragableCell = table.cellForRow(at: indexPath) as? MessageCellDragable else {return}
             self.dragableCell = dragableCell
             self.draggingCellOriginalCenter = dragableCell.center
+            restorePressedCell()
         case .changed:
             guard translation.x < 0 else {return}
             
@@ -2255,14 +2284,19 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
             }
             self.hapticWasInitiated = false
             
-            if (translation.x < 0) && (abs(translationX) >= dragTreshhold)
+            /// only an actual captured drag cell may trigger the reply - a
+            /// pan that began on a non-dragable row (event cell, header) must
+            /// not open the reply bar with empty message data
+            if let dragableCell = self.dragableCell,
+               translation.x < 0,
+               abs(translationX) >= dragTreshhold
             {
-                self.viewModel.currentlyReplyToMessageID = dragableCell?.messageID
+                self.viewModel.currentlyReplyToMessageID = dragableCell.messageID
                 self.handleContextMenuSelectedAction(
                     actionOption: .reply(
-                        senderName: dragableCell?.messageSenderName,
-                        text: dragableCell?.messageText,
-                        image: dragableCell?.messageImage)
+                        senderName: dragableCell.messageSenderName,
+                        text: dragableCell.messageText,
+                        image: dragableCell.messageImage)
                 )
             }
             
