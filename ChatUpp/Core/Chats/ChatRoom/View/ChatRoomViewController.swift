@@ -1475,11 +1475,11 @@ extension ChatRoomViewController
 
         let longPressGesture = PressFeedbackLongPressRecognizer(
             target: self, action: #selector(handleTableLongPress))
-        /// The preview initiation comes a short moment after the press-in
-        /// shrink starts (press-in scheduled at 0.1s, duration 0.6s - ends
-        /// exactly when this threshold trips), so the whole press cycle
-        /// completes in ~0.7s: touch + late press + straightaway initiation.
-        longPressGesture.minimumPressDuration = 0.7
+        /// The preview initiation trips as the press-in sink reaches its
+        /// final phase (sink starts at 0.1s, duration 0.6s), so almost no
+        /// dead pause is left between the sink's motion and the preview
+        /// animation (hold reduced ~2.5x from the 0.7s baseline).
+        longPressGesture.minimumPressDuration = 0.45
         longPressGesture.onTouchDown = { [weak self, weak gesture = longPressGesture] in
             guard let self, let gesture else { return }
             self.handlePressDown(at: gesture.location(in: self.rootView.tableView))
@@ -2029,7 +2029,7 @@ extension ChatRoomViewController
     /// pressing. The press-in shrink is scheduled with a small delay and is
     /// cancelled if the fingers leave before it, so it only ever runs for
     /// actual holds. Duration is sized so the shrink completes exactly when
-    /// the hold threshold (0.7s, see `addGestureToTableView`) trips and the
+    /// the hold threshold (0.45s, see `addGestureToTableView`) trips and the
     /// preview initiation begins straightaway.
     private func handlePressDown(at locationInTable: CGPoint)
     {
