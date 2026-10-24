@@ -2033,8 +2033,17 @@ extension ChatRoomViewController
     /// preview initiation begins straightaway.
     private func handlePressDown(at locationInTable: CGPoint)
     {
+        /// A touch landing while the table is scrolling (drag or deceleration)
+        /// belongs to the scroll, not to a press: none of the press pipeline
+        /// may start, or a bare touch mid-gesture leaves the bubble stuck in
+        /// its pressed-in state. `isTracking` is deliberately NOT checked -
+        /// every fresh touch (including a legitimate press) tracks from the
+        /// first moment; only the table declaring an actual scroll blocks it.
+        let table = rootView.tableView
         guard viewModel.shouldHideJoinGroupOption,
               messageMenuPresenter == nil,
+              !table.isDragging,
+              !table.isDecelerating,
               let source = resolveMenuSource(at: locationInTable)
         else { return }
 
@@ -2099,8 +2108,14 @@ extension ChatRoomViewController
 
     private func presentMessageMenu(at locationInTable: CGPoint)
     {
+        /// Same scroll rule as the press-down: an initiation may never fire
+        /// into a scrolling table (e.g. a drag started from a second finger
+        /// while the first one holds the press). The pressed bubble restores
+        /// instead of the preview flying out mid-scroll.
         guard viewModel.shouldHideJoinGroupOption,
               messageMenuPresenter == nil,
+              !rootView.tableView.isDragging,
+              !rootView.tableView.isDecelerating,
               let source = pressedBubbleSource ?? resolveMenuSource(at: locationInTable)
         else
         {
