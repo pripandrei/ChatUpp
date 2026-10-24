@@ -34,8 +34,9 @@ final class MessageMenuPresenter: NSObject
         /// Gap between the landed bubble and the menu card.
         static let menuGap: CGFloat = 12.0
         static let screenEdgeInset: CGFloat = 8.0
-        /// Flight / blur fade duration in both directions.
-        static let flightDuration: TimeInterval = 0.1
+        /// Flight / blur fade duration in both directions (0.2s per user
+        /// preference: two times slower than the original 0.1s flight).
+        static let flightDuration: TimeInterval = 0.2
         /// Clearance kept below the navigation bar when a bottom-half message
         /// has to be nudged out from under it.
         static let navBarClearance: CGFloat = 10.0
@@ -199,8 +200,8 @@ final class MessageMenuPresenter: NSObject
                                                      y: self.bubbleOriginFrame.midY)
         }, completion: nil)
         /// the blur outlasts the flight by a beat so the bubble is never
-        /// left without a backdrop mid-exit
-        UIView.animate(withDuration: 0.2,
+        /// left without a backdrop mid-exit (0.3s vs the 0.2s flight)
+        UIView.animate(withDuration: 0.3,
                        delay: 0,
                        options: [.curveEaseInOut, .beginFromCurrentState],
                        animations: {
