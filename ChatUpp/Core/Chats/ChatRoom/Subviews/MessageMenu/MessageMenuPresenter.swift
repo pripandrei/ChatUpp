@@ -20,9 +20,16 @@ import SwiftUI
 ///    `UIEditMenuInteraction` pill was tried and rejected: it always renders
 ///    horizontally, text-only (that is its fixed edit-menu design).
 ///
-/// The overlay lives inside `rootView`, so the keyboard / sticker collection
-/// (separate windows) are never affected. Tapping the blurred background or
-/// running any menu row / reaction dismisses everything.
+/// The overlay lives inside the app's window, so it covers the entire
+/// screen (navigation bar, status bar, input bar). The keyboard itself can
+/// never be covered: since iOS 17 it renders out of process and composites
+/// above every app window/plane regardless of `windowLevel`. The presenter
+/// therefore plays WITH the platform: when a first responder is active, it
+/// resigns at initiation, and the blur entrance is driven with the
+/// system's exact keyboard dismissal duration/curve so the vacated space
+/// is claimed in one motion; on dismissal the keyboard is returned to the
+/// text field only after the reveal completes. Tapping the blurred
+/// background or running any menu row / reaction dismisses everything.
 ///
 /// Inherits `NSObject` because `UIGestureRecognizerDelegate` requires it.
 final class MessageMenuPresenter: NSObject
@@ -65,6 +72,15 @@ final class MessageMenuPresenter: NSObject
     /// (backdrop tap, row tap, reaction selection) firing close together.
     private var isDismissalRunning = false
 
+    /// Keyboard choreography state: a one-shot `keyboardWillHide` observer
+    /// that captures the system's exact dismiss duration/curve for the blur
+    /// entrance, a latch so both the notification path and the fallback
+    /// timer start it only once, and a flag marking that the presenter took
+    /// the keyboard away and must return it on dismissal.
+    private var keyboardHideObserver: NSObjectProtocol?
+    private var didStartEntrance = false
+    private var didResignKeyboard = false
+
     private var bubbleOriginFrame: CGRect = .zero
     private var bubbleLandedFrame: CGRect = .zero
     private var panelLandedFrame: CGRect = .zero
@@ -72,6 +88,10 @@ final class MessageMenuPresenter: NSObject
 
     deinit
     {
+        if let observer = keyboardHideObserver
+        {
+            NotificationCenter.default.removeObserver(observer)
+        }
         deinitDescription(for: Self.self)
     }
 
@@ -152,8 +172,15 @@ final class MessageMenuPresenter: NSObject
             return
         }
         buildOverlayView(with: bubbleImage, initialTransform: pressedTransform)
-        animatePresentation()
-        print("MENUPIPE[\(pipeTimestamp())]  preview ready - flight running")
+        if findFirstResponder(in: rootView) != nil
+        {
+            orchestrateKeyboardHideAndEntrance()
+        }
+        else
+        {
+            startEntranceAnimations(with: nil)
+        }
+        print("MENUPIPE[\(pipeTimestamp())]  preview ready - entrance running")
     }
 
     func dismiss(completion: (() -> Void)? = nil)
@@ -218,6 +245,7 @@ final class MessageMenuPresenter: NSObject
             print("MENUPIPE[\(pipeTimestamp())]  reveal original - source transform \(self.bubbleSourceView.transform.a)")
             overlay.removeFromSuperview()
             self.disposeOverlay()
+            self.restoreKeyboardIfNeeded()
             self.onFinished()
             completion?()
         })
@@ -391,14 +419,70 @@ final class MessageMenuPresenter: NSObject
 
     // MARK: - Animations
 
-    private func animatePresentation()
+    // MARK: - Keyboard-aware choreography
+
+    /// Drives the whole entrance off the keyboard's own dismissal animation:
+    /// a one-shot `keyboardWillHide` observer captures the system's exact
+    /// duration/curve, the first responder resigns (keyboard sinks), and the
+    /// entrance starts off the notification. Defaults take over when the
+    /// notification cannot arrive - either no keyboard at all, or the
+    /// asynchronous posting iOS 17+ will occasionally complete after the
+    /// fallback threshold below.
+    private func orchestrateKeyboardHideAndEntrance()
     {
-        UIView.animate(withDuration: Metrics.flightDuration,
+        didResignKeyboard = true
+        keyboardHideObserver = NotificationCenter.default.addObserver(
+            forName: UIResponder.keyboardWillHideNotification,
+            object: nil,
+            queue: .main) { [weak self] note in
+                self?.startEntranceAnimations(with: note)
+            }
+        _ = rootView.endEditing(true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self] in
+            self?.startEntranceAnimations(with: nil)
+        }
+    }
+
+    /// The choreographed entrance. The blur / dim actors rise with the
+    /// keyboard's own dismissal timing, so the space it vacates is claimed
+    /// in one motion; the content actors (copy flight, springs, menu hop)
+    /// follow one beat behind, reading as "keyboard got out of the way,
+    /// then the message menu appeared".
+    private func startEntranceAnimations(with hideNote: Notification?)
+    {
+        if let observer = keyboardHideObserver
+        {
+            NotificationCenter.default.removeObserver(observer)
+            keyboardHideObserver = nil
+        }
+        guard isPresented, !didStartEntrance else { return }
+        didStartEntrance = true
+
+        let keyboardDriven = hideNote != nil && hideNote?.userInfo != nil
+        let keyboardDuration = hideNote?.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
+        let keyboardCurveRaw = hideNote?.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt
+            ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
+        print("MENUPIPE[\(pipeTimestamp())]  entrance start - keyboard driven: \(keyboardDriven), duration \(keyboardDuration)")
+
+        UIView.animate(withDuration: max(keyboardDuration, Metrics.flightDuration),
                        delay: 0,
-                       options: [.curveEaseInOut, .beginFromCurrentState])
+                       options: [.beginFromCurrentState,
+                                 UIView.AnimationOptions(rawValue: keyboardCurveRaw << 16)])
         {
             self.blurView?.effect = UIBlurEffect(style: .systemUltraThinMaterialDark)
             self.dimmingView?.alpha = 0.25
+        }
+
+        /// Content follows the keyboard's sink. 0 when the keyboard was
+        /// already down or absent - no wait needed then.
+        let contentDelay = keyboardDriven
+            ? min(0.12, max(0.04, keyboardDuration * 0.35))
+            : 0.0
+
+        UIView.animate(withDuration: Metrics.flightDuration,
+                       delay: contentDelay,
+                       options: [.curveEaseInOut, .beginFromCurrentState])
+        {
             /// The flight moves CENTER only. Setting `frame` on a view that
             /// still carries the pressed transform makes UIKit divide the
             /// requested size by the active scale (301 -> 327 points), which
@@ -418,7 +502,7 @@ final class MessageMenuPresenter: NSObject
         /// settling during an early dismissal, reading there as the press-in
         /// animation "happening again" while the copy flies home.
         UIView.animate(withDuration: 0.25,
-                       delay: 0,
+                       delay: contentDelay,
                        usingSpringWithDamping: 1.0,
                        initialSpringVelocity: 0.1,
                        options: [.beginFromCurrentState])
@@ -432,7 +516,7 @@ final class MessageMenuPresenter: NSObject
         /// the same reason: on dismissal it must already sit settled at
         /// identity, with no wobble left to reveal.
         UIView.animate(withDuration: 0.3,
-                       delay: 0,
+                       delay: contentDelay,
                        usingSpringWithDamping: 1.0,
                        initialSpringVelocity: 0.1,
                        options: [.beginFromCurrentState])
@@ -444,7 +528,7 @@ final class MessageMenuPresenter: NSObject
         /// its anchor point sits at the card's top edge, so scaling it up
         /// unfolds it downward out of the attachment point.
         UIView.animate(withDuration: 0.4,
-                       delay: 0.08,
+                       delay: 0.08 + contentDelay,
                        usingSpringWithDamping: 0.75,
                        initialSpringVelocity: 0.6,
                        options: [.beginFromCurrentState])
@@ -454,6 +538,31 @@ final class MessageMenuPresenter: NSObject
         }
         /// the reaction panel entrance timing is internal to
         /// `ReactionPanelView` and kept exactly as it was.
+    }
+
+    /// Returns the keyboard to the text field the user was holding before
+    /// the preview took it away - but only after the reveal: the bubble
+    /// lands, the blur dissolves, and only then does the keyboard rise, so
+    /// the exit reads as one calm sequence rather than simultaneous motion.
+    /// Runs BEFORE `onFinished` in the dismissal completion, since that
+    /// drops the presenter's last strong reference.
+    private func restoreKeyboardIfNeeded()
+    {
+        guard didResignKeyboard else { return }
+        didResignKeyboard = false
+        print("MENUPIPE[\(pipeTimestamp())]  restoring keyboard first responder")
+        rootView.messageTextView.becomeFirstResponder()
+    }
+
+    /// First responder anywhere inside `rootView`'s subtree, if any.
+    private func findFirstResponder(in view: UIView) -> UIResponder?
+    {
+        if view.isFirstResponder { return view }
+        for subview in view.subviews
+        {
+            if let found = findFirstResponder(in: subview) { return found }
+        }
+        return nil
     }
 
     /// Moves the layer anchor to the view's top-center so scale transforms

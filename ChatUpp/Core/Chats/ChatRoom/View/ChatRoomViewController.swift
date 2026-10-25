@@ -475,6 +475,26 @@ final class ChatRoomViewController: UIViewController
         else { return }
         guard self.rootView.stickerCollectionView == nil else { return }
         
+        /// Message preview choreography: when the preview takes the keyboard
+        /// away, the input bar follows it down to its resting bottom position
+        /// (behind the preview's blur) with the keyboard's own duration and
+        /// curve, while the TABLE's viewport stays completely untouched - no
+        /// inset change, no offset shift, no settling - so the chat keeps its
+        /// exact keyboard-up position for the whole session. The full table
+        /// layout instead resolves with the keyboard's return, which the
+        /// presenter triggers after its reveal (`keyboardWillShow`).
+        guard messageMenuPresenter == nil else
+        {
+            let (duration, options) = keyboardAnimationParameters(from: notification)
+            UIView.animate(withDuration: duration, delay: 0, options: options)
+            {
+                self.rootView.updateInputBarBottomConstraint(toSize: 0)
+                self.rootView.layoutIfNeeded()
+            }
+            print("MENUPIPE[\(pipeTimestamp())]  keyboard will hide under active preview - input bar drops, table layout preserved")
+            return
+        }
+        
         isKeyboardHidden = true
         
         if rootView.greetingView != nil
