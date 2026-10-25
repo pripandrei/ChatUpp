@@ -10,6 +10,7 @@
 		75D0C4E10000000000000B06 /* PressFeedbackLongPressRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A06 /* PressFeedbackLongPressRecognizer.swift */; };
 		75D0C4E10000000000000B02 /* MessageMenuOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A02 /* MessageMenuOption.swift */; };
 		75D0C4E10000000000000B03 /* MessageMenuPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A03 /* MessageMenuPresenter.swift */; };
+		75D0C4E10000000000000D04 /* KeyboardWindowLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000C04 /* KeyboardWindowLocator.swift */; };
 		75D0C4E10000000000000B04 /* MessageMenuCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A04 /* MessageMenuCardView.swift */; };
 		75D0C4E10000000000000B05 /* MenuRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A05 /* MenuRowView.swift */; };
 		75075F6D2E5DDEAC00DCA98F /* MessageLayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */; };
@@ -246,6 +247,7 @@
 		75D0C4E10000000000000A06 /* PressFeedbackLongPressRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressFeedbackLongPressRecognizer.swift; sourceTree = "<group>"; };
 		75D0C4E10000000000000A02 /* MessageMenuOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuOption.swift; sourceTree = "<group>"; };
 		75D0C4E10000000000000A03 /* MessageMenuPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuPresenter.swift; sourceTree = "<group>"; };
+		75D0C4E10000000000000C04 /* KeyboardWindowLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardWindowLocator.swift; sourceTree = "<group>"; };
 		75D0C4E10000000000000A04 /* MessageMenuCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuCardView.swift; sourceTree = "<group>"; };
 		75D0C4E10000000000000A05 /* MenuRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuRowView.swift; sourceTree = "<group>"; };
 		75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLayoutManager.swift; sourceTree = "<group>"; };
@@ -1151,6 +1153,7 @@
 			children = (
 				756A2AD62F23754F00C5D7B0 /* FrameTicker.swift */,
 				75AD5EA22E7B03630075377B /* KeyboardService.swift */,
+				75D0C4E10000000000000C04 /* KeyboardWindowLocator.swift */,
 				75A9184A2C942E15006ED4CA /* CacheManager.swift */,
 				758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */,
 			);
@@ -2005,6 +2008,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				75AD5EA32E7B036A0075377B /* KeyboardService.swift in Sources */,
+				75D0C4E10000000000000D04 /* KeyboardWindowLocator.swift in Sources */,
 				75D31DD32EDAB41800AF6102 /* ThemesPackViewModel.swift in Sources */,
 				7543BE352ACC87E1003001BF /* ChatRoomViewModel.swift in Sources */,
 				75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */,

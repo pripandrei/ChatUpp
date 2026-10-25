@@ -15,6 +15,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate
     {
         _ = NetworkMonitor.shared
         FirebaseApp.configure()
+        // Keyboard frame tracking must start before any keyboard activity,
+        // otherwise the message menu presenter cannot tell whether the
+        // keyboard is up at long-press time (every show notification fired
+        // before its creation would be missed).
+        KeyboardWindowLocator.installFrameTracking()
         return true
     }
 

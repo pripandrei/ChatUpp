@@ -20,16 +20,23 @@ import SwiftUI
 ///    `UIEditMenuInteraction` pill was tried and rejected: it always renders
 ///    horizontally, text-only (that is its fixed edit-menu design).
 ///
-/// The overlay lives inside the app's window, so it covers the entire
-/// screen (navigation bar, status bar, input bar). The keyboard itself can
-/// never be covered: since iOS 17 it renders out of process and composites
-/// above every app window/plane regardless of `windowLevel`. The presenter
-/// therefore plays WITH the platform: when a first responder is active, it
-/// resigns at initiation, and the blur entrance is driven with the
-/// system's exact keyboard dismissal duration/curve so the vacated space
-/// is claimed in one motion; on dismissal the keyboard is returned to the
-/// text field only after the reveal completes. Tapping the blurred
-/// background or running any menu row / reaction dismisses everything.
+/// The overlay lives in a system window: when the keyboard is up, it is
+/// hosted INSIDE the keyboard's own `UIRemoteKeyboardWindow` - reached
+/// through the undocumented `keyboardSceneDelegate.keyboardWindow`
+/// (`KeyboardWindowLocator`) - and drawn above the keyboard with a top
+/// z-position, so the keyboard stays exactly where it is and the blur,
+/// menu and flown bubble cover it. Since iOS 17 the keyboard renders out
+/// of process (window level 1e7+1) and no app window can composite above
+/// it, but the level cap only restricts window placement, not the
+/// subviews of a window - hosting the overlay inside the keyboard window
+/// is what Telegram does as well. The keyboard window is not locatable
+/// before the keyboard was first shown (or on exotic OS revisions), in
+/// which case the presenter instead plays WITH the platform: the first
+/// responder resigns at initiation and the blur entrance is driven with
+/// the system's exact keyboard dismissal duration/curve, with the
+/// keyboard returned to the text field only after the reveal completes.
+/// Tapping the blurred background or running any menu row / reaction
+/// dismisses everything.
 ///
 /// Inherits `NSObject` because `UIGestureRecognizerDelegate` requires it.
 final class MessageMenuPresenter: NSObject
@@ -81,6 +88,10 @@ final class MessageMenuPresenter: NSObject
     private var didStartEntrance = false
     private var didResignKeyboard = false
 
+    /// Keyboard presence is tracked process-wide by `KeyboardWindowLocator`
+    /// (see its docs), because this presenter lives only for the duration of
+    /// one preview and cannot observe the show notification in time.
+
     private var bubbleOriginFrame: CGRect = .zero
     private var bubbleLandedFrame: CGRect = .zero
     private var panelLandedFrame: CGRect = .zero
@@ -110,6 +121,11 @@ final class MessageMenuPresenter: NSObject
         self.preCapturedImage = preCapturedImage
         self.onReactionSelection = onReactionSelection
         self.onFinished = onFinished
+        super.init()
+        /// The presenter is transient and would miss every
+        /// `keyboardWillChangeFrame` fired before its creation, so keyboard
+        /// presence is tracked process-wide by the locator instead.
+        KeyboardWindowLocator.installFrameTracking()
     }
 
     // MARK: - Presentation
@@ -171,14 +187,46 @@ final class MessageMenuPresenter: NSObject
             onFinished()
             return
         }
-        buildOverlayView(with: bubbleImage, initialTransform: pressedTransform)
-        if findFirstResponder(in: rootView) != nil
+
+        /// Window selection, matching the reference implementation: while
+        /// the keyboard is on screen the overlay is hosted inside the
+        /// keyboard's own window (a subview of that window draws above the
+        /// keyboard's own views - a window of ours can never out-level it).
+        /// Everything else falls back to the app window, plus the Plan B
+        /// resign-choreography when a first responder would otherwise keep
+        /// the keyboard under the backdrop.
+        let appWindow = rootView.window
+        let keyboardIsUp = KeyboardWindowLocator.isKeyboardFrameUp(relativeTo: appWindow)
+        let keyboardWindow = keyboardIsUp
+            ? appWindow.flatMap { KeyboardWindowLocator.window(in: $0.windowScene!) }
+            : nil
+        if keyboardWindow == nil, keyboardIsUp
         {
-            orchestrateKeyboardHideAndEntrance()
+            print("MENUPIPE[\(pipeTimestamp())]  keyboard up per frame, but no keyboard window - probing private surface")
+        }
+
+        if let keyboardWindow
+        {
+            buildOverlayView(with: bubbleImage,
+                             initialTransform: pressedTransform,
+                             keyboardHost: keyboardWindow)
+            print("MENUPIPE[\(pipeTimestamp())]  preview hosted inside keyboard window \(keyboardWindow.windowLevel) - keyboard stays up")
+            startEntranceAnimations(with: nil)
         }
         else
         {
-            startEntranceAnimations(with: nil)
+            buildOverlayView(with: bubbleImage,
+                             initialTransform: pressedTransform,
+                             keyboardHost: nil)
+            if findFirstResponder(in: rootView) != nil
+            {
+                print("MENUPIPE[\(pipeTimestamp())]  keyboard window unavailable - resign path (keyboardIsUp: \(KeyboardWindowLocator.isKeyboardFrameUp(relativeTo: appWindow)))")
+                orchestrateKeyboardHideAndEntrance()
+            }
+            else
+            {
+                startEntranceAnimations(with: nil)
+            }
         }
         print("MENUPIPE[\(pipeTimestamp())]  preview ready - entrance running")
     }
@@ -337,19 +385,39 @@ final class MessageMenuPresenter: NSObject
 
     // MARK: - Overlay construction
 
-    private func buildOverlayView(with bubbleImage: UIImage, initialTransform: CGAffineTransform)
+    /// Builds the overlay in the chosen host window. A `keyboardHost` that
+    /// is already the system's keyboard window makes the overlay render
+    /// above the keyboard's own views; nil (or an exotic host) hosts it in
+    /// the app's window as before.
+    private func buildOverlayView(with bubbleImage: UIImage,
+                                  initialTransform: CGAffineTransform,
+                                  keyboardHost: UIWindow?)
     {
         /// The overlay must sit ABOVE the navigation bar, which lives in the
         /// navigation controller's own hierarchy outside `rootView` - an
         /// overlay inside `rootView` could never cover it. Hosting the blur
-        /// in the window covers the entire screen (navigation bar, status
-        /// bar, input bar); the keyboard / sticker collection are separate
-        /// windows and stay untouched. The content container preserves
-        /// `rootView`'s coordinate space, so every landed frame and the
-        /// position math keep working unchanged.
-        let host = rootView.window ?? rootView
+        /// in a window covers the entire screen (navigation bar, status
+        /// bar, input bar) - and in the keyboard-window case the system's
+        /// keyboard as well. The content container preserves `rootView`'s
+        /// coordinate space, so every landed frame and the position math
+        /// keep working unchanged.
+        let appWindow = rootView.window
+        let host = keyboardHost ?? appWindow ?? rootView
         let overlay = UIView(frame: host.bounds)
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        if host !== appWindow
+        {
+            /// Keyboard-window hosting specifics:
+            /// - a top sibling z-position keeps the overlay above the
+            ///   keyboard's own views,
+            /// - the keyboard window has (possibly) its own traits, so the
+            ///   reference implementation follows the app's current style -
+            ///   mirrored here (the blur material and the SwiftUI hosts
+            ///   read it).
+            overlay.layer.zPosition = 1_000
+            overlay.overrideUserInterfaceStyle = (appWindow ?? rootView).traitCollection.userInterfaceStyle
+        }
 
         let dimming = UIView(frame: overlay.bounds)
         dimming.autoresizingMask = [.flexibleWidth, .flexibleHeight]
