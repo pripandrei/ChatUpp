@@ -200,10 +200,6 @@ final class MessageMenuPresenter: NSObject
         let keyboardWindow = keyboardIsUp
             ? appWindow.flatMap { KeyboardWindowLocator.window(in: $0.windowScene!) }
             : nil
-        if keyboardWindow == nil, keyboardIsUp
-        {
-            print("MENUPIPE[\(pipeTimestamp())]  keyboard up per frame, but no keyboard window - probing private surface")
-        }
 
         if let keyboardWindow
         {
