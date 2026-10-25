@@ -7,7 +7,7 @@
 
 import UIKit
 
-/// A static re-creation of the system context-menu card: a dark blurred,
+/// A static re-creation of the system context-menu card: a frosted, blurred,
 /// rounded bar of rows (each with a leading symbol and a title), separated
 /// by hairlines between row groups. Rows run their action and then notify
 /// the owner so the overlay can be dismissed.
@@ -109,32 +109,22 @@ final class MessageMenuCardView: UIView
         layer.shadowRadius = 24
     }
 
-    /// Liquid Glass on iOS 26+, dark blurred material below.
+    /// Liquid Glass on iOS 26+, frosted material below. Both branches keep
+    /// the card translucent so the blurred room shows through, in the same
+    /// tone as the preview's backdrop blur
+    /// (`MessageMenuPresenter` entrance, `.systemUltraThinMaterialDark`).
     static func menuEffect() -> UIVisualEffect
     {
         if #available(iOS 26.0, *)
         {
+            /// Untinted glass keeps the material's own depth: filling it dark
+            /// turns the card into a flat opaque surface, which reads heavier
+            /// than the frosted backdrop next to it.
             let glass = UIGlassEffect(style: .regular)
             glass.isInteractive = true
-            /// Matches the system context-menu fill (the reference menu): a
-            /// near-opaque dark plum surface, while the edges keep the glass
-            /// refraction. Untinted glass reads far too transparent when it
-            /// sits over bright message bubbles.
-            glass.tintColor = UIColor(
-                red: 44.0 / 255.0,
-                green: 38.0 / 255.0,
-                blue: 47.0 / 255.0,
-                alpha: 0.92)
             return glass
         }
-        return UIBlurEffect(style: .systemThickMaterialDark)
-    }
-
-    /// Whether the menu card renders Apple's Liquid Glass material.
-    static var usesGlassEffect: Bool
-    {
-        if #available(iOS 26.0, *) { return true }
-        return false
+        return UIBlurEffect(style: .systemUltraThinMaterialDark)
     }
 
     private func setupContent()
@@ -145,31 +135,11 @@ final class MessageMenuCardView: UIView
         effectView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(effectView)
 
-        /// On <26 the dark material needs a slight dark tint to match the
-        /// reference menu. On 26+ the Liquid Glass material already picks its
-        /// depth from the blurred room behind the card - an extra dark layer
-        /// would dull the refraction, so the glass stays untinted.
-        if !Self.usesGlassEffect
-        {
-            let darkTint = UIView()
-            darkTint.backgroundColor = .black
-            darkTint.layer.cornerRadius = Self.cornerRadius
-            darkTint.layer.masksToBounds = true
-            darkTint.alpha = 0.2
-            darkTint.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(darkTint)
-            NSLayoutConstraint.activate([
-                darkTint.leadingAnchor.constraint(equalTo: leadingAnchor),
-                darkTint.trailingAnchor.constraint(equalTo: trailingAnchor),
-                darkTint.topAnchor.constraint(equalTo: topAnchor),
-                darkTint.bottomAnchor.constraint(equalTo: bottomAnchor),
-            ])
-        }
-
         /// Rows live inside the effect view's `contentView` (UIKit's
         /// sanctioned hierarchy) so that interactive glass - and the blurred
         /// material alike - remain the touch-owning visual layer underneath
-        /// the rows.
+        /// the rows. No extra tint layer: the card shows the frosted
+        /// material only, same translucency as the backdrop blur.
         let rowsStack = self.rowsStack
         rowsStack.axis = .vertical
         rowsStack.alignment = .fill
