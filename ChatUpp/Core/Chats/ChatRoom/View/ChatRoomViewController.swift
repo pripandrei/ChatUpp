@@ -281,7 +281,7 @@ final class ChatRoomViewController: UIViewController
     private func setupBinding()
     {
         rootView.onInputBarHeaderHeightChange = { [weak self] in
-            self?.updateTableViewBottomInset(animated: true)
+            self?.updateTableLayoutAlongsideInputBarHeader(animated: true)
         }
         
         AudioSessionManager.shared.$currentRecordingTime
@@ -592,7 +592,7 @@ final class ChatRoomViewController: UIViewController
         
         self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
         self.rootView.layoutIfNeeded()
-        self.updateTableViewBottomInset(animated: false)
+        self.updateTableLayoutAlongsideInputBarHeader(animated: false)
     }
     
     private func endInputBarHeaderViewDestruction() {
@@ -1310,6 +1310,42 @@ extension ChatRoomViewController
         }
         
         self.updateTopContentInsetToAnchorContentAtBottom()
+    }
+    
+    /// Applies the reply / edit preview's height change to the table's bottom
+    /// padding and shifts the content offset by the same delta. This mirrors
+    /// `updateTableLayoutAlongsideKeyboard` for the preview's show / dismiss
+    /// transitions, which are animated manually (no keyboard notifications drive
+    /// them): without the offset shift the newest messages slide behind the
+    /// preview when it appears and stay lifted after it is dismissed.
+    private func updateTableLayoutAlongsideInputBarHeader(animated: Bool)
+    {
+        let tableView = rootView.tableView
+        let previousBottomInset = tableView.contentInset.bottom
+        /// Captured before the inset changes. Changing the inset makes the scroll
+        /// view clamp an out-of-range offset by itself (which happens when the
+        /// table sits at the bottom), so the delta must be applied to the offset
+        /// from before that clamp, otherwise it is applied twice.
+        let previousOffsetY = tableView.contentOffset.y
+        
+        let applyChanges = {
+            self.updateTableViewBottomInset(animated: false)
+            
+            let insetDelta = tableView.contentInset.bottom - previousBottomInset
+            let minOffsetY = -tableView.adjustedContentInset.top
+            let maxOffsetY = max(minOffsetY,
+                                 tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
+            tableView.contentOffset.y = min(max(previousOffsetY + insetDelta, minOffsetY), maxOffsetY)
+        }
+        
+        guard animated else {
+            applyChanges()
+            return
+        }
+        
+        UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut]) {
+            applyChanges()
+        }
     }
     
     /// Applies the input bar position, the table's bottom padding and the table's
