@@ -154,6 +154,15 @@ final class ChatRoomViewController: UIViewController
         else { return }
         
         self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+        
+        /// `scrollToRow` is a programmatic scroll, so it does not reveal the
+        /// badge (see `scrollViewDidScroll`). Newer messages sit below the
+        /// divider, so the scroll-to-bottom badge must be shown explicitly -
+        /// and only when newer content is actually off-screen.
+        if !isNewestCellFullyVisible
+        {
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+        }
     }
 
     private func setupController()
@@ -1924,10 +1933,24 @@ extension ChatRoomViewController: UIScrollViewDelegate
         }
 
         /// Toggle scrollToBottom badge
-        isNewestCellFullyVisible ?
-        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
-        :
-        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+        /// Only actual user scrolling reveals the badge. Programmatic scrolls
+        /// (send-flow re-pins, initial scrolls, input bar / inset adjustments)
+        /// are anchored to a known end position and simply pass through
+        /// transient positions where the newest cell is not fully visible -
+        /// evaluating those would flash the badge on for a split second right
+        /// before the input bar readjusts when a multi-line message is sent.
+        /// Such scrolls may therefore only move the badge towards HIDDEN.
+        if scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating
+        {
+            isNewestCellFullyVisible ?
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
+            :
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+        }
+        else if isNewestCellFullyVisible
+        {
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
+        }
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
@@ -1957,6 +1980,13 @@ extension ChatRoomViewController: UIScrollViewDelegate
     func scrollViewDidScrollToTop(_ scrollView: UIScrollView)
     {
         triggerUpdateUnseenMessagesCheck()
+        
+        /// not tracked as user dragging, so the badge reveal must be applied
+        /// explicitly (newer messages are below the now-visible top)
+        if !isNewestCellFullyVisible
+        {
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+        }
     }
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView)
     {
