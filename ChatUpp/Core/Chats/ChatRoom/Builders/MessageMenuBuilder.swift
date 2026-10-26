@@ -94,16 +94,17 @@ final class MessageMenuBuilder
             image: UIImage(systemName: "arrowshape.turn.up.left"),
             isDestructive: false)
         {
-            DispatchQueue.main.async { [weak self] in
-                guard let self,
-                      let sender = self.viewModel.getMessageSender(message.senderId) else {return}
-                self.viewModel.currentlyReplyToMessageID = message.id
+            /// same ownership note as `makeDeleteOption` - a weak capture
+            /// never survives the menu build
+            DispatchQueue.main.async { [self] in
+                guard let sender = viewModel.getMessageSender(message.senderId) else {return}
+                viewModel.currentlyReplyToMessageID = message.id
 
-                let image: UIImage? = (self.cell as? TextImageMessageCell)?.messageImage
+                let image: UIImage? = (cell as? TextImageMessageCell)?.messageImage
 
-                let text = (self.cell as? TextImageMessageCell)?.messageText
+                let text = (cell as? TextImageMessageCell)?.messageText
 
-                self.contextMenuSelectedActionHandler?(.reply(
+                contextMenuSelectedActionHandler?(.reply(
                     senderName: sender.name,
                     text: text,
                     image: image)
@@ -130,17 +131,18 @@ final class MessageMenuBuilder
             image: UIImage(systemName: "pencil.and.scribble"),
             isDestructive: false)
         {
-            DispatchQueue.main.async { [weak self] in
-                guard let self else {return}
-                self.rootView.messageTextView.text = message.messageBody
+            /// same ownership note as `makeDeleteOption` - a weak capture
+            /// never survives the menu build
+            DispatchQueue.main.async { [self] in
+                rootView.messageTextView.text = message.messageBody
 
-                let image: UIImage? = (self.cell as? TextImageMessageCell)?.messageImage
+                let image: UIImage? = (cell as? TextImageMessageCell)?.messageImage
 
-                let text = (self.cell as? TextImageMessageCell)?.messageText
-                self.contextMenuSelectedActionHandler?(.edit(text: text,
-                                                             image: image))
+                let text = (cell as? TextImageMessageCell)?.messageText
+                contextMenuSelectedActionHandler?(.edit(text: text,
+                                                        image: image))
 
-                let firstoreService = self.viewModel.firestoreService
+                let firstoreService = viewModel.firestoreService
                 self.viewModel.shouldEditMessage = { editedText in
                     guard !message.isInvalidated else {return}
 
@@ -161,10 +163,15 @@ final class MessageMenuBuilder
             image: UIImage(systemName: "trash"),
             isDestructive: true)
         {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            /// The builder is owned only by the menu overlay: it is torn down
+            /// with the presenter on dismissal, which breaks the only cycle
+            /// (builder -> closure -> builder). A `[weak self]` capture here
+            /// was therefore always nil by the time the scheduled work ran -
+            /// the builder is deallocated right after the menu is built.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [self] in
                 // TODO: should also delete locally in case network is off
-                self?.viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
-                self?.viewModel.firestoreService?.handleCounterUpdateOnMessageDeletionIfNeeded(message)
+                viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
+                viewModel.firestoreService?.handleCounterUpdateOnMessageDeletionIfNeeded(message)
             }
         }
     }
