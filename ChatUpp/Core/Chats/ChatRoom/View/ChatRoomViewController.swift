@@ -1284,7 +1284,7 @@ extension ChatRoomViewController
         let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
         let obscuringHeight = obscuringHeightOverride ?? bottomObscuringHeight
         
-        return inputBarHeight + obscuringHeight + editViewHeight + 4
+        return inputBarHeight + obscuringHeight + editViewHeight + 4 - 20
     }
     
     /// Applies `tableViewBottomInset` to both the content and scroll indicator insets.
