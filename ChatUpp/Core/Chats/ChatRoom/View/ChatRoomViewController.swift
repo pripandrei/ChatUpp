@@ -659,8 +659,16 @@ final class ChatRoomViewController: UIViewController
     
     private func toggleScrollBadgeButtonVisibility(shouldBeHidden: Bool)
     {
-        UIView.animate(withDuration: 0.3) {
-            self.rootView.scrollBadgeButton.layer.opacity = shouldBeHidden ? 0.0 : 0.9
+        guard rootView.scrollBadgeButton.isHidden != shouldBeHidden else {return}
+        
+        /// cross-dissolve instead of animating opacity - a visual effect
+        /// view rendered under group opacity (any opacity < 1) comes back
+        /// blank, which wiped the button's glass background
+        UIView.transition(with: rootView.scrollBadgeButton,
+                          duration: 0.3,
+                          options: [.transitionCrossDissolve])
+        {
+            self.rootView.scrollBadgeButton.isHidden = shouldBeHidden
         }
     }
     

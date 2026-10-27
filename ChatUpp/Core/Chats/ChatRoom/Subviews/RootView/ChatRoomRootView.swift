@@ -45,6 +45,9 @@ final class ChatRoomRootView: UIView
     
     private(set) var inputBarContainer: InputBarContainer = InputBarContainer()
     
+    /// Liquid glass backing for `messageTextView` on iOS 26+ (nil on older OS).
+    private(set) var textViewGlassBackground: UIVisualEffectView?
+    
     private(set) var unseenMessagesBadge = {
         let badge = UnseenMessagesBadge()
         
@@ -94,7 +97,6 @@ final class ChatRoomRootView: UIView
     private(set) lazy var messageTextView: MessageTextView = {
         let messageTextView = MessageTextView()
         
-        messageTextView.backgroundColor                           = ColorScheme.messageTextFieldBackgroundColor
         messageTextView.layer.cornerRadius                        = 15
         messageTextView.font                                      = UIFont(name: "HelveticaNeue", size: 17)
         
@@ -109,18 +111,41 @@ final class ChatRoomRootView: UIView
         messageTextView.textContainer.maximumNumberOfLines        = 0
         messageTextView.translatesAutoresizingMaskIntoConstraints = false
         messageTextView.keyboardAppearance = .dark
-        messageTextView.layer.borderWidth = 0.4
-        messageTextView.layer.borderColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1).cgColor
+
+        if #available(iOS 26.0, *) {
+            /// on iOS 26+ the text view sits on a liquid glass backing view
+            /// (see `textViewGlassBackground`), so it stays transparent
+            messageTextView.backgroundColor = .clear
+        } else {
+            messageTextView.backgroundColor = ColorScheme.messageTextFieldBackgroundColor
+            messageTextView.layer.borderWidth = 0.4
+            messageTextView.layer.borderColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1).cgColor
+        }
         
         return messageTextView
     }()
     
     lazy private(set) var sendMessageButton: UIButton = {
         let sendMessageButton = UIButton()
-        sendMessageButton.configuration                             = .filled()
-        sendMessageButton.configuration?.image                      = UIImage(systemName: "arrow.up")
-        sendMessageButton.configuration?.baseBackgroundColor        = ColorScheme.sendMessageButtonBackgroundColor
-        sendMessageButton.clipsToBounds                             = true
+        if #available(iOS 26.0, *) {
+            /// liquid glass style on iOS 26+; the glass fill is tinted by
+            /// the button's own tintColor, content stays white
+            sendMessageButton.configuration                  = .prominentGlass()
+            sendMessageButton.configuration?.image           = UIImage(systemName: "arrow.up")
+            /// semi-transparent tint so the glass material still shows
+            /// through - with an opaque color the button renders flat, while
+            /// a translucent tint keeps the lensing, rim highlight and shadow
+            sendMessageButton.tintColor                      = ColorScheme.sendMessageButtonBackgroundColor.withAlphaComponent(0.65)
+            sendMessageButton.configuration?.baseForegroundColor = .white
+            sendMessageButton.configuration?.cornerStyle     = .capsule
+        } else {
+            sendMessageButton.configuration                  = .filled()
+            sendMessageButton.configuration?.image           = UIImage(systemName: "arrow.up")
+            sendMessageButton.configuration?.baseBackgroundColor = ColorScheme.sendMessageButtonBackgroundColor
+        }
+        if #available(iOS 26.0, *) {} else {
+            sendMessageButton.clipsToBounds = true
+        }
         sendMessageButton.isHidden                                  = true
         sendMessageButton.translatesAutoresizingMaskIntoConstraints = false
         return sendMessageButton
@@ -128,25 +153,33 @@ final class ChatRoomRootView: UIView
     
     lazy private(set) var voiceRecButton: UIButton = {
         let button = UIButton(type: .custom)
-        
-        var config = UIButton.Configuration.bordered()
-       
+
         // Resize custom image
         let originalImage = UIImage(named: "microphone_for_inputbar")
         let imageSize = inputBarButtonsSize - 12
         let targetSize = CGSize(width: imageSize, height: imageSize)
         let resizedImage = originalImage?.resize(to: targetSize)
 
-        config.image = resizedImage?.withRenderingMode(.alwaysTemplate)
-        config.baseForegroundColor = .systemGray
-        config.baseBackgroundColor = ColorScheme.messageTextFieldBackgroundColor
-        
-        config.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
-        config.background.strokeWidth = 0.5
-        config.background.cornerRadius = inputBarButtonsSize / 2
-        
-//        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
-        button.configuration = config
+        if #available(iOS 26.0, *) {
+            /// liquid glass style on iOS 26+
+            var config = UIButton.Configuration.glass()
+            config.image                 = resizedImage?.withRenderingMode(.alwaysTemplate)
+            config.baseForegroundColor   = .systemGray
+            config.cornerStyle           = .capsule
+            button.configuration         = config
+        } else {
+            var config = UIButton.Configuration.bordered()
+
+            config.image                 = resizedImage?.withRenderingMode(.alwaysTemplate)
+            config.baseForegroundColor   = .systemGray
+            config.baseBackgroundColor   = ColorScheme.messageTextFieldBackgroundColor
+
+            config.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
+            config.background.strokeWidth = 0.5
+            config.background.cornerRadius = inputBarButtonsSize / 2
+
+            button.configuration = config
+        }
 
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -156,36 +189,59 @@ final class ChatRoomRootView: UIView
     lazy private(set) var addPictureButton: UIButton = {
         let button = UIButton(type: .custom)
 
-        var config = UIButton.Configuration.bordered()
-        
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
-        config.image                      = UIImage(systemName: "plus")?.withConfiguration(symbolConfig)
-        button.clipsToBounds                             = true
-        
-        config.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
-        config.background.strokeWidth = 0.5
-        config.background.cornerRadius = inputBarButtonsSize / 2
-        
-//        config.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
-        button.configuration = config
 
-        config.baseForegroundColor = .systemGray
-        config.baseBackgroundColor = ColorScheme.messageTextFieldBackgroundColor
-        
+        if #available(iOS 26.0, *) {
+            /// liquid glass style on iOS 26+
+            var config = UIButton.Configuration.glass()
+            config.image                 = UIImage(systemName: "plus")?.withConfiguration(symbolConfig)
+            config.baseForegroundColor   = .systemGray
+            config.cornerStyle           = .capsule
+            button.configuration         = config
+        } else {
+            var config = UIButton.Configuration.bordered()
+
+            config.image                      = UIImage(systemName: "plus")?.withConfiguration(symbolConfig)
+            button.clipsToBounds              = true
+
+            config.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
+            config.background.strokeWidth = 0.5
+            config.background.cornerRadius = inputBarButtonsSize / 2
+
+            config.baseForegroundColor = .systemGray
+            config.baseBackgroundColor = ColorScheme.messageTextFieldBackgroundColor
+
+            button.configuration = config
+        }
+
         button.translatesAutoresizingMaskIntoConstraints = false
         button.adjustsImageSizeForAccessibilityContentSizeCategory = false
-        button.configuration                             = config
-        
+
         return button
     }()
     
     private(set) var sendEditMessageButton: UIButton = {
         let sendEditMessageButton = UIButton()
-        sendEditMessageButton.configuration                             = .filled()
-        sendEditMessageButton.configuration?.image                      = UIImage(systemName: "checkmark")
-        sendEditMessageButton.configuration?.baseBackgroundColor        = ColorScheme.sendMessageButtonBackgroundColor
+        if #available(iOS 26.0, *) {
+            /// liquid glass style on iOS 26+; the glass fill is tinted by
+            /// the button's own tintColor, content stays white
+            sendEditMessageButton.configuration                  = .prominentGlass()
+            sendEditMessageButton.configuration?.image           = UIImage(systemName: "checkmark")
+            /// semi-transparent tint so the glass material still shows
+            /// through - with an opaque color the button renders flat, while
+            /// a translucent tint keeps the lensing, rim highlight and shadow
+            sendEditMessageButton.tintColor                      = ColorScheme.sendMessageButtonBackgroundColor.withAlphaComponent(0.65)
+            sendEditMessageButton.configuration?.baseForegroundColor = .white
+            sendEditMessageButton.configuration?.cornerStyle     = .capsule
+        } else {
+            sendEditMessageButton.configuration                  = .filled()
+            sendEditMessageButton.configuration?.image           = UIImage(systemName: "checkmark")
+            sendEditMessageButton.configuration?.baseBackgroundColor = ColorScheme.sendMessageButtonBackgroundColor
+        }
 //        sendEditMessageButton.layer.cornerRadius                        = sendEditMessageButton.frame.size.width / 2.0
-        sendEditMessageButton.clipsToBounds                             = true
+        if #available(iOS 26.0, *) {} else {
+            sendEditMessageButton.clipsToBounds = true
+        }
         sendEditMessageButton.isHidden                                  = true
         sendEditMessageButton.translatesAutoresizingMaskIntoConstraints = false
         sendEditMessageButton.adjustsImageSizeForAccessibilityContentSizeCategory = false 
@@ -195,25 +251,35 @@ final class ChatRoomRootView: UIView
     
     lazy private(set) var scrollBadgeButton: UIButton = {
         let scrollToBottomBtn = UIButton(type: .custom)
-        scrollToBottomBtn.configuration  = .bordered()
 
         let image = UIImage(named: "angle-arrow-down")
         let imageSize = inputBarButtonsSize - 20
         let targetSize = CGSize(width: imageSize, height: imageSize)
         let resizedImage = image?.resize(to: targetSize)
 
-        scrollToBottomBtn.configuration?.image = resizedImage?.withRenderingMode(.alwaysTemplate)
-        
-        scrollToBottomBtn.configuration?.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
-        scrollToBottomBtn.configuration?.background.strokeWidth = 0.5
-        scrollToBottomBtn.configuration?.background.cornerRadius = inputBarButtonsSize / 2
-        
-        scrollToBottomBtn.configuration?.baseForegroundColor = .systemGray
-        scrollToBottomBtn.configuration?.baseBackgroundColor = ColorScheme.messageTextFieldBackgroundColor
+        if #available(iOS 26.0, *) {
+            /// liquid glass style on iOS 26+
+            scrollToBottomBtn.configuration = .glass()
+            scrollToBottomBtn.configuration?.image                 = resizedImage?.withRenderingMode(.alwaysTemplate)
+            scrollToBottomBtn.configuration?.baseForegroundColor   = .systemGray
+            scrollToBottomBtn.configuration?.cornerStyle           = .capsule
+        } else {
+            scrollToBottomBtn.configuration  = .bordered()
+
+            scrollToBottomBtn.configuration?.image                 = resizedImage?.withRenderingMode(.alwaysTemplate)
+            scrollToBottomBtn.configuration?.background.strokeColor = #colorLiteral(red: 0.470990181, green: 0.3475213647, blue: 0.4823801517, alpha: 1)
+            scrollToBottomBtn.configuration?.background.strokeWidth = 0.5
+            scrollToBottomBtn.configuration?.background.cornerRadius = inputBarButtonsSize / 2
+            scrollToBottomBtn.configuration?.baseForegroundColor   = .systemGray
+            scrollToBottomBtn.configuration?.baseBackgroundColor   = ColorScheme.messageTextFieldBackgroundColor
+        }
+
         scrollToBottomBtn.translatesAutoresizingMaskIntoConstraints = false
 
 //        scrollToBottomBtn.configuration?.contentInsets = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
-        scrollToBottomBtn.layer.opacity = 0.0
+        /// glass effects never render under layer opacity < 1, so the
+        /// button's visibility is managed with `isHidden` instead
+        scrollToBottomBtn.isHidden = true
         scrollToBottomBtn.adjustsImageSizeForAccessibilityContentSizeCategory = false
 
         return scrollToBottomBtn
@@ -279,6 +345,12 @@ final class ChatRoomRootView: UIView
     override func layoutSubviews()
     {
         super.layoutSubviews()
+        
+        /// on iOS 26+ the glass buttons manage their own capsule shape -
+        /// a manual layer.cornerRadius breaks the glass rendering, so the
+        /// corner radius is only applied on older OS versions
+        if #available(iOS 26.0, *) { return }
+        
         sendMessageButton.layer.cornerRadius = sendMessageButton.bounds.height / 2
         sendEditMessageButton.layer.cornerRadius = sendEditMessageButton.bounds.height / 2
         scrollBadgeButton.layer.cornerRadius = scrollBadgeButton.bounds.size.width / 2
@@ -428,6 +500,7 @@ final class ChatRoomRootView: UIView
         self.voiceRecButton.layer.opacity = 0.0
         self.addPictureButton.layer.opacity = 0.0
         self.textViewTrailingItemView.layer.opacity = 0.0
+        self.textViewGlassBackground?.layer.opacity = 0.0
         
         UIView.animate(withDuration: shouldAnimate ? 0.5 : 0.0)
         {
@@ -435,11 +508,13 @@ final class ChatRoomRootView: UIView
             self.voiceRecButton.isHidden = !shouldHideJoinButton
             self.addPictureButton.isHidden = !shouldHideJoinButton
             self.textViewTrailingItemView.isHidden = !shouldHideJoinButton
+            self.textViewGlassBackground?.isHidden = !shouldHideJoinButton
             
             self.messageTextView.layer.opacity = 1.0
             self.voiceRecButton.layer.opacity = 1.0
             self.addPictureButton.layer.opacity = 1.0
             self.textViewTrailingItemView.layer.opacity = 1.0
+            self.textViewGlassBackground?.layer.opacity = 1.0
         }
     }
  
@@ -881,7 +956,37 @@ extension ChatRoomRootView
     
     private func setupMessageTextViewConstraints()
     {
-        inputBarContainer.addSubview(messageTextView)
+        if #available(iOS 26.0, *) {
+            /// liquid glass backing view pinned to the text view's frame;
+            /// added first so it renders behind the text view.
+            /// `isInteractive` makes the glass expand with highlights on
+            /// tap and hold, like system glass controls
+            let glassEffect = UIGlassEffect()
+            glassEffect.isInteractive = true
+            
+            let glassBackground = UIVisualEffectView(effect: glassEffect)
+            glassBackground.clipsToBounds                  = true
+            glassBackground.layer.cornerRadius             = 18
+            glassBackground.layer.cornerCurve              = .continuous
+            glassBackground.translatesAutoresizingMaskIntoConstraints = false
+            
+            inputBarContainer.addSubview(glassBackground)
+            textViewGlassBackground = glassBackground
+            
+            /// the text view lives inside the effect view's contentView so
+            /// touches reach the interactive glass (a sibling view on top
+            /// would swallow them and the glass would never react)
+            glassBackground.contentView.addSubview(messageTextView)
+            
+            NSLayoutConstraint.activate([
+                glassBackground.leadingAnchor.constraint(equalTo: messageTextView.leadingAnchor),
+                glassBackground.trailingAnchor.constraint(equalTo: messageTextView.trailingAnchor),
+                glassBackground.topAnchor.constraint(equalTo: messageTextView.topAnchor),
+                glassBackground.bottomAnchor.constraint(equalTo: messageTextView.bottomAnchor),
+            ])
+        } else {
+            inputBarContainer.addSubview(messageTextView)
+        }
         
         textViewHeightConstraint           = messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize )
         textViewHeightConstraint.isActive  = true
