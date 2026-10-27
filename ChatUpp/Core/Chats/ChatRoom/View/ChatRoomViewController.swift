@@ -2036,6 +2036,10 @@ extension ChatRoomViewController: UIScrollViewDelegate
         }
         
         triggerUpdateUnseenMessagesCheck()
+        
+        /// the programmatic flight has landed - apply the resting header
+        /// state (overlay pinned pills fade out again)
+        toggleSectionHeaderVisibility(isScrollActive: false)
     }
     
     
@@ -2068,15 +2072,45 @@ extension ChatRoomViewController
 
     private func toggleSectionHeaderVisibility(isScrollActive: Bool, withAnimation: Bool = true)
     {
-        /// date pills are real (sticky) section headers now, so they should
-        /// always be visible. This also restores opacity in case an older
-        /// header view was faded out.
-        guard let visibleIndices = rootView.tableView.indexPathsForVisibleRows
+        let tableView = rootView.tableView
+        
+        guard let visibleIndices = tableView.indexPathsForVisibleRows
         else { return }
+        
+        /// Date pill visibility rules:
+        /// - a pill sitting at its section's own start position on screen
+        ///   (the section begins inside the viewport) is always visible
+        /// - a pill whose section start has already scrolled above the
+        ///   viewport top is held pinned over the content at the viewport
+        ///   top edge by the table view - such a pill is only visible while
+        ///   scrolling is active and fades out at rest
+        let viewportTopY = tableView.contentOffset.y + tableView.adjustedContentInset.top
         
         for section in Set(visibleIndices.map(\.section))
         {
-            rootView.tableView.headerView(forSection: section)?.layer.opacity = 1.0
+            guard let headerView = tableView.headerView(forSection: section)
+            else { continue }
+            
+            let isOverlayPinnedHeader = tableView.rectForHeader(inSection: section).minY < viewportTopY - 0.5
+            let targetOpacity: Float = (isScrollActive || !isOverlayPinnedHeader) ? 1.0 : 0.0
+            
+            if withAnimation
+            {
+                /// an explicit UIView.animate animation is used here on
+                /// purpose: implicit CATransaction-based animations get
+                /// suppressed when the change happens inside UIKit's
+                /// scroll-event transaction (delegate callbacks of an active
+                /// scroll run with layer actions disabled), which collapsed
+                /// the fade to an instant jump. Explicit animations are not
+                /// affected by that suppression.
+                UIView.animate(withDuration: 0.35) {
+                    headerView.layer.opacity = targetOpacity
+                }
+            }
+            else
+            {
+                headerView.layer.opacity = targetOpacity
+            }
         }
     }
 }
