@@ -998,7 +998,7 @@ extension ChatRoomRootView
             messageTextView.bottomAnchor.constraint(equalTo: inputBarContainer.bottomAnchor, constant: -inputBarContainer.bounds.height * 0.52),
 //            messageTextView.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
 //            messageTextView.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
-            messageTextView.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -50),
+            messageTextView.trailingAnchor.constraint(equalTo: inputBarContainer.trailingAnchor, constant: -48),
 //            messageTextView.leadingAnchor.constraint(equalTo: inputBarContainer.leadingAnchor, constant: 48),
             messageTextView.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
         ])
@@ -1008,7 +1008,7 @@ extension ChatRoomRootView
         inputBarContainer.addSubview(sendMessageButton)
 
         NSLayoutConstraint.activate([
-            sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 5),
+            sendMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 6),
             sendMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
             sendMessageButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
             sendMessageButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
@@ -1020,7 +1020,7 @@ extension ChatRoomRootView
         inputBarContainer.addSubview(voiceRecButton)
         
         NSLayoutConstraint.activate([
-            voiceRecButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 5),
+            voiceRecButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 6),
             voiceRecButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
             voiceRecButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
             voiceRecButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
@@ -1031,7 +1031,7 @@ extension ChatRoomRootView
         self.addSubviews(sendEditMessageButton)
         
         NSLayoutConstraint.activate([
-            sendEditMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 5),
+            sendEditMessageButton.leadingAnchor.constraint(equalTo: messageTextView.trailingAnchor, constant: 6),
             sendEditMessageButton.topAnchor.constraint(equalTo: inputBarContainer.topAnchor, constant: inputBarViewsTopConstraintConstant),
             sendEditMessageButton.heightAnchor.constraint(equalToConstant: inputBarButtonsSize),
             sendEditMessageButton.widthAnchor.constraint(equalToConstant: inputBarButtonsSize),
