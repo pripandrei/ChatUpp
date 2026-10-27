@@ -2006,6 +2006,16 @@ extension ChatRoomViewController: UIScrollViewDelegate
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        /// A press whose finger started scrolling: the scroll took the touch
+        /// over, so the press pipeline (pending sink or already shrunk
+        /// bubble) must be torn down right here. UIKit may fail the long
+        /// press recognizer SILENTLY for pre-threshold movement - no
+        /// `.ended/.failed/.cancelled` state and no touch cancellation is
+        /// delivered to it - so `onTouchUp` cannot be relied on to have
+        /// restored the bubble (it used to stay pressed-in mid-sink while
+        /// the table scrolled). No-op when no press is active.
+        restorePressedCell()
+
         /// the user took over the animated scroll flight - no automatic
         /// landing correction should apply anymore
         isScrollingToNewestMessage = false
