@@ -68,6 +68,15 @@ final class ChatRoomRootView: UIView
         tableView.separatorStyle                = .none
         tableView.sectionHeaderTopPadding       = 0
         
+        /// on iOS 26 scroll views underneath a bar automatically get a soft
+        /// "scroll edge effect" that dims the content right below the nav
+        /// bar - it sits in the same slot as the date pill header and reads
+        /// as a leftover glow/shadow behind the hidden header, so it is
+        /// turned off here
+        if #available(iOS 26.0, *) {
+            tableView.topEdgeEffect.isHidden = true
+        }
+        
         // for skeleton animation
         tableView.estimatedRowHeight            = UITableView.automaticDimension
         tableView.rowHeight                     = UITableView.automaticDimension
