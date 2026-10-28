@@ -37,7 +37,6 @@ struct GroupCreationScreen: View
                         .foregroundStyle(Color(ColorScheme.tabBarNormalItemsTintColor))
                 }
             }
-            .padding(.top, 1)
             .scrollContentBackground(.hidden)
             .background(Color(ColorScheme.appBackgroundColor))
 //            .searchable(text: $searchText,
@@ -51,7 +50,7 @@ struct GroupCreationScreen: View
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
-                ToolbarTrailingItem()
+                closeToolbarItem
             }
             .onAppear {
                 Task {
@@ -78,47 +77,32 @@ extension GroupCreationScreen
 }
 
 
-//MARK: ToolBar
+//MARK: Toolbar
 extension GroupCreationScreen
 {
     @ToolbarContentBuilder
-    private func ToolbarTrailingItem() -> some ToolbarContent
-    {
-        ToolbarItem(placement: .topBarTrailing) {
-            cancelButton()
-        }
-    }
-    
-    @ViewBuilder
-    private func cancelButton() -> some View
+    private var closeToolbarItem: some ToolbarContent
     {
         if #available(iOS 26.0, *) {
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 19, weight: .semibold))
-                    .contentShape(.circle)
+            ToolbarItem(placement: .topBarTrailing) {
+                closeButton
             }
-            .buttonStyle(.plain)
-            .buttonBorderShape(.circle)
-            .accessibilityLabel("Close")
         } else {
-            Button {
-                dismiss()
-                //            dismiss.callAsFunction()
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 12))
-                    .bold()
-    //                .foregroundStyle(Color(ColorScheme.appBackgroundColor))
-                    .foregroundStyle(Color(#colorLiteral(red: 0.9062067866, green: 0.9062067866, blue: 0.9062067866, alpha: 1)))
-                    .padding(7)
-    //                .background(Color(ColorScheme.actionButtonsTintColor))
-                    .background(Color(ColorScheme.navigationItemsColor))
-                    .clipShape(.circle)
+            ToolbarItem(placement: .topBarTrailing) {
+                closeButton
+                    .buttonStyle(.plain)
+                    .background(Color(ColorScheme.navigationItemsColor), in: Circle())
             }
         }
+    }
+
+    private var closeButton: some View
+    {
+        Button("Close", systemImage: "xmark") {
+            dismiss()
+        }
+        .labelStyle(.iconOnly)
+        .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
     }
 }
 
