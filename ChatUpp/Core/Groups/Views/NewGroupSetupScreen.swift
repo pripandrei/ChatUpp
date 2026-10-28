@@ -29,6 +29,7 @@ struct NewGroupSetupScreen: View
         .background(Color(ColorScheme.appBackgroundColor))
         .navigationTitle("New Group")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
             toolbarTrailingItem()
         }

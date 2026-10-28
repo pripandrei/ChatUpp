@@ -49,6 +49,7 @@ struct GroupCreationScreen: View
                 destinationRouteView(route)
             })
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarTrailingItem()
             }
