@@ -89,21 +89,35 @@ extension GroupCreationScreen
         }
     }
     
+    @ViewBuilder
     private func cancelButton() -> some View
     {
-        Button {
-            dismiss()
-            //            dismiss.callAsFunction()
-        } label: {
-            Image(systemName: "xmark")
-                .font(.system(size: 10))
-                .bold()
-//                .foregroundStyle(Color(ColorScheme.appBackgroundColor))
-                .foregroundStyle(Color(#colorLiteral(red: 0.9062067866, green: 0.9062067866, blue: 0.9062067866, alpha: 1)))
-                .padding(7)
-//                .background(Color(ColorScheme.actionButtonsTintColor))
-                .background(Color(ColorScheme.navigationItemsColor))
-                .clipShape(.circle)
+        if #available(iOS 26.0, *) {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 19, weight: .semibold))
+                    .contentShape(.circle)
+            }
+            .buttonStyle(.plain)
+            .buttonBorderShape(.circle)
+            .accessibilityLabel("Close")
+        } else {
+            Button {
+                dismiss()
+                //            dismiss.callAsFunction()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12))
+                    .bold()
+    //                .foregroundStyle(Color(ColorScheme.appBackgroundColor))
+                    .foregroundStyle(Color(#colorLiteral(red: 0.9062067866, green: 0.9062067866, blue: 0.9062067866, alpha: 1)))
+                    .padding(7)
+    //                .background(Color(ColorScheme.actionButtonsTintColor))
+                    .background(Color(ColorScheme.navigationItemsColor))
+                    .clipShape(.circle)
+            }
         }
     }
 }

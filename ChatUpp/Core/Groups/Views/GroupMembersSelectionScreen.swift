@@ -99,9 +99,9 @@ extension GroupMembersSelectionScreen
 
         Group {
             if #available(iOS 26.0, *) {
-                field.glassEffect(.regular.interactive(), in: .capsule)
+                field.glassEffect(.regular.tint(Color(ColorScheme.appBackgroundColor)).interactive(), in: .capsule)
             } else {
-                field.background(Color(ColorScheme.listCellBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+                field.background(Color(ColorScheme.appBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
             }
         }
         .padding(.horizontal, 16)
