@@ -125,6 +125,13 @@ final class ChatRoomViewController: UIViewController
         setupController()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // The chat room lives on the outer navigation controller above the
+        // tab bar; bring its nav bar (title & items) along with the push.
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 

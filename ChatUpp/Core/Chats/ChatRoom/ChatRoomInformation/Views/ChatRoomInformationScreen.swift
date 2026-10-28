@@ -207,8 +207,9 @@ extension ChatRoomInformationScreen
                     Button("Leave", role: .destructive) {
                         Task {
                             try await viewModel.leaveGroup()
-                            Utilities.windowRoot?.chatsNavigationController?.popViewController(animated: true)
-                            Utilities.windowRoot?.chatsNavigationController?.popToRootViewController(animated: true)
+                            // The chat room and this screen live on the outer
+                            // navigation stack; unwind both back to the tabs.
+                            Utilities.windowRoot?.navigationController?.popToRootViewController(animated: true)
                         }
                     }
                 } message: {

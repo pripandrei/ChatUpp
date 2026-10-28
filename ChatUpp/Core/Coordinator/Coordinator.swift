@@ -107,13 +107,14 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
     func openConversationVC(conversationViewModel: ChatRoomViewModel)
     {
         let conversationVC = ChatRoomViewController(conversationViewModel: conversationViewModel)
-        conversationVC.hidesBottomBarWhenPushed = true
         conversationVC.coordinatorDelegate = self
         
-        if let nav = tabBar.selectedViewController as? UINavigationController
+        // Push on the outer navigation controller (the one containing the
+        // tab bar) so the chat room slides in over the full window while
+        // the tab bar keeps its items and is simply covered underneath.
+        if let outerNavController = tabBar.navigationController
         {
-            nav.pushViewController(conversationVC, animated: true)
-            nav.setNavigationBarHidden(false, animated: false)
+            outerNavController.pushViewController(conversationVC, animated: true)
         } else {
             tabBar.chatsNavigationController?.pushViewController(conversationVC, animated: true)
         }
@@ -182,7 +183,9 @@ class MainCoordinator: Coordinator, SwiftUI.ObservableObject
         hostingController.view.backgroundColor = .clear
         NavigationBarAppearance.configureTransparentNavigationBarAppearance(for: hostingController)
 
-        tabBar.chatsNavigationController?.pushViewController(hostingController, animated: true)
+        // Opened from inside a chat room, which lives on the outer stack
+        // above the tab bar - push there so it stacks on top of the room.
+        (tabBar.navigationController ?? tabBar.chatsNavigationController)?.pushViewController(hostingController, animated: true)
     }
     
     func openThemeScreen()
