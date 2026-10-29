@@ -434,6 +434,22 @@ final class MessageMenuPresenter: NSObject
         bubblePreview.frame = bubbleOriginFrame
         bubblePreview.transform = initialTransform
         bubblePreview.contentMode = .scaleToFill
+        if message.sticker != nil,
+           let sticker = findStickerView(in: bubbleSourceView)
+        {
+            let stickerFrame = sticker.convert(sticker.bounds, to: bubbleSourceView)
+            let format = UIGraphicsImageRendererFormat.default()
+            format.scale = bubbleImage.scale
+            format.opaque = false
+            bubblePreview.image = UIGraphicsImageRenderer(size: bubbleImage.size, format: format).image { context in
+                bubbleImage.draw(at: .zero)
+                context.cgContext.clear(stickerFrame)
+            }
+
+            let animatedSticker = sticker.makeAnimatedPreviewView()
+            animatedSticker.frame = stickerFrame
+            bubblePreview.addSubview(animatedSticker)
+        }
         contentContainer.addSubview(bubblePreview)
 
         var reactionPanelView = ReactionPanelView()
@@ -505,6 +521,15 @@ final class MessageMenuPresenter: NSObject
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) { [weak self] in
             self?.startEntranceAnimations(with: nil)
         }
+    }
+
+    private func findStickerView(in view: UIView) -> StickerView?
+    {
+        if let sticker = view as? StickerView { return sticker }
+        for subview in view.subviews {
+            if let sticker = findStickerView(in: subview) { return sticker }
+        }
+        return nil
     }
 
     /// The choreographed entrance. The blur / dim actors rise with the

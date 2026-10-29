@@ -26,6 +26,7 @@ final class StickerView: UIView
     private var currentFrameIndex: Float = 1
     
     private let imageLayer: CALayer = .init()
+    private weak var previewImageLayer: CALayer?
 
     init(size: CGSize = .init(width: 200, height: 200))
     {
@@ -54,6 +55,14 @@ final class StickerView: UIView
     }
 
     
+    func makeAnimatedPreviewView() -> UIView
+    {
+        let preview = UIView(frame: bounds)
+        preview.layer.contents = imageLayer.contents
+        previewImageLayer = preview.layer
+        return preview
+    }
+
     //MARK: - Setup lottie
     
     func setupSticker(_ name: String)
@@ -137,6 +146,7 @@ final class StickerView: UIView
                 {
                     guard self.name == snapshotName else {return}
                     self.imageLayer.contents = cgImage
+                    self.previewImageLayer?.contents = cgImage
                 }
 
                 currentFrameIndex += Float(deltaTime) * animationFrameRate
