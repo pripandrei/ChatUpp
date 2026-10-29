@@ -507,7 +507,6 @@ final class ChatRoomViewController: UIViewController
                 self.rootView.updateInputBarBottomConstraint(toSize: 0)
                 self.rootView.layoutIfNeeded()
             }
-            print("MENUPIPE[\(pipeTimestamp())]  keyboard will hide under active preview - input bar drops, table layout preserved")
             return
         }
         
@@ -2166,14 +2165,11 @@ extension ChatRoomViewController
             /// threshold when the hold trips.
             guard dragableCell == nil else
             {
-                print("MENUPIPE[\(pipeTimestamp())]  long-press .began suppressed - drag in progress")
                 restorePressedCell()
                 return
             }
-            print("MENUPIPE[\(pipeTimestamp())]  long-press .began - initiating preview")
             presentMessageMenu(at: gesture.location(in: rootView.tableView))
         case .ended, .cancelled, .failed:
-            print("MENUPIPE[\(pipeTimestamp())]  long-press \(gesture.state) - restoring if no preview")
             restorePressedCell()
         default:
             break
@@ -2215,7 +2211,6 @@ extension ChatRoomViewController
         pendingPreviewCapture = MessageMenuPresenter.captureBubbleImage(
             from: source.bubbleSourceView,
             afterScreenUpdates: false)
-        print("MENUPIPE[\(pipeTimestamp())]  press-down - capture ready, press-in scheduled")
 
         pendingPressInWork?.cancel()
         let pressInWork = DispatchWorkItem { [weak self] in
@@ -2232,7 +2227,6 @@ extension ChatRoomViewController
               let source = pressedBubbleSource
         else { return }
 
-        print("MENUPIPE[\(pipeTimestamp())]  press-in shrink started")
         UIView.animate(withDuration: 0.6,
                        delay: 0,
                        usingSpringWithDamping: 0.85,
@@ -2255,7 +2249,6 @@ extension ChatRoomViewController
         pendingPreviewCapture = nil
         guard let container = pressedBubbleContainer else { return }
         pressedBubbleContainer = nil
-        print("MENUPIPE[\(pipeTimestamp())]  restoring pressed bubble to original size")
         UIView.animate(withDuration: 0.35,
                        delay: 0,
                        usingSpringWithDamping: 0.8,

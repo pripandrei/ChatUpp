@@ -133,7 +133,6 @@ final class MessageMenuPresenter: NSObject
     func present()
     {
         guard !isPresented else { return }
-        print("MENUPIPE[\(pipeTimestamp())]  preview present started (capture + overlay build)")
 
         let pressedTransform = bubbleSourceView.transform
         if preCapturedImage == nil
@@ -206,7 +205,6 @@ final class MessageMenuPresenter: NSObject
             buildOverlayView(with: bubbleImage,
                              initialTransform: pressedTransform,
                              keyboardHost: keyboardWindow)
-            print("MENUPIPE[\(pipeTimestamp())]  preview hosted inside keyboard window \(keyboardWindow.windowLevel) - keyboard stays up")
             startEntranceAnimations(with: nil)
         }
         else
@@ -216,7 +214,6 @@ final class MessageMenuPresenter: NSObject
                              keyboardHost: nil)
             if findFirstResponder(in: rootView) != nil
             {
-                print("MENUPIPE[\(pipeTimestamp())]  keyboard window unavailable - resign path (keyboardIsUp: \(KeyboardWindowLocator.isKeyboardFrameUp(relativeTo: appWindow)))")
                 orchestrateKeyboardHideAndEntrance()
             }
             else
@@ -224,7 +221,6 @@ final class MessageMenuPresenter: NSObject
                 startEntranceAnimations(with: nil)
             }
         }
-        print("MENUPIPE[\(pipeTimestamp())]  preview ready - entrance running")
     }
 
     func dismiss(completion: (() -> Void)? = nil)
@@ -235,7 +231,6 @@ final class MessageMenuPresenter: NSObject
         }
         isPresented = false
         isDismissalRunning = true
-        print("MENUPIPE[\(pipeTimestamp())]  dismiss started")
 
         /// Bug #5 hardening: the outgoing copy must be purely positional.
         /// Freeze any residual layer animation and pin it to its full-size
@@ -244,7 +239,6 @@ final class MessageMenuPresenter: NSObject
         if let copy = bubblePreviewView
         {
             copy.layer.removeAllAnimations()
-            print("MENUPIPE[\(pipeTimestamp())]  dismissal - copy transform \(copy.transform.a), frame \(copy.frame), landed \(bubbleLandedFrame), origin \(bubbleOriginFrame)")
             copy.transform = .identity
         }
 
@@ -286,7 +280,6 @@ final class MessageMenuPresenter: NSObject
             /// the only animated change left is the copy's position fly-back.
             self.bubbleSourceView.transform = .identity
             self.bubbleSourceView.alpha = 1
-            print("MENUPIPE[\(pipeTimestamp())]  reveal original - source transform \(self.bubbleSourceView.transform.a)")
             overlay.removeFromSuperview()
             self.disposeOverlay()
             self.restoreKeyboardIfNeeded()
@@ -551,7 +544,6 @@ final class MessageMenuPresenter: NSObject
         let keyboardDuration = hideNote?.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
         let keyboardCurveRaw = hideNote?.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt
             ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
-        print("MENUPIPE[\(pipeTimestamp())]  entrance start - keyboard driven: \(keyboardDriven), duration \(keyboardDuration)")
 
         UIView.animate(withDuration: max(keyboardDuration, Metrics.flightDuration),
                        delay: 0,
@@ -639,7 +631,6 @@ final class MessageMenuPresenter: NSObject
     {
         guard didResignKeyboard else { return }
         didResignKeyboard = false
-        print("MENUPIPE[\(pipeTimestamp())]  restoring keyboard first responder")
         rootView.messageTextView.becomeFirstResponder()
     }
 

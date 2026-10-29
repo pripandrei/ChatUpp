@@ -9,14 +9,6 @@
 import UIKit
 import SkeletonView
 
-/// Compact timestamp for pipeline debug logs, unique within a 100s window,
-/// good enough to measure the gaps between `MENUPIPE` events.
-func pipeTimestamp() -> String
-{
-    String(format: "%.3f", Date().timeIntervalSinceReferenceDate
-        .truncatingRemainder(dividingBy: 100.0))
-}
-
 enum UnwrappingError: Error {
     case nilValueFound(String)
 }
