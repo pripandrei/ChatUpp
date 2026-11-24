@@ -15,11 +15,24 @@ enum UnwrappingError: Error {
 
 struct Utilities
 {
+    /// Returns the tab bar controller, whether it is the window root or
+    /// wrapped in the outer navigation controller.
+    private static func findTabBarRoot(_ rootViewController: UIViewController?) -> TabBarViewController?
+    {
+        if let tabBarController = rootViewController as? TabBarViewController {
+            return tabBarController
+        }
+        if let navController = rootViewController as? UINavigationController {
+            return navController.viewControllers.first as? TabBarViewController
+        }
+        return nil
+    }
+    
     static func findLoginViewControllerInHierarchy() -> UIViewController?
     {
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
 
-        if let tabBarController = rootViewController as? TabBarViewController,
+        if let tabBarController = findTabBarRoot(rootViewController),
            let loginNavController = tabBarController.presentedViewController as? UINavigationController,
            let loginVC = loginNavController.topViewController as? LoginViewController
         {
@@ -31,7 +44,7 @@ struct Utilities
     static func findChatsViewControllerInHierarchy() -> UIViewController? {
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
         
-        if let tabBarController = rootViewController as? UITabBarController,
+        if let tabBarController = findTabBarRoot(rootViewController),
            let navController = (tabBarController.children.first) as? UINavigationController,
            let chatsVC = navController.topViewController as? ChatsViewController {
             return chatsVC
@@ -42,7 +55,7 @@ struct Utilities
     static func findNavVCInHierarchy() -> UINavigationController? {
         let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
         
-        if let tabBarController = rootViewController as? UITabBarController,
+        if let tabBarController = findTabBarRoot(rootViewController),
            let navController = (tabBarController.children.first) as? UINavigationController {
             return navController
         }
@@ -51,11 +64,14 @@ struct Utilities
 
     static var windowRoot: TabBarViewController? {
         get {
-            return (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController as? TabBarViewController
+            let rootViewController = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController
+            return findTabBarRoot(rootViewController)
         }
         set {
             guard let newValue = newValue else {return}
-            (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = newValue
+            let rootNavController = UINavigationController(rootViewController: newValue)
+            rootNavController.setNavigationBarHidden(true, animated: false)
+            (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.rootViewController = rootNavController
         }
     }
     

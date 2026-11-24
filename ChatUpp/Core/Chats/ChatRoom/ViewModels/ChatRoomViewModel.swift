@@ -8,7 +8,7 @@
 
 import Foundation
 import Combine
-//import UIKit
+import UIKit
 import SwiftUI
 import RealmSwift
 
@@ -44,7 +44,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     var currentlyReplyToMessageID: String?
     
     private var recentMessageItem: MessageItem? {
-        return messageClusterRepository.messageClusters.last?.items.last(where: { $0.message != nil })
+        return messageClusterRepository.messageClusters.last?.items.last
     }
     
     var conversationExists: Bool {
@@ -199,7 +199,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         
         observeParticipantChanges()
          
-        guard let startMessage = recentMessageItem?.message
+        guard let startMessage = messageClusterRepository.messageClusters.last?.items.last?.message
         else {
             // chat is empty, safe to attache to upcoming messages
             messageListenerService?.addListenerToUpcomingMessages()
@@ -270,7 +270,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         await self.unseenMessageCounterUpdater.updateParticipantsUnseenCounterRemote(chat: threadSafeChat)
         
         var messages = getCurrentMessagesFromCluster()
-        messages.append(newMessage)
+        messages.insert(newMessage, at: 0)
         
         realmService?.addMessagesToConversationInRealm(messages)
         
@@ -319,7 +319,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             ChatParticipant(userID: participant.id, unseenMessageCount: 0)
         ]
         let recentMessageID = recentMessageItem?.message?.id
-        let messagesCount = currentTotalMessagesCount
+        let messagesCount = messageClusterRepository.messageClusters.last?.items.count
         
         return Chat(
             id: chatId,
@@ -354,7 +354,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     }
     
     @MainActor
-    func createVoiceMessage(fromURL url: URL, withAudioSamples samples: [Float]) -> Message
+    func createVoiceMessage(fromURL url: URL, withAudioSamples samples: [Float])
     {
         ensureConversationExists()
         let message = createMessageLocally(
@@ -363,7 +363,6 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             media: .audio(path: url.lastPathComponent, samples: samples)
         )
         syncMessageWithFirestore(message.freeze(), imageRepository: nil)
-        return message
     }
     
     // Extract samples from audio file to generate waveforms
@@ -459,7 +458,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
 
         messageListenerService?.addListenerToExistingMessages(
             startAtMesssage: message,
-            ascending: false,
+            ascending: true,
             limit: limit)
     }
  
@@ -525,10 +524,11 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return .success(updatedMessagesCount)
     }
     
+    /// Returns the index path of the OLDEST unseen message.
+    /// In the ascending layout the "Unread Messages" divider is inserted
+    /// in front of it, so the whole unread block stays below the divider.
     func findLastUnseenMessageIndexPath() -> IndexPath?
     {
-        // Clusters are chronological, so the marker belongs immediately before
-        // the oldest unread message that is currently loaded.
         for (sectionIndex, messageGroup) in messageClusterRepository.messageClusters.enumerated()
         {
             if let rowIndex = messageGroup.items
@@ -548,7 +548,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
         return nil
     }
     
-    func insertUnseenMessagesTitle(afterIndexPath indexPath: IndexPath)
+    func insertUnseenMessagesTitle(at indexPath: IndexPath)
     {
         let conversationCellVM = MessageCellViewModel(isUnseenCell: true)
         messageClusterRepository.messageClusters[indexPath.section].items.insert(conversationCellVM, at: indexPath.row)
@@ -751,7 +751,8 @@ extension ChatRoomViewModel
         Task {
             let messages = await messageListenerService?.fetchGappedMessages() ?? []
             if !messages.isEmpty {
-                await handleAddedMessages(messages, withInsertion: true)
+                /// gapped messages here are the newest ones, append them at the bottom
+                await handleAddedMessages(messages)
             }
             await MainActor.run {
                 addListeners()
@@ -772,11 +773,12 @@ extension ChatRoomViewModel
             let messagesDescending = conversation.getMessages(
                 startingFrom: message.id,
                 isMessageIncluded: false,
-                ascending: false).reversed()
+                ascending: false).reversed() /// older than unseen, converted to ascending
             return Array(messagesDescending + messagesAscending)
         } else {
             let limit = ObjectsPaginationLimit.localMessages * 2
-            let messages = conversation.getMessagesResults(ascending: false).prefix(limit).reversed()
+            /// newest `limit` messages, returned ascending (oldest -> newest)
+            let messages = conversation.getMessagesResults().prefix(limit).reversed()
             return Array(messages)
         }
     }
@@ -803,7 +805,9 @@ extension ChatRoomViewModel
         if !paginatedMessages.isEmpty
         {
             messageClusterRepository.addMessages(paginatedMessages)
-            self.lastPaginatedMessage = paginatedMessages.last
+            /// `paginatedMessages` is ascending, so anchor the follow-up listener
+            /// at the far end of the page in the fetch direction.
+            self.lastPaginatedMessage = ascending ? paginatedMessages.last : paginatedMessages.first
             self.validateMessagesForDeletion(paginatedMessages)
             return true
         }
@@ -816,22 +820,24 @@ extension ChatRoomViewModel
         
         if ascending
         {
-            guard let startMessage = recentMessageItem?.message
+            /// catch-up / newer messages: anchor at the newest loaded message
+            guard let startMessage = messageClusterRepository.messageClusters.last?.items.last?.message
             else {return [] }
             
             let messages = conversation.getMessages(startingFrom: startMessage.id,
                                                     isMessageIncluded: false,
-                                                    ascending: ascending)
-            return messages
+                                                    ascending: true)
+            return messages /// already ascending
         }
         
-        guard let startMessage = messageClusterRepository.messageClusters.first?.items.first(where: { $0.message != nil })?.message
+        /// older messages: anchor at the oldest loaded message, fetch downwards
+        guard let startMessage = messageClusterRepository.messageClusters.first?.items.first?.message
         else {return [] }
 
         let messages = conversation.getMessages(startingFrom: startMessage.id,
                                                 isMessageIncluded: false,
-                                                ascending: ascending)
-        return messages.reversed()
+                                                ascending: false)
+        return Array(messages.reversed()) /// converted to ascending
     }
     
     private func getUnseenMessage(sortedAscending: Bool) -> Message?
@@ -855,6 +861,7 @@ extension ChatRoomViewModel
     {
         if !messages.isEmpty
         {
+            /// `messages` are already ascending (oldest -> newest)
             messageClusterRepository.addMessages(messages)
         }
         conversationInitializationStatus = .finished
@@ -1061,12 +1068,12 @@ extension ChatRoomViewModel
     /// Use this variable before updating realm with new message
     var isMostRecentMessagePaginated: Bool
     {
-        conversation?.getLastMessage()?.id == recentMessageItem?.message?.id ? true : false
+        conversation?.getLastMessage()?.id == messageClusterRepository.messageClusters.last?.items.last?.message?.id ? true : false
     }
     
     var isChatRecentMessagePaginated: Bool
     {
-        guard let dataSourceRecentMessage = recentMessageItem?.message else
+        guard let dataSourceRecentMessage = messageClusterRepository.messageClusters.last?.items.last?.message else
         {
             return true
         }
@@ -1122,15 +1129,17 @@ extension ChatRoomViewModel
 
         if insert
         {
+            /// gapped (older) messages land at the top of the list
             messageClusterRepository.insertMessagesInOrder(newMessages)
         } else {
+            /// newly received messages land at the bottom of the list
             messageClusterRepository.addMessages(newMessages)
         }
         
         if newMessages.count == 1 {
             datasourceUpdateType.send(DatasourceRowAnimation.none)
         } else if newMessages.count > 1 {
-            datasourceUpdateType.send(DatasourceRowAnimation.top)
+            datasourceUpdateType.send(insert ? DatasourceRowAnimation.top : DatasourceRowAnimation.bottom)
         }
     }
     
@@ -1145,10 +1154,10 @@ extension ChatRoomViewModel
             guard let clusterIndex = messageClusterRepository.messageClusters.firstIndex(where: { $0.date == day }) else {continue}
             
             guard let cellVMIndex = messageClusterRepository.messageClusters[clusterIndex].items.firstIndex(where: { $0.message?.id == message.id } ) else {continue}
-
-            let wasFirstMessageInSection = cellVMIndex == 0
-            let wasMostRecentMessage = clusterIndex == messageClusterRepository.messageClusters.count - 1
-                && cellVMIndex == messageClusterRepository.messageClusters[clusterIndex].items.count - 1
+            
+            /// the newest message lives in the last cluster's last item
+            let wasMostRecentMessage = clusterIndex == messageClusterRepository.messageClusters.count - 1 &&
+                cellVMIndex == messageClusterRepository.messageClusters[clusterIndex].items.count - 1
             
             let _ = messageClusterRepository.messageClusters[clusterIndex].items.remove(at: cellVMIndex)
             
@@ -1162,13 +1171,12 @@ extension ChatRoomViewModel
                 Task {
                     await firestoreService?.updateRecentMessageFromFirestoreChat(messageID: recentMessageID)
                 }
-            }
-
-            if wasFirstMessageInSection,
-               clusterIndex < messageClusterRepository.messageClusters.count,
-               !messageClusterRepository.messageClusters[clusterIndex].items.isEmpty
-            {
-                messageClusterRepository.messageClusters[clusterIndex].items[0].toggleVisibilityOfSenderAvatar(true)
+                
+                if let lastClusterIndex = messageClusterRepository.messageClusters.indices.last,
+                   let lastItemIndex = messageClusterRepository.messageClusters[lastClusterIndex].items.indices.last
+                {
+                    messageClusterRepository.messageClusters[lastClusterIndex].items[lastItemIndex].toggleVisibilityOfSenderAvatar(true)
+                }
             }
             
             if messageClusterRepository.messageClusters.isEmpty
@@ -1336,6 +1344,7 @@ extension ChatRoomViewModel
         switch fetchStrategy
         {
         case .ascending(let startAtMessage, let included):
+            /// already ascending
             return try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
@@ -1343,13 +1352,16 @@ extension ChatRoomViewModel
                 fetchDirection: .ascending
             )
         case .descending(let startAtMessage, let included):
-            return try await FirebaseChatService.shared.fetchMessagesFromChat(
+            /// Firestore returns newest -> oldest; reverse so callers get ascending
+            let messages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage?.id,
                 inclusive: included,
                 fetchDirection: .descending
             )
+            return Array(messages.reversed())
         case .hybrit(let startAtMessage):
+            /// older-than-anchor (descending) + anchor-and-newer (ascending) => ascending
             let descendingMessages = try await FirebaseChatService.shared.fetchMessagesFromChat(
                 chatID: conversation.id,
                 startingFrom: startAtMessage.id,
@@ -1362,8 +1374,7 @@ extension ChatRoomViewModel
                 inclusive: true,
                 fetchDirection: .ascending
             )
-            return (descendingMessages + ascendingMessages)
-                .sorted(by: { $0.timestamp < $1.timestamp })
+            return Array(descendingMessages.reversed()) + ascendingMessages
         default: return []
         }
     }
@@ -1373,12 +1384,19 @@ extension ChatRoomViewModel
         let startMessage: Message?
         
         if direction == .ascending {
+            /// newer/catch-up: anchor at the newest loaded message
             startMessage = recentMessageItem?.message
         } else {
-            // The first row contains the oldest loaded message. A marker cell
-            // may precede it, so skip non-message items.
-            startMessage = messageClusterRepository.messageClusters.first?.items
-                .first(where: { $0.message != nil })?.message
+            /// older: anchor at the oldest loaded message.
+            /// It can be UnseenMessagesTitle, so take the first real message instead.
+            guard let items = messageClusterRepository.messageClusters.first?.items else { return nil }
+                  
+            if let firstItem = items.first, firstItem.displayUnseenMessagesTitle == true
+            {
+                startMessage = items.dropFirst().first?.message
+            } else {
+                startMessage = items.first?.message
+            }
         }
         
         switch direction {
@@ -1462,11 +1480,13 @@ extension ChatRoomViewModel
         
         if conversation?.realm != nil
         { 
+            /// `newMessages` is ascending (oldest of the page first); attach the
+            /// live listener from the oldest of the page, ascending, covering the page.
             let startMessage = newMessages.first!
             realmService?.addMessagesToConversationInRealm(newMessages)
             messageListenerService?.addListenerToExistingMessages(
                 startAtMesssage: startMessage,
-                ascending: direction == .ascending ? true : false,
+                ascending: true,
                 limit: newMessages.count)
             
             if newMessages.last?.id == conversation?.recentMessageID

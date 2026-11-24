@@ -6,11 +6,11 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct GroupMembersSelectionScreen: View
 {
     @ObservedObject var viewModel: GroupCreationViewModel
+    @FocusState private var isSearchFocused: Bool
     
     init(viewModel: GroupCreationViewModel)
     {
@@ -40,16 +40,16 @@ struct GroupMembersSelectionScreen: View
         .scrollContentBackground(.hidden)
         .background(Color(ColorScheme.appBackgroundColor))
         .animation(.easeInOut, value: viewModel.showSelectedUsers)
-        .searchable(text: $viewModel.searchText,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: "Search users")
+        .safeAreaInset(edge: .top, spacing: 0) {
+            searchBar()
+        }
         .foregroundStyle(Color(ColorScheme.textFieldTextColor))
         .toolbar {
             toolbarContent()
         }
-        .onAppear(perform: {
-            SearchBarAppearance.setUISearchBarAppearance()
-        })
+        .onDisappear {
+            isSearchFocused = false
+        }
         .onChange(of: viewModel.searchText, { oldValue, newValue in
             if !newValue.isEmpty
             {
@@ -64,6 +64,49 @@ struct GroupMembersSelectionScreen: View
             }
         })
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.hidden, for: .navigationBar)
+    }
+}
+
+//MARK: - Search
+extension GroupMembersSelectionScreen
+{
+    @ViewBuilder
+    private func searchBar() -> some View
+    {
+        let field = HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.gray)
+            TextField("Search users", text: $viewModel.searchText)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.search)
+                .focused($isSearchFocused)
+                .onSubmit { isSearchFocused = false }
+
+            if !viewModel.searchText.isEmpty {
+                Button {
+                    viewModel.searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.gray)
+                }
+                .accessibilityLabel("Clear search")
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+
+        Group {
+            if #available(iOS 26.0, *) {
+                field.glassEffect(.regular.tint(Color(ColorScheme.appBackgroundColor)).interactive(), in: .capsule)
+            } else {
+                field.background(Color(ColorScheme.appBackgroundColor), in: RoundedRectangle(cornerRadius: 10))
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color(ColorScheme.appBackgroundColor))
     }
 }
 
@@ -113,6 +156,7 @@ extension GroupMembersSelectionScreen
         {
             let foregroundColor = viewModel.disableNextButton ? Color.gray : Color(ColorScheme.actionButtonsTintColor)
             Button("Next") {
+                isSearchFocused = false
                 viewModel.navigationStack.append(.setupGroupDetails)
             }
             .fontWeight(.bold)

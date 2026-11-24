@@ -11,7 +11,7 @@ import UIKit
 
 //MARK: - Conversation Section header
 
-final class FooterSectionView: UITableViewHeaderFooterView
+final class SectionDateHeaderView: UITableViewHeaderFooterView
 {
     private var dateLabel: DateFooterLabel!
     
@@ -46,7 +46,7 @@ final class FooterSectionView: UITableViewHeaderFooterView
     
 }
 
-extension FooterSectionView 
+extension SectionDateHeaderView 
 {
     private class DateFooterLabel: UILabel
     {

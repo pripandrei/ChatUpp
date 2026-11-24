@@ -16,6 +16,9 @@ protocol MessageClusterRepositoryProtocol: AnyObject, ChatRoomDataSourceProvidin
 
 final class MessageClusterRepository: MessageClusterRepositoryProtocol
 {
+    /// `messageClusters` is always kept in ASCENDING chronological order:
+    /// index 0 is the oldest day/message, the last index is the newest.
+    /// The table view renders top -> bottom in exactly this order.
     @Published var messageClusters: [MessageCluster] = []
     
     func addMessages(_ messages: [Message])
@@ -23,34 +26,37 @@ final class MessageClusterRepository: MessageClusterRepositoryProtocol
         insertMessagesInOrder(messages)
     }
     
-    func insertMessagesInOrder(_ messages: [Message]) {
+    func insertMessagesInOrder(_ messages: [Message])
+    {
         guard !messages.isEmpty else { return }
         
         var tempClusters = self.messageClusters
+        var dateToClusterIndex: [Date: Int] = Dictionary(
+            uniqueKeysWithValues: tempClusters.enumerated().map { ($0.element.date, $0.offset) }
+        )
         
-        for message in messages.sorted(by: { $0.timestamp < $1.timestamp }) {
+        for message in messages {
             guard let date = message.timestamp.formatToYearMonthDay() else { continue }
-
-            // Listener snapshots can contain a message that was already loaded
-            // locally. Keep the existing cell view model so diffable data source
-            // identity remains stable.
-            guard !tempClusters.contains(where: { cluster in
-                cluster.items.contains { $0.message?.id == message.id }
-            }) else { continue }
-
             let newItem = MessageItem(message: message)
             
             let clusterIndex: Int
-            if let existingIndex = tempClusters.firstIndex(where: { $0.date == date }) {
+            if let existingIndex = dateToClusterIndex[date] {
                 clusterIndex = existingIndex
             } else {
                 let newCluster = MessageCluster(date: date, items: [])
                 
+                // keep clusters date-ascending: insert before the first newer day
                 let insertionIndex = tempClusters.firstIndex { $0.date > date } ?? tempClusters.count
                 tempClusters.insert(newCluster, at: insertionIndex)
+                
+                for i in insertionIndex..<tempClusters.count {
+                    dateToClusterIndex[tempClusters[i].date] = i
+                }
+                
                 clusterIndex = insertionIndex
             }
             
+            // keep items timestamp-ascending: insert before the first newer message
             let insertionIndex = tempClusters[clusterIndex].items.firstIndex {
                 guard let existingTimestamp = $0.message?.timestamp else { return false }
                 return existingTimestamp > message.timestamp

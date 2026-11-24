@@ -14,7 +14,9 @@ struct ReactionPanelView: View
     
     var body: some View
     {
-        ZStack(alignment: .leading)
+        /// .trailing: the rounded background grows anchored at its right edge,
+        /// so the panel reveals from right to left.
+        ZStack(alignment: .trailing)
         {
             RoundedRectangle(cornerRadius: 28)
                 .fill(Color(#colorLiteral(red: 0.2106938958, green: 0.1273534, blue: 0.2237152457, alpha: 0.7475769501)))
@@ -25,7 +27,7 @@ struct ReactionPanelView: View
                 })
                 .frame(width: showReactionsBackground ? 312 : 0, height: Self.panelHeight)
                 .animation(
-                    .interpolatingSpring(stiffness: 170, damping: 14).delay(0.2),
+                    .interpolatingSpring(stiffness: 170, damping: 14).delay(0.08),
                     value: showReactionsBackground
                 )
             
@@ -54,7 +56,7 @@ struct ReactionPanelView: View
         }
         .onAppear {
             Task {
-                try? await Task.sleep(for: .seconds(0.33))
+                try? await Task.sleep(for: .seconds(0.15))
                 activateReactionView()
                 guard !reactionsAreLoaded else {return}
                 reactionsAreLoaded = true

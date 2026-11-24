@@ -4,23 +4,43 @@
 //
 //  Created by Andrei Pripa on 10/3/23.
 
+// NOTE: The conversation table view is a STANDARD (non-inverted) table:
+// index 0 / section 0 is the OLDEST message, the last row is the NEWEST.
+// The table is pinned to the whole root view and the input bar overlays its
+// bottom edge, so bottom content insets keep the newest message visible.
+
+
 import UIKit
 import SwiftUI
 import Photos
 import PhotosUI
 import Combine
-import SkeletonView
 import SKPhotoBrowser
 
 final class ChatRoomViewController: UIViewController
 {
-    private let newMessageInsertionOffset: CGFloat = 150.0
-
     weak var coordinatorDelegate :Coordinator?
     
-    private var animatedPreviewViews: [UIView] = []
-    private var targetedPreview: UITargetedPreview?
-    
+    /// Presents the custom long-press message menu (blur + flown bubble +
+    /// reaction panel + system-look menu card); see `MessageMenuPresenter`.
+    private var messageMenuPresenter: MessageMenuPresenter?
+    /// The bubble currently shrunk by the press-in feedback; restored on any
+    /// non-began long-press state, or handed over to the presenter when the
+    /// preview begins.
+    private weak var pressedBubbleContainer: UIView?
+    /// The resolved press target (view + message + menu options) captured at
+    /// touch-down, so the preview uses exactly what was captured, not a
+    /// re-resolved lookup (cells may move between press-down and initiation).
+    private var pressedBubbleSource: PressedMessageSource?
+    /// The scheduled press-in shrink; cancelled when the fingers leave before
+    /// it fires, so brief touches never start pressing.
+    private var pendingPressInWork: DispatchWorkItem?
+    /// Full-size snapshot captured at touch-down (before the shrink), consumed
+    /// by the presenter at initiation. Lets the preview fly without paying the
+    /// capture cost at that moment, and without the transform reset/restore
+    /// dance that flashed the message at full size mid-shrink.
+    private var pendingPreviewCapture: UIImage?
+
     private var pendingIndexPathForSeenStatusCheck: IndexPath?
     private var isNetworkPaginationRunning: Bool = false
     
@@ -40,25 +60,66 @@ final class ChatRoomViewController: UIViewController
     private var subscriptions = Set<AnyCancellable>()
     private lazy var alertPresenter: AlertPresenter = .init()
 
-    private var isContextMenuPresented: Bool = false
     private var isKeyboardHidden: Bool = true
     private var didFinishInitialScrollToUnseenIndexPathIfAny: Bool = true
     private var paginateOldMessagesOnInitialChatOpen: Bool = true
-    private var scrollToBottomCompletion: (() -> Void)?
-    private var newMessageInsertionSnapshot: UIView?
+    /// set while the animated scroll-to-newest flight is running, so its
+    /// completion (`scrollViewDidEndScrollingAnimation`) can re-land the view
+    /// on the real bottom edge - see `settleScrollAtNewestMessage`.
+    private var isScrollingToNewestMessage: Bool = false
+    /// Guards `finalizeConversationSetup()` against a second invocation:
+    /// both the debounced `$conversationInitializationStatus` subscription and
+    /// `viewDidLayoutSubviews` can observe `.finished`, and re-running would
+    /// re-apply the snapshot and re-scroll (the "table shifts back and forth
+    /// on chat room open" bug).
+    private var didFinalizeConversationSetup: Bool = false
     
-    private var isFirstCellFullyVisible: Bool {
-        return isTableViewAtBottom()
+    /// Index path of the newest message (last section, last row) in the current table.
+    private var newestIndexPath: IndexPath? {
+        let lastSection = rootView.tableView.numberOfSections - 1
+        guard lastSection >= 0 else { return nil }
+        let rows = rootView.tableView.numberOfRows(inSection: lastSection)
+        guard rows > 0 else { return nil }
+        return IndexPath(row: rows - 1, section: lastSection)
     }
+    
+    private var isNewestCellFullyVisible: Bool {
+        guard let newestIndexPath else { return true }
+        return checkIfCellIsFullyVisible(at: newestIndexPath)
+    }
+    
+    private func isNewestIndexPathVisible() -> Bool {
+        guard let newestIndexPath else { return false }
+        return rootView.tableView.indexPathsForVisibleRows?.contains(newestIndexPath) ?? false
+    }
+    
+    /// Randomized heights the skeleton cells display with while the chat room
+    /// waits for remote messages. `heightForRowAt` is re-queried by UIKit on
+    /// every layout pass during the opening sequence (frame / safe area /
+    /// input bar settling, inset changes), so drawing a fresh random value per
+    /// query visibly re-shuffles the skeleton cell sizes right after open -
+    /// one height is therefore fixed per row and reused until the skeleton
+    /// animation is terminated / re-initiated for the next room.
+    private var skeletonRowHeights: [Int: CGFloat] = [:]
     
 
     lazy private var photoBrowser: SKPhotoBrowserManager = SKPhotoBrowserManager()
     
     //MARK: - Lifecycle
     
-    convenience init(conversationViewModel: ChatRoomViewModel) {
-        self.init()
+    init(conversationViewModel: ChatRoomViewModel)
+    {
+        super.init(nibName: nil, bundle: nil)
         self.viewModel = conversationViewModel
+    }
+    
+    //    convenience init(conversationViewModel: ChatRoomViewModel) {
+    //        self.init()
+    //        self.viewModel = conversationViewModel
+    //    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func loadView()
@@ -74,14 +135,19 @@ final class ChatRoomViewController: UIViewController
         setupController()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // The chat room lives on the outer navigation controller above the
+        // tab bar; bring its nav bar (title & items) along with the push.
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         if viewModel.conversationInitializationStatus == .finished {
             finalizeConversationSetup()
         }
-
-        updateTableViewContentPosition(keepingBottomVisible: isTableViewAtBottom())
     }
     
     override func viewWillDisappear(_ animated: Bool)
@@ -98,23 +164,34 @@ final class ChatRoomViewController: UIViewController
     
     private func scrollToCell(at indexPath: IndexPath)
     {
-        guard indexPath.row < self.rootView.tableView.numberOfRows(inSection: indexPath.section) else {return}
-
-        self.rootView.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
+        /// land on the "Unread Messages" divider at the top so the unseen
+        /// block below it is visible
+        guard indexPath.section < self.rootView.tableView.numberOfSections,
+              indexPath.row < self.rootView.tableView.numberOfRows(inSection: indexPath.section)
+        else { return }
+        
+        self.rootView.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+        
+        /// `scrollToRow` is a programmatic scroll, so it does not reveal the
+        /// badge (see `scrollViewDidScroll`). Newer messages sit below the
+        /// divider, so the scroll-to-bottom badge must be shown explicitly -
+        /// and only when newer content is actually off-screen.
+        if !isNewestCellFullyVisible
+        {
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+        }
     }
 
     private func setupController()
     {
         self.performAdditionalSetupForRootView()
         self.configureTableView()
-        self.rootView.tableViewContentAttributesDidChange = { [weak self] wasAtBottom in
-            self?.updateTableViewContentPosition(keepingBottomVisible: wasAtBottom)
-        }
         self.addGestureToTableView()
         self.setNavigationBarItems()
         self.addTargetsToButtons()
         self.addKeyboardNotificationObservers()
         self.setupBinding()
+        self.updateTableViewBottomInset(animated: false)
     }
     
     private func performAdditionalSetupForRootView()
@@ -154,36 +231,46 @@ final class ChatRoomViewController: UIViewController
         self.toggleSkeletonAnimation(.terminated)
         self.dataSourceManager.configureSnapshot(animationType: .none)
         self.view.layoutIfNeeded()
+        /// the input bar has been laid out by now, so its real height is known
+        self.updateTableViewBottomInset(animated: false)
+        self.updateTopContentInsetToAnchorContentAtBottom()
     }
     
     private func finalizeConversationSetup()
     {
+        /// only ever run once (see note on `didFinalizeConversationSetup`)
+        guard !didFinalizeConversationSetup else { return }
+        didFinalizeConversationSetup = true
+        
         viewModel.resetInitializationStatus()
         
-        let indexPath = viewModel.shouldHideJoinGroupOption == true
+        let unseenIndexPath = viewModel.shouldHideJoinGroupOption == true
         ?
         self.viewModel.findLastUnseenMessageIndexPath() : nil
         
-        if let indexPath {
-            viewModel.insertUnseenMessagesTitle(afterIndexPath: indexPath)
-            
-            self.didFinishInitialScrollToUnseenIndexPathIfAny = false
-            // Delay table view willDisplay cell functionality
-            executeAfter(seconds: 1.0)
-            {
-                self.didFinishInitialScrollToUnseenIndexPathIfAny = true
-            }
+        if let unseenIndexPath {
+            viewModel.insertUnseenMessagesTitle(at: unseenIndexPath)
         }
-            
+        
+        /// Block `willDisplay`-triggered pagination (and the "new message"
+        /// entrance animation) until the initial scroll has settled, so data
+        /// prepends/appends can't fight the initial scroll positioning.
+        /// Applies in BOTH branches - the scroll-to-bottom branch used to leave
+        /// the gate open, which let the initial forced pagination prepend
+        /// messages mid-scroll and shift the table back and forth.
+        self.didFinishInitialScrollToUnseenIndexPathIfAny = false
+        
         refreshTableView()
         
-        if let indexPath {
-            self.scrollToCell(at: indexPath)
+        if let unseenIndexPath {
+            self.scrollToCell(at: unseenIndexPath)
         } else {
-            self.scrollToBottom(animated: false)
+            /// no unseen messages: land on the newest message
+            self.scrollToBottom(animated: false, delayed: false)
         }
         
         executeAfter(seconds: 1.0) {
+            self.didFinishInitialScrollToUnseenIndexPathIfAny = true
             self.paginateOldMessagesOnInitialChatOpen = false
         }
         
@@ -210,6 +297,10 @@ final class ChatRoomViewController: UIViewController
     
     private func setupBinding()
     {
+        rootView.onInputBarHeaderHeightChange = { [weak self] in
+            self?.updateTableLayoutAlongsideInputBarHeader(animated: true)
+        }
+        
         AudioSessionManager.shared.$currentRecordingTime
             .sink { [weak self] time in
                 let minutes = Int(time) / 60
@@ -273,24 +364,27 @@ final class ChatRoomViewController: UIViewController
                 guard let self = self else { return }
                 
                 var updateType = updateType
+                /// while the initial scroll hasn't settled the table must stay
+                /// still - incoming (gap-fill) messages simply appear instead
+                /// of animating, otherwise the table shifts back and forth
+                /// right after chat room open
+                if !self.didFinishInitialScrollToUnseenIndexPathIfAny {
+                    updateType = .none
+                }
                 let isUpdateAnimationNone = updateType == .none
-                let wasAtBottom = self.isTableViewAtBottom()
+                let wasAtBottom = self.isNewestIndexPathVisible()
+                    || self.rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
                 if isUpdateAnimationNone
                 {
                     if !wasAtBottom {
                         updateType = .automatic
-                    } else if let newestMessageID = self.newestMessageID {
-                        self.dataSourceManager.prepareForNewestMessageInsertion(
-                            messageID: newestMessageID
-                        )
                     }
                 }
                 
-                self.dataSourceManager.configureSnapshot(animationType: updateType) {
-                    guard isUpdateAnimationNone && wasAtBottom else { return }
-                    self.updateTableViewContentPosition(keepingBottomVisible: true)
-                    self.scrollToBottom(animated: false)
-                    self.animateNewestMessageInsertion(forMessageID: self.newestMessageID)
+                self.dataSourceManager.configureSnapshot(animationType: updateType)
+                self.updateTopContentInsetToAnchorContentAtBottom()
+                if isUpdateAnimationNone {
+                    self.handleNewMessageDisplay()
                 }
                 
             }.store(in: &subscriptions)
@@ -314,6 +408,7 @@ final class ChatRoomViewController: UIViewController
                         if self?.rootView.trailingItemState.item == .stickerItem
                         {
                             self?.rootView.removeStickerView()
+                            self?.updateTableViewBottomInset(animated: true)
                         }
                     }
                 }
@@ -326,14 +421,32 @@ final class ChatRoomViewController: UIViewController
                 
                 if self.rootView.messageTextView.isFirstResponder
                 {
+                    /// swapping the keyboard for the sticker panel: dismiss the
+                    /// keyboard but keep the input bar raised for the panel
                     self.rootView.messageTextView.resignFirstResponder()
+                    /// the keyboardWillHide handler skips the layout while the
+                    /// sticker panel is attached, so the hidden state must be
+                    /// reconciled here (otherwise the keyboard's rise height
+                    /// keeps padding the inset after the panel is gone)
+                    self.isKeyboardHidden = true
+                    self.updateTableLayoutAlongsideStickerPanel(obscuringHeight: self.stickerPanelHeight)
+                    {
+                        self.rootView.updateInputBarBottomConstraint(toSize: -self.stickerPanelHeight)
+                    }
                     return
                 }
                 
-                let height = KeyboardService.shared.keyboardHeight
-                UIView.animate(withDuration: 0.27) {
-                    self.handleTableViewOffset(usingKeyboardHeight: height)
-                    self.rootView.layoutIfNeeded()
+                /// raise the input bar so the sticker panel can fill the space
+                /// below it - the in-animation offset shift keeps the table in
+                /// sync with the input bar instead of catching up afterwards
+                if self.rootView.greetingView != nil
+                {
+                    self.rootView.toggleGreetingViewPosition(up: true,
+                                                             lineLift: self.greetingLineLift)
+                }
+                self.updateTableLayoutAlongsideStickerPanel(obscuringHeight: self.stickerPanelHeight)
+                {
+                    self.rootView.updateInputBarBottomConstraint(toSize: -self.stickerPanelHeight)
                 }
             }
             .store(in: &subscriptions)
@@ -365,52 +478,57 @@ final class ChatRoomViewController: UIViewController
 
     @objc func keyboardWillShow(notification: NSNotification)
     {
-        if let _ = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+        guard (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue != nil
+        else { return }
+        
+        /// See FootNote.swift [15]
+        isKeyboardHidden = false
+        
+        if rootView.greetingView != nil
         {
-            /// See FootNote.swift [15]
-            let height = KeyboardService.shared.keyboardHeight
-            
-            guard rootView.inputBarContainer.frame.origin.y > 580 else {
-                let keyboardHeight = -(height - 30)
-                rootView.updateInputBarBottomConstraint(toSize: keyboardHeight)
-                return
-            } /// first character typed in textField triggers keyboardWillShow, so we perform this check
-            
-            isKeyboardHidden = false
-            
-            if rootView.greetingView != nil
-            {
-                self.rootView.toggleGreetingViewPosition(up: true)
-            }
-            
-            guard isContextMenuPresented else
-            {
-                handleTableViewOffset(usingKeyboardHeight: height)
-                return
-            }
-            
-            let keyboardHeight = -(height - 30)
-            rootView.updateInputBarBottomConstraint(toSize: keyboardHeight)
+            self.rootView.toggleGreetingViewPosition(up: true,
+                                                     lineLift: self.greetingLineLift)
+        }
+        
+        updateTableLayoutAlongsideKeyboard(notification) {
+            self.rootView.updateInputBarBottomConstraint(toSize: -self.keyboardRiseHeight)
         }
     }
     
     @objc func keyboardWillHide(notification: NSNotification)
     {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+        guard (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue != nil
+        else { return }
+        guard self.rootView.stickerCollectionView == nil else { return }
+        
+        /// Message preview choreography: when the preview takes the keyboard
+        /// away, the input bar follows it down to its resting bottom position
+        /// (behind the preview's blur) with the keyboard's own duration and
+        /// curve, while the TABLE's viewport stays completely untouched - no
+        /// inset change, no offset shift, no settling - so the chat keeps its
+        /// exact keyboard-up position for the whole session. The full table
+        /// layout instead resolves with the keyboard's return, which the
+        /// presenter triggers after its reveal (`keyboardWillShow`).
+        guard messageMenuPresenter == nil else
         {
-            guard self.rootView.stickerCollectionView == nil else { return }
-            isKeyboardHidden = true
-            
-            if rootView.greetingView != nil
+            let (duration, options) = keyboardAnimationParameters(from: notification)
+            UIView.animate(withDuration: duration, delay: 0, options: options)
             {
-                rootView.toggleGreetingViewPosition(up: false)                
+                self.rootView.updateInputBarBottomConstraint(toSize: 0)
+                self.rootView.layoutIfNeeded()
             }
-            
-            guard !isContextMenuPresented else {
-                rootView.updateInputBarBottomConstraint(toSize: 0)
-                return
-            }
-            handleTableViewOffset(usingKeyboardHeight: keyboardSize.height)
+            return
+        }
+        
+        isKeyboardHidden = true
+        
+        if rootView.greetingView != nil
+        {
+            rootView.toggleGreetingViewPosition(up: false)
+        }
+        
+        updateTableLayoutAlongsideKeyboard(notification) {
+            self.rootView.updateInputBarBottomConstraint(toSize: 0)
         }
     }
     
@@ -446,11 +564,18 @@ final class ChatRoomViewController: UIViewController
     
     private func dismissStickerView()
     {
-        UIView.animate(withDuration: 0.27)
+        /// the input bar drop and the table's offset shift run inside one
+        /// animation (padding already targets 0 while the panel is still
+        /// attached), so they move together instead of the table catching up
+        /// after the chrome settles
+        if rootView.greetingView != nil
         {
-            self.handleTableViewOffset(usingKeyboardHeight: KeyboardService.shared.keyboardHeight)
+            rootView.toggleGreetingViewPosition(up: false)
+        }
+        self.updateTableLayoutAlongsideStickerPanel(obscuringHeight: 0)
+        {
+            self.rootView.updateInputBarBottomConstraint(toSize: 0)
             self.rootView.stickerCollectionViewTopConstraint?.constant = 0.0
-            self.rootView.layoutIfNeeded()
         } completion: { _ in
             self.rootView.removeStickerView()
         }
@@ -481,9 +606,9 @@ final class ChatRoomViewController: UIViewController
             self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
         }
         
-        self.rootView.updateTableViewContentAttributes(isInputBarHeaderRemoved: true)
         self.rootView.scrollToBottomBtnBottomConstraint.constant += 45
         self.rootView.layoutIfNeeded()
+        self.updateTableLayoutAlongsideInputBarHeader(animated: false)
     }
     
     private func endInputBarHeaderViewDestruction() {
@@ -526,7 +651,8 @@ final class ChatRoomViewController: UIViewController
         let cellRect = table.convert(cell.frame, to: rootView)
         let inputBarRect = rootView.inputBarContainer.frame
 
-        let isCellVisible = inputBarRect.origin.y >= cellRect.origin.y
+        /// a cell is visible when its bottom edge sits above the input bar top
+        let isCellVisible = cellRect.maxY <= inputBarRect.minY
         return isCellVisible ? .visible : .underInputBar
     }
     
@@ -544,13 +670,21 @@ final class ChatRoomViewController: UIViewController
         let lastCellRect = table.convert(lastCell.frame, to: rootView)
         let inputBarRect = rootView.inputBarContainer.frame
 
-        return inputBarRect.origin.y >= lastCellRect.origin.y
+        return lastCellRect.maxY <= inputBarRect.minY
     }
     
     private func toggleScrollBadgeButtonVisibility(shouldBeHidden: Bool)
     {
-        UIView.animate(withDuration: 0.3) {
-            self.rootView.scrollBadgeButton.layer.opacity = shouldBeHidden ? 0.0 : 0.9
+        guard rootView.scrollBadgeButton.isHidden != shouldBeHidden else {return}
+        
+        /// cross-dissolve instead of animating opacity - a visual effect
+        /// view rendered under group opacity (any opacity < 1) comes back
+        /// blank, which wiped the button's glass background
+        UIView.transition(with: rootView.scrollBadgeButton,
+                          duration: 0.3,
+                          options: [.transitionCrossDissolve])
+        {
+            self.rootView.scrollBadgeButton.isHidden = shouldBeHidden
         }
     }
     
@@ -572,140 +706,221 @@ final class ChatRoomViewController: UIViewController
 //MARK: - Handle cell message insertion
 extension ChatRoomViewController
 {
-    private func scrollToBottom(animated: Bool = true,
-                                completion: (() -> Void)? = nil)
+    @discardableResult
+    private func handleNewMessageDisplay() -> Bool
     {
-        let tableView = rootView.tableView
-        let lastSection = tableView.numberOfSections
-        guard lastSection > 0,
-              tableView.numberOfRows(inSection: lastSection - 1) > 0
-        else {
-            completion?()
-            return
+        guard isNewestIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else { return false }
+        
+        /// during the initial load window the table must stay still:
+        /// a new/gap message just appears and the view simply stays pinned to
+        /// the bottom, with no entrance animation or extra animated scroll
+        /// (prevents the shift back and forth on chat room open)
+        guard didFinishInitialScrollToUnseenIndexPathIfAny else {
+            scrollToNewestMessage(animated: false)
+            return true
         }
-
+        
+        let isNewSectionAdded = viewModel.messageClusterRepository.messageClusters.last?.items.count == 1
+        animateNewestCellInsertion(withNewSectionAdded: isNewSectionAdded)
+        return true
+    }
+    
+    private func animateNewestCellInsertion(withNewSectionAdded isNewSectionAdded: Bool)
+    {
+        guard let indexPath = newestIndexPath else { return }
+        let tableView = rootView.tableView
+        
         tableView.layoutIfNeeded()
-        let bottomOffset = tableViewMaximumOffset()
-        let targetOffset = CGPoint(x: tableView.contentOffset.x, y: bottomOffset)
-        let needsScroll = abs(tableView.contentOffset.y - bottomOffset) > 0.5
-
-        guard animated && needsScroll else {
-            tableView.setContentOffset(targetOffset, animated: false)
-            completion?()
-            return
+        
+        guard let cell = tableView.cellForRow(at: indexPath) else { return }
+        
+        let cellTopInView = tableView.convert(cell.frame, to: rootView).minY
+        let slideDistance = max(60, rootView.inputBarContainer.frame.minY - cellTopInView)
+        
+        cell.transform = CGAffineTransform(translationX: 0, y: slideDistance)
+        
+        UIView.animate(withDuration: 0.3, delay: 0.1) {
+            cell.transform = .identity
         }
-
-        scrollToBottomCompletion = completion
-        tableView.setContentOffset(targetOffset, animated: true)
+        
+        executeAfter(seconds: 0.1) {
+            self.scrollToNewestMessage(animated: true)
+        }
+        
+        let lastSection = tableView.numberOfSections - 1
+        guard isNewSectionAdded,
+              let headerView = tableView.headerView(forSection: lastSection) else { return }
+        
+        headerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        UIView.animate(withDuration: 0.3, delay: 0.1) {
+            headerView.transform = .identity
+        }
     }
-
-    private func isTableViewAtBottom() -> Bool
+    
+    private func scrollToBottom(animated: Bool = true, delayed: Bool = true)
     {
-        let tableView = rootView.tableView
-        guard tableView.numberOfSections > 0 else { return true }
-        let maximumOffset = tableViewMaximumOffset()
-        return tableView.contentOffset.y >= maximumOffset - 1.0
+        if delayed
+        {
+            executeAfter(seconds: 0.2) {
+                self.scrollToNewestMessage(animated: animated)
+            }
+        } else {
+            scrollToNewestMessage(animated: animated)
+        }
     }
-
-    private func tableViewMaximumOffset() -> CGFloat
-    {
-        let tableView = rootView.tableView
-        return max(
-            -tableView.adjustedContentInset.top,
-            tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom
-        )
-    }
-
-    private var newestMessageID: String?
-    {
-        viewModel.messageClusterRepository.messageClusters.last?.items.last(where: { $0.message != nil })?.message?.id
-    }
-
-    private func updateTableViewContentPosition(keepingBottomVisible: Bool)
+    
+    private func scrollToNewestMessage(animated: Bool)
     {
         let tableView = rootView.tableView
         tableView.layoutIfNeeded()
-
-        let safeAreaTopInset = tableView.adjustedContentInset.top - tableView.contentInset.top
-        let availableHeight = tableView.bounds.height - safeAreaTopInset - tableView.adjustedContentInset.bottom
-        let desiredTopInset = max(0.0, availableHeight - tableView.contentSize.height)
-
-        if abs(tableView.contentInset.top - desiredTopInset) > 0.5 {
-            tableView.contentInset.top = desiredTopInset
-            tableView.verticalScrollIndicatorInsets.top = desiredTopInset
+        
+        if animated
+        {
+            /// the animation target is computed ONCE here, from a content size
+            /// that still contains ESTIMATED heights for rows that were skipped
+            /// during scrolling (e.g. a block just inserted by a pagination
+            /// prepend). While the flight runs, UIKit loads cells and those
+            /// rows resolve to their real heights, moving the true bottom
+            /// edge - but `setContentOffset` never re-targets. The flight ends
+            /// a few messages short of the bottom, so once it completes
+            /// (`scrollViewDidEndScrollingAnimation`) the view is re-landed
+            /// on the real bottom via `settleScrollAtNewestMessage`.
+            isScrollingToNewestMessage = true
+            tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
+                                               y: bottomOffsetY(for: tableView)),
+                                       animated: true)
+            return
         }
-
-        if keepingBottomVisible {
-            scrollToBottom(animated: false)
+        
+        tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
+                                           y: bottomOffsetY(for: tableView)),
+                                   animated: false)
+        settleScrollAtNewestMessage()
+    }
+    
+    /// lands precisely on the bottom edge after a direct (non animated)
+    /// scroll: self-sizing rows resolve their REAL heights only once they are
+    /// laid out at the bottom position, after which the content size changes
+    /// and the previously computed offset no longer reaches the true bottom.
+    /// Land, lay out and re-land until the position is stable (bounded, so a
+    /// pathological estimate mismatch can't spin it forever).
+    private func settleScrollAtNewestMessage()
+    {
+        let tableView = rootView.tableView
+        
+        var passes = 0
+        while passes < 5
+        {
+            tableView.layoutIfNeeded()
+            self.updateTopContentInsetToAnchorContentAtBottom()
+            let targetOffsetY = bottomOffsetY(for: tableView)
+            if abs(targetOffsetY - tableView.contentOffset.y) <= 0.5 { break }
+            
+            tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
+                                               y: targetOffsetY),
+                                       animated: false)
+            passes += 1
         }
+        
+        tableView.layoutIfNeeded()
+    }
+    
+    private func bottomOffsetY(for tableView: UITableView) -> CGFloat
+    {
+        let minOffsetY = -tableView.adjustedContentInset.top
+        return max(minOffsetY,
+                   tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
     }
 
-    private func animateNewestMessageInsertion(forMessageID messageID: String?)
+    /// When the whole content is shorter than the visible area (no scrolling
+    /// needed), chat messages must sit pinned to the BOTTOM, above the input
+    /// bar, with the empty space ABOVE them - every new message pushes the
+    /// existing ones up, like in any chat.
+    /// Implemented as a flexible TOP content inset: with it, the table's
+    /// minimum offset coincides exactly with the "at the very bottom" offset
+    /// (`bottomOffsetY`), so all of the existing scroll / landing / keyboard
+    /// anchoring logic keeps working unchanged.
+    private func updateTopContentInsetToAnchorContentAtBottom()
     {
-        guard let messageID else {
-            dataSourceManager.clearPendingNewestMessageInsertion()
+        let tableView = rootView.tableView
+
+        /// While the skeleton placeholder rows are up, the table is aligned
+        /// with the TOP of the visible area instead of being bottom-anchored:
+        /// the flexible space above short skeleton content reads as a dead gap
+        /// below the navigation bar, whereas a skeleton list starting at the
+        /// very top - intentionally bleeding under the navigation bar - reads
+        /// as "content is loading". Normal bottom-anchoring resumes with the
+        /// real messages (see `refreshTableView`).
+        if dataSourceManager.isSkeletonDisplayed
+        {
+            /// neutralize whatever the system (safe area / nav bar) contributes
+            /// on top so the adjusted top inset is 0 and row 0 sits at the
+            /// table frame's top edge
+            let systemTopInset = tableView.adjustedContentInset.top - tableView.contentInset.top
+            let collapsedInset = -systemTopInset
+
+            if tableView.contentInset.top != collapsedInset
+            {
+                tableView.contentInset.top = collapsedInset
+                /// re-anchor the scroll position to the new top edge, so the
+                /// cells land at the beginning without a stray blank strip
+                tableView.contentOffset.y = -tableView.adjustedContentInset.top
+            }
             return
         }
 
-        let indexPath: IndexPath? = viewModel.messageClusterRepository.messageClusters.enumerated().compactMap { section, cluster in
-            guard let row = cluster.items.firstIndex(where: { $0.message?.id == messageID }) else { return nil }
-            return IndexPath(row: row, section: section)
-        }.first
+        /// what the system (safe area etc.) contributes on top; it must be
+        /// restored untouched when the flexible space is not needed
+        let systemTopInset = tableView.adjustedContentInset.top - tableView.contentInset.top
+        let availableHeight = tableView.bounds.height
+            - tableView.adjustedContentInset.bottom
+            - systemTopInset
+        let contentHeight = tableView.contentSize.height
 
-        guard let indexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath)
-        else {
-            dataSourceManager.clearPendingNewestMessageInsertion()
-            return
-        }
+            let flexibleInset = max(0, availableHeight - contentHeight)
 
-        cell.layoutIfNeeded()
-        cell.contentView.layoutIfNeeded()
+            if tableView.contentInset.top != flexibleInset
+            {
+                tableView.contentInset.top = flexibleInset
+            }
+    }
 
-        guard let snapshot = cell.contentView.snapshotView(afterScreenUpdates: false) else {
-            cell.alpha = 1.0
-            return
-        }
-
-        cell.alpha = 0.0
-        newMessageInsertionSnapshot?.removeFromSuperview()
-        newMessageInsertionSnapshot = snapshot
-
-        snapshot.frame = rootView.convert(cell.contentView.bounds, from: cell.contentView)
-        rootView.insertSubview(snapshot, belowSubview: rootView.inputBarContainer)
-        snapshot.transform = CGAffineTransform(translationX: 0, y: newMessageInsertionOffset)
-
-        UIView.animate(
-            withDuration: 0.3,
-            delay: 0.0,
-            options: [.curveEaseOut, .beginFromCurrentState, .allowUserInteraction]
-        ) {
-            snapshot.transform = .identity
-        } completion: { [weak self, weak cell] _ in
-            cell?.alpha = 1.0
-            snapshot.removeFromSuperview()
-            if self?.newMessageInsertionSnapshot === snapshot {
-                self?.newMessageInsertionSnapshot = nil
+    private func handleRowAndSectionInsertion(with indexPath: IndexPath,
+                                              withAnimation: Bool)
+    {
+        /// See FootNote.swift [5]
+        if withAnimation {
+            UIView.animate(withDuration: 0.0) {
+                if self.viewModel.messageClusterRepository.messageClusters.count > self.rootView.tableView.numberOfSections
+                {
+                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+                } else {
+                    self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
+                }
+            }
+        } else {
+            // - See Footnote.swift [1]
+            UIView.performWithoutAnimation {
+    //        UIView.animate(withDuration: 0.0) {
+                if self.viewModel.messageClusterRepository.messageClusters.count > self.rootView.tableView.numberOfSections
+                {
+                    self.rootView.tableView.insertSections(IndexSet(integer: 0), with: .none)
+                } else {
+                    self.rootView.tableView.insertRows(at: [indexPath], with: .automatic)
+                }
             }
         }
     }
-
-    private func tableViewCenter(for cell: UITableViewCell) -> CGPoint
-    {
-        let cellCenter = CGPoint(x: cell.bounds.midX, y: cell.bounds.midY)
-        return rootView.tableView.convert(cellCenter, from: cell)
-    }
-
 }
 
 //MARK: - Message seen status handler
 extension ChatRoomViewController
 {
-    private func isLower(_ lhs: IndexPath, than rhs: IndexPath) -> Bool {
+    private func isNewer(_ lhs: IndexPath, than rhs: IndexPath) -> Bool {
         if lhs.section != rhs.section {
-            return lhs.section < rhs.section
+            return lhs.section > rhs.section
         }
-        return lhs.row < rhs.row
+        return lhs.row > rhs.row
     }
 
     static var counter = 0
@@ -713,7 +928,7 @@ extension ChatRoomViewController
     private func updateMessageSeenStatusIfNeeded(_ messageIndexPath: IndexPath)
     {
         if let lastIndexPath = pendingIndexPathForSeenStatusCheck,
-           !isLower(lastIndexPath, than: messageIndexPath) {
+           !isNewer(messageIndexPath, than: lastIndexPath) {
             return
         }
 
@@ -847,7 +1062,7 @@ extension ChatRoomViewController
 
     @objc func scrollToBottomBtnWasTapped()
     {
-        scrollToBottom()
+        scrollToNewestMessage(animated: true)
     }
     
     @objc func editMessageBtnWasTapped() {
@@ -897,8 +1112,8 @@ extension ChatRoomViewController
         
         Task {
             let samples = await viewModel.generateWaveform(from: url)
-            let message = viewModel.createVoiceMessage(fromURL: url, withAudioSamples: samples)
-            updateUIOnNewMessageCreation(message)
+            viewModel.createVoiceMessage(fromURL: url, withAudioSamples: samples)
+            updateUIOnNewMessageCreation(.audio)
         }
     }
 
@@ -929,7 +1144,7 @@ extension ChatRoomViewController
             {
                 await viewModel.saveImagesLocally(fromImageRepository: repo, for: message.id)
             }
-            updateUIOnNewMessageCreation(message)
+            updateUIOnNewMessageCreation(messageType)
         }
         
         // Start message remote sync
@@ -944,29 +1159,45 @@ extension ChatRoomViewController
         let message = viewModel.createMessageLocally(ofType: .sticker,
                                                      text: nil,
                                                      media: media)
-        updateUIOnNewMessageCreation(message)
+        updateUIOnNewMessageCreation(.sticker)
         viewModel.syncMessageWithFirestore(message.freeze(), imageRepository: nil)
     }
     
-    private func updateUIOnNewMessageCreation(_ message: Message)
+    private func updateUIOnNewMessageCreation(_ messageType: MessageType)
     {
-        dataSourceManager.prepareForNewestMessageInsertion(
-            messageID: message.id
-        )
-        dataSourceManager.configureSnapshot(animationType: .none) { [weak self] in
-            guard let self else { return }
-            self.updateTableViewContentPosition(keepingBottomVisible: false)
-            self.scrollToBottom(animated: true) {
-                self.animateNewestMessageInsertion(forMessageID: message.id)
-            }
-        }
+        /// an empty table (fresh chat, no messages yet) counts as "at the
+        /// bottom"; otherwise the first message applies with an animated
+        /// insert, and at the resting offset that triggers UIKit's implicit
+        /// scroll-to-inserted-cell animation, which lands the message about
+        /// mid-screen instead of pinned above the input bar
+        /// - See FootNote.swift [16]
+        let wasAtBottom = isNewestIndexPathVisible()
+            || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
+        dataSourceManager.configureSnapshot(animationType: wasAtBottom ? .none : .automatic)
+        let didAnimateInsertion = handleNewMessageDisplay()
+        var wasInputBarExpanded = false
         
-        if case .text? = message.type {
+        switch messageType
+        {
+        case .text, .imageText:
+            /// read before the input bar collapses back to a single line
+            wasInputBarExpanded = inputMessageTextViewDelegate.messageTextViewNumberOfLines > 1
             clearTextViewInput()
-        } else if case .imageText? = message.type {
-            clearTextViewInput()
+        default: break
         }
         closeInputBarHeaderView()
+        
+        if !didAnimateInsertion {
+            scrollToBottom()
+        } else if wasInputBarExpanded {
+            /// the input bar collapse shifted the table by the same delta, which only
+            /// keeps the newest message anchored to the bar. The insertion reveal is
+            /// applied before that shift, so the table is brought to the bottom once
+            /// the shift settles.
+            executeAfter(seconds: 0.3) {
+                self.scrollToNewestMessage(animated: true)
+            }
+        }
     }
 
     @objc func addPicture()
@@ -1032,64 +1263,239 @@ extension ChatRoomViewController
 //MARK: - TABLE OFFSET HANDLER
 extension ChatRoomViewController
 {
-    private func handleTableViewOffset(usingKeyboardHeight keyboardHeight: CGFloat)
+    /// Distance the input bar is raised above its resting position while the
+    /// keyboard is shown. The keyboard frame includes the bottom safe area,
+    /// which the input bar already covers, so that part is subtracted.
+    private var keyboardRiseHeight: CGFloat
+    {
+        guard !isKeyboardHidden else { return 0 }
+        return max(0, KeyboardService.shared.keyboardHeight - rootView.safeAreaInsets.bottom)
+    }
+    
+    /// Height of the sticker panel, which replaces the keyboard.
+    private var stickerPanelHeight: CGFloat
+    {
+        return max(0, KeyboardService.shared.keyboardHeight - rootView.safeAreaInsets.bottom)
+    }
+    
+    /// Vertical offset for the greeting view that clears the extra height the
+    /// multi-line text view adds to the raised input bar. Each successive line
+    /// contributes half of its predecessor's shift - 1st extra line: 1×line
+    /// height, 2nd: ½, 3rd: ¼ … - a geometric series capping at 2×. The sum is
+    /// symmetric, so removing lines restores the positions line by line.
+    private var greetingLineLift: CGFloat
+    {
+        let extraLines = max(0, inputMessageTextViewDelegate.messageTextViewNumberOfLines - 1)
+        let lineHeight = rootView.messageTextView.font?.lineHeight ?? 0
+        guard extraLines > 0 else { return 0 }
+        let shiftFactor = 2.0 - pow(2.0, CGFloat(1 - extraLines))
+        return -(shiftFactor * lineHeight)
+    }
+    
+    /// Extra space currently covering the bottom of the table, below the input bar.
+    private var bottomObscuringHeight: CGFloat
+    {
+        if rootView.stickerCollectionView != nil { return stickerPanelHeight }
+        return keyboardRiseHeight
+    }
+    
+    /// Single source of truth for the table's bottom padding.
+    /// `inputBarContainer.bounds.height` already grows with the text view
+    /// (multi-line input), so it is not added to again here.
+    private func tableViewBottomInset(obscuringHeightOverride: CGFloat? = nil) -> CGFloat
+    {
+        let inputBarHeight = rootView.inputBarContainer.bounds.height
+        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
+        let obscuringHeight = obscuringHeightOverride ?? bottomObscuringHeight
+        
+        return inputBarHeight + obscuringHeight + editViewHeight + 4 - 20
+    }
+    
+    /// Applies `tableViewBottomInset` to both the content and scroll indicator insets.
+    /// `obscuringHeightOverride` decouples the inset from the sticker panel's
+    /// attachment state: during the panel's dismiss animation the panel is still
+    /// in the view hierarchy, but the bottom padding must already target 0.
+    private func updateTableViewBottomInset(animated: Bool, obscuringHeightOverride: CGFloat? = nil)
+    {
+        let inset = tableViewBottomInset(obscuringHeightOverride: obscuringHeightOverride)
+        let applyInset = {
+            self.rootView.tableView.contentInset.bottom = inset
+            self.rootView.tableView.verticalScrollIndicatorInsets.bottom = inset
+        }
+        
+        guard animated else {
+            applyInset()
+            self.updateTopContentInsetToAnchorContentAtBottom()
+            return
+        }
+        
+        UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut]) {
+            applyInset()
+        }
+        
+        self.updateTopContentInsetToAnchorContentAtBottom()
+    }
+    
+    /// Applies the reply / edit preview's height change to the table's bottom
+    /// padding and shifts the content offset by the same delta. This mirrors
+    /// `updateTableLayoutAlongsideKeyboard` for the preview's show / dismiss
+    /// transitions, which are animated manually (no keyboard notifications drive
+    /// them): without the offset shift the newest messages slide behind the
+    /// preview when it appears and stay lifted after it is dismissed.
+    private func updateTableLayoutAlongsideInputBarHeader(animated: Bool)
     {
         let tableView = rootView.tableView
-        tableView.layoutIfNeeded()
-        let wasAtBottom = isTableViewAtBottom()
-        let previousMaximumOffset = tableViewMaximumOffset()
-        let distanceFromBottom = max(0.0, previousMaximumOffset - tableView.contentOffset.y)
-
-        // if number of lines inside textView is bigger than 1, it will expand
-        let maxContainerViewY = 584.0 - 4.0
-        let keyboardOffset = max(0.0, keyboardHeight - 30.0)
-        var keyboardHeight = keyboardOffset
-
-        keyboardHeight = rootView.inputBarContainer.frame.origin.y > maxContainerViewY ? -keyboardHeight : keyboardHeight
-        let editViewHeight = rootView.inputBarHeader?.bounds.height != nil ? rootView.inputBarHeader!.bounds.height : 0
+        let previousBottomInset = tableView.contentInset.bottom
+        /// Captured before the inset changes. Changing the inset makes the scroll
+        /// view clamp an out-of-range offset by itself (which happens when the
+        /// table sits at the bottom), so the delta must be applied to the offset
+        /// from before that clamp, otherwise it is applied twice.
+        let previousOffsetY = tableView.contentOffset.y
         
-        // if there is more than one line, textView height should be added to table view inset (max 5 lines allowed)
-        let textViewHeight = (rootView.messageTextView.font!.lineHeight * CGFloat(inputMessageTextViewDelegate.messageTextViewNumberOfLines)) - CGFloat(rootView.messageTextView.font!.lineHeight)
+        let applyChanges = {
+            self.updateTableViewBottomInset(animated: false)
+            
+            let insetDelta = tableView.contentInset.bottom - previousBottomInset
+            let minOffsetY = -tableView.adjustedContentInset.top
+            let maxOffsetY = max(minOffsetY,
+                                 tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
+            tableView.contentOffset.y = min(max(previousOffsetY + insetDelta, minOffsetY), maxOffsetY)
+        }
         
-        let customTableViewInset = keyboardHeight < 0
-            ? abs(keyboardHeight) + textViewHeight + editViewHeight
-            : textViewHeight + editViewHeight
+        guard animated else {
+            applyChanges()
+            return
+        }
         
-        rootView.inputBarBottomConstraint.constant = keyboardHeight < 0 ? keyboardHeight : 0
-        rootView.layoutIfNeeded()
-        tableView.contentInset.bottom = 75 + customTableViewInset
-        tableView.verticalScrollIndicatorInsets.bottom = 85 + customTableViewInset
-        updateTableViewContentPosition(keepingBottomVisible: false)
-
-        let newMaximumOffset = tableViewMaximumOffset()
-        let minimumOffset = -tableView.adjustedContentInset.top
-        let desiredOffset = wasAtBottom
-            ? newMaximumOffset
-            : newMaximumOffset - distanceFromBottom
-        let clampedOffset = min(max(desiredOffset, minimumOffset), newMaximumOffset)
-        tableView.setContentOffset(
-            CGPoint(x: tableView.contentOffset.x, y: clampedOffset),
-            animated: false
-        )
+        UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut]) {
+            applyChanges()
+        }
+    }
+    
+    /// Applies the input bar position, the table's bottom padding and the table's
+    /// content offset inside a single animation that mirrors the keyboard's own
+    /// duration and curve, so the table starts and finishes together with it.
+    ///
+    /// The offset is shifted by the same delta as the bottom padding, exactly as
+    /// the pre-inversion `handleTableViewOffset` did. Doing the shift (instead of
+    /// scrolling to the bottom) keeps the newest message anchored above the input
+    /// bar and makes showing and hiding perfectly symmetric.
+    private func updateTableLayoutAlongsideKeyboard(_ notification: NSNotification,
+                                                    changes: @escaping () -> Void)
+    {
+        let tableView = rootView.tableView
+        let previousBottomInset = tableView.contentInset.bottom
+        /// Captured before the inset changes. Changing the inset makes the scroll
+        /// view clamp an out-of-range offset by itself (which happens when the
+        /// table sits at the bottom), so the delta must be applied to the offset
+        /// from before that clamp, otherwise it is applied twice.
+        let previousOffsetY = tableView.contentOffset.y
+        let (duration, options) = keyboardAnimationParameters(from: notification)
+        
+        UIView.animate(withDuration: duration, delay: 0, options: options) {
+            changes()
+            
+            self.updateTableViewBottomInset(animated: false)
+            
+            let insetDelta = tableView.contentInset.bottom - previousBottomInset
+            let minOffsetY = -tableView.adjustedContentInset.top
+            let maxOffsetY = max(minOffsetY,
+                                 tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
+            tableView.contentOffset.y = min(max(previousOffsetY + insetDelta, minOffsetY), maxOffsetY)
+            
+            self.rootView.layoutIfNeeded()
+        }
+    }
+    
+    /// Applies the sticker panel's input bar raise / drop and the resulting
+    /// table bottom padding inside a single animation, shifting the content
+    /// offset by the same delta. This mirrors `updateTableLayoutAlongsideKeyboard`
+    /// for the panel's show / dismiss transitions, which are animated manually
+    /// (no keyboard notifications drive them): without the in-animation offset
+    /// shift the table only catches up when the animation completes.
+    ///
+    /// `obscuringHeight` is the padding the panel contributes for the target
+    /// layout: panelHeight when the panel fills the space below the input bar,
+    /// 0 while it is dismissed. The panel is removed only in the completion,
+    /// so the inset must not derive from its (still attached) state mid-flight.
+    private func updateTableLayoutAlongsideStickerPanel
+    (
+        obscuringHeight: CGFloat,
+        changes: @escaping () -> Void,
+        completion: ((Bool) -> Void)? = nil
+    )
+    {
+        let tableView = rootView.tableView
+        let previousBottomInset = tableView.contentInset.bottom
+        /// Captured before the inset changes. Changing the inset makes the scroll
+        /// view clamp an out-of-range offset by itself (which happens when the
+        /// table sits at the bottom), so the delta must be applied to the offset
+        /// from before that clamp, otherwise it is applied twice.
+        let previousOffsetY = tableView.contentOffset.y
+        
+        UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut])
+        {
+            changes()
+            
+            self.updateTableViewBottomInset(animated: false,
+                                            obscuringHeightOverride: obscuringHeight)
+            
+            let insetDelta = tableView.contentInset.bottom - previousBottomInset
+            let minOffsetY = -tableView.adjustedContentInset.top
+            let maxOffsetY = max(minOffsetY,
+                                 tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom)
+            tableView.contentOffset.y = min(max(previousOffsetY + insetDelta, minOffsetY), maxOffsetY)
+            
+            self.rootView.layoutIfNeeded()
+        } completion: { finished in
+            completion?(finished)
+        }
+    }
+    
+    /// Keyboard notifications carry their own animation duration and curve.
+    /// UIKit encodes the curve in the upper 16 bits of `UIView.AnimationOptions`.
+    private func keyboardAnimationParameters(from notification: NSNotification)
+        -> (duration: TimeInterval, options: UIView.AnimationOptions)
+    {
+        let info = notification.userInfo
+        let reportedDuration = (info?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue
+        let rawCurve = (info?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue
+            ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
+        
+        let duration = reportedDuration.flatMap { $0 > 0 ? $0 : nil } ?? 0.25
+        let options = UIView.AnimationOptions(rawValue: rawCurve << 16).union(.beginFromCurrentState)
+        
+        return (duration, options)
     }
     
     private func adjustTableViewContent(withUpdatedNumberOfLines numberOfLines: Int,
-                                        currentNumberOfLines _: Int)
+                                        currentNumberOfLines: Int)
     {
         let textView = rootView.messageTextView
         let tableView = rootView.tableView
-        let editViewHeight = rootView.inputBarHeader?.bounds.height ?? 0
-        let wasAtBottom = isTableViewAtBottom()
-        let updatedContentBottomInset = rootView.tableViewInitialBottomInset +
-        (textView.font!.lineHeight * CGFloat(numberOfLines - 1)) + editViewHeight
+        let numberOfAddedLines = CGFloat(numberOfLines - currentNumberOfLines)
         
-        UIView.animate(withDuration: 0.15)
-        {
-            tableView.verticalScrollIndicatorInsets.bottom = 85 + updatedContentBottomInset
-            tableView.contentInset.bottom = 75 + updatedContentBottomInset
-            self.updateTableViewContentPosition(keepingBottomVisible: wasAtBottom)
-        }
         inputMessageTextViewDelegate.updateLinesNumber(numberOfLines)
+        
+        /// keep the greeting view clear of the input bar growing / shrinking
+        /// with each text view line - the 0.1s debounce aligns it with the
+        /// moment the text view's own height animation starts, and animating
+        /// the absolute offset for the current line count keeps it in sync
+        /// with the text view expansion (no drift over successive changes)
+        if rootView.greetingView != nil
+        {
+            rootView.updateGreetingLineLift(self.greetingLineLift)
+        }
+        
+        guard numberOfAddedLines != 0 else { return }
+        
+        let updatedContentOffset = CGPoint(x: tableView.contentOffset.x,
+                                           y: tableView.contentOffset.y + (textView.font!.lineHeight * numberOfAddedLines))
+        
+        UIView.animate(withDuration: 0.15) {
+            self.updateTableViewBottomInset(animated: false)
+            tableView.setContentOffset(updatedContentOffset, animated: false)
+        }
     }
 }
 
@@ -1155,13 +1561,34 @@ extension ChatRoomViewController
     {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTablePan))
         panGesture.delegate = self
-        
+
+        let longPressGesture = PressFeedbackLongPressRecognizer(
+            target: self, action: #selector(handleTableLongPress))
+        /// The preview initiation trips as the press-in sink reaches its
+        /// final phase (sink starts at 0.1s, duration 0.6s), so almost no
+        /// dead pause is left between the sink's motion and the preview
+        /// animation (hold reduced ~2.5x from the 0.7s baseline).
+        longPressGesture.minimumPressDuration = 0.45
+        longPressGesture.onTouchDown = { [weak self, weak gesture = longPressGesture] in
+            guard let self, let gesture else { return }
+            self.handlePressDown(at: gesture.location(in: self.rootView.tableView))
+        }
+        /// Every press's end, guaranteed - even presses that ended before the
+        /// hold threshold, where the recognizer may never report its state.
+        /// Restores the shrink unless the preview already took the bubble over.
+        longPressGesture.onTouchUp = { [weak self, weak gesture = longPressGesture] in
+            guard let self, let gesture else { return }
+            guard self.messageMenuPresenter == nil else { return }
+            self.restorePressedCell()
+        }
+
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissInputBarView))
-        
+
         tapGesture.delegate = self
         tapGesture.cancelsTouchesInView = false
-        
+
         rootView.tableView.addGestureRecognizer(panGesture)
+        rootView.tableView.addGestureRecognizer(longPressGesture)
         rootView.tableView.backgroundView?.addGestureRecognizer(tapGesture)
     }
 
@@ -1191,33 +1618,72 @@ extension ChatRoomViewController: UITableViewDelegate
 {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView?
     {
-        guard !tableView.sk.isSkeletonActive,
-              let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? FooterSectionView else { return nil }
+        /// while the skeleton placeholder rows are up, `messageClusters` is still
+        /// empty, so the header must not try to read a section date from it
+        guard viewModel.conversationInitializationStatus != .inProgress,
+              let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifire.HeaderFooter.footer.identifire) as? SectionDateHeaderView else { return nil }
         
         let dateForSection = viewModel.messageClusterRepository.messageClusters[section].date.formattedAsRelativeDayLabel()
-        footerView.setDate(dateText: dateForSection)
-        return footerView
+        headerView.setDate(dateText: dateForSection)
+        return headerView
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 50
+        /// while the skeleton placeholder rows are up the header is not
+        /// rendered (`viewForHeaderInSection` returns nil) - a non-zero height
+        /// would then show up as a blank strip between the navigation bar and
+        /// the first skeleton cell
+        return viewModel.conversationInitializationStatus == .inProgress ? 0 : 50
     }
     
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int)
     {
-        guard !tableView.sk.isSkeletonActive else {
-            view.isHidden = true
-            return
-        }
+        view.isHidden = viewModel.conversationInitializationStatus == .inProgress
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
         if viewModel.conversationInitializationStatus == .inProgress {
-            return CGFloat((70...120).randomElement()!)
+            if let height = skeletonRowHeights[indexPath.row] {
+                return height
+            }
+            let height = CGFloat((70...120).randomElement()!)
+            skeletonRowHeights[indexPath.row] = height
+            return height
         }
         
         return  UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat
+    {
+        /// While the skeleton runs the heights must be EXACT, not estimated:
+        /// on every reload UIKit lays cells out with the estimate first and
+        /// corrects to the real height right after, which is visible as the
+        /// rows briefly "resetting" their size. Since `heightForRowAt` draws
+        /// memoized values for skeleton rows, hand the same number to the
+        /// estimator (the 90 fallback is a reasonable guess for a row whose
+        /// height hasn't been drawn yet).
+        if viewModel.conversationInitializationStatus == .inProgress {
+            return skeletonRowHeights[indexPath.row] ?? 90
+        }
+
+        /// With `estimatedRowHeight = .automatic` every off-screen self-sizing
+        /// row is estimated at ~44pt until it is displayed. For sticker
+        /// messages that estimate is far off (real height ~191pt), and in
+        /// chats whose newest messages are stickers the bottom-most block was
+        /// undercounted by roughly one viewport worth of height - the room
+        /// opened offset a few messages above the most recent one.
+        /// Stickers have a fixed size, so give the table the real number;
+        /// all other message types keep the default automatic estimate.
+        let clusters = viewModel.messageClusterRepository.messageClusters
+        guard indexPath.section < clusters.count,
+              indexPath.row < clusters[indexPath.section].items.count,
+              let message = clusters[indexPath.section].items[indexPath.row].message,
+              message.type == .sticker
+        else { return UITableView.automaticDimension }
+        
+        return StickerMessageCell.fixedRowHeight
     }
     
     func tableView(_ tableView: UITableView,
@@ -1229,10 +1695,30 @@ extension ChatRoomViewController: UITableViewDelegate
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
     {
+        /// sticker rendering is started/stopped purely from willDisplay /
+        /// didEndDisplaying (`FrameTicker`), so it MUST run even while the
+        /// initial-load gate below is closed, otherwise a sticker visible
+        /// right after chat room open is never registered with the frame
+        /// ticker and stays blank until it gets recycled by scrolling it
+        /// off-screen and back.
+        (cell as? StickerMessageCell)?.setVisible(true)
+        
         guard !viewModel.messageClusterRepository.messageClusters.isEmpty,
               didFinishInitialScrollToUnseenIndexPathIfAny else { return }
         
-        (cell as? StickerMessageCell)?.setVisible(true)
+        if let newestIndexPath,
+           indexPath == newestIndexPath,
+           let lastItems = viewModel.messageClusterRepository.messageClusters.last?.items,
+           lastItems.count > 1
+        {
+            let newestSenderId = lastItems[lastItems.count - 1].message?.senderId
+            let previousSenderId = lastItems[lastItems.count - 2].message?.senderId
+            
+            if newestSenderId == previousSenderId
+            {
+                lastItems[lastItems.count - 2].toggleVisibilityOfSenderAvatar(false)
+            }
+        }
         
         let groupedClusterItems = viewModel.messageClusterRepository.messageClusters.map { $0.items }
         let totalItems = groupedClusterItems.flatMap { $0 }.count
@@ -1246,18 +1732,14 @@ extension ChatRoomViewController: UITableViewDelegate
             let shouldPaginateAnyway: Bool = viewModel.messageClusterRepository.messageClusters.count < 6
             && paginateOldMessagesOnInitialChatOpen
              
-            if globalIndex <= 3
+            /// ascending order: index 0 is the OLDEST, the last index is the NEWEST.
+            /// Both thresholds sit 6 items away from the edge of the list, so the
+            /// page is always requested before its edge cell becomes visible.
+            if globalIndex >= totalItems - 6 && !viewModel.isLastMessageFromClusterTheMostRecentInChat
             {
-                // The top of a chronological table contains the oldest loaded
-                // messages, so pagination in this direction fetches older data.
-                paginateIfNeeded(ascending: false)
-                return
-            } else if (globalIndex >= totalItems - 6) && !viewModel.isLastMessageFromClusterTheMostRecentInChat
-            {
-                // The bottom contains the newest messages.
                 paginateIfNeeded(ascending: true)
                 return
-            } else if shouldPaginateAnyway
+            } else if (globalIndex <= 6) || shouldPaginateAnyway
             {
                 paginateIfNeeded(ascending: false)
                 return
@@ -1323,14 +1805,8 @@ extension ChatRoomViewController: UITableViewDelegate
             
             if viewModel.paginateAdditionalLocalMessages(ascending: ascending)
             {
-                UIView.animate(withDuration: 0.0)
-                {
-                    self.shouldIgnoreUnseenMessagesUpdate = true
-                    self.dataSourceManager.configureSnapshot(animationType: .automatic)
-                    {
-                        self.shouldIgnoreUnseenMessagesUpdate = false
-                    }
-                }
+                applyPaginationChanges(didPrependMessages: !ascending)
+                
                 viewModel.isLocalPaginationActive = false
                 
                 if let startMessage = viewModel.lastPaginatedMessage
@@ -1340,7 +1816,6 @@ extension ChatRoomViewController: UITableViewDelegate
                         ascending: !ascending,
                         limit: ObjectsPaginationLimit.localMessages)
                 }
-                viewModel.isLocalPaginationActive = false
                 return
             }
             
@@ -1352,29 +1827,62 @@ extension ChatRoomViewController: UITableViewDelegate
                     await preformRemotePagination(ascending: ascending)
                 }
             }
-            viewModel.isLocalPaginationActive = false
         }
     }
     
-    private func offsetTableContentOnPaginationCompletion(
-        relativeOffset: CGFloat,
-        visibleCell: UITableViewCell?)
+    /// Applies the current repository contents to the data source without any
+    /// visible animation and keeps the scroll position untouched, as if
+    /// nothing was inserted. Used by the LOCAL pagination path - the remote
+    /// path has its own application (see `preformRemotePagination`), ported
+    /// from the pre-inversion code with its CATransaction-based suppression
+    /// of UIKit's implicit scroll action.
+    /// - the snapshot is applied through an **animated** diffable apply
+    ///   wrapped in `UIView.animate(withDuration: 0.0)` - the animation
+    ///   collapses to zero, but the update goes through `performBatchUpdates`,
+    ///   which spreads its work over the (now 0-duration) animation frames
+    ///   and keeps the scroll momentum intact. A non animated apply must NOT
+    ///   be used here: it re-builds the content synchronously like
+    ///   `reloadData` does and stalls an ongoing scroll for a beat.
+    /// - for prepends the offset is shifted by the content size delta right
+    ///   after the apply (the batch update inserts the rows synchronously),
+    ///   i.e. exactly the height of the rows added above the visible area.
+    ///   On the inverted table UIKit kept the visible content anchored on
+    ///   its own; on a standard table the correction has to be done here.
+    /// - See also FootNote.swift [16]: the 0-duration animation wrapper also
+    ///   neutralizes UIKit's implicit "scroll to make the inserted cell
+    ///   visible" behavior.
+    private func applyPaginationChanges(
+        didPrependMessages: Bool,
+        completion: (() -> Void)? = nil)
     {
-        guard let visibleCell,
-              let indexPathOfVisibleCell = self.rootView.tableView.indexPath(for: visibleCell)
-        else {
-            return
+        let tableView = rootView.tableView
+        let currentOffsetY = tableView.contentOffset.y
+        let previousContentHeight = tableView.contentSize.height
+        
+        self.shouldIgnoreUnseenMessagesUpdate = true
+        
+        UIView.animate(withDuration: 0.0)
+        {
+            self.dataSourceManager.configureSnapshot(animationType: .automatic)
         }
-
-        let visibleCellRect = self.rootView.tableView.rectForRow(at: indexPathOfVisibleCell)
-        self.rootView.tableView.contentOffset.y = visibleCellRect.minY - relativeOffset
+        
+        /// the batch update inserts the rows synchronously, so the offset can
+        /// be locked in the same tick, before the next frame is rendered
+        if didPrependMessages
+        {
+            tableView.contentOffset.y = currentOffsetY
+                + (tableView.contentSize.height - previousContentHeight)
+        }
+        
+        self.updateTopContentInsetToAnchorContentAtBottom()
+        
+        self.shouldIgnoreUnseenMessagesUpdate = false
+        completion?()
     }
     
     private func preformRemotePagination(ascending: Bool) async
     {
         do {
-            try await Task.sleep(for: .seconds(1))
-            
             let direction: PaginationDirection = ascending ?
                 .ascending : .descending
             switch try await viewModel.paginateRemoteMessages(direction: direction)
@@ -1382,11 +1890,42 @@ extension ChatRoomViewController: UITableViewDelegate
             case .didPaginate:
                 await MainActor.run
                 {
-                    let visibleCell = self.rootView.tableView.visibleCells.first
-                    let currentOffsetY = self.rootView.tableView.contentOffset.y
-                    let relativeOffset = visibleCell.map {
-                        $0.frame.minY - currentOffsetY
+                    /// Remote pagination landing: port of the pre-inversion
+                    /// solution (see commit `eaf4682b`) adapted to the
+                    /// standard (non-inverted) table.
+                    ///
+                    /// Unlike the local path, a remote page arrives while the
+                    /// table typically rests at / hovers around its TOP edge
+                    /// (the user scrolled up to the oldest local message and
+                    /// waited for the fetch). There, on new-row insertion,
+                    /// UIKit applies its implicit "animate scrolling to the
+                    /// inserted cell" action (See FootNote.swift [16]) and
+                    /// `UIView.animate(withDuration: 0.0)` - used by the local
+                    /// path - does NOT suppress it reliably in this context;
+                    /// only a CATransaction with disabled actions did, which
+                    /// is exactly how the old code wrapped the remote apply.
+                    ///
+                    /// The offset is anchored to the previously visible
+                    /// top-most cell and corrected INSIDE the apply
+                    /// completion, from its NEW rect - the non-inverted
+                    /// equivalent of the old code's
+                    /// `offsetTableContentOnPaginationCompletion`, valid for
+                    /// any scroll position of a standard table (the old
+                    /// `-90.0` guard existed for the overscroll zone of the
+                    /// rotated geometry). Computing it in the completion
+                    /// makes it land correctly whenever UIKit actually
+                    /// commits the batch update.
+                    let tableView = self.rootView.tableView
+                    let anchorCell = tableView.indexPathsForVisibleRows?.min()
+                        .flatMap { tableView.cellForRow(at: $0) }
+                    let previousMinY = anchorCell.flatMap { cell -> CGFloat? in
+                        guard let indexPath = tableView.indexPath(for: cell) else { return nil }
+                        return tableView.rectForRow(at: indexPath).minY
                     }
+                    let currentOffsetY = tableView.contentOffset.y
+                    /// fallback, used only if the anchor cell gets detached
+                    /// during the update (mutually exclusive with the anchor)
+                    let previousContentHeight = tableView.contentSize.height
                     
                     CATransaction.begin()
                     CATransaction.setDisableActions(true)
@@ -1398,11 +1937,24 @@ extension ChatRoomViewController: UITableViewDelegate
                     {
                         self.shouldIgnoreUnseenMessagesUpdate = false
                         
-                        if let relativeOffset {
-                            self.offsetTableContentOnPaginationCompletion(
-                                relativeOffset: relativeOffset,
-                                visibleCell: visibleCell)
+                        if direction == .descending
+                        {
+                            if let anchorCell,
+                               let previousMinY,
+                               let newAnchorIndexPath = tableView.indexPath(for: anchorCell)
+                            {
+                                let newMinY = tableView.rectForRow(at: newAnchorIndexPath).minY
+                                tableView.contentOffset.y = currentOffsetY + (newMinY - previousMinY)
+                            }
+                            else
+                            {
+                                tableView.contentOffset.y = currentOffsetY
+                                    + (tableView.contentSize.height - previousContentHeight)
+                            }
                         }
+                        
+                        self.updateTopContentInsetToAnchorContentAtBottom()
+                        
                         CATransaction.commit()
                         self.isNetworkPaginationRunning = false
                     }
@@ -1413,6 +1965,9 @@ extension ChatRoomViewController: UITableViewDelegate
             }
         } catch {
             print("Could not update conversation with additional messages: \(error)")
+            /// otherwise the guard would stay latched and remote pagination
+            /// would never be attempted again
+            self.isNetworkPaginationRunning = false
         }
     }
 }
@@ -1438,17 +1993,31 @@ extension ChatRoomViewController: UIScrollViewDelegate
         }
 
         /// Toggle scrollToBottom badge
-        isFirstCellFullyVisible ?
-        toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
-        :
-        toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
-    }
+        /// Only actual user scrolling reveals the badge. Programmatic scrolls
+        /// (send-flow re-pins, initial scrolls, input bar / inset adjustments)
+        /// are anchored to a known end position and simply pass through
+        /// transient positions where the newest cell is not fully visible -
+        /// evaluating those would flash the badge on for a split second right
+        /// before the input bar readjusts when a multi-line message is sent.
+        /// Such scrolls may therefore only move the badge towards HIDDEN.
+        if scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating
+        {
+            isNewestCellFullyVisible ?
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
+            :
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+        }
+        else if isNewestCellFullyVisible
+        {
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: true)
+        }
+    }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
     {
         triggerUpdateUnseenMessagesCheck()
         
-        toggleSectionHeaderVisibility(isScrollActive: false)
+        toggleSectionHeaderVisibility(isScrollActive: false)
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool)
@@ -1461,19 +2030,50 @@ extension ChatRoomViewController: UIScrollViewDelegate
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        /// A press whose finger started scrolling: the scroll took the touch
+        /// over, so the press pipeline (pending sink or already shrunk
+        /// bubble) must be torn down right here. UIKit may fail the long
+        /// press recognizer SILENTLY for pre-threshold movement - no
+        /// `.ended/.failed/.cancelled` state and no touch cancellation is
+        /// delivered to it - so `onTouchUp` cannot be relied on to have
+        /// restored the bubble (it used to stay pressed-in mid-sink while
+        /// the table scrolled). No-op when no press is active.
+        restorePressedCell()
+
+        /// the user took over the animated scroll flight - no automatic
+        /// landing correction should apply anymore
+        isScrollingToNewestMessage = false
+        
         toggleSectionHeaderVisibility(isScrollActive: true)
     }
     
     func scrollViewDidScrollToTop(_ scrollView: UIScrollView)
     {
         triggerUpdateUnseenMessagesCheck()
+        
+        /// not tracked as user dragging, so the badge reveal must be applied
+        /// explicitly (newer messages are below the now-visible top)
+        if !isNewestCellFullyVisible
+        {
+            toggleScrollBadgeButtonVisibility(shouldBeHidden: false)
+        }
     }
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView)
     {
+        /// an animated scroll-to-newest flight just finished; its target was
+        /// computed against the (partially estimate-based) content size at
+        /// flight start, so re-land on the real bottom edge
+        if isScrollingToNewestMessage
+        {
+            isScrollingToNewestMessage = false
+            settleScrollAtNewestMessage()
+        }
+        
         triggerUpdateUnseenMessagesCheck()
-        let completion = scrollToBottomCompletion
-        scrollToBottomCompletion = nil
-        completion?()
+        
+        /// the programmatic flight has landed - apply the resting header
+        /// state (overlay pinned pills fade out again)
+        toggleSectionHeaderVisibility(isScrollActive: false)
     }
     
     
@@ -1481,7 +2081,7 @@ extension ChatRoomViewController: UIScrollViewDelegate
     {
         if viewModel.shouldHideJoinGroupOption
         {
-            if let index = findMinimalVisibleIndexPath()
+            if let index = findNewestVisibleIndexPath()
             {
                 updateMessageSeenStatusIfNeeded(index)
             }
@@ -1492,15 +2092,11 @@ extension ChatRoomViewController: UIScrollViewDelegate
 //MARK: - ScrollView helper functions
 extension ChatRoomViewController
 {
-    /// Find the newest fully visible message so all messages up to it can be
-    /// marked as seen in chronological order.
+    /// find the newest fully visible index path, to update all messages up to it
     ///
-    private func findMinimalVisibleIndexPath() -> IndexPath?
+    private func findNewestVisibleIndexPath() -> IndexPath?
     {
-        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(by: { lhs, rhs in
-            if lhs.section != rhs.section { return lhs.section < rhs.section }
-            return lhs.row < rhs.row
-        }),
+        if let visibleIndices = rootView.tableView.indexPathsForVisibleRows?.sorted(),
            let lastVisible = visibleIndices.last(where: { checkIfCellIsFullyVisible(at: $0) })
         {
             return lastVisible
@@ -1510,107 +2106,255 @@ extension ChatRoomViewController
 
     private func toggleSectionHeaderVisibility(isScrollActive: Bool, withAnimation: Bool = true)
     {
-        guard let lastVisibleIndex = rootView.tableView.indexPathsForVisibleRows?.last,
-              let footerView = rootView.tableView.headerView(forSection: lastVisibleIndex.section)
+        let tableView = rootView.tableView
+        
+        guard let visibleIndices = tableView.indexPathsForVisibleRows
         else { return }
         
-        let lastSection = rootView.tableView.numberOfSections - 1
-        let lastItemInSection = viewModel.messageClusterRepository.messageClusters[lastSection].items.count - 1
-        let isLastCellVisible = lastVisibleIndex.row == lastItemInSection
+        /// Date pill visibility rules:
+        /// - a pill sitting at its section's own start position on screen
+        ///   (the section begins inside the viewport) is always visible
+        /// - a pill whose section start has already scrolled above the
+        ///   viewport top is held pinned over the content at the viewport
+        ///   top edge by the table view - such a pill is only visible while
+        ///   scrolling is active and fades out at rest
+        let viewportTopY = tableView.contentOffset.y + tableView.adjustedContentInset.top
         
-        let targetOpacity: Float = (isScrollActive || isLastCellVisible) ? 1.0 : 0.0
-        
-        if withAnimation {
-            let delay = isScrollActive ? 0.0 : 0.4
-            UIView.animate(withDuration: 0.4, delay: delay) {
-                footerView.layer.opacity = targetOpacity
+        for section in Set(visibleIndices.map(\.section))
+        {
+            guard let headerView = tableView.headerView(forSection: section)
+            else { continue }
+            
+            let isOverlayPinnedHeader = tableView.rectForHeader(inSection: section).minY < viewportTopY - 0.5
+            let targetOpacity: Float = (isScrollActive || !isOverlayPinnedHeader) ? 1.0 : 0.0
+            
+            if withAnimation
+            {
+                /// an explicit UIView.animate animation is used here on
+                /// purpose: implicit CATransaction-based animations get
+                /// suppressed when the change happens inside UIKit's
+                /// scroll-event transaction (delegate callbacks of an active
+                /// scroll run with layer actions disabled), which collapsed
+                /// the fade to an instant jump. Explicit animations are not
+                /// affected by that suppression.
+                UIView.animate(withDuration: 0.35) {
+                    headerView.layer.opacity = targetOpacity
+                }
             }
-        } else {
-            footerView.layer.opacity = targetOpacity
+            else
+            {
+                headerView.layer.opacity = targetOpacity
+            }
         }
     }
 }
 
 
-//MARK: Context Menu configuration
+//MARK: - Message selection menu (custom long-press presentation)
 extension ChatRoomViewController
 {
-    func tableView(_ tableView: UITableView,
-                   contextMenuConfigurationForRowAt indexPath: IndexPath,
-                   point: CGPoint) -> UIContextMenuConfiguration?
+    /// Telegram-like press imitation: the long press gesture reports the
+    /// touch-down through `PressFeedbackLongPressRecognizer`.
+    private struct PressedMessageSource
     {
+        let bubbleSourceView: UIView
+        let optionGroups: [[MessageMenuOption]]
+        let message: Message
+    }
+
+    @objc private func handleTableLongPress(_ gesture: UILongPressGestureRecognizer)
+    {
+        switch gesture.state
+        {
+        case .began:
+            /// A drag-to-reply that took over the same touch must always win
+            /// over the preview: once the finger moves sideways the press
+            /// pipeline is torn down (see `handleTablePan` .began), so the
+            /// hold can never escalate into the message preview mid-drag -
+            /// not even when the drag is so slow it is still under the pan
+            /// threshold when the hold trips.
+            guard dragableCell == nil else
+            {
+                restorePressedCell()
+                return
+            }
+            presentMessageMenu(at: gesture.location(in: rootView.tableView))
+        case .ended, .cancelled, .failed:
+            restorePressedCell()
+        default:
+            break
+        }
+    }
+
+    /// Called the moment fingers land: resolves the pressed message and
+    /// captures its full-size state (still at identity), but does NOT shrink
+    /// yet - a bare touch or a fraction-of-a-second tap must not start any
+    /// pressing. The press-in shrink is scheduled with a small delay and is
+    /// cancelled if the fingers leave before it, so it only ever runs for
+    /// actual holds. Duration is sized so the shrink completes exactly when
+    /// the hold threshold (0.45s, see `addGestureToTableView`) trips and the
+    /// preview initiation begins straightaway.
+    private func handlePressDown(at locationInTable: CGPoint)
+    {
+        /// A touch landing while the table is scrolling (drag or deceleration)
+        /// belongs to the scroll, not to a press: none of the press pipeline
+        /// may start, or a bare touch mid-gesture leaves the bubble stuck in
+        /// its pressed-in state. `isTracking` is deliberately NOT checked -
+        /// every fresh touch (including a legitimate press) tracks from the
+        /// first moment; only the table declaring an actual scroll blocks it.
+        let table = rootView.tableView
         guard viewModel.shouldHideJoinGroupOption,
-              let baseCell = tableView.cellForRow(at: indexPath) else { return nil }
-        let identifier = indexPath as NSCopying
-        
-        let menuBuilder = MessageMenuBuilder(
-            viewModel: self.viewModel,
-            rootView: self.rootView,
-            cell: baseCell
-        )
-        { actionOption in
-            self.handleContextMenuSelectedAction(
-                actionOption: actionOption
-            )
+              messageMenuPresenter == nil,
+              /// a drag-to-reply already owns the touch - no press feedback
+              /// may start underneath it
+              dragableCell == nil,
+              !table.isDragging,
+              !table.isDecelerating,
+              let source = resolveMenuSource(at: locationInTable)
+        else { return }
+
+        pressedBubbleSource = source
+        pressedBubbleContainer = source.bubbleSourceView
+        /// full-size capture happens NOW, while the view is still at its idle
+        /// identity transform - removes both the capture cost from the
+        /// initiation moment and the reset/restore flash around it
+        pendingPreviewCapture = MessageMenuPresenter.captureBubbleImage(
+            from: source.bubbleSourceView,
+            afterScreenUpdates: false)
+
+        pendingPressInWork?.cancel()
+        let pressInWork = DispatchWorkItem { [weak self] in
+            self?.startPressInShrink()
         }
-        
-        if let messageCell = baseCell as? TargetPreviewable,
-           let message = messageCell.cellViewModel.message
-        {
-            let tapLocationInCell = messageCell.contentView.convert(point, from: tableView)
-            guard messageCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
-            
-            return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
-                return menuBuilder.buildUIMenuForMessage(message: message)
-            }
-        }
-        else if let eventCell = baseCell as? MessageEventCell,
-                let message = eventCell.cellViewModel.message
-        {
-            let tapLocationInCell = eventCell.contentView.convert(point, from: tableView)
-            guard eventCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
-            
-            return UIContextMenuConfiguration(identifier: identifier, previewProvider: nil) { _ in
-                return menuBuilder.buildUIMenuForEvent(message: message)
-            }
-        }
-        return nil
-    }
-    
-    func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
-        return makeTargetedPreview(for: configuration)
+        pendingPressInWork = pressInWork
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: pressInWork)
     }
 
-    func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview?
+    /// The delayed press-in feedback, only for actual holds.
+    private func startPressInShrink()
     {
-        executeAfter(seconds: 0.5) {
-            self.isContextMenuPresented = false
-        }
-        return makeTargetedDismissPreview(for: configuration)
-    }
-    
-    func tableView(_ tableView: UITableView,
-                   willDisplayContextMenu configuration: UIContextMenuConfiguration,
-                   animator: UIContextMenuInteractionAnimating?)
-    {
-        if rootView.inputBarBottomConstraint.constant != 0.0 {
-            isContextMenuPresented = true
-        }
+        guard messageMenuPresenter == nil,
+              let source = pressedBubbleSource
+        else { return }
 
-        guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = tableView.cellForRow(at: indexPath)
-        else {
+        UIView.animate(withDuration: 0.6,
+                       delay: 0,
+                       usingSpringWithDamping: 0.85,
+                       initialSpringVelocity: 0.1,
+                       options: [.beginFromCurrentState])
+        {
+            source.bubbleSourceView.transform = CGAffineTransform(scaleX: 0.92, y: 0.92)
+        }
+    }
+
+    /// Springs the pressed bubble back to full size when the press resolves
+    /// without a menu (moved finger, early release, drag took over). Returns
+    /// from wherever the shrink currently stands, so an early release mid-shrink
+    /// restores the original state with animation.
+    private func restorePressedCell()
+    {
+        pendingPressInWork?.cancel()
+        pendingPressInWork = nil
+        pressedBubbleSource = nil
+        pendingPreviewCapture = nil
+        guard let container = pressedBubbleContainer else { return }
+        pressedBubbleContainer = nil
+        UIView.animate(withDuration: 0.35,
+                       delay: 0,
+                       usingSpringWithDamping: 0.8,
+                       initialSpringVelocity: 0.2,
+                       options: [.beginFromCurrentState])
+        {
+            container.transform = .identity
+        }
+    }
+
+    private func presentMessageMenu(at locationInTable: CGPoint)
+    {
+        /// Same scroll rule as the press-down: an initiation may never fire
+        /// into a scrolling table (e.g. a drag started from a second finger
+        /// while the first one holds the press). The pressed bubble restores
+        /// instead of the preview flying out mid-scroll.
+        guard viewModel.shouldHideJoinGroupOption,
+              messageMenuPresenter == nil,
+              !rootView.tableView.isDragging,
+              !rootView.tableView.isDecelerating,
+              let source = pressedBubbleSource ?? resolveMenuSource(at: locationInTable)
+        else
+        {
+            restorePressedCell()
             return
         }
 
-        // Coordinate hiding the source with the preview lift so the snapshot
-        // already exists when the original cell becomes transparent.
-        animator?.addAnimations {
-            cell.alpha = 0.0
-        }
+        /// the presenter takes over the pressed bubble's restore
+        pressedBubbleContainer = nil
+        pressedBubbleSource = nil
+        pendingPressInWork?.cancel()
+        pendingPressInWork = nil
+        self.messageMenuPresenter = MessageMenuPresenter(
+            rootView: self.rootView,
+            message: source.message,
+            bubbleSourceView: source.bubbleSourceView,
+            optionGroups: source.optionGroups,
+            preCapturedImage: pendingPreviewCapture,
+            onReactionSelection: { [weak self] reactionEmoji in
+                self?.viewModel.updateReactionInDataBase(reactionEmoji, from: source.message)
+            },
+            onFinished: { [weak self] in
+                self?.messageMenuPresenter = nil
+            }
+        )
+        pendingPreviewCapture = nil
+
+        triggerHapticFeedback(style: .medium)
+        messageMenuPresenter?.present()
     }
-    
+
+    private func resolveMenuSource(
+        at locationInTable: CGPoint
+    ) -> PressedMessageSource?
+    {
+        let table = rootView.tableView
+        guard let indexPath = table.indexPathForRow(at: locationInTable),
+              let cell = table.cellForRow(at: indexPath)
+        else { return nil }
+
+        let menuBuilder = MessageMenuBuilder(
+            viewModel: self.viewModel,
+            rootView: self.rootView,
+            cell: cell
+        )
+        { [weak self] actionOption in
+            self?.handleContextMenuSelectedAction(
+                actionOption: actionOption
+            )
+        }
+
+        if let messageCell = cell as? TargetPreviewable,
+           let message = messageCell.cellViewModel.message
+        {
+            let tapLocationInCell = messageCell.contentView.convert(locationInTable, from: table)
+            guard messageCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
+
+            return PressedMessageSource(
+                bubbleSourceView: messageCell.contentContainer,
+                optionGroups: menuBuilder.buildMenuOptionGroups(message: message),
+                message: message)
+        }
+        else if let eventCell = cell as? MessageEventCell,
+                let message = eventCell.cellViewModel.message
+        {
+            let tapLocationInCell = eventCell.contentView.convert(locationInTable, from: table)
+            guard eventCell.contentContainer.frame.contains(tapLocationInCell) else { return nil }
+
+            return PressedMessageSource(
+                bubbleSourceView: eventCell.contentContainer,
+                optionGroups: menuBuilder.buildMenuOptionGroups(event: message),
+                message: message)
+        }
+        return nil
+    }
+
     private func handleContextMenuSelectedAction(
         actionOption: InputBarHeaderView.Mode
     )
@@ -1619,7 +2363,7 @@ extension ChatRoomViewController
         self.addGestureToCloseBtn()
         self.rootView.messageTextView.becomeFirstResponder()
         self.inputMessageTextViewDelegate.textViewDidChange(self.rootView.messageTextView)
-        
+
         if case .image(_) = actionOption,
            self.rootView.sendMessageButton.isHidden
         {
@@ -1634,9 +2378,6 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
 {
     @objc private func handleTablePan(_ gesture: UIPanGestureRecognizer)
     {
-        self.targetedPreview?.view.removeFromSuperview() //  See FootNote.swift [19]
-        self.targetedPreview = nil
-        
         let table = self.rootView.tableView
         let location = gesture.location(in: table)
         let translation = gesture.translation(in: table)
@@ -1648,10 +2389,24 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
         switch gesture.state
         {
         case .began:
+            /// The drag takes the pressed message over: the pending / running
+            /// press-in sink is torn down right here and the bubble springs
+            /// back to full size while the cell starts following the finger -
+            /// the restore animation and the drag run concurrently (restore
+            /// animates the bubble's transform, the drag moves the cell's
+            /// center), so they stay in sync exactly like an early finger
+            /// lift. `restorePressedCell` also disarms the preview
+            /// initiation (`pressedBubbleSource` cleared), and together with
+            /// the `dragableCell` guard in `handleTableLongPress` this makes
+            /// the preview unreachable once a drag has begun.
+            /// A drag starting before the 0.1s press-in fires therefore never
+            /// sinks the bubble in at all; a drag starting mid-sink cancels it.
+            guard messageMenuPresenter == nil else { return }
             guard let indexPath = table.indexPathForRow(at: location),
                   let dragableCell = table.cellForRow(at: indexPath) as? MessageCellDragable else {return}
             self.dragableCell = dragableCell
             self.draggingCellOriginalCenter = dragableCell.center
+            restorePressedCell()
         case .changed:
             guard translation.x < 0 else {return}
             
@@ -1677,14 +2432,19 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
             }
             self.hapticWasInitiated = false
             
-            if (translation.x < 0) && (abs(translationX) >= dragTreshhold)
+            /// only an actual captured drag cell may trigger the reply - a
+            /// pan that began on a non-dragable row (event cell, header) must
+            /// not open the reply bar with empty message data
+            if let dragableCell = self.dragableCell,
+               translation.x < 0,
+               abs(translationX) >= dragTreshhold
             {
-                self.viewModel.currentlyReplyToMessageID = dragableCell?.messageID
+                self.viewModel.currentlyReplyToMessageID = dragableCell.messageID
                 self.handleContextMenuSelectedAction(
                     actionOption: .reply(
-                        senderName: dragableCell?.messageSenderName,
-                        text: dragableCell?.messageText,
-                        image: dragableCell?.messageImage)
+                        senderName: dragableCell.messageSenderName,
+                        text: dragableCell.messageText,
+                        image: dragableCell.messageImage)
                 )
             }
             
@@ -1693,172 +2453,6 @@ extension ChatRoomViewController: UIGestureRecognizerDelegate
         }
     }
 }
-
-//MARK: - Targeted Preview creation
-extension ChatRoomViewController
-{
-    func makeTargetedPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
-        guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath),
-              let message: Message = getMessageFromCell(cell) else {
-            return nil
-        }
-
-        // Capture synchronously before the source cell is hidden. A display-link
-        // snapshot leaves one empty frame at the start of the context-menu lift.
-        guard let cellReference = cell.contentView.snapshotView(afterScreenUpdates: false) else {
-            return nil
-        }
-        cellReference.frame = cell.contentView.bounds
-        cellReference.layer.cornerRadius = 10
-        cellReference.layer.masksToBounds = true
-        
-        animatedPreviewViews.append(cellReference)
- 
-        var reactionPanelView = ReactionPanelView()
-        reactionPanelView.onReactionSelection = { [weak self] reactionEmoji in
-            self?.viewModel.updateReactionInDataBase(reactionEmoji, from: message)
-            self?.dismiss(animated: true)
-        }
-        
-        let reactionPanelUIView = UIHostingController(rootView: reactionPanelView).view!
-        reactionPanelUIView.backgroundColor = .clear
-        reactionPanelUIView.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Calculate heights
-        let cellHeight = cell.bounds.height
-        let reactionHeight: CGFloat = ReactionPanelView.panelHeight
-        let spacing: CGFloat = TargetedPreviewComponentsSize.spaceReactionHeight
-        let totalHeight = reactionHeight + spacing + cellHeight
-        
-        // Create container
-        let container = UIView(frame: CGRect(origin: .zero,
-                                             size: CGSize(width: cell.bounds.width, height: totalHeight)))
-        container.backgroundColor = .clear
-        
-        container.addSubview(reactionPanelUIView)
-        container.addSubview(cellReference)
-        
-        cellReference.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            reactionPanelUIView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
-            reactionPanelUIView.topAnchor.constraint(equalTo: container.topAnchor),
-            reactionPanelUIView.widthAnchor.constraint(equalToConstant: 306),
-            reactionPanelUIView.heightAnchor.constraint(equalToConstant: reactionHeight),
-            
-            cellReference.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            cellReference.topAnchor.constraint(equalTo: reactionPanelUIView.bottomAnchor, constant: spacing),
-            cellReference.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            cellReference.heightAnchor.constraint(equalToConstant: cellHeight),
-            cellReference.bottomAnchor.constraint(equalTo: container.bottomAnchor)
-        ])
-        
-        let heightDifference = totalHeight - cellHeight
-        let cellCenter = tableViewCenter(for: cell)
-        let centerPoint = CGPoint(x: cellCenter.x, y: cellCenter.y - (heightDifference / 2))
-        
-        let previewTarget = UIPreviewTarget(container: rootView.tableView,
-                                          center: centerPoint,
-                                          transform: .identity)
-        
-        let parameters = UIPreviewParameters()
-        parameters.backgroundColor = .clear
-        parameters.shadowPath = UIBezierPath()
-        
-        let targetedPreview = UITargetedPreview(view: container,
-                               parameters: parameters,
-                               target: previewTarget)
-        self.targetedPreview = targetedPreview // See FootNote.swift [19]
-        return targetedPreview
-    }
-
-    func makeTargetedDismissPreview(for configuration: UIContextMenuConfiguration) -> UITargetedPreview?
-    {
-        guard let indexPath = configuration.identifier as? IndexPath,
-              let cell = rootView.tableView.cellForRow(at: indexPath) else {
-            return nil
-        }
-        
-        let maxSnapshotHeight = TargetedPreviewComponentsSize.calculateMaxSnapshotHeight(from: cell)
-        guard let snapshot = cell.contentView.snapshotView(afterScreenUpdates: false) else {
-            return nil
-        }
-        
-        snapshot.frame = CGRect(origin: .zero, size: CGSize(width: cell.bounds.width, height: maxSnapshotHeight))
-        
-        let containerHeight = TargetedPreviewComponentsSize.getSnapshotContainerHeight(snapshot)
-        
-        let container = UIView(frame: CGRect(origin: .zero,
-                                             size: CGSize(width: cell.bounds.width,
-                                                          height: containerHeight)))
-        
-        container.addSubview(snapshot)
-        snapshot.layer.cornerRadius = 10
-        snapshot.layer.masksToBounds = true
-        snapshot.translatesAutoresizingMaskIntoConstraints = false
-
-        snapshot.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
-        snapshot.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
-        snapshot.heightAnchor.constraint(equalToConstant: snapshot.bounds.height).isActive = true
-        snapshot.bottomAnchor.constraint(equalTo: container.bottomAnchor).isActive = true
-        
-        let heightDifference = container.bounds.height - cell.bounds.height
-        let cellCenter = tableViewCenter(for: cell)
-        let centerPoint = CGPoint(x: cellCenter.x, y: cellCenter.y - (heightDifference / 2))
-        let previewTarget = UIPreviewTarget(container: rootView.tableView,
-                                           center: centerPoint,
-                                           transform: .identity)
-        
-        let parameters = UIPreviewParameters()
-        parameters.backgroundColor = .clear
-        parameters.shadowPath = UIBezierPath()
-        
-        return UITargetedPreview(view: container, parameters: parameters, target: previewTarget)
-    }
-    
-    func tableView(_ tableView: UITableView,
-                   willEndContextMenuInteraction configuration: UIContextMenuConfiguration,
-                   animator: UIContextMenuInteractionAnimating?
-    )
-    {
-        animator?.addCompletion { [weak self] in
-            guard let self,
-                  let indexPath = configuration.identifier as? IndexPath,
-                  let cell = tableView.cellForRow(at: indexPath) else
-            {
-                return
-            }
-            
-            // Restore cell visibility after animation completes
-            cell.alpha = 1
-            
-            executeAfter(seconds: 1.0)
-            {
-                if let view = self.animatedPreviewViews.first {
-                    view.removeFromSuperview()
-                    self.animatedPreviewViews.remove(at: 0)
-                }
-            }
-        }
-    }
-
-    func getMessageFromCell(_ cell: UITableViewCell) -> Message?
-    {
-        if let messageCell = cell as? TargetPreviewable,
-            let cellMessage = messageCell.cellViewModel.message
-        {
-            return cellMessage
-        } else if let eventCell = cell as? MessageEventCell,
-                  let cellMessage = eventCell.cellViewModel.message {
-            return cellMessage
-        } else {
-            return nil
-        }
-    }
-}
-
 
 //MARK: - Gesture delegate
 extension ChatRoomViewController
@@ -1895,11 +2489,26 @@ extension ChatRoomViewController
     {
         switch state {
         case .initiated:
+            /// a fresh set of stable random heights for the coming skeleton rows
+            skeletonRowHeights.removeAll()
             rootView.tableView.estimatedRowHeight = 50 /// See FootNote.swift [17]
-            SkeletonAnimationAppearance.initiateSkeletonAnimation(for: rootView.tableView)
+            /// The skeleton rows are ordinary diffable items now (see
+            /// `ConversationDataSourceManager.setSkeletonDisplay`). SkeletonView's
+            /// data-source wrapper used to reload the whole table on every
+            /// trait-collection pass and re-dequeue reuse-pool cells into
+            /// different rows, which made the bars visibly "reset" their sizes.
+            dataSourceManager.setSkeletonDisplay(displayed: true)
+            /// align the skeleton rows with the top of the visible area
+            updateTopContentInsetToAnchorContentAtBottom()
+            /// the wrapper used to lock interaction while it owned the table
+            rootView.tableView.isScrollEnabled = false
+            rootView.tableView.isUserInteractionEnabled = false
         case .terminated:
             rootView.tableView.estimatedRowHeight = UITableView.automaticDimension /// See FootNote.swift [17]
-            SkeletonAnimationAppearance.stopSkeletonAnimation(for: rootView.tableView)
+            dataSourceManager.setSkeletonDisplay(displayed: false)
+            rootView.tableView.isScrollEnabled = true
+            rootView.tableView.isUserInteractionEnabled = true
+            skeletonRowHeights.removeAll()
         default: break
         }
     }

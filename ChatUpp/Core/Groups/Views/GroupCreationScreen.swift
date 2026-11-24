@@ -37,7 +37,6 @@ struct GroupCreationScreen: View
                         .foregroundStyle(Color(ColorScheme.tabBarNormalItemsTintColor))
                 }
             }
-            .padding(.top, 1)
             .scrollContentBackground(.hidden)
             .background(Color(ColorScheme.appBackgroundColor))
 //            .searchable(text: $searchText,
@@ -49,8 +48,9 @@ struct GroupCreationScreen: View
                 destinationRouteView(route)
             })
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
-                ToolbarTrailingItem()
+                closeToolbarItem
             }
             .onAppear {
                 Task {
@@ -77,33 +77,32 @@ extension GroupCreationScreen
 }
 
 
-//MARK: ToolBar
+//MARK: Toolbar
 extension GroupCreationScreen
 {
     @ToolbarContentBuilder
-    private func ToolbarTrailingItem() -> some ToolbarContent
+    private var closeToolbarItem: some ToolbarContent
     {
-        ToolbarItem(placement: .topBarTrailing) {
-            cancelButton()
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: .topBarTrailing) {
+                closeButton
+            }
+        } else {
+            ToolbarItem(placement: .topBarTrailing) {
+                closeButton
+                    .buttonStyle(.plain)
+                    .background(Color(ColorScheme.navigationItemsColor), in: Circle())
+            }
         }
     }
-    
-    private func cancelButton() -> some View
+
+    private var closeButton: some View
     {
-        Button {
+        Button("Close", systemImage: "xmark") {
             dismiss()
-            //            dismiss.callAsFunction()
-        } label: {
-            Image(systemName: "xmark")
-                .font(.system(size: 10))
-                .bold()
-//                .foregroundStyle(Color(ColorScheme.appBackgroundColor))
-                .foregroundStyle(Color(#colorLiteral(red: 0.9062067866, green: 0.9062067866, blue: 0.9062067866, alpha: 1)))
-                .padding(7)
-//                .background(Color(ColorScheme.actionButtonsTintColor))
-                .background(Color(ColorScheme.navigationItemsColor))
-                .clipShape(.circle)
         }
+        .labelStyle(.iconOnly)
+        .foregroundStyle(Color(ColorScheme.actionButtonsTintColor))
     }
 }
 

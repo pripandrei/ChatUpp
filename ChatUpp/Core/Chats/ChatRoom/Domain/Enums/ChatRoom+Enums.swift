@@ -10,6 +10,7 @@ import UIKit
 enum DatasourceRowAnimation
 {
     case top
+    case bottom
     case fade
     case left
     case automatic
@@ -18,6 +19,7 @@ enum DatasourceRowAnimation
     var animation: UITableView.RowAnimation {
         switch self {
         case .top: return .top
+        case .bottom: return .bottom
         case .fade: return .fade
         case .none: return .none
         case .left: return .left

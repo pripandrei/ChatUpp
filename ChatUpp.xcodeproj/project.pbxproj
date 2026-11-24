@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		75D0C4E10000000000000B06 /* PressFeedbackLongPressRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A06 /* PressFeedbackLongPressRecognizer.swift */; };
+		75D0C4E10000000000000B02 /* MessageMenuOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A02 /* MessageMenuOption.swift */; };
+		75D0C4E10000000000000B03 /* MessageMenuPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A03 /* MessageMenuPresenter.swift */; };
+		75D0C4E10000000000000D04 /* KeyboardWindowLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000C04 /* KeyboardWindowLocator.swift */; };
+		75D0C4E10000000000000B04 /* MessageMenuCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A04 /* MessageMenuCardView.swift */; };
+		75D0C4E10000000000000B05 /* MenuRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D0C4E10000000000000A05 /* MenuRowView.swift */; };
 		75075F6D2E5DDEAC00DCA98F /* MessageLayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */; };
 		750F5BF12D9D5AE9007655F3 /* MessageEventTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */; };
 		751100392CEEA10100DD659C /* UnseenMessagesBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */; };
@@ -167,8 +173,6 @@
 		75BC06792DFB82D3002ED4AA /* NotificationCenter+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */; };
 		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
 		75C0898E2ECABB4300F083D0 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0898D2ECABB3B00F083D0 /* UIColor+Extensions.swift */; };
-		75C0CE1B2ECF8D7900F083D0 /* TargetedPreviewContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0CE1A2ECF8D7200F083D0 /* TargetedPreviewContentView.swift */; };
-		75C0CE1D2ECF8DB500F083D0 /* TargetedPreviewComponentsSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0CE1C2ECF8DA800F083D0 /* TargetedPreviewComponentsSize.swift */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75C8B8392F840A1500C58171 /* GlassCapsuleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8B8382F840A0900C58171 /* GlassCapsuleStyle.swift */; };
 		75C8B83B2F840A3600C58171 /* NoHeighlightStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8B83A2F840A2B00C58171 /* NoHeighlightStyle.swift */; };
@@ -240,6 +244,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		75D0C4E10000000000000A06 /* PressFeedbackLongPressRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressFeedbackLongPressRecognizer.swift; sourceTree = "<group>"; };
+		75D0C4E10000000000000A02 /* MessageMenuOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuOption.swift; sourceTree = "<group>"; };
+		75D0C4E10000000000000A03 /* MessageMenuPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuPresenter.swift; sourceTree = "<group>"; };
+		75D0C4E10000000000000C04 /* KeyboardWindowLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardWindowLocator.swift; sourceTree = "<group>"; };
+		75D0C4E10000000000000A04 /* MessageMenuCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageMenuCardView.swift; sourceTree = "<group>"; };
+		75D0C4E10000000000000A05 /* MenuRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuRowView.swift; sourceTree = "<group>"; };
 		75075F6C2E5DDEA600DCA98F /* MessageLayoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageLayoutManager.swift; sourceTree = "<group>"; };
 		750F5BEC2D9D5ACF007655F3 /* MessageEventTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageEventTableViewCell.swift; sourceTree = "<group>"; };
 		751100382CEEA10100DD659C /* UnseenMessagesBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnseenMessagesBadge.swift; sourceTree = "<group>"; };
@@ -376,8 +386,6 @@
 		75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationCenter+Extensions.swift"; sourceTree = "<group>"; };
 		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		75C0898D2ECABB3B00F083D0 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
-		75C0CE1A2ECF8D7200F083D0 /* TargetedPreviewContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetedPreviewContentView.swift; sourceTree = "<group>"; };
-		75C0CE1C2ECF8DA800F083D0 /* TargetedPreviewComponentsSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetedPreviewComponentsSize.swift; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
 		75C8B8382F840A0900C58171 /* GlassCapsuleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCapsuleStyle.swift; sourceTree = "<group>"; };
 		75C8B83A2F840A2B00C58171 /* NoHeighlightStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoHeighlightStyle.swift; sourceTree = "<group>"; };
@@ -508,7 +516,7 @@
 				75AD5EAC2E7B050E0075377B /* NavigationBar */,
 				7587D3942E637B8000DEE900 /* Stickers */,
 				75AD5EA42E7B03F90075377B /* Reactions */,
-				75C0CE192ECF8D4E00F083D0 /* TargetedPreview */,
+				75D0C4E10000000000000A01 /* MessageMenu */,
 			);
 			path = Subviews;
 			sourceTree = "<group>";
@@ -1145,6 +1153,7 @@
 			children = (
 				756A2AD62F23754F00C5D7B0 /* FrameTicker.swift */,
 				75AD5EA22E7B03630075377B /* KeyboardService.swift */,
+				75D0C4E10000000000000C04 /* KeyboardWindowLocator.swift */,
 				75A9184A2C942E15006ED4CA /* CacheManager.swift */,
 				758A48CF2E4A2CAD00D0A10B /* PermissionManager.swift */,
 			);
@@ -1423,15 +1432,6 @@
 				75FB78F72AC311D000C2743A /* ChatsViewModel.swift */,
 			);
 			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		75C0CE192ECF8D4E00F083D0 /* TargetedPreview */ = {
-			isa = PBXGroup;
-			children = (
-				75C0CE1C2ECF8DA800F083D0 /* TargetedPreviewComponentsSize.swift */,
-				75C0CE1A2ECF8D7200F083D0 /* TargetedPreviewContentView.swift */,
-			);
-			path = TargetedPreview;
 			sourceTree = "<group>";
 		};
 		75C8B8372F840A0300C58171 /* Styles */ = {
@@ -1842,6 +1842,18 @@
 			path = UsernameRegistration;
 			sourceTree = "<group>";
 		};
+		75D0C4E10000000000000A01 /* MessageMenu */ = {
+			isa = PBXGroup;
+			children = (
+				75D0C4E10000000000000A06 /* PressFeedbackLongPressRecognizer.swift */,
+				75D0C4E10000000000000A02 /* MessageMenuOption.swift */,
+				75D0C4E10000000000000A03 /* MessageMenuPresenter.swift */,
+				75D0C4E10000000000000A04 /* MessageMenuCardView.swift */,
+				75D0C4E10000000000000A05 /* MenuRowView.swift */,
+			);
+			path = MessageMenu;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1996,6 +2008,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				75AD5EA32E7B036A0075377B /* KeyboardService.swift in Sources */,
+				75D0C4E10000000000000D04 /* KeyboardWindowLocator.swift in Sources */,
 				75D31DD32EDAB41800AF6102 /* ThemesPackViewModel.swift in Sources */,
 				7543BE352ACC87E1003001BF /* ChatRoomViewModel.swift in Sources */,
 				75E054282B04290100828B9D /* AlgoliaSearchManager.swift in Sources */,
@@ -2057,6 +2070,11 @@
 				756525C72A7FE49E005DC594 /* ChatsViewController.swift in Sources */,
 				75CB22982F28044200AFF45A /* SearchBarAppearance.swift in Sources */,
 				7574D2232DA84A940007A1D6 /* MessageMenuBuilder.swift in Sources */,
+				75D0C4E10000000000000B02 /* MessageMenuOption.swift in Sources */,
+				75D0C4E10000000000000B03 /* MessageMenuPresenter.swift in Sources */,
+				75D0C4E10000000000000B04 /* MessageMenuCardView.swift in Sources */,
+				75D0C4E10000000000000B05 /* MenuRowView.swift in Sources */,
+				75D0C4E10000000000000B06 /* PressFeedbackLongPressRecognizer.swift in Sources */,
 				75AD5EB02E7B05ED0075377B /* MessageTextViewTrailingItem.swift in Sources */,
 				7543BE2E2ACC868B003001BF /* ChatModel.swift in Sources */,
 				752706522DAA6DEF002128DF /* TargetPreviewable.swift in Sources */,
@@ -2153,8 +2171,6 @@
 				75EAD9982D45737F008BBD4B /* ObservableRealmObjectProcotol.swift in Sources */,
 				756525D22AAA147A005DC594 /* ChatCell.swift in Sources */,
 				758A48D62E4A2CF900D0A10B /* AlertPresenter.swift in Sources */,
-				75C0CE1B2ECF8D7900F083D0 /* TargetedPreviewContentView.swift in Sources */,
-				75C0CE1D2ECF8DB500F083D0 /* TargetedPreviewComponentsSize.swift in Sources */,
 				75A7AFDA2D3C394800E081DF /* InputBarContainer.swift in Sources */,
 				752706552DAAF494002128DF /* ChatRoomNavigationBarViewModel.swift in Sources */,
 				75D7C5952AD72DBC00F6D4B9 /* ConversationMessageCell.swift in Sources */,

@@ -80,7 +80,7 @@ class ChatsViewController: UIViewController {
         tableView.dataSource = tableViewDataSource
         tableView.isSkeletonable = true
         tableView.pin(to: view)
-        tableView.rowHeight = 75
+        tableView.rowHeight = 80
         tableView.backgroundColor = ColorScheme.appBackgroundColor
 //        tableView.separatorColor = #colorLiteral(red: 0.6390894651, green: 0.6514347792, blue: 0.6907400489, alpha: 1).withAlphaComponent(0.4)
         tableView.separatorColor = ColorScheme.separatorIndicatorColor.withAlphaComponent(0.4)
@@ -175,7 +175,7 @@ class ChatsViewController: UIViewController {
         if let textField = searchController.searchBar.value(forKey: "searchField") as? UITextField,
             let searchIcon = textField.leftView
         {
-            textField.backgroundColor = ColorScheme.navigationSearchFieldBackgroundColor
+            textField.backgroundColor = ColorScheme.appBackgroundColor
             textField.attributedPlaceholder = NSAttributedString(string: "Search",
                                                                  attributes: [.foregroundColor: #colorLiteral(red: 0.5177090168, green: 0.5074607134, blue: 0.5254157186, alpha: 1)])
             textField.textColor = ColorScheme.textFieldTextColor
@@ -349,11 +349,19 @@ extension ChatsViewController: UITableViewDelegate
     {
         let deleteChat = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
             self?.presentDeletionAlert(for: indexPath)
-//            self?.testPresentAlert()
             completion(true)
         }
         
-        deleteChat.image = swipeLayout(icon: "trash", text: "Delete", size: 20)
+        if #available(iOS 26, *)
+        {
+            let config = UIImage.SymbolConfiguration(pointSize: 20,
+                                                     weight: .regular,
+                                                     scale: .medium)
+            deleteChat.image = UIImage(systemName: "trash", withConfiguration: config)
+        } else {
+            deleteChat.title = nil
+            deleteChat.image = swipeLayout(icon: "trash", text: "Delete", size: 20)
+        }
         
         let configuration = UISwipeActionsConfiguration(actions: [deleteChat])
         configuration.performsFirstActionWithFullSwipe = false

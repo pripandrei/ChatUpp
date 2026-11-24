@@ -26,7 +26,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         coordinator = MainCoordinator(tabBar: tabBarController)
         
         window?.overrideUserInterfaceStyle = .dark
-        window?.rootViewController = tabBarController
+        
+        /// The tab bar controller is wrapped in an outer navigation controller
+        /// (mirroring NavigationStack { TabView { ... } }): screens pushed on
+        /// the outer stack slide over the full window while the tab bar stays
+        /// alive underneath, simply covered by the pushed view controller.
+        let outerNavController = UINavigationController(rootViewController: tabBarController)
+        outerNavController.setNavigationBarHidden(true, animated: false)
+        window?.rootViewController = outerNavController
         window?.makeKeyAndVisible()
         
         coordinator?.start()

@@ -25,6 +25,14 @@ class TabBarViewController: UITabBarController
         tabBar.isHidden = true
     }
     
+    public override func viewWillAppear(_ animated: Bool)
+    {
+        super.viewWillAppear(animated)
+        // The outer navigation controller's bar is used by screens pushed
+        // above the tab bar (e.g. chat rooms); the tab screens render without it.
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    
     private func setupTabBarViewControllers()
     {
         let chatsVC = ChatsViewController()

@@ -29,6 +29,7 @@ final class MessageCellViewModel
     private(set) var messageContainerViewModel: MessageContentViewModel?
     
     private(set) var displayUnseenMessagesTitle: Bool?
+    private(set) var displaySkeletonBar: Bool?
     private(set) var senderImageDataSubject = PassthroughSubject<Data, Never>()
 //    private var cancellables: Set<AnyCancellable> = []
     
@@ -44,6 +45,11 @@ final class MessageCellViewModel
     convenience init(isUnseenCell: Bool) {
         self.init()
         self.displayUnseenMessagesTitle = isUnseenCell
+    }
+    
+    convenience init(isSkeletonCell: Bool) {
+        self.init()
+        self.displaySkeletonBar = isSkeletonCell
     }
     
     deinit
