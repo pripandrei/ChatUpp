@@ -107,9 +107,19 @@ final class ChatRoomViewController: UIViewController
     
     //MARK: - Lifecycle
     
-    convenience init(conversationViewModel: ChatRoomViewModel) {
-        self.init()
+    init(conversationViewModel: ChatRoomViewModel)
+    {
+        super.init(nibName: nil, bundle: nil)
         self.viewModel = conversationViewModel
+    }
+    
+    //    convenience init(conversationViewModel: ChatRoomViewModel) {
+    //        self.init()
+    //        self.viewModel = conversationViewModel
+    //    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func loadView()

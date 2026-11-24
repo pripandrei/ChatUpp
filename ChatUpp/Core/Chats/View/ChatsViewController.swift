@@ -349,7 +349,6 @@ extension ChatsViewController: UITableViewDelegate
     {
         let deleteChat = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
             self?.presentDeletionAlert(for: indexPath)
-//            self?.testPresentAlert()
             completion(true)
         }
         
@@ -363,8 +362,6 @@ extension ChatsViewController: UITableViewDelegate
             deleteChat.title = nil
             deleteChat.image = swipeLayout(icon: "trash", text: "Delete", size: 20)
         }
-        
-//        deleteChat.image = swipeLayout(icon: "trash", text: "Delete", size: 20)
         
         let configuration = UISwipeActionsConfiguration(actions: [deleteChat])
         configuration.performsFirstActionWithFullSwipe = false
