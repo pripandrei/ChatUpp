@@ -240,8 +240,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/suzuki-0000/SKPhotoBrowser.git",
       "state" : {
-        "revision" : "f9d8589310ad935270c2b24b3f97c5a89970aff5",
-        "version" : "7.1.0"
+        "revision" : "4c3c130ee7735d8328ab6367981a9fec0da65872",
+        "version" : "7.1.1"
       }
     },
     {
