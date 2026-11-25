@@ -172,7 +172,40 @@ final class MessageMenuBuilder
                 // TODO: should also delete locally in case network is off
                 viewModel.firestoreService?.deleteMessageFromFirestore(messageID: message.id)
                 viewModel.firestoreService?.handleCounterUpdateOnMessageDeletionIfNeeded(message)
+
+                let messageID = message.id
+                let imagePath = message.imagePath
+                let voicePath = message.voicePath
+
+                Task {
+                    await deleteMessageMedia(messageID: messageID,
+                                             imagePath: imagePath,
+                                             voicePath: voicePath)
+                }
             }
+        }
+    }
+
+    private func deleteMessageMedia(messageID: String,
+                                    imagePath: String?,
+                                    voicePath: String?) async
+    {
+        do {
+            if let imagePath
+            {
+                try await SupabaseStorageManager.shared.deleteImage(from: .message(.image(messageID)),
+                                                                    imagePath: imagePath)
+                try await SupabaseStorageManager.shared.deleteImage(from: .message(.image(messageID)),
+                                                                    imagePath: imagePath.addSuffix("small"))
+            }
+
+            if let voicePath
+            {
+                try await SupabaseStorageManager.shared.deleteVoice(from: .message(.audio(messageID)),
+                                                                    voicePath: voicePath)
+            }
+        } catch {
+            print("Error deleting message media from storage: ", error)
         }
     }
 }

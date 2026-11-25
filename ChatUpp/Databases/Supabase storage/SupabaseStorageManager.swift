@@ -61,6 +61,10 @@ extension SupabaseStorageManager
     func deleteImage(from path: StoragePathType, imagePath: String) async throws {
         let _ = try await client.storage.from(bucketName).remove(paths: ["\(path.path)/\(imagePath)"])
     }
+
+    func deleteVoice(from path: StoragePathType, voicePath: String) async throws {
+        let _ = try await client.storage.from(bucketName).remove(paths: ["\(path.path)/\(voicePath)"])
+    }
 }
 
 //MARK: - message voice save/get
