@@ -187,12 +187,15 @@ extension ChatRoomNavigationBar
 //            addGestureRecognizer(tapGesture)
 
             contentMode                               = .scaleToFill
-            layer.cornerRadius                        = profileImageSize / 2
             clipsToBounds                             = true
             translatesAutoresizingMaskIntoConstraints = false
             
             widthAnchor.constraint(equalToConstant: profileImageSize).isActive  = true
-            heightAnchor.constraint(equalToConstant: profileImageSize).isActive = true
+        }
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            layer.cornerRadius = bounds.height / 2
         }
         
         func setupGesture() {
@@ -220,7 +223,7 @@ extension ChatRoomNavigationBar
             
             let animatedImageView                = UIImageView(frame: initialImageFrame)
             animatedImageView.image              = self.image
-            animatedImageView.layer.cornerRadius = profileImageSize / 2
+            animatedImageView.layer.cornerRadius = initialImageFrame.height / 2
             animatedImageView.contentMode        = .scaleToFill
             animatedImageView.clipsToBounds      = true
             window?.addSubview(animatedImageView)

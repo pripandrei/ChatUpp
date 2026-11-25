@@ -18,6 +18,7 @@ Complete the task correctly with the fewest reasonable tool calls, file reads, e
 - If requirements are ambiguous, make a reasonable low-risk assumption and state it in one line. Ask (one question) only when the ambiguity blocks a correct implementation or risks significant unwanted changes.
 
 ## Workflow
+- Never build the Xcode project, run `run_on_sim.sh`, or launch the simulator. This applies to all work — bug fixes, features, refactors, anything — not just bug fixes. Leave building and verification of iOS changes to the user.
 - Don't re-read files whose relevant contents are known and unchanged. Don't re-read a file you just edited.
 - Run the narrowest relevant test, lint, type-check, or build. No full builds or whole test suites by default.
 - Limit command output: filters, quiet flags, head/tail/grep.
