@@ -56,7 +56,7 @@ final class UsernameRegistrationViewModel
     
     private func saveImage(_ imageData: Data, path: String) async throws
     {
-        let _ = try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .user(authUser.uid), imagePath: path)
+        let _ = try await SupabaseStorageManager.shared.saveImage(data: imageData, to: .user(authUser.uid), imagePath: path)
         CacheManager.shared.saveData(imageData, toPath: path)
     }
 
@@ -119,7 +119,7 @@ struct ImageStorageProcessor
     
     private func saveImage(_ imageData: Data, path: String) async throws
     {
-        let _ = try await FirebaseStorageManager.shared.saveImage(data: imageData, to: storagePathType, imagePath: path)
+        let _ = try await SupabaseStorageManager.shared.saveImage(data: imageData, to: storagePathType, imagePath: path)
         CacheManager.shared.saveData(imageData, toPath: path)
     }
 }

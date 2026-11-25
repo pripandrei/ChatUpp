@@ -90,7 +90,7 @@ final class ResultsCellViewModel
         
         let pathType: StoragePathType = chat?.isGroup == true ? .group(id) : .user(id)
         do {
-            return try await FirebaseStorageManager.shared.getImage(from: pathType, imagePath: imageURL)
+            return try await SupabaseStorageManager.shared.getImage(from: pathType, imagePath: imageURL)
         } catch {
             print("Error getting user image form storage: ", error)
         }

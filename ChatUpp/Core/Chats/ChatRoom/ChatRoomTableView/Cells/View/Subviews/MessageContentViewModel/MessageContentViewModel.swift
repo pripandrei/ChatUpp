@@ -151,7 +151,7 @@ extension MessageContentViewModel
     {
         guard let message = message, let imgatePath = message.imagePath else { return }
         Task {
-            let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(.image(message.id)),
+            let imageData = try await SupabaseStorageManager.shared.getImage(from: .message(.image(message.id)),
                                                                              imagePath: imgatePath)
             cacheImage(data: imageData)
             messageImageDataSubject.send(imageData)

@@ -34,7 +34,7 @@ extension ImageSampleHandling
     }
     
     private func saveImage(_ imageData: Data, path: String) async throws {
-        let _ = try await FirebaseStorageManager.shared.saveImage(
+        let _ = try await SupabaseStorageManager.shared.saveImage(
             data: imageData,
             to: .user(userId),
             imagePath: path

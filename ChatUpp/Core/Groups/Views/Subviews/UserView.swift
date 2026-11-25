@@ -90,7 +90,7 @@ final class UserViewViewModel: SwiftUI.ObservableObject
     private func downloadImage(imagePath path: String) async -> Data?
     {
         do {
-            return try await FirebaseStorageManager.shared.getImage(from: .user(user.id), imagePath: path)
+            return try await SupabaseStorageManager.shared.getImage(from: .user(user.id), imagePath: path)
         } catch {
             print("Could not download image for userView: ", error)
             return nil

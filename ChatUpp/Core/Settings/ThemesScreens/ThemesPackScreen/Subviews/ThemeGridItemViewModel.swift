@@ -48,7 +48,7 @@ private extension ThemeGridItemViewModel
     func loadImage(folder: ImageFolder, name: String) async
     {
         do {
-            let data = try await FirebaseStorageManager.shared.getTheme(
+            let data = try await SupabaseStorageManager.shared.getTheme(
                 from: .themes(folder.rawValue),
                 themePath: name
             )

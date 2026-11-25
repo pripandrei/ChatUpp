@@ -407,7 +407,7 @@ extension ChatCellViewModel
         
         let storagePathType: StoragePathType = chat.isGroup ? .group(chat.id) : .user(chatUser?.id ?? "Unknown")
         
-        let photoData = try await FirebaseStorageManager.shared.getImage(
+        let photoData = try await SupabaseStorageManager.shared.getImage(
             from: storagePathType,
             imagePath: thumbnailURL)
         return photoData
@@ -431,7 +431,7 @@ extension ChatCellViewModel
                 for path in paths
                 {
                     group.addTask {
-                        let imageData = try await FirebaseStorageManager.shared.getImage(from: .message(.image(messageID)), imagePath: path)
+                        let imageData = try await SupabaseStorageManager.shared.getImage(from: .message(.image(messageID)), imagePath: path)
                         CacheManager.shared.saveData(imageData, toPath: path)
 
                         // trigger message update after thumbnail downloaded

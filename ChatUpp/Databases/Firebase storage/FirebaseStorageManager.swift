@@ -9,20 +9,13 @@
 import Foundation
 import FirebaseStorage
 
-// MARK: - StoragePathType
-enum StoragePathType
+// MARK: - StoragePathType firebase reference
+private extension StoragePathType
 {
-    case user(String)
-    case message(MessagePathType)
-    case group(String)
-    case themes(String)
-    
-    static var storage = Storage.storage()
-    
     var reference: StorageReference
     {
         let storage = Storage.storage().reference()
-        
+
         switch self
         {
         case .user(let id):
@@ -35,35 +28,6 @@ enum StoragePathType
             return storage.child("themes").child(resolution)
         }
     }
-    
-    enum MessagePathType
-    {
-        case image(String)
-        case audio(String)
-        
-        var path: String
-        {
-            switch self
-            {
-            case .audio(let name), .image(let name): return "\(directory)/\(name)"
-            }
-        }
-        
-        var directory: String
-        {
-            switch self
-            {
-            case .audio: return "voices"
-            case .image: return "images"
-            }
-        }
-    }
-}
-
-// MARK: - ImageMetadata
-struct ImageMetadata {
-    let path: String
-    let name: String
 }
 
 final class FirebaseStorageManager

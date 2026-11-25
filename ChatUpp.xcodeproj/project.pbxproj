@@ -184,6 +184,10 @@
 		75CB1A022F26EF0300AFF45A /* NicknameUpdateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB1A012F26EF0100AFF45A /* NicknameUpdateViewModel.swift */; };
 		75CB22982F28044200AFF45A /* SearchBarAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB22952F28043C00AFF45A /* SearchBarAppearance.swift */; };
 		75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */; };
+		75CB52202F5C100000000002 /* SupabaseStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52202F5C100000000001 /* SupabaseStorageManager.swift */; };
+		75CB52202F5C100000000004 /* StoragePathType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52202F5C100000000003 /* StoragePathType.swift */; };
+		75CB52202F5C100000000006 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52202F5C100000000005 /* SupabaseConfig.swift */; };
+		75CB52202F5C10000000000A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 75CB52202F5C100000000009 /* Supabase */; };
 		75CC9FE62D594042002051EB /* ColorScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC9FE12D59402F002051EB /* ColorScheme.swift */; };
 		75D08C942D1AC44500F077B9 /* GroupCreationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */; };
 		75D31DCE2EDA2AD900AF6102 /* ThemesPackScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */; };
@@ -397,6 +401,9 @@
 		75CB1A012F26EF0100AFF45A /* NicknameUpdateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NicknameUpdateViewModel.swift; sourceTree = "<group>"; };
 		75CB22952F28043C00AFF45A /* SearchBarAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBarAppearance.swift; sourceTree = "<group>"; };
 		75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseStorageManager.swift; sourceTree = "<group>"; };
+		75CB52202F5C100000000001 /* SupabaseStorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseStorageManager.swift; sourceTree = "<group>"; };
+		75CB52202F5C100000000003 /* StoragePathType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoragePathType.swift; sourceTree = "<group>"; };
+		75CB52202F5C100000000005 /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 		75CC9FE12D59402F002051EB /* ColorScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorScheme.swift; sourceTree = "<group>"; };
 		75D08C932D1AC44500F077B9 /* GroupCreationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationScreen.swift; sourceTree = "<group>"; };
 		75D31DCD2EDA2ACD00AF6102 /* ThemesPackScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemesPackScreen.swift; sourceTree = "<group>"; };
@@ -495,6 +502,7 @@
 				75B9CABE2ED6342B002D701F /* LoaderUI in Frameworks */,
 				757AB0EC2BB9D70D00A64DA4 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				757AB0F42BB9D70D00A64DA4 /* FirebaseStorage in Frameworks */,
+				75CB52202F5C10000000000A /* Supabase in Frameworks */,
 				757AB1012BB9D85100A64DA4 /* SkeletonView in Frameworks */,
 				757AB0F62BB9D70D00A64DA4 /* FirebaseStorageCombine-Community in Frameworks */,
 				757AB0F22BB9D70D00A64DA4 /* FirebaseInstallations in Frameworks */,
@@ -1351,6 +1359,7 @@
 			isa = PBXGroup;
 			children = (
 				758945952E16F85200305F29 /* FootNote.swift */,
+				75CB52202F5C100000000005 /* SupabaseConfig.swift */,
 				75B5C4C22A49AB0B00F63A5A /* Assets.xcassets */,
 				75B5C4B92A49AB0A00F63A5A /* AppDelegate.swift */,
 				75B5C4BB2A49AB0A00F63A5A /* SceneDelegate.swift */,
@@ -1506,6 +1515,7 @@
 			children = (
 				756525D32AB50035005DC594 /* Firestore database */,
 				75CB52192B0BF07D007F3AB6 /* Firebase storage */,
+				75CB52202F5C100000000007 /* Supabase storage */,
 				75E2F2EF2C3C17620058DC88 /* Realtime database */,
 				7587CE1C2C781330002D60CE /* Realm database */,
 			);
@@ -1552,6 +1562,15 @@
 				75CB52172B0BF064007F3AB6 /* FirebaseStorageManager.swift */,
 			);
 			path = "Firebase storage";
+			sourceTree = "<group>";
+		};
+		75CB52202F5C100000000007 /* Supabase storage */ = {
+			isa = PBXGroup;
+			children = (
+				75CB52202F5C100000000001 /* SupabaseStorageManager.swift */,
+				75CB52202F5C100000000003 /* StoragePathType.swift */,
+			);
+			path = "Supabase storage";
 			sourceTree = "<group>";
 		};
 		75D08C8A2D1ABF4200F077B9 /* Groups */ = {
@@ -1911,6 +1930,7 @@
 				751FB66D2FCB06F600041D1D /* AlgoliaCore */,
 				751FB66F2FCB06F600041D1D /* AlgoliaSearch */,
 				75B9C875301E4D8600ADED6D /* FlagPhoneNumber */,
+				75CB52202F5C100000000009 /* Supabase */,
 			);
 			productName = ChatUpp;
 			productReference = 75B5C4B62A49AB0A00F63A5A /* ChatUpp.app */;
@@ -1954,6 +1974,7 @@
 				756A2ACC2F22B39700C5D7B0 /* XCRemoteSwiftPackageReference "thorvg.swift" */,
 				751FB66C2FCB06F600041D1D /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 				75B9C874301E4D8600ADED6D /* XCRemoteSwiftPackageReference "FlagPhoneNumber" */,
+				75CB52202F5C100000000008 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 56;
 			productRefGroup = 75B5C4B72A49AB0A00F63A5A /* Products */;
@@ -2157,6 +2178,9 @@
 				75BC06722DFB6053002ED4AA /* NetworkError.swift in Sources */,
 				75855AF52CF0393A00FF8E9E /* UnseenMessagesTitleTableViewCell.swift in Sources */,
 				75CB52182B0BF064007F3AB6 /* FirebaseStorageManager.swift in Sources */,
+				75CB52202F5C100000000002 /* SupabaseStorageManager.swift in Sources */,
+				75CB52202F5C100000000004 /* StoragePathType.swift in Sources */,
+				75CB52202F5C100000000006 /* SupabaseConfig.swift in Sources */,
 				75D31DD02EDAB3D100AF6102 /* ThemeSelectionScreen.swift in Sources */,
 				75BC06702DFB5A14002ED4AA /* View+Extensions.swift in Sources */,
 				7544392E2B3D2B620044A84B /* SettingsItemModel.swift in Sources */,
@@ -2604,6 +2628,14 @@
 				kind = branch;
 			};
 		};
+		75CB52202F5C100000000008 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.55.8;
+			};
+		};
 		75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ninjaprox/LoaderUI.git";
@@ -2739,6 +2771,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 75B9C874301E4D8600ADED6D /* XCRemoteSwiftPackageReference "FlagPhoneNumber" */;
 			productName = FlagPhoneNumber;
+		};
+		75CB52202F5C100000000009 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 75CB52202F5C100000000008 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 		75B9CABD2ED6342B002D701F /* LoaderUI */ = {
 			isa = XCSwiftPackageProductDependency;

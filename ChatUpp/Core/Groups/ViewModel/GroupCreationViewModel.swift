@@ -258,7 +258,7 @@ extension GroupCreationViewModel
     
     private func saveImage(_ imageData: Data, path: String) async throws
     {
-        try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .group(groupID!), imagePath: path)
+        try await SupabaseStorageManager.shared.saveImage(data: imageData, to: .group(groupID!), imagePath: path)
         CacheManager.shared.saveData(imageData, toPath: path)
     }
 }

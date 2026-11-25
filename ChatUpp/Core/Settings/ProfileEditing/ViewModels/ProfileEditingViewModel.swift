@@ -145,7 +145,7 @@ extension ProfileEditingViewModel
     
     private func saveImage(_ imageData: Data, path: String) async throws
     {
-        try await FirebaseStorageManager.shared.saveImage(
+        try await SupabaseStorageManager.shared.saveImage(
             data: imageData,
             to: .user(authUser.uid),
             imagePath: path
@@ -162,7 +162,7 @@ extension ProfileEditingViewModel
             do {
                 let imagePath = sizeCase == .original ? photoURL : photoURL.addSuffix(sizeCase.rawValue)
                 
-                try await FirebaseStorageManager.shared.deleteImage(
+                try await SupabaseStorageManager.shared.deleteImage(
                     from: .user(authUser.uid),
                     imagePath: imagePath)
             } catch {
@@ -173,7 +173,7 @@ extension ProfileEditingViewModel
     
     private func removeProfileImage(ofUser userID: String, urlPath: String) async throws
     {
-        try await FirebaseStorageManager.shared.deleteImage(
+        try await SupabaseStorageManager.shared.deleteImage(
             from: .user(userID),
             imagePath: urlPath
             )

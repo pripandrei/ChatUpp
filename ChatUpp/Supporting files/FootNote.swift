@@ -152,3 +152,13 @@
 /// and during fast scroll, like for example when tapping on scrollToBottom button and having table view
 /// full of voice messages, the scroll animation will be a bit glitchy.
 /// So task is created to delay setup and achive butter smooth scroll effect
+
+//MARK: - [24]
+//
+/// Supabase storage buckets are public because the app authenticates with Firebase Auth,
+/// which Supabase RLS cannot identify. The 'chatupp' bucket policies grant the anon role
+/// full access (select/insert/update/delete) scoped to bucket_id = 'chatupp'.
+/// A SELECT policy is required not only for listing but for any overwrite (upsert/update)
+/// and delete, since those use INSERT..ON CONFLICT / internal lookups that RLS denies
+/// without SELECT visibility. The anon key is a publishable (public) key;
+/// the service-role key must never be embedded in the app.

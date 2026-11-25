@@ -442,7 +442,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
             if let path = message.voicePath,
                let voiceMessageURL = CacheManager.shared.getURL(for: path)
             {
-                await FirebaseStorageManager.shared.saveVoice(fromURL: voiceMessageURL, to: .message(.audio(message.id)))
+                await SupabaseStorageManager.shared.saveVoice(fromURL: voiceMessageURL, to: .message(.audio(message.id)))
             }
             
             await self.firestoreService?.addMessageToFirestoreDataBase(message)
@@ -638,7 +638,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 let path = imageRepository.imagePath(for: key)
                 group.addTask {
                     do {
-                        try await FirebaseStorageManager
+                        try await SupabaseStorageManager
                             .shared
                             .saveImage(data: imageData,
                                        to: .message(.image(messageID)),
@@ -674,7 +674,7 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
                 for path in paths
                 {
                     group.addTask {
-                        let imageData = try await FirebaseStorageManager.shared.getImage(
+                        let imageData = try await SupabaseStorageManager.shared.getImage(
                             from: .message(.image(message.id)),
                             imagePath: path
                         )
@@ -993,7 +993,7 @@ extension ChatRoomViewModel
                         let smallPath = avatarURL.addSuffix("small")
                         let paths = [avatarURL, smallPath]
                         for path in paths {
-                            let imageData = try await FirebaseStorageManager.shared.getImage(
+                            let imageData = try await SupabaseStorageManager.shared.getImage(
                                 from: .user(userID),
                                 imagePath: path)
                             CacheManager.shared.saveData(imageData, toPath: path)
@@ -1254,7 +1254,7 @@ extension ChatRoomViewModel
     private func downloadVoiceMessageData(from message: Message) async
     {
         do {
-            let voiceData = try await FirebaseStorageManager.shared.getVoiceData(
+            let voiceData = try await SupabaseStorageManager.shared.getVoiceData(
                 from: .message(.audio(message.id)),
                 voicePath: message.voicePath!)
             CacheManager.shared.saveData(voiceData, toPath: message.voicePath!)

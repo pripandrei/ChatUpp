@@ -165,7 +165,7 @@ extension ChatRoomInformationEditViewModel: ImageRepositoryRepresentable
     @MainActor
     private func saveImage(_ imageData: Data, path: String) async throws
     {
-        try await FirebaseStorageManager.shared.saveImage(data: imageData, to: .group(conversation.id), imagePath: path)
+        try await SupabaseStorageManager.shared.saveImage(data: imageData, to: .group(conversation.id), imagePath: path)
         CacheManager.shared.saveData(imageData, toPath: path)
     }
 }
