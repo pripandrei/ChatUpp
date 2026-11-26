@@ -38,6 +38,13 @@ final class ResultsTableController: UITableViewController {
         setupTableView()
         configureTextLabel()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Fixes cumulative upward content shift of the search results
+        // after pushing/popping a view controller while search is active
+        tableView.contentOffset.y = -tableView.adjustedContentInset.top
+    }
 
     private func configureTextLabel() {
         tableView.addSubview(noUserWasFoundLabel)
@@ -73,10 +80,10 @@ final class ResultsTableController: UITableViewController {
         tableView.rowHeight = 55
         tableView.backgroundColor = ColorScheme.appBackgroundColor
         tableView.isSkeletonable = true
-        
-        // Omit tableView to automatically go behind navigation bar
-        // when Skeleton view is running
-        edgesForExtendedLayout = []
+
+        // Fixes the results list shifting further up after every
+        // push/pop round-trip while the search controller is active
+        extendedLayoutIncludesOpaqueBars = true
     }
 }
 
