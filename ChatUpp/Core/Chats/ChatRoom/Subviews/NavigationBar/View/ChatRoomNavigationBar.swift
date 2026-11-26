@@ -57,6 +57,9 @@ final class ChatRoomNavigationBar
             image = viewModel.isGroup ? UIImage(named: "default_group_photo") : UIImage(named: "default_profile_photo")
         }
         let imageView = NavigationProfileImageView(image: image)
+        imageView.fetchHighResolutionImage = { [weak self] in
+            await self?.viewModel.fetchOriginalProfileImage()
+        }
         let barButtonItem = UIBarButtonItem(customView: imageView)
         
         viewController.navigationItem.rightBarButtonItem = barButtonItem
@@ -168,8 +171,10 @@ extension ChatRoomNavigationBar
     
     class NavigationProfileImageView: UIImageView {
         
+        var fetchHighResolutionImage: (() async -> UIImage?)?
+        
         private var temporaryDimmView:  UIView!
-        private var temporaryImageView: UIView!
+        private var temporaryImageView: UIImageView!
         private var initialImageFrame:  CGRect!
         private let profileImageSize:   CGFloat = 38
         
@@ -216,9 +221,28 @@ extension ChatRoomNavigationBar
                 self.temporaryImageView.transform = CGAffineTransform(scaleX: 8, y: 8)
                 self.temporaryDimmView.alpha      = 1
             })
+            
+            loadHighResolutionImage()
         }
         
-        private func setupTemporaryImageView() -> UIView {
+        private func loadHighResolutionImage() {
+            guard let fetchHighResolutionImage else { return }
+            
+            Task { @MainActor [weak self] in
+                guard let highResolutionImage = await fetchHighResolutionImage(),
+                      let imageView = self?.temporaryImageView,
+                      imageView.superview != nil else { return }
+                
+                UIView.transition(with: imageView,
+                                  duration: 0.2,
+                                  options: .transitionCrossDissolve)
+                {
+                    imageView.image = highResolutionImage
+                }
+            }
+        }
+        
+        private func setupTemporaryImageView() -> UIImageView {
             initialImageFrame                    = self.convert(self.bounds, to: window)
             
             let animatedImageView                = UIImageView(frame: initialImageFrame)

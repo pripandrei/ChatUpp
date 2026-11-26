@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 final class ChatRoomNavigationBarViewModel
 {
@@ -15,6 +16,7 @@ final class ChatRoomNavigationBarViewModel
     @Published private(set) var _title: String?
     @Published private(set) var _status: String?
     @Published private(set) var _imageUrl: String?
+    private(set) var originalImagePath: String?
     
     private(set) var dataProvider: NavigationBarDataProvider
     private(set) var isGroup: Bool = false
@@ -91,6 +93,7 @@ final class ChatRoomNavigationBarViewModel
         }
         
         if chat.thumbnailURL != self._imageUrl {
+            self.originalImagePath = chat.thumbnailURL
             self._imageUrl = getThumbnailImagePath(from: chat.thumbnailURL)
         }
         
@@ -107,6 +110,7 @@ final class ChatRoomNavigationBarViewModel
         }
         
         if user.photoUrl != self._imageUrl {
+            self.originalImagePath = user.photoUrl
             self._imageUrl = getThumbnailImagePath(from: user.photoUrl)
         }
         
@@ -123,6 +127,39 @@ final class ChatRoomNavigationBarViewModel
     {
         guard let originalURL = url else {return nil}
         return originalURL.addSuffix("medium")
+    }
+}
+
+//MARK: - original image
+extension ChatRoomNavigationBarViewModel
+{
+    @MainActor
+    func fetchOriginalProfileImage() async -> UIImage?
+    {
+        guard let originalImagePath else { return nil }
+        
+        if let cachedData = CacheManager.shared.retrieveData(from: originalImagePath) {
+            return UIImage(data: cachedData)
+        }
+        
+        let storagePath: StoragePathType
+        
+        switch dataProvider {
+        case .chat(let chat): storagePath = .group(chat.id)
+        case .user(let user): storagePath = .user(user.id)
+        }
+        
+        do {
+            let imageData = try await SupabaseStorageManager.shared.getImage(
+                from: storagePath,
+                imagePath: originalImagePath
+            )
+            CacheManager.shared.saveData(imageData, toPath: originalImagePath)
+            return UIImage(data: imageData)
+        } catch {
+            print("Error while fetching original profile image: ", error.localizedDescription)
+            return nil
+        }
     }
 }
 
