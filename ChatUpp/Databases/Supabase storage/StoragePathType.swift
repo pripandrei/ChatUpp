@@ -25,8 +25,8 @@ enum StoragePathType
             return "messages/\(type.path)"
         case .group(let id):
             return "groups/\(id)"
-        case .themes(let resolution):
-            return "themes/\(resolution)"
+        case .themes(let folder):
+            return "themes/\(folder)"
         }
     }
 

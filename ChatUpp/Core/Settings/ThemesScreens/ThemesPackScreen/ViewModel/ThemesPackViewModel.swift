@@ -13,7 +13,8 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
         "chat_background_theme_\(index).jpg"
     }
     
-    @Published var selectedTheme = ""
+    @Published private(set) var selectedTheme = ""
+    @Published private(set) var selectedOriginalImageData: Data?
     
     init()
     {
@@ -23,14 +24,20 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
         selectedTheme = key
     }
      
-    func retrieveImageData(_ name: String) -> Data?
+    func selectTheme(_ name: String)
     {
-        let path = "/Themes/\(name)"
-        if let imageData = CacheManager.shared.retrieveData(from: path)
+        selectedTheme = name
+        selectedOriginalImageData = nil
+
+        if let cachedData = CacheManager.shared.retrieveData(from: localPath(for: name))
         {
-            return imageData
+            selectedOriginalImageData = cachedData
+            return
         }
-        return nil
+
+        Task {
+            await loadOriginalImage(named: name)
+        }
     }
 
     func applySelectedTheme()
@@ -40,5 +47,29 @@ final class ThemesPackViewModel: SwiftUI.ObservableObject
     }
 }
 
+//MARK: - Original image loading
+private extension ThemesPackViewModel
+{
+    func loadOriginalImage(named name: String) async
+    {
+        do {
+            let data = try await SupabaseStorageManager.shared.getTheme(
+                from: .themes("originals"),
+                themePath: name
+            )
 
+            CacheManager.shared.saveData(data, toPath: localPath(for: name))
 
+            await MainActor.run {
+                guard self.selectedTheme == name else { return }
+                self.selectedOriginalImageData = data
+            }
+        } catch {
+            print("❌ Failed to load original theme image:", error)
+        }
+    }
+
+    func localPath(for name: String) -> String {
+        "/Themes/\(name)"
+    }
+}

@@ -24,8 +24,8 @@ private extension StoragePathType
             return storage.child("messages").child(type.path)
         case .group(let id):
             return storage.child("groups").child(id)
-        case .themes(let resolution):
-            return storage.child("themes").child(resolution)
+        case .themes(let folder):
+            return storage.child("themes").child(folder)
         }
     }
 }

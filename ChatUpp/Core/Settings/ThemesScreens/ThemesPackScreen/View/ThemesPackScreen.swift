@@ -33,7 +33,7 @@ struct ThemesPackScreen: View
                         }
                     })
                     .onTapGesture {
-                        viewModel.selectedTheme = theme
+                        viewModel.selectTheme(theme)
                         showThemeSelectionScreenSheet = true
                     }
                 }
@@ -47,14 +47,16 @@ struct ThemesPackScreen: View
             NavigationStack
             {
                 Group {
-                    if let selectedImage = viewModel.retrieveImageData(viewModel.selectedTheme),
-                       let image = UIImage(data: selectedImage)
+                    if let selectedImageData = viewModel.selectedOriginalImageData,
+                       let image = UIImage(data: selectedImageData)
                     {
                         ThemeSelectionScreen(viewModel: viewModel, selectedImage: image)
                             .presentationDetents([.large])
                             .presentationDragIndicator(.hidden)
                     } else {
-                        EmptyView()
+                        ProgressView()
+                            .presentationDetents([.large])
+                            .presentationDragIndicator(.hidden)
                     }
                 }
             }

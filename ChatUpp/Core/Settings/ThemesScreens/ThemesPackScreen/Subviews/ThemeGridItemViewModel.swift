@@ -25,59 +25,34 @@ private extension ThemeGridItemViewModel
 {
     func setupImage()
     {
-        let targets = makeTargets()
-
-        let imagesExistLocally = targets
-            .allSatisfy { CacheManager.shared.doesFileExist(at: localPath(for: $0.name)) }
-
-        if imagesExistLocally
+        if let cachedData = CacheManager.shared.retrieveData(from: localPath)
         {
-            if let thumb = targets.first(where: { $0.folder == .thumbnails }) {
-                self.imageData = CacheManager.shared.retrieveData(from: localPath(for: thumb.name))
-            }
+            self.imageData = cachedData
             return
         }
 
         Task {
-            for target in targets {
-                await loadImage(folder: target.folder, name: target.name)
-            }
+            await loadImage()
         }
     }
 
-    func loadImage(folder: ImageFolder, name: String) async
+    func loadImage() async
     {
         do {
             let data = try await SupabaseStorageManager.shared.getTheme(
-                from: .themes(folder.rawValue),
-                themePath: name
+                from: .themes("thumbnails"),
+                themePath: themeName
             )
 
-            CacheManager.shared.saveData(data, toPath: localPath(for: name))
+            CacheManager.shared.saveData(data, toPath: localPath)
 
-            if folder == .thumbnails {
-                await MainActor.run { self.imageData = data }
-            }
+            await MainActor.run { self.imageData = data }
         } catch {
             print("❌ Failed to load image:", error)
         }
     }
 
-    func makeTargets() -> [(folder: ImageFolder, name: String)]
-    {
-        [
-            (.originals, themeName),
-            (.thumbnails, themeName.addSuffix("thumbnail"))
-        ]
+    var localPath: String {
+        "/Themes/thumbnails/\(themeName)"
     }
-
-    func localPath(for name: String) -> String {
-        "/Themes/\(name)"
-    }
-}
- 
-private enum ImageFolder: String
-{
-    case thumbnails
-    case originals
 }
