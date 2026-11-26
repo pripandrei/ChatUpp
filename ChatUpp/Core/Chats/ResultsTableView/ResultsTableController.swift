@@ -28,9 +28,10 @@ final class ResultsTableController: UITableViewController {
     
     var shouldHideTabBar: Bool = false
     
-    var filteredResults: [ResultsCellViewModel] = [] 
+    var filteredResults: [ResultsCellViewModel] = []
     var searchType: SearchType!
     private var noUserWasFoundLabel = UILabel()
+    private var didPrintSkeletonGeometry = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,6 +45,25 @@ final class ResultsTableController: UITableViewController {
         // Fixes cumulative upward content shift of the search results
         // after pushing/popping a view controller while search is active
         tableView.contentOffset.y = -tableView.adjustedContentInset.top
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // While the skeleton runs, the table's automatic safe-area inset is
+        // not applied (adjustedContentInset.top reads 0), so apply it manually
+        // to keep the placeholder rows below the navigation bar
+        if tableView.sk.isSkeletonActive {
+            tableView.contentInset.top = view.safeAreaInsets.top
+            tableView.contentOffset.y = -tableView.adjustedContentInset.top
+            if !didPrintSkeletonGeometry {
+                didPrintSkeletonGeometry = true
+                print("SKELETON DEBUG frame: \(tableView.frame)")
+                print("SKELETON DEBUG offset: \(tableView.contentOffset)")
+                print("SKELETON DEBUG adjustedInset: \(tableView.adjustedContentInset)")
+                print("SKELETON DEBUG viewSafeArea: \(view.safeAreaInsets)")
+                print("SKELETON DEBUG viewFrame: \(view.frame)")
+            }
+        }
     }
 
     private func configureTextLabel() {
@@ -68,6 +88,8 @@ final class ResultsTableController: UITableViewController {
             noUserWasFoundLabel.isHidden = true
         } else {
             SkeletonAnimationAppearance.terminateSkeletonAnimation(for: tableView)
+            // Restore the inset that was applied manually during the skeleton
+            tableView.contentInset.top = 0
             noUserWasFoundLabel.isHidden = false
         }
     }
