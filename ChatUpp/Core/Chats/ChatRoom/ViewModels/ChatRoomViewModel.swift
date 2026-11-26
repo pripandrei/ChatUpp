@@ -778,7 +778,7 @@ extension ChatRoomViewModel
         } else {
             let limit = ObjectsPaginationLimit.localMessages * 2
             /// newest `limit` messages, returned ascending (oldest -> newest)
-            let messages = conversation.getMessagesResults().prefix(limit).reversed()
+            let messages = conversation.getMessagesResults(ascending: false).prefix(limit).reversed()
             return Array(messages)
         }
     }
