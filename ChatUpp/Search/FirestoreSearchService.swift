@@ -2,9 +2,10 @@
 //  FirestoreSearchService.swift
 //  ChatUpp
 //
-//  Prod search implementation backed by Firestore Enterprise string matching
-//  (pipeline expressions: toLower + stringContains). Case-insensitive substring
-//  matching, e.g. "pripa va" matches user "Andrei pripa vadim".
+//  Prod search implementation backed by Firestore Enterprise pipeline string
+//  functions (toLower + startsWith/stringContains). Matches only the *start of
+//  words*: every whitespace-separated search word must be a prefix of a word in
+//  the name, e.g. "na" matches "Deli nadin lorenso" but not "Andrei".
 //  https://firebase.google.com/docs/firestore/pipelines/functions/string-functions
 //
 
@@ -18,6 +19,25 @@ final class FirestoreSearchService: SearchService
     private let db = Firestore.appDB
     
     private init() {}
+
+    // See Footnote.swift [25]
+    private func wordStartPrefixCondition(for searchTerm: String, in field: String) -> BooleanExpression
+    {
+        let searchWords = searchTerm.lowercased()
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+
+        let name = Field(field).toLower()
+        let conditions = searchWords.map { word in
+            name.startsWith(word) || name.stringContains(" \(word)")
+        }
+
+        guard let firstCondition = conditions.first else
+        {
+            return name.equal("")
+        }
+        return conditions.dropFirst().reduce(firstCondition) { $0 && $1 }
+    }
     
     func performSearch(_ searchText: String) async -> SearchResults?
     {
@@ -38,10 +58,10 @@ final class FirestoreSearchService: SearchService
     {
         let searchTerm = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !searchTerm.isEmpty else { return [] }
-        
+
         let snapshot = try await db.pipeline()
             .collection(FirestoreCollection.users.rawValue)
-            .where(Field(User.CodingKeys.name.rawValue).toLower().stringContains(searchTerm.lowercased()))
+            .where(wordStartPrefixCondition(for: searchTerm, in: User.CodingKeys.name.rawValue))
             .limit(20)
             .execute()
         
@@ -61,10 +81,10 @@ final class FirestoreSearchService: SearchService
     {
         let searchTerm = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !searchTerm.isEmpty else { return [] }
-        
+
         let snapshot = try await db.pipeline()
             .collection(FirestoreCollection.chats.rawValue)
-            .where(Field(Chat.CodingKeys.name.rawValue).toLower().stringContains(searchTerm.lowercased()))
+            .where(wordStartPrefixCondition(for: searchTerm, in: Chat.CodingKeys.name.rawValue))
             .limit(20)
             .execute()
         

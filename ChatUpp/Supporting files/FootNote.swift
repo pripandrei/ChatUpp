@@ -162,3 +162,10 @@
 /// and delete, since those use INSERT..ON CONFLICT / internal lookups that RLS denies
 /// without SELECT visibility. The anon key is a publishable (public) key;
 /// the service-role key must never be embedded in the app.
+
+//MARK: - [25]
+/// Every whitespace-separated search word must be a prefix of a word in the field
+/// (case-insensitive). E.g. "nino bro" matches "avirgio nino brown".
+/// A word starts either at the beginning of the name (startsWith) or right after
+/// a space (stringContains " word"). Plain string functions are used because
+/// Firestore's server-side regex validator rejects some RE2 constructs.
