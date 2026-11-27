@@ -170,6 +170,12 @@ class ChatRoomViewModel : SwiftUI.ObservableObject
     {
         self.participant = participant
         self.unseenMessagesCount = 0
+        /// a fresh conversation has nothing to fetch/initialize: mark it finished
+        /// right away, otherwise the chat room view never runs
+        /// `finalizeConversationSetup` and the table is never bottom-anchored,
+        /// so the first message (sent without ever opening the keyboard) lands
+        /// at the top of the table
+        conversationInitializationStatus = .finished
     }
     
     deinit

@@ -13,7 +13,7 @@ Complete the task correctly with the fewest reasonable tool calls, file reads, e
 ## Implementation
 - Make the smallest complete change that solves the request. Preserve existing behavior outside its scope.
 - Use targeted patches, not whole-file rewrites.
-- No unrelated refactors, speculative improvements, duplicate abstractions, or unnecessary comments.
+- No unrelated refactors, speculative improvements, duplicate abstractions, or unnecessary comments (leave comments only when critically needed for understanding in Footnote.swift).
 - Don't add dependencies, config, files, helper layers, or compatibility shims unless the task requires them.
 - If requirements are ambiguous, make a reasonable low-risk assumption and state it in one line. Ask (one question) only when the ambiguity blocks a correct implementation or risks significant unwanted changes.
 
