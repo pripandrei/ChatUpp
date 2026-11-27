@@ -159,6 +159,34 @@ final class ConversationDataSourceManager
         diffableDataSource.defaultRowAnimation = .fade
         diffableDataSource.apply(snapshot, animatingDifferences: true)
     }
+
+    func itemIdentifier(at indexPath: IndexPath) -> MessageCellViewModel?
+    {
+        let snapshot = diffableDataSource.snapshot()
+        guard indexPath.section < snapshot.numberOfSections else { return nil }
+        let section = snapshot.sectionIdentifiers[indexPath.section]
+        let items = snapshot.itemIdentifiers(inSection: section)
+        guard indexPath.row < items.count else { return nil }
+        return items[indexPath.row]
+    }
+
+    func indexPath(for item: MessageCellViewModel) -> IndexPath?
+    {
+        diffableDataSource.indexPath(for: item)
+    }
+
+    func sectionDate(at sectionIndex: Int) -> Date?
+    {
+        let snapshot = diffableDataSource.snapshot()
+        guard sectionIndex < snapshot.numberOfSections else { return nil }
+        if case .date(let date) = snapshot.sectionIdentifiers[sectionIndex] { return date }
+        return nil
+    }
+
+    func sectionIndex(for date: Date) -> Int?
+    {
+        diffableDataSource.snapshot().sectionIdentifiers.firstIndex(of: .date(date))
+    }
 }
 
 

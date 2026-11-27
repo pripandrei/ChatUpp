@@ -363,6 +363,17 @@ final class ChatRoomViewController: UIViewController
             .sink { [weak self] updateType in
                 guard let self = self else { return }
                 
+                /// row removals are reconciled manually - an animated diffable
+                /// apply races the flexible top inset update (contentSize shrinks
+                /// at an indeterminate moment), which sometimes strands the table
+                /// above the bottom-anchored offset or kills the shift animation
+                /// (see `handleMessagesRemoval`)
+                if updateType == .fade
+                {
+                    self.handleMessagesRemoval()
+                    return
+                }
+                
                 var updateType = updateType
                 /// while the initial scroll hasn't settled the table must stay
                 /// still - incoming (gap-fill) messages simply appear instead
@@ -757,6 +768,110 @@ extension ChatRoomViewController
         }
     }
     
+    /// Row removals must not run through an animated diffable apply: the row
+    /// removal and the flexible top inset update (contentSize shrinks) land at
+    /// an indeterminate order relative to each other, leaving the final offset
+    /// wrong and the surviving cells' shift unpredictable. Instead the data
+    /// change is applied instantly, the inset & offset are set to their final
+    /// values deterministically, and the surviving visible cells are glided
+    /// from their pre-removal visual positions into the new layout.
+    private func handleMessagesRemoval()
+    {
+        let tableView = rootView.tableView
+        tableView.layoutIfNeeded()
+        
+        let previousOffsetY = tableView.contentOffset.y
+        let previousContentHeight = tableView.contentSize.height
+        let wasAnchoredAtBottom = abs(previousOffsetY - bottomOffsetY(for: tableView)) <= 0.5
+        
+        /// visual Y positions of the currently visible cells and date headers,
+        /// keyed by stable identity
+        var visibleCellPositions: [MessageCellViewModel: CGFloat] = [:]
+        for indexPath in tableView.indexPathsForVisibleRows ?? []
+        {
+            if let item = dataSourceManager.itemIdentifier(at: indexPath),
+               let cell = tableView.cellForRow(at: indexPath)
+            {
+                visibleCellPositions[item] = cell.frame.minY - tableView.contentOffset.y
+            }
+        }
+        
+        var headerPositions: [Date: CGFloat] = [:]
+        for section in 0..<tableView.numberOfSections
+        {
+            if let header = tableView.headerView(forSection: section),
+               let date = dataSourceManager.sectionDate(at: section)
+            {
+                headerPositions[date] = header.frame.minY - tableView.contentOffset.y
+            }
+        }
+        
+        dataSourceManager.configureSnapshot(animationType: .none)
+        
+        /// the diffable apply can materialize lazily: force the layout first so
+        /// contentSize reflects the removal before the inset & offset are landed
+        tableView.layoutIfNeeded()
+        
+        updateTopContentInsetToAnchorContentAtBottom()
+        if wasAnchoredAtBottom
+        {
+            /// self-sizing rows can still refine their heights once landed at
+            /// the bottom position - land, lay out and re-land until stable
+            /// (bounded, so a pathological estimate mismatch can't spin it)
+            var passes = 0
+            while passes < 5
+            {
+                tableView.layoutIfNeeded()
+                self.updateTopContentInsetToAnchorContentAtBottom()
+                let targetOffsetY = bottomOffsetY(for: tableView)
+                if abs(targetOffsetY - tableView.contentOffset.y) <= 0.5 { break }
+                tableView.contentOffset.y = targetOffsetY
+                passes += 1
+            }
+            tableView.layoutIfNeeded()
+        } else {
+            /// keep the viewport stable: the removed content sits above it
+            let targetOffsetY = previousOffsetY + (tableView.contentSize.height - previousContentHeight)
+            tableView.contentOffset.y = max(targetOffsetY, -tableView.adjustedContentInset.top)
+            tableView.layoutIfNeeded()
+        }
+        
+        /// during the initial load window the table must stay still
+        guard didFinishInitialScrollToUnseenIndexPathIfAny else { return }
+        
+        /// glide the surviving cells & date headers from their pre-removal
+        /// visual positions into the new layout (views whose position didn't
+        /// change are skipped)
+        var glidingViews: [(view: UIView, shift: CGFloat)] = []
+        for (item, oldVisualY) in visibleCellPositions
+        {
+            guard let newIndexPath = dataSourceManager.indexPath(for: item),
+                  let cell = tableView.cellForRow(at: newIndexPath) else { continue }
+            
+            let shift = oldVisualY - (cell.frame.minY - tableView.contentOffset.y)
+            if abs(shift) > 0.5 { glidingViews.append((cell, shift)) }
+        }
+        for (date, oldVisualY) in headerPositions
+        {
+            guard let section = dataSourceManager.sectionIndex(for: date),
+                  let header = tableView.headerView(forSection: section) else { continue }
+            
+            let shift = oldVisualY - (header.frame.minY - tableView.contentOffset.y)
+            if abs(shift) > 0.5 { glidingViews.append((header, shift)) }
+        }
+        
+        for glidingView in glidingViews
+        {
+            glidingView.view.transform = CGAffineTransform(translationX: 0, y: glidingView.shift)
+            UIView.animate(withDuration: 0.3,
+                           delay: 0,
+                           options: [.curveEaseOut, .allowUserInteraction])
+            {
+                glidingView.view.transform = .identity
+            }
+        }
+    }
+
     private func scrollToBottom(animated: Bool = true, delayed: Bool = true)
     {
         if delayed
