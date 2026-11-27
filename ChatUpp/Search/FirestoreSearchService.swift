@@ -24,7 +24,7 @@ final class FirestoreSearchService: SearchService
     private func wordStartPrefixCondition(for searchTerm: String, in field: String) -> BooleanExpression
     {
         let searchWords = searchTerm.lowercased()
-            .components(separatedBy: .whitespacesAndNewlines)
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
             .filter { !$0.isEmpty }
 
         let name = Field(field).toLower()
