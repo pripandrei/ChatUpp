@@ -138,7 +138,7 @@ class PhoneSignInViewController: UIViewController , UITextFieldDelegate {
                 try await phoneViewModel.sendSmsToPhoneNumber(number)
                 coordinator.pushPhoneCodeVerificationViewController(phoneViewModel: self.phoneViewModel)
             } catch {
-                print("error sending sms to phone number: ", error.localizedDescription)
+                print("error sending sms to phone number: ", error)
             }
             self.activityIndicator.stopAnimating()
         }

@@ -2014,7 +2014,7 @@
 				75B9CABC2ED6342B002D701F /* XCRemoteSwiftPackageReference "LoaderUI" */,
 				756A2ACC2F22B39700C5D7B0 /* XCRemoteSwiftPackageReference "thorvg.swift" */,
 				751FB66C2FCB06F600041D1D /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
-				75B9C874301E4D8600ADED6D /* XCRemoteSwiftPackageReference "FlagPhoneNumber" */,
+				75B9C874301E4D8600ADED6D /* XCLocalSwiftPackageReference "Packages/FlagPhoneNumber" */,
 				75CB52202F5C100000000008 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 56;
@@ -2665,13 +2665,9 @@
 				minimumVersion = 2.7.4;
 			};
 		};
-		75B9C874301E4D8600ADED6D /* XCRemoteSwiftPackageReference "FlagPhoneNumber" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pripandrei/FlagPhoneNumber.git";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
+		75B9C874301E4D8600ADED6D /* XCLocalSwiftPackageReference "Packages/FlagPhoneNumber" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/FlagPhoneNumber;
 		};
 		75CB52202F5C100000000008 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -2814,7 +2810,6 @@
 		};
 		75B9C875301E4D8600ADED6D /* FlagPhoneNumber */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 75B9C874301E4D8600ADED6D /* XCRemoteSwiftPackageReference "FlagPhoneNumber" */;
 			productName = FlagPhoneNumber;
 		};
 		75CB52202F5C100000000009 /* Supabase */ = {
