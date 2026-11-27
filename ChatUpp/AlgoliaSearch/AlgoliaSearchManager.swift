@@ -2,8 +2,11 @@ import Foundation
 import AlgoliaCore
 import AlgoliaSearch
 
+// Algolia-backed search is used only by dev builds.
+// Prod builds use FirestoreSearchService (see ChatUpp/Search/).
+#if DEV
 
-final class AlgoliaSearchManager
+final class AlgoliaSearchManager: SearchService
 {
     static let shared = AlgoliaSearchManager()
     
@@ -21,7 +24,7 @@ final class AlgoliaSearchManager
         groupsClient = try! SearchClient(appID: keys.appID, apiKey: keys.groupsKey)
     }
     
-    func performSearch(_ searchText: String) async -> AlgoliaSearchResult? {
+    func performSearch(_ searchText: String) async -> SearchResults? {
         do {
             let users = try await searchInUsersIndex(withQuery: searchText)
             let groups = try await searchInGroupsIndex(withQuery: searchText)
@@ -136,10 +139,5 @@ final class AlgoliaSearchManager
     }
 }
 
-struct AlgoliaSearchResult
-{
-    let users: [User]
-    let groups: [Chat]
-}
-
+#endif
 

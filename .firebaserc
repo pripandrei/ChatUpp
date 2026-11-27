@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "chatupp-e5b6c"
+    "default": "chatupp-e5b6c",
+    "dev": "chatupp-e5b6c",
+    "prod": "chatupp-prod"
   }
 }

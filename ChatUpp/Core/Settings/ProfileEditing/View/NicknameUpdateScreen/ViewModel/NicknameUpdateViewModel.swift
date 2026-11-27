@@ -116,7 +116,7 @@ final class NicknameUpdateViewModel
     
     private func checkIfNicknameIsAvailable() async throws -> NicknameValidationResult
     {
-        let exists = await AlgoliaSearchManager.shared.checkIfUserWithNicknameExists(updatedNickname)
+        let exists = await SearchServiceProvider.shared.checkIfUserWithNicknameExists(updatedNickname)
         print(exists)
 
         return exists ? .isTaken : .isAvailable(name: self.updatedNickname)

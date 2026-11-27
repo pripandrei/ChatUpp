@@ -123,9 +123,9 @@ extension GroupCreationViewModel
     private func performGlobalUserSearch(from query: String) async -> [User]
     {
         do {
-            return try await AlgoliaSearchManager.shared.searchInUsersIndex(withQuery: query)
+            return try await SearchServiceProvider.shared.searchInUsersIndex(withQuery: query)
         } catch {
-            print("Could not perform search on users from Algolia: \(error)")
+            print("Could not perform search on users: \(error)")
         }
         return []
     }

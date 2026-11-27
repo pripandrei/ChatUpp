@@ -31,7 +31,7 @@ final class FirebaseChatService {
     }()
     private let firestoreDecoder = Firestore.Decoder()
     
-    private let db = Firestore.firestore()
+    private let db = Firestore.appDB
     
     private lazy var chatsCollection = db.collection(FirestoreCollection.chats.rawValue)
     
@@ -99,7 +99,7 @@ extension FirebaseChatService
                 .getDocuments()
                 .documents
             
-            batch = Firestore.firestore().batch()
+            batch = Firestore.appDB.batch()
             
             for document in documents {
                 batch.deleteDocument(document.reference)
@@ -1083,7 +1083,7 @@ extension FirebaseChatService
     
     static func cleanFirestoreCache() async throws {
         do {
-            try await Firestore.firestore().clearPersistence()
+            try await Firestore.appDB.clearPersistence()
             print("Firestore cache successfully cleared")
         } catch {
             print("Error clearing Firestore cache: \(error.localizedDescription)")

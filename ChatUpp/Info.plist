@@ -17,12 +17,12 @@
 			<string>Google Sign In</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.135894914510-54r1kek2gq9n1tadh60uutmjbopt1q8i</string>
+				<string>$(GID_URL_SCHEME)</string>
 			</array>
 		</dict>
 	</array>
 	<key>GIDClientID</key>
-	<string>135894914510-54r1kek2gq9n1tadh60uutmjbopt1q8i.apps.googleusercontent.com</string>
+	<string>$(GID_CLIENT_ID)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

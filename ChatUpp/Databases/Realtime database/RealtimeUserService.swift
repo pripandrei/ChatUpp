@@ -21,6 +21,7 @@
 /// - DBUser.isActive change from optional
 
 import Foundation
+import FirebaseCore
 import FirebaseDatabase
 import Combine
 
@@ -37,7 +38,12 @@ final class RealtimeUserService: AuthUserProtocol
     private init() {}
     
     static let shared = RealtimeUserService()
-    private let usersReference = Database.database(url: "https://chatupp-e5b6c-default-rtdb.europe-west1.firebasedatabase.app").reference(withPath: "users")
+    private let usersReference: DatabaseReference = {
+        guard let databaseURL = FirebaseApp.app()?.options.databaseURL else {
+            fatalError("DATABASE_URL missing from Firebase configuration")
+        }
+        return Database.database(url: databaseURL).reference(withPath: "users")
+    }()
     private var onDisconnectRefListener: DatabaseReference?
     
     /// - create user

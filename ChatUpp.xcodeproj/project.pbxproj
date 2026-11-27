@@ -58,7 +58,6 @@
 		755A3F7D2AD068F900739861 /* ChatCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */; };
 		755A3FA02AD2F2C100739861 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755A3F9F2AD2F2C100739861 /* Coordinator.swift */; };
 		755BEA9C2E9723320017577E /* GreetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755BEA9B2E97232E0017577E /* GreetingView.swift */; };
-		755BF3F82E98338D0017577E /* APIKeys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 755BF3F72E98338D0017577E /* APIKeys.plist */; };
 		755BF3FB2E9839950017577E /* AlgoliaAPIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755BF3FA2E98398C0017577E /* AlgoliaAPIKeys.swift */; };
 		755BFC8D2E9879F50017577E /* MessageBannerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 755BFC8C2E9879F00017577E /* MessageBannerData.swift */; };
 		7563F87C2ADE25E6006FA374 /* ConversationTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7563F87B2ADE25E6006FA374 /* ConversationTableViewDataSource.swift */; };
@@ -171,7 +170,6 @@
 		75BC06722DFB6053002ED4AA /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06712DFB604D002ED4AA /* NetworkError.swift */; };
 		75BC06742DFB60E6002ED4AA /* GroupEventMessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */; };
 		75BC06792DFB82D3002ED4AA /* NotificationCenter+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */; };
-		75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */; };
 		75C0898E2ECABB4300F083D0 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C0898D2ECABB3B00F083D0 /* UIColor+Extensions.swift */; };
 		75C7B29F2A4DBF8000C41E69 /* EmailSignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */; };
 		75C8B8392F840A1500C58171 /* GlassCapsuleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75C8B8382F840A0900C58171 /* GlassCapsuleStyle.swift */; };
@@ -231,6 +229,9 @@
 		75FD74842CC03B0B0012DC35 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */; };
 		75FD971E2DF230A800EC001E /* ReactionPresentationSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */; };
 		75FD97202DF3914400EC001E /* SkeletonViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */; };
+		75CB52F100000000000000D1 /* SearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52F100000000000000C1 /* SearchService.swift */; };
+		75CB52F100000000000000D2 /* FirestoreSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52F100000000000000C2 /* FirestoreSearchService.swift */; };
+		75CB52F100000000000000D3 /* FirestoreAppDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CB52F100000000000000C3 /* FirestoreAppDB.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -295,7 +296,6 @@
 		755A3F7C2AD068F900739861 /* ChatCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCellViewModel.swift; sourceTree = "<group>"; };
 		755A3F9F2AD2F2C100739861 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		755BEA9B2E97232E0017577E /* GreetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingView.swift; sourceTree = "<group>"; };
-		755BF3F72E98338D0017577E /* APIKeys.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = APIKeys.plist; sourceTree = "<group>"; };
 		755BF3FA2E98398C0017577E /* AlgoliaAPIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlgoliaAPIKeys.swift; sourceTree = "<group>"; };
 		755BFC8C2E9879F00017577E /* MessageBannerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBannerData.swift; sourceTree = "<group>"; };
 		7563F87B2ADE25E6006FA374 /* ConversationTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTableViewDataSource.swift; sourceTree = "<group>"; };
@@ -388,7 +388,6 @@
 		75BC06712DFB604D002ED4AA /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 		75BC06732DFB60E3002ED4AA /* GroupEventMessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEventMessageList.swift; sourceTree = "<group>"; };
 		75BC06782DFB82C9002ED4AA /* NotificationCenter+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationCenter+Extensions.swift"; sourceTree = "<group>"; };
-		75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		75C0898D2ECABB3B00F083D0 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		75C7B29E2A4DBF8000C41E69 /* EmailSignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpViewController.swift; sourceTree = "<group>"; };
 		75C8B8382F840A0900C58171 /* GlassCapsuleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCapsuleStyle.swift; sourceTree = "<group>"; };
@@ -446,6 +445,12 @@
 		75FD74832CC03B0B0012DC35 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
 		75FD97192DF230A400EC001E /* ReactionPresentationSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactionPresentationSheetView.swift; sourceTree = "<group>"; };
 		75FD971F2DF3913B00EC001E /* SkeletonViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonViewCell.swift; sourceTree = "<group>"; };
+		75CB52F100000000000000A4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		75CB52F100000000000000A5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		75CB52F100000000000000A6 /* APIKeys.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "APIKeys.plist"; sourceTree = "<group>"; };
+		75CB52F100000000000000C1 /* SearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchService.swift; sourceTree = "<group>"; };
+		75CB52F100000000000000C2 /* FirestoreSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSearchService.swift; sourceTree = "<group>"; };
+		75CB52F100000000000000C3 /* FirestoreAppDB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreAppDB.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
@@ -772,6 +777,7 @@
 				756525D42AB50079005DC594 /* FirestoreUserService.swift */,
 				7543BE292ACB0EDA003001BF /* FirebaseChatService.swift */,
 				7563F87F2ADF6E31006FA374 /* FirestoreCollectionName.swift */,
+				75CB52F100000000000000C3 /* FirestoreAppDB.swift */,
 			);
 			path = "Firestore database";
 			sourceTree = "<group>";
@@ -1344,13 +1350,13 @@
 				75FB79022AC31AEA00C2743A /* Core */,
 				75FB78FF2AC3188C00C2743A /* Extensions */,
 				75E054262B0428E200828B9D /* AlgoliaSearch */,
+				75CB52F100000000000000C0 /* Search */,
 				756525C02A7E821C005DC594 /* Authentication */,
 				756525C82A8127CC005DC594 /* Utilities */,
 				7587D3A32E6392D500DEE900 /* Resources */,
 				75B5C4CD2A49AB1500F63A5A /* Supporting files */,
 				75B5C4C72A49AB0B00F63A5A /* Info.plist */,
-				75BF5F032BB8E1EA00AE6C45 /* GoogleService-Info.plist */,
-				755BF3F72E98338D0017577E /* APIKeys.plist */,
+				75CB52F100000000000000A1 /* Firebase */,
 			);
 			path = ChatUpp;
 			sourceTree = "<group>";
@@ -1873,6 +1879,41 @@
 			path = MessageMenu;
 			sourceTree = "<group>";
 		};
+		75CB52F100000000000000A1 /* Firebase */ = {
+			isa = PBXGroup;
+			children = (
+				75CB52F100000000000000A2 /* Dev */,
+				75CB52F100000000000000A3 /* Prod */,
+			);
+			path = Firebase;
+			sourceTree = "<group>";
+		};
+		75CB52F100000000000000A2 /* Dev */ = {
+			isa = PBXGroup;
+			children = (
+				75CB52F100000000000000A4 /* GoogleService-Info.plist */,
+				75CB52F100000000000000A6 /* APIKeys.plist */,
+			);
+			path = Dev;
+			sourceTree = "<group>";
+		};
+		75CB52F100000000000000A3 /* Prod */ = {
+			isa = PBXGroup;
+			children = (
+				75CB52F100000000000000A5 /* GoogleService-Info.plist */,
+			);
+			path = Prod;
+			sourceTree = "<group>";
+		};
+		75CB52F100000000000000C0 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				75CB52F100000000000000C1 /* SearchService.swift */,
+				75CB52F100000000000000C2 /* FirestoreSearchService.swift */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1994,10 +2035,8 @@
 				75D38DA12EB90A5A0096B926 /* notification_sound.m4a in Resources */,
 				75EE38F12F09E224008548AC /* paperPlane_flight_1.mp4 in Resources */,
 				75B5C4C62A49AB0B00F63A5A /* LaunchScreen.storyboard in Resources */,
-				755BF3F82E98338D0017577E /* APIKeys.plist in Resources */,
 				75B5C4C32A49AB0B00F63A5A /* Assets.xcassets in Resources */,
 				75EE27612EFF1EC5008548AC /* main_icon.icon in Resources */,
-				75BF5F042BB8E1EA00AE6C45 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2019,7 +2058,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
+			shellScript = "# Copy the configuration-matching Firebase + APIKeys plists into the bundle root\nif [ \"$CONFIGURATION\" = \"Dev\" ]; then\n  SRC=\"$SRCROOT/ChatUpp/Firebase/Dev\"\nelse\n  SRC=\"$SRCROOT/ChatUpp/Firebase/Prod\"\nfi\nRES=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH\"\ncp -f \"$SRC/GoogleService-Info.plist\" \"$RES/GoogleService-Info.plist\"\nif [ -f \"$SRC/APIKeys.plist\" ]; then\n  cp -f \"$SRC/APIKeys.plist\" \"$RES/APIKeys.plist\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2126,6 +2165,9 @@
 				759A38702F36259300366DBA /* StickerMessageCell.swift in Sources */,
 				75B5C4BE2A49AB0A00F63A5A /* LoginViewController.swift in Sources */,
 				755BF3FB2E9839950017577E /* AlgoliaAPIKeys.swift in Sources */,
+				75CB52F100000000000000D1 /* SearchService.swift in Sources */,
+				75CB52F100000000000000D2 /* FirestoreSearchService.swift in Sources */,
+				75CB52F100000000000000D3 /* FirestoreAppDB.swift in Sources */,
 				750F5BF12D9D5AE9007655F3 /* MessageEventTableViewCell.swift in Sources */,
 				759BBFC62AFD5C3A00D7E9A0 /* ResultsTableCell.swift in Sources */,
 				75B48B592AFB2C4000A5FBFC /* ResultsTableController.swift in Sources */,
@@ -2234,7 +2276,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		7557B9072F40A512004C66BE /* Testing */ = {
+		7557B9072F40A512004C66BE /* Dev */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -2289,12 +2331,12 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEV;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
-			name = Testing;
+			name = Dev;
 		};
-		7557B9082F40A512004C66BE /* Testing */ = {
+		7557B9082F40A512004C66BE /* Dev */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = main_icon;
@@ -2315,16 +2357,18 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pripandreika.com.ChatUpp.Testing;
-				PRODUCT_NAME = ChatUpp_Testing;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pripandreika.com.ChatUpp.Dev;
+				PRODUCT_NAME = ChatUpp_Dev;
+				GID_CLIENT_ID = "135894914510-jts9gdo818q6kj2o9fv3nm3o79o97a59.apps.googleusercontent.com";
+				GID_URL_SCHEME = "com.googleusercontent.apps.135894914510-jts9gdo818q6kj2o9fv3nm3o79o97a59";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = Testing;
+			name = Dev;
 		};
-		75B5C4C82A49AB0B00F63A5A /* Debug */ = {
+		75B5C4C82A49AB0B00F63A5A /* Prod */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -2364,10 +2408,6 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -2379,10 +2419,10 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = PROD;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
-			name = Debug;
+			name = Prod;
 		};
 		75B5C4C92A49AB0B00F63A5A /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -2432,13 +2472,14 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = PROD;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
-		75B5C4CB2A49AB0B00F63A5A /* Debug */ = {
+		75B5C4CB2A49AB0B00F63A5A /* Prod */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = main_icon;
@@ -2447,6 +2488,8 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 8NY5358LMK;
 				GENERATE_INFOPLIST_FILE = YES;
+				GID_CLIENT_ID = "957134206416-9ind6gs5r7qmuroqflti0k7fborhicge.apps.googleusercontent.com";
+				GID_URL_SCHEME = "com.googleusercontent.apps.957134206416-9ind6gs5r7qmuroqflti0k7fborhicge";
 				INFOPLIST_FILE = ChatUpp/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ChatUpp would like to access camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -2466,7 +2509,7 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = Debug;
+			name = Prod;
 		};
 		75B5C4CC2A49AB0B00F63A5A /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -2477,6 +2520,8 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 8NY5358LMK;
 				GENERATE_INFOPLIST_FILE = YES;
+				GID_CLIENT_ID = "957134206416-9ind6gs5r7qmuroqflti0k7fborhicge.apps.googleusercontent.com";
+				GID_URL_SCHEME = "com.googleusercontent.apps.957134206416-9ind6gs5r7qmuroqflti0k7fborhicge";
 				INFOPLIST_FILE = ChatUpp/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ChatUpp would like to access camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -2504,22 +2549,22 @@
 		75B5C4B12A49AB0A00F63A5A /* Build configuration list for PBXProject "ChatUpp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				75B5C4C82A49AB0B00F63A5A /* Debug */,
-				7557B9072F40A512004C66BE /* Testing */,
+				75B5C4C82A49AB0B00F63A5A /* Prod */,
+				7557B9072F40A512004C66BE /* Dev */,
 				75B5C4C92A49AB0B00F63A5A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Prod;
 		};
 		75B5C4CA2A49AB0B00F63A5A /* Build configuration list for PBXNativeTarget "ChatUpp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				75B5C4CB2A49AB0B00F63A5A /* Debug */,
-				7557B9082F40A512004C66BE /* Testing */,
+				75B5C4CB2A49AB0B00F63A5A /* Prod */,
+				7557B9082F40A512004C66BE /* Dev */,
 				75B5C4CC2A49AB0B00F63A5A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Prod;
 		};
 /* End XCConfigurationList section */
 

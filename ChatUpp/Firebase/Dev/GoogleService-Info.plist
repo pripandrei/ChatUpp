@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyC3homlBe0AOqBe32WB7mGkgMqR_0qJDf8</string>
+	<key>BUNDLE_ID</key>
+	<string>com.pripandreika.com.ChatUpp.Dev</string>
+	<key>CLIENT_ID</key>
+	<string>135894914510-jts9gdo818q6kj2o9fv3nm3o79o97a59.apps.googleusercontent.com</string>
+	<key>DATABASE_URL</key>
+	<string>https://chatupp-e5b6c-default-rtdb.europe-west1.firebasedatabase.app</string>
+	<key>GCM_SENDER_ID</key>
+	<string>135894914510</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:135894914510:ios:ac21d83dd96308aac8479f</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>PROJECT_ID</key>
+	<string>chatupp-e5b6c</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.135894914510-jts9gdo818q6kj2o9fv3nm3o79o97a59</string>
+	<key>STORAGE_BUCKET</key>
+	<string>chatupp-e5b6c.appspot.com</string>
+</dict>
+</plist>

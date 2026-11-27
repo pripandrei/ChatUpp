@@ -1,0 +1,7 @@
+{
+  /* Mirrored from the dev project (chatupp-e5b6c-default-rtdb). */
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}

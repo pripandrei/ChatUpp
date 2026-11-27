@@ -6,6 +6,8 @@
 //
 import Foundation
 
+#if DEV
+
 struct AlgoliaAPIKeys
 {
     let appID: String
@@ -31,3 +33,5 @@ struct AlgoliaAPIKeys
                      groupsKey: API_KEY_GROUPS)
     }
 }
+
+#endif

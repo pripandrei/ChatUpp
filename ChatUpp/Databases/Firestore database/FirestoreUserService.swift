@@ -25,7 +25,7 @@ final class FirestoreUserService {
     
     private init() {}
     
-    private let usersCollection = Firestore.firestore().collection(FirestoreCollection.users.rawValue)
+    private let usersCollection = Firestore.appDB.collection(FirestoreCollection.users.rawValue)
     
     private func userDocument(userID: String) -> DocumentReference {
         usersCollection.document(userID)
