@@ -394,8 +394,12 @@ final class ChatRoomViewController: UIViewController
                 
                 self.dataSourceManager.configureSnapshot(animationType: updateType)
                 self.updateTopContentInsetToAnchorContentAtBottom()
-                if isUpdateAnimationNone {
-                    self.handleNewMessageDisplay()
+                if isUpdateAnimationNone,
+                   !self.handleNewMessageDisplay()
+                {
+                    /// the newest cell couldn't be revealed (e.g. inserted
+                    /// below the viewport) - fall back to the bottom flight
+                    self.scrollToBottom()
                 }
                 
             }.store(in: &subscriptions)
@@ -732,18 +736,71 @@ extension ChatRoomViewController
         }
         
         let isNewSectionAdded = viewModel.messageClusterRepository.messageClusters.last?.items.count == 1
-        animateNewestCellInsertion(withNewSectionAdded: isNewSectionAdded)
-        return true
+        return animateNewestCellInsertion(withNewSectionAdded: isNewSectionAdded)
     }
     
-    private func animateNewestCellInsertion(withNewSectionAdded isNewSectionAdded: Bool)
+    @discardableResult
+    private func animateNewestCellInsertion(withNewSectionAdded isNewSectionAdded: Bool) -> Bool
     {
-        guard let indexPath = newestIndexPath else { return }
+        guard let indexPath = newestIndexPath else { return false }
         let tableView = rootView.tableView
         
         tableView.layoutIfNeeded()
         
-        guard let cell = tableView.cellForRow(at: indexPath) else { return }
+        /// when the content exceeds the viewport the inserted row lies just
+        /// below the visible area and is not materialized: there is no cell to
+        /// reveal, the animated flight to the bottom (which shifts all the
+        /// messages up) is the whole entrance - report failure so the caller
+        /// runs its `scrollToBottom` fallback
+        guard let cell = tableView.cellForRow(at: indexPath) else { return false }
+        
+        /// the flexible top inset must reflect the freshly inserted row before
+        /// the landing offset is targeted (a stale inset renders the new
+        /// message at the top and degenerates the flight into a no-op). At the
+        /// boundary UIScrollView absorbs the inset change with an INSTANT
+        /// offset clamp, which would shift every existing message without any
+        /// animation - so the clamp is applied explicitly here and the shifted
+        /// cells & date headers are glided from their pre-insert positions
+        /// instead. The new cell is excluded - it runs its own slide-in reveal.
+        var glidingViews: [UIView] = []
+        for visibleIndexPath in tableView.indexPathsForVisibleRows ?? []
+            where visibleIndexPath != indexPath
+        {
+            if let visibleCell = tableView.cellForRow(at: visibleIndexPath)
+            {
+                glidingViews.append(visibleCell)
+            }
+        }
+        let lastSectionIndex = tableView.numberOfSections - 1
+        for section in 0..<tableView.numberOfSections
+            where !(isNewSectionAdded && section == lastSectionIndex)
+        {
+            if let headerView = tableView.headerView(forSection: section)
+            {
+                glidingViews.append(headerView)
+            }
+        }
+        
+        let offsetBeforeInsetChange = tableView.contentOffset.y
+        updateTopContentInsetToAnchorContentAtBottom()
+        let minOffsetY = -tableView.adjustedContentInset.top
+        let clampedOffsetY = max(offsetBeforeInsetChange, minOffsetY)
+        tableView.contentOffset.y = clampedOffsetY
+        let offsetDelta = clampedOffsetY - offsetBeforeInsetChange
+        
+        if offsetDelta != 0
+        {
+            for glidingView in glidingViews
+            {
+                glidingView.transform = CGAffineTransform(translationX: 0, y: offsetDelta)
+                UIView.animate(withDuration: 0.3,
+                               delay: 0.1,
+                               options: [.curveEaseOut, .allowUserInteraction])
+                {
+                    glidingView.transform = .identity
+                }
+            }
+        }
         
         let cellTopInView = tableView.convert(cell.frame, to: rootView).minY
         let slideDistance = max(60, rootView.inputBarContainer.frame.minY - cellTopInView)
@@ -758,14 +815,15 @@ extension ChatRoomViewController
             self.scrollToNewestMessage(animated: true)
         }
         
-        let lastSection = tableView.numberOfSections - 1
         guard isNewSectionAdded,
-              let headerView = tableView.headerView(forSection: lastSection) else { return }
+              let headerView = tableView.headerView(forSection: lastSectionIndex) else { return true }
         
         headerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
         UIView.animate(withDuration: 0.3, delay: 0.1) {
             headerView.transform = .identity
         }
+        
+        return true
     }
     
     /// Row removals must not run through an animated diffable apply: the row
