@@ -67,6 +67,12 @@ final class ChatRoomViewController: UIViewController
     /// completion (`scrollViewDidEndScrollingAnimation`) can re-land the view
     /// on the real bottom edge - see `settleScrollAtNewestMessage`.
     private var isScrollingToNewestMessage: Bool = false
+    /// Last self-sized height per message, fed back as the row estimate:
+    /// without it every diffable apply re-estimates off-screen rows from the
+    /// static per-type guesses, and `contentSize` balloons/deflates by
+    /// hundreds of points on each listener update (the offset can't follow
+    /// that, so the table drifts off the bottom anchor)
+    private var memoizedRowHeights: [String: CGFloat] = [:]
     /// Guards `finalizeConversationSetup()` against a second invocation:
     /// both the debounced `$conversationInitializationStatus` subscription and
     /// `viewDidLayoutSubviews` can observe `.finished`, and re-running would
@@ -724,13 +730,18 @@ extension ChatRoomViewController
     @discardableResult
     private func handleNewMessageDisplay() -> Bool
     {
-        guard isNewestIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else { return false }
+        print("CRBUG display: gate=\(didFinishInitialScrollToUnseenIndexPathIfAny) newestVisible=\(isNewestIndexPathVisible()) visibleRows=\(rootView.tableView.indexPathsForVisibleRows?.count ?? -1)")
+        guard isNewestIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else {
+            print("CRBUG display: newest NOT visible -> false (caller fallback)")
+            return false
+        }
         
         /// during the initial load window the table must stay still:
         /// a new/gap message just appears and the view simply stays pinned to
         /// the bottom, with no entrance animation or extra animated scroll
         /// (prevents the shift back and forth on chat room open)
         guard didFinishInitialScrollToUnseenIndexPathIfAny else {
+            print("CRBUG display: initial gate -> instant landing")
             scrollToNewestMessage(animated: false)
             return true
         }
@@ -747,12 +758,23 @@ extension ChatRoomViewController
         
         tableView.layoutIfNeeded()
         
-        /// when the content exceeds the viewport the inserted row lies just
-        /// below the visible area and is not materialized: there is no cell to
-        /// reveal, the animated flight to the bottom (which shifts all the
-        /// messages up) is the whole entrance - report failure so the caller
-        /// runs its `scrollToBottom` fallback
-        guard let cell = tableView.cellForRow(at: indexPath) else { return false }
+        /// when the inserted row is not genuinely visible - either it lies
+        /// below the viewport entirely, or it is materialized but hidden
+        /// behind the bottom inset area (input bar / sticker panel) - there is
+        /// no reveal to perform: the animated flight to it (which shifts all
+        /// the visible messages up) is the whole entrance; the settle at
+        /// flight end corrects any residual estimate drift
+        let visibleBottomY = tableView.contentOffset.y + tableView.bounds.height
+            - tableView.adjustedContentInset.bottom
+        guard let cell = tableView.cellForRow(at: indexPath),
+              cell.frame.minY < visibleBottomY - 1
+        else {
+            print("CRBUG insert: OVERFLOW flight branch, indexPath=\(indexPath), offset=\(tableView.contentOffset.y), content=\(tableView.contentSize.height), target=\(bottomOffsetY(for: tableView))")
+            executeAfter(seconds: 0.1) {
+                self.scrollToNewestMessage(animated: true)
+            }
+            return true
+        }
         
         /// the flexible top inset must reflect the freshly inserted row before
         /// the landing offset is targeted (a stale inset renders the new
@@ -787,6 +809,7 @@ extension ChatRoomViewController
         let clampedOffsetY = max(offsetBeforeInsetChange, minOffsetY)
         tableView.contentOffset.y = clampedOffsetY
         let offsetDelta = clampedOffsetY - offsetBeforeInsetChange
+        print("CRBUG insert: reveal path, offsetDelta=\(offsetDelta) gliding=\(glidingViews.count) indexPath=\(indexPath)")
         
         if offsetDelta != 0
         {
@@ -946,6 +969,7 @@ extension ChatRoomViewController
     {
         let tableView = rootView.tableView
         tableView.layoutIfNeeded()
+        print("CRBUG flight: animated=\(animated) from=\(tableView.contentOffset.y) to=\(bottomOffsetY(for: tableView)) content=\(tableView.contentSize.height) topInset=\(tableView.contentInset.top) adjBottom=\(tableView.adjustedContentInset.bottom)")
         
         if animated
         {
@@ -995,6 +1019,7 @@ extension ChatRoomViewController
             passes += 1
         }
         
+        print("CRBUG settle: passes=\(passes) finalOffset=\(tableView.contentOffset.y) content=\(tableView.contentSize.height)")
         tableView.layoutIfNeeded()
     }
     
@@ -1034,6 +1059,7 @@ extension ChatRoomViewController
 
             if tableView.contentInset.top != collapsedInset
             {
+                print("CRBUG inset: SKELETON collapse -> \(collapsedInset)")
                 tableView.contentInset.top = collapsedInset
                 /// re-anchor the scroll position to the new top edge, so the
                 /// cells land at the beginning without a stray blank strip
@@ -1054,6 +1080,7 @@ extension ChatRoomViewController
 
             if tableView.contentInset.top != flexibleInset
             {
+                print("CRBUG inset: top \(tableView.contentInset.top) -> \(flexibleInset) content=\(contentHeight) avail=\(availableHeight)")
                 tableView.contentInset.top = flexibleInset
             }
     }
@@ -1338,15 +1365,14 @@ extension ChatRoomViewController
     
     private func updateUIOnNewMessageCreation(_ messageType: MessageType)
     {
-        /// an empty table (fresh chat, no messages yet) counts as "at the
-        /// bottom"; otherwise the first message applies with an animated
-        /// insert, and at the resting offset that triggers UIKit's implicit
-        /// scroll-to-inserted-cell animation, which lands the message about
-        /// mid-screen instead of pinned above the input bar
-        /// - See FootNote.swift [16]
-        let wasAtBottom = isNewestIndexPathVisible()
-            || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true
-        dataSourceManager.configureSnapshot(animationType: wasAtBottom ? .none : .automatic)
+        /// always applied instantly (.none): the entrance is handled entirely
+        /// by `animateNewestCellInsertion` (slide-in reveal or the animated
+        /// flight to the inserted row). An animated diffable insert at the
+        /// resting offset triggers UIKit's implicit scroll-to-inserted-cell
+        /// animation, which lands the message about mid-screen instead of
+        /// pinned above the input bar - See FootNote.swift [16]
+        dataSourceManager.configureSnapshot(animationType: .none)
+        print("CRBUG send: type=\(messageType) newestVisible=\(isNewestIndexPathVisible()) visibleRows=\(rootView.tableView.indexPathsForVisibleRows?.count ?? -1) offset=\(rootView.tableView.contentOffset.y) content=\(rootView.tableView.contentSize.height) bounds=\(rootView.tableView.bounds.height) adjBottom=\(rootView.tableView.adjustedContentInset.bottom) topInset=\(rootView.tableView.contentInset.top)")
         let didAnimateInsertion = handleNewMessageDisplay()
         var wasInputBarExpanded = false
         
@@ -1605,11 +1631,12 @@ extension ChatRoomViewController
         /// table sits at the bottom), so the delta must be applied to the offset
         /// from before that clamp, otherwise it is applied twice.
         let previousOffsetY = tableView.contentOffset.y
-        
+        print("CRBUG stickerPanel: obscuring=\(obscuringHeight) prevOffset=\(previousOffsetY) prevBottomInset=\(previousBottomInset)")
+
         UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut])
         {
             changes()
-            
+
             self.updateTableViewBottomInset(animated: false,
                                             obscuringHeightOverride: obscuringHeight)
             
@@ -1847,16 +1874,30 @@ extension ChatRoomViewController: UITableViewDelegate
         /// chats whose newest messages are stickers the bottom-most block was
         /// undercounted by roughly one viewport worth of height - the room
         /// opened offset a few messages above the most recent one.
-        /// Stickers have a fixed size, so give the table the real number;
-        /// all other message types keep the default automatic estimate.
+        /// Stickers have a fixed size, so give the table the real number.
+        /// Audio rows are fixed-height too, and image rows are given a
+        /// deliberately GENEROUS estimate: when the scroll-to-newest flight
+        /// targets a content size built on these numbers, an over-estimate
+        /// gets clamped to the real bottom on arrival, while an under-estimate
+        /// lands short and shows as a visible correction jump.
         let clusters = viewModel.messageClusterRepository.messageClusters
         guard indexPath.section < clusters.count,
               indexPath.row < clusters[indexPath.section].items.count,
-              let message = clusters[indexPath.section].items[indexPath.row].message,
-              message.type == .sticker
+              let message = clusters[indexPath.section].items[indexPath.row].message
         else { return UITableView.automaticDimension }
         
-        return StickerMessageCell.fixedRowHeight
+        /// a previously displayed row is estimated at its last real height
+        if let memoizedHeight = memoizedRowHeights[message.id] {
+            return memoizedHeight
+        }
+        
+        switch message.type
+        {
+        case .sticker: return StickerMessageCell.fixedRowHeight
+        case .audio: return 90
+        case .image, .imageText: return 280
+        default: return UITableView.automaticDimension
+        }
     }
     
     func tableView(_ tableView: UITableView,
@@ -1875,6 +1916,17 @@ extension ChatRoomViewController: UITableViewDelegate
         /// ticker and stays blank until it gets recycled by scrolling it
         /// off-screen and back.
         (cell as? StickerMessageCell)?.setVisible(true)
+        
+        /// memoize the resolved height so later applies estimate this row at
+        /// its real height instead of a static guess (must run before the
+        /// initial-load gate below)
+        if viewModel.messageClusterRepository.messageClusters.indices.contains(indexPath.section),
+           viewModel.messageClusterRepository.messageClusters[indexPath.section].items.indices.contains(indexPath.row),
+           let message = viewModel.messageClusterRepository.messageClusters[indexPath.section].items[indexPath.row].message,
+           cell.frame.height > 0
+        {
+            memoizedRowHeights[message.id] = cell.frame.height
+        }
         
         guard !viewModel.messageClusterRepository.messageClusters.isEmpty,
               didFinishInitialScrollToUnseenIndexPathIfAny else { return }
