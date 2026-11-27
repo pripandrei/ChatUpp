@@ -730,9 +730,7 @@ extension ChatRoomViewController
     @discardableResult
     private func handleNewMessageDisplay() -> Bool
     {
-        print("CRBUG display: gate=\(didFinishInitialScrollToUnseenIndexPathIfAny) newestVisible=\(isNewestIndexPathVisible()) visibleRows=\(rootView.tableView.indexPathsForVisibleRows?.count ?? -1)")
         guard isNewestIndexPathVisible() || rootView.tableView.indexPathsForVisibleRows?.isEmpty == true else {
-            print("CRBUG display: newest NOT visible -> false (caller fallback)")
             return false
         }
         
@@ -741,7 +739,6 @@ extension ChatRoomViewController
         /// the bottom, with no entrance animation or extra animated scroll
         /// (prevents the shift back and forth on chat room open)
         guard didFinishInitialScrollToUnseenIndexPathIfAny else {
-            print("CRBUG display: initial gate -> instant landing")
             scrollToNewestMessage(animated: false)
             return true
         }
@@ -750,7 +747,6 @@ extension ChatRoomViewController
         return animateNewestCellInsertion(withNewSectionAdded: isNewSectionAdded)
     }
     
-    @discardableResult
     private func animateNewestCellInsertion(withNewSectionAdded isNewSectionAdded: Bool) -> Bool
     {
         guard let indexPath = newestIndexPath else { return false }
@@ -758,88 +754,57 @@ extension ChatRoomViewController
         
         tableView.layoutIfNeeded()
         
-        /// when the inserted row is not genuinely visible - either it lies
-        /// below the viewport entirely, or it is materialized but hidden
-        /// behind the bottom inset area (input bar / sticker panel) - there is
-        /// no reveal to perform: the animated flight to it (which shifts all
-        /// the visible messages up) is the whole entrance; the settle at
-        /// flight end corrects any residual estimate drift
+        /// `visibleBottomY` is the last pixel above the bottom inset area
+        /// (input bar / keyboard / sticker panel), i.e. the bottom edge of
+        /// what the user actually sees
         let visibleBottomY = tableView.contentOffset.y + tableView.bounds.height
             - tableView.adjustedContentInset.bottom
-        guard let cell = tableView.cellForRow(at: indexPath),
-              cell.frame.minY < visibleBottomY - 1
-        else {
-            print("CRBUG insert: OVERFLOW flight branch, indexPath=\(indexPath), offset=\(tableView.contentOffset.y), content=\(tableView.contentSize.height), target=\(bottomOffsetY(for: tableView))")
-            executeAfter(seconds: 0.1) {
-                self.scrollToNewestMessage(animated: true)
-            }
+        guard let cell = tableView.cellForRow(at: indexPath) else {
+            scheduleScrollToNewestFlight()
             return true
         }
         
-        /// the flexible top inset must reflect the freshly inserted row before
-        /// the landing offset is targeted (a stale inset renders the new
-        /// message at the top and degenerates the flight into a no-op). At the
-        /// boundary UIScrollView absorbs the inset change with an INSTANT
-        /// offset clamp, which would shift every existing message without any
-        /// animation - so the clamp is applied explicitly here and the shifted
-        /// cells & date headers are glided from their pre-insert positions
-        /// instead. The new cell is excluded - it runs its own slide-in reveal.
-        var glidingViews: [UIView] = []
-        for visibleIndexPath in tableView.indexPathsForVisibleRows ?? []
-            where visibleIndexPath != indexPath
+        if cell.frame.minY > visibleBottomY + 1
         {
-            if let visibleCell = tableView.cellForRow(at: visibleIndexPath)
-            {
-                glidingViews.append(visibleCell)
-            }
-        }
-        let lastSectionIndex = tableView.numberOfSections - 1
-        for section in 0..<tableView.numberOfSections
-            where !(isNewSectionAdded && section == lastSectionIndex)
-        {
-            if let headerView = tableView.headerView(forSection: section)
-            {
-                glidingViews.append(headerView)
-            }
+            /// the row materialized well below the viewport (an inset collapse
+            /// or offset compensation is mid-flight) - no reveal to perform,
+            /// the animated scroll to it is the whole entrance
+            print("CRBUG insert: FLIGHT branch cellMinY=\(cell.frame.minY) visibleBottomY=\(visibleBottomY) offset=\(tableView.contentOffset.y) content=\(tableView.contentSize.height) adjBottom=\(tableView.adjustedContentInset.bottom)")
+            scheduleScrollToNewestFlight()
+            return true
         }
         
-        let offsetBeforeInsetChange = tableView.contentOffset.y
-        updateTopContentInsetToAnchorContentAtBottom()
-        let minOffsetY = -tableView.adjustedContentInset.top
-        let clampedOffsetY = max(offsetBeforeInsetChange, minOffsetY)
-        tableView.contentOffset.y = clampedOffsetY
-        let offsetDelta = clampedOffsetY - offsetBeforeInsetChange
-        print("CRBUG insert: reveal path, offsetDelta=\(offsetDelta) gliding=\(glidingViews.count) indexPath=\(indexPath)")
-        
-        if offsetDelta != 0
-        {
-            for glidingView in glidingViews
-            {
-                glidingView.transform = CGAffineTransform(translationX: 0, y: offsetDelta)
-                UIView.animate(withDuration: 0.3,
-                               delay: 0.1,
-                               options: [.curveEaseOut, .allowUserInteraction])
-                {
-                    glidingView.transform = .identity
-                }
-            }
-        }
+        /// the normal send case: the table sits anchored at the bottom and the
+        /// new row materialized exactly at the bottom edge, fully hidden.
+        /// The offset glides to the new bottom inside the same animation as
+        /// the cell's entrance: the whole conversation slides up as one
+        /// motion while the new message slides up into the space the shift
+        /// vacates. (Snapping the offset instead keeps the new cell's
+        /// entrance isolated, but leaves the pre-existing rows jumping up
+        /// without animation.)
+        let targetOffsetY = bottomOffsetY(for: tableView)
         
         let cellTopInView = tableView.convert(cell.frame, to: rootView).minY
         let slideDistance = max(60, rootView.inputBarContainer.frame.minY - cellTopInView)
+        print("CRBUG insert: SLIDE branch cellMinY=\(cell.frame.minY) visibleBottomY=\(visibleBottomY) slideDistance=\(slideDistance)")
         
         cell.transform = CGAffineTransform(translationX: 0, y: slideDistance)
         
-        UIView.animate(withDuration: 0.3, delay: 0.1) {
+        UIView.animate(withDuration: 0.3,
+                       delay: 0.1,
+                       options: [.beginFromCurrentState])
+        {
             cell.transform = .identity
-        }
-        
-        executeAfter(seconds: 0.1) {
-            self.scrollToNewestMessage(animated: true)
+            tableView.contentOffset = CGPoint(x: tableView.contentOffset.x,
+                                              y: targetOffsetY)
+        } completion: { _ in
+            /// self-sizing rows can refine heights while the offset glides -
+            /// re-land on the true bottom once the entrance settles
+            self.settleScrollAtNewestMessage()
         }
         
         guard isNewSectionAdded,
-              let headerView = tableView.headerView(forSection: lastSectionIndex) else { return true }
+              let headerView = tableView.headerView(forSection: tableView.numberOfSections - 1) else { return true }
         
         headerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
         UIView.animate(withDuration: 0.3, delay: 0.1) {
@@ -847,6 +812,18 @@ extension ChatRoomViewController
         }
         
         return true
+    }
+    
+    /// the flight must not race the input-bar / image-preview dismissal (a
+    /// ~0.3s transition that also animates insets and offset) - when one is
+    /// running, wait for it to finish before starting the animated scroll
+    private func scheduleScrollToNewestFlight()
+    {
+        let flightDelay = rootView.inputBarHeader != nil ? 0.35 : 0.1
+        print("CRBUG flight: scheduled delay=\(flightDelay) headerOpen=\(rootView.inputBarHeader != nil)")
+        executeAfter(seconds: flightDelay) {
+            self.scrollToNewestMessage(animated: true)
+        }
     }
     
     /// Row removals must not run through an animated diffable apply: the row
@@ -969,7 +946,6 @@ extension ChatRoomViewController
     {
         let tableView = rootView.tableView
         tableView.layoutIfNeeded()
-        print("CRBUG flight: animated=\(animated) from=\(tableView.contentOffset.y) to=\(bottomOffsetY(for: tableView)) content=\(tableView.contentSize.height) topInset=\(tableView.contentInset.top) adjBottom=\(tableView.adjustedContentInset.bottom)")
         
         if animated
         {
@@ -983,6 +959,7 @@ extension ChatRoomViewController
             /// (`scrollViewDidEndScrollingAnimation`) the view is re-landed
             /// on the real bottom via `settleScrollAtNewestMessage`.
             isScrollingToNewestMessage = true
+            print("CRBUG flight: start offset=\(tableView.contentOffset.y) target=\(bottomOffsetY(for: tableView))")
             tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x,
                                                y: bottomOffsetY(for: tableView)),
                                        animated: true)
@@ -1019,8 +996,8 @@ extension ChatRoomViewController
             passes += 1
         }
         
-        print("CRBUG settle: passes=\(passes) finalOffset=\(tableView.contentOffset.y) content=\(tableView.contentSize.height)")
         tableView.layoutIfNeeded()
+        print("CRBUG settle: passes=\(passes) finalOffset=\(tableView.contentOffset.y) finalTarget=\(bottomOffsetY(for: tableView))")
     }
     
     private func bottomOffsetY(for tableView: UITableView) -> CGFloat
@@ -1059,7 +1036,6 @@ extension ChatRoomViewController
 
             if tableView.contentInset.top != collapsedInset
             {
-                print("CRBUG inset: SKELETON collapse -> \(collapsedInset)")
                 tableView.contentInset.top = collapsedInset
                 /// re-anchor the scroll position to the new top edge, so the
                 /// cells land at the beginning without a stray blank strip
@@ -1080,7 +1056,6 @@ extension ChatRoomViewController
 
             if tableView.contentInset.top != flexibleInset
             {
-                print("CRBUG inset: top \(tableView.contentInset.top) -> \(flexibleInset) content=\(contentHeight) avail=\(availableHeight)")
                 tableView.contentInset.top = flexibleInset
             }
     }
@@ -1372,8 +1347,8 @@ extension ChatRoomViewController
         /// animation, which lands the message about mid-screen instead of
         /// pinned above the input bar - See FootNote.swift [16]
         dataSourceManager.configureSnapshot(animationType: .none)
-        print("CRBUG send: type=\(messageType) newestVisible=\(isNewestIndexPathVisible()) visibleRows=\(rootView.tableView.indexPathsForVisibleRows?.count ?? -1) offset=\(rootView.tableView.contentOffset.y) content=\(rootView.tableView.contentSize.height) bounds=\(rootView.tableView.bounds.height) adjBottom=\(rootView.tableView.adjustedContentInset.bottom) topInset=\(rootView.tableView.contentInset.top)")
         let didAnimateInsertion = handleNewMessageDisplay()
+        print("CRBUG send: type=\(messageType) didAnimate=\(didAnimateInsertion) offset=\(rootView.tableView.contentOffset.y) content=\(rootView.tableView.contentSize.height) bounds=\(rootView.tableView.bounds.height) adjBottom=\(rootView.tableView.adjustedContentInset.bottom) targetBottom=\(bottomOffsetY(for: rootView.tableView))")
         var wasInputBarExpanded = false
         
         switch messageType
@@ -1387,7 +1362,7 @@ extension ChatRoomViewController
         closeInputBarHeaderView()
         
         if !didAnimateInsertion {
-            scrollToBottom()
+            scheduleScrollToNewestFlight()
         } else if wasInputBarExpanded {
             /// the input bar collapse shifted the table by the same delta, which only
             /// keeps the newest message anchored to the bar. The insertion reveal is
@@ -1631,7 +1606,6 @@ extension ChatRoomViewController
         /// table sits at the bottom), so the delta must be applied to the offset
         /// from before that clamp, otherwise it is applied twice.
         let previousOffsetY = tableView.contentOffset.y
-        print("CRBUG stickerPanel: obscuring=\(obscuringHeight) prevOffset=\(previousOffsetY) prevBottomInset=\(previousBottomInset)")
 
         UIView.animate(withDuration: 0.27, delay: 0, options: [.curveEaseInOut])
         {

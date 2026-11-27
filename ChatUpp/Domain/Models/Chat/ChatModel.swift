@@ -95,8 +95,13 @@ class Chat: Object, Codable
             self.admins.append(objectsIn: admins)
         }
         
-        let participants = try container.decode([String:ChatParticipant].self, forKey: .participants)
-        for participant in participants.values {
+        /// the participants map on the backend may contain null entries (a
+        /// partially written or manually altered document) - decoding those
+        /// strictly throws and one malformed entry then hides the whole chat
+        /// from the list, so tolerate nulls and skip them
+        let participants = try container.decodeIfPresent([String: ChatParticipant?].self,
+                                                         forKey: .participants) ?? [:]
+        for participant in participants.values.compactMap({ $0 }) {
             self.participants.append(participant)
         }
     }

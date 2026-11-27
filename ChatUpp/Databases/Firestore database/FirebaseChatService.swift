@@ -491,6 +491,11 @@ extension FirebaseChatService
                 
                 for id in participantsID
                 {
+                    /// never create a counter-only participant entry: a
+                    /// partial object (missing `user_id` / `is_deleted`)
+                    /// breaks the chat list query and the chat decoding
+                    guard snapshot.get("participants.\(id).user_id") != nil else { continue }
+
                     let fieldPath = "participants.\(id).\(ChatParticipant.CodingKeys.unseenMessagesCount.rawValue)"
                     let currentUnseenCount = snapshot.get(fieldPath) as? Int ?? 0
                     
