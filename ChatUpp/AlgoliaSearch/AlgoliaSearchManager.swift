@@ -55,19 +55,30 @@ final class AlgoliaSearchManager: SearchService
         if let firstResult = response.results.first,
            case .searchResponse(let searchResponse) = firstResult
         {
-            return try await withThrowingTaskGroup(of: UncheckedSendableWrapper<User>.self) { group in
-                for hit in searchResponse.hits
+            return try await withThrowingTaskGroup(of: (Int, UncheckedSendableWrapper<User>)?.self) { group in
+                for (index, hit) in searchResponse.hits.enumerated()
                 {
-                    if let userIDAnyCodable = hit["user_id"],
-                       let userID = userIDAnyCodable.value as? String
-                    {
-                        group.addTask { @MainActor in
+                    let userID = hit.objectID
+                    group.addTask { @MainActor in
+                        do {
                             let user = try await FirestoreUserService.shared.getUserFromDB(userID: userID)
-                            return UncheckedSendableWrapper(object: user)
+                            return (index, UncheckedSendableWrapper(object: user))
+                        } catch let error as DecodingError {
+                            print("Could not decode user with id \(userID): \(error)")
+                            return nil
                         }
                     }
                 }
-                return try await group.reduce(into: []) { $0.append($1.object) }
+                
+                var results: [(index: Int, user: User)] = []
+                
+                for try await result in group {
+                    if let (index, wrapper) = result {
+                        results.append((index, wrapper.object))
+                    }
+                }
+                
+                return results.sorted { $0.index < $1.index }.map { $0.1 }
             }
         }
         return []
@@ -98,8 +109,12 @@ final class AlgoliaSearchManager: SearchService
             for hit in searchResponse.hits
             {
                 let groupID = hit.objectID
-                let groupChat = try await FirebaseChatService.shared.fetchChat(withID: groupID)
-                groups.append(groupChat)
+                do {
+                    let groupChat = try await FirebaseChatService.shared.fetchChat(withID: groupID)
+                    groups.append(groupChat)
+                } catch {
+                    print("Could not decode group chat with id \(groupID): \(error)")
+                }
             }
         }
         
