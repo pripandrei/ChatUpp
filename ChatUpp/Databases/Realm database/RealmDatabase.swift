@@ -190,7 +190,7 @@ extension RealmDatabase
 {
     private func createConfiguration() -> Realm.Configuration
     {
-        return Realm.Configuration(
+        var configuration = Realm.Configuration(
             schemaVersion: RealmDatabase.schemaVersion,
             migrationBlock: { [weak self] migration, oldSchemaVersion in
                 if oldSchemaVersion < 11 { self?.migrateToVersion11(migration: migration) }
@@ -204,6 +204,34 @@ extension RealmDatabase
             },
             objectTypes: [Chat.self, User.self, Message.self, MessageImageSize.self, ChatParticipant.self, Reaction.self]
         )
+
+        /// each Firebase project (dev / prod) gets its own realm file: data
+        /// cached from one environment can then never be merged into, or
+        /// reconciled against, the other (the chats list sync strips locally
+        /// cached participants missing from the incoming firestore document,
+        /// so a mixed cache was propagating partial chat state)
+        if let projectID = RealmDatabase.firebaseProjectID,
+           let directory = RealmDatabase.realmDirectory
+        {
+            configuration.fileURL = directory.appendingPathComponent("chatupp-\(projectID).realm")
+        }
+
+        return configuration
+    }
+
+    /// read straight from the bundled firebase config, so the project is
+    /// known no matter when this first runs relative to FirebaseApp.configure()
+    private static var firebaseProjectID: String?
+    {
+        guard let url = Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist"),
+              let plist = NSDictionary(contentsOf: url),
+              let projectID = plist["PROJECT_ID"] as? String else { return nil }
+        return projectID
+    }
+
+    private static var realmDirectory: URL?
+    {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
     }
 }
 

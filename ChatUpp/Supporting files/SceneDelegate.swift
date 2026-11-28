@@ -36,6 +36,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = outerNavController
         window?.makeKeyAndVisible()
         
+        #if DEV
+        installDevEnvironmentBadge()
+        #endif
+        
         coordinator?.start()
         
         _ = KeyboardService.shared
@@ -68,7 +72,39 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
-
-
 }
+
+//MARK: - Dev environment badge
+
+#if DEV
+extension SceneDelegate
+{
+    /// pinned to the window itself, so it shows on every screen (login
+    /// included) without being wired into each view controller - keeps
+    /// "which firebase project am I looking at" answerable at a glance
+    private func installDevEnvironmentBadge()
+    {
+        let badge = UILabel()
+        badge.text = "DEV"
+        badge.font = .systemFont(ofSize: 11, weight: .bold)
+        badge.textColor = .white
+        badge.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.85)
+        badge.textAlignment = .center
+        badge.layer.cornerRadius = 5
+        badge.clipsToBounds = true
+        badge.isUserInteractionEnabled = false
+        badge.translatesAutoresizingMaskIntoConstraints = false
+        badge.layer.zPosition = .greatestFiniteMagnitude
+
+        guard let window else { return }
+        window.addSubview(badge)
+        NSLayoutConstraint.activate([
+            badge.widthAnchor.constraint(equalToConstant: 40),
+            badge.heightAnchor.constraint(equalToConstant: 20),
+            badge.leadingAnchor.constraint(equalTo: window.safeAreaLayoutGuide.leadingAnchor, constant: 8),
+            badge.topAnchor.constraint(equalTo: window.safeAreaLayoutGuide.topAnchor, constant: 8 - 20)
+        ])
+    }
+}
+#endif
 
